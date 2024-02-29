@@ -1015,10 +1015,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 				--update the texture taking the state of the expanded value
 				if (bIsSpellExpaded) then
 					spellBar.expandButton.texture:SetTexture([[Interface\AddOns\Details\images\arrow_face_down]])
-					spellBar.expandButton.texture:SetTexCoord(0, 1, 1, 0)
+					--spellBar.expandButton.texture:SetTexCoord(0, 1, 0, 1)
+					spellBar.expandButton.texture:SetRotation(0)
 				else
 					spellBar.expandButton.texture:SetTexture([[Interface\AddOns\Details\images\arrow_face_down]])
-					spellBar.expandButton.texture:SetTexCoord(0, 1, 0, 1)
+					--spellBar.expandButton.texture:SetTexCoord(0, 1, 0, 1)
+					spellBar.expandButton.texture:SetRotation(math.pi/2)
 				end
 
 				spellBar.expandButton.texture:SetAlpha(0.7)
