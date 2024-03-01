@@ -15,15 +15,6 @@ local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
     all mythic segments have:
         .is_mythic_dungeon_segment = true
         .is_mythic_dungeon_run_id = run id from details.profile.mythic_dungeon_id
-    boss, 'trash overall' and 'dungeon overall' segments have:
-        .is_mythic_dungeon
-    boss segments have:
-        .is_boss
-    'trash overall' segments have:
-        .is_mythic_dungeon with .SegmentID = "trashoverall"
-    'dungeon overall' segment have:
-        .is_mythic_dungeon with .SegmentID = "overall"
-
 --]]
 
 local DetailsMythicPlusFrame = _G["DetailsMythicPlusFrame"]
@@ -114,6 +105,8 @@ function Details222.MythicPlus.OnBossDefeated(encounterID, encounterName)
         OverallSegment = false,
         Level = Details.MythicPlus.Level,
         EJID = Details.MythicPlus.ejID,
+        SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS,
+        SegmentName = (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. string.lower(_G["BOSS"]) .. ")"
     }
 
     local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
@@ -243,6 +236,8 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
 		DungeonID = Details222.MythicPlus.DungeonID,
 		DungeonTexture = Details222.MythicPlus.Texture,
 		DungeonBackgroundTexture = Details222.MythicPlus.BackgroundTexture,
+        SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL,
+        SegmentName = Details.MythicPlus.DungeonName .. " +" .. Details222.MythicPlus.Level,
     }
 
     --add all boss segments from this run to this new segment
@@ -283,7 +278,6 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     end
 
     newCombat.total_segments_added = totalSegments
-    newCombat.is_mythic_dungeon_segment = true
     newCombat.is_mythic_dungeon_run_id = Details.mythic_dungeon_id
 
     --check if both values are valid, this can get invalid if the player leaves the dungeon before the timer ends or the game crashes
@@ -309,6 +303,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
 
     --immediatly finishes the segment just started
     Details:SairDoCombate()
+    newCombat.is_mythic_dungeon_segment = true
 
     --update all windows
     Details:InstanceCallDetailsFunc(Details.FadeHandler.Fader, "IN", nil, "barras")
@@ -394,6 +389,8 @@ function DetailsMythicPlusFrame.MergeTrashCleanup()
             EJID = Details.MythicPlus.ejID,
             EncounterID = segmentsToMerge.EncounterID,
             EncounterName = segmentsToMerge.EncounterName or Loc ["STRING_UNKNOW"],
+            SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH,
+            SegmentName = (segmentsToMerge.EncounterName or Loc ["STRING_UNKNOW"]) .. " (" .. string.lower(Loc["STRING_SEGMENTS_LIST_TRASH"]) .. ")",
         }
 
         newCombat.is_mythic_dungeon_segment = true

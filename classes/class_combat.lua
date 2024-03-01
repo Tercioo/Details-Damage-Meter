@@ -30,6 +30,8 @@ local detailsFramework = DetailsFramework
 --[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL = 12
 --[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL = 13 --not in use at the moment
 --[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS = 14
+--[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH = 15
+--[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE = 16
 
 --[[global]] DETAILS_SEGMENTTYPE_PVP_ARENA = 20
 --[[global]] DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND = 21
@@ -204,7 +206,7 @@ local segmentTypeToString = {
 	---@return boolean
 	---@return number
 	function classCombat:IsMythicDungeon()
-		local bIsMythicPlusSegment = self.is_mythic_dungeon_segment
+		local bIsMythicPlusSegment = self.is_mythic_dungeon_segment and self:GetMythicDungeonInfo()
 		local runId = self.is_mythic_dungeon_run_id
 		return bIsMythicPlusSegment, runId
 	end
@@ -383,8 +385,11 @@ local segmentTypeToString = {
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL or combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON) then
 			return textureAtlas["segment-icon-mythicplus"]
 
-		--elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL) then
-		--	return textureAtlas["segment-icon-mythicplus"]
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH) then
+			return textureAtlas["segment-icon-mythicplus"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
+			return textureAtlas["segment-icon-mythicplus"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
 			return textureAtlas["segment-icon-mythicplus"]
@@ -422,6 +427,7 @@ local segmentTypeToString = {
 	local bossKillColor = "lime"
 	local bossWipeColor = "red"
 	local mythicDungeonBossColor = {170/255, 167/255, 255/255, 1}
+	local mythicDungeonBossWipeColor = {0.803922, 0.360784, 0.360784, 1}
 	local mythicDungeonBossColor2 = {210/255, 200/255, 255/255, 1}
 
 	function classCombat:GetCombatName(bOnlyName, bTryFind)
@@ -440,27 +446,40 @@ local segmentTypeToString = {
 			local mythicDungeonInfo = self:GetMythicDungeonInfo()
 			local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
 
-			--print("mythic combat type", combatType, self.combat_id)
-
 			if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
-				local overallIconString = detailsFramework:CreateAtlasString(Details.TextureAtlas["segment-icon-mythicplus-overall"])
-				local combatName = zoneName .. " +" .. mythicLevel
 				if (bOnlyName) then
-					return combatName, unpack(partyColor)
+					return mythicDungeonInfo.SegmentName, unpack(partyColor)
 				else
-					return overallIconString .. zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", unpack(partyColor)
+					local overallIconString = detailsFramework:CreateAtlasString(Details.TextureAtlas["segment-icon-mythicplus-overall"])
+					return overallIconString .. mythicDungeonInfo.SegmentName .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", unpack(partyColor)
 				end
-
-			--elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL) then
-			--	local trashIconString = detailsFramework:CreateAtlasString(Details.TextureAtlas["segment-icon-broom"])
-			--	return trashIconString .. zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENT_TRASH"] .. ")"
-
-			elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
-				return (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. string.lower(Loc["STRING_SEGMENTS_LIST_TRASH"]) .. ")"
-
-			elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
-				return (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. string.lower(_G["BOSS"]) .. ")", detailsFramework:ParseColors(mythicDungeonBossColor)
 			end
+
+			if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then --"Trash #" .. (Details.MythicPlus.SegmentID or 0)
+				return mythicDungeonInfo.SegmentName
+			end
+
+			if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
+				return mythicDungeonInfo.SegmentName, detailsFramework:ParseColors(mythicDungeonBossColor)
+			end
+
+			if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
+				return mythicDungeonInfo.SegmentName, detailsFramework:ParseColors(mythicDungeonBossWipeColor)
+			end
+
+			if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH) then
+				return mythicDungeonInfo.SegmentName, unpack(partyColor)
+			end
+
+			if (mythicDungeonInfo.SegmentName) then
+				if (bOnlyName) then
+					return mythicDungeonInfo.SegmentName, unpack(partyColor)
+				else
+					return mythicDungeonInfo.SegmentName .. " +" .. mythicLevel, unpack(partyColor)
+				end
+			end
+
+			return "--x--x--"
 		end
 
 		if (combatType == DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND) then
@@ -529,39 +548,30 @@ local segmentTypeToString = {
 		--mythic dungeon
 		local bIsMythicDungeon = self:IsMythicDungeon()
 		if (bIsMythicDungeon) then
-			--check for for regular trash mythic plus segment for a quick exit
-			local mythicDungeonTrachInfo = self:GetMythicDungeonTrashInfo()
-			if (mythicDungeonTrachInfo) then
-				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-			end
-
 			local mythicDungeonInfo = self:GetMythicDungeonInfo()
-			local bIsMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
 
-			if (bIsMythicOverallSegment) then
-				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-			end
-
-			--self.is_mythic_dungeon_trash only exists if the segment isn't a boss trash overall
-			local isMythicDungeonTrash = self.is_mythic_dungeon_trash
-			if (segmentID == "trashoverall" and encounterName) then
+			if (not mythicDungeonInfo) then
+				print("sem mythicDungeonInfo")
 				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 			end
 
-			--if (segmentID == "trashoverall") then --overall trash for the whole dungeon doesn't exists anymore
-			--	return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-			--end
+			if (mythicDungeonInfo.SegmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 
-			local bossEncounter =  self.is_boss
-			if (bossEncounter) then
+			elseif (mythicDungeonInfo.SegmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+
+			elseif (mythicDungeonInfo.SegmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
 				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+
+			elseif (mythicDungeonInfo.SegmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+
+			elseif (mythicDungeonInfo.SegmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 			end
 
 			return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-		else
-			--local mythicDungeonInfo = self:GetMythicDungeonInfo()
-			--local bIsMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
-			--segmentID == "trashoverall"
 		end
 
 		--arena
@@ -723,6 +733,11 @@ local segmentTypeToString = {
 	---@param thisTime gametime
 	function classCombat:SetEndTime(thisTime)
 		self.end_time = thisTime
+	end
+
+	function classCombat:seta_tempo_decorrido() --deprecated march 2024
+		--self.end_time = _tempo
+		self.end_time = GetTime()
 	end
 
 	---Return how many attempts were made for this boss
@@ -1105,11 +1120,6 @@ end
 				end
 			end
 		end
-	end
-
-	function classCombat:seta_tempo_decorrido()
-		--self.end_time = _tempo
-		self.end_time = GetTime()
 	end
 
 	---set combat metatable and class lookup

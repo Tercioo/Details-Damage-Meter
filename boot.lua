@@ -23,7 +23,7 @@
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 155 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 156 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
 

@@ -203,9 +203,6 @@ returns the total of the requested attribute.
 mythictInfo = combat:GetMythicDungeonInfo()
 returns a table with information about the mythic dungeon encounter.
 
-mythicTrashInfo = combat:GetMythicDungeonTrashInfo()
-returns a table with information about the trash cleanup for this combat.
-
 isMythicDungeonSegment = combat:IsMythicDungeon()
 returns if the segment is from a mythic dungeon.
 

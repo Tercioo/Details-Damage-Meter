@@ -552,7 +552,7 @@
 		local bSetStartTime = false
 		local bSetEndTime = true
 		currentCombat:SetDateToNow(bSetStartTime, bSetEndTime)
-		currentCombat:seta_tempo_decorrido()
+		currentCombat:SetEndTime(GetTime())
 
 		--drop last events table to garbage collector
 		currentCombat.player_last_events = {}
@@ -621,14 +621,23 @@
 						--is inside a mythic+ dungeon and this is not a boss segment, so tag it as a dungeon mythic+ trash segment
 						local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 
-						---@type mythicdungeontrashinfo
-						local mythicPlusTrashInfo = {
-							ZoneName = zoneName,
-							MapID = instanceMapID,
+						---@type mythicdungeoninfo
+						local mythicPlusInfo = {
+							ZoneName = Details.MythicPlus.DungeonName or zoneName,
+							MapID = Details.MythicPlus.DungeonID or instanceMapID,
 							Level = Details.MythicPlus.Level,
 							EJID = Details.MythicPlus.ejID,
+							RunID = Details.mythic_dungeon_id,
+							StartedAt = time() - currentCombat:GetCombatTime(),
+							EndedAt = time(),
+							SegmentID = Details.MythicPlus.SegmentID, --segment number within the dungeon
+							OverallSegment = false,
+							SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH,
+							SegmentName = "Trash #" .. (Details.MythicPlus.SegmentID or 0), --localize-me
 						}
-						currentCombat.is_mythic_dungeon_trash = mythicPlusTrashInfo
+						currentCombat.is_mythic_dungeon = mythicPlusInfo
+
+						currentCombat.is_mythic_dungeon_trash = true
 
 						if (Details.debug) then
 							Details:Msg("segment tagged as mythic+ trash.")

@@ -45,7 +45,7 @@ Details.TextureAtlas = {
 
     ["segment-icon-broom"] = {
         file = [[Interface\AddOns\Details\images\icons]],
-        width = 12,
+        width = 14,
         height = 16,
         leftTexCoord = 14/512,
         rightTexCoord = 58/512,

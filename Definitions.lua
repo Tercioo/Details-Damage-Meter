@@ -58,34 +58,36 @@
 ---@field EJID number
 
 ---@class mythicdungeoninfo
----@field StartedAt number
----@field EndedAt number
----@field WorldStateTimerStart number
----@field WorldStateTimerEnd number
----@field RunTime number
----@field TimeInCombat number
----@field SegmentID string
----@field RunID number
----@field OverallSegment boolean
----@field ZoneName string
----@field EJID number
----@field MapID number
----@field Level number
----@field OnTime boolean
----@field KeystoneUpgradeLevels number
----@field PracticeRun boolean
----@field OldDungeonScore number
----@field NewDungeonScore number
----@field IsAffixRecord boolean
----@field IsMapRecord boolean
----@field PrimaryAffix number
----@field IsEligibleForScore boolean
----@field UpgradeMembers table
----@field TimeLimit number
----@field DungeonName string
----@field DungeonID number
----@field DungeonTexture string
----@field DungeonBackgroundTexture string|number
+---@field StartedAt number?
+---@field EndedAt number?
+---@field WorldStateTimerStart number?
+---@field WorldStateTimerEnd number?
+---@field RunTime number?
+---@field TimeInCombat number?
+---@field SegmentID string?
+---@field RunID number?
+---@field OverallSegment boolean?
+---@field ZoneName string?
+---@field EJID number?
+---@field MapID number?
+---@field Level number?
+---@field OnTime boolean?
+---@field KeystoneUpgradeLevels number?
+---@field PracticeRun boolean?
+---@field OldDungeonScore number?
+---@field NewDungeonScore number?
+---@field IsAffixRecord boolean?
+---@field IsMapRecord boolean?
+---@field PrimaryAffix number?
+---@field IsEligibleForScore boolean?
+---@field UpgradeMembers table?
+---@field TimeLimit number?
+---@field DungeonName string?
+---@field DungeonID number?
+---@field DungeonTexture string?
+---@field DungeonBackgroundTexture string|number?
+---@field SegmentType number?
+---@field SegmentName string?
 
 ---@alias containertype number this container type is the number used to identify the actorcontainer type when using combat:GetContainer(containertype), can be 1, 2, 3, or 4.
 
@@ -236,7 +238,7 @@
 ---@field raid_roster table<string, string> [unitName] = unitGUID
 ---@field overall_added boolean is true when the combat got added into the overall combat
 ---@field is_mythic_dungeon mythicdungeoninfo
----@field is_mythic_dungeon_trash mythicdungeontrashinfo
+---@field is_mythic_dungeon_trash boolean
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
 ---@field trinketProcs table<actorname, table<spellid, {cooldown: number, total: number}>>

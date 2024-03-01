@@ -153,6 +153,7 @@ DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH = 11
 DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL = 12
 DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL = 13
 DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS = 14
+DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH = 15
 DETAILS_SEGMENTTYPE_PVP_ARENA = 20
 DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND = 21
 
@@ -241,9 +242,6 @@ total = combat:GetTotal ( attribute, subAttribute [, onlyGroup] )
 
 mythictInfo = combat:GetMythicDungeonInfo()
 @COMMENTreturns a table with information about the mythic dungeon encounter.@
-
-mythicTrashInfo = combat:GetMythicDungeonTrashInfo()
-@COMMENTreturns a table with information about the trash cleanup for this combat.@
 
 isMythicDungeonSegment = combat:IsMythicDungeon()
 @COMMENTreturns if the segment is from a mythic dungeon.@

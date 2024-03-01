@@ -220,17 +220,30 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
                     local zoneName = combatObject.is_boss.zone
                     local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 
+                    local currentCombat = Details:GetCurrentCombat()
+
                     --just in case the combat get tagged as boss fight
-                    Details:GetCurrentCombat().is_boss = nil
+                    combatObject.is_boss = nil
 
                     --tag the combat as mythic dungeon trash
                     local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-                    Details:GetCurrentCombat().is_mythic_dungeon_trash = {
-                        ZoneName = zoneName,
-                        MapID = instanceMapID,
+
+                    ---@type mythicdungeoninfo
+                    local mythicPlusInfo = {
+                        ZoneName = Details.MythicPlus.DungeonName or zoneName,
+                        MapID = Details.MythicPlus.DungeonID or instanceMapID,
                         Level = Details.MythicPlus.Level,
                         EJID = Details.MythicPlus.ejID,
+                        RunID = Details.mythic_dungeon_id,
+                        StartedAt = time() - currentCombat:GetCombatTime(),
+                        EndedAt = time(),
+                        SegmentID = Details.MythicPlus.SegmentID, --segment number within the dungeon
+                        OverallSegment = false,
+                        SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE,
+                        SegmentName = (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. string.lower(_G["BOSS"]) .. ")"
                     }
+
+                    combatObject.is_mythic_dungeon = mythicPlusInfo
 
                     Details222.MythicPlus.LogStep("COMBAT_PLAYER_LEAVE | wiped on boss | key level: | " .. mythicLevel .. " | " .. (encounterName or "") .. " " .. zoneName)
                 else

@@ -746,7 +746,7 @@ local classTypeUtility = Details.atributos.misc
 		local amountCleaned = 0
 
 		--do not collect things in a mythic+ dungeon segment
-		if (combatObject.is_mythic_dungeon_trash or combatObject.is_mythic_dungeon_run_id or combatObject.is_mythic_dungeon_segment) then
+		if (combatObject.is_mythic_dungeon_run_id or combatObject.is_mythic_dungeon_segment) then
 			return amountCleaned
 		end
 
