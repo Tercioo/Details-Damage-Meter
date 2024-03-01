@@ -206,7 +206,7 @@ local segmentTypeToString = {
 	---@return boolean
 	---@return number
 	function classCombat:IsMythicDungeon()
-		local bIsMythicPlusSegment = self.is_mythic_dungeon_segment and self:GetMythicDungeonInfo()
+		local bIsMythicPlusSegment = self.is_mythic_dungeon_segment
 		local runId = self.is_mythic_dungeon_run_id
 		return bIsMythicPlusSegment, runId
 	end

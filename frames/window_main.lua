@@ -6658,7 +6658,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 		--> current combat
 			local thisCombat = Details:GetCurrentCombat()
 			local dateStart, dateEnd = thisCombat:GetDate()
-			local segment_info_added
+			local bSegmentInfoAdded
 
 			local enemy = thisCombat.is_boss and thisCombat.is_boss.name or thisCombat.enemy or "--x--x--"
 			local file, coords
@@ -6675,8 +6675,9 @@ local buildSegmentTooltip = function(self, deltaTime)
 				if (mythicDungeonInfo) then
 					--is a boss, trash overall or run overall segment
 					local bossInfo = thisCombat.is_boss
-					local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo (mythicDungeonInfo)
+					local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
 					local combatElapsedTime = thisCombat:GetCombatTime()
+					local combatName = thisCombat:GetCombatName()
 
 					--is mythic overall
 					if (isMythicOverallSegment) then
@@ -6694,7 +6695,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 							gameCooltip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
 						else
 							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer(combat_time), 1, dungeon_color, "gray")
-							gameCooltip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
+							gameCooltip:AddLine(combatName, nil, 2, "white", "white")
 						end
 						--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
 					end
@@ -6768,7 +6769,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 					end
 				end
 
-				segment_info_added = true
+				bSegmentInfoAdded = true
 
 			elseif (thisCombat.is_boss and thisCombat.is_boss.name) then
 				local portrait = Details:GetBossPortrait(thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
@@ -6828,7 +6829,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 				end
 			end
 
-			if (not segment_info_added) then
+			if (not bSegmentInfoAdded) then
 				gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
 
 				if (not thisCombat:GetEndTime()) then

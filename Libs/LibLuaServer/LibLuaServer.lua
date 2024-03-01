@@ -1459,6 +1459,10 @@ function loadstring(code) return function()end end
 ---@return string
 function date(format, time) return "" end
 
+---lua os.time() function
+---@return number
+function time() return 0 end
+
 ---returns the number of members in the current group.
 ---@return number
 GetNumGroupMembers = function() return 0 end

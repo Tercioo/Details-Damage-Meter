@@ -115,19 +115,19 @@
 ---@field key7 guid pet guid
 
 ---@class bossinfo : table .is_boss on combatObjects
----@field diff_string string
----@field index number
----@field zone string
----@field encounter string
----@field mapid number
----@field try_number number
----@field name string
----@field ej_instance_id number
----@field id number
----@field unixtime unixtime
----@field diff number
----@field killed boolean
----@field bossimage texturepath|number
+---@field diff_string string?
+---@field index number?
+---@field zone string?
+---@field encounter string?
+---@field mapid number?
+---@field try_number number?
+---@field name string?
+---@field ej_instance_id number?
+---@field id number?
+---@field unixtime unixtime?
+---@field diff number?
+---@field killed boolean?
+---@field bossimage texturepath|number?
 
 ---@class details
 ---@field pets table<guid, petinfo> store the pet guid as the key and the petinfo as the value
