@@ -622,17 +622,23 @@
 
 		--if this segment isn't a boss fight
 		if (not currentCombat.is_boss) then
+			--is arena or battleground
 			if (currentCombat.is_pvp or currentCombat.is_arena) then
 				Details:FlagActorsOnPvPCombat()
 			end
 
+			--is arena
 			if (currentCombat.is_arena) then
 				currentCombat.enemy = "[" .. ARENA .. "] " ..  currentCombat.is_arena.name
 			end
 
+			--check if the player is in a instance
 			local bInInstance = IsInInstance() --garrison returns party as instance type.
 			if ((instanceType == "party" or instanceType == "raid") and bInInstance) then
-				currentCombat.is_trash = true
+				--if is not boss and inside a instance of type party or raid: mark the combat as trash
+				if (not currentCombat.is_mythic_dungeon) then
+					currentCombat.is_trash = true
+				end
 			else
 				if (not bInInstance) then
 					if (Details.world_combat_is_trash) then

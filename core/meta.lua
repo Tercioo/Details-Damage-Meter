@@ -86,8 +86,7 @@ local classTypeUtility = Details.atributos.misc
 		end
 	end
 
-	--restore actor containers indexes e metatables
-	function Details:RestoreMetatables() --called from Details222.LoadSavedVariables.CombatSegments()
+	function Details:RestoreMetatables() --called from Details222.LoadSavedVariables.CombatSegments() --restore actor containers indexes e metatables
 		--pet table
 		setmetatable(Details.tabela_pets, Details.container_pets)
 
