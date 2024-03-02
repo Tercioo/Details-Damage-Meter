@@ -198,10 +198,6 @@ local segmentTypeToString = {
 		return self.is_mythic_dungeon
 	end
 
-	function classCombat:GetMythicDungeonTrashInfo()
-		return self.is_mythic_dungeon_trash
-	end
-
 	---return if the combat is a mythic dungeon segment and the run id
 	---@return boolean
 	---@return number

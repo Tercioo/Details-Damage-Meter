@@ -238,10 +238,10 @@
 ---@field raid_roster table<string, string> [unitName] = unitGUID
 ---@field overall_added boolean is true when the combat got added into the overall combat
 ---@field is_mythic_dungeon mythicdungeoninfo
----@field is_mythic_dungeon_trash boolean
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
 ---@field trinketProcs table<actorname, table<spellid, {cooldown: number, total: number}>>
+---@field _trashoverallalreadyadded boolean
 ---@field alternate_power table<actorname, alternatepowertable>
 ---@field totals {key1: table, key2: table, key3: table, key3: table}
 ---@field totals_grupo {key1: table, key2: table, key3: table, key3: table}
@@ -259,7 +259,6 @@
 ---@field GetCombatName fun(combat: combat, bOnlyName: boolean?, bTryFind: boolean?) : string, number?, number?, number?, number? get the name of the combat
 ---@field GetCombatIcon fun(combat: combat) : df_atlasinfo
 ---@field GetTrinketProcsForPlayer fun(self: combat, playerName: string) : table<spellid, trinketprocdata> return a key|value table containing the spellId as key and a table with information about the trinket as value
----@field GetMythicDungeonTrashInfo fun(combat: combat) : mythicdungeontrashinfo
 ---@field IsMythicDungeon fun(combat: combat) : boolean, number return a boolean indicating if the combat is from a mythic+ dungeon, if true, also return the runId
 ---@field GetMythicDungeonInfo fun(combat: combat) : mythicdungeoninfo
 ---@field GetCombatType fun(combat: combat) : number

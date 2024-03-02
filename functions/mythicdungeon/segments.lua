@@ -61,14 +61,12 @@ function Details222.MythicPlus.OnBossDefeated(encounterID, encounterName)
             ---@type combat
             local pastCombat = segmentsTable[i]
             --does the combat exists
-            if (pastCombat and not pastCombat._trashoverallalreadyadded and pastCombat.is_mythic_dungeon_trash) then
+            if (pastCombat and not pastCombat._trashoverallalreadyadded) then
                 --is the combat a mythic segment from this run?
-                local isMythicSegment, SegmentID = pastCombat:IsMythicDungeon()
-                if (isMythicSegment and SegmentID == Details.mythic_dungeon_id and not pastCombat.is_boss) then
-
-                    local mythicDungeonInfo = pastCombat:GetMythicDungeonInfo() -- .is_mythic_dungeon only boss, trash overall and run overall have it
-                    if (not mythicDungeonInfo or not mythicDungeonInfo.TrashOverallSegment) then
-                        --trash segment found, schedule to merge
+                local bIsMythicSegment, SegmentID = pastCombat:IsMythicDungeon()
+                if (bIsMythicSegment and SegmentID == Details.mythic_dungeon_id) then
+                    local combatType = pastCombat:GetCombatType()
+                    if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH or combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
                         table.insert(segmentsToMerge, pastCombat)
                     end
                 end
@@ -94,6 +92,7 @@ function Details222.MythicPlus.OnBossDefeated(encounterID, encounterName)
 end
 
 --after each boss fight, if enalbed on settings, create an extra segment with all trash segments from the boss just killed
+--this function does not have agency over what segments to merge, it just receives a list of segments to merge
 function DetailsMythicPlusFrame.MergeTrashCleanup()
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("Details!", "MergeTrashCleanup() > running", DetailsMythicPlusFrame.TrashMergeScheduled and #DetailsMythicPlusFrame.TrashMergeScheduled)
@@ -107,7 +106,6 @@ function DetailsMythicPlusFrame.MergeTrashCleanup()
 
         --the first segment is the segment where all other trash segments will be added
         local masterSegment = segmentsToMerge[1]
-        masterSegment.is_mythic_dungeon_trash = nil
 
         --get the current combat just created and the table with all past segments
         local newCombat = masterSegment
@@ -157,6 +155,7 @@ function DetailsMythicPlusFrame.MergeTrashCleanup()
             SegmentName = (segmentsToMerge.EncounterName or Loc ["STRING_UNKNOW"]) .. " (" .. string.lower(Loc["STRING_SEGMENTS_LIST_TRASH"]) .. ")",
         }
 
+        newCombat.is_challenge = true
         newCombat.is_mythic_dungeon_segment = true
         newCombat.is_mythic_dungeon_run_id = Details.mythic_dungeon_id
 
@@ -213,6 +212,8 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     local segmentsTable = Details:GetCombatSegments()
 
     newCombat.is_challenge = true
+    newCombat.is_mythic_dungeon_segment = true
+    newCombat.is_mythic_dungeon_run_id = Details.mythic_dungeon_id
 
     local timeInCombat = 0
     local startDate, endDate = "", ""
@@ -376,16 +377,15 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
     Details222.MythicPlus.LogStep("running MergeRemainingTrashAfterAllBossesDone.")
 
     local segmentsToMerge = DetailsMythicPlusFrame.TrashMergeScheduled2
-    local overallCombat = DetailsMythicPlusFrame.TrashMergeScheduled2_OverallCombat
+    local latestBossTrashMergedCombat = DetailsMythicPlusFrame.TrashMergeScheduled2_OverallCombat
 
     --needs to merge, add the total combat time, set the date end to the date of the first segment
     local totalTime = 0
     local startDate, endDate = "", ""
-    local lastSegment
 
     --add segments
     for i, pastCombat in ipairs(segmentsToMerge) do
-        overallCombat = overallCombat + pastCombat
+        latestBossTrashMergedCombat = latestBossTrashMergedCombat + pastCombat
         if (DetailsMythicPlusFrame.DevelopmentDebug) then
             print("MergeRemainingTrashAfterAllBossesDone() >  segment added")
         end
@@ -398,29 +398,30 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
             local _, whenEnded = pastCombat:GetDate()
             endDate = whenEnded
         end
-        lastSegment = pastCombat
     end
 
     --set the segment time / using a sum of combat times, this combat time is reliable
-    local startTime = overallCombat:GetStartTime()
-    overallCombat:SetStartTime (startTime - totalTime)
+    local startTime = latestBossTrashMergedCombat:GetStartTime()
+    latestBossTrashMergedCombat:SetStartTime (startTime - totalTime)
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("MergeRemainingTrashAfterAllBossesDone() > total combat time:", totalTime)
     end
 
     --set the segment date
-    local startDate = overallCombat:GetDate()
-    overallCombat:SetDate (startDate, endDate)
+    startDate = latestBossTrashMergedCombat:GetDate()
+    latestBossTrashMergedCombat:SetDate(startDate, endDate)
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("MergeRemainingTrashAfterAllBossesDone() > new end date:", endDate)
     end
 
-    local mythicDungeonInfo = overallCombat:GetMythicDungeonInfo()
+    local mythicDungeonInfo = latestBossTrashMergedCombat:GetMythicDungeonInfo()
 
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("MergeRemainingTrashAfterAllBossesDone() > elapsed time before:", mythicDungeonInfo.EndedAt - mythicDungeonInfo.StartedAt)
     end
+
     mythicDungeonInfo.StartedAt = mythicDungeonInfo.StartedAt - (Details.MythicPlus.EndedAt - Details.MythicPlus.PreviousBossKilledAt)
+
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("MergeRemainingTrashAfterAllBossesDone() > elapsed time after:", mythicDungeonInfo.EndedAt - mythicDungeonInfo.StartedAt)
     end
@@ -448,7 +449,7 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
 
     if (removedCurrentSegment) then
         --find another current segment
-        local segmentsTable = Details:GetCombatSegments()
+        segmentsTable = Details:GetCombatSegments()
         Details:SetCurrentCombat(segmentsTable[1])
 
         if (not Details:GetCurrentCombat()) then
@@ -493,20 +494,14 @@ function Details222.MythicPlus.MergeTrashAfterLastBoss()
             end
 
             --is the combat a mythic segment from this run?
-            local isMythicSegment, SegmentID = pastCombat:IsMythicDungeon()
-            if (isMythicSegment and SegmentID == Details.mythic_dungeon_id and pastCombat.is_mythic_dungeon_trash) then
-
-                --if have mythic dungeon info, cancel the loop
-                local mythicDungeonInfo = pastCombat:GetMythicDungeonInfo()
-                if (mythicDungeonInfo) then
-                    break
-                end
-
-                --merge this segment
-                table.insert(segmentsToMerge, pastCombat)
-
-                if (DetailsMythicPlusFrame.DevelopmentDebug) then
-                    print("MythicDungeonFinished() > found after last boss combat")
+            local bIsMythicSegment, SegmentID = pastCombat:IsMythicDungeon()
+            if (bIsMythicSegment and SegmentID == Details.mythic_dungeon_id) then
+                local combatType = pastCombat:GetCombatType()
+                if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH or combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
+                    table.insert(segmentsToMerge, pastCombat)
+                    if (DetailsMythicPlusFrame.DevelopmentDebug) then
+                        print("MythicDungeonFinished() > found after last boss combat")
+                    end
                 end
             end
         end
@@ -522,9 +517,12 @@ function Details222.MythicPlus.MergeTrashAfterLastBoss()
         local latestTrashOverall
         for i = 1, #segmentsTable do
             local pastCombat = segmentsTable[i]
-            if (pastCombat and pastCombat.is_mythic_dungeon and pastCombat.is_mythic_dungeon.SegmentID == "trashoverall") then
-                latestTrashOverall = pastCombat
-                break
+            if (pastCombat and pastCombat.is_mythic_dungeon) then
+                local combatType = pastCombat:GetCombatType()
+                if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH) then
+                    latestTrashOverall = pastCombat
+                    break
+                end
             end
         end
 

@@ -598,22 +598,23 @@
 			currentCombat.is_mythic_dungeon_segment = true
 			currentCombat.is_mythic_dungeon_run_id = Details.mythic_dungeon_id
 
-			---@type mythicdungeoninfo
-			local mythicPlusInfo = {
-				ZoneName = Details.MythicPlus.DungeonName or zoneName,
-				MapID = Details.MythicPlus.DungeonID or zoneMapID,
-				Level = Details.MythicPlus.Level,
-				EJID = Details.MythicPlus.ejID,
-				RunID = Details.mythic_dungeon_id,
-				StartedAt = time() - currentCombat:GetCombatTime(),
-				EndedAt = time(),
-				SegmentID = Details.MythicPlus.SegmentID, --segment number within the dungeon
-				--default to trash
-				SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH,
-				SegmentName = "Trash #" .. (Details.MythicPlus.SegmentID or 0), --localize-me
-			}
-
-			currentCombat.is_mythic_dungeon = mythicPlusInfo
+			if (not currentCombat.is_mythic_dungeon) then
+				---@type mythicdungeoninfo
+				local mythicPlusInfo = {
+					ZoneName = Details.MythicPlus.DungeonName or zoneName,
+					MapID = Details.MythicPlus.DungeonID or zoneMapID,
+					Level = Details.MythicPlus.Level,
+					EJID = Details.MythicPlus.ejID,
+					RunID = Details.mythic_dungeon_id,
+					StartedAt = time() - currentCombat:GetCombatTime(),
+					EndedAt = time(),
+					SegmentID = Details.MythicPlus.SegmentID, --segment number within the dungeon
+					--default to trash
+					SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH,
+					SegmentName = "Trash #" .. (Details.MythicPlus.SegmentID or 0), --localize-me
+				}
+				currentCombat.is_mythic_dungeon = mythicPlusInfo
+			end
 		end
 
 		--send item level after a combat if is in raid or party group
@@ -629,25 +630,9 @@
 				currentCombat.enemy = "[" .. ARENA .. "] " ..  currentCombat.is_arena.name
 			end
 
-			if (currentCombat.is_mythic_dungeon_segment) then
-				--is inside a mythic+ dungeon and this is not a boss segment, so tag it as a dungeon mythic+ trash segment
-				currentCombat.is_mythic_dungeon.SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH
-				currentCombat.is_mythic_dungeon.SegmentName = "Trash #" .. (Details.MythicPlus.SegmentID or 0) --localize-me
-				currentCombat.is_mythic_dungeon_trash = true
-
-				if (Details.debug) then
-					Details:Msg("segment tagged as mythic+ trash.")
-				end
-			end
-
 			local bInInstance = IsInInstance() --garrison returns party as instance type.
 			if ((instanceType == "party" or instanceType == "raid") and bInInstance) then
-				if (instanceType == "party") then
-					if (currentCombat.is_mythic_dungeon_segment) then
-						--tag the combat as trash clean up
-						currentCombat.is_trash = true
-					end
-				end
+				currentCombat.is_trash = true
 			else
 				if (not bInInstance) then
 					if (Details.world_combat_is_trash) then
@@ -658,11 +643,6 @@
 
 			if (not currentCombat.enemy) then
 				local enemy = Details:FindEnemy()
-
-				if (enemy and Details.debug) then
-					--Details:Msg("(debug) enemy found", enemy)
-				end
-
 				currentCombat.enemy = enemy
 			end
 
@@ -1333,12 +1313,13 @@
 	end
 
 	function Details:FlagActorsOnCommonFight()
-		local damage_container = Details.tabela_vigente [1]
-		local healing_container = Details.tabela_vigente [2]
-		local energy_container = Details.tabela_vigente [3]
-		local misc_container = Details.tabela_vigente [4]
+		local currentCombat = Details:GetCurrentCombat()
+		local damage_container = currentCombat[1]
+		local healing_container = currentCombat[2]
+		local energy_container = currentCombat[3]
+		local misc_container = currentCombat[4]
 
-		local mythicDungeonRun = Details.tabela_vigente.is_mythic_dungeon_segment
+		local mythicDungeonRun = currentCombat.is_mythic_dungeon_segment
 
 		for class_type, container in ipairs({damage_container, healing_container}) do
 
