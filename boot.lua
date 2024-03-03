@@ -71,6 +71,8 @@
 			DamageSpellsCache = {}
 		}
 
+		Details222.Unknown = _G["UNKNOWN"]
+
 		--namespace color
 		Details222.ColorScheme = {
 			["gradient-background"] = {0.1215, 0.1176, 0.1294, 0.8},

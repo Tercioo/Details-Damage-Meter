@@ -1,6 +1,6 @@
 
 
-local dversion = 516
+local dversion = 517
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1528,6 +1528,67 @@ function DF:TruncateText(fontString, maxWidth)
 	fontString:SetText(text)
 end
 
+---truncate removing text through a binary search with a max of 10 iterations
+---@param fontString table
+---@param maxWidth number
+function DF:TruncateTextSafeBinarySearch(fontString, maxWidth)
+	local text = fontString:GetText()
+	if text == nil or text == '' then return end
+
+	if fontString:GetUnboundedStringWidth() > maxWidth then
+		local left = 1
+		local right = #text
+		local numIterations = 10
+
+		while left <= right and numIterations > 0 do
+			local middle = math.floor((left + right) * 0.5)
+			local substring = strsub(text, 1, middle)
+			fontString:SetText(substring)
+
+			if fontString:GetUnboundedStringWidth() <= maxWidth then
+				left = middle + 1
+			else
+				right = middle - 1
+			end
+
+			numIterations = numIterations - 1
+		end
+
+		text = strsub(text, 1, right)
+	end
+
+	fontString:SetText(DF:CleanTruncateUTF8String(text))
+end
+
+---truncate removing characters from the string until the maxWidth is reach
+---@param fontString table
+---@param maxWidth number
+function DF:TruncateTextBinarySearch(fontString, maxWidth)
+	local text = fontString:GetText()
+	if text == nil or text == '' then return end
+
+	if fontString:GetUnboundedStringWidth() > maxWidth then
+		local left = 1
+		local right = #text
+
+		while left <= right do
+			local middle = math.floor((left + right) * 0.5)
+			local substring = strsub(text, 1, middle)
+			fontString:SetText(substring)
+
+			if fontString:GetUnboundedStringWidth() <= maxWidth then
+				left = middle + 1
+			else
+				right = middle - 1
+			end
+		end
+
+		text = strsub(text, 1, right)
+	end
+
+	fontString:SetText(DF:CleanTruncateUTF8String(text))
+end
+
 ---@param text string
 ---@return string
 function DF:CleanTruncateUTF8String(text)
@@ -2082,8 +2143,8 @@ end
 	---* b (number|nil): The blue component of the color. This is optional if r is a string.
 	---* a (number|nil): The alpha component of the color. This is optional and defaults to 1 if not provided.
 	---* decimalsAmount (number|nil): The number of decimal places to round the color components to. This is optional and defaults to 4 if not provided.
-	---* The function returns the color in the new format. The return type depends on the newFormat parameter. It can be a string, a table, or four separate number values (for the "numbers" format). 
-	---* For the "hex" format, it returns a string representing the color in hexadecimal format.	
+	---* The function returns the color in the new format. The return type depends on the newFormat parameter. It can be a string, a table, or four separate number values (for the "numbers" format).
+	---* For the "hex" format, it returns a string representing the color in hexadecimal format.
 	---@param newFormat string
 	---@param r number|string
 	---@param g number|nil
@@ -5085,15 +5146,27 @@ function _G.__benchmark(bNotPrintResult)
 end
 
 function DF:PreviewTexture(texture, left, right, top, bottom)
+	if (texture and type(texture) == "table" and texture.GetObjectType and texture:GetObjectType() == "Texture") then
+		DF:Msg("PreviewTexture: you have passed a texture object (uiobject) instead of the texture atlas, filename or id.")
+	end
+
 	local preview = DetailsFrameworkTexturePreview or CreateFrame("frame", "DetailsFrameworkTexturePreview", UIParent)
 	preview:SetSize(200, 200)
 	preview:SetPoint("center")
 	preview.texture = DetailsFrameworkTexturePreviewTexture or preview:CreateTexture("DetailsFrameworkTexturePreviewTexture", "artwork")
 	preview.texture:SetAllPoints()
+	preview.fontString = DetailsFrameworkTexturePreviewFontString or preview:CreateFontString("DetailsFrameworkTexturePreviewFontString", "artwork", "GameFontNormal")
+	preview.fontString:SetPoint("center", preview, "center", 0, 0)
+
+	preview.texture:SetTexture("")
+	preview.fontString:SetText("")
 
 	--check if the texture passed is an atlas
 	if (type(texture) == "string" and C_Texture.GetAtlasInfo(texture)) then
 		preview.texture:SetAtlas(texture)
+
+	elseif (type(texture) == "string" and texture:find("|T")) then
+		preview.fontString:SetText(texture)
 
 	elseif (type(texture) == "table") then
 		preview.texture:SetTexture(texture.file or texture.filename)

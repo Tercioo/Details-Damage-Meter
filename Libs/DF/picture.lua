@@ -477,6 +477,15 @@ function detailsFramework:SetAtlas(textureObject, atlas, useAtlasSize, filterMod
 		textureObject:SetTexture(atlasInfo.file, atlasInfo.tilesHorizontally and "REPEAT" or "CLAMP", atlasInfo.tilesVertically and "REPEAT" or "CLAMP", filterMode or "LINEAR")
 		textureObject:SetTexCoord(atlasInfo.leftTexCoord or 0, atlasInfo.rightTexCoord or 1, atlasInfo.topTexCoord or 0, atlasInfo.bottomTexCoord or 1)
 
+		if (atlasInfo.desaturated) then
+			textureObject:SetDesaturated(true)
+		else
+			textureObject:SetDesaturated(false)
+			if (atlasInfo.desaturation) then
+				textureObject:SetDesaturation(atlasInfo.desaturation)
+			end
+		end
+
 		if (atlasInfo.colorName) then
 			textureObject:SetVertexColor(detailsFramework:ParseColors(atlasInfo.colorName))
 		else
@@ -496,7 +505,10 @@ end
 ---@param textureWidth number?
 ---@return string
 function detailsFramework:CreateAtlasString(atlas, textureHeight, textureWidth)
-	local file, width, height, leftTexCoord, rightTexCoord, topTexCoord, bottomTexCoord, r, g, b, nativeWidth, nativeHeight = detailsFramework:ParseTexture(atlas)
+	local file, width, height, leftTexCoord, rightTexCoord, topTexCoord, bottomTexCoord, r, g, b, a, nativeWidth, nativeHeight = detailsFramework:ParseTexture(atlas)
+
+	nativeWidth = nativeWidth or width or textureWidth
+	nativeHeight = nativeHeight or height or textureHeight
 
 	if (not height) then
 		return "|T" .. file .. "|t"
@@ -507,9 +519,10 @@ function detailsFramework:CreateAtlasString(atlas, textureHeight, textureWidth)
 	elseif (not r) then
 		--the two zeros are the x and y offset
 		--texCoords are multiplied by the heigh and width to get the actual pixel position
-		return "|T" .. file .. ":" .. (textureHeight or height) .. ":" .. (textureWidth or width) .. ":0:0:" .. (nativeWidth or width) .. ":" .. (nativeHeight or height) .. ":" .. leftTexCoord*(nativeWidth or width) .. ":" .. rightTexCoord*(nativeWidth or width) .. ":" .. topTexCoord*(nativeHeight or height) .. ":" .. bottomTexCoord*(nativeHeight or height) .. "|t"
+		local str = "|T" .. file .. ":" .. (textureHeight or height) .. ":" .. (textureWidth or width) .. ":0:0:" .. nativeWidth .. ":" .. nativeHeight .. ":" .. math.floor(leftTexCoord*nativeWidth) .. ":" .. math.floor(rightTexCoord*nativeWidth) .. ":" .. math.floor(topTexCoord*nativeHeight) .. ":" .. math.floor(bottomTexCoord*nativeHeight) .. "|t"
+		return str
 	else
-		return "|T" .. file .. ":" .. (textureHeight or height) .. ":" .. (textureWidth or width) .. ":0:0:" .. (nativeWidth or width) .. ":" .. (nativeHeight or height) .. ":" .. leftTexCoord*(nativeWidth or width) .. ":" .. rightTexCoord*(nativeWidth or width) .. ":" .. topTexCoord*(nativeHeight or height) .. ":" .. bottomTexCoord*(nativeHeight or height) .. ":" .. r .. ":" .. g .. ":" .. b .. "|t"
+		return "|T" .. file .. ":" .. (textureHeight or height) .. ":" .. (textureWidth or width) .. ":0:0:" .. nativeWidth .. ":" .. nativeHeight .. ":" .. math.floor(leftTexCoord*nativeWidth) .. ":" .. math.floor(rightTexCoord*nativeWidth) .. ":" .. math.floor(topTexCoord*nativeHeight) .. ":" .. math.floor(bottomTexCoord*nativeHeight) .. ":" .. r .. ":" .. g .. ":" .. b .. "|t"
 	end
 end
 
@@ -548,6 +561,7 @@ function detailsFramework:ParseTexture(texture, width, height, leftTexCoord, rig
 	end
 
 	if (isAtlas) then
+		--ui atlasinfo
 		---@type atlasinfo
 		local atlasInfo = isAtlas
 		local textureId = atlasInfo.file
@@ -567,7 +581,7 @@ function detailsFramework:ParseTexture(texture, width, height, leftTexCoord, rig
 		end
 
 		local nativeWidth, nativeHeight = atlasInfo.nativeWidth, atlasInfo.nativeHeight
-		return atlasInfo.file or atlasInfo.filename, width or atlasInfo.width, height or atlasInfo.height, atlasInfo.leftTexCoord, atlasInfo.rightTexCoord, atlasInfo.topTexCoord, atlasInfo.bottomTexCoord, r, g, b, a, nativeWidth, nativeHeight
+		return atlasInfo.file or atlasInfo.filename, width or atlasInfo.width, height or atlasInfo.height, atlasInfo.leftTexCoord or 0, atlasInfo.rightTexCoord or 1, atlasInfo.topTexCoord or 0, atlasInfo.bottomTexCoord or 1, r, g, b, a, nativeWidth, nativeHeight
 	end
 
 	if (type(vertexRed) == "string" or type(vertexRed) == "table") then
@@ -593,8 +607,11 @@ end
 ---@param vertexGreen number? green color to use with SetVertexColor
 ---@param vertexBlue number? blue color to use with SetVertexColor
 ---@param vertexAlpha number? alpha color to use with SetVertexColor
+---@param desaturated boolean? if the texture should be desaturated
+---@param desaturation number? the amount of desaturation to use with SetDesaturation
+---@param alpha number? the alpha to use with SetAlpha
 ---@return df_atlasinfo
-function detailsFramework:CreateAtlas(file, width, height, leftTexCoord, rightTexCoord, topTexCoord, bottomTexCoord, tilesHorizontally, tilesVertically, vertexRed, vertexGreen, vertexBlue, vertexAlpha)
+function detailsFramework:CreateAtlas(file, width, height, leftTexCoord, rightTexCoord, topTexCoord, bottomTexCoord, tilesHorizontally, tilesVertically, vertexRed, vertexGreen, vertexBlue, vertexAlpha, desaturated, desaturation, alpha)
 	---@type df_atlasinfo
 	local atlasInfo = {
 		file = file,
@@ -606,6 +623,9 @@ function detailsFramework:CreateAtlas(file, width, height, leftTexCoord, rightTe
 		bottomTexCoord = bottomTexCoord or 1,
 		tilesHorizontally = tilesHorizontally or false,
 		tilesVertically = tilesVertically or false,
+		desaturated = desaturated,
+		desaturation = desaturation,
+		alpha = alpha,
 	}
 
 	--parse the colors passed

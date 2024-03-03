@@ -216,7 +216,7 @@
 ---@field contra string the name of the player enemy in a 1v1 pvp combat
 ---@field bossTimers table[] stored timers for bigwigs and dbm
 ---@field last_events_tables table[] where the death log of each player is stored
----@field 
+---@field boss_hp number percentage of the health points of the boss
 ---@field 
 ---@field 
 ---@field 
@@ -251,7 +251,7 @@
 ---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
----@field
+---@field FindEnemyName fun(combat: combat) : string attempt to get the name of the enemy in the combat by getting the top most damaged unit by the player
 ---@field GetTryNumber fun(combat: combat) : number?
 ---@field GetFormattedCombatTime fun(combat: combat) : string
 ---@field GetMSTime fun(combat: combat) : number, number
@@ -421,7 +421,7 @@
 ---@field friendlyfire_total number
 ---@field friendlyfire table<actorname, friendlyfiretable>
 ---@field damage_taken number amount of damage the actor took during the segment
----@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
+---@field damage_from table<actorname, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 ---@field totalabsorbed number amount of damage dealt by the actor by got absorbed by the target, this is a "ABSORB" type of miss but still counts as damage done
 ---@field augmentedSpellsContainer spellcontainer
 

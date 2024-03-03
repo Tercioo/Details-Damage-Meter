@@ -63,6 +63,25 @@
 		end
 
 		local currentCombat = Details:GetCurrentCombat()
+		local playerActorObject = currentCombat:GetActor(DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
+		if (playerActorObject) then
+			local targets = playerActorObject.targets
+
+			--make an array of targets {{targetName, amount}}
+			local targetsArray = {}
+			for targetName, amount in pairs(targets) do
+				table.insert(targetsArray, {targetName, amount})
+			end
+
+			--sort the array by amount
+			table.sort(targetsArray, Details.Sort2)
+
+			local targetName = targetsArray[1][1]
+
+			if (targetName) then
+				return targetName
+			end
+		end
 
 		for _, actor in ipairs(currentCombat[attributeDamage]._ActorTable) do
 			if (not actor.grupo and not actor.owner and not actor.nome:find("[*]") and bitBand(actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
@@ -526,16 +545,11 @@
 			end
 		end
 
-		Details:OnCombatPhaseChanged()
-
-		if (currentCombat.bossFunction) then
-			Details:CancelTimer(currentCombat.bossFunction)
-			currentCombat.bossFunction = nil
-		end
-
 		if (currentCombat.is_challenge or Details.debug) then
 			--Details222.AuraScan.Stop() --combat ended (m+ active)
 		end
+
+		Details:OnCombatPhaseChanged()
 
 		--stop combat ticker
 		Details:StopCombatTicker()
@@ -548,7 +562,6 @@
 			Details:CloseShields(currentCombat)
 		end
 
-		--salva hora, minuto, segundo do fim da luta
 		local bSetStartTime = false
 		local bSetEndTime = true
 		currentCombat:SetDateToNow(bSetStartTime, bSetEndTime)
@@ -632,7 +645,7 @@
 				currentCombat.enemy = "[" .. ARENA .. "] " ..  currentCombat.is_arena.name
 			end
 
-			--check if the player is in a instance
+			--check if the player is in an instance
 			local bInInstance = IsInInstance() --garrison returns party as instance type.
 			if ((instanceType == "party" or instanceType == "raid") and bInInstance) then
 				--if is not boss and inside a instance of type party or raid: mark the combat as trash
@@ -647,12 +660,12 @@
 				end
 			end
 
-			if (not currentCombat.enemy) then
-				local enemy = Details:FindEnemy()
-				currentCombat.enemy = enemy
+			if (not currentCombat.enemy or currentCombat.enemy == Details222.Unknown) then
+				local enemyName = currentCombat:FindEnemyName()
+				currentCombat.enemy = enemyName
 			end
 
-			Details:FlagActorsOnCommonFight() --fight_component
+			Details:FlagActorsOnCommonFight()
 		else
 			--combat is boss encounter
 			--calling here without checking for combat since the does not ran too long for scripts

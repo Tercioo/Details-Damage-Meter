@@ -17,7 +17,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 21
+local version = 22
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -36,6 +36,7 @@ function DF:CreateCoolTip()
 	tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}}
 	local defaultBackdropColor = {0.1215, 0.1176, 0.1294, 0.8000}
 	local defaultBackdropBorderColor = {0.05, 0.05, 0.05, 1}
+	local defaultTexCoord = {0, 1, 0, 1}
 
 	--initialize
 	local gameCooltip = {
@@ -1498,6 +1499,9 @@ function DF:CreateCoolTip()
 			wallpaper:SetDesaturated(true)
 		else
 			wallpaper:SetDesaturated(false)
+			if (wallpaperTable[8]) then
+				wallpaper:SetDesaturation(wallpaperTable[8])
+			end
 		end
 
 		wallpaper:Show()
@@ -3003,7 +3007,16 @@ function DF:CreateCoolTip()
 
 	frame1.frameWallpaper:Hide()
 	frame2.frameWallpaper:Hide()
-	function gameCooltip:SetWallpaper(menuType, texture, texcoord, color, desaturate)
+
+	---set an image as wallpaper for the cooltip frame
+	---@param menuType any
+	---@param texture any
+	---@param texcoord table
+	---@param color any
+	---@param bDesaturated boolean?
+	---@param desaturation number?
+	---@return nil
+	function gameCooltip:SetWallpaper(menuType, texture, texcoord, color, bDesaturated, desaturation)
 		if (gameCooltip.Indexes == 0) then
 			return gameCooltip:PrintDebug("SetWallpaper() requires an already added line (Cooltip:AddLine()).")
 		end
@@ -3026,20 +3039,18 @@ function DF:CreateCoolTip()
 			wallpaperTable = subMenuContainerWallpapers
 		end
 
-		wallpaperTable[1] = texture
-		if (texcoord) then
-			wallpaperTable[2] = texcoord[1]
-			wallpaperTable[3] = texcoord[2]
-			wallpaperTable[4] = texcoord[3]
-			wallpaperTable[5] = texcoord[4]
-		else
-			wallpaperTable[2] = 0
-			wallpaperTable[3] = 1
-			wallpaperTable[4] = 0
-			wallpaperTable[5] = 1
-		end
-		wallpaperTable[6] = color
-		wallpaperTable[7] = desaturate
+		texcoord = texcoord or defaultTexCoord
+
+		--parse the texure
+		local iconTexture, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, red, green, blue, alpha = detailsFramework:ParseTexture(texture, 1, 1, texcoord[1], texcoord[2], texcoord[3], texcoord[4], color)
+		wallpaperTable[1] = iconTexture
+		wallpaperTable[2] = leftCoord
+		wallpaperTable[3] = rightCoord
+		wallpaperTable[4] = topCoord
+		wallpaperTable[5] = bottomCoord
+		wallpaperTable[6] = {red, green, blue, alpha}
+		wallpaperTable[7] = bDesaturated or false
+		wallpaperTable[8] = desaturation
 	end
 
 	function gameCooltip:SetBannerText(menuType, index, text, anchor, color, fontSize, fontFace, fontFlag)

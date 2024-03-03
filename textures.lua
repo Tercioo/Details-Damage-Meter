@@ -57,6 +57,20 @@ Details.TextureAtlas = {
         nativeHeight = 512,
     },
 
+    ["small-pin-yellow"] = {
+        file = [[Interface\BUTTONS\UI-RadioButton]],
+        width = 12,
+        height = 12,
+        leftTexCoord = 0.25,
+        rightTexCoord = 0.5,
+        topTexCoord = 0,
+        bottomTexCoord = 1,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 64,
+        nativeHeight = 16,
+    },
+
     ["segment-icon-skull"] = {
         file = [[Interface\AddOns\Details\images\icons]],
         width = 16,
@@ -91,8 +105,8 @@ Details.TextureAtlas = {
         height = 16,
         leftTexCoord = 0.96875,
         rightTexCoord = 1,
-        topTexCoord = 0.0625,
-        bottomTexCoord = 0.09375,
+        topTexCoord = 0,
+        bottomTexCoord = 0.03125,
         tilesHorizontally = false,
         tilesVertically = false,
         nativeWidth = 512,

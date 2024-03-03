@@ -1,4 +1,5 @@
 
+	---@type details
 	local Details = _G.Details
 	local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -625,15 +626,15 @@ do
 	--still a little buggy, working on
 	function Details:PluginDpsUpdate(child)
 		--showing is the combat table which is current shown on instance
-		if (child.instance.showing and not child.instance.showing.__destroyed) then
+		if (child.instance:GetCombat() and not child.instance:GetCombat().__destroyed) then
 			--GetCombatTime() return the time length of combat
-			local combatTime = child.instance.showing:GetCombatTime()
+			local combatTime = child.instance:GetCombat():GetCombatTime()
 			if (combatTime < 1) then
 				return child.text:SetText("0")
 			end
 
 			--GetTotal(attribute, sub attribute, onlyGroup) return the total of requested attribute
-			local total = child.instance.showing:GetTotal(child.instance.atributo, child.instance.sub_atributo, true)
+			local total = child.instance:GetCombat():GetTotal(child.instance.atributo, child.instance.sub_atributo, true)
 
 			local dps = math.floor(total / combatTime)
 
@@ -711,7 +712,7 @@ do
 			if (child.enabled and child.instance:IsEnabled()) then
 				child.options.segmentType = child.options.segmentType or 2
 
-				if (not child.instance.showing) then
+				if (not child.instance:GetCombat()) then
 					return child.text:SetText(Loc ["STRING_EMPTY_SEGMENT"])
 				end
 
@@ -722,7 +723,7 @@ do
 					if (child.options.segmentType == 1) then
 						child.text:SetText(Loc ["STRING_CURRENT"])
 					else
-						local combatName = Details.tabela_vigente:GetCombatName(false, true)
+						local combatName = Details:GetCurrentCombat():GetCombatName(false, true)
 
 						if (combatName and combatName ~= Loc ["STRING_UNKNOW"]) then
 							if (child.options.segmentType == 2) then
@@ -746,7 +747,7 @@ do
 						child.text:SetText(Loc ["STRING_FIGHTNUMBER"] .. child.instance:GetSegmentId())
 
 					else
-						local combatName = child.instance.showing:GetCombatName(false, true)
+						local combatName = child.instance:GetCombat():GetCombatName(false, true)
 						if (combatName ~= Loc ["STRING_UNKNOW"]) then
 							if (child.options.segmentType == 2) then
 								child.text:SetText(combatName)

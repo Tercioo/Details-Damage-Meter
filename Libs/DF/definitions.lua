@@ -44,6 +44,8 @@
 ---@field colorName string?
 ---@field nativeWidth number?
 ---@field nativeHeight number?
+---@field desaturated boolean?
+---@field desaturation number?
 
 ---@alias templatetype
 ---| "font"
@@ -186,8 +188,8 @@
 ---@field GetSpellBookSpells fun(self:table) : table<string, boolean>, spellid[] return a list of spells from the player spellbook
 ---@field PreviewTexture fun(self:table, texture:atlasname|texturepath|textureid, left:number?, right:number?, top:number?, bottom:number?) : nil
 ---@field SetAtlas fun(self:table, textureObject:texture, atlas:atlasinfo|atlasname, useAtlasSize:boolean?, filterMode:texturefilter?, resetTexCoords:boolean?) : nil
----@field CreateAtlas fun(self:table, file:texturepath|textureid, width:number?, height:number?, leftTexCoord:number?, rightTexCoord:number?, topTexCoord:number?, bottomTexCoord:number?, tilesHorizontally:boolean?, tilesVertically:boolean?, vertexRed:any, vertexGreen:number?, vertexBlue:number?, vertexAlpha:number?) : atlasinfo
----@field ParseTexture fun(self:table, texture:texturepath|textureid|atlasname|atlasinfo, width: number?, height: number?, leftTexCoord: number?, rightTexCoord: number?, topTexCoord: number?, bottomTexCoord: number?, vertexRed:number|string?, vertexGreenvertexRed:number?, vertexBluevertexRed:number?, vertexAlphavertexRed:number?) : any, number?, number?, number?, number?, number?, number?, number?, number?, number?, number?, number?
+---@field CreateAtlas fun(self:table, file:texturepath|textureid, width:number?, height:number?, leftTexCoord:number?, rightTexCoord:number?, topTexCoord:number?, bottomTexCoord:number?, tilesHorizontally:boolean?, tilesVertically:boolean?, vertexRed:any, vertexGreen:number?, vertexBlue:number?, vertexAlpha:number?, desaturated:boolean?, desaturation:number?, alpha:number) : atlasinfo
+---@field ParseTexture fun(self:table, texture:texturepath|textureid|atlasname|atlasinfo, width: number?, height: number?, leftTexCoord: number?, rightTexCoord: number?, topTexCoord: number?, bottomTexCoord: number?, vertexRed:number|string?, vertexGreenvertexRed:number?, vertexBluevertexRed:number?, vertexAlphavertexRed:number?) : any, number?, number?, number?, number?, number?, number?, number?, number?, number?, number?, number?, number?
 ---@field IsTexture fun(self:table, texture:any, bCheckTextureObject: boolean?) : boolean
 ---@field CreateAtlasString fun(self:table, atlas:atlasinfo|atlasname, textureHeight:number?, textureWidth:number?) : string
 ---@field

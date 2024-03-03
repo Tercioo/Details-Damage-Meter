@@ -46,13 +46,16 @@ local segmentTypeToString = {
 	[DETAILS_SEGMENTTYPE_RAID_TRASH] = "RaidTrash",
 	[DETAILS_SEGMENTTYPE_RAID_BOSS] = "RaidBoss",
 	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON] = "Category MythicDungeon",
-	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC] = "MythicDungeonGeneric",
-	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH] = "MythicDungeonTrash",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC] = "MythicDungeonGeneric _GENERIC",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH] = "MythicDungeonTrash _TRASH",
 	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL] = "MythicDungeonOverall",
-	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL] = "MythicDungeonTrashOverall",
-	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS] = "MythicDungeonBoss",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL] = "MythicDungeonTrashOverall TRASHOVERALL",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS] = "MythicDungeonBoss _BOSS",
 	[DETAILS_SEGMENTTYPE_PVP_ARENA] = "PvPArena",
 	[DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND] = "PvPBattleground",
+	[DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY] = "EventValentineDay",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH] = "MythicDungeonBossTrash _BOSSTRASH",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE] = "MythicDungeonBossWipe _BOSSWIPE",
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -529,7 +532,7 @@ local segmentTypeToString = {
 		end
 
 		if (bTryFind) then
-			local newName = Details:FindEnemy()
+			local newName = self:FindEnemyName()
 			if (newName) then
 				self.enemy = newName
 				return newName
@@ -540,16 +543,109 @@ local segmentTypeToString = {
 		return Loc["STRING_FIGHTNUMBER"] .. segmentId
 	end
 
+	---debug function to print the combat name
+	---@param self combat
+	---@return string
+	function classCombat:GetCombatTypeName()
+		local combatType = self:GetCombatType()
+		return segmentTypeToString[combatType] or ("no type found: " .. combatType)
+	end
+
+	---@param self combat
+	---@return string
+	function classCombat:FindEnemyName()
+		local zoneName, instanceType = GetInstanceInfo()
+		local bIsInInstance = IsInInstance() --garrison returns party as instance type
+		if ((instanceType == "party" or instanceType == "raid") and bIsInInstance) then
+			if (instanceType == "party") then
+				if (Details:GetBossNames(Details.zone_id)) then
+					return Loc ["STRING_SEGMENT_TRASH"]
+				end
+			else
+				return Loc ["STRING_SEGMENT_TRASH"]
+			end
+		end
+
+		local playerActorObject = self:GetActor(DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
+		---@cast playerActorObject actordamage
+
+		--search for an enemy name in the player targets
+		if (playerActorObject) then
+			local targets = playerActorObject.targets
+			--check if the player has at least 1 target, this can happen when the player got hit by enemies but didn't hit back
+			if (next(targets)) then
+				--add the targets to an array, this allow to get the enemy with most damage taken by the player
+				---@type table<actorname, number>[]
+				local targetsArray = {}
+				for targetName, amount in pairs(targets) do
+					table.insert(targetsArray, {targetName, amount})
+				end
+
+				table.sort(targetsArray, Details.Sort2)
+
+				local targetName = targetsArray[1][1]
+				if (targetName) then
+					return targetName
+				end
+			end
+
+			--search for an enemy name in the player damage taken
+			local damageTakenFrom = playerActorObject.damage_from
+			if (next(damageTakenFrom)) then
+				---@type table<actorname, number>[]
+				local damageTakenArray = {}
+				for damagerName in pairs(damageTakenFrom) do
+					--get the actor object for the damager to know how much damage was done to the player
+					---@type actordamage
+					local damagerActor = self:GetActor(DETAILS_ATTRIBUTE_DAMAGE, damagerName)
+					if (damagerActor) then
+						table.insert(damageTakenArray, {damagerName, damagerActor.targets[playerActorObject:Name()] or 0})
+					end
+				end
+
+				table.sort(damageTakenArray, Details.Sort2)
+
+				local targetName = damageTakenArray[1][1]
+				if (targetName) then
+					return targetName
+				end
+			end
+		end
+
+		--search for an enemy name in the group members targets
+		---@type actorcontainer
+		local actorContainer = self:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		local actorTable = actorContainer:GetActorTable()
+		for i = 1, #actorTable do
+			local actorObject = actorTable[i]
+			--check if this actor was a group member during the combat
+			if (actorObject:IsGroupPlayer()) then
+				local targets = actorObject.targets
+				if (next(targets)) then
+					---@type table<actorname, number>[]
+					local targetsArray = {}
+					for targetName, amount in pairs(targets) do
+						table.insert(targetsArray, {targetName, amount})
+					end
+
+					table.sort(targetsArray, Details.Sort2)
+
+					local targetName = targetsArray[1][1]
+					if (targetName) then
+						return targetName
+					end
+				end
+			end
+		end
+
+		return Details222.Unknown
+	end
+
 	function classCombat:GetCombatType()
 		--mythic dungeon
 		local bIsMythicDungeon = self:IsMythicDungeon()
 		if (bIsMythicDungeon) then
 			local mythicDungeonInfo = self:GetMythicDungeonInfo()
-
-			if (not mythicDungeonInfo) then
-				print("sem mythicDungeonInfo")
-				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-			end
 
 			if (mythicDungeonInfo.SegmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
 				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
@@ -943,6 +1039,8 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	combatObject.data_fim = 0
 	combatObject.data_inicio = 0
 	combatObject.tempo_start = _tempo
+
+	combatObject.boss_hp = 1
 
 	combatObject.bossTimers = {}
 
