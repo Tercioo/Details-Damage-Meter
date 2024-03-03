@@ -6368,7 +6368,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 		local mythicDungeonRunId
 
 		local statusBarTexture = "Skyline"
-		local combatTimeColor = "silver"
+		local combatTimeColor = "gray"
 		local combatTimeColorGeneric = "gray"
 
 		for i = Details.segments_amount, 1, -1 do
@@ -6424,7 +6424,8 @@ local buildSegmentTooltip = function(self, deltaTime)
 							--dumpt(mythicDungeonInfo)
 
 							gameCooltip:AddLine(broomStick .. " " .. combatName, detailsFramework:IntegerToTimer(thisCombat:GetCombatTime()), 1, dungeonColor, combatTimeColor)
-							gameCooltip:AddIcon(thisCombat:GetCombatIcon(), "main", "left", nil, nil, nil, nil, nil, nil, nil, nil, true)
+							local bDesaturated = false
+							gameCooltip:AddIcon(thisCombat:GetCombatIcon(), "main", "left", nil, nil, nil, nil, nil, nil, nil, nil, bDesaturated)
 
 							--submenu
 							gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"], nil, 2, "white", "white")
@@ -6651,7 +6652,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 					else
 						mythicDungeonRunId = false
 						local bFindEnemyName = true
-						gameCooltip:AddLine(thisCombat:GetCombatName(false, bFindEnemyName), formattedElapsedTime, 1, "yellow", combatTimeColorGeneric)
+						gameCooltip:AddLine(thisCombat:GetCombatName(false, bFindEnemyName), _, 1, "yellow", combatTimeColorGeneric) --formattedElapsedTime
 						gameCooltip:AddIcon(thisCombat:GetCombatIcon(), "main", "left")
 
 						--print("passing here...")
@@ -6696,6 +6697,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 		GameCooltip:AddLine("$div", nil, nil, -5, -13)
 
+		---------------------------------------------------------------------------------------------------------------------------------------------------
 		--> current combat
 			local thisCombat = Details:GetCurrentCombat()
 			local dateStart, dateEnd = thisCombat:GetDate()

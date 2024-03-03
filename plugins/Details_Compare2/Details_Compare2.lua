@@ -44,6 +44,7 @@ do
 	---@class compareplayerframe : frame object containing two scrollboxes, one for spells and another for targets, is used to show comparison data of another player
 	---@field spellsScroll comparescrollbox
 	---@field targetsScroll comparescrollbox
+	---@field titleIcon df_image shows the combat icon
 	---@field titleLabel df_label text to show the player name or segment name above the frame scroll, indicates the name or segment being compared
 	---@field playerObject actor
 	---@field mainPlayer actor
@@ -169,10 +170,14 @@ do
 			targetMaxLines = 16,
 			targetTooltipLineHeight = 16,
 
+			compareTitleIconSize = 15,
+
 			--font settings
 			fontSize = 10,
-			playerNameSize = 12,
-			playerNameYOffset = 12,
+			playerNameSize = 11,
+			playerNameYOffset = 15,
+
+			spellIconAlpha = 0.923,
 
 			--line colors
 			lineOnEnterColor = {.85, .85, .85, .5},
@@ -1100,7 +1105,6 @@ do
 			compareTwo.combatObject = combat
 
 			--update player name
-			comparePlugin.mainPlayerName.text = playerActorObject:GetDisplayName()
 			comparePlugin.mainPlayerObject = playerActorObject
 			comparePlugin.mainSpellFrameScroll.mainPlayerObject = playerActorObject
 
@@ -1132,6 +1136,8 @@ do
 			local actorObjectsToCompare = {}
 			setmetatable(actorObjectsToCompare, weakTable)
 
+			local maxCompares = compareTwo.db.max_compares
+
 			if (compareTwo.db.compare_type == CONST_COMPARETYPE_SEGMENT) then
 				--get the segmentId from the combat
 				local segmentId = combat:GetSegmentSlotId()
@@ -1155,8 +1161,15 @@ do
 							combat = combatObject
 						}
 						actorObjectsToCompare[#actorObjectsToCompare + 1] = setmetatable(actorCompareTable, weakTable)
+
+						--stop the loop the the max amount of compares is reached
+						if (#actorObjectsToCompare >= maxCompares) then
+							break
+						end
 					end
 				end
+
+				comparePlugin.mainPlayerName.text = combat:GetCombatName()
 
 			elseif (compareTwo.db.compare_type == CONST_COMPARETYPE_SPEC) then
 				local actorContainer = combat:GetContainer(displayId)
@@ -1165,8 +1178,14 @@ do
 						---@type compareactortable
 						local actorCompareTable = {actor = actorObject, total = actorObject.total, combat = combat}
 						actorObjectsToCompare[#actorObjectsToCompare + 1] = setmetatable(actorCompareTable, weakTable)
+
+						--stop the loop the the max amount of compares is reached
+						if (#actorObjectsToCompare >= maxCompares) then
+							break
+						end
 					end
 				end
+				comparePlugin.mainPlayerName.text = playerActorObject:GetDisplayName()
 			end
 
 			table.sort(actorObjectsToCompare, sortByTotalKey)
@@ -1183,6 +1202,10 @@ do
 			for idx = 1, #actorObjectsToCompare do
 				--other player with the same spec
 				local actorCompareTable = actorObjectsToCompare[idx]
+
+				if (not actorCompareTable) then
+					print("index", idx, "is nil, actorObjectsToCompare", #actorObjectsToCompare, "maxCompares", maxCompares)
+				end
 
 				local playerObject = actorCompareTable.actor
 				local combatObject = actorCompareTable.combat
@@ -1207,9 +1230,17 @@ do
 				--depending on the compare mode, the "player name" will be the segment name or the player name
 				if (compareTwo.db.compare_type == CONST_COMPARETYPE_SPEC) then
 					comparisonFrame.titleLabel.text = detailsFramework:RemoveRealmName(playerObject:Name())
+
 				elseif (compareTwo.db.compare_type == CONST_COMPARETYPE_SEGMENT) then
+					local combatIcon, subIcon = combatObject:GetCombatIcon()
+					detailsFramework:SetAtlas(comparisonFrame.titleIcon, subIcon or combatIcon)
+					comparisonFrame.titleIcon:SetSize(comparisonFrameSettings.compareTitleIconSize, comparisonFrameSettings.compareTitleIconSize)
+
 					local bOnlyName = true
 					comparisonFrame.titleLabel.text = combatObject:GetCombatName(bOnlyName)
+					--the combat name can sometimes have pharentesis, remove them
+					comparisonFrame.titleLabel.text = comparisonFrame.titleLabel.text:gsub("%(.*%)", "")
+					detailsFramework:TruncateText(comparisonFrame.titleLabel, 124)
 				end
 
 				--iterate among spells of the main player and check if the spell exists on this player
@@ -1289,8 +1320,6 @@ do
 				comparisonFrame.targetsScroll:SetData(otherPlayerResultTargetsTable)
 				comparisonFrame.targetsScroll:Refresh()
 			end
-
-			--comparePlugin.radioGroup:Select(compareTwo.db.compare_type)
 		end
 
 		--called when the tab is created
@@ -1354,6 +1383,7 @@ do
 					text_size = 20,
 					texcoord = {0, 64/512, 211/512, 275/512},
 					callback = selectCompareMode,
+					mask = [[Interface\COMMON\common-iconmask]],
 				},
 				{
 					name = "Compare Segments", --localize-me
@@ -1366,6 +1396,7 @@ do
 					height = 32,
 					text_size = 20,
 					callback = selectCompareMode,
+					mask = [[Interface\COMMON\common-iconmask]],
 				}
 			}
 
@@ -1417,12 +1448,41 @@ do
 			radioGroup:SetPoint("bottomleft", comparePlugin, "bottomleft", 5, 5)
 			comparePlugin.radioGroup = radioGroup
 
+			--get all checkboxes from the radio group
+			local radioCheckboxes = radioGroup:GetAllCheckboxes()
+			for i = 1, #radioCheckboxes do
+				local thisCheckBox = radioCheckboxes[i]
+				if (thisCheckBox:GetChecked()) then
+					thisCheckBox.SelectedTexture:Show()
+				end
+			end
+
 			local radioGroupBackgroundTexture = comparePlugin:CreateTexture(nil, "artwork")
 			radioGroupBackgroundTexture:SetColorTexture(.2, .2, .2, 0.834)
 			radioGroupBackgroundTexture:SetPoint("bottomleft", comparePlugin, "bottomleft", 5, 8)
 			radioGroupBackgroundTexture:SetPoint("bottomright", comparePlugin, "bottomright", -2, 2)
 			radioGroupBackgroundTexture:SetHeight(35)
 			comparePlugin.radioGroupBackgroundTexture = radioGroupBackgroundTexture
+
+			--create a slider to select how many comparison frames will be shown
+			local minValue, maxValue = 4, 16
+			local currentValue = compareTwo.db.max_compares
+			local scrollStep = 1
+			local bIsDecimals = false
+			local amountOfComparisonsSlider = detailsFramework:CreateSlider(comparePlugin, 160, 20, minValue, maxValue, scrollStep, currentValue, bIsDecimals)
+			amountOfComparisonsSlider:SetPoint("bottomright", comparePlugin, "bottomright", -30, 14)
+			amountOfComparisonsSlider:SetTemplate("MODERN_SLIDER_TEMPLATE")
+			local bObeyStep = true
+			amountOfComparisonsSlider:SetObeyStepOnDrag(bObeyStep)
+			amountOfComparisonsSlider:SetHook("OnValueChanged", function(self, fixedValue, value)
+				if (value == compareTwo.db.max_compares) then
+					return
+				end
+				value = math.floor(value)
+				compareTwo.db.max_compares = value
+				compareTwo.Refresh()
+			end)
+			comparePlugin.comparisonFramesSlider = amountOfComparisonsSlider
 
 			---create a line for the main player spells(scroll box with the spells the player used)
 			---@param self comparescrollbox
@@ -1446,6 +1506,8 @@ do
 
 				local spellIcon = line:CreateTexture("$parentIcon", "overlay")
 				spellIcon:SetSize(lineHeight -2 , lineHeight - 2)
+				detailsFramework:SetMask(spellIcon, [[Interface\COMMON\common-iconmask]])
+				spellIcon:SetAlpha(comparisonFrameSettings.spellIconAlpha)
 
 				local spellName = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
 				local spellAmount = line:CreateFontString("$parentAmount", "overlay", "GameFontNormal")
@@ -1804,11 +1866,20 @@ do
 					newComparisonFrame:SetPoint("topleft", comparePlugin.comparisonFrames [comparePlugin.comparisonScrollFrameIndex - 1], "topright", 10, 0)
 				end
 
+				--texture to show the combat icon at the left side of the titleLabel
+				newComparisonFrame.titleIcon = detailsFramework:CreateTexture(newComparisonFrame)
+				newComparisonFrame.titleIcon:SetPoint("topleft", newComparisonFrame, "topleft", 0, comparisonFrameSettings.playerNameYOffset)
+
 				--player name shown above the scrolls
 				---@type df_label
 				newComparisonFrame.titleLabel = detailsFramework:CreateLabel(newComparisonFrame, "")
-				newComparisonFrame.titleLabel:SetPoint("topleft", newComparisonFrame, "topleft", 2, comparisonFrameSettings.playerNameYOffset)
+				newComparisonFrame.titleLabel:SetPoint("left", newComparisonFrame.titleIcon, "right", 2, 0)
 				newComparisonFrame.titleLabel.fontsize = comparisonFrameSettings.playerNameSize
+
+				--grandient texture above the comparison frame
+				local gradientTitle = detailsFramework:CreateTexture(newComparisonFrame, {gradient = "vertical", fromColor = {0, 0, 0, 0.25}, toColor = "transparent"}, 1, 16, "artwork", {0, 1, 0, 1})
+				gradientTitle:SetPoint("bottomleft", newComparisonFrame, "topleft", 0, 0)
+				gradientTitle:SetPoint("bottomright", newComparisonFrame, "topright", 0, 0)
 
 				--spells scroll
 				---@type comparescrollbox
@@ -1925,6 +1996,7 @@ do
 
 				local defaultSettings = {
 					compare_type = CONST_COMPARETYPE_SPEC, --1 == player, 2 == segment
+					max_compares = 4,
 				}
 
 				--> Install: install -> if successful installed; saveddata -> a table saved inside details db, used to save small amount of data like configs

@@ -331,6 +331,7 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 		local specIcon = upFrame:CreateTexture("$parentSpecIcon", "artwork")
 		specIcon:SetSize(headerTable[1].width - 1, headerTable[1].width - 1)
 		specIcon:SetAlpha(0.71)
+		detailsFramework:SetMask(specIcon, [[Interface\COMMON\common-iconmask]])
 
 		local roleIcon = upFrame:CreateTexture("$parentRoleIcon", "overlay")
 		roleIcon:SetSize((player_line_height-2) / 2, (player_line_height-2) / 2)
@@ -505,13 +506,19 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 	local updateSegmentLine = function(self, index, segmentData) --~update
 		local combatName = segmentData.combatName
 		local r, g, b = segmentData.r, segmentData.g, segmentData.b
-		local atlasInfo = segmentData.combatIcon
+		local combatIcon1 = segmentData.combatIcon
+		local combatIcon2 = segmentData.combatIcon2
 
 		self.segmentText:SetText(combatName)
 		self.segmentText:SetTextColor(r, g, b)
 		detailsFramework:TruncateText(self.segmentText, player_scroll_size[1] - 20)
+		detailsFramework:SetAtlas(self.segmentIcon, combatIcon1)
 
-		detailsFramework:SetAtlas(self.segmentIcon, atlasInfo)
+		if (combatIcon2) then
+			detailsFramework:SetAtlas(self.segmentSubIcon, combatIcon2)
+		else
+			self.segmentSubIcon:SetTexture("")
+		end
 
 		self.combatUniqueID = segmentData.UID
 
@@ -569,6 +576,10 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 		segmentIcon:SetSize(player_line_height - 4, player_line_height - 4)
 		segmentIcon:SetAlpha(0.834)
 
+		local segmentSubIcon = detailsFramework:CreateTexture(line, "", player_line_height, player_line_height - 1, "artwork")
+		segmentSubIcon:SetSize(player_line_height - 4, player_line_height - 4)
+		segmentSubIcon:SetAlpha(0.834)
+
 		local segmentText = detailsFramework:CreateLabel(line, "", fontSize or 11, "white", "GameFontNormal")
 		segmentText.outline = fontOutline or "none"
 		segmentText.textcolor = {1, 1, 1, .9}
@@ -578,9 +589,11 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 
 		line.segmentText = segmentText
 		line.segmentIcon = segmentIcon
+		line.segmentSubIcon = segmentSubIcon
 
 		segmentIcon:SetPoint("left", line, "left", 2, 0)
-		segmentText:SetPoint("left", segmentIcon, "right", 3, 1)
+		segmentSubIcon:SetPoint("left", segmentIcon, "right", 2, 0)
+		segmentText:SetPoint("left", segmentSubIcon, "right", 3, 1)
 
 		line.UpdateLine = updateSegmentLine
 
@@ -773,12 +786,13 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 			local UID = combatObject:GetCombatUID()
 
 			local combatName, r, g, b = combatObject:GetCombatName(true)
-			local combatIcon = combatObject:GetCombatIcon()
+			local combatIcon, combatSubIcon = combatObject:GetCombatIcon()
 
 			segmentsData[i] = {
 				UID = UID,
 				combatName = combatName,
 				combatIcon = combatIcon,
+				combatIcon2 = combatSubIcon,
 				r = r or 1,
 				g = g or 1,
 				b = b or 1,

@@ -651,6 +651,7 @@ function LibStub:IterateLibraries()end
 ---@field GetTextTruncateLines fun(self: fontstring) : number
 
 ---@class texture : region
+---@field AddMaskTexture fun(self: texture, maskTexture: texture)
 ---@field SetDrawLayer fun(self: texture, layer: drawlayer, subLayer: number?)
 ---@field GetTexture fun(self: texture) : any
 ---@field SetTexture fun(self: texture, path: textureid|texturepath, horizontalWrap: texturewrap?, verticalWrap: texturewrap?, filter: texturefilter?)

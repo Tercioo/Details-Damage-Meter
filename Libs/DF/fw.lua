@@ -1,6 +1,6 @@
 
 
-local dversion = 517
+local dversion = 518
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -2692,6 +2692,19 @@ DF.slider_templates["OPTIONS_SLIDER_TEMPLATE"] = {
 	thumbwidth = 16,
 	thumbheight = 14,
 	thumbcolor = {0, 0, 0, 0.5},
+}
+
+DF.slider_templates["MODERN_SLIDER_TEMPLATE"] = {
+	thumbtexture = "Minimal_SliderBar_Button", --atlas name
+	thumbwidth = 20,
+	thumbheight = 19,
+	thumbcolor = {1, 1, 1, 0.924},
+	slider_left = "Minimal_SliderBar_Left",
+	slider_right = "Minimal_SliderBar_Right",
+	slider_middle = "_Minimal_SliderBar_Middle",
+	amount_color = "white",
+	amount_size = 12,
+	amount_outline = "outline",
 }
 
 ---install a template

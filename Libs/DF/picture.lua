@@ -493,6 +493,10 @@ function detailsFramework:SetAtlas(textureObject, atlas, useAtlasSize, filterMod
 				textureObject:SetVertexColor(atlasInfo.vertexRed or 1, atlasInfo.vertexGreen or 1, atlasInfo.vertexBlue or 1, atlasInfo.vertexAlpha or 1)
 			end
 		end
+
+	elseif (type(atlas) == "string" or type(atlas) == "number") then
+		---@cast atlas string
+		textureObject:SetTexture(atlas)
 	end
 end
 
@@ -680,3 +684,20 @@ function detailsFramework:IsTexture(texture, bCheckTextureObject)
 
 	return false
 end
+
+---Receives a texture object and a texture to use as mask
+---If the mask texture is not created, it will be created and added to a key named MaskTexture
+---@param self table
+---@param texture texture
+---@param maskTexture string|number
+function detailsFramework:SetMask(texture, maskTexture)
+	if (not texture.MaskTexture) then
+		local parent = texture:GetParent()
+		local maskTextureObject = parent:CreateMaskTexture(nil, "artwork")
+		maskTextureObject:SetAllPoints(texture)
+		texture:AddMaskTexture(maskTextureObject)
+		texture.MaskTexture = maskTextureObject
+	end
+	texture.MaskTexture:SetTexture(maskTexture)
+end
+

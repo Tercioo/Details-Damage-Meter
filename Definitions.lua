@@ -257,7 +257,7 @@
 ---@field GetMSTime fun(combat: combat) : number, number
 ---@field GetSegmentSlotId fun(combat: combat) : segmentid
 ---@field GetCombatName fun(combat: combat, bOnlyName: boolean?, bTryFind: boolean?) : string, number?, number?, number?, number? get the name of the combat
----@field GetCombatIcon fun(combat: combat) : df_atlasinfo
+---@field GetCombatIcon fun(combat: combat) : df_atlasinfo, df_atlasinfo?
 ---@field GetTrinketProcsForPlayer fun(self: combat, playerName: string) : table<spellid, trinketprocdata> return a key|value table containing the spellId as key and a table with information about the trinket as value
 ---@field IsMythicDungeon fun(combat: combat) : boolean, number return a boolean indicating if the combat is from a mythic+ dungeon, if true, also return the runId
 ---@field GetMythicDungeonInfo fun(combat: combat) : mythicdungeoninfo
@@ -546,6 +546,7 @@
 ---@class breakdownsegmentline : button
 ---@field segmentText df_label
 ---@field segmentIcon df_image
+---@field segmentSubIcon df_image
 ---@field UpdateLine function
 ---@field combatUniqueID uniquecombatid
 ---@field isSelected boolean
@@ -554,6 +555,7 @@
 ---@field UID uniquecombatid
 ---@field combatName string
 ---@field combatIcon df_atlasinfo
+---@field combatIcon2 df_atlasinfo? used for the second icon in the segment line, this shows the trash or boss icon where the primary icon shows the mythic+ icon for example
 ---@field r number
 ---@field g number
 ---@field b number

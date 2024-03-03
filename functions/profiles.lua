@@ -1723,20 +1723,32 @@ function Details:SaveProfileSpecial()
 end
 
 --save things for the mythic dungeon run
-function Details:SaveState_CurrentMythicDungeonRun (runID, zoneName, zoneID, startAt, segmentID, level, ejID, latestBossAt)
+function Details:SaveState_CurrentMythicDungeonRun(runID, zoneName, zoneID, startAt, segmentID, level, ejID, latestBossAt)
+	local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
+
 	local savedTable = Details.mythic_dungeon_currentsaved
 	savedTable.started = true
 	savedTable.run_id = runID
 	savedTable.dungeon_name = zoneName
-	savedTable.dungeon_zone_id = zoneID
+	savedTable.dungeon_zone_id = currentZoneID
 	savedTable.started_at = startAt
 	savedTable.segment_id = segmentID
 	savedTable.level = level
 	savedTable.ej_id = ejID
 	savedTable.previous_boss_killed_at = latestBossAt
+
+	local playersOnTheRun = {}
+	for i = 1, GetNumGroupMembers() do
+		local unitGUID = UnitGUID("party" .. i)
+		if (unitGUID) then
+			playersOnTheRun[#playersOnTheRun+1] = unitGUID
+		end
+	end
+
+	savedTable.players = playersOnTheRun
 end
 
-function Details:UpdateState_CurrentMythicDungeonRun (stillOngoing, segmentID, latestBossAt)
+function Details:UpdateState_CurrentMythicDungeonRun(stillOngoing, segmentID, latestBossAt)
 	local savedTable = Details.mythic_dungeon_currentsaved
 
 	if (not stillOngoing) then
@@ -1753,7 +1765,6 @@ function Details:UpdateState_CurrentMythicDungeonRun (stillOngoing, segmentID, l
 end
 
 function Details:RestoreState_CurrentMythicDungeonRun()
-
 	--no need to check for mythic+ if the user is playing on classic wow
 	if (DetailsFramework.IsTimewalkWoW()) then
 		return
@@ -1762,7 +1773,7 @@ function Details:RestoreState_CurrentMythicDungeonRun()
 	local savedTable = Details.mythic_dungeon_currentsaved
 	local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 	local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
-	local mapID =  C_Map.GetBestMapForUnit ("player")
+	local mapID =  C_Map.GetBestMapForUnit("player")
 
 	if (not mapID) then
 		--print("D! no mapID to restored mythic dungeon state.")
@@ -1772,7 +1783,7 @@ function Details:RestoreState_CurrentMythicDungeonRun()
 	local ejID = 0
 
 	if (mapID) then
-		ejID = DetailsFramework.EncounterJournal.EJ_GetInstanceForMap (mapID) or 0
+		ejID = DetailsFramework.EncounterJournal.EJ_GetInstanceForMap(mapID) or 0
 	end
 
 	--is there a saved state for the dungeon?
@@ -1793,7 +1804,7 @@ function Details:RestoreState_CurrentMythicDungeonRun()
 				Details.MythicPlus.IsRestoredState = true
 				DetailsMythicPlusFrame.IsDoingMythicDungeon = true
 
-				print("D! (debug) mythic dungeon state restored.")
+				Details:Msg("D! (debug) mythic dungeon state restored.")
 
 				C_Timer.After(2, function()
 					Details:SendEvent("COMBAT_MYTHICDUNGEON_START")

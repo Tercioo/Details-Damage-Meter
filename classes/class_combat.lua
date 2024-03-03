@@ -369,6 +369,7 @@ local segmentTypeToString = {
 	---return the atlasinfo for the combat icon
 	---@param self combat
 	---@return df_atlasinfo
+	---@return df_atlasinfo?
 	function classCombat:GetCombatIcon()
 		local textureAtlas = Details:GetTextureAtlasTable()
 
@@ -381,20 +382,23 @@ local segmentTypeToString = {
 		if (combatType == DETAILS_SEGMENTTYPE_OVERALL) then
 			return textureAtlas["segment-icon-overall"]
 
-		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL or combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON) then
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON) then
 			return textureAtlas["segment-icon-mythicplus"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
+			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-mythicplus-overall"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH) then
-			return textureAtlas["segment-icon-mythicplus"]
+			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-broom"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
-			return textureAtlas["segment-icon-mythicplus"]
+			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-skull"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
-			return textureAtlas["segment-icon-mythicplus"]
+			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-skull"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
-			return textureAtlas["segment-icon-mythicplus"]
+			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-broom"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC) then
 			return textureAtlas["segment-icon-mythicplus"]

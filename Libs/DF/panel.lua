@@ -4229,9 +4229,18 @@ detailsFramework.RadioGroupCoreFunctions = {
 			end
 
 			if (optionTable.mask) then
-				checkbox.Icon:SetMask(optionTable.mask)
+				if (not checkbox.Icon.Mask) then
+					checkbox.Icon.Mask = checkbox:CreateMaskTexture(nil, "overlay")
+					checkbox.Icon.Mask:SetAllPoints(checkbox.Icon.widget)
+					checkbox.Icon.Mask:SetTexture(optionTable.mask)
+					checkbox.Icon:AddMaskTexture(checkbox.Icon.Mask)
+				end
+				checkbox.Icon.Mask:SetTexture(optionTable.mask)
 			else
-				checkbox.Icon:SetMask("")
+				--checkbox.Icon:SetMask("")
+				if (checkbox.Icon.Mask) then
+					checkbox.Icon.Mask:SetTexture("")
+				end
 			end
 		else
 			checkbox.Icon:SetTexture("")
@@ -4324,6 +4333,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 ---@field param any?
 ---@field texture string?
 ---@field texcoord table?
+---@field mask any?
 ---@field width number?
 ---@field height number?
 ---@field text_size number?
