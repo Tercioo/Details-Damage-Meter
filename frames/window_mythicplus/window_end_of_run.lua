@@ -896,7 +896,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 	local elapsedTime = Details222.MythicPlus.time or 1507
 	readyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
 
-	C_Timer.After(1.5, function()
+	C_Timer.After(2.5, function()
 		--print("overall combat type:", overallMythicDungeonCombat:GetCombatType(), overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL)
 		if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
 			local combatTime = overallMythicDungeonCombat:GetCombatTime()

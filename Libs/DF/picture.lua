@@ -243,8 +243,9 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
-	---@class df_image : texture
+	---@class df_image : texture, df_widgets
 	---@field SetGradient fun(gradientType: "vertical"|"horizontal", fromColor: table, toColor: table)
+	---@field image texture
 
 	---@class df_gradienttable : table
 	---@field gradient "vertical"|"horizontal"
@@ -303,7 +304,7 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 		end
 
 		if (name:find("$parent")) then
-			local parentName = detailsFramework.GetParentName(parent)
+			local parentName = detailsFramework:GetParentName(parent)
 			name = name:gsub("$parent", parentName)
 		end
 
@@ -452,7 +453,6 @@ end
 ---@param resetTexCoords boolean?
 function detailsFramework:SetAtlas(textureObject, atlas, useAtlasSize, filterMode, resetTexCoords)
 	local isAtlas = C_Texture.GetAtlasInfo(type(atlas) == "string" and atlas or "--")
-
 	if (isAtlas and type(atlas) == "string") then
 		textureObject:SetAtlas(atlas, useAtlasSize, filterMode, resetTexCoords)
 		return
@@ -461,6 +461,15 @@ function detailsFramework:SetAtlas(textureObject, atlas, useAtlasSize, filterMod
 	if (type(atlas) == "table") then
 		---@cast atlas df_atlasinfo
 		local atlasInfo = atlas
+
+		local atlasName = atlas.atlas
+		if (atlasName) then
+			isAtlas = C_Texture.GetAtlasInfo(atlasName)
+			if (isAtlas) then
+				textureObject:SetAtlas(atlasName, useAtlasSize, filterMode, resetTexCoords)
+				return
+			end
+		end
 
 		if (useAtlasSize) then
 			if (atlasInfo.width) then

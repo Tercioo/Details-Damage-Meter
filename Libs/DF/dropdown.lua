@@ -996,7 +996,7 @@ function DetailsFrameworkDropDownOnHide(self)
 end
 
 local iconSizeTable = {16, 16}
-function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize)
+function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize, bIncludeDefault)
 	local fontTable = {}
 
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -1006,6 +1006,10 @@ function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize)
 
 	table.sort(fontTable, function(t1, t2) return t1.label < t2.label end)
 
+	if (bIncludeDefault) then
+		table.insert(fontTable, 1, {value = "DEFAULT", label = "DEFAULT", onclick = onClick, icon = icon, iconsize = iconSizeTable, texcoord = iconTexcoord, font = "", descfont = "abcdefg ABCDEFG"})
+	end
+
 	return fontTable
 end
 
@@ -1013,13 +1017,7 @@ end
 --template
 
 function DropDownMetaFunctions:SetTemplate(template)
-	if (type(template) == "string") then
-		local templateName = template
-		template = DF:GetTemplate("dropdown", templateName)
-		if (not template) then
-			print("no template found", templateName)
-		end
-	end
+	template = DF:ParseTemplate(self.type, template)
 
 	self.template = template
 
@@ -1101,7 +1099,7 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
----@class df_dropdown : table, frame
+---@class df_dropdown : table, frame, df_widgets
 ---@field SetTemplate fun(self:df_dropdown, template:table|string)
 ---@field BuildDropDownFontList fun(self:df_dropdown, onClick:function, icon:any, iconTexcoord:table?, iconSize:table?):table make a dropdown list with all fonts available, on select a font, call the function onClick
 ---@field SetFunction fun(self:df_dropdown, func:function)
@@ -1119,8 +1117,8 @@ end
 ---return a function which when called returns a table filled with all fonts available and ready to be used on dropdowns
 ---@param callback function
 ---@return function
-function DF:CreateFontListGenerator(callback)
-	return function() return DF:BuildDropDownFontList(callback, [[Interface\AnimCreate\AnimCreateIcons]], {0, 32/128, 64/128, 96/128}, 16) end
+function DF:CreateFontListGenerator(callback, bIncludeDefault)
+	return function() return DF:BuildDropDownFontList(callback, [[Interface\AnimCreate\AnimCreateIcons]], {0, 32/128, 64/128, 96/128}, 16, bIncludeDefault) end
 end
 
 local colorGeneratorStatusBarTexture = [[Interface\Tooltips\UI-Tooltip-Background]]
@@ -1204,8 +1202,9 @@ end
 ---@param member string?
 ---@param name string?
 ---@param template table?
-function DF:CreateFontDropDown(parent, callback, default, width, height, member, name, template)
-	local func = DF:CreateFontListGenerator(callback)
+---@param bIncludeDefault boolean?
+function DF:CreateFontDropDown(parent, callback, default, width, height, member, name, template, bIncludeDefault)
+	local func = DF:CreateFontListGenerator(callback, bIncludeDefault)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end
@@ -1256,7 +1255,7 @@ function DF:NewDropDown(parent, container, name, member, width, height, func, de
 	end
 
 	if (name:find("$parent")) then
-		local parentName = DF.GetParentName(parent)
+		local parentName = DF:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 

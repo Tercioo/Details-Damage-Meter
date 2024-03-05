@@ -1,6 +1,6 @@
 
 
-local dversion = 518
+local dversion = 519
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -12,6 +12,8 @@ end
 _G["DetailsFramework"] = DF
 
 ---@cast DF detailsframework
+
+local detailsFramework = DF
 
 DetailsFrameworkCanLoad = true
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -1193,6 +1195,11 @@ end
 ---@param fontString fontstring
 ---@param fontface string
 function DF:SetFontFace(fontString, fontface)
+	if (fontface == "DEFAULT") then
+		DF:SetFontDefault(fontString)
+		return
+	end
+
 	local font = SharedMedia:Fetch("font", fontface, true)
 	if (font) then
 		fontface = font
@@ -1200,6 +1207,17 @@ function DF:SetFontFace(fontString, fontface)
 
 	local _, size, flags = fontString:GetFont()
 	return fontString:SetFont(fontface, size, flags)
+end
+
+local dummyFontString = UIParent:CreateFontString(nil, "background", "GameFontNormal")
+local defaultFontFile = dummyFontString:GetFont()
+
+---get the UIObject of type 'FontString' and set the default game font into it
+---@param self table
+---@param fontString fontstring
+function DF:SetFontDefault(fontString)
+	local _, size, flags = fontString:GetFont()
+	return fontString:SetFont(defaultFontFile, size, flags)
 end
 
 ---get the FontString passed and set the font color
@@ -1445,7 +1463,7 @@ DF.FontOutlineFlags = {
 
 ---set the outline of a fontstring, outline is a black border around the text, can be "NONE", "MONOCHROME", "OUTLINE" or "THICKOUTLINE"
 ---@param fontString table
----@param outline any
+---@param outline outline
 function DF:SetFontOutline(fontString, outline)
 	local font, fontSize = fontString:GetFont()
 	if (outline) then
@@ -1460,7 +1478,7 @@ function DF:SetFontOutline(fontString, outline)
 			outline = "OUTLINE"
 
 		elseif (type(outline) == "boolean" and not outline) then
-			outline = "" --"NONE"
+			outline = "NONE"
 
 		elseif (outline == 1) then
 			outline = "OUTLINE"
@@ -1469,7 +1487,8 @@ function DF:SetFontOutline(fontString, outline)
 			outline = "THICKOUTLINE"
 		end
 	end
-	outline = (not outline or outline == "NONE") and "" or outline
+
+	outline = (not outline or outline == "NONE") and "NONE" or outline
 
 	fontString:SetFont(font, fontSize, outline)
 end
@@ -2478,13 +2497,8 @@ end
 
 DF.ClientLanguage = clientLanguage
 
-function DF:DetectTextLanguage(text)
-	for i = 1, #text do
-		--or not
-	end
-end
-
---returns which region the language the client is running, return "western", "russia" or "asia"
+---returns which region the language the client is running, return "western", "russia" or "asia"
+---@return string
 function DF:GetClientRegion()
 	if (clientLanguage == "zhCN" or clientLanguage == "koKR" or clientLanguage == "zhTW") then
 		return "asia"
@@ -2496,7 +2510,11 @@ function DF:GetClientRegion()
 end
 
 DF.registeredFontPaths = DF.registeredFontPaths or {}
+
 -- ~language ~locale ~fontpath
+---get a font path to be used for a specific language
+---@param languageId string enUS, deDE, esES, esMX, frFR, itIT, ptBR, ruRU, zhCN, zhTW, koKR
+---@return string
 function DF:GetBestFontPathForLanguage(languageId)
 	local fontPath = DF.registeredFontPaths[languageId]
 	if (fontPath) then
@@ -2524,6 +2542,9 @@ function DF:GetBestFontPathForLanguage(languageId)
 	return [[Fonts\FRIZQT__.TTF]]
 end
 
+---return true if the language paren is latin: enUS, deDE, esES, esMX, frFR, itIT, ptBR
+---@param languageId string
+---@return boolean
 function DF:IsLatinLanguage(languageId)
 	return latinLanguageIdsMap[languageId]
 end
@@ -2548,6 +2569,131 @@ function DF:GetBestFontForLanguage(languageId, western, cyrillic, china, korean,
 
 	elseif (languageId == "zhTW") then
 		return taiwan or "AR CrystalzcuheiGBK Demibold"
+	end
+end
+
+
+local templateOnEnter = function(frame)
+	if (frame.onenter_backdrop) then
+		local r, g, b, a = detailsFramework:ParseColors(frame.onenter_backdrop)
+		frame:SetBackdropColor(r, g, b, a)
+	end
+	if (frame.onenter_backdrop_border_color) then
+		local r, g, b, a = detailsFramework:ParseColors(frame.onenter_backdrop_border_color)
+		frame:SetBackdropBorderColor(r, g, b, a)
+	end
+end
+
+local templateOnLeave = function(frame)
+	if (frame.onleave_backdrop) then
+		local r, g, b, a = detailsFramework:ParseColors(frame.onleave_backdrop)
+		frame:SetBackdropColor(r, g, b, a)
+	end
+	if (frame.onleave_backdrop_border_color) then
+		local r, g, b, a = detailsFramework:ParseColors(frame.onleave_backdrop_border_color)
+		frame:SetBackdropBorderColor(r, g, b, a)
+	end
+end
+
+---set a details framework template into a regular frame
+---@param self table
+---@param frame uiobject
+---@param template string
+function detailsFramework:SetTemplate(frame, template)
+	template = detailsFramework:ParseTemplate("button", template)
+
+	if (frame.SetWidth) then
+		if (template.width) then
+			PixelUtil.SetWidth(frame, template.width)
+		end
+
+		if (template.height) then
+			PixelUtil.SetHeight(frame, template.height)
+		end
+	end
+
+	if (frame.SetBackdrop) then
+		if (template.backdrop) then
+			frame:SetBackdrop(template.backdrop)
+		end
+
+		if (template.backdropcolor) then
+			local r, g, b, a = detailsFramework:ParseColors(template.backdropcolor)
+			frame:SetBackdropColor(r, g, b, a)
+			frame.onleave_backdrop = {r, g, b, a}
+		end
+
+		if (template.backdropbordercolor) then
+			local r, g, b, a = detailsFramework:ParseColors(template.backdropbordercolor)
+			frame:SetBackdropBorderColor(r, g, b, a)
+			frame.onleave_backdrop_border_color = {r, g, b, a}
+		end
+
+		if (template.onentercolor) then
+			local r, g, b, a = detailsFramework:ParseColors(template.onentercolor)
+			frame.onenter_backdrop = {r, g, b, a}
+			frame:HookScript("OnEnter", templateOnEnter)
+			frame.__has_onentercolor_script = true
+		end
+
+		if (template.onleavecolor) then
+			local r, g, b, a = detailsFramework:ParseColors(template.onleavecolor)
+			frame.onleave_backdrop = {r, g, b, a}
+			frame:HookScript("OnLeave", templateOnLeave)
+			frame.__has_onleavecolor_script = true
+		end
+
+		if (template.onenterbordercolor) then
+			local r, g, b, a = detailsFramework:ParseColors(template.onenterbordercolor)
+			frame.onenter_backdrop_border_color = {r, g, b, a}
+			if (not frame.__has_onentercolor_script) then
+				frame:HookScript("OnEnter", templateOnEnter)
+			end
+		end
+
+		if (template.onleavebordercolor) then
+			local r, g, b, a = detailsFramework:ParseColors(template.onleavebordercolor)
+			frame.onleave_backdrop_border_color = {r, g, b, a}
+			if (not frame.__has_onleavecolor_script) then
+				frame:HookScript("OnLeave", templateOnLeave)
+			end
+		end
+	end
+
+	if (frame.SetIcon) then
+		if (template.icon) then
+			local iconInfo = template.icon
+			frame:SetIcon(iconInfo.texture, iconInfo.width, iconInfo.height, iconInfo.layout, iconInfo.texcoord, iconInfo.color, iconInfo.textdistance, iconInfo.leftpadding)
+		end
+	end
+
+	if (frame.SetTextColor) then
+		if (template.textsize) then
+			detailsFramework:SetFontSize(frame, template.textsize)
+		end
+
+		if (template.textfont) then
+			detailsFramework:SetFontFace(frame, template.textfont)
+		end
+
+		if (template.textcolor) then
+			detailsFramework:SetFontColor(frame, template.textcolor)
+		end
+
+		--horizontal alignment
+		if (template.textalign and frame.SetJustifyH) then
+			template.textalign = string.lower(template.textalign)
+
+			if (template.textalign == "left" or template.textalign == "<") then
+				frame:SetJustifyH("LEFT")
+
+			elseif (template.textalign == "center" or template.textalign == "|") then
+				frame:SetJustifyH("CENTER")
+
+			elseif (template.textalign == "right" or template.textalign == ">") then
+				frame:SetJustifyH("RIGHT")
+			end
+		end
 	end
 end
 
@@ -2680,6 +2826,14 @@ DF.button_templates["OPTIONS_BUTTON_GOLDENBORDER_TEMPLATE"] = {
 	backdropbordercolor = {1, 0.785, 0, 1},
 }
 
+DF.button_templates["STANDARD_GRAY"] = {
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	backdropcolor = {0.2, 0.2, 0.2, 0.502},
+	backdropbordercolor = {0, 0, 0, 0.5},
+	onentercolor = {0.4, 0.4, 0.4, 0.502},
+
+}
+
 --sliders
 DF.slider_templates = DF.slider_templates or {}
 DF.slider_templates["OPTIONS_SLIDER_TEMPLATE"] = {
@@ -2707,18 +2861,67 @@ DF.slider_templates["MODERN_SLIDER_TEMPLATE"] = {
 	amount_outline = "outline",
 }
 
----install a template
----@param widgetType string
+local templateTables = {DF.dropdown_templates, DF.button_templates, DF.switch_templates, DF.slider_templates, DF.font_templates}
+
+---template categories: "font", "dropdown", "button", "switch", "slider"
+---receives a template category and a template name or table
+---if a template name has been passed, the function will iterate over all template tables to find a template with the name passed
+---@param self table
+---@param templateCategory templatecategory
+---@param template string|table
+---@return table
+function DF:ParseTemplate(templateCategory, template)
+	if (type(template) == "string") then
+		local objectType = templateCategory
+
+		if (objectType == "label") then
+			templateCategory = "font"
+
+		elseif (objectType == "dropdown") then
+			templateCategory = "dropdown"
+
+		elseif (objectType == "button") then
+			templateCategory = "button"
+
+		elseif (objectType == "switch") then
+			templateCategory = "switch"
+
+		elseif (objectType == "slider") then
+			templateCategory = "slider"
+		end
+
+		local templateTable = DF:GetTemplate(templateCategory, template)
+		if (templateTable) then
+			return templateTable
+		end
+
+		--iterate over all template tables to find a template with the name passed
+		for i = 1, #templateTables do
+			local tTable = templateTables[i]
+			if (tTable[template]) then
+				return tTable[template]
+			end
+		end
+	else
+		return template
+	end
+
+	---@cast template table
+	return template
+end
+
+---register a new template to be used with SetTemplate calls
+---@param templateCategory templatecategory
 ---@param templateName string
 ---@param template table
 ---@param parentName any
 ---@return table
-function DF:InstallTemplate(widgetType, templateName, template, parentName)
+function DF:InstallTemplate(templateCategory, templateName, template, parentName)
 	local newTemplate = {}
 
 	--if has a parent, just copy the parent to the new template
 	if (parentName and type(parentName) == "string") then
-		local parentTemplate = DF:GetTemplate(widgetType, parentName)
+		local parentTemplate = DF:GetTemplate(templateCategory, parentName)
 		if (parentTemplate) then
 			DF.table.copy(newTemplate, parentTemplate)
 		end
@@ -2727,10 +2930,10 @@ function DF:InstallTemplate(widgetType, templateName, template, parentName)
 	--copy the template passed into the new template
 	DF.table.copy(newTemplate, template)
 
-	widgetType = string.lower(widgetType)
+	templateCategory = string.lower(templateCategory)
 
 	local templateTable
-	if (widgetType == "font") then
+	if (templateCategory == "font") then
 		templateTable = DF.font_templates
 
 		local font = template.font
@@ -2740,16 +2943,16 @@ function DF:InstallTemplate(widgetType, templateName, template, parentName)
 			font = DF:GetBestFontForLanguage(nil, font)
 		end
 
-	elseif (widgetType == "dropdown") then
+	elseif (templateCategory == "dropdown") then
 		templateTable = DF.dropdown_templates
 
-	elseif (widgetType == "button") then
+	elseif (templateCategory == "button") then
 		templateTable = DF.button_templates
 
-	elseif (widgetType == "switch") then
+	elseif (templateCategory == "switch") then
 		templateTable = DF.switch_templates
 
-	elseif (widgetType == "slider") then
+	elseif (templateCategory == "slider") then
 		templateTable = DF.slider_templates
 	end
 
@@ -2780,7 +2983,10 @@ function DF:GetTemplate(widgetType, templateName)
 	return templateTable[templateName]
 end
 
-function DF.GetParentName(frame)
+---get the name of the parent of the passed frame
+---@param frame frame
+---@return string
+function DF:GetParentName(frame)
 	local parentName = frame:GetName()
 	if (not parentName) then
 		error("Details! FrameWork: called $parent but parent was no name.", 2)
@@ -2788,7 +2994,7 @@ function DF.GetParentName(frame)
 	return parentName
 end
 
-function DF:Error (errortext)
+function DF:Error(errortext)
 	print("|cFFFF2222Details! Framework Error|r:", errortext, self.GetName and self:GetName(), self.WidgetType, debugstack (2, 3, 0))
 end
 

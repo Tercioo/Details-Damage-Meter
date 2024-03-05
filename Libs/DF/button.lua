@@ -735,9 +735,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 ---width, height, icon|table, textcolor, textsize, textfont, textalign, backdrop, backdropcolor, backdropbordercolor, onentercolor, onleavecolor, onenterbordercolor, onleavebordercolor
 ---@param template table|string
 function ButtonMetaFunctions:SetTemplate(template)
-	if (type(template) == "string") then
-		template = detailsFramework:GetTemplate("button", template)
-	end
+	template = detailsFramework:ParseTemplate(self.type, template)
 
 	if (not template) then
 		detailsFramework:Error("template not found")
@@ -859,7 +857,7 @@ end
 		self:SetScript("OnEnable", onEnableFunc)
 	end
 
-	---@class df_button : button, df_scripthookmixin
+	---@class df_button : button, df_scripthookmixin, df_widgets
 	---@field widget button
 	---@field tooltip string
 	---@field shown boolean

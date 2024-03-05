@@ -46,8 +46,57 @@
 ---@field nativeHeight number?
 ---@field desaturated boolean?
 ---@field desaturation number?
+---@field atlas string?
 
----@alias templatetype
+---@alias df_templatename string
+
+---@class df_template : table
+---@field width any
+---@field height any
+---@field backdrop any
+---@field backdropcolor any
+---@field backdropbordercolor any
+---@field onentercolor any
+---@field onleavecolor any
+---@field onenterbordercolor any
+---@field onleavebordercolor any
+---@field icon any
+---@field size any
+---@field textsize any
+---@field font any
+---@field textfont any
+---@field color any
+---@field textcolor any
+---@field textalign any
+---@field rounded_corner any
+---@field thumbtexture any
+---@field slider_left any
+---@field slider_right any
+---@field slider_middle any
+---@field thumbwidth any
+---@field thumbheight any
+---@field thumbcolor any
+---@field amount_color any
+---@field amount_outline any
+---@field amount_size any
+---@field enabled_backdropcolor any
+---@field disabled_backdropcolor any
+---@field is_checkbox any
+---@field checked_texture any
+---@field checked_xoffset any
+---@field checked_yoffset any
+---@field checked_size_percent any
+---@field checked_color any
+
+
+
+---@class df_widgets : table
+---@field type string
+---@field dframework boolean
+---@field container frame
+---@field widget frame
+
+---@alias templatecategory
 ---| "font"
 ---| "dropdown"
 ---| "button"
@@ -75,6 +124,12 @@
 ---@field AnchorPoints string[]
 ---@field alias_text_colors table<string, number[]>
 ---@field ClassFileNameToIndex table<string, number> engClass -> classIndex
+---@field ClientLanguage string
+---@field dropdown_templates table<df_templatename, df_template>
+---@field switch_templates table<df_templatename, df_template>
+---@field button_templates table<df_templatename, df_template>
+---@field slider_templates table<df_templatename, df_template>
+---@field font_templates table<df_templatename, df_template>
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
 ---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
 ---@field GetCurrentClassName fun(self:table) : string return the name of the class the player is playing
@@ -106,9 +161,10 @@
 ---@field GetFontSize fun(self:table, fontstring:fontstring) : number return the font size of the fontstring
 ---@field SetFontColor fun(self:table, fontstring:fontstring, red:any, green:number?, blue:number?, alpha:number?)
 ---@field SetFontFace fun(self:table, fontstring:fontstring, font:string)
+---@field SetFontDefault fun(self:table, fontstring:fontstring)
 ---@field GetFontFace fun(self:table, fontstring:fontstring) : string return the font face of the fontstring
 ---@field SetFontShadow fun(self:table, fontstring:fontstring, red:any, green:number?, blue:number?, alpha:number?, offsetX:number?, offsetY:number?)
----@field SetFontOutline fun(self:table, fontstring:fontstring, outline:fontflags)
+---@field SetFontOutline fun(self:table, fontstring:fontstring, outline:outline)
 ---@field RemoveRealmName fun(self:table, name:string) : string, number remove the realm name from the player name, must be in the format of "name-realm"
 ---@field RemoveOwnerName fun(self:table, name:string) : string, number removes the owner name from a name string, the owner name must be between < and >
 ---@field CleanUpName fun(self:table, name:string) : string removes the realm name and owner name from a name string
@@ -135,7 +191,7 @@
 ---@field NewColor fun(self:table, colorName:string, red:number, green:number, blue:number, alpha:number?) : table
 ---@field CreateKeybindFrame fun(self:table, parent:frame, name:string?, options:table?, setKeybindCallback:function?, keybindData:table?) : df_keybindframe
 ---@field CreateStatusBar fun(self:table, parent:frame, options:table?) : frame
----@field GetTemplate fun(self:table, templateType:templatetype, templateName:string) : table
+---@field GetTemplate fun(self:table, templatecategory:templatecategory, templateName:string) : table
 ---@field UpdateLoadConditionsTable fun(self:table, loadConditionsTable:table)
 ---@field IconPick fun(self:table, callback:function, bCloseWhenSelect:boolean?, param1:any?, param2:any?)
 ---@field OpenLoadConditionsPanel fun(self:table, optionsTable:table, callback:function, frameOptions:table?)
@@ -193,7 +249,17 @@
 ---@field IsTexture fun(self:table, texture:any, bCheckTextureObject: boolean?) : boolean
 ---@field CreateAtlasString fun(self:table, atlas:atlasinfo|atlasname, textureHeight:number?, textureWidth:number?) : string
 ---@field SetMask fun(self:table, texture:texture, maskTexture:atlasname|texturepath|textureid) : nil
+---@field GetClientRegion fun(self:table) : string
+---@field GetBestFontPathForLanguage fun(self:table, languageId:string) : string
+---@field SetTemplate fun(self:table, frame:uiobject, template:string)
+---@field ParseTemplate fun(self:table, templateCategory:string, template:string|table) : table
+---@field GetParentName fun(self:table, frame:uiobject) : string
+---@field IsLatinLanguage fun(self:table, languageId:string) : boolean
 ---@field
+---@field
+---@field
+
+
 
 
 --[=[

@@ -1,5 +1,7 @@
 
 local Details = Details
+
+---@type detailsframework
 local DF = DetailsFramework
 
 --create the main frame for the options panel
@@ -27,12 +29,23 @@ local createOptionsPanel = function()
     DF:ApplyStandardBackdrop(optionsFrame, bUseSolidColor)
 
     local resetSettings = function()
+        --overwrite the settings for the spell frame
         for key, value in pairs (Details.default_global_data.breakdown_spell_tab) do
             if (type(value) == "table") then
                 local t = DF.table.copy({}, value)
                 Details.breakdown_spell_tab[key] = t
             else
                 Details.breakdown_spell_tab[key] = value
+            end
+        end
+
+        --overwrite the settings for the general frame
+        for key, value in pairs (Details.default_global_data.breakdown_general) do
+            if (type(value) == "table") then
+                local t = DF.table.copy({}, value)
+                Details.breakdown_general[key] = t
+            else
+                Details.breakdown_general[key] = value
             end
         end
 
@@ -60,6 +73,36 @@ local createOptionsPanel = function()
     local subSectionTitleTextTemplate = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")
 
     local optionsTable = {
+        {type = "label", get = function() return "General Settings" end, text_template = subSectionTitleTextTemplate},
+        --background color from setting Details.frame_background_color
+            { --background color
+                type = "color",
+                get = function()
+                        local colorTable = Details.frame_background_color
+                        return colorTable[1], colorTable[2], colorTable[3], colorTable[4]
+                    end,
+                set = function(self, r, g, b, a)
+                    local colorTable = Details.frame_background_color
+
+                    --/run Details.frame_background_color = {0.1215, 0.1176, 0.1294, 0.934}
+
+                    local normalizedRed = DF.Math.MapRangeClamped(0, 1, 0, 0.1215, r)
+                    local normalizedGreen = DF.Math.MapRangeClamped(0, 1, 0, 0.1176, g)
+                    local normalizedBlue = DF.Math.MapRangeClamped(0, 1, 0, 0.1294, b)
+                    local normalizedAlpha = DF.Math.MapRangeClamped(0, 1, 0.8, 0.98, a)
+
+                    colorTable[1] = normalizedRed
+                    colorTable[2] = normalizedGreen
+                    colorTable[3] = normalizedBlue
+                    colorTable[4] = normalizedAlpha
+                    Details:SetBreakdownWindowColor(normalizedRed, normalizedGreen, normalizedBlue, normalizedAlpha)
+                end,
+                name = "Background Color",
+                desc = "Background Color",
+            },
+
+        {type = "blank"},
+
         {type = "label", get = function() return "Spell Details Block" end, text_template = subSectionTitleTextTemplate},
             {--block height
                 type = "range",
@@ -75,7 +118,6 @@ local createOptionsPanel = function()
                 desc = "Block Height",
             },
 
-        {type = "blank"},
         {type = "blank"},
 
         {type = "label", get = function() return "Spell Header Options" end, text_template = subSectionTitleTextTemplate},
@@ -166,6 +208,62 @@ local createOptionsPanel = function()
                 name = "Heal Absorbed",
                 desc = "Heal Absorbed",
             },
+
+        {type = "blank"},
+
+        {type = "label", get = function() return "Text Options" end, text_template = subSectionTitleTextTemplate},
+            { --font color
+                type = "color",
+                get = function() return Details.breakdown_general.font_color[1], Details.breakdown_general.font_color[2], Details.breakdown_general.font_color[3], Details.breakdown_general.font_color[4] end,
+                set = function(self, r, g, b, a)
+                    local colorTable = Details.breakdown_general.font_color
+                    colorTable[1] = r
+                    colorTable[2] = g
+                    colorTable[3] = b
+                    colorTable[4] = a
+                    Details:UpdateBreakdownPlayerList()
+                end,
+                name = "Text Color",
+                desc = "Text Color",
+            },
+
+            { --font size
+                type = "range",
+                get = function() return Details.breakdown_general.font_size end,
+                set = function(self, fixedparam, value)
+                    Details.breakdown_general.font_size = value
+                    Details:UpdateBreakdownPlayerList()
+                end,
+                min = 8,
+                max = 20,
+                step = 1,
+                name = "Text Size",
+                desc = "Text Size",
+            },
+
+            { --font outline
+                type = "outlinedropdown",
+                get = function() return Details.breakdown_general.font_outline end,
+                set = function(self, fixedparam, value)
+                    Details.breakdown_general.font_outline = value
+                    Details:UpdateBreakdownPlayerList()
+                end,
+                name = "Text Outline",
+                desc = "Text Outline",
+            },
+
+            {---font face
+                type = "fontdropdown",
+                get = function() return Details.breakdown_general.font_face end,
+                set = function(self, fixedparam, value)
+                    Details.breakdown_general.font_face = value
+                    Details:UpdateBreakdownPlayerList()
+                end,
+                name = "Font Face",
+                desc = "Font Face",
+                include_default = true,
+            },
+
 
         {type = "breakline"},
         {type = "label", get = function() return "Scroll Options" end, text_template = subSectionTitleTextTemplate},

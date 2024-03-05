@@ -137,6 +137,7 @@
 ---@field container_type table<containertype, string> [containertype] = "damage" or "heal" or "energy" or "utility"
 ---@field TextureAtlas table<atlasname, df_atlasinfo>
 ---@field playername string
+---@field breakdown_general profile_breakdown_settings
 ---@field 
 ---@field GetDisplayClassByDisplayId fun(self: details, displayId: number) : table -return the class object for the given displayId (attributeId)
 ---@field GetTextureAtlas fun(self: details, atlasName: atlasname) : df_atlasinfo return the texture atlas data
@@ -787,3 +788,8 @@
 ---@class details222 : table
 ---@field TimeMachine timemachine
 
+---@class profile_breakdown_settings : table
+---@field font_size number
+---@field font_color color
+---@field font_outline outline
+---@field font_face string

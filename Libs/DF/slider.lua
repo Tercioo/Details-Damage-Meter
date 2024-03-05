@@ -941,7 +941,7 @@ local set_as_checkbok = function(self)
 	end
 end
 
----@class df_checkbox : df_button
+---@class df_checkbox : df_button, df_widgets
 ---@field OnSwitch fun(self:df_checkbox, fixedValue:any, value:boolean)
 ---@field SetValue fun(self:df_button, value:boolean)
 ---@field GetValue fun(self:df_button):boolean
@@ -992,6 +992,7 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 
 	local slider = DF:NewButton(parent, container, name, member, width, height)
 	slider.HookList.OnSwitch = {}
+	slider.type = "switch"
 
 	slider.switch_func = switch_func
 	slider.return_func = return_func
@@ -1056,16 +1057,7 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 end
 
 function DFSliderMetaFunctions:SetTemplate(template)
-	if (type(template) == "string") then
-		local templateName = template
-		template = DF:GetTemplate("switch", templateName)
-		if (not template) then
-			template = DF:GetTemplate("slider", templateName)
-			if (not template) then
-				print("no template found", templateName)
-			end
-		end
-	end
+	template = DF:ParseTemplate(self.type, template)
 
 	--slider e switch
 	if (template.width) then
@@ -1123,7 +1115,6 @@ function DFSliderMetaFunctions:SetTemplate(template)
 		end
 	end
 
-
 	if (template.thumbwidth) then
 		if (self.thumb) then
 			self.thumb:SetWidth(template.thumbwidth)
@@ -1178,7 +1169,7 @@ end
 --DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 --DF:Mixin(DFSliderMetaFunctions, DF.TooltipHandlerMixin)
 
----@class df_slider : slider, df_scripthookmixin
+---@class df_slider : slider, df_scripthookmixin, df_widgets
 ---@field widget slider
 ---@field slider slider
 ---@field type string
@@ -1225,7 +1216,7 @@ function DF:NewSlider (parent, container, name, member, width, height, minValue,
 	end
 
 	if (name:find("$parent")) then
-		local parentName = DF.GetParentName(parent)
+		local parentName = DF:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 
@@ -1264,6 +1255,7 @@ function DF:NewSlider (parent, container, name, member, width, height, minValue,
 		SliderObject.slider:SetValueStep(0.01)
 	else
 		SliderObject.slider:SetValueStep(step)
+		SliderObject.slider:SetObeyStepOnDrag(true)
 	end
 
 	if (not APISliderFunctions) then

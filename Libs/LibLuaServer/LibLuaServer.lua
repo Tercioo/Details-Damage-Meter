@@ -152,8 +152,17 @@ function LibStub:IterateLibraries()end
 
 ---@alias outline
 ---| "NONE"
+---| "MONOCHROME"
 ---| "OUTLINE"
 ---| "THICKOUTLINE"
+---| "OUTLINEMONOCHROME"
+---| "THICKOUTLINEMONOCHROME"
+---| "none"
+---| "monochrome"
+---| "outline"
+---| "thickoutline"
+---| "outlinemonochrome"
+---| "thickoutlinemonochrome"
 
 ---@alias orientation
 ---| "HORIZONTAL"

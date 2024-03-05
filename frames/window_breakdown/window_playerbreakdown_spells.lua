@@ -563,7 +563,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 18, Loc["STRING_OPTIONS_PLUGINS_OPTIONS"], 14)
 	--optionsButton:SetTemplate(DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 	optionsButton:SetPoint("bottomright", tabFrame, "bottomright", -10, -19)
-	optionsButton:SetTemplate("OPTIONS_BUTTON_TEMPLATE")
+	optionsButton:SetTemplate("STANDARD_GRAY")
 	optionsButton:SetIcon(Details:GetTextureAtlas("breakdown-icon-optionsbutton"))
 	optionsButton.textsize = 12
 	optionsButton.textcolor = "DETAILS_STATISTICS_ICON"
@@ -643,7 +643,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	reportButton:SetPoint("right", optionsButton, "left", -5, 0)
 	reportButton.textsize = 12
 	reportButton.textcolor = "DETAILS_STATISTICS_ICON"
-	reportButton:SetTemplate("OPTIONS_BUTTON_TEMPLATE")
+	reportButton:SetTemplate("STANDARD_GRAY")
 	reportButton:SetIcon(Details:GetTextureAtlas("breakdown-icon-reportbutton"))
 	reportButton:SetAlpha(0.834)
 

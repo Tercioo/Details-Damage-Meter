@@ -839,11 +839,12 @@ local createDropdown = function(thisFrame)
 
 		local flashTexture = window:CreateTexture(nil, "background")
 		flashTexture:SetColorTexture(1, 1, 1)
-		flashTexture:SetAllPoints()
+		flashTexture:SetPoint("topleft", window, "topleft", -2, 2)
+		flashTexture:SetPoint("bottomright", window, "bottomright", 2, -2)
 
 		local onShowAnimation = DetailsFramework:CreateAnimationHub(flashTexture, function() flashTexture:Show() end, function() flashTexture:Hide() end)
-		DetailsFramework:CreateAnimation(onShowAnimation, "ALPHA", 1, .2, 0, .10)
-		DetailsFramework:CreateAnimation(onShowAnimation, "ALPHA", 2, .2, .10, 0)
+		DetailsFramework:CreateAnimation(onShowAnimation, "ALPHA", 1, .4, 0, .90)
+		DetailsFramework:CreateAnimation(onShowAnimation, "ALPHA", 2, .4, .90, 0)
 
 		window:SetScript("OnShow", function(self)
 			local dropdown = window.select.MyObject
@@ -882,6 +883,8 @@ local createDropdown = function(thisFrame)
 			end
 
 			window:RefreshRecentlyReported()
+
+			window:SetColor(unpack(Details.frame_background_color))
 		end)
 
 		window:SetScript("OnHide", function(self)

@@ -32,6 +32,7 @@ local _
 ---@field desc string
 ---@field descPhraseId string
 ---@field hooks table
+---@field include_default boolean
 
 ---@class df_menu_toggle : df_menu_table
 ---@field set function
@@ -962,7 +963,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                     do
                         if (widgetTable.type == "selectfont") then
-                            local func = detailsFramework:CreateFontListGenerator(widgetTable.set)
+                            local func = detailsFramework:CreateFontListGenerator(widgetTable.set, widgetTable.include_default)
                             dropdown:SetFunction(func)
 
                         elseif (widgetTable.type == "selectcolor") then
@@ -1202,7 +1203,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 local dropdown
                 do
                     if (widgetTable.type == "selectfont") then
-                        dropdown = detailsFramework:CreateFontDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)
+                        dropdown = detailsFramework:CreateFontDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate, widgetTable.include_default)
 
                     elseif (widgetTable.type == "selectcolor") then
                         dropdown = detailsFramework:CreateColorDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)

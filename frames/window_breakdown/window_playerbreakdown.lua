@@ -32,7 +32,11 @@ function breakdownWindowFrame.RegisterPluginButton(newPluginButton, newPluginObj
 	newPluginButton.PluginAbsoluteName = newPluginAbsoluteName
 	newPluginButton.PluginFrame = newPluginObject.Frame
 
-	newPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+	newPluginButton:SetTemplate("STANDARD_GRAY")
+
+	--get the fontstring for this especific button
+	local fontString = _G[newPluginButton:GetName() .. "_Text"]
+	detailsFramework:SetFontDefault(fontString)
 
 	newPluginObject.__breakdownwindow = true
 
@@ -76,7 +80,7 @@ function breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject, button)
 	--reset the template on all plugin buttons
 	for _, thisPluginButton in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
 		---@cast thisPluginButton df_button
-		thisPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+		thisPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "STANDARD_GRAY")) --"DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"
 	end
 
 	local pluginMainFrame = pluginObject.Frame
@@ -186,8 +190,16 @@ function Details222.BreakdownWindow.HidePluginFrame()
 	--reset the template on all plugin buttons
 	for _, thisPluginButton in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
 		---@cast thisPluginButton df_button
-		thisPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+		thisPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "STANDARD_GRAY"))
 	end
+end
+
+
+function Details222.BreakdownWindow.ApplyFontSettings(fontString)
+	detailsFramework:SetFontSize(fontString, Details.breakdown_general.font_size)
+	detailsFramework:SetFontColor(fontString, Details.breakdown_general.font_color)
+	detailsFramework:SetFontOutline(fontString, Details.breakdown_general.font_outline)
+	detailsFramework:SetFontFace(fontString, Details.breakdown_general.font_face)
 end
 
 ------------------------------------------------------------------------------------------------------------------------------
@@ -248,9 +260,15 @@ end
 
 Details.PlayerBreakdown.RoundedCornerPreset = {
 	roundness = 6,
-	color = {.1, .1, .1, 0.98},
-	border_color = {.05, .05, .05, 0.834},
+	color = {.1, .1, .1, 0.834},
+	--border_color = {.05, .05, .05, 0.834},
 }
+
+function Details:SetBreakdownWindowColor(r, g, b, a)
+	--setcolor implemented by rounded corners
+	breakdownWindowFrame:SetColor(r, g, b, a)
+	breakdownSideMenu:SetColor(r, g, b, a)
+end
 
 ---open the breakdown window
 ---@param self details
@@ -267,9 +285,11 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	if (not breakdownWindowFrame.__rcorners) then
 		breakdownWindowFrame:SetBackdropColor(.1, .1, .1, 0)
 		breakdownWindowFrame:SetBackdropBorderColor(.1, .1, .1, 0)
-		breakdownWindowFrame.__background:Hide()
 		detailsFramework:AddRoundedCornersToFrame(breakdownWindowFrame, Details.PlayerBreakdown.RoundedCornerPreset)
+		detailsFramework:AddRoundedCornersToFrame(breakdownSideMenu, Details.PlayerBreakdown.RoundedCornerPreset)
 	end
+
+	Details:SetBreakdownWindowColor(unpack(Details.frame_background_color))
 
 	if (not Details.row_singleclick_overwrite[mainAttribute] or not Details.row_singleclick_overwrite[mainAttribute][subAttribute]) then
 		Details:CloseBreakdownWindow()
@@ -673,10 +693,6 @@ function breakdownWindowFrame.SetClassIcon(actorObject, class)
 	end
 end
 
-function Details:SetBreakdownWindowBackgroundTexture(texture)
-	breakdownWindowFrame.backgroundTexture:SetTexture(texture)
-end
-
 --search key: ~create ~inicio ~start
 function Details:CreateBreakdownWindow()
 	table.insert(UISpecialFrames, breakdownWindowFrame:GetName())
@@ -711,13 +727,6 @@ function Details:CreateBreakdownWindow()
 			end)
 		end
 	end
-
-	detailsFramework:ApplyStandardBackdrop(breakdownWindowFrame)
-
-	--background
-	breakdownWindowFrame.backgroundTexture = breakdownWindowFrame:CreateTexture("$parent", "background", nil, -3)
-	breakdownWindowFrame.backgroundTexture:SetAllPoints()
-	breakdownWindowFrame.backgroundTexture:Hide()
 
 	--host the textures and fontstring of the default frame of the player breakdown window
 	--what is the summary window: is the frame where all the widgets for the summary tab are created
@@ -790,12 +799,17 @@ function Details:CreateBreakdownWindow()
 	local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
 	local gradientUp = detailsFramework:CreateTexture(breakdownWindowFrame, {gradient = "vertical", fromColor = gradientStartColor, toColor = {0, 0, 0, 0.2}}, 1, 68, "artwork", {0, 1, 0, 1})
 	gradientUp:SetPoint("tops", 1, 18)
-	--gradientUp:Hide()
+	breakdownWindowFrame.gradientUp = gradientUp
 
 	local gradientHeight = 481
 	local gradientDown = detailsFramework:CreateTexture(breakdownWindowFrame, {gradient = "vertical", fromColor = "transparent", toColor = {0, 0, 0, 0.7}}, 1, gradientHeight, "border", {0, 1, 0, 1})
 	gradientDown:SetPoint("bottomleft", breakdownWindowFrame.statusBar, "topleft", 1, 1)
 	gradientDown:SetPoint("bottomright", breakdownWindowFrame.statusBar, "topright", -1, 1)
+	breakdownWindowFrame.gradientDown = gradientDown
+
+	--visual debugging
+	gradientUp:Hide()
+	gradientDown:Hide()
 
 	function breakdownWindowFrame:SetStatusbarText(text, fontSize, fontColor)
 		if (not text) then
@@ -924,10 +938,11 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 	tabFrame:SetPoint("bottomright", breakdownWindowFrame, "bottomright", -1, 20)
 	tabFrame:Hide()
 
-	DetailsFramework:ApplyStandardBackdrop(tabFrame)
-	tabFrame:SetBackdropBorderColor(0, 0, 0, 0.3)
-	tabFrame.__background:SetAlpha(0.3)
-	tabFrame.RightEdge:Hide()
+	--DetailsFramework:ApplyStandardBackdrop(tabFrame)
+	--tabFrame:SetBackdropColor(0, 0, 0, 0)
+	--tabFrame:SetBackdropBorderColor(0, 0, 0, 0)
+	--tabFrame.__background:SetAlpha(0)
+	--tabFrame.RightEdge:Hide()
 
 	--create the gradients in the top and bottom side of the breakdown window
 	local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")

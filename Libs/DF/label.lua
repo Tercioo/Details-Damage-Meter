@@ -249,6 +249,8 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 --template
 
 	function LabelMetaFunctions:SetTemplate(template)
+		template = detailsFramework:ParseTemplate(self.type, template)
+
 		if (template.size) then
 			detailsFramework:SetFontSize(self.label, template.size)
 		end
@@ -266,7 +268,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
----@class df_label: fontstring
+---@class df_label: fontstring, df_widgets
 ---@field widget fontstring widget and label points to the same fontstring
 ---@field label fontstring widget and label points to the same fontstring
 ---@field align justifyh
@@ -336,11 +338,10 @@ function detailsFramework:NewLabel(parent, container, name, member, text, font, 
 	end
 
 	if (name:find("$parent")) then
-		local parentName = detailsFramework.GetParentName(parent)
+		local parentName = detailsFramework:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 
-	---@type df_label
 	local labelObject = {type = "label", dframework = true}
 
 	if (member) then
@@ -359,6 +360,7 @@ function detailsFramework:NewLabel(parent, container, name, member, text, font, 
 		font = "GameFontNormal"
 	end
 
+	labelObject.container = container
 	labelObject.label = parent:CreateFontString(name, layer or "overlay", font)
 	labelObject.widget = labelObject.label
 	labelObject.label.MyObject = labelObject

@@ -37,6 +37,8 @@ DF.Math = {}
 ---@field Clamp fun(minValue: number, maxValue: number, value: number) : number dont allow a number ot be lower or bigger than a certain range
 ---@field Round fun(num: number, numDecimalPlaces: number) : number cut fractions on a float
 ---@field GetObjectCoordinates fun(object: uiobject) : objectcoordinates return the coordinates of the four corners of an object
+---@field MultiplyBy fun(value: number, ...) : ... multiply all the passed values by value.
+---@field MapRangeColor fun(inputX: number, inputY: number, outputX: number, outputY: number, red: number, green: number, blue: number) : number, number, number
 
 
 ---find distance between two units
@@ -67,6 +69,31 @@ end
 
 function DF.Math.MapRangeClamped(inputX, inputY, outputX, outputY, value)
 	return DF.Math.GetRangeValue(outputX, outputY, Clamp(DF.Math.GetRangePercent(inputX, inputY, value), 0, 1))
+end
+
+---*Receives a color, the range of the color and a range to map the color to, returns the color in the new range
+---*Example: MapRangeColor(0, 1, 0, 255, 0.5, 0.5, 0.5) returns 127.5, 127.5, 127.5
+---@param inputX number X range of the original color
+---@param inputY number Y range of the original color
+---@param outputX number X range of the new color
+---@param outputY number Y range of the new color
+---@param red number
+---@param green number
+---@param blue number
+---@return number, number, number
+function DF.Math.MapRangeColor(inputX, inputY, outputX, outputY, red, green, blue)
+	local newR = DF.Math.MapRangeClamped(inputX, inputY, outputX, outputY, red)
+	local newG = DF.Math.MapRangeClamped(inputX, inputY, outputX, outputY, green)
+	local newB = DF.Math.MapRangeClamped(inputX, inputY, outputX, outputY, blue)
+	return newR, newG, newB
+end
+
+function DF.Math.MultiplyBy(value, ...)
+	local values = {}
+	for i = 1, select("#", ...) do
+		values[i] = select(i, ...) * value
+	end
+	return unpack(values)
 end
 
 function DF.Math.MapRangeUnclamped(inputX, inputY, outputX, outputY, value)

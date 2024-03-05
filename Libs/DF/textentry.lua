@@ -596,7 +596,7 @@ function detailsFramework:NewTextEntry(parent, container, name, member, width, h
 	end
 
 	if (name:find("$parent")) then
-		local parentName = detailsFramework.GetParentName(parent)
+		local parentName = detailsFramework:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 
@@ -1065,7 +1065,7 @@ end
 function detailsFramework:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointent, showLineNumbers, bNoName)
 	if (not bNoName) then
 		if (name and name:find("$parent")) then
-			local parentName = detailsFramework.GetParentName(parent)
+			local parentName = detailsFramework:GetParentName(parent)
 			name = name:gsub("$parent", parentName)
 		end
 	else

@@ -368,8 +368,8 @@ local segmentTypeToString = {
 
 	---return the atlasinfo for the combat icon
 	---@param self combat
-	---@return df_atlasinfo
-	---@return df_atlasinfo?
+	---@return df_atlasinfo segmentIcon
+	---@return df_atlasinfo? categoryIcon
 	function classCombat:GetCombatIcon()
 		local textureAtlas = Details:GetTextureAtlasTable()
 
@@ -386,19 +386,19 @@ local segmentTypeToString = {
 			return textureAtlas["segment-icon-mythicplus"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
-			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-mythicplus-overall"]
+			return textureAtlas["segment-icon-mythicplus-overall"], textureAtlas["segment-icon-mythicplus"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSTRASH) then
-			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-broom"]
+			return textureAtlas["segment-icon-broom"], textureAtlas["segment-icon-mythicplus"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
-			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-skull"]
+			return textureAtlas["segment-icon-skull"], textureAtlas["segment-icon-mythicplus"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
-			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-skull"]
+			return textureAtlas["segment-icon-skull"], textureAtlas["segment-icon-mythicplus"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
-			return textureAtlas["segment-icon-mythicplus"], textureAtlas["segment-icon-broom"]
+			return textureAtlas["segment-icon-broom"], textureAtlas["segment-icon-mythicplus"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC) then
 			return textureAtlas["segment-icon-mythicplus"]
@@ -413,6 +413,19 @@ local segmentTypeToString = {
 			return textureAtlas["segment-icon-broom"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_RAID_BOSS) then
+			local bossInfo = self:GetBossInfo()
+			local difficulty = bossInfo.diff
+
+			if (difficulty == 16) then --mythic
+				return textureAtlas["segment-icon-skull"], textureAtlas["segment-icon-mythicraid"]
+
+			elseif (difficulty == 15) then --heroic
+				return textureAtlas["segment-icon-skull"], textureAtlas["segment-icon-heroicraid"]
+
+			elseif (difficulty == 14) then --heroic
+				return textureAtlas["segment-icon-skull"], textureAtlas["segment-icon-normalraid"]
+			end
+
 			return textureAtlas["segment-icon-skull"]
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY) then
@@ -428,7 +441,7 @@ local segmentTypeToString = {
 	local partyColor = {170/255, 167/255, 255/255}
 	local loveIsInTheAirColor = {1, 0.411765, 0.705882, 1}
 	local bossKillColor = "lime"
-	local bossWipeColor = "red"
+	local bossWipeColor = "orange"
 	local mythicDungeonBossColor = {170/255, 167/255, 255/255, 1}
 	local mythicDungeonBossWipeColor = {0.803922, 0.360784, 0.360784, 1}
 	local mythicDungeonBossColor2 = {210/255, 200/255, 255/255, 1}
@@ -514,7 +527,11 @@ local segmentTypeToString = {
 				local formattedTime = self:GetFormattedCombatTime()
 				local tryNumber = self:GetTryNumber()
 				if (tryNumber) then
-					return bossInfo.name .." (#" .. tryNumber .. " " .. formattedTime .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
+					if (bOnlyName) then
+						return bossInfo.name .." (#" .. tryNumber .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
+					else
+						return bossInfo.name .." (#" .. tryNumber .. " " .. formattedTime .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
+					end
 				else
 					local segmentId = self:GetSegmentSlotId()
 					return bossInfo.name .." (#" .. segmentId .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)

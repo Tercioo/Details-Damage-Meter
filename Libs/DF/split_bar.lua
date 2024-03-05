@@ -727,7 +727,7 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 	end
 	
 	if (name:find("$parent")) then
-		local parentName = DF.GetParentName(parent)
+		local parentName = DF:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 	

@@ -761,7 +761,7 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 	end
 	
 	if (name:find("$parent")) then
-		local parentName = DF.GetParentName(parent)
+		local parentName = DF:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 	

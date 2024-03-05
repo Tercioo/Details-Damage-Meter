@@ -1443,6 +1443,15 @@ local default_global_data = {
 			},
 		},
 
+	breakdown_general = {
+		font_size = 11,
+		font_color = {0.9, 0.9, 0.9, 0.923},
+		font_outline = "NONE",
+		font_face = "DEFAULT",
+	},
+
+	frame_background_color = {0.1215, 0.1176, 0.1294, 0.8},
+
 --/run Details.breakdown_spell_tab.spellcontainer_height = 311 --352
 	--breakdown spell tab
 	breakdown_spell_tab = {

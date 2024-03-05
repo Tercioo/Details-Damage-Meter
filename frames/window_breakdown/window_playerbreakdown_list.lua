@@ -22,7 +22,7 @@ local scrollbox_size = {215, 405}
 local scrollbox_lines = 20
 local player_line_height = 20
 local scrollbox_line_backdrop_color = {0.2, 0.2, 0.2, 0.5}
-local scrollbox_line_backdrop_color_selected = {1, 1, 0, 0.934}
+local scrollbox_line_backdrop_color_selected = {1, 1, 0, 0.45}
 local scrollbox_line_backdrop_color_highlight = {.9, .9, .9, 0.5}
 local player_scroll_size = {195, 288}
 
@@ -100,22 +100,24 @@ end
 local refreshPluginButtons = function(breakdownWindowFrame, pluginsFrame, breakdownSideMenu)
 	local amountPluginButtons = #breakdownWindowFrame.RegisteredPluginButtons
 	local pluginButtonHeight = 20
-	local spacingBetweenButtons = 2
+	local spacingBetweenButtons = 1
 	local totalHeight = 0
 
 	for i = 1, amountPluginButtons do
 		---@type button
 		local pluginButton = breakdownWindowFrame.RegisteredPluginButtons[i]
 		pluginButton:Show()
-		pluginButton:SetWidth(pluginsFrame:GetWidth() - 4)
-		pluginButton:SetHeight(pluginButtonHeight)
+		PixelUtil.SetSize(pluginButton, pluginsFrame:GetWidth() - 4, pluginButtonHeight)
 		pluginButton:ClearAllPoints()
 
 		if (i == 1) then
-			pluginButton:SetPoint("topleft", pluginsFrame, "topleft", 2, -22)
+			PixelUtil.SetPoint(pluginButton, "topleft", pluginsFrame, "topleft", 2, -22)
 		else
-			pluginButton:SetPoint("topleft", breakdownWindowFrame.RegisteredPluginButtons[i - 1], "bottomleft", 0, -spacingBetweenButtons)
+			PixelUtil.SetPoint(pluginButton, "topleft", breakdownWindowFrame.RegisteredPluginButtons[i - 1], "bottomleft", 0, -spacingBetweenButtons)
 		end
+
+		local fontString = _G[pluginButton:GetName() .. "_Text"]
+		Details222.BreakdownWindow.ApplyFontSettings(fontString)
 
 		totalHeight = totalHeight + pluginButtonHeight + spacingBetweenButtons
 	end
@@ -125,7 +127,7 @@ local refreshPluginButtons = function(breakdownWindowFrame, pluginsFrame, breakd
 
 	pluginsFrame:SetPoint("topleft", breakdownSideMenu, "topleft", 0, 0)
 	pluginsFrame:SetWidth(breakdownSideMenu:GetWidth())
-	pluginsFrame:SetHeight(amountPluginButtons * pluginButtonHeight + 22 + (amountPluginButtons * 2))
+	pluginsFrame:SetHeight(amountPluginButtons * pluginButtonHeight + 22 + (amountPluginButtons * 1))
 
 	return totalHeight
 end
@@ -275,6 +277,10 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 			self.percentileText:SetAlpha(0.25)
 		end
 
+		Details222.BreakdownWindow.ApplyFontSettings(self.playerName)
+		Details222.BreakdownWindow.ApplyFontSettings(self.itemLevelText)
+		Details222.BreakdownWindow.ApplyFontSettings(self.percentileText)
+
 		--set the statusbar
 		local r, g, b = self.playerObject:GetClassColor()
 		self.totalStatusBar:SetStatusBarColor(r, g, b, 1)
@@ -311,59 +317,49 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 	local createPlayerLine = function(self, index)
 		--create a new line
 		local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
+		detailsFramework:SetTemplate(line, "STANDARD_GRAY")
+
 		detailsFramework:Mixin(line, detailsFramework.HeaderFunctions)
 
-		local upFrame = CreateFrame("frame", nil, line)
-		upFrame:SetFrameLevel(line:GetFrameLevel()+2)
-		upFrame:SetAllPoints()
+		---@type frame
+		local OTTFrame = CreateFrame("frame", nil, line)
+		OTTFrame:SetFrameLevel(line:GetFrameLevel()+2)
+		OTTFrame:SetAllPoints()
+		line.OTTFrame = OTTFrame
 
-		--set its parameters
-		line:SetPoint("topleft", breakdownWindowFrame.PlayerSelectionHeader, "topleft", 1, -((index) * (player_line_height)))
-		line:SetSize(scrollbox_size[1]-2, player_line_height)
+		PixelUtil.SetPoint(line, "topleft", breakdownWindowFrame.PlayerSelectionHeader, "topleft", 1, -((index) * (player_line_height+1)))
+		PixelUtil.SetSize(line, scrollbox_size[1]-2, player_line_height)
+
 		line:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-
 		line:SetScript("OnEnter", lineOnEnter)
 		line:SetScript("OnLeave", lineOnLeave)
 		line:SetScript("OnClick", lineOnClick)
 
-		detailsFramework:ApplyStandardBackdrop(line)
-
-		local specIcon = upFrame:CreateTexture("$parentSpecIcon", "artwork")
+		local specIcon = OTTFrame:CreateTexture("$parentSpecIcon", "artwork")
 		specIcon:SetSize(headerTable[1].width - 1, headerTable[1].width - 1)
-		specIcon:SetAlpha(0.71)
+		specIcon:SetAlpha(0.834)
 		detailsFramework:SetMask(specIcon, [[Interface\COMMON\common-iconmask]])
 
-		local roleIcon = upFrame:CreateTexture("$parentRoleIcon", "overlay")
+		local roleIcon = OTTFrame:CreateTexture("$parentRoleIcon", "overlay")
 		roleIcon:SetSize((player_line_height-2) / 2, (player_line_height-2) / 2)
 		roleIcon:SetAlpha(0.71)
 
-		local playerName = detailsFramework:CreateLabel(upFrame, "", 11, "white", "GameFontNormal")
-		if (fontFile) then
-			playerName.fontface = fontFile
-		end
-		if (fontSize) then
-			playerName.fontsize = fontSize
-		end
-		if (fontOutline) then
-			playerName.outline = fontOutline
-		end
+		local playerName = OTTFrame:CreateFontString("$parentPlayerName", "artwork", "GameFontNormal")
+		playerName:SetTextColor(1, 1, 1, .9)
 
-		--~create
-		playerName.textcolor = {1, 1, 1, .9}
-
-		local className = detailsFramework:CreateLabel(upFrame, "", "GameFontNormal")
+		local className = detailsFramework:CreateLabel(OTTFrame, "", "GameFontNormal")
 		className.textcolor = {.95, .8, .2, 0}
 		className.textsize = 9
 
-		local itemLevelText = detailsFramework:CreateLabel(upFrame, "", "GameFontNormal")
+		local itemLevelText = detailsFramework:CreateLabel(OTTFrame, "", "GameFontNormal")
 		itemLevelText.textcolor = {1, 1, 1, .7}
 		itemLevelText.textsize = 11
 
-		local percentileText = detailsFramework:CreateLabel(upFrame, "", "GameFontNormal")
+		local percentileText = detailsFramework:CreateLabel(OTTFrame, "", "GameFontNormal")
 		percentileText.textcolor = {1, 1, 1, .7}
 		percentileText.textsize = 11
 
-		local rankText = detailsFramework:CreateLabel(upFrame, "", "GameFontNormal")
+		local rankText = detailsFramework:CreateLabel(OTTFrame, "", "GameFontNormal")
 		rankText.textcolor = {.3, .3, .3, .7}
 		rankText.textsize = fontSize
 
@@ -507,18 +503,15 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 		local combatName = segmentData.combatName
 		local r, g, b = segmentData.r, segmentData.g, segmentData.b
 		local combatIcon1 = segmentData.combatIcon
-		local combatIcon2 = segmentData.combatIcon2
 
 		self.segmentText:SetText(combatName)
+		Details222.BreakdownWindow.ApplyFontSettings(self.segmentText)
+
 		self.segmentText:SetTextColor(r, g, b)
 		detailsFramework:TruncateText(self.segmentText, player_scroll_size[1] - 20)
-		detailsFramework:SetAtlas(self.segmentIcon, combatIcon1)
 
-		if (combatIcon2) then
-			detailsFramework:SetAtlas(self.segmentSubIcon, combatIcon2)
-		else
-			self.segmentSubIcon:SetTexture("")
-		end
+		local bUseAtlasSize = true
+		detailsFramework:SetAtlas(self.segmentIcon, combatIcon1, bUseAtlasSize)
 
 		self.combatUniqueID = segmentData.UID
 
@@ -559,41 +552,28 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 		--create a new line
 		local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
 		detailsFramework:Mixin(line, detailsFramework.HeaderFunctions)
+		detailsFramework:SetTemplate(line, "STANDARD_GRAY")
 
-		--set its parameters
-		line:SetPoint("topleft", self, "topleft", 1, -((index-1) * (player_line_height)))
-		line:SetSize(scrollbox_size[1]-2, player_line_height)
+		PixelUtil.SetPoint(line, "topleft", self, "topleft", 1, -((index-1) * (player_line_height+1)))
+		PixelUtil.SetSize(line, scrollbox_size[1]-2, player_line_height)
+
 		line:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-
 		line:SetScript("OnEnter", lineOnEnter)
 		line:SetScript("OnLeave", lineOnLeave)
 		line:SetScript("OnClick", lineOnClick)
 
-		detailsFramework:ApplyStandardBackdrop(line)
-
 		--segment icon, this icon will tell which type of segment the line is
+		---@type df_image
 		local segmentIcon = detailsFramework:CreateTexture(line, "", player_line_height, player_line_height - 1, "artwork")
 		segmentIcon:SetSize(player_line_height - 4, player_line_height - 4)
 		segmentIcon:SetAlpha(0.834)
 
-		local segmentSubIcon = detailsFramework:CreateTexture(line, "", player_line_height, player_line_height - 1, "artwork")
-		segmentSubIcon:SetSize(player_line_height - 4, player_line_height - 4)
-		segmentSubIcon:SetAlpha(0.834)
-
-		local segmentText = detailsFramework:CreateLabel(line, "", fontSize or 11, "white", "GameFontNormal")
-		segmentText.outline = fontOutline or "none"
-		segmentText.textcolor = {1, 1, 1, .9}
-		if (fontFile) then
-			segmentText.textfont = fontFile
-		end
-
+		local segmentText = line:CreateFontString("$parentSegmentName", "artwork", "GameFontNormal")
 		line.segmentText = segmentText
 		line.segmentIcon = segmentIcon
-		line.segmentSubIcon = segmentSubIcon
 
 		segmentIcon:SetPoint("left", line, "left", 2, 0)
-		segmentSubIcon:SetPoint("left", segmentIcon, "right", 2, 0)
-		segmentText:SetPoint("left", segmentSubIcon, "right", 3, 1)
+		segmentText:SetPoint("left", segmentIcon.widget, "right", 3, 1)
 
 		line.UpdateLine = updateSegmentLine
 
@@ -637,8 +617,6 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	breakdownSideMenu:SetSize(scrollbox_size[1], scrollbox_size[2])
 	PixelUtil.SetPoint(breakdownSideMenu, "topright", breakdownWindowFrame, "topleft", -2, 0)
 	PixelUtil.SetPoint(breakdownSideMenu, "bottomright", breakdownWindowFrame, "bottomleft", -2, 0)
-
-	detailsFramework:AddRoundedCornersToFrame(breakdownSideMenu, Details.PlayerBreakdown.RoundedCornerPreset)
 
 	--> create headers
 		local sectionHeaderHeight = 20
@@ -758,15 +736,17 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		lastSelectedPlayerPerSegment[Details:GetCombatFromBreakdownWindow():GetCombatUID()] = selectedPlayerName
 		lastSelectedPlayerName = selectedPlayerName
 
+		local playerLineHeight = player_line_height+1 --the +1 is the space between the lines
+
 		--recalculate the height free, now that we know the amount of lines the player scroll will show
-		heightFree = heightFree - (linesForPlayerScroll * player_line_height)
-		local linesForSegmentsScroll = math.floor(heightFree/player_line_height)
+		heightFree = heightFree - (linesForPlayerScroll * playerLineHeight)
+		local linesForSegmentsScroll = math.floor(heightFree/playerLineHeight)
 
 		playerScroll:SetNumFramesShown(linesForPlayerScroll) --looks like it is not updating the 'totalLines' at the refresh function
-		playerScroll:SetHeight(linesForPlayerScroll * player_line_height)
+		playerScroll:SetHeight(linesForPlayerScroll * playerLineHeight)
 
 		segmentsScroll:SetNumFramesShown(linesForSegmentsScroll)
-		segmentsScroll:SetHeight(linesForSegmentsScroll * player_line_height)
+		segmentsScroll:SetHeight(linesForSegmentsScroll * playerLineHeight)
 
 		playerScroll:SetData(playerList)
 		playerScroll:Refresh()
@@ -786,13 +766,12 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 			local UID = combatObject:GetCombatUID()
 
 			local combatName, r, g, b = combatObject:GetCombatName(true)
-			local combatIcon, combatSubIcon = combatObject:GetCombatIcon()
+			local combatIcon, categoryIcon = combatObject:GetCombatIcon()
 
 			segmentsData[i] = {
 				UID = UID,
 				combatName = combatName,
 				combatIcon = combatIcon,
-				combatIcon2 = combatSubIcon,
 				r = r or 1,
 				g = g or 1,
 				b = b or 1,
@@ -826,4 +805,8 @@ function Details.PlayerBreakdown.CreatePlayerListFrame()
 		breakdownWindowPlayerList.CreatePlayerListFrame()
 		Details.PlayerBreakdown.playerListFrameCreated = true
 	end
+end
+
+function Details222.BreakdownWindow.RefreshScrolls()
+	Details:UpdateBreakdownPlayerList()
 end

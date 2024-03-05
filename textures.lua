@@ -113,6 +113,48 @@ Details.TextureAtlas = {
         nativeHeight = 512,
     },
 
+    ["segment-icon-mythicraid"] = {
+        file = [[interface/hud/uiguildbanner2x]],
+        width = 12,
+        height = 12,
+        leftTexCoord = 0.57421875,
+        rightTexCoord = 0.69921875,
+        topTexCoord = 0.13671875,
+        bottomTexCoord = 0.26171875,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 256,
+        nativeHeight = 256,
+    },
+
+    ["segment-icon-heroicraid"] = {
+        file = [[interface/hud/uiguildbanner2x]],
+        width = 12,
+        height = 12,
+        leftTexCoord = 0.57421875,
+        rightTexCoord = 0.69921875,
+        topTexCoord = 0.00390625,
+        bottomTexCoord = 0.12890625,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 256,
+        nativeHeight = 256,
+    },
+
+    ["segment-icon-normalraid"] = {
+        file = [[interface/hud/uiguildbanner]],
+        width = 12,
+        height = 12,
+        leftTexCoord = 0.70703125,
+        rightTexCoord = 0.83203125,
+        topTexCoord = 0.00390625,
+        bottomTexCoord = 0.12890625,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 128,
+        nativeHeight = 128,
+    },
+
     ["segment-icon-regular"] = {
         file = [[Interface\QUESTFRAME\UI-Quest-BulletPoint]],
         width = 16,
