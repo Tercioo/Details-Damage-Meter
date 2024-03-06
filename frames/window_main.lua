@@ -6031,6 +6031,8 @@ local build_mode_list = function(self, deltaTime)
 		gameCooltip:AddMenu(1, function() instance:SetMode(4) end)
 		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
 
+		gameCooltip:ShowRoundedCorner()
+
 		--build raid plugins list
 		local raidPlugins = Details.RaidTables:GetAvailablePlugins()
 		if (#raidPlugins >= 0) then
@@ -6338,6 +6340,8 @@ local buildSegmentTooltip = function(self, deltaTime)
 		gameCooltip:SetOption("RightTextWidth", 105)
 		gameCooltip:SetOption("RightTextHeight", 12)
 		gameCooltip:SetOption("SubFollowButton", true)
+
+		gameCooltip:ShowRoundedCorner()
 
 		local menuIndex = 0
 		Details.segments_amount = floor(Details.segments_amount)
@@ -9042,6 +9046,9 @@ end
 		show_anti_overlap(self.instance, self, "top")
 
 		Details:SetMenuOwner(self, self.instance)
+
+		gameCooltip:ShowRoundedCorner()
+		
 		gameCooltip:ShowCooltip()
 	end
 
@@ -9197,6 +9204,8 @@ local reportButton_OnEnter = function(self, motion, forced)
 
 	Details:SetTooltipMinWidth()
 
+	GameCooltip:ShowRoundedCorner()
+
 	Details:CheckLastReportsIntegrity()
 
 	local lastPeports = Details.latest_report_table
@@ -9300,6 +9309,9 @@ local attributeButton_OnEnter = function(self, motion, forced, from_click)
 
 	GameCooltip:SetOption("TextSize", Details.font_sizes.menus)
 	Details:SetMenuOwner(self, instancia)
+
+	GameCooltip:ShowRoundedCorner()
+
 	GameCooltip:ShowCooltip()
 end
 

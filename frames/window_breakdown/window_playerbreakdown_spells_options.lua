@@ -23,10 +23,17 @@ local createOptionsPanel = function()
     local optionsFrame = DF:CreateSimplePanel(UIParent, 550, 500, "Details! Breakdown Options", "DetailsSpellBreakdownOptionsPanel")
     optionsFrame:SetFrameStrata("DIALOG")
     optionsFrame:SetPoint("topleft", UIParent, "topleft", 2, -40)
+    optionsFrame.Title:SetParent(optionsFrame)
+    optionsFrame.TitleBar:Hide()
     optionsFrame:Show()
 
-    local bUseSolidColor = true
-    DF:ApplyStandardBackdrop(optionsFrame, bUseSolidColor)
+    --remove the backdrop
+    optionsFrame:SetBackdrop(nil)
+
+    --apply rounded corners with the breakdown window preset
+    DF:AddRoundedCornersToFrame(optionsFrame, Details.PlayerBreakdown.RoundedCornerPreset)
+
+    Details:RefreshWindowColor()
 
     local resetSettings = function()
         --overwrite the settings for the spell frame
@@ -222,6 +229,7 @@ local createOptionsPanel = function()
                     colorTable[3] = b
                     colorTable[4] = a
                     Details:UpdateBreakdownPlayerList()
+                    DetailsAllAttributesFrame:UpdateFontStrings()
                 end,
                 name = "Text Color",
                 desc = "Text Color",
@@ -233,6 +241,7 @@ local createOptionsPanel = function()
                 set = function(self, fixedparam, value)
                     Details.breakdown_general.font_size = value
                     Details:UpdateBreakdownPlayerList()
+                    DetailsAllAttributesFrame:UpdateFontStrings()
                 end,
                 min = 8,
                 max = 20,
@@ -247,6 +256,7 @@ local createOptionsPanel = function()
                 set = function(self, fixedparam, value)
                     Details.breakdown_general.font_outline = value
                     Details:UpdateBreakdownPlayerList()
+                    DetailsAllAttributesFrame:UpdateFontStrings()
                 end,
                 name = "Text Outline",
                 desc = "Text Outline",
@@ -258,6 +268,7 @@ local createOptionsPanel = function()
                 set = function(self, fixedparam, value)
                     Details.breakdown_general.font_face = value
                     Details:UpdateBreakdownPlayerList()
+                    DetailsAllAttributesFrame:UpdateFontStrings()
                 end,
                 name = "Font Face",
                 desc = "Font Face",

@@ -5880,19 +5880,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details222.MythicPlus.time = 0.1
 		end
 
-		--if (level >= 28 or Details.user_is_patreon_supporter) then --debug
 		if (Details.mythic_plus.show_damage_graphic) then
 			C_Timer.After(0, function()
 				if (ChallengeModeCompleteBanner) then
 					ChallengeModeCompleteBanner.timeToHold = 0.01
 				end
 			end)
-		end
-
-		--send mythic dungeon end event
-		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-		if (difficultyID == 8) then
-			Details:SendEvent("COMBAT_MYTHICDUNGEON_END")
 		end
 
 		local okay, errorText = pcall(function()
@@ -5920,6 +5913,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				Details222.PlayerStats:SetStat("mythicdungeoncompletedDF2", mythicDungeonRuns)
 			end
 		end)
+
+		--send mythic dungeon end event
+		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+		if (difficultyID == 8) then
+			Details:SendEvent("COMBAT_MYTHICDUNGEON_END")
+		end
 
 		if (not okay) then
 			Details:Msg("something went wrong (0x7878):", errorText)

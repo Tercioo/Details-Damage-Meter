@@ -1617,7 +1617,7 @@ local default_global_data = {
 
 			reverse_death_log = false,
 
-			delay_to_show_graphic = 10,
+			delay_to_show_graphic = 1,
 			last_mythicrun_chart = {},
 			mythicrun_chart_frame = {},
 			mythicrun_chart_frame_minimized = {},
@@ -2025,7 +2025,7 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 		mythicPlusSettings.make_overall_boss_only = false
 		mythicPlusSettings.show_damage_graphic = true
 		mythicPlusSettings.reverse_death_log = false
-		mythicPlusSettings.delay_to_show_graphic = 10
+		mythicPlusSettings.delay_to_show_graphic = 1
 		mythicPlusSettings.last_mythicrun_chart = {}
 		mythicPlusSettings.mythicrun_chart_frame = {}
 		mythicPlusSettings.mythicrun_chart_frame_minimized = {}

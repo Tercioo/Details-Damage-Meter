@@ -87,6 +87,8 @@ function Details:StartMeUp()
 	Details:InitializePlaterIntegrationWindow()
 	Details:InitializeMacrosWindow()
 
+	Details222.CreateAllDisplaysFrame()
+
 	if (Details.ocd_tracker.show_options) then
 		Details:InitializeCDTrackerWindow()
 	end

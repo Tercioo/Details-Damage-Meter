@@ -263,8 +263,13 @@ Details.PlayerBreakdown.RoundedCornerPreset = {
 	color = {.1, .1, .1, 0.834},
 }
 
+function Details:RefreshWindowColor()
+	local colorTable = Details.frame_background_color
+	Details:SetWindowColor(unpack(colorTable))
+end
+
 function Details:SetWindowColor(r, g, b, a)
-	--SetColor implemented by rounded corners, does not save the color, by apply
+	--SetColor implemented by rounded corners
 	breakdownWindowFrame:SetColor(r, g, b, a)
 	breakdownSideMenu:SetColor(r, g, b, a)
 
@@ -275,6 +280,14 @@ function Details:SetWindowColor(r, g, b, a)
 
 	if (DetailsReportWindow) then
 		DetailsReportWindow:SetColor(r, g, b, a)
+	end
+
+	if (DetailsAllAttributesFrame) then
+		DetailsAllAttributesFrame:SetColor(r, g, b, a)
+	end
+
+	if (DetailsSpellBreakdownOptionsPanel) then
+		DetailsSpellBreakdownOptionsPanel:SetColor(r, g, b, a)
 	end
 
 	local colorTable = Details.frame_background_color

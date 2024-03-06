@@ -540,16 +540,17 @@
 
 		--statusbar
 		local statusBar = CreateFrame("frame", nil, optionsLeftSideBarMenu, "BackdropTemplate")
-		statusBar:SetPoint("bottomleft", pluginContainerFrame, "bottomleft", 0, 5)
+		statusBar:SetPoint("bottomleft", pluginContainerFrame, "bottomleft", 7, 5)
 		statusBar:SetPoint("bottomright", pluginContainerFrame, "bottomright", 0, 5)
 		statusBar:SetHeight(16)
 		statusBar:SetAlpha(1)
 
 		DetailsFramework:BuildStatusbarAuthorInfo(statusBar)
 
-		local rightClickToBackLabel = detailsFramework:CreateLabel(statusBar, "right click to close", 10, "gray")
-		rightClickToBackLabel:SetPoint("bottomright", statusBar, "bottomright", -1, 5)
-		rightClickToBackLabel:SetAlpha(.4)
+		local rightClickToBackLabel = detailsFramework:CreateLabel(statusBar, "right click to close", "GameFontNormal")
+		rightClickToBackLabel:SetPoint("bottomright", statusBar, "bottomright", -150, 5)
+		rightClickToBackLabel:SetAlpha(0.834)
+		rightClickToBackLabel.textcolor = "gray"
 
 		local bigDogTexture = detailsFramework:NewImage(optionsLeftSideBarMenu, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 		bigDogTexture:SetPoint("bottomleft", custom_window, "bottomleft", 0, 1)

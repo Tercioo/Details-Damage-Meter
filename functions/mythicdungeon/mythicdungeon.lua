@@ -18,6 +18,7 @@ Details.MythicPlus = {
     RunID = 0,
 }
 
+local mythicDungeonFrames = Details222.MythicPlus.Frames
 local mythicDungeonCharts = Details:CreateEventListener()
 Details222.MythicPlus.Charts.Listener = mythicDungeonCharts
 
@@ -60,6 +61,7 @@ function DetailsMythicPlusFrame.BossDefeated(this_is_end_end, encounterID, encou
     Details:UpdateState_CurrentMythicDungeonRun(true, Details.MythicPlus.SegmentID, Details.MythicPlus.PreviousBossKilledAt)
 end
 
+--this function is called 2 seconds after the event COMBAT_MYTHICDUNGEON_END
 function DetailsMythicPlusFrame.MythicDungeonFinished(fromZoneLeft)
     if (DetailsMythicPlusFrame.IsDoingMythicDungeon) then
         if (DetailsMythicPlusFrame.DevelopmentDebug) then
@@ -106,6 +108,10 @@ function DetailsMythicPlusFrame.MythicDungeonFinished(fromZoneLeft)
         end
 
         Details.MythicPlus.IsRestoredState = nil
+
+		--the run is valid, schedule to open the chart window
+		Details.mythic_plus.delay_to_show_graphic = 1
+		C_Timer.After(Details.mythic_plus.delay_to_show_graphic, mythicDungeonFrames.ShowEndOfMythicPlusPanel)
 
         --shutdown parser for a few seconds to avoid opening new segments after the run ends
         if (not fromZoneLeft) then
@@ -351,7 +357,7 @@ DetailsMythicPlusFrame:SetScript("OnEvent", function(_, event, ...)
                 Details222.MythicPlus.LogStep("ZONE_CHANGED_NEW_AREA | player has left the dungeon and Details! finished the dungeon because of that.")
 
                 --send mythic dungeon end event
-                Details:SendEvent("COMBAT_MYTHICDUNGEON_END")
+                Details:SendEvent("COMBAT_MYTHICDUNGEON_END") --on leave dungeon
 
                 --finish the segment
                 DetailsMythicPlusFrame.BossDefeated(true)

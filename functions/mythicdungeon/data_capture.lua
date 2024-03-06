@@ -250,16 +250,6 @@ function mythicDungeonCharts:OnEndMythicDungeon()
 			return
 		end
 
-		mythicDungeonCharts:Debug("Dungeon ended successfully, chart data capture stopped, scheduling to open the window.")
-
-		C_Timer.After(0.1, function()
-
-		end)
-
-		--the run is valid, schedule to open the chart window
-		Details.mythic_plus.delay_to_show_graphic = 1
-		C_Timer.After(Details.mythic_plus.delay_to_show_graphic, mythicDungeonFrames.ShowEndOfMythicPlusPanel)
-
 		if (verbosemode) then
 			mythicDungeonCharts:Debug("OnEndMythicDungeon() success!")
 		end

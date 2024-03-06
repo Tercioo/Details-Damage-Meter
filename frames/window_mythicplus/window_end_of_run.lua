@@ -478,8 +478,8 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 			--set to use rounded corner
 			local roundedCornerTemplate = {
 				roundness = 6,
-				color = {.1, .1, .1, 0.98},
-				border_color = {.05, .05, .05, 0.834},
+				color = {.1, .1, .1, 0.5},
+				--border_color = {.05, .05, .05, 0.834},
 			}
 			detailsFramework:AddRoundedCornersToFrame(readyFrame, roundedCornerTemplate)
 		end
@@ -867,21 +867,32 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 	readyFrame.StartTextDotAnimation()
 
-	--local mapID = select(8, GetInstanceInfo())
-
+	--fin the overall mythic dungeon combat, starting with the current combat
 	local overallMythicDungeonCombat = Details:GetCurrentCombat()
 
 	--if the latest segment isn't the overall mythic dungeon segment, then find it
 	if (overallMythicDungeonCombat:GetCombatType() ~= DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
 		--get a table with all segments
-		local segments = Details:GetCombatSegments()
-		for i = 1, #segments do
-			local segment = segments[i]
+		local segmentsTable = Details:GetCombatSegments()
+		for i = 1, #segmentsTable do
+			local segment = segmentsTable[i]
 			if (segment:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
 				overallMythicDungeonCombat = segment
 				break
 			end
 		end
+	end
+
+	--update the run time and time not in combat
+	local elapsedTime = Details222.MythicPlus.time or 1507
+	readyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
+
+	if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
+		local combatTime = overallMythicDungeonCombat:GetCombatTime()
+		local notInCombat = elapsedTime - combatTime
+		readyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
+	else
+		readyFrame.TimeNotInCombatAmountLabel.text = "Unknown for this run"
 	end
 
 	if (not overallMythicDungeonCombat.is_mythic_dungeon) then
@@ -891,21 +902,6 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 	readyFrame.DungeonBackdropTexture:SetTexture(overallMythicDungeonCombat.is_mythic_dungeon.DungeonTexture)
 
 	wipe(readyFrame.playerCacheByName)
-
-	--update the run time and time not in combat
-	local elapsedTime = Details222.MythicPlus.time or 1507
-	readyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
-
-	C_Timer.After(2.5, function()
-		--print("overall combat type:", overallMythicDungeonCombat:GetCombatType(), overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL)
-		if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
-			local combatTime = overallMythicDungeonCombat:GetCombatTime()
-			local notInCombat = elapsedTime - combatTime
-			readyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
-		else
-			readyFrame.TimeNotInCombatAmountLabel.text = "Unknown for this run"
-		end
-	end)
 
 	if (Details222.MythicPlus.OnTime) then
 		readyFrame.YouBeatTheTimerLabel:SetFormattedText(CHALLENGE_MODE_COMPLETE_BEAT_TIMER .. " | " .. CHALLENGE_MODE_COMPLETE_KEYSTONE_UPGRADED, Details222.MythicPlus.KeystoneUpgradeLevels) --"You beat the timer!"

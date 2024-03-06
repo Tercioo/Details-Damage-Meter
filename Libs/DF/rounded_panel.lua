@@ -430,6 +430,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         error("df_roundedpanel:CalculateBorderEdgeSize(self, alignment) alignment must be 'vertical' or 'horizontal'")
     end,
 
+    ---create the border textures
     ---@param self df_roundedpanel
     CreateBorder = function(self)
         local r, g, b, a = 0, 0, 0, 0.8
@@ -492,6 +493,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         self.bHasBorder = true
     end,
 
+    ---set the color of the titlebar
     ---@param self df_roundedpanel
     ---@param red any
     ---@param green number|nil
@@ -504,6 +506,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         end
     end,
 
+    ---set the color of the border corners
     ---@param self df_roundedpanel
     ---@param red any
     ---@param green number|nil
@@ -525,6 +528,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         end
     end,
 
+    ---set the background color of the rounded panel
     ---@param self df_roundedpanel
     ---@param red any
     ---@param green number|nil

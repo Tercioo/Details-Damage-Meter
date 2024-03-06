@@ -2164,6 +2164,7 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 	local titleBar = CreateFrame("frame", frameName .. "TitleBar", simplePanel, "BackdropTemplate")
 
 	if (panelOptions.RoundedCorners) then
+		--a key named "TitleBar" is created by the rounded corners function
 		simplePanel.TitleBar:SetColor(.2, .2, .2, 0.4)
 		simplePanel.TitleBar:SetBorderCornerColor(0, 0, 0, 0)
 
@@ -2175,7 +2176,6 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 		titleBar:SetBackdrop(SimplePanel_frame_backdrop)
 		titleBar:SetBackdropColor(.2, .2, .2, 1)
 		titleBar:SetBackdropBorderColor(0, 0, 0, 1)
-		simplePanel.TitleBar = titleBar
 	end
 
 	local close = CreateFrame("button", frameName and frameName .. "CloseButton", titleBar)

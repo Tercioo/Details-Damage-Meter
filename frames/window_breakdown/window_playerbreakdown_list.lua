@@ -525,12 +525,6 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 		end
 	end
 
-	--get a Details! window
-	local lowerInstanceId = Details:GetLowerInstanceNumber()
-	local fontFile
-	local fontSize
-	local fontOutline
-
 	--header setup
 	local headerTable = {
 		{text = "Segment Name", width = 100},
@@ -538,15 +532,6 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 	local headerOptions = {
 		padding = 2,
 	}
-
-	if (lowerInstanceId) then
-		local instance = Details:GetInstance(lowerInstanceId)
-		if (instance) then
-			fontFile = instance.row_info.font_face
-			fontSize = instance.row_info.font_size
-			fontOutline = instance.row_info.textL_outline
-		end
-	end
 
 	local createSegmentLine = function(self, index)
 		--create a new line
