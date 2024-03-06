@@ -1804,3 +1804,32 @@ end
 			barra.lineText4:SetSize(texto_direita_tamanho+5, 15)
 		end
 	end
+
+    local defaultIconSize = {16, 16}
+    local defaultIconTexture = [[Interface\WorldStateFrame\ICONS-CLASSES]]
+    local defaultIconCoords = {0.25, 0.50, 0, 0.25}
+
+    Details222.iconSetList = {
+        {value = [[]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE1"], icon = defaultIconTexture, texcoord = defaultIconCoords, iconsize = defaultIconSize, iconcolor = {1, 1, 1, .3}},
+        {value = [[Interface\AddOns\Details\images\classes_small]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE2"], icon = defaultIconTexture, texcoord = defaultIconCoords, iconsize = defaultIconSize},
+        {value = [[Interface\AddOns\Details\images\spec_icons_normal]], label = "Specialization", icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = defaultIconSize},
+        {value = [[Interface\AddOns\Details\images\spec_icons_normal_alpha]], label = "Specialization Alpha", icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = defaultIconSize},
+        {value = [[Interface\AddOns\Details\images\classes_small_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE3"], icon = defaultIconTexture, texcoord = defaultIconCoords, iconsize = defaultIconSize},
+        {value = [[Interface\AddOns\Details\images\classes_small_alpha]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE4"], icon = defaultIconTexture, texcoord = defaultIconCoords, iconsize = defaultIconSize},
+        {value = [[Interface\AddOns\Details\images\classes_small_alpha_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE6"], icon = defaultIconTexture, texcoord = defaultIconCoords, iconsize = defaultIconSize},
+        {value = [[Interface\AddOns\Details\images\classes]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE5"], icon = defaultIconTexture, texcoord = defaultIconCoords, iconsize = defaultIconSize},
+    }
+
+    function Details:AddCustomIconSet (path, label, isSpecIcons, icon, texCoords, iconSize, iconColor)
+        table.insert(Details222.iconSetList,
+            {
+                value = path or [[]],
+                label = label or 'Missing Label',
+                isSpec = isSpecIcons,
+                icon = icon or defaultIconTexture,
+                texcoord = texCoords or defaultIconCoords,
+                iconsize = iconSize or defaultIconSize,
+                iconcolor = iconColor
+            }
+        )
+    end
