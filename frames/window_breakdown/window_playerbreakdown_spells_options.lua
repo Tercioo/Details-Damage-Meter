@@ -95,7 +95,7 @@ local createOptionsPanel = function()
                     colorTable[2] = normalizedGreen
                     colorTable[3] = normalizedBlue
                     colorTable[4] = normalizedAlpha
-                    Details:SetBreakdownWindowColor(normalizedRed, normalizedGreen, normalizedBlue, normalizedAlpha)
+                    Details:SetWindowColor(normalizedRed, normalizedGreen, normalizedBlue, normalizedAlpha)
                 end,
                 name = "Background Color",
                 desc = "Background Color",

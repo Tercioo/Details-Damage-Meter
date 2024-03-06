@@ -499,9 +499,6 @@
 		pluginContainerFrame:EnableMouse(true)
 		pluginContainerFrame:SetMovable(true)
 		pluginContainerFrame:SetPoint("center", UIParent, "center", 0, 0)
-		pluginContainerFrame:SetBackdrop(Details.PluginDefaults and Details.PluginDefaults.Backdrop or {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-		pluginContainerFrame:SetBackdropColor(0, 0, 0, 0.3)
-		pluginContainerFrame:SetBackdropBorderColor(0, 0, 0, 1)
 		table.insert(UISpecialFrames, "DetailsPluginContainerWindow")
 
 		pluginContainerFrame:Hide()
@@ -531,32 +528,28 @@
 		local scaleBar = DetailsFramework:CreateScaleBar(pluginContainerFrame, Details.options_window, true)
 		scaleBar:SetFrameStrata("fullscreen")
 		pluginContainerFrame:SetScale(Details.options_window.scale)
+		pluginContainerFrame.scaleBar = scaleBar
 
 		--left side bar menu
 		local optionsLeftSideBarMenu = CreateFrame("frame", "$parentMenuFrame", pluginContainerFrame, "BackdropTemplate")
-		DetailsFramework:ApplyStandardBackdrop(optionsLeftSideBarMenu)
+		detailsFramework:AddRoundedCornersToFrame(optionsLeftSideBarMenu, Details.PlayerBreakdown.RoundedCornerPreset)
+		optionsLeftSideBarMenu:SetPoint("topright", pluginContainerFrame, "topleft", -2, 0)
+		optionsLeftSideBarMenu:SetPoint("bottomright", pluginContainerFrame, "bottomleft", -2, 0)
+		optionsLeftSideBarMenu:SetWidth(pluginContainerFrame.MenuButtonWidth + 6)
+		pluginContainerFrame.optionsLeftSideBarMenu = optionsLeftSideBarMenu
 
 		--statusbar
 		local statusBar = CreateFrame("frame", nil, optionsLeftSideBarMenu, "BackdropTemplate")
-		statusBar:SetPoint("topleft", optionsLeftSideBarMenu, "bottomleft", 0, 1)
-		statusBar:SetPoint("topright", pluginContainerFrame, "bottomright", 0, 1)
-		statusBar:SetHeight(20)
+		statusBar:SetPoint("bottomleft", pluginContainerFrame, "bottomleft", 0, 5)
+		statusBar:SetPoint("bottomright", pluginContainerFrame, "bottomright", 0, 5)
+		statusBar:SetHeight(16)
 		statusBar:SetAlpha(1)
 
 		DetailsFramework:BuildStatusbarAuthorInfo(statusBar)
-		DetailsFramework:ApplyStandardBackdrop(statusBar)
-
-		local extraDarkTexture = statusBar:CreateTexture(nil, "background")
-		extraDarkTexture:SetAllPoints()
-		extraDarkTexture:SetColorTexture(.2, .2, .2, .8)
 
 		local rightClickToBackLabel = detailsFramework:CreateLabel(statusBar, "right click to close", 10, "gray")
 		rightClickToBackLabel:SetPoint("bottomright", statusBar, "bottomright", -1, 5)
 		rightClickToBackLabel:SetAlpha(.4)
-
-		optionsLeftSideBarMenu:SetPoint("topright", pluginContainerFrame, "topleft", -2, 0)
-		optionsLeftSideBarMenu:SetPoint("bottomright", pluginContainerFrame, "bottomleft", -2, 0)
-		optionsLeftSideBarMenu:SetWidth(pluginContainerFrame.MenuButtonWidth + 6)
 
 		local bigDogTexture = detailsFramework:NewImage(optionsLeftSideBarMenu, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 		bigDogTexture:SetPoint("bottomleft", custom_window, "bottomleft", 0, 1)
@@ -564,6 +557,7 @@
 
 		local gradientBelowTheLine = DetailsFramework:CreateTexture(optionsLeftSideBarMenu, {gradient = "vertical", fromColor = {0, 0, 0, 0.45}, toColor = "transparent"}, 1, 95, "artwork", {0, 1, 0, 1}, "dogGradient")
 		gradientBelowTheLine:SetPoint("bottoms")
+		gradientBelowTheLine:Hide()
 
 		local bigDogRowTexture = optionsLeftSideBarMenu:CreateTexture(nil, "artwork")
 		bigDogRowTexture:SetPoint("bottomleft", optionsLeftSideBarMenu, "bottomleft", 1, 1)
@@ -572,28 +566,13 @@
 		bigDogRowTexture:SetColorTexture(.5, .5, .5, .1)
 		bigDogRowTexture:Hide()
 
-		--plugins menu title bar
-		local titleBarPlugins = CreateFrame("frame", "$parentPluginsHeader", optionsLeftSideBarMenu, "BackdropTemplate")
-		PixelUtil.SetPoint(titleBarPlugins, "topleft", optionsLeftSideBarMenu, "topleft", 2, -3)
-		PixelUtil.SetPoint(titleBarPlugins, "topright", optionsLeftSideBarMenu, "topright", -2, -3)
-		titleBarPlugins:SetHeight(pluginContainerFrame.TitleHeight)
-		titleBarPlugins:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-		titleBarPlugins:SetBackdropColor(.5, .5, .5, 1)
-		titleBarPlugins:SetBackdropBorderColor(0, 0, 0, 1)
-
-		--title label
-		local titleBarPlugins_TitleLabel = detailsFramework:NewLabel(titleBarPlugins, titleBarPlugins, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-		PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "center", titleBarPlugins , "center", 0, 0)
-		PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "top", titleBarPlugins , "top", 0, -5)
-
-		--tools menu title bar
+		--tools title bar
 		local titleBarTools = CreateFrame("frame", "$parentToolsHeader", optionsLeftSideBarMenu, "BackdropTemplate")
+		PixelUtil.SetPoint(titleBarTools, "topleft", optionsLeftSideBarMenu, "topleft", 2, -3)
+		PixelUtil.SetPoint(titleBarTools, "topright", optionsLeftSideBarMenu, "topright", -2, -3)
 		titleBarTools:SetHeight(pluginContainerFrame.TitleHeight)
-		titleBarTools:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-		titleBarTools:SetBackdropColor(.5, .5, .5, 1)
-		titleBarTools:SetBackdropBorderColor(0, 0, 0, 1)
 
-		--title label
+		--tools title label
 		local titleBarTools_TitleLabel = detailsFramework:NewLabel(titleBarTools, titleBarTools, nil, "titulo", "Tools", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 		PixelUtil.SetPoint(titleBarTools_TitleLabel, "center", titleBarTools , "center", 0, 0)
 		PixelUtil.SetPoint(titleBarTools_TitleLabel, "top", titleBarTools , "top", 0, -5)
@@ -617,8 +596,7 @@
 			end)
 		end)
 
-		pluginContainerFrame:SetScript("OnHide", function()
-		end)
+		pluginContainerFrame:SetScript("OnHide", function() end)
 
 		pluginContainerFrame:SetScript("OnMouseDown", function(self, button)
 			if (button == "RightButton") then
@@ -745,7 +723,7 @@
 			newButton.IsUtility = bIsUtility
 			pluginObject.__isUtility = bIsUtility
 
-			newButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+			newButton:SetTemplate("STANDARD_GRAY")
 			newButton:SetText(pluginObject.__name)
 			newButton.textsize = 10
 			newButton:SetIcon(pluginObject.__icon, nil, nil, nil, pluginObject.__iconcoords, pluginObject.__iconcolor, 4)
@@ -809,24 +787,11 @@
 				end)
 
 				--reset the buttons points
-				local addingTools = false
 				for index, button in ipairs(pluginContainerFrame.MenuButtons) do
 					button:ClearAllPoints()
 					PixelUtil.SetPoint(button, "center", optionsLeftSideBarMenu, "center", 0, 0)
-
-					if (button.IsUtility) then
-						if (not addingTools) then
-							--add the header
-							addingTools = true
-							--add -20 to add a gap between plugins and utilities
-							PixelUtil.SetPoint(titleBarTools, "topleft", optionsLeftSideBarMenu, "topleft", 2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
-							PixelUtil.SetPoint(titleBarTools, "topright", optionsLeftSideBarMenu, "topright", -2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
-						end
-
-						PixelUtil.SetPoint(button, "top", optionsLeftSideBarMenu, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 40)
-					else
-						PixelUtil.SetPoint(button, "top", optionsLeftSideBarMenu, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index)
-					end
+					PixelUtil.SetPoint(button, "top", optionsLeftSideBarMenu, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index)
+					detailsFramework:SetTemplate(button, "STANDARD_GRAY")
 				end
 
 				--format the plugin main frame

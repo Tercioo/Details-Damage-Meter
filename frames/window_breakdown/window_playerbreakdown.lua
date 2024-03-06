@@ -261,13 +261,27 @@ end
 Details.PlayerBreakdown.RoundedCornerPreset = {
 	roundness = 6,
 	color = {.1, .1, .1, 0.834},
-	--border_color = {.05, .05, .05, 0.834},
 }
 
-function Details:SetBreakdownWindowColor(r, g, b, a)
-	--setcolor implemented by rounded corners
+function Details:SetWindowColor(r, g, b, a)
+	--SetColor implemented by rounded corners, does not save the color, by apply
 	breakdownWindowFrame:SetColor(r, g, b, a)
 	breakdownSideMenu:SetColor(r, g, b, a)
+
+	if (DetailsOptionsWindow) then
+		DetailsOptionsWindow:SetColor(r, g, b, a)
+		DetailsPluginContainerWindowMenuFrame:SetColor(r, g, b, a)
+	end
+
+	if (DetailsReportWindow) then
+		DetailsReportWindow:SetColor(r, g, b, a)
+	end
+
+	local colorTable = Details.frame_background_color
+	colorTable[1] = r
+	colorTable[2] = g
+	colorTable[3] = b
+	colorTable[4] = a
 end
 
 ---open the breakdown window
@@ -289,7 +303,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 		detailsFramework:AddRoundedCornersToFrame(breakdownSideMenu, Details.PlayerBreakdown.RoundedCornerPreset)
 	end
 
-	Details:SetBreakdownWindowColor(unpack(Details.frame_background_color))
+	Details:SetWindowColor(unpack(Details.frame_background_color))
 
 	if (not Details.row_singleclick_overwrite[mainAttribute] or not Details.row_singleclick_overwrite[mainAttribute][subAttribute]) then
 		Details:CloseBreakdownWindow()
