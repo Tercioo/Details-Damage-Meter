@@ -3,6 +3,9 @@ local Details = _G.Details
 local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local segmentos = Details.segmentos
+
+
+---@type detailsframework
 local gump = Details.gump
 local _
 
@@ -6632,6 +6635,12 @@ local buildSegmentTooltip = function(self, deltaTime)
 						gameCooltip:AddLine(combatName, formattedElapsedTime, 1, "hotpink", "hotpink")
 						gameCooltip:AddIcon(thisCombat:GetCombatIcon(), "main", "left")
 
+					elseif (combatType == DETAILS_SEGMENTTYPE_TRAININGDUMMY) then
+						mythicDungeonRunId = false
+						local combatName, r, g, b = thisCombat:GetCombatName()
+						gameCooltip:AddLine(combatName, formattedElapsedTime, 1, "yellow", "yellow")
+						gameCooltip:AddIcon(thisCombat:GetCombatIcon(), "main", "left")
+
 					elseif (combatType == DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND) then
 						mythicDungeonRunId = false
 						enemyName = thisCombat:GetCombatName()
@@ -9232,7 +9241,7 @@ local reportButton_OnEnter = function(self, motion, forced)
 
 	GameCooltip:AddLine(Loc["STRING_REPORT_TOOLTIP"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 	GameCooltip:AddIcon([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
-	GameCooltip:AddMenu(1, Details.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
+	GameCooltip:AddMenu(1, function() instancia:Reportar("INSTANCE" .. instancia.meu_id) end)
 
 	show_anti_overlap(instancia, self, "top")
 	Details:SetMenuOwner(self, instancia)

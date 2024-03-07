@@ -263,6 +263,14 @@ Details.PlayerBreakdown.RoundedCornerPreset = {
 	color = {.1, .1, .1, 0.834},
 }
 
+Details222.RegisteredFramesToColor = {}
+
+function Details:RegisterFrameToColor(frame)
+	Details222.RegisteredFramesToColor[#Details222.RegisteredFramesToColor+1] = frame
+	local colorTable = Details.frame_background_color
+	frame:SetColor(unpack(colorTable))
+end
+
 function Details:RefreshWindowColor()
 	local colorTable = Details.frame_background_color
 	Details:SetWindowColor(unpack(colorTable))
@@ -288,6 +296,10 @@ function Details:SetWindowColor(r, g, b, a)
 
 	if (DetailsSpellBreakdownOptionsPanel) then
 		DetailsSpellBreakdownOptionsPanel:SetColor(r, g, b, a)
+	end
+
+	for idx, frame in ipairs(Details222.RegisteredFramesToColor) do
+		frame:SetColor(r, g, b, a)
 	end
 
 	local colorTable = Details.frame_background_color

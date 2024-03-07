@@ -38,6 +38,8 @@ local detailsFramework = DetailsFramework
 
 --[[global]] DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY = 30
 
+--[[global]] DETAILS_SEGMENTTYPE_TRAININGDUMMY = 40
+
 local segmentTypeToString = {
 	[DETAILS_SEGMENTTYPE_GENERIC] = "Generic",
 	[DETAILS_SEGMENTTYPE_OVERALL] = "Overall",
@@ -403,6 +405,9 @@ local segmentTypeToString = {
 		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC) then
 			return textureAtlas["segment-icon-mythicplus"]
 
+		elseif (combatType == DETAILS_SEGMENTTYPE_TRAININGDUMMY) then
+			return textureAtlas["segment-icon-training-dummy-zoom"]
+
 		elseif (combatType == DETAILS_SEGMENTTYPE_PVP_ARENA) then
 			return textureAtlas["segment-icon-arena"]
 
@@ -685,6 +690,10 @@ local segmentTypeToString = {
 			end
 
 			return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+		end
+
+		if (self.training_dummy) then
+			return DETAILS_SEGMENTTYPE_TRAININGDUMMY
 		end
 
 		--arena
@@ -1038,8 +1047,20 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	Details.combat_counter = Details.combat_counter + 1
 	combatObject.combat_counter = Details.combat_counter
 
+	--combatObject.training_dummy = false
+
 	--try discover if is a pvp combat
 	local sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags = ...
+
+	if (targetGUID) then
+		local npcId = Details:GetNpcIdFromGuid(targetGUID)
+		if (npcId) then
+			if (Details222.TrainingDummiesNpcId[npcId]) then
+				combatObject.training_dummy = true
+			end
+		end
+	end
+
 	if (sourceGUID) then --aqui ir� identificar o boss ou o oponente
 		if (targetName and bitBand (targetFlags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
 			combatObject.contra = targetName

@@ -22,7 +22,7 @@ function mythicDungeonCharts.ShowChart()
 
 		dungeonChartFrame:SetSize(1200, 620)
 		dungeonChartFrame:SetPoint("center", UIParent, "center", 0, 0)
-		dungeonChartFrame:SetFrameStrata("LOW")
+		dungeonChartFrame:SetFrameStrata("DIALOG")
 		dungeonChartFrame:EnableMouse(true)
 		dungeonChartFrame:SetMovable(true)
 		DetailsFramework:ApplyStandardBackdrop(dungeonChartFrame)

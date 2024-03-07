@@ -486,34 +486,45 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		readyFrame.entryAnimationDuration = 0.1
 
+		--this frame is required due to the animation, the readyFrame and the contentFrame has their own animations
+		mythicDungeonFrames.ReadyFrameTop = CreateFrame("frame", "DetailsMythicDungeonReadyTopFrame", UIParent, "BackdropTemplate")
+		mythicDungeonFrames.ReadyFrameTop:SetPoint("bottomleft", readyFrame, "topleft", 0, 0)
+		mythicDungeonFrames.ReadyFrameTop:SetPoint("bottomright", readyFrame, "topright", 0, 0)
+		mythicDungeonFrames.ReadyFrameTop:SetHeight(1)
+		readyFrame.TopFrame = mythicDungeonFrames.ReadyFrameTop
+
 		local openingAnimationHub = detailsFramework:CreateAnimationHub(readyFrame, function() end, function() readyFrame:SetWidth(355); end)
 		detailsFramework:CreateAnimation(openingAnimationHub, "Scale", 1, readyFrame.entryAnimationDuration, 0, 1, 1, 1, "center", 0, 0)
 		readyFrame.OpeningAnimation = openingAnimationHub
 
 		do --backdrop textures
+			local maskTexture = readyFrame:CreateMaskTexture("$parentDungeonBackdropTextureMaskTexture", "artwork")
+			maskTexture:SetTexture([[Interface\AddOns\Details\images\masks\white_rounded_512x512.png]])
+			maskTexture:SetPoint("topleft", readyFrame, "topleft", 0, 0)
+			maskTexture:SetPoint("bottomright", readyFrame, "bottomright", 0, 0)
+
 			--backdrop gradient from bottom to top
 			---@type df_gradienttable
-			local gradientTable = {gradient = "vertical", fromColor = {0, 0, 0, 0.15}, toColor = "transparent"}
-			local gradientBelowTheLine = detailsFramework:CreateTexture(readyFrame, gradientTable, 1, readyFrame:GetHeight(), "artwork", {0, 1, 0, 1}, "backgroundGradient")
-			gradientBelowTheLine:SetPoint("bottoms")
+			local gradientTable = {gradient = "vertical", fromColor = {0, 0, 0, 0.8}, toColor = "transparent"}
+			local gradientBelowTheLine = detailsFramework:CreateTexture(readyFrame, gradientTable, 1, readyFrame:GetHeight()/3, "artwork", {0, 1, 0, 1}, "backgroundGradient")
+			gradientBelowTheLine:SetPoint("bottoms", 0, 0)
+			gradientBelowTheLine:AddMaskTexture(maskTexture)
 
 			local dungeonBackdropTexture = readyFrame:CreateTexture("$parentDungeonBackdropTexture", "artwork", nil, -2)
 			dungeonBackdropTexture:SetTexCoord(0.05, 0.70, 0.1, 0.82)
 			dungeonBackdropTexture:SetVertexColor(0.2, 0.2, 0.2, 0.8)
 			dungeonBackdropTexture:SetDesaturation(0.65)
-			dungeonBackdropTexture:SetAlpha(0.6)
-			dungeonBackdropTexture:SetPoint("topleft", readyFrame, "topleft", 0, 0)
-			dungeonBackdropTexture:SetPoint("topright", readyFrame, "topright", 0, 0)
-			dungeonBackdropTexture:SetPoint("bottomleft", readyFrame, "bottomleft", 0, 0)
-			dungeonBackdropTexture:SetPoint("bottomright", readyFrame, "bottomright", 0, 0)
+			dungeonBackdropTexture:SetAlpha(0.834)
+			dungeonBackdropTexture:SetAllPoints()
+			dungeonBackdropTexture:AddMaskTexture(maskTexture)
 			readyFrame.DungeonBackdropTexture = dungeonBackdropTexture
 
-			local maskTexture = readyFrame:CreateMaskTexture("$parentDungeonBackdropTextureMaskTexture", "artwork")
-			maskTexture:SetAtlas("UI-Frame-IconMask")
-			local offset = 26
-			maskTexture:SetPoint("topleft", readyFrame, "topleft", -offset, offset)
-			maskTexture:SetPoint("bottomright", readyFrame, "bottomright", offset, -offset)
-			dungeonBackdropTexture:AddMaskTexture(maskTexture)
+			local anotherBackdropTexture = readyFrame:CreateTexture("$parentAnotherBackdropTexture", "artwork", nil, -3)
+			anotherBackdropTexture:SetTexture([[Interface\GLUES\Models\UI_HighmountainTauren\7HM_RapidSimpleMask]])
+			anotherBackdropTexture:AddMaskTexture(maskTexture)
+			anotherBackdropTexture:SetAllPoints()
+			anotherBackdropTexture:SetVertexColor(0.467, 0.416, 0.639, 1)
+			readyFrame.AnotherBackdropTexture = anotherBackdropTexture
 		end
 
 		--frame to place all texture that goes behind the readyFrame
@@ -532,37 +543,39 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		do
 			--use the same textures from the original end of dungeon panel
-			readyFrame.YellowSpikeCircle = contentFrame:CreateTexture("$parentSkullCircle", "overlay")
-			readyFrame.YellowSpikeCircle:SetSize(100, 100)
-			readyFrame.YellowSpikeCircle:SetPoint("center", readyFrame, "top", 0, 30)
-			readyFrame.YellowSpikeCircle:SetAtlas("ChallengeMode-SpikeyStar")
-			readyFrame.YellowSpikeCircle:SetAlpha(1)
-			readyFrame.YellowSpikeCircle:SetIgnoreParentAlpha(true)
+			local spikes = mythicDungeonFrames.ReadyFrameTop:CreateTexture("$parentSkullCircle", "overlay")
+			spikes:SetSize(100, 100)
+			spikes:SetPoint("center", readyFrame, "top", 0, 30)
+			spikes:SetAtlas("ChallengeMode-SpikeyStar")
+			spikes:SetAlpha(1)
+			spikes:SetIgnoreParentAlpha(true)
+			readyFrame.YellowSpikeCircle = spikes
+
+			local yellowFlash = mythicDungeonFrames.ReadyFrameTop:CreateTexture("$parentYellowFlash", "artwork")
+			yellowFlash:SetSize(120, 120)
+			yellowFlash:SetPoint("center", readyFrame, "top", 0, 30)
+			yellowFlash:SetAtlas("BossBanner-RedFlash")
+			yellowFlash:SetAlpha(0)
+			yellowFlash:SetBlendMode("ADD")
+			yellowFlash:SetIgnoreParentAlpha(true)
+			readyFrame.YellowFlash = yellowFlash
+
+			readyFrame.Level = mythicDungeonFrames.ReadyFrameTop:CreateFontString("$parentLevelText", "overlay", "GameFontNormalWTF2Outline")
+			readyFrame.Level:SetPoint("center", readyFrame.YellowSpikeCircle, "center", 0, 0)
+			readyFrame.Level:SetText("")
+
+			--create the animation for the yellow flash
+			local flashAnimHub = detailsFramework:CreateAnimationHub(yellowFlash, function() yellowFlash:SetAlpha(0) end, function() yellowFlash:SetAlpha(0) end)
+			local flashAnim1 = detailsFramework:CreateAnimation(flashAnimHub, "Alpha", 1, 0.5, 0, 1)
+			local flashAnim2 = detailsFramework:CreateAnimation(flashAnimHub, "Alpha", 2, 0.5, 1, 0)
 
 			--create the animation for the yellow spike circle
-			local MainAnimationGroup = readyFrame.YellowSpikeCircle:CreateAnimationGroup()
-			readyFrame.YellowSpikeCircle.scale1 = MainAnimationGroup:CreateAnimation("SCALE")
-			readyFrame.YellowSpikeCircle.scale1:SetOrder(1)
-			readyFrame.YellowSpikeCircle.scale1:SetDuration(0.3)
-			readyFrame.YellowSpikeCircle.scale1:SetScaleFrom(2, 2)
-			readyFrame.YellowSpikeCircle.scale1:SetScaleTo(1, 1)
-			readyFrame.YellowSpikeCircle.scale1:SetOrigin("center", 0, 0)
+			local spikeCircleAnimHub = detailsFramework:CreateAnimationHub(spikes, function() spikes:SetAlpha(0); spikes:SetScale(1) end, function() flashAnimHub:Play(); spikes:SetSize(100, 100); spikes:SetScale(1); spikes:SetAlpha(1) end)
+			local alphaAnim1 = detailsFramework:CreateAnimation(spikeCircleAnimHub, "Alpha", 1, 0.2960000038147, 0, 1)
+			local scaleAnim1 = detailsFramework:CreateAnimation(spikeCircleAnimHub, "Scale", 1, 0.21599999070168, 5, 5, 1, 1, "center", 0, 0)
 
-			--bugged
-			readyFrame.YellowSpikeCircle.OnShowAnimation = MainAnimationGroup
-
-			--spinning animation for the yellow spike circle
-			--local yellowSpikeCircleSpinAnimationGroup = detailsFramework:CreateAnimationHub(readyFrame.YellowSpikeCircle, function()end, function()end)
-			--yellowSpikeCircleSpinAnimationGroup:SetLooping("REPEAT")
-			--local spikeRotationAnim = detailsFramework:CreateAnimation(yellowSpikeCircleSpinAnimationGroup, "Rotation", 1, 5, 1)
-			--spikeRotationAnim:SetSmoothing("IN_OUT") --"IN_OUT" "IN" "OUT" "NONE"
-			--spikeRotationAnim:SetSmoothProgress(50)
-			--readyFrame.YellowSpikeCircleSpinAnimation = yellowSpikeCircleSpinAnimationGroup
+			readyFrame.YellowSpikeCircle.OnShowAnimation = spikeCircleAnimHub
 		end
-
-		readyFrame.Level = contentFrame:CreateFontString("$parentLevelText", "overlay", "GameFontNormalWTF2Outline")
-		readyFrame.Level:SetPoint("center", readyFrame.YellowSpikeCircle, "center", 0, 0)
-		readyFrame.Level:SetText("")
 
 		readyFrame.leftFiligree = contentFrame:CreateTexture("$parentLeftFiligree", "artwork")
 		readyFrame.leftFiligree:SetAtlas("BossBanner-LeftFillagree")
@@ -605,10 +618,11 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		waitingForLootDotsAnimationLabel:SetPoint("left", waitingForLootLabel, "right", 0, 0)
 		waitingForLootDotsAnimationLabel:Hide()
 
+		---@type texture
 		local topRedLineTexture = backgroundFrame:CreateTexture("$parentBannerTop", "border")
 		topRedLineTexture:SetAtlas("BossBanner-BgBanner-Top")
-		topRedLineTexture:SetPoint("top", backgroundFrame, "top", 0, 155)
-		local topTextureAnimGroup = detailsFramework:CreateAnimationHub(topRedLineTexture, function()end, function() topRedLineTexture:SetWidth(480) end)
+		topRedLineTexture:SetPoint("top", backgroundFrame, "top", 0, 34)
+		local topTextureAnimGroup = detailsFramework:CreateAnimationHub(topRedLineTexture, function()end, function() topRedLineTexture:SetSize(388, 112) end)
 		topRedLineTexture.Animation = topTextureAnimGroup
 		local animDuration = 0.3
 		detailsFramework:CreateAnimation(topTextureAnimGroup, "Scale", 1, animDuration, 0, 1, 1, 1, "center", 0, 0)
@@ -616,11 +630,24 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		local bottomRedLineTexture = backgroundFrame:CreateTexture("$parentBannerBottom", "border")
 		bottomRedLineTexture:SetAtlas("BossBanner-BgBanner-Bottom")
-		bottomRedLineTexture:SetPoint("bottom", backgroundFrame, "bottom", 0, -115)
-		local bottomTextureAnimGroup = detailsFramework:CreateAnimationHub(bottomRedLineTexture, function()end, function() bottomRedLineTexture:SetWidth(480) end)
+		bottomRedLineTexture:SetPoint("bottom", backgroundFrame, "bottom", 0, -25)
+		local bottomTextureAnimGroup = detailsFramework:CreateAnimationHub(bottomRedLineTexture, function()end, function() bottomRedLineTexture:SetSize(388, 112) end)
 		bottomRedLineTexture.Animation = bottomTextureAnimGroup
 		detailsFramework:CreateAnimation(bottomTextureAnimGroup, "Scale", 1, animDuration, 0, 1, 0.5, 1, "center", 0, 0)
 		readyFrame.BottomRedLineTexture = bottomRedLineTexture
+
+		--local leftRedLineTexture = backgroundFrame:CreateTexture("$parentBannerLeft", "border")
+		--leftRedLineTexture:SetAtlas("BossBanner-BgBanner-Top")
+		--leftRedLineTexture:SetPoint("topleft", backgroundFrame, "topleft", 0, 0)
+		--leftRedLineTexture:SetPoint("bottomleft", backgroundFrame, "bottomleft", 0, 0)
+		--leftRedLineTexture:SetWidth(388)
+		--leftRedLineTexture:SetRotation(-1.5708)
+
+		--local centerGradient = backgroundFrame:CreateTexture("$parentCenterGradient", "artwork")
+		--centerGradient:SetAtlas("BossBanner-BgBanner-Mid")
+		--centerGradient:SetPoint("center", backgroundFrame, "center", 0, 0)
+		--centerGradient:SetSize(355, 390)
+
 
 		--make a text dot animation, which will show no dots at start and then "." then ".." then "..." and back to "" and so on
 		function readyFrame.StartTextDotAnimation()
@@ -661,6 +688,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		readyFrame:SetScript("OnHide", function(self)
 			readyFrame.StopTextDotAnimation()
+			mythicDungeonFrames.ReadyFrameTop:Hide()
 		end)
 
         local roundedCornerPreset = {
@@ -677,7 +705,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		end
 		---@type df_button
 		readyFrame.ShowBreakdownButton = DetailsFramework:CreateButton(contentFrame, showBreakdownFunc, 145, 30, "Show Breakdown")
-		PixelUtil.SetPoint(readyFrame.ShowBreakdownButton, "topleft", readyFrame, "topleft", 5, -30)
+		PixelUtil.SetPoint(readyFrame.ShowBreakdownButton, "topleft", readyFrame, "topleft", 31, -30)
 		PixelUtil.SetSize(readyFrame.ShowBreakdownButton, 145, 32)
 		readyFrame.ShowBreakdownButton:SetBackdrop(nil)
 		readyFrame.ShowBreakdownButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {84/512, 120/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
@@ -693,7 +721,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		end
 		---@type df_button
 		readyFrame.ShowChartButton = DetailsFramework:CreateButton(contentFrame, showChartFunc, 145, 30, "Show Damage Graphic")
-		PixelUtil.SetPoint(readyFrame.ShowChartButton, "left", readyFrame.ShowBreakdownButton, "right", 5, 0)
+		PixelUtil.SetPoint(readyFrame.ShowChartButton, "left", readyFrame.ShowBreakdownButton, "right", 6, 0)
 		PixelUtil.SetSize(readyFrame.ShowChartButton, 145, 32)
 		readyFrame.ShowChartButton:SetBackdrop(nil)
 		readyFrame.ShowChartButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
@@ -706,7 +734,8 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		end
 
 		local elapsedTimeLabel = DetailsFramework:CreateLabel(contentFrame, "Run Time:", textSize, textColor)
-		elapsedTimeLabel:SetPoint("topleft", leftAnchor, "bottomleft", 0, -8)
+		--elapsedTimeLabel:SetPoint("topleft", leftAnchor, "bottomleft", 0, -8)
+		elapsedTimeLabel:SetPoint("topleft", readyFrame, "topleft", 5, -70)
 		local elapsedTimeAmount = DetailsFramework:CreateLabel(contentFrame, "00:00", textSize, textColor)
 		elapsedTimeAmount:SetPoint("left", elapsedTimeLabel, "left", 130, 0)
 
@@ -832,6 +861,9 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 	local readyFrame = mythicDungeonFrames.ReadyFrame
 	readyFrame:Show()
 
+	readyFrame.TopFrame:Show()
+	readyFrame.YellowSpikeCircle.OnShowAnimation:Play()
+
 	readyFrame.TopRedLineTexture:Hide()
 	readyFrame.BottomRedLineTexture:Hide()
 	readyFrame.ContentFrame:SetAlpha(0)
@@ -851,9 +883,6 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		readyFrame.OpeningAnimation:Play()
 	end)
 
-	--readyFrame.YellowSpikeCircle:SetAlpha(1)
-	--readyFrame.YellowSpikeCircle.OnShowAnimation:Play()
-
 	C_Timer.After(readyFrame.entryAnimationDuration+0.05, function()
 		readyFrame.TopRedLineTexture:Show()
 		readyFrame.BottomRedLineTexture:Show()
@@ -868,6 +897,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 	readyFrame.StartTextDotAnimation()
 
 	--fin the overall mythic dungeon combat, starting with the current combat
+	---@type combat
 	local overallMythicDungeonCombat = Details:GetCurrentCombat()
 
 	--if the latest segment isn't the overall mythic dungeon segment, then find it
@@ -895,11 +925,21 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		readyFrame.TimeNotInCombatAmountLabel.text = "Unknown for this run"
 	end
 
-	if (not overallMythicDungeonCombat.is_mythic_dungeon) then
+	local mythicDungeonInfo = overallMythicDungeonCombat:GetMythicDungeonInfo()
+
+	if (not mythicDungeonInfo) then
 		return
 	end
 
-	readyFrame.DungeonBackdropTexture:SetTexture(overallMythicDungeonCombat.is_mythic_dungeon.DungeonTexture)
+	---@type details_instanceinfo
+	local instanceInfo = Details:GetInstanceInfo(mythicDungeonInfo.MapID) or Details:GetInstanceInfo(Details:GetCurrentCombat().mapId)
+
+	if (instanceInfo) then
+		readyFrame.DungeonBackdropTexture:SetTexture(instanceInfo.iconLore)
+	else
+		readyFrame.DungeonBackdropTexture:SetTexture(overallMythicDungeonCombat.is_mythic_dungeon.DungeonTexture)
+	end
+
 
 	wipe(readyFrame.playerCacheByName)
 

@@ -937,7 +937,7 @@ function DF:CreateCoolTip()
 		if (gameCooltip.FunctionsTableMain[self.index]) then
 			local parameterTable = gameCooltip.ParametersTableMain[self.index]
 			local func = gameCooltip.FunctionsTableMain[self.index]
-			local okay, errortext = pcall(func, gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
+			local okay, errortext = xpcall(func, geterrorhandler(), gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
 			if (not okay) then
 				print("Cooltip OnClick Error:", errortext)
 			end
@@ -951,7 +951,7 @@ function DF:CreateCoolTip()
 		if (gameCooltip.FunctionsTableSub[self.mainIndex] and gameCooltip.FunctionsTableSub[self.mainIndex][self.index]) then
 			local parameterTable = gameCooltip.ParametersTableSub[self.mainIndex][self.index]
 			local func = gameCooltip.FunctionsTableSub[self.mainIndex][self.index]
-			local okay, errortext = pcall(func, gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
+			local okay, errortext = xpcall(func, geterrorhandler(), gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
 			if (not okay) then
 				print("Cooltip OnClick Error:", errortext)
 			end

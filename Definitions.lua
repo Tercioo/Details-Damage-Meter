@@ -1,5 +1,6 @@
 
----lower instance: each instance has an ID, starts from 1 and goes on, the lower instance is the opened instance with the lower ID.
+--lower instance: each instance has an ID, starts from 1 and goes on, the lower instance is the opened instance with the lower ID.
+--training dummy: a npc within major cities in world of warcraft where players can cast spells and attack to test their damage and healing output
 
 ---@alias plugintype
 ---| "SOLO"
@@ -218,7 +219,7 @@
 ---@field bossTimers table[] stored timers for bigwigs and dbm
 ---@field last_events_tables table[] where the death log of each player is stored
 ---@field boss_hp number percentage of the health points of the boss
----@field 
+---@field training_dummy boolean if true, the combat is against a training dummy
 ---@field 
 ---@field 
 ---@field __call table

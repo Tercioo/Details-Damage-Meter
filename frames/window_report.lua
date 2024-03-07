@@ -199,11 +199,7 @@ local _
 		Details.janela_report.slider.lockTexture:Hide()
 		Details.janela_report.slider.amt:Show()
 
-		--print("report is custom:", bIsCustom)
 		if (options) then
-			--dumpt(param2) = {damage, spellName, spellId}
-			--print(param2, options._custom) options._custom = nil
-			--print("meu id:", self.meu_id)
 			local bIsCustom = true
 			Details.janela_report.enviar:SetScript("OnClick", function() self:monta_relatorio(param2, bIsCustom) end)
 		else

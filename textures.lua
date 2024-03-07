@@ -57,6 +57,34 @@ Details.TextureAtlas = {
         nativeHeight = 512,
     },
 
+    ["segment-icon-training-dummy"] = {
+        file = [[Interface\AddOns\Details\images\icons]],
+        width = 14,
+        height = 16,
+        leftTexCoord = 275/512,
+        rightTexCoord = 295/512,
+        topTexCoord = 110/512,
+        bottomTexCoord = 142/512,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 512,
+        nativeHeight = 512,
+    },
+
+    ["segment-icon-training-dummy-zoom"] = {
+        file = [[Interface\AddOns\Details\images\icons]],
+        width = 12,
+        height = 16,
+        leftTexCoord = 298/512,
+        rightTexCoord = 320/512,
+        topTexCoord = 110/512,
+        bottomTexCoord = 142/512,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 512,
+        nativeHeight = 512,
+    },
+
     ["small-pin-yellow"] = {
         file = [[Interface\BUTTONS\UI-RadioButton]],
         width = 12,

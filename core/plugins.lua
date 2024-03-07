@@ -372,6 +372,7 @@
 			optionsFrame:Hide()
 
 			detailsFramework:AddRoundedCornersToFrame(optionsFrame, Details.PlayerBreakdown.RoundedCornerPreset)
+			Details:RegisterFrameToColor(optionsFrame)
 
 			--create a an icon to display the pluginIcon
 			local pluginIconTexture = detailsFramework:CreateTexture(optionsFrame, pluginIcon, 20, 20, "artwork", pluginIconCoords or {0, 1, 0, 1}, "pluginIconTexture", "$parentPluginIconTexture")

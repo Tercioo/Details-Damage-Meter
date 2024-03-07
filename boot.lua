@@ -87,6 +87,26 @@
 			end
 		end
 
+		--cache of frames to call :SetColor() when the color scheme changes
+		Details222.RegisteredFramesToColor = {}
+
+		Details222.TrainingDummiesNpcId = {
+			[194649] = true, --valdraken
+			[189617] = true, --valdraken
+			[194644] = true, --valdraken
+			[198594] = true, --valdraken
+			[194643] = true, --valdraken
+			[189632] = true, --valdraken
+			[194648] = true, --valdraken
+			[194646] = true, --valdraken
+			[197834] = true, --valdraken
+			[31146] = true, --orgrimmar
+			[153285] = true, --orgrimmar
+			[114840] = true, --orgrimmar
+			[114832] = true, --stormwind
+			[153292] = true, --stormwind
+		}
+
 		--namespace for damage spells (spellTable)
 		Details222.DamageSpells = {}
 		--namespace for texture

@@ -35,7 +35,6 @@ functions/pack2.lua
 *.afphoto
 wowapi.lua
 plugins/Details_TinyThreat/Details_TinyThreat_original.lua
-*.png
 Descriptions.lua
 plugins/Details_EncounterDetails/.github/workflows/release.yml
 plugins/Details_RaidCheck/.github/workflows/release.yml
@@ -51,3 +50,15 @@ annotations.txt
 plugins/Details_Compare2/Definitions.lua
 plugins/Details_Compare2/DF/
 plugins/Details_Compare2/LibLuaServer/
+images/castlog_image.png
+images/castlog_image2.png
+images/castlog_image3.png
+images/castlog_raidcooldowns.png
+images/chartviewer.png
+images/getalpha_version.png
+images/icons2.png
+images/myself.png
+images/package_addons.png
+images/patreon_stuff.png
+images/plater_darktheme_skin.png
+images/Tutorial/DetailsMainWindow.png
