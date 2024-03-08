@@ -562,7 +562,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	--create a button in the breakdown window to open the options for this tab
 	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 18, Loc["STRING_OPTIONS_PLUGINS_OPTIONS"], 14)
 	--optionsButton:SetTemplate(DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
-	optionsButton:SetPoint("bottomright", tabFrame, "bottomright", -10, -19)
+	optionsButton:SetPoint("bottomright", tabFrame, "bottomright", -10, -16)
 	optionsButton:SetTemplate("STANDARD_GRAY")
 	optionsButton:SetIcon(Details:GetTextureAtlas("breakdown-icon-optionsbutton"))
 	optionsButton.textsize = 12
@@ -662,9 +662,14 @@ end
 function spellsTab.UpdateBarSettings(bar)
 	if (bar.statusBar) then
 		bar.statusBar:SetAlpha(Details.breakdown_spell_tab.statusbar_alpha) --could be moved to when the bar is updated
-		bar.statusBar:GetStatusBarTexture():SetTexture(Details.breakdown_spell_tab.statusbar_texture)
-		bar.statusBar.backgroundTexture:SetColorTexture(unpack(Details.breakdown_spell_tab.statusbar_background_color))
-		bar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.statusbar_background_alpha)
+
+		--bar.statusBar:GetStatusBarTexture():SetTexture(Details.breakdown_spell_tab.statusbar_texture)
+		Details222.BreakdownWindow.ApplyTextureSettings(bar.statusBar)
+
+		--bar.statusBar.backgroundTexture:SetColorTexture(unpack(Details.breakdown_spell_tab.statusbar_background_color))
+		--bar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.statusbar_background_alpha)
+
+		detailsFramework:SetTemplate(bar.statusBar.backgroundTexture, "STANDARD_GRAY")
 	end
 end
 

@@ -3891,6 +3891,7 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			if (ActorDamage == 0) then
 				ActorDamage = 0.00000001
 			end
+
 			local ActorSkillsContainer = self.spells._ActorTable
 			local ActorSkillsSortTable = {}
 
@@ -3959,6 +3960,11 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				--Details:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 			end
 
+			GameCooltip:SetOption("AlignAsBlizzTooltip", false)
+			GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
+			GameCooltip:SetOption("YSpacingMod", -6)
+			local iconSize = Details.DefaultTooltipIconSize
+
 			local topAbility = ActorSkillsSortTable [1] and ActorSkillsSortTable [1][2] or 0.0001
 
 			if (#ActorSkillsSortTable > 0) then
@@ -3992,7 +3998,7 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 						GameCooltip:AddLine(nome_magia, FormatTooltipNumber (_, _math_floor(totalDPS)) .."   ("..percent.."%)")
 					end
 
-					GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W + 4, icon_size.H + 4, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
+					GameCooltip:AddIcon (icone_magia, nil, nil, iconSize, iconSize, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 					Details:AddTooltipBackgroundStatusbar (false, totalDamage/topAbility*100)
 				end
 			else
@@ -4015,7 +4021,7 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 						if (spellName) then
 							GameCooltip:AddLine(spellName, FormatTooltipNumber (_, damageDone) .. " (" .. _math_floor(damageDone / self.total * 100) .. "%)")
 							Details:AddTooltipBackgroundStatusbar (false, damageDone / self.total * 100)
-							GameCooltip:AddIcon (spellIcon, 1, 1, icon_size.W, icon_size.H, 0.1, 0.9, 0.1, 0.9)
+							GameCooltip:AddIcon (spellIcon, 1, 1, iconSize, iconSize, 0.1, 0.9, 0.1, 0.9)
 						end
 					end
 				end

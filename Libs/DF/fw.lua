@@ -2658,6 +2658,12 @@ function detailsFramework:SetTemplate(frame, template)
 				frame:HookScript("OnLeave", templateOnLeave)
 			end
 		end
+
+	elseif (frame.SetColorTexture) then
+		if (template.backdropcolor) then
+			local r, g, b, a = detailsFramework:ParseColors(template.backdropcolor)
+			frame:SetColorTexture(r, g, b, a)
+		end
 	end
 
 	if (frame.SetIcon) then

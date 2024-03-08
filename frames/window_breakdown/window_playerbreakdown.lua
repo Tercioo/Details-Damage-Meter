@@ -202,6 +202,16 @@ function Details222.BreakdownWindow.ApplyFontSettings(fontString)
 	detailsFramework:SetFontFace(fontString, Details.breakdown_general.font_face)
 end
 
+function Details222.BreakdownWindow.ApplyTextureSettings(statusBar)
+	local textureFile = SharedMedia:Fetch("statusbar", Details.breakdown_general.bar_texture)
+	local texture = statusBar:GetStatusBarTexture()
+	if (texture) then
+		texture:SetTexture(textureFile)
+	else
+		statusBar:SetStatusBarTexture(textureFile)
+	end
+end
+
 ------------------------------------------------------------------------------------------------------------------------------
 --self = instancia
 --jogador = classe_damage ou classe_heal

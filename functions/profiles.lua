@@ -1448,6 +1448,7 @@ local default_global_data = {
 		font_color = {0.9, 0.9, 0.9, 0.923},
 		font_outline = "NONE",
 		font_face = "DEFAULT",
+		bar_texture = "Skyline",
 	},
 
 	frame_background_color = {0.1215, 0.1176, 0.1294, 0.8},

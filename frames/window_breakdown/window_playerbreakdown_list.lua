@@ -281,6 +281,8 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 		Details222.BreakdownWindow.ApplyFontSettings(self.itemLevelText)
 		Details222.BreakdownWindow.ApplyFontSettings(self.percentileText)
 
+		Details222.BreakdownWindow.ApplyTextureSettings(self.totalStatusBar)
+
 		--set the statusbar
 		local r, g, b = self.playerObject:GetClassColor()
 		self.totalStatusBar:SetStatusBarColor(r, g, b, 1)
@@ -364,12 +366,10 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 		rankText.textsize = fontSize
 
 		local totalStatusBar = CreateFrame("statusbar", nil, line)
-		totalStatusBar:SetSize(scrollbox_size[1]-player_line_height, 4)
+		totalStatusBar:SetSize(scrollbox_size[1]-player_line_height, player_line_height)
 		totalStatusBar:SetMinMaxValues(0, 100)
-		totalStatusBar:SetStatusBarTexture([[Interface\AddOns\Details\images\bar_skyline]])
 		totalStatusBar:SetFrameLevel(line:GetFrameLevel()+1)
 		totalStatusBar:SetAlpha(0.5)
-
 		totalStatusBar:SetPoint("bottomleft", specIcon, "bottomright", 0, 0)
 
 		line.specIcon = specIcon

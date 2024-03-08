@@ -508,7 +508,8 @@ function _detalhes:RefreshUpdater(suggested_interval)
 	if (specialserials[specialSerial]) then return end
 
 	--_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer("RefreshMainWindow", updateInterval, -1)
-	_detalhes.atualizador = Details.Schedules.NewTicker(updateInterval, Details.RefreshMainWindow, Details, -1)
+	--_detalhes.atualizador = Details.Schedules.NewTicker(updateInterval, Details.RefreshMainWindow, Details, -1)
+	_detalhes.atualizador = C_Timer.NewTicker(updateInterval, Details.RefreshAllMainWindowsTemp)
 end
 
 ---set the amount of time between each update of all windows
