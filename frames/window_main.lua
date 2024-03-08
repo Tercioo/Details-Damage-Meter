@@ -9057,7 +9057,7 @@ end
 		Details:SetMenuOwner(self, self.instance)
 
 		gameCooltip:ShowRoundedCorner()
-		
+
 		gameCooltip:ShowCooltip()
 	end
 

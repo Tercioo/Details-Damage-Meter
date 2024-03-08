@@ -65,6 +65,8 @@
 			return Details.gameVersionPrefix .. " " .. Details.build_counter .. " " .. alphaId .. " " .. Details.game_version .. ""
 		end
 
+		Details.DefaultTooltipIconSize = 20
+
 		--namespace for the player breakdown window
 		Details.PlayerBreakdown = {}
 		Details222.PlayerBreakdown = {

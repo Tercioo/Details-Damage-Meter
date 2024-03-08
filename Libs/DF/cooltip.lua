@@ -17,7 +17,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 22
+local version = 23
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -106,7 +106,7 @@ function DF:CreateCoolTip()
 
 	--options table
 	gameCooltip.OptionsList = {
-		["RightTextMargin"] = true,
+		["RightTextMargin"] = true, --offset between the right text to the right icon, default: -3
 		["IconSize"] = true,
 		["HeightAnchorMod"] = true,
 		["WidthAnchorMod"] = true,
@@ -122,10 +122,10 @@ function DF:CreateCoolTip()
 		["TextHeightMod"] = true,
 		["ButtonHeightMod"] = true,
 		["ButtonHeightModSub"] = true,
-		["YSpacingMod"] = true,
+		["YSpacingMod"] = true, --space between each line, does not work with 'IgnoreButtonAutoHeight' and 'AlignAsBlizzTooltip'
 		["YSpacingModSub"] = true,
-		["ButtonsYMod"] = true,
-		["ButtonsYModSub"] = true,
+		["ButtonsYMod"] = true, --amount of space to leave between the top border and the first line of the tooltip, default: 0
+		["ButtonsYModSub"] = true, --amount of space to leave between the top border and the first line of the tooltip, default: 0
 		["IconHeightMod"] = true,
 		["StatusBarHeightMod"] = true,
 		["StatusBarTexture"] = true,
@@ -144,8 +144,8 @@ function DF:CreateCoolTip()
 		["RelativeAnchor"] = true,
 		["NoLastSelectedBar"] = true,
 		["SubMenuIsTooltip"] = true,
-		["LeftBorderSize"] = true,
-		["RightBorderSize"] = true,
+		["LeftBorderSize"] = true, --offset between the left border and the left icon, default: 10 + offset
+		["RightBorderSize"] = true, --offset between the right border and the right icon, default: -10 + offset
 		["HeighMod"] = true,
 		["HeighModSub"] = true,
 		["IconBlendMode"] = true,
@@ -192,7 +192,7 @@ function DF:CreateCoolTip()
 
 		--move each line in the Y axis (vertical offsett)
 		["LineYOffset"] = "ButtonsYMod",
-		["VerticalOffset"] = "ButtonsYMod",
+		["VerticalOffset"] = "ButtonsYMod", --amount of space to leave between the top border and the first line of the tooltip, default: 0
 		["LineYOffsetSub"] = "ButtonsYModSub",
 		["VerticalOffsetSub"] = "ButtonsYModSub",
 	}
@@ -232,7 +232,7 @@ function DF:CreateCoolTip()
 
 	gameCooltip.RoundedFramePreset = {
 		color = {.075, .075, .075, 1},
-		border_color = {.2, .2, .2, 1},
+		border_color = {.3, .3, .3, 1},
 		roundness = 8,
 	}
 
@@ -378,6 +378,9 @@ function DF:CreateCoolTip()
 
 		frame1.frameBackgroundTexture:Hide()
 		frame2.frameBackgroundTexture:Hide()
+
+		frame1.gradientTexture:Hide()
+		frame2.gradientTexture:Hide()
 	end
 
 	function GameCooltip:HideRoundedCorner()
@@ -390,6 +393,9 @@ function DF:CreateCoolTip()
 
 		frame1.frameBackgroundTexture:Show()
 		frame2.frameBackgroundTexture:Show()
+
+		frame1.gradientTexture:Show()
+		frame2.gradientTexture:Show()
 	end
 
 	gameCooltip.frame1 = frame1
@@ -613,9 +619,17 @@ function DF:CreateCoolTip()
 		statusbar.leftIcon:SetSize(16, 16)
 		statusbar.leftIcon:SetPoint("LEFT", statusbar, "LEFT", 0, 0)
 
+		statusbar.leftIconMask = statusbar:CreateMaskTexture("$parent_LeftIconMask", "artwork")
+		statusbar.leftIconMask:SetAllPoints(statusbar.leftIcon)
+		statusbar.leftIcon:AddMaskTexture(statusbar.leftIconMask)
+
 		statusbar.rightIcon = statusbar:CreateTexture("$parent_RightIcon", "OVERLAY")
 		statusbar.rightIcon:SetSize(16, 16)
 		statusbar.rightIcon:SetPoint("RIGHT", statusbar, "RIGHT", 0, 0)
+
+		statusbar.rightIconMask = statusbar:CreateMaskTexture("$parent_RightIconMask", "artwork")
+		statusbar.rightIconMask:SetAllPoints(statusbar.rightIcon)
+		statusbar.rightIcon:AddMaskTexture(statusbar.rightIconMask)
 
 		statusbar.spark2 = statusbar:CreateTexture("$parent_Spark2", "OVERLAY")
 		statusbar.spark2:SetSize(32, 32)
@@ -659,6 +673,8 @@ function DF:CreateCoolTip()
 		self:RegisterForClicks("LeftButtonDown")
 		self.leftIcon = self.statusbar.leftIcon
 		self.rightIcon = self.statusbar.rightIcon
+		self.leftIconMask = self.statusbar.leftIconMask
+		self.rightIconMask = self.statusbar.rightIconMask
 		self.texture = self.statusbar.texture
 		self.spark = self.statusbar.spark
 		self.spark2 = self.statusbar.spark2
@@ -1183,6 +1199,12 @@ function DF:CreateCoolTip()
 			textureObject:SetHeight(leftIconSettings[3])
 			textureObject:SetTexCoord(leftIconSettings[4], leftIconSettings[5], leftIconSettings[6], leftIconSettings[7])
 
+			if (leftIconSettings[10]) then
+				menuButton.leftIconMask:SetTexture(leftIconSettings[10])
+			else
+				menuButton.leftIconMask:SetTexture([[Interface\COMMON\common-iconmask]])
+			end
+
 			local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(leftIconSettings[8])
 			textureObject:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
 
@@ -1239,6 +1261,12 @@ function DF:CreateCoolTip()
 			menuButton.rightIcon:SetWidth(rightIconSettings[2])
 			menuButton.rightIcon:SetHeight(rightIconSettings[3])
 			menuButton.rightIcon:SetTexCoord(rightIconSettings[4], rightIconSettings[5], rightIconSettings[6], rightIconSettings[7])
+
+			if (rightIconSettings[10]) then
+				menuButton.rightIconMask:SetTexture(rightIconSettings[10])
+			else
+				menuButton.rightIconMask:SetTexture([[Interface\COMMON\common-iconmask]])
+			end
 
 			local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(rightIconSettings[8])
 			menuButton.rightIcon:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
@@ -3186,7 +3214,7 @@ function DF:CreateCoolTip()
 		return gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated)
 	end
 
-	function gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated)
+	function gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated, mask)
 		--need a previous line
 		if (gameCooltip.Indexes == 0) then
 			return gameCooltip:PrintDebug("AddIcon() requires an already added line (Cooltip:AddLine()).")
@@ -3248,6 +3276,7 @@ function DF:CreateCoolTip()
 				gameCooltip.TopIconTableSub[gameCooltip.Indexes][7] = bottomCoord or 1
 				gameCooltip.TopIconTableSub[gameCooltip.Indexes][8] = overlayColor or defaultWhiteColor
 				gameCooltip.TopIconTableSub[gameCooltip.Indexes][9] = desaturated
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][10] = mask
 				return
 			end
 
@@ -3280,6 +3309,7 @@ function DF:CreateCoolTip()
 		iconTable[7] = bottomCoord or 1 --default 1
 		iconTable[8] = overlayColor or defaultWhiteColor --default 1, 1, 1
 		iconTable[9] = desaturated
+		iconTable[10] = mask
 
 		return true
 	end

@@ -1586,10 +1586,10 @@
 		GameCooltip:SetOption("TextColorRight", Details.tooltip.fontcolor_right)
 		GameCooltip:SetOption("TextShadow", Details.tooltip.fontshadow and "OUTLINE")
 
-		GameCooltip:SetOption("LeftBorderSize", -5)
-		GameCooltip:SetOption("RightBorderSize", 5)
-		GameCooltip:SetOption("RightTextMargin", 0)
-		GameCooltip:SetOption("VerticalOffset", 9)
+		GameCooltip:SetOption("LeftBorderSize", -2) --offset between the left border and the left icon, default: 10 + offset
+		GameCooltip:SetOption("RightBorderSize", 2) --offset between the right border and the right icon, default: -10 + offset
+		GameCooltip:SetOption("VerticalOffset", 5) --amount of space to leave between the top border and the first line of the tooltip, default: 0
+		GameCooltip:SetOption("RightTextMargin", 0) --offset between the right text to the right icon, default: -3
 		GameCooltip:SetOption("AlignAsBlizzTooltip", true)
 		GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -8)
 		GameCooltip:SetOption("LineHeightSizeOffset", 4)
@@ -1670,6 +1670,7 @@
 				end
 			end
 
+			GameCooltip:ShowRoundedCorner()
 			GameCooltip:ShowCooltip()
 		end
 	end
@@ -1843,12 +1844,8 @@
 		if (not panel) then
 			panel = CreateFrame("frame", "DetailsEraseDataConfirmation", UIParent, "BackdropTemplate")
 			panel:SetSize(400, 85)
-			--panel:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
-			--edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12})
-			--panel:SetBackdropColor(0, 0, 0, 0.4)
 			panel:SetPoint("center", UIParent)
 
-			--DetailsFramework:ApplyStandardBackdrop(panel)
 			DetailsFramework:AddRoundedCornersToFrame(panel, Details.PlayerBreakdown.RoundedCornerPreset)
 
 			local LibWindow = LibStub("LibWindow-1.1")

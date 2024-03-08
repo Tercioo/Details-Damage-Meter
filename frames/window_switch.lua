@@ -38,10 +38,7 @@ function Details222.CreateAllDisplaysFrame()
 	DetailsSwitchPanel.all_switch = allDisplaysFrame
 
 	detailsFramework:AddRoundedCornersToFrame(allDisplaysFrame, Details.PlayerBreakdown.RoundedCornerPreset)
-
-	--DetailsFramework:ApplyStandardBackdrop(allDisplaysFrame)
-	--allDisplaysFrame.BackgroundGradientTexture = DetailsFramework:CreateTexture(allDisplaysFrame, {gradient = "vertical", fromColor = "transparent", toColor = {0, 0, 0, 0.2}}, 1, 1, "artwork", {0, 1, 0, 1})
-	--allDisplaysFrame.BackgroundGradientTexture:SetAllPoints()
+	Details:RegisterFrameToColor(allDisplaysFrame)
 
 	allDisplaysFrame:SetScript("OnMouseDown", function(self, button)
 		if (button == "RightButton") then

@@ -738,17 +738,22 @@ end
 		bs_tooltip_table = Targets
 		bs_tooltip_table.damage_total = total
 
+		--Details:FormatCooltipForSpells()
 		GameCooltip:SetOption("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
 
 		local spellname, _, spellicon = select(1, _GetSpellInfo(from_spell))
-		GameCooltip:AddLine(spellname .. " " .. Loc ["STRING_CUSTOM_ATTRIBUTE_DAMAGE"], nil, nil, headerColor, nil, 10)
-		GameCooltip:AddIcon (spellicon, 1, 1, 14, 14, 0.078125, 0.921875, 0.078125, 0.921875)
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
-		Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
+		--GameCooltip:AddLine(spellname .. " " .. Loc ["STRING_CUSTOM_ATTRIBUTE_DAMAGE"], nil, nil, headerColor, nil, 10)
+		--GameCooltip:AddIcon (spellicon, 1, 1, 14, 14, 0.078125, 0.921875, 0.078125, 0.921875)
+		--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
+		--Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
 
 		local top = Targets[1] and Targets[1][2]
 
-		local lineHeight = Details.tooltip.line_height
+		local iconSize = Details.DefaultTooltipIconSize
+		GameCooltip:SetOption("AlignAsBlizzTooltip", false)
+		GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
+		GameCooltip:SetOption("YSpacingMod", -6)
+		GameCooltip:ShowRoundedCorner()
 
 		for index, t in ipairs(Targets) do
 			GameCooltip:AddLine(Details:GetOnlyName(t[1]), Details:ToK(t[2]) .. " (" .. format("%.1f", t[2]/total*100) .. "%)")
@@ -760,24 +765,22 @@ end
 				local specID = Details:GetSpec(t[1])
 				if (specID) then
 					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
-					GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+					GameCooltip:AddIcon (texture, 1, 1, iconSize, iconSize, l, r, t, b)
 				else
 					local texture, l, r, t, b = Details:GetClassIcon(class)
-					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, lineHeight, lineHeight, l, r, t, b)
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1,iconSize,iconSize, l, r, t, b)
 				end
 
 			elseif (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
-				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, lineHeight, lineHeight, 0.25, 0.49609375, 0.75, 1)
+				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1,iconSize,iconSize, 0.25, 0.49609375, 0.75, 1)
 			end
 		end
 
 		GameCooltip:AddLine(" ")
 		Details:AddTooltipReportLineText()
 
-		GameCooltip:SetOption("YSpacingMod", 0)
 		GameCooltip:SetOwner(thisLine)
 		GameCooltip:Show()
-
 	end
 
 	local function RefreshBarraBySpell (tabela, barra, instancia)
@@ -1175,9 +1178,15 @@ end
 
 			_table_sort(damage_taken_table, Details.Sort2)
 
-			Details:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_FROM"], headerColor, #damage_taken_table, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.1796875, 0, 0.0546875)
-			Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
-			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
+			local iconSize = Details.DefaultTooltipIconSize
+			GameCooltip:SetOption("AlignAsBlizzTooltip", false)
+			GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
+			GameCooltip:SetOption("YSpacingMod", -6)
+			GameCooltip:ShowRoundedCorner()
+
+			--Details:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_FROM"], headerColor, #damage_taken_table, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.1796875, 0, 0.0546875)
+			--Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
+			--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
 
 			local min = 6
 			local ismaximized = false
@@ -1188,9 +1197,9 @@ end
 			end
 
 			if (ismaximized) then
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
+				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
 			else
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
+				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
 			end
 
 			local top = damage_taken_table[1] and damage_taken_table[1][2]
@@ -1210,15 +1219,15 @@ end
 					end
 
 					if (classe == "UNKNOW") then
-						GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
+						GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, iconSize, iconSize, .25, .5, 0, 1)
 					else
 
 						local specID = Details:GetSpec(t[1])
 						if (specID) then
 							local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
-							GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+							GameCooltip:AddIcon (texture, 1, 1, iconSize, iconSize, l, r, t, b)
 						else
-							GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, lineHeight, lineHeight, unpack(Details.class_coords [classe]))
+							GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, iconSize, iconSize, unpack(Details.class_coords [classe]))
 						end
 					end
 
@@ -1591,9 +1600,9 @@ end
 		local GameCooltip = GameCooltip
 
 		local spellname, _, spellicon = _GetSpellInfo(actor.damage_spellid)
-		Details:AddTooltipSpellHeaderText (spellname .. " " .. Loc ["STRING_VOIDZONE_TOOLTIP"], headerColor, #tooltip_void_zone_temp, spellicon, 0.078125, 0.921875, 0.078125, 0.921875)
-		Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
+		--Details:AddTooltipSpellHeaderText (spellname .. " " .. Loc ["STRING_VOIDZONE_TOOLTIP"], headerColor, #tooltip_void_zone_temp, spellicon, 0.078125, 0.921875, 0.078125, 0.921875)
+		--Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
+		--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
 
 		--for target_name, debuff_table in pairs(container) do
 		local first = tooltip_void_zone_temp [1] and tooltip_void_zone_temp [1][3]
@@ -1604,7 +1613,13 @@ end
 		tooltip_void_zone_temp.spellid = actor.damage_spellid
 		tooltip_void_zone_temp.current_actor = actor
 
-		local lineHeight = Details.tooltip.line_height
+		local iconSize = Details.DefaultTooltipIconSize
+		GameCooltip:SetOption("AlignAsBlizzTooltip", false)
+		GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
+		GameCooltip:SetOption("YSpacingMod", -6)
+		GameCooltip:ShowRoundedCorner()
+
+		--local lineHeight = Details.tooltip.line_height
 
 		for index, t in ipairs(tooltip_void_zone_temp) do
 
@@ -1626,12 +1641,12 @@ end
 				local specID = Details:GetSpec(t[1])
 				if (specID) then
 					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
-					GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+					GameCooltip:AddIcon (texture, 1, 1, iconSize, iconSize, l, r, t, b)
 				else
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, lineHeight, lineHeight, unpack(Details.class_coords [classe]))
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, iconSize, iconSize, unpack(Details.class_coords [classe]))
 				end
 			else
-				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, iconSize, iconSize, .25, .5, 0, 1)
 			end
 
 			local _, _, _, _, _, r, g, b = Details:GetClass(t[1])
@@ -3933,15 +3948,15 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			end
 
 		--MOSTRA HABILIDADES
-			Details:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #ActorSkillsSortTable, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
+			--Details:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #ActorSkillsSortTable, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
 
 			if (is_maximized) then
 				--highlight shift key
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
-				Details:AddTooltipHeaderStatusbar (r, g, b, 1)
+				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
+				--Details:AddTooltipHeaderStatusbar (r, g, b, 1)
 			else
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
-				Details:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
+				--Details:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 			end
 
 			local topAbility = ActorSkillsSortTable [1] and ActorSkillsSortTable [1][2] or 0.0001
@@ -4277,84 +4292,89 @@ function damageClass:ReportSingleFragsLine (frag, instance, ShiftKeyDown, Contro
 	return Details:Reportar (report_table, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
-function damageClass:ToolTip_Enemies (instancia, numero, barra, keydown)
-
-	local owner = self.owner
-	if (owner and owner.classe) then
-		r, g, b = unpack(Details.class_colors [owner.classe])
+---@param self actor
+---@param instanceObject instance
+function damageClass:ToolTip_Enemies(instanceObject, numero, barra, keydown)
+	--check if the actor has an owner, if it does, it's a pet
+	local ownerObject = self.owner
+	if (ownerObject and ownerObject.classe) then
+		r, g, b = unpack(Details.class_colors[ownerObject.classe])
 	else
-		r, g, b = unpack(Details.class_colors [self.classe])
+		r, g, b = unpack(Details.class_colors[self.classe])
 	end
 
-	local combat = instancia:GetShowingCombat()
-	local enemy_name = self:name()
+	local combatObject = instanceObject:GetCombat()
+	local enemyName = self:Name()
 
 	Details:Destroy(tooltip_temp_table) --fix for translit bug report, 'player' is nil
 
 	--enemy damage taken
 	local i = 1
-	local damage_taken = 0
-	for _, actor in ipairs(combat[1]._ActorTable) do
-		if (actor.grupo and actor.targets [self.nome]) then
-			local t = tooltip_temp_table [i]
-			if (not t) then
-				tooltip_temp_table [i] = {}
-				t = tooltip_temp_table [i]
+	local damageTaken = 0
+	---@type actorcontainer
+	local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+
+	---@type number, actor
+	for idx, actor in damageContainer:ListActors() do
+		if (actor:IsGroupPlayer() and actor.targets[enemyName]) then
+			---@type table<actor, number>
+			local agressorsTable = tooltip_temp_table[i]
+
+			if (not agressorsTable) then
+				tooltip_temp_table[i] = {}
+				agressorsTable = tooltip_temp_table[i]
 			end
-			t [1] = actor
-			t [2] = actor.targets [enemy_name] or 0
-			damage_taken = damage_taken + t [2]
+
+			agressorsTable[1] = actor
+			agressorsTable[2] = (actor.targets[enemyName]) or 0
+			damageTaken = damageTaken + agressorsTable[2]
+
 			i = i + 1
 		end
 	end
 
 	for o = i, #tooltip_temp_table do
-		local t = tooltip_temp_table [o]
+		local t = tooltip_temp_table[o]
 		t[2] = 0
 		t[1] = 0
 	end
 
 	_table_sort(tooltip_temp_table, Details.Sort2)
 
-	-- enemy damage taken
-	Details:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_TAKEN_FROM"], headerColor, i-1, [[Interface\Buttons\UI-MicroStream-Red]], 0.1875, 0.8125, 0.15625, 0.78125)
-	GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
-
-	Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
-
 	--build the tooltip
-	local top = (tooltip_temp_table [1] and tooltip_temp_table [1][2]) or 0
-	tooltip_temp_table.damage_total = damage_taken
+	local top = (tooltip_temp_table[1] and tooltip_temp_table[1][2]) or 0
+	tooltip_temp_table.damage_total = damageTaken
 
-	local lineHeight = Details.tooltip.line_height
+	local iconSize = Details.DefaultTooltipIconSize
+	GameCooltip:SetOption("AlignAsBlizzTooltip", false)
+	GameCooltip:SetOption("YSpacingMod", -6)
 
 	for o = 1, i-1 do
+		local actorAggressor = tooltip_temp_table[o][1]
+		local damageDone = tooltip_temp_table[o][2]
+		local playerName = Details:GetOnlyName(actorAggressor:name())
 
-		local player = tooltip_temp_table [o][1]
-		local total = tooltip_temp_table [o][2]
-		local player_name = Details:GetOnlyName(player:name())
+		GameCooltip:AddLine(playerName .. " ", FormatTooltipNumber (_, damageDone) .." (" .. format("%.1f", (damageDone / damageTaken) * 100) .. "%)")
 
-		GameCooltip:AddLine(player_name .. " ", FormatTooltipNumber (_, total) .." (" .. format("%.1f", (total / damage_taken) * 100) .. "%)")
-
-		local classe = player:class()
+		local classe = actorAggressor:class()
 		if (not classe) then
 			classe = "UNKNOW"
 		end
+
 		if (classe == "UNKNOW") then
-			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
+			GameCooltip:AddIcon("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, iconSize, iconSize, .25, .5, 0, 1)
 		else
-			local specID = player.spec
+			local specID = actorAggressor.spec
 			if (specID) then
-				local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
-				GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+				local texture, l, r, t, b = Details:GetSpecIcon(specID, false)
+				GameCooltip:AddIcon(texture, 1, 1, iconSize, iconSize, l, r, t, b)
 			else
-				GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, lineHeight, lineHeight, unpack(Details.class_coords [classe]))
+				GameCooltip:AddIcon(instanceObject.row_info.icon_file, nil, nil, iconSize, iconSize, unpack(Details.class_coords [classe]))
 			end
 		end
 
-		local r, g, b = unpack(Details.class_colors [classe])
-		GameCooltip:AddStatusBar (total/top*100, 1, r, g, b, 1, false, enemies_background)
-
+		local r, g, b = unpack(Details.class_colors[classe])
+		GameCooltip:AddStatusBar(damageDone/top*100, 1, r, g, b, 1, false, enemies_background)
 	end
 
 	GameCooltip:SetOption("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
@@ -4363,22 +4383,20 @@ function damageClass:ToolTip_Enemies (instancia, numero, barra, keydown)
 	GameCooltip:AddLine(" ")
 	GameCooltip:AddLine(Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES_DONE"], FormatTooltipNumber (_, _math_floor(self.total)))
 	local half = 0.00048828125
-	GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
+	GameCooltip:AddIcon (instanceObject:GetSkinTexture(), 1, 1, 14, 14, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
 	GameCooltip:AddStatusBar (0, 1, r, g, b, 1, false, enemies_background)
 
-	local heal_actor = instancia.showing (2, self.nome)
+	local heal_actor = instanceObject.showing (2, self.nome)
 	if (heal_actor) then
 		GameCooltip:AddLine(Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"], FormatTooltipNumber (_, _math_floor(heal_actor.heal_enemy_amt)))
 	else
 		GameCooltip:AddLine(Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"], 0)
 	end
-	GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
+	GameCooltip:AddIcon (instanceObject:GetSkinTexture(), 1, 1, 14, 14, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
 	GameCooltip:AddStatusBar (0, 1, r, g, b, 1, false, enemies_background)
 
 	GameCooltip:AddLine(" ")
 	Details:AddTooltipReportLineText()
-
-	GameCooltip:SetOption("YSpacingMod", 0)
 
 	return true
 end
@@ -4461,30 +4479,35 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 	end
 
 	if (subAttribute == DETAILS_SUBATTRIBUTE_ENEMIES) then
-		Details:AddTooltipSpellHeaderText(Loc ["STRING_DAMAGE_TAKEN_FROM"], headerColor, #damageTakenDataSorted, [[Interface\Buttons\UI-MicroStream-Red]], 0.1875, 0.8125, 0.15625, 0.78125)
+		--Details:AddTooltipSpellHeaderText(Loc ["STRING_DAMAGE_TAKEN_FROM"], headerColor, #damageTakenDataSorted, [[Interface\Buttons\UI-MicroStream-Red]], 0.1875, 0.8125, 0.15625, 0.78125)
 	else
-		Details:AddTooltipSpellHeaderText(Loc ["STRING_FROM"], headerColor, #damageTakenDataSorted, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.1796875, 0, 0.0546875)
+		--Details:AddTooltipSpellHeaderText(Loc ["STRING_FROM"], headerColor, #damageTakenDataSorted, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.1796875, 0, 0.0546875)
 	end
 
 	if (bIsMaximized) then
 		--highlight
-		GameCooltip:AddIcon([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
-		if (subAttribute == DETAILS_SUBATTRIBUTE_ENEMIES) then
-			GameCooltip:AddStatusBar(100, 1, 0.7, g, b, 1)
-		else
-			Details:AddTooltipHeaderStatusbar(r, g, b, 1)
-		end
+		--GameCooltip:AddIcon([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
+		--if (subAttribute == DETAILS_SUBATTRIBUTE_ENEMIES) then
+		--	GameCooltip:AddStatusBar(100, 1, 0.7, g, b, 1)
+		--else
+		--	Details:AddTooltipHeaderStatusbar(r, g, b, 1)
+		--end
 	else
-		GameCooltip:AddIcon([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
-		if (subAttribute == DETAILS_SUBATTRIBUTE_ENEMIES) then
-			GameCooltip:AddStatusBar(100, 1, 0.7, 0, 0, barAlha)
-		else
-			Details:AddTooltipHeaderStatusbar(r, g, b, barAlha)
-		end
+		--GameCooltip:AddIcon([[Interface\AddOns\Details\images\key_shift]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
+		--if (subAttribute == DETAILS_SUBATTRIBUTE_ENEMIES) then
+		--	GameCooltip:AddStatusBar(100, 1, 0.7, 0, 0, barAlha)
+		--else
+		--	Details:AddTooltipHeaderStatusbar(r, g, b, barAlha)
+		--end
 	end
 
-	local iconSize = Details.tooltip.icon_size
+	--local iconSize = Details.tooltip.icon_size
 	local iconBorderTexCoord = Details.tooltip.icon_border_texcoord
+
+	GameCooltip:SetOption("AlignAsBlizzTooltip", false)
+	GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
+	GameCooltip:SetOption("YSpacingMod", -6)
+	local iconSize = Details.DefaultTooltipIconSize
 
 	-- create a full list of incoming damage, before adding any lines to the tooltip, so we can sort them appropriately
 
@@ -4534,7 +4557,7 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 				local spellName, _, spellIcon = _GetSpellInfo(spellId)
 				local addTextArgs = {spellName .. " (|cFFFFFF00" .. thisActorName .. "|r)", Details:Format(valueAmount) .. " (" .. string.format("%.1f", (valueAmount / totalDamageTaken) * 100) .. "%)"}
 				---@type cooltip_icon
-				local addIconArgs = {spellIcon, 1, 1, iconSize.W, iconSize.H, iconBorderTexCoord.L, iconBorderTexCoord.R, iconBorderTexCoord.T, iconBorderTexCoord.B}
+				local addIconArgs = {spellIcon, 1, 1, iconSize, iconSize, iconBorderTexCoord.L, iconBorderTexCoord.R, iconBorderTexCoord.T, iconBorderTexCoord.B}
 
 				tinsert(lines_to_add, {
 					valueAmount,
@@ -4567,9 +4590,9 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 			end
 
 			if (class == "UNKNOW") then
-				addIconArgs = {"Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, iconSize.W, iconSize.H, .25, .5, 0, 1}
+				addIconArgs = {"Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, iconSize, iconSize, .25, .5, 0, 1}
 			else
-				addIconArgs= {instance.row_info.icon_file, nil, nil, iconSize.W, iconSize.H, unpack(Details.class_coords [class])}
+				addIconArgs= {instance.row_info.icon_file, nil, nil, iconSize, iconSize, unpack(Details.class_coords [class])}
 			end
 			tinsert(lines_to_add, {amount, addLineArgs, addIconArgs})
 		end
@@ -4587,7 +4610,7 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 		GameCooltip:AddLine(" ")
 		GameCooltip:AddLine(Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], FormatTooltipNumber (_, _math_floor(self.total)))
 		local half = 0.00048828125
-		GameCooltip:AddIcon (instance:GetSkinTexture(), 1, 1, iconSize.W, iconSize.H, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
+		GameCooltip:AddIcon (instance:GetSkinTexture(), 1, 1, iconSize, iconSize, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
 		Details:AddTooltipBackgroundStatusbar()
 
 		local heal_actor = instance.showing (2, self.nome)
@@ -4596,7 +4619,7 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 		else
 			GameCooltip:AddLine(Loc ["STRING_ATTRIBUTE_HEAL_DONE"], 0)
 		end
-		GameCooltip:AddIcon (instance:GetSkinTexture(), 1, 1, iconSize.W, iconSize.H, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
+		GameCooltip:AddIcon (instance:GetSkinTexture(), 1, 1, iconSize, iconSize, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
 		Details:AddTooltipBackgroundStatusbar()
 	end
 

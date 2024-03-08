@@ -139,6 +139,9 @@
 ---@field TextureAtlas table<atlasname, df_atlasinfo>
 ---@field playername string
 ---@field breakdown_general profile_breakdown_settings
+---@field DefaultTooltipIconSize number default size of the icons in the tooltip, this also dictates the size of each line in the tooltip
+---@field 
+---@field 
 ---@field 
 ---@field GetDisplayClassByDisplayId fun(self: details, displayId: number) : table -return the class object for the given displayId (attributeId)
 ---@field GetTextureAtlas fun(self: details, atlasName: atlasname) : df_atlasinfo return the texture atlas data
@@ -389,6 +392,7 @@
 ---@field serial string
 ---@field spec number
 ---@field grupo boolean
+---@field classe string
 ---@field fight_component boolean
 ---@field boss_fight_component boolean
 ---@field pvp_component boolean
