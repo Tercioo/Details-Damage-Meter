@@ -273,7 +273,21 @@ Details.TextureAtlas = {
         width = 12,
         height = 12,
         colorName = "silver",
-    }
+    },
+
+    ["right-mouse-click"] = {
+        file = [[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]],
+        width = 52,
+        height = 76,
+        leftTexCoord = 13/512,
+        rightTexCoord = 64/512,
+        topTexCoord = 332/512,
+        bottomTexCoord = 408/512,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 512,
+        nativeHeight = 512,
+    },
 }
 
 C_Timer.After(1, function()

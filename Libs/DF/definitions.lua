@@ -11,7 +11,8 @@
 ---@field removeduplicate fun(tbl1:table, tbl2:table) remove the keys from table1 which also exists in table2 with the same value
 ---@field getfrompath fun(tbl:table, path:string, subOffset:number?) : any get a value from a table using a path, e.g. getfrompath(tbl, "a.b.c") is the same as tbl.a.b.c; if subOffset is passed, return the subOffset'th value of the path
 ---@field setfrompath fun(tbl:table, path:string, value:any) : boolean set the value of a table using a path, e.g. setfrompath(tbl, "a.b.c", 10) is the same as tbl.a.b.c = 10
----@field dump fun(tbl:table) : string dump a table to a string
+---@field dump fun(tbl:table, resultString:string, deep:number) : string dump a table to a string
+---@field findsubtable fun(tbl:table, index:number, value:any) : integer|nil find the value passed inside a sub table, return the index of the main table where the sub table with the value found is located
 
 ---@class df_language : table
 ---@field Register fun(addonId:any, languageId:string, gameLanguageOnly:boolean?) : table
@@ -36,6 +37,19 @@
 ---@field RegisterTableKeyWithLocTable fun(table:table, key:any, locTable:table, silence:boolean?)
 ---@field RegisterObjectWithLocTable fun(object:uiobject, locTable:table, silence:boolean?)
 
+---@class df_anttable : table
+---@field Throttle number
+---@field AmountParts number
+---@field TexturePartsWidth number
+---@field TexturePartsHeight number
+---@field TextureWidth number
+---@field TextureHeight number
+---@field BlendMode string?
+---@field Color any?
+---@field Texture any
+
+---df version of an atlasinfo from the game API, it include color and desaturation information
+---a df atlas can be created using DetailsFramework:CreateAtlas() and then used with DetailsFramework:SetAtlas()
 ---@class df_atlasinfo : atlasinfo
 ---@field vertexRed number?
 ---@field vertexGreen number?
@@ -50,6 +64,7 @@
 
 ---@alias df_templatename string
 
+---a template is a table with keys and values that mandate how a widget should look like
 ---@class df_template : table
 ---@field width any
 ---@field height any
@@ -103,6 +118,7 @@
 ---| "switch"
 ---| "slider"
 
+
 ---@class detailsframework
 ---@field dversion number
 ---@field internalFunctions table
@@ -130,6 +146,19 @@
 ---@field button_templates table<df_templatename, df_template>
 ---@field slider_templates table<df_templatename, df_template>
 ---@field font_templates table<df_templatename, df_template>
+---@field FrameWorkVersion string the version of the framework
+---@field LabelNameCounter number when no name is given, a string plus an incremental number is used instead
+---@field PictureNameCounter number when no name is given, a string plus an incremental number is used instead
+---@field BarNameCounter number when no name is given, a string plus an incremental number is used instead
+---@field DropDownCounter number when no name is given, a string plus an incremental number is used instead
+---@field PanelCounter number when no name is given, a string plus an incremental number is used instead
+---@field SimplePanelCounter number when no name is given, a string plus an incremental number is used instead
+---@field ButtonCounter number when no name is given, a string plus an incremental number is used instead
+---@field SliderCounter number when no name is given, a string plus an incremental number is used instead
+---@field SwitchCounter number when no name is given, a string plus an incremental number is used instead
+---@field SplitBarCounter number when no name is given, a string plus an incremental number is used instead
+---@field FormatNumber fun(number:number) : string abbreviate a number, e.g. 1000 -> 1k 1000 -> 1천, depending on the client language
+---@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean?, specId: specializationid?) : string there's no self here
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
 ---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
 ---@field GetCurrentClassName fun(self:table) : string return the name of the class the player is playing
@@ -172,10 +201,9 @@
 ---@field GroupIterator fun(self:table, callback:function, ...) iterate over the group, calling the callback function for each group member
 ---@field CommaValue fun(self:table, value:number) : string convert a number to a string with commas, e.g. 1000000 -> 1,000,000
 ---@field SplitTextInLines fun(self:table, text:string) : string[] split a text into lines
----@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean?, specId: specializationid?) : string there's no self here
 ---@field SetAnchor fun(self:table, widget:uiobject, anchorTable:df_anchor, anchorTo:uiobject?) only adjust the anchors of a widget, does not save values
----@field AddTextureToText fun(text:string, textureInfo:table, bAddSpace:boolean?, bAddAfterText:boolean) : string textureInfo is a table with .texture .width .height .coords{left, right, top, bottom}
----@field CreateTextureInfo fun(texture:atlasname|texturepath|textureid, width:number?, height:number?, left:number?, right:number?, top:number?, bottom:number?, imageWidthnumber?, imageHeightnumber?) : table
+---@field AddTextureToText fun(self:table, text:string, textureInfo:table, bAddSpace:boolean?, bAddAfterText:any) : string textureInfo is a table with .texture .width .height .coords{left, right, top, bottom}
+---@field CreateTextureInfo fun(self:table, texture:atlasname|texturepath|textureid, width:number?, height:number?, left:number?, right:number?, top:number?, bottom:number?, imageWidthnumber?, imageHeightnumber?) : table deprecated, use: DetailsFramework:CreateAtlas()
 ---@field ApplyStandardBackdrop fun(self:table, frame:frame, bUseSolidColor:boolean?, alphaScale:number?)
 ---@field NewLabel fun(self:table, parent:frame, container:frame, name:string?, member:string?, text:string|table, font:string?, size:any?, color:any?, layer:drawlayer?) : df_label
 ---@field CreateLabel fun(self:table, parent:frame, text:string, size:any?, color:any?, font:string?, member:string?, name:string?, layer:drawlayer?) : df_label
@@ -238,6 +266,8 @@
 ---@field SortOrder3R fun(t1:table, t2:table) : boolean
 ---@field Trim fun(self:table, string:string) : string
 ---@field trim fun(self:table, string:string) : string
+---@field TruncateTextBinarySearch fun(self:table, fontString:fontstring, maxWidth:number) : nil
+---@field TruncateTextSafeBinarySearch fun(self:table, fontString:fontstring, maxWidth:number) : nil
 ---@field TruncateTextSafe fun(self:table, fontString:fontstring, maxWidth:number) : nil
 ---@field TruncateText fun(self:table, fontString:fontstring, maxWidth:number) : nil
 ---@field CleanTruncateUTF8String fun(self:table, text:string) : string
@@ -255,6 +285,14 @@
 ---@field ParseTemplate fun(self:table, templateCategory:string, template:string|table) : table
 ---@field GetParentName fun(self:table, frame:uiobject) : string
 ---@field IsLatinLanguage fun(self:table, languageId:string) : boolean
+---@field PrintVersion fun(self:table) : nil print to chat the version of the framework
+---@field GetParentKeyPath fun(self:table, object:uiobject) : string
+---@field GetParentNamePath fun(self:table, object:uiobject) : string
+---@field GetAsianNumberSymbols fun(self:table) : string, string, string return the abbreviation for 1,000 10,000 and 100,000,000
+---@field GetBestFontForLanguage fun(self:table, languageId:string?, western:string?, cyrillic:string?, china:string? korean:string?, taiwan:string?) : string
+---@field CreateGlowOverlay fun(self:table, parent:frame, antsColor:any, glowColor:any) : frame
+---@field CreateAnts fun(self:table, parent:frame, antTable:df_anttable, leftOffset:number?, rightOffset:number?, topOffset:number?, bottomOffset:number?) : frame
+---@field CreateBorder fun(self:table, parent:frame, alpha1:number?, alpha2:number?, alpha3:number?) : frame
 ---@field
 ---@field
 ---@field

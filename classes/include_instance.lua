@@ -182,6 +182,8 @@ _detalhes.instance_defaults = {
 			show_timer_bg = true, --show the timer within battleground, the timer is the elapsed battleground time
 			show_timer_arena = true, ---show the timer within arena, the timer is the elapsed time of the arena match
 		},
+		--attribute icon size
+		attribute_icon_size = 0,
 	--auto hide window borders statusbar main menu
 		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1, ignorebars = false},
 	--instance button anchor store the anchor point of instance and delete button
@@ -190,6 +192,8 @@ _detalhes.instance_defaults = {
 		total_bar = {enabled = false, color = {1, 1, 1}, only_in_group = true, icon = [[Interface\ICONS\INV_Sigil_Thorim]]},
 	--row animation when show
 		row_show_animation = {anim = "Fade", options = {}},
+
+		rounded_corner_enabled = false,
 
 		--use one fontstring for each value in the lines, e.g. one fontstring to damage done, another fontstring to dps and another to percent amount
 		use_multi_fontstrings = true,
@@ -284,12 +288,14 @@ _detalhes.instance_defaults = {
 				fixed_texture_background_color = {0, 0, 0, 0},
 			--space between bars
 				space = {left = 3, right = -5, between = 1},
+				row_offsets = {left = 0, right = 0, top = 0, bottom = 0},
 			--icon file
 				icon_size_offset = 0,
 				icon_file = [[Interface\AddOns\Details\images\classes_small]],
 				no_icon = false,
 				start_after_icon = true,
 				icon_grayscale = false,
+				icon_mask = "",
 			--icon offset
 				icon_offset = {0, 0}, --x y
 			--percent type

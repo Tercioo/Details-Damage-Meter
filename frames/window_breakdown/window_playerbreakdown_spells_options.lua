@@ -33,6 +33,9 @@ local createOptionsPanel = function()
     --apply rounded corners with the breakdown window preset
     DF:AddRoundedCornersToFrame(optionsFrame, Details.PlayerBreakdown.RoundedCornerPreset)
 
+    local closeButton = DF:CreateCloseButton(optionsFrame, "$parentTopRightCloseButton")
+    closeButton:SetPoint("topright", optionsFrame, "topright", -5, -5)
+
     Details:RefreshWindowColor()
 
     local resetSettings = function()
@@ -93,16 +96,16 @@ local createOptionsPanel = function()
 
                     --/run Details.frame_background_color = {0.1215, 0.1176, 0.1294, 0.934}
 
-                    local normalizedRed = DF.Math.MapRangeClamped(0, 1, 0, 0.1215, r)
-                    local normalizedGreen = DF.Math.MapRangeClamped(0, 1, 0, 0.1176, g)
-                    local normalizedBlue = DF.Math.MapRangeClamped(0, 1, 0, 0.1294, b)
-                    local normalizedAlpha = DF.Math.MapRangeClamped(0, 1, 0.8, 0.98, a)
+                    r = math.min(r, 0.1215)
+                    g = math.min(g, 0.1176)
+                    b = math.min(b, 0.1294)
+                    a = math.min(a, 0.934)
 
-                    colorTable[1] = normalizedRed
-                    colorTable[2] = normalizedGreen
-                    colorTable[3] = normalizedBlue
-                    colorTable[4] = normalizedAlpha
-                    Details:SetWindowColor(normalizedRed, normalizedGreen, normalizedBlue, normalizedAlpha)
+                    colorTable[1] = r
+                    colorTable[2] = g
+                    colorTable[3] = b
+                    colorTable[4] = a
+                    Details:SetWindowColor(r, g, b, a)
                 end,
                 name = "Background Color",
                 desc = "Background Color",

@@ -1499,24 +1499,24 @@
 		GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.8)
 	end
 
-	function Details:AddTooltipBackgroundStatusbar (side, value, useSpark, statusBarColor)
+	function Details:AddTooltipBackgroundStatusbar(side, value, useSpark, statusBarColor)
 		Details.tooltip.background [4] = 0.8
 		Details.tooltip.icon_size.W = Details.tooltip.line_height
 		Details.tooltip.icon_size.H = Details.tooltip.line_height
 
 		--[[spark options
-		["SparkTexture"] = true,
-		["SparkHeightOffset"] = true,
-		["SparkWidthOffset"] = true,
-		["SparkHeight"] = true,
-		["SparkWidth"] = true,
-		["SparkAlpha"] = true,
-		["SparkColor"] = true,
-		["SparkPositionXOffset"] = true,
-		["SparkPositionYOffset"] = true,
+			["SparkTexture"] = true,
+			["SparkHeightOffset"] = true,
+			["SparkWidthOffset"] = true,
+			["SparkHeight"] = true,
+			["SparkWidth"] = true,
+			["SparkAlpha"] = true,
+			["SparkColor"] = true,
+			["SparkPositionXOffset"] = true,
+			["SparkPositionYOffset"] = true,
 		--]]
 
-		useSpark = true
+		useSpark = value ~= 100
 		--GameCooltip:SetOption("SparkHeightOffset", 6)
 		GameCooltip:SetOption("SparkTexture", [[Interface\Buttons\WHITE8X8]])
 		GameCooltip:SetOption("SparkWidth", 1)
@@ -1536,7 +1536,6 @@
 			end
 			local rBG, gBG, bBG, aBG = unpack(Details.tooltip.background)
 			GameCooltip:AddStatusBar (value, 1, r, g, b, a, useSpark, {value = 100, color = {rBG, gBG, bBG, aBG}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
-
 		else
 			GameCooltip:AddStatusBar (value, 2, unpack(Details.tooltip.bar_color))
 		end
@@ -1549,7 +1548,7 @@
 
 -- /run local a,b=Details.tooltip.header_statusbar,0.3;a[1]=b;a[2]=b;a[3]=b;a[4]=0.8;
 
-	function Details:AddTooltipSpellHeaderText (headerText, headerColor, amount, iconTexture, L, R, T, B, separator, iconSize)
+	function Details:AddTooltipSpellHeaderText(headerText, headerColor, amount, iconTexture, L, R, T, B, separator, iconSize)
 		if (separator and separator == true) then
 			GameCooltip:AddLine ("", "", nil, nil, 1, 1, 1, 1, 8)
 			return
@@ -1576,9 +1575,10 @@
 		local GameCooltip = GameCooltip
 
 		GameCooltip:Reset()
-		GameCooltip:SetType ("tooltip")
+		GameCooltip:SetType("tooltip")
 
-		GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background_dark_withline]])
+		--GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background_dark_withline]])
+		GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_textures\bar_rounded.png]])
 
 		GameCooltip:SetOption("TextSize", Details.tooltip.fontsize)
 		GameCooltip:SetOption("TextFont",  Details.tooltip.fontface)
@@ -1586,8 +1586,8 @@
 		GameCooltip:SetOption("TextColorRight", Details.tooltip.fontcolor_right)
 		GameCooltip:SetOption("TextShadow", Details.tooltip.fontshadow and "OUTLINE")
 
-		GameCooltip:SetOption("LeftBorderSize", -2) --offset between the left border and the left icon, default: 10 + offset
-		GameCooltip:SetOption("RightBorderSize", 2) --offset between the right border and the right icon, default: -10 + offset
+		GameCooltip:SetOption("LeftBorderSize", -0) --offset between the left border and the left icon, default: 10 + offset
+		GameCooltip:SetOption("RightBorderSize", 0) --offset between the right border and the right icon, default: -10 + offset
 		GameCooltip:SetOption("VerticalOffset", 5) --amount of space to leave between the top border and the first line of the tooltip, default: 0
 		GameCooltip:SetOption("RightTextMargin", 0) --offset between the right text to the right icon, default: -3
 		GameCooltip:SetOption("AlignAsBlizzTooltip", false)

@@ -3961,7 +3961,6 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			end
 
 			GameCooltip:SetOption("AlignAsBlizzTooltip", false)
-			GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
 			GameCooltip:SetOption("YSpacingMod", -6)
 			local iconSize = Details.DefaultTooltipIconSize
 

@@ -317,6 +317,19 @@ function Details:SetWindowColor(r, g, b, a)
 	colorTable[2] = g
 	colorTable[3] = b
 	colorTable[4] = a
+
+	local instanceTable = Details:GetAllInstances()
+	for _, instance in ipairs(instanceTable) do
+		if (instance:IsEnabled()) then
+			local baseFrame = instance.baseframe
+			local fullWindowFrame = baseFrame.fullWindowFrame
+			if (fullWindowFrame.__rcorners) then
+				if (fullWindowFrame.BottomHorizontalEdge:IsShown()) then
+					fullWindowFrame:SetColor(r, g, b, a)
+				end
+			end
+		end
+	end
 end
 
 ---open the breakdown window
@@ -869,6 +882,9 @@ function Details:CreateBreakdownWindow()
 		statusBar.Text.fontsize = fontSize
 		statusBar.Text.fontcolor = fontColor
 	end
+
+	local rightClickToCloseLabel = Details:CreateRightClickToCloseLabel(statusBar)
+	rightClickToCloseLabel:SetPoint("right", -332, 4)
 
 	--set default text
 	breakdownWindowFrame:SetStatusbarText()

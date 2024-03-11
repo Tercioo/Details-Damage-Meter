@@ -1,6 +1,6 @@
 
 
-local dversion = 520
+local dversion = 521
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -21,11 +21,6 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local _
 local type = type
 local unpack = unpack
-local upper = string.upper
-local string_match = string.match
-local tinsert = table.insert
-local abs = _G.abs
-local tremove = _G.tremove
 
 local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
@@ -220,7 +215,7 @@ function DF:GetRoleByClassicTalentTree()
 			--tab information
 			local name, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
 			if (name) then
-				tinsert(pointsPerSpec, {name, pointsSpent, fileName})
+				table.insert(pointsPerSpec, {name, pointsSpent, fileName})
 			end
 		end
 	end
@@ -460,7 +455,6 @@ local embedFunctions = {
 	"NewSpecialLuaEditorEntry",
 	"ShowPromptPanel",
 	"ShowTextPromptPanel",
-	"www_icons",
 	"GetTemplate",
 	"InstallTemplate",
 	"GetFrameworkFolder",
@@ -559,7 +553,11 @@ function DF.table.findsubtable(t, index, value)
 	end
 end
 
-
+---Loop through parent of the passed object, making a string with parentKeys separated by a dot.
+---The loop continues until a parentKey is not found or if the frame has no parent (reach UIParent).
+---@param self table
+---@param object any
+---@return string
 function DF:GetParentKeyPath(object)
 	local parentKey = object:GetParentKey()
 	if (not parentKey) then
@@ -584,6 +582,11 @@ function DF:GetParentKeyPath(object)
 	return path
 end
 
+---Loop through the parent of the passed object, creating a string with parent names and parent keys separated by dots, if the object has no name.
+---The loop continues until a parentName is not found or if the frame has no parent (reach UIParent).
+---@param self table
+---@param object any
+---@return string
 function DF:GetParentNamePath(object)
 	local parent = object
 	local path = ""
@@ -597,7 +600,8 @@ function DF:GetParentNamePath(object)
 				if (parentKey) then
 					parentName = parentKey
 				else
-					return path:gsub("%.$", "")
+					local result = path:gsub("%.$", "")
+					return result
 				end
 			end
 		end
@@ -605,13 +609,15 @@ function DF:GetParentNamePath(object)
 		if (parentName) then
 			path = parentName .. "." .. path
 		else
-			return path:gsub("%.$", "")
+			local result = path:gsub("%.$", "")
+			return result
 		end
 
 		parent = parent:GetParent()
 	end
 
-	return path:gsub("%.$", "")
+	local result = path:gsub("%.$", "")
+	return result
 end
 
 ---get a value from a table using a path, e.g. getfrompath(tbl, "a.b.c") is the same as tbl.a.b.c
@@ -694,7 +700,7 @@ function DF.table.addunique(t, index, value)
 		end
 	end
 
-	tinsert(t, index, value)
+	table.insert(t, index, value)
 	return true
 end
 
@@ -904,53 +910,7 @@ end
 ---@param deep integer
 ---@return string
 function DF.table.dump(t, resultString, deep)
-
-	if true then return tableToStringSafe(t) end
-
-	resultString = resultString or ""
-	deep = deep or 0
-	local space = ""
-	for i = 1, deep do
-		space = space .. "   "
-	end
-
-	for key, value in pairs(t) do
-		local valueType = type(value)
-
-		if (type(key) == "function") then
-			key = "#function#"
-		elseif (type(key) == "table") then
-			key = "#table#"
-		end
-
-		if (type(key) ~= "string" and type(key) ~= "number") then
-			key = "unknown?"
-		end
-
-		if (valueType == "table") then
-			if (type(key) == "number") then
-				resultString = resultString .. space .. "[" .. key .. "] = |cFFa9ffa9 {|r\n"
-			else
-				resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFa9ffa9 {|r\n"
-			end
-			resultString = resultString .. DF.table.dump (value, nil, deep+1)
-			resultString = resultString .. space .. "|cFFa9ffa9},|r\n"
-
-		elseif (valueType == "string") then
-			resultString = resultString .. space .. "[\"" .. key .. "\"] = \"|cFFfff1c1" .. value .. "|r\",\n"
-
-		elseif (valueType == "number") then
-			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFffc1f4" .. value .. "|r,\n"
-
-		elseif (valueType == "function") then
-			resultString = resultString .. space .. "[\"" .. key .. "\"] = function()end,\n"
-
-		elseif (valueType == "boolean") then
-			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r,\n"
-		end
-	end
-
-	return resultString
+	return tableToStringSafe(t)
 end
 
 ---grab a text and split it into lines adding each line to an array table
@@ -963,14 +923,14 @@ function DF:SplitTextInLines(text)
 
 	while (startScope) do
 		if (startScope ~= 1) then
-			tinsert(lines, text:sub(position, startScope-1))
+			table.insert(lines, text:sub(position, startScope-1))
 		end
 		position = endScope + 1
 		startScope, endScope = text:find("\n", position, true)
 	end
 
 	if (position <= #text) then
-		tinsert(lines, text:sub(position))
+		table.insert(lines, text:sub(position))
 	end
 
 	return lines
@@ -1012,13 +972,6 @@ function DF.strings.stringtotable(thisString, bDoCompression)
 	local newTable = {strsplit(",", thisString)}
 	return newTable
 end
-
-DF.www_icons = {
-	texture = "feedback_sites",
-	wowi = {0, 0.7890625, 0, 37/128},
-	curse = {0, 0.7890625, 38/123, 79/128},
-	mmoc = {0, 0.7890625, 80/123, 123/128},
-}
 
 local symbol_1K, symbol_10K, symbol_1B
 if (GetLocale() == "koKR") then
@@ -1101,7 +1054,7 @@ function DF:CommaValue(value)
 	end
 
 	--source http://richard.warburton.it
-	local left, num, right = string_match (value, '^([^%d]*%d)(%d*)(.-)$')
+	local left, num, right = string.match(value, '^([^%d]*%d)(%d*)(.-)$')
 	return left .. (num:reverse():gsub('(%d%d%d)','%1,'):reverse()) .. right
 end
 
@@ -1377,7 +1330,7 @@ function DF:AddClassIconToText(text, playerName, englishClassName, useSpec, icon
 	return text
 end
 
----create a table with information about a texture
+---create a table with information about a texture (deprecated, use: DetailsFramework:CreateAtlas())
 ---@param texture any
 ---@param textureWidth any
 ---@param textureHeight any
@@ -2364,12 +2317,12 @@ end
 		TutorialAlertFrame:Show()
 	end
 
-	function DF:CreateOptionsFrame(name, title, template)
+	function DF:CreateOptionsFrame(name, title, template) --deprecated?
 		template = template or 1
 
 		if (template == 2) then
 			local newOptionsFrame = CreateFrame("frame", name, UIParent, "ButtonFrameTemplate")
-			tinsert(UISpecialFrames, name)
+			table.insert(UISpecialFrames, name)
 
 			newOptionsFrame:SetSize(500, 200)
 			newOptionsFrame.RefreshOptions = DF.internalFunctions.RefreshOptionsPanel
@@ -2407,7 +2360,7 @@ end
 
 		elseif (template == 1) then
 			local newOptionsFrame = CreateFrame("frame", name, UIParent)
-			tinsert(UISpecialFrames, name)
+			table.insert(UISpecialFrames, name)
 
 			newOptionsFrame:SetSize(500, 200)
 			newOptionsFrame.RefreshOptions = DF.internalFunctions.RefreshOptionsPanel
@@ -2549,7 +2502,14 @@ function DF:IsLatinLanguage(languageId)
 	return latinLanguageIdsMap[languageId]
 end
 
---return the best font to use for the client language
+---return a font name to use for the client language
+---@param self table
+---@param languageId string?
+---@param western string?
+---@param cyrillic string?
+---@param china string?
+---@param korean string?
+---@param taiwan string?
 function DF:GetBestFontForLanguage(languageId, western, cyrillic, china, korean, taiwan)
 	if (not languageId) then
 		languageId = DF.ClientLanguage
@@ -3362,13 +3322,13 @@ frameshake_DoUpdate = function(parent, shakeObject, deltaTime)
 			local newX, newY
 			if (shakeObject.AbsoluteSineX) then
 				--absoluting only the sine wave, passing a negative scale will reverse the absolute direction
-				newX = shakeObject.Amplitude * abs(math.sin(shakeObject.XSineOffset)) * scaleShake * shakeObject.ScaleX
+				newX = shakeObject.Amplitude * math.abs(math.sin(shakeObject.XSineOffset)) * scaleShake * shakeObject.ScaleX
 			else
 				newX = shakeObject.Amplitude * math.sin(shakeObject.XSineOffset) * scaleShake * shakeObject.ScaleX
 			end
 
 			if (shakeObject.AbsoluteSineY) then
-				newY = shakeObject.Amplitude * abs(math.sin(shakeObject.YSineOffset)) * scaleShake * shakeObject.ScaleY
+				newY = shakeObject.Amplitude * math.abs(math.sin(shakeObject.YSineOffset)) * scaleShake * shakeObject.ScaleY
 			else
 				newY = shakeObject.Amplitude * math.sin(shakeObject.YSineOffset) * scaleShake * shakeObject.ScaleY
 			end
@@ -3573,7 +3533,7 @@ function DF:CreateFrameShake(parent, duration, amplitude, frequency, absoluteSin
 		FrameshakeUpdateFrame.RegisterFrame (parent)
 	end
 
-	tinsert(parent.__frameshakes, frameShake)
+	table.insert(parent.__frameshakes, frameShake)
 
 	return frameShake
 end
@@ -3650,23 +3610,29 @@ local glow_overlay_setcolor = function(self, antsColor, glowColor)
 end
 
 local glow_overlay_onshow = function(self)
-	glow_overlay_play (self)
+	glow_overlay_play(self)
 end
 
 local glow_overlay_onhide = function(self)
-	glow_overlay_stop (self)
+	glow_overlay_stop(self)
 end
 
---this is most copied from the wow client code, few changes applied to customize it
-function DF:CreateGlowOverlay (parent, antsColor, glowColor)
-	local pName = parent:GetName()
-	local fName = pName and (pName.."Glow2") or "OverlayActionGlow" .. math.random(1, 10000000)
-	if fName and string.len(fName) > 50 then -- shorten to work around too long names
-		fName = strsub(fName, string.len(fName)-49)
+---create a glow overlay around a frame, return a frame and also add parent.overlay to the parent frame
+---@param self table
+---@param parent frame
+---@param antsColor any
+---@param glowColor any
+function DF:CreateGlowOverlay(parent, antsColor, glowColor)
+	local parentName = parent:GetName()
+	local frameName = parentName and (parentName .. "Glow2") or "OverlayActionGlow" .. math.random(1, 10000000)
+
+	if (frameName and string.len(frameName) > 50) then --shorten to work around too long names
+		frameName = string.sub(frameName, string.len(frameName)-49)
 	end
-	local glowFrame = CreateFrame("frame", fName, parent, "ActionBarButtonSpellActivationAlert")
-	glowFrame:HookScript ("OnShow", glow_overlay_onshow)
-	glowFrame:HookScript ("OnHide", glow_overlay_onhide)
+
+	local glowFrame = CreateFrame("frame", frameName, parent, "ActionBarButtonSpellActivationAlert")
+	glowFrame:HookScript("OnShow", glow_overlay_onshow)
+	glowFrame:HookScript("OnHide", glow_overlay_onhide)
 
 	glowFrame.Play = glow_overlay_play
 	glowFrame.Stop = glow_overlay_stop
@@ -3681,23 +3647,24 @@ function DF:CreateGlowOverlay (parent, antsColor, glowColor)
 
 	local scale = 1.4
 
-	--Make the height/width available before the next frame:
-	parent.overlay:SetSize(frameWidth * scale, frameHeight * scale)
-	parent.overlay:SetPoint("TOPLEFT", parent, "TOPLEFT", -frameWidth * 0.32, frameHeight * 0.36)
-	parent.overlay:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", frameWidth * 0.32, -frameHeight * 0.36)
+	--make the height/width available before the next frame:
+	glowFrame:SetSize(frameWidth * scale, frameHeight * scale)
+	glowFrame:SetPoint("topleft", parent, "topleft", -frameWidth * 0.32, frameHeight * 0.36)
+	glowFrame:SetPoint("bottomright", parent, "bottomright", frameWidth * 0.32, -frameHeight * 0.36)
 
 	if (glowFrame.outerGlow) then
 		glowFrame.outerGlow:SetScale(1.2)
 	end
+
 	if (glowFrame.ProcStartFlipbook) then
 		glowFrame.ProcStartAnim:Stop()
 		glowFrame.ProcStartFlipbook:ClearAllPoints()
-		--glowFrame.ProcStartFlipbook:SetAllPoints()
-		--glowFrame.ProcStartFlipbook:SetSize(frameWidth * scale, frameHeight * scale)
 		glowFrame.ProcStartFlipbook:SetPoint("TOPLEFT", glowFrame, "TOPLEFT", -frameWidth * scale, frameHeight * scale)
 		glowFrame.ProcStartFlipbook:SetPoint("BOTTOMRIGHT", glowFrame, "BOTTOMRIGHT", frameWidth * scale, -frameHeight * scale)
 	end
+
 	glowFrame:EnableMouse(false)
+
 	return glowFrame
 end
 
@@ -3713,32 +3680,41 @@ local ants_set_texture_offset = function(self, leftOffset, rightOffset, topOffse
 	self:SetPoint("bottomright", rightOffset, bottomOffset)
 end
 
-function DF:CreateAnts (parent, antTable, leftOffset, rightOffset, topOffset, bottomOffset, antTexture)
+
+---create an "ant" animation around the frame, the name "ant" comes from the animation looking like small bright dots moving around the frame
+---@param parent frame
+---@param antTable df_anttable
+---@param leftOffset number?
+---@param rightOffset number?
+---@param topOffset number?
+---@param bottomOffset number?
+---@return frame
+function DF:CreateAnts(parent, antTable, leftOffset, rightOffset, topOffset, bottomOffset)
 	leftOffset = leftOffset or 0
 	rightOffset = rightOffset or 0
 	topOffset = topOffset or 0
 	bottomOffset = bottomOffset or 0
 
-	local f = CreateFrame("frame", nil, parent)
-	f:SetPoint("topleft", leftOffset, topOffset)
-	f:SetPoint("bottomright", rightOffset, bottomOffset)
+	local antsFrame = CreateFrame("frame", nil, parent)
+	antsFrame:SetPoint("topleft", leftOffset, topOffset)
+	antsFrame:SetPoint("bottomright", rightOffset, bottomOffset)
 
-	f.SetOffset = ants_set_texture_offset
+	antsFrame.SetOffset = ants_set_texture_offset
 
-	local t = f:CreateTexture(nil, "overlay")
-	t:SetAllPoints()
-	t:SetTexture(antTable.Texture)
-	t:SetBlendMode(antTable.BlendMode or "ADD")
-	t:SetVertexColor(DF:ParseColors(antTable.Color or "white"))
-	f.Texture = t
+	local texture = antsFrame:CreateTexture(nil, "overlay")
+	texture:SetAllPoints()
+	texture:SetTexture(antTable.Texture)
+	texture:SetBlendMode(antTable.BlendMode or "ADD")
+	texture:SetVertexColor(DF:ParseColors(antTable.Color or "white"))
+	antsFrame.Texture = texture
 
-	f.AntTable = antTable
+	antsFrame.AntTable = antTable
 
-	f:SetScript("OnUpdate", function(self, deltaTime)
-		AnimateTexCoords (t, self.AntTable.TextureWidth, self.AntTable.TextureHeight, self.AntTable.TexturePartsWidth, self.AntTable.TexturePartsHeight, self.AntTable.AmountParts, deltaTime, self.AntTable.Throttle or 0.025)
+	antsFrame:SetScript("OnUpdate", function(self, deltaTime)
+		AnimateTexCoords(texture, self.AntTable.TextureWidth, self.AntTable.TextureHeight, self.AntTable.TexturePartsWidth, self.AntTable.TexturePartsHeight, self.AntTable.AmountParts, deltaTime, self.AntTable.Throttle or 0.025)
 	end)
 
-	return f
+	return antsFrame
 end
 
 --[=[ --test ants
@@ -3784,18 +3760,25 @@ end
 
 local SetLayerVisibility = function(self, layer1Shown, layer2Shown, layer3Shown)
 	for _, texture in ipairs(self.Borders.Layer1) do
-		texture:SetShown (layer1Shown)
+		texture:SetShown(layer1Shown)
 	end
 
 	for _, texture in ipairs(self.Borders.Layer2) do
-		texture:SetShown (layer2Shown)
+		texture:SetShown(layer2Shown)
 	end
 
 	for _, texture in ipairs(self.Borders.Layer3) do
-		texture:SetShown (layer3Shown)
+		texture:SetShown(layer3Shown)
 	end
 end
 
+---create a border using three textures for each side of the frame, each texture has a different transparency creating a smooth gradient effect
+---the parent frame receives three new methods: SetBorderAlpha(a1, a2, a3), SetBorderColor(r, g, b), SetLayerVisibility(layer1Shown, layer2Shown, layer3Shown)
+---@param self table
+---@param parent frame
+---@param alpha1 number?
+---@param alpha2 number?
+---@param alpha3 number?
 function DF:CreateBorder(parent, alpha1, alpha2, alpha3)
 	parent.Borders = {
 		Layer1 = {},
@@ -3810,73 +3793,89 @@ function DF:CreateBorder(parent, alpha1, alpha2, alpha3)
 	parent.SetBorderColor = SetBorderColor
 	parent.SetLayerVisibility = SetLayerVisibility
 
-	local border1 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border1, "topleft", parent, "topleft", -1, 1)
-	PixelUtil.SetPoint(border1, "bottomleft", parent, "bottomleft", -1, -1)
-	border1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
-	local border2 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border2, "topleft", parent, "topleft", -2, 2)
-	PixelUtil.SetPoint(border2, "bottomleft", parent, "bottomleft", -2, -2)
-	border2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
-	local border3 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border3, "topleft", parent, "topleft", -3, 3)
-	PixelUtil.SetPoint(border3, "bottomleft", parent, "bottomleft", -3, -3)
-	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
+	do
+		local leftBorder1 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(leftBorder1, "topleft", parent, "topleft", -1, 1)
+		PixelUtil.SetPoint(leftBorder1, "bottomleft", parent, "bottomleft", -1, -1)
+		leftBorder1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+		local leftBorder2 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(leftBorder2, "topleft", parent, "topleft", -2, 2)
+		PixelUtil.SetPoint(leftBorder2, "bottomleft", parent, "bottomleft", -2, -2)
+		leftBorder2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
 
-	local border1 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border1, "topleft", parent, "topleft", 0, 1)
-	PixelUtil.SetPoint(border1, "topright", parent, "topright", 1, 1)
-	border1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
-	local border2 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border2, "topleft", parent, "topleft", -1, 2)
-	PixelUtil.SetPoint(border2, "topright", parent, "topright", 2, 2)
-	border2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
-	local border3 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border3, "topleft", parent, "topleft", -2, 3)
-	PixelUtil.SetPoint(border3, "topright", parent, "topright", 3, 3)
-	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
+		local leftBorder3 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(leftBorder3, "topleft", parent, "topleft", -3, 3)
+		PixelUtil.SetPoint(leftBorder3, "bottomleft", parent, "bottomleft", -3, -3)
+		leftBorder3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+		table.insert(parent.Borders.Layer1, leftBorder1)
+		table.insert(parent.Borders.Layer2, leftBorder2)
+		table.insert(parent.Borders.Layer3, leftBorder3)
+	end
 
-	local border1 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border1, "topright", parent, "topright", 1, 0)
-	PixelUtil.SetPoint(border1, "bottomright", parent, "bottomright", 1, -1)
-	border1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
-	local border2 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border2, "topright", parent, "topright", 2, 1)
-	PixelUtil.SetPoint(border2, "bottomright", parent, "bottomright", 2, -2)
-	border2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
-	local border3 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border3, "topright", parent, "topright", 3, 2)
-	PixelUtil.SetPoint(border3, "bottomright", parent, "bottomright", 3, -3)
-	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
+	do
+		local topBorder1 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(topBorder1, "topleft", parent, "topleft", 0, 1)
+		PixelUtil.SetPoint(topBorder1, "topright", parent, "topright", 1, 1)
+		topBorder1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+		local topBorder2 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(topBorder2, "topleft", parent, "topleft", -1, 2)
+		PixelUtil.SetPoint(topBorder2, "topright", parent, "topright", 2, 2)
+		topBorder2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
 
-	local border1 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border1, "bottomleft", parent, "bottomleft", 0, -1)
-	PixelUtil.SetPoint(border1, "bottomright", parent, "bottomright", 0, -1)
-	border1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
-	local border2 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border2, "bottomleft", parent, "bottomleft", -1, -2)
-	PixelUtil.SetPoint(border2, "bottomright", parent, "bottomright", 1, -2)
-	border2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
-	local border3 = parent:CreateTexture(nil, "background")
-	PixelUtil.SetPoint(border3, "bottomleft", parent, "bottomleft", -2, -3)
-	PixelUtil.SetPoint(border3, "bottomright", parent, "bottomright", 2, -3)
-	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
+		local topBorder3 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(topBorder3, "topleft", parent, "topleft", -2, 3)
+		PixelUtil.SetPoint(topBorder3, "topright", parent, "topright", 3, 3)
+		topBorder3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+		table.insert(parent.Borders.Layer1, topBorder1)
+		table.insert(parent.Borders.Layer2, topBorder2)
+		table.insert(parent.Borders.Layer3, topBorder3)
+	end
+
+	do
+		local rightBorder1 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(rightBorder1, "topright", parent, "topright", 1, 0)
+		PixelUtil.SetPoint(rightBorder1, "bottomright", parent, "bottomright", 1, -1)
+		rightBorder1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
+
+		local rightBorder2 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(rightBorder2, "topright", parent, "topright", 2, 1)
+		PixelUtil.SetPoint(rightBorder2, "bottomright", parent, "bottomright", 2, -2)
+		rightBorder2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
+
+		local rightBorder3 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(rightBorder3, "topright", parent, "topright", 3, 2)
+		PixelUtil.SetPoint(rightBorder3, "bottomright", parent, "bottomright", 3, -3)
+		rightBorder3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
+
+		table.insert(parent.Borders.Layer1, rightBorder1)
+		table.insert(parent.Borders.Layer2, rightBorder2)
+		table.insert(parent.Borders.Layer3, rightBorder3)
+	end
+
+	do
+		local bottomBorder1 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(bottomBorder1, "bottomleft", parent, "bottomleft", 0, -1)
+		PixelUtil.SetPoint(bottomBorder1, "bottomright", parent, "bottomright", 0, -1)
+		bottomBorder1:SetColorTexture(0, 0, 0, alpha1 or default_border_color1)
+
+		local bottomBorder2 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(bottomBorder2, "bottomleft", parent, "bottomleft", -1, -2)
+		PixelUtil.SetPoint(bottomBorder2, "bottomright", parent, "bottomright", 1, -2)
+		bottomBorder2:SetColorTexture(0, 0, 0, alpha2 or default_border_color2)
+
+		local bottomBorder3 = parent:CreateTexture(nil, "background")
+		PixelUtil.SetPoint(bottomBorder3, "bottomleft", parent, "bottomleft", -2, -3)
+		PixelUtil.SetPoint(bottomBorder3, "bottomright", parent, "bottomright", 2, -3)
+		bottomBorder3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
+
+		table.insert(parent.Borders.Layer1, bottomBorder1)
+		table.insert(parent.Borders.Layer2, bottomBorder2)
+		table.insert(parent.Borders.Layer3, bottomBorder3)
+	end
 end
 
 --DFNamePlateBorder as copy from "NameplateFullBorderTemplate" -> DF:CreateFullBorder (name, parent)
@@ -3942,7 +3941,7 @@ function DF:CreateFullBorder (name, parent)
 	left:SetPoint("TOPRIGHT", border, "TOPLEFT", 0, 1.0)
 	left:SetPoint("BOTTOMRIGHT", border, "BOTTOMLEFT", 0, -1.0)
 	border.Left = left
-	tinsert(border.Textures, left)
+	table.insert(border.Textures, left)
 
 	local right = border:CreateTexture("$parentRight", "BACKGROUND", nil, -8)
 	--right:SetDrawLayer("BACKGROUND", -8)
@@ -3951,7 +3950,7 @@ function DF:CreateFullBorder (name, parent)
 	right:SetPoint("TOPLEFT", border, "TOPRIGHT", 0, 1.0)
 	right:SetPoint("BOTTOMLEFT", border, "BOTTOMRIGHT", 0, -1.0)
 	border.Right = right
-	tinsert(border.Textures, right)
+	table.insert(border.Textures, right)
 
 	local bottom = border:CreateTexture("$parentBottom", "BACKGROUND", nil, -8)
 	--bottom:SetDrawLayer("BACKGROUND", -8)
@@ -3960,7 +3959,7 @@ function DF:CreateFullBorder (name, parent)
 	bottom:SetPoint("TOPLEFT", border, "BOTTOMLEFT", 0, 0)
 	bottom:SetPoint("TOPRIGHT", border, "BOTTOMRIGHT", 0, 0)
 	border.Bottom = bottom
-	tinsert(border.Textures, bottom)
+	table.insert(border.Textures, bottom)
 
 	local top = border:CreateTexture("$parentTop", "BACKGROUND", nil, -8)
 	--top:SetDrawLayer("BACKGROUND", -8)
@@ -3969,7 +3968,7 @@ function DF:CreateFullBorder (name, parent)
 	top:SetPoint("BOTTOMLEFT", border, "TOPLEFT", 0, 0)
 	top:SetPoint("BOTTOMRIGHT", border, "TOPRIGHT", 0, 0)
 	border.Top = top
-	tinsert(border.Textures, top)
+	table.insert(border.Textures, top)
 
 	return border
 end
@@ -4015,9 +4014,9 @@ function DF:CreateBorderWithSpread(parent, alpha1, alpha2, alpha3, size, spread)
 	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetWidth (border3, size, minPixels)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+	table.insert(parent.Borders.Layer1, border1)
+	table.insert(parent.Borders.Layer2, border2)
+	table.insert(parent.Borders.Layer3, border3)
 
 	--top
 	local border1 = parent:CreateTexture(nil, "background")
@@ -4038,9 +4037,9 @@ function DF:CreateBorderWithSpread(parent, alpha1, alpha2, alpha3, size, spread)
 	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetHeight(border3, size, minPixels)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+	table.insert(parent.Borders.Layer1, border1)
+	table.insert(parent.Borders.Layer2, border2)
+	table.insert(parent.Borders.Layer3, border3)
 
 	--right
 	local border1 = parent:CreateTexture(nil, "background")
@@ -4061,9 +4060,9 @@ function DF:CreateBorderWithSpread(parent, alpha1, alpha2, alpha3, size, spread)
 	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetWidth (border3, size, minPixels)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+	table.insert(parent.Borders.Layer1, border1)
+	table.insert(parent.Borders.Layer2, border2)
+	table.insert(parent.Borders.Layer3, border3)
 
 	local border1 = parent:CreateTexture(nil, "background")
 	PixelUtil.SetPoint(border1, "bottomleft", parent, "bottomleft", 0 + spread, -1 + spread)
@@ -4083,9 +4082,9 @@ function DF:CreateBorderWithSpread(parent, alpha1, alpha2, alpha3, size, spread)
 	border3:SetColorTexture(0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetHeight(border3, size, minPixels)
 
-	tinsert(parent.Borders.Layer1, border1)
-	tinsert(parent.Borders.Layer2, border2)
-	tinsert(parent.Borders.Layer3, border3)
+	table.insert(parent.Borders.Layer1, border1)
+	table.insert(parent.Borders.Layer2, border2)
+	table.insert(parent.Borders.Layer3, border3)
 
 end
 
@@ -4295,6 +4294,51 @@ function DF:GetClassSpecIds(engClass) --naming conventions
 	return DF:GetClassSpecIDs(engClass)
 end
 
+local getDragonflightTalents = function()
+	if (not ClassTalentFrame) then
+		ClassTalentFrame_LoadUI()
+	end
+
+	if (not DF.TalentExporter) then
+    	local talentExporter = CreateFromMixins(ClassTalentImportExportMixin)
+		DF.TalentExporter = talentExporter
+	end
+
+	local exportStream = ExportUtil.MakeExportDataStream()
+
+	local configId = C_ClassTalents.GetActiveConfigID()
+	if (not configId) then
+		return ""
+	end
+
+	local configInfo = C_Traits.GetConfigInfo(configId)
+	if (not configInfo) then
+		return ""
+	end
+
+	local currentSpecID = PlayerUtil.GetCurrentSpecID()
+
+	local treeInfo = C_Traits.GetTreeInfo(configId, configInfo.treeIDs[1])
+	local treeHash = C_Traits.GetTreeHash(treeInfo.ID)
+
+	local serializationVersion = C_Traits.GetLoadoutSerializationVersion()
+
+	DF.TalentExporter:WriteLoadoutHeader(exportStream, serializationVersion, currentSpecID, treeHash)
+	DF.TalentExporter:WriteLoadoutContent(exportStream, configId, treeInfo.ID)
+
+	return exportStream:GetExportString()
+end
+
+--/dump DetailsFramework:GetDragonlightTalentExportString()
+function DF:GetDragonlightTalentString()
+	local talentString, errorText = pcall(getDragonflightTalents)
+	if (errorText) then
+		return ""
+	else
+		return talentString
+	end
+end
+
 local dispatch_error = function(context, errortext)
 	error((context or "") .. (errortext or ""))
 end
@@ -4471,13 +4515,13 @@ function DF:GetCharacterRaceList()
 	for i = 1, 100 do
 		local raceInfo = C_CreatureInfo.GetRaceInfo(i)
 		if (raceInfo and DF.RaceList [raceInfo.raceID]) then
-			tinsert(DF.RaceCache, {Name = raceInfo.raceName, FileString = raceInfo.clientFileString, ID = raceInfo.raceID})
+			table.insert(DF.RaceCache, {Name = raceInfo.raceName, FileString = raceInfo.clientFileString, ID = raceInfo.raceID})
 		end
 
 		if IS_WOW_PROJECT_MAINLINE then
 			local alliedRaceInfo = C_AlliedRaces.GetRaceInfoByID(i)
 			if (alliedRaceInfo and DF.AlliedRaceList [alliedRaceInfo.raceID]) then
-				tinsert(DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString, ID = alliedRaceInfo.raceID})
+				table.insert(DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString, ID = alliedRaceInfo.raceID})
 			end
 		end
 	end
@@ -4570,7 +4614,7 @@ function DF:GetCharacterPvPTalents(onlySelected, onlySelectedHash)
 			if (onlySelectedHash) then
 				talentList [talentID] = true
 			else
-				tinsert(talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = true})
+				table.insert(talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = true})
 			end
 		end
 		return talentList
@@ -4584,7 +4628,7 @@ function DF:GetCharacterPvPTalents(onlySelected, onlySelectedHash)
 				for _, talentID in ipairs(slotInfo.availableTalentIDs) do
 					if (not alreadyAdded [talentID]) then
 						local _, talentName, texture, selected = GetPvpTalentInfoByID (talentID)
-						tinsert(talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = selected})
+						table.insert(talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = selected})
 						alreadyAdded [talentID] = true
 					end
 				end
@@ -5089,9 +5133,9 @@ end
 
 do
     local get = function(self)
-        local object = tremove(self.notUse, #self.notUse)
+        local object = table.remove(self.notUse, #self.notUse)
         if (object) then
-            tinsert(self.inUse, object)
+            table.insert(self.inUse, object)
 			if (self.onAcquire) then
 				DF:QuickDispatch(self.onAcquire, object)
 			end
@@ -5100,7 +5144,7 @@ do
             --need to create the new object
             local newObject = self.newObjectFunc(self, unpack(self.payload))
             if (newObject) then
-				tinsert(self.inUse, newObject)
+				table.insert(self.inUse, newObject)
 				if (self.onAcquire) then
 					DF:QuickDispatch(self.onAcquire, newObject)
 				end
@@ -5116,8 +5160,8 @@ do
     local release = function(self, object)
         for i = #self.inUse, 1, -1 do
             if (self.inUse[i] == object) then
-                tremove(self.inUse, i)
-                tinsert(self.notUse, object)
+                table.remove(self.inUse, i)
+                table.insert(self.notUse, object)
 
 				if (self.onRelease) then
 					DF:QuickDispatch(self.onRelease, object)
@@ -5129,8 +5173,8 @@ do
 
     local reset = function(self)
         for i = #self.inUse, 1, -1 do
-            local object = tremove(self.inUse, i)
-            tinsert(self.notUse, object)
+            local object = table.remove(self.inUse, i)
+            table.insert(self.notUse, object)
 
 			if (self.onReset) then
 				DF:QuickDispatch(self.onReset, object)

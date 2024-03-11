@@ -1041,6 +1041,13 @@ end
 		end
 	end
 
+	---reopen all closed windows that does not have the option "Ignore Mass Toogle" enabled
+	---@param ... unknown
+	---@return nil
+	function Details:ReopenAllWindows(...)
+		return Details:ReabrirTodasInstancias(...)
+	end
+
 	-- reabre todas as instancias
 	function Details:ReabrirTodasInstancias (temp)
 		for index = math.min (#Details.tabela_instancias, Details.instances_amount), 1, -1 do
@@ -3180,6 +3187,19 @@ function Details:ChangeIcon(icon)
 		skin = Details.skins [Details.default_skin_to_use]
 	end
 
+	local titleBarIconSize
+
+	local iconSizeFromInstance = self.attribute_icon_size
+	if (iconSizeFromInstance and iconSizeFromInstance ~= 0) then
+		titleBarIconSize = iconSizeFromInstance
+
+	elseif (skin.attribute_icon_size) then
+		titleBarIconSize = skin.attribute_icon_size
+
+	else
+		titleBarIconSize = 16
+	end
+
 	if (not self.hide_icon) then
 		if (skin.icon_on_top) then
 			self.baseframe.cabecalho.atributo_icon:SetParent(self.floatingframe)
@@ -3194,8 +3214,7 @@ function Details:ChangeIcon(icon)
 		self.baseframe.cabecalho.atributo_icon:SetTexCoord(5/64, 60/64, 3/64, 62/64)
 
 		local icon_size = skin.icon_plugins_size
-		self.baseframe.cabecalho.atributo_icon:SetWidth(icon_size[1])
-		self.baseframe.cabecalho.atributo_icon:SetHeight(icon_size[2])
+		self.baseframe.cabecalho.atributo_icon:SetSize(titleBarIconSize, titleBarIconSize)
 		local icon_anchor = skin.icon_anchor_plugins
 
 		self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
@@ -3214,8 +3233,7 @@ function Details:ChangeIcon(icon)
 				self.baseframe.cabecalho.atributo_icon:SetTexCoord(5/64, 60/64, 3/64, 62/64)
 
 				local icon_size = skin.icon_plugins_size
-				self.baseframe.cabecalho.atributo_icon:SetWidth(icon_size[1])
-				self.baseframe.cabecalho.atributo_icon:SetHeight(icon_size[2])
+				self.baseframe.cabecalho.atributo_icon:SetSize(titleBarIconSize, titleBarIconSize)
 				local icon_anchor = skin.icon_anchor_plugins
 
 				self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
@@ -3233,7 +3251,7 @@ function Details:ChangeIcon(icon)
 
 			local p = 0.125 --32/256
 			self.baseframe.cabecalho.atributo_icon:SetTexCoord(p * (self.sub_atributo-1), p * (self.sub_atributo), 0, 1)
-			self.baseframe.cabecalho.atributo_icon:SetSize(16, 16)
+			self.baseframe.cabecalho.atributo_icon:SetSize(titleBarIconSize, titleBarIconSize)
 
 			self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
 			if (self.menu_attribute_string) then
@@ -3245,13 +3263,8 @@ function Details:ChangeIcon(icon)
 				self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
 				self.baseframe.cabecalho.atributo_icon:SetPoint("topleft", self.baseframe.cabecalho.ball_point, "topleft", skin.attribute_icon_anchor[1], skin.attribute_icon_anchor[2])
 			end
-
-			if (skin.attribute_icon_size) then
-				self.baseframe.cabecalho.atributo_icon:SetSize(unpack(skin.attribute_icon_size))
-			end
-
-
 		end
+
 	elseif (self.modo == modo_raid) then --raid
 		--icon is set by the plugin
 	end

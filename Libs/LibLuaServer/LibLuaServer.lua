@@ -320,7 +320,9 @@ function LibStub:IterateLibraries()end
 ---@alias actorid string unique id of a unit (GUID)
 ---@alias serial string unique id of a unit (GUID)
 ---@alias guid string unique id of a unit (GUID)
----@alias mapid nmber each map in the game has a unique map id, this id can be used to identify a map.
+---@alias keylevel number the level of a mythic dungeon key
+---@alias mapid number each map in the game has a unique map id, this id can be used to identify a map.
+---@alias challengemapid number each challenge mode map in the game has a unique map id, this id can be used to identify a challenge mode map.
 ---@alias specializationid number the ID of a class specialization
 ---@alias controlflags number flags telling what unit type the is (player, npc, pet, etc); it's relatiotionship to the player (friendly, hostile, etc); who controls the unit (controlled by the player, controlled by the server, etc)
 ---@alias color table @table(r: red|number, g: green|number, b: blue|number, a: alpha|number) @table(number, number, number, number) @string(color name) @hex (000000-ffffff) value representing a color, the value must be a table with the following fields: r, g, b, a. r, g, b are numbers between 0 and 1, a is a number between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
@@ -338,6 +340,7 @@ function LibStub:IterateLibraries()end
 ---@alias combattime number elapsed time of a combat or time in seconds that a unit has been in combat.
 ---@alias auraduration number
 ---@alias gametime number number of seconds that have elapsed since the start of the game session.
+---@alias milliseconds number a number in milliseconds, usually need to divide by 1000 to get the seconds.
 ---@alias coordleft number
 ---@alias coordright number
 ---@alias coordtop number

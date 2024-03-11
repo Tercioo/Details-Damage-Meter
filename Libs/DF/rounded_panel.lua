@@ -201,6 +201,9 @@ detailsFramework.RoundedCornerPanelMixin = {
         PixelUtil.SetPoint(centerBlock, "bottomright", self.CornerTextures["BottomRight"], "topright", 0, 0)
         centerBlock:SetColorTexture(unpack(defaultColorTable))
 
+        self:CreateBorder()
+        self:SetBorderCornerColor(0, 0, 0, 0)
+
         self.CenterTextures[#self.CenterTextures+1] = topHorizontalEdge
         self.CenterTextures[#self.CenterTextures+1] = bottomHorizontalEdge
         self.CenterTextures[#self.CenterTextures+1] = centerBlock

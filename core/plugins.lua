@@ -495,6 +495,15 @@
 		end
 	end
 
+	function Details:CreateRightClickToCloseLabel(parent)
+		local mouseIcon = detailsFramework:CreateAtlasString(Details:GetTextureAtlas("right-mouse-click"), 12, 9)
+		local rightClickToBackLabel = detailsFramework:CreateLabel(parent, mouseIcon .. " right click to close", "GameFontNormal")
+		rightClickToBackLabel:SetAlpha(0.834)
+		rightClickToBackLabel.textcolor = "gray"
+		parent.RightClickLabel = rightClickToBackLabel
+		return rightClickToBackLabel
+	end
+
 	function Details:CreatePluginWindowContainer()
 		local pluginContainerFrame = CreateFrame("frame", "DetailsPluginContainerWindow", UIParent, "BackdropTemplate")
 		pluginContainerFrame:EnableMouse(true)
@@ -548,10 +557,8 @@
 
 		DetailsFramework:BuildStatusbarAuthorInfo(statusBar)
 
-		local rightClickToBackLabel = detailsFramework:CreateLabel(statusBar, "right click to close", "GameFontNormal")
+		local rightClickToBackLabel = Details:CreateRightClickToCloseLabel(statusBar)
 		rightClickToBackLabel:SetPoint("bottomright", statusBar, "bottomright", -150, 5)
-		rightClickToBackLabel:SetAlpha(0.834)
-		rightClickToBackLabel.textcolor = "gray"
 
 		local bigDogTexture = detailsFramework:NewImage(optionsLeftSideBarMenu, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 		bigDogTexture:SetPoint("bottomleft", custom_window, "bottomleft", 0, 1)

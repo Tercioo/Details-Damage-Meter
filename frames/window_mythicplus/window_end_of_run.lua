@@ -896,6 +896,9 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 	readyFrame.StartTextDotAnimation()
 
+	--/run PlaySound(SOUNDKIT.UI_70_CHALLENGE_MODE_KEYSTONE_UPGRADE);
+	--PlaySound(SOUNDKIT.UI_70_CHALLENGE_MODE_COMPLETE_NO_UPGRADE);
+
 	--fin the overall mythic dungeon combat, starting with the current combat
 	---@type combat
 	local overallMythicDungeonCombat = Details:GetCurrentCombat()

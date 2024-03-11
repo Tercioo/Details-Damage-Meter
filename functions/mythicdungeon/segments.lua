@@ -364,7 +364,8 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
         end
     end
 
-    Details:SendEvent("COMBAT_MYTHICPLUS_OVERALL_READY")
+    local bHasObject = false
+    Details:SendEvent("COMBAT_MYTHICPLUS_OVERALL_READY", bHasObject, newCombat)
 end
 
 --this function merges trash segments after all bosses of the mythic dungeon are defeated

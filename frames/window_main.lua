@@ -2074,7 +2074,7 @@ local iconFrame_OnEnter = function(self)
 			local spellid = actor.damage_spellid or actor.id or actor[1]
 			if (spellid) then
 				GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 10)
-				Details:GameTooltipSetSpellByID (spellid)
+				Details:GameTooltipSetSpellByID(spellid)
 				GameTooltip:Show()
 			end
 
@@ -2156,10 +2156,6 @@ local iconFrame_OnEnter = function(self)
 				Details:AddTooltipBackgroundStatusbar()
 			end
 
-			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
-			GameCooltip:SetOption("MinButtonHeight", 15)
-			GameCooltip:SetOption("IgnoreButtonAutoHeight", false)
-
 			local height = 66
 			if (not gotInfo) then
 				GameCooltip:AddLine(Loc["STRING_QUERY_INSPECT"], nil, 1, "orange")
@@ -2197,6 +2193,8 @@ local iconFrame_OnEnter = function(self)
 
 			local actorName = actor:GetName()
 			local RaiderIO = _G.RaiderIO
+
+			local lineHeight = 21
 
 			if (RaiderIO) then
 				local addedInfo = false
@@ -2237,7 +2235,7 @@ local iconFrame_OnEnter = function(self)
 					GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 					Details:AddTooltipBackgroundStatusbar()
 					--increase frame height
-					height = height + 19
+					height = height + lineHeight
 				end
 			else
 				if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and C_PlayerInfo) then --is retail?
@@ -2249,7 +2247,7 @@ local iconFrame_OnEnter = function(self)
 							GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 							Details:AddTooltipBackgroundStatusbar()
 							--increase frame height
-							height = height + 19
+							height = height + lineHeight
 						end
 					end
 				end
@@ -2260,7 +2258,7 @@ local iconFrame_OnEnter = function(self)
 				GameCooltip:AddLine("Evoker Predicted Damage:", Details:Format(damageDone) .. " (" .. Details:Format(damageDone / Details:GetCurrentCombat():GetCombatTime()) .. ")", 1, "white")
 				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 				Details:AddTooltipBackgroundStatusbar()
-				height = height + 19
+				height = height + lineHeight
 			end
 
 			if (actor.classe == "UNKNOW") then
@@ -2273,11 +2271,14 @@ local iconFrame_OnEnter = function(self)
 					GameCooltip:AddLine("NpcID:", npcId)
 					GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 					Details:AddTooltipBackgroundStatusbar()
-					height = height + 19
+					height = height + lineHeight
 				end
 			end
 
-			GameCooltip:SetOption("FixedHeight", height)
+			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
+			GameCooltip:SetOption("FixedHeight", height+11)
+			GameCooltip:SetOption("LineHeightSizeOffset", -8)
+			GameCooltip:ShowRoundedCorner()
 			GameCooltip:ShowCooltip()
 
 			self.unitname = name
@@ -3940,13 +3941,20 @@ function Details:SetBarGrowDirection (direction)
 	end
 
 	self.bars_grow_direction = direction
-	local x = self.row_info.space.left
+
+	local topOffset = self.row_info.row_offsets.top
+	local bottomOffset = self.row_info.row_offsets.bottom
+	local leftOffset = self.row_info.row_offsets.left
+
+	local x = self.row_info.space.left + leftOffset
 
 	local bars = self.barras or self.Bars --.Bars for third-party plugins
 	local baseframe = self.baseframe or self.Frame --.Frame for plugins
 	local height = self.row_height
 
 	if (direction == 1) then --top to bottom
+		local row_y_offset = topOffset
+
 		for index, row in ipairs(bars) do
 			local y = height * (index - 1)
 			y = y * -1
@@ -3954,23 +3962,25 @@ function Details:SetBarGrowDirection (direction)
 
 			if (self.toolbar_side == 1) then
 				--if titlebar is attached to the top side, don't add any midifiers
-				row:SetPoint("topleft", baseframe, "topleft", x, y)
+				row:SetPoint("topleft", baseframe, "topleft", x, y + row_y_offset)
 			else
 				--if the titlebar is on the bottom side, remove the gap between the baseframe and the titlebar
-				row:SetPoint("topleft", baseframe, "topleft", x, y - 1)
+				row:SetPoint("topleft", baseframe, "topleft", x, y - 1 + row_y_offset)
 			end
 		end
 
 	elseif (direction == 2) then --bottom to top
+		local row_y_offset = bottomOffset
+
 		for index, row in ipairs(bars) do
 			local y = height * (index - 1)
 			row:ClearAllPoints()
 			if (self.toolbar_side == 1) then
 				--if the titlebar is attached to the top side, we want to align bars a little above
-				row:SetPoint("bottomleft", baseframe, "bottomleft", x, y + 2)
+				row:SetPoint("bottomleft", baseframe, "bottomleft", x, y + 2 + row_y_offset)
 			else
 				--the titlebar is on the bottom side, align bars on the bottom
-				row:SetPoint("bottomleft", baseframe, "bottomleft", x, y + 0)
+				row:SetPoint("bottomleft", baseframe, "bottomleft", x, y + 0 + row_y_offset)
 			end
 		end
 	end
@@ -3978,11 +3988,13 @@ function Details:SetBarGrowDirection (direction)
 	--update all row width
 	if (self.bar_mod and self.bar_mod ~= 0) then
 		for index = 1, #bars do
-			bars [index]:SetWidth(baseframe:GetWidth() + self.bar_mod)
+			bars[index]:SetWidth(baseframe:GetWidth() + self.bar_mod)
 		end
 	else
+		--width also set on windows.lua > Reajusta Gump ()
+		local rightOffset = self.row_info.row_offsets.right
 		for index = 1, #bars do
-			bars [index]:SetWidth(baseframe:GetWidth() + self.row_info.space.right)
+			bars[index]:SetWidth(baseframe:GetWidth() + self.row_info.space.right + rightOffset)
 		end
 	end
 end
@@ -4076,7 +4088,7 @@ function gump:CreateNewLine(instance, index)
 
 	--row height
 	newLine:SetHeight(instance.row_info.height)
-	newLine:SetWidth(baseframe:GetWidth()+instance.row_info.space.right)
+	newLine:SetWidth(baseframe:GetWidth()+instance.row_info.space.right + instance.row_info.row_offsets.right)
 	newLine:SetFrameLevel(baseframe:GetFrameLevel() + 4)
 	newLine.last_value = 0
 	newLine.w_mod = 0
@@ -4792,6 +4804,8 @@ function Details:InstanceRefreshRows(instance)
 	local start_after_icon = self.row_info.start_after_icon
 	local isDesaturated = self.row_info.icon_grayscale
 	local icon_offset_x, icon_offset_y = unpack(self.row_info.icon_offset)
+	local iconMask = self.row_info.icon_mask
+	local bHasIconMask = iconMask ~= ""
 
 	--line border
 	local lineBorderEnabled = self.row_info.backdrop.enabled
@@ -4908,6 +4922,21 @@ function Details:InstanceRefreshRows(instance)
 				row.statusbar:SetPoint("topleft", row, "topleft")
 
 				row.lineText1:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
+			end
+		end
+
+		if (bHasIconMask) then
+			if (not row.icone_classe.maskTexture) then
+				row.icone_classe.maskTexture = row:CreateMaskTexture("$parentClassIconMask", "overlay")
+				row.icone_classe.maskTexture:SetAllPoints(row.icone_classe)
+				row.icone_classe:AddMaskTexture(row.icone_classe.maskTexture)
+			end
+			row.icone_classe.maskTexture:SetTexture(iconMask)
+			row.icone_classe.maskTexture:Show()
+		else
+			if (row.icone_classe.maskTexture) then
+				row.icone_classe.maskTexture:Hide()
+				row.icone_classe.maskTexture:SetTexture("")
 			end
 		end
 
@@ -7359,32 +7388,27 @@ function Details:ChangeSkin(skin_name)
 	self.bgframe:SetScript("OnUpdate", nil)
 	self.bgframe.skin_script = nil
 
-	--check if the skin has control scripts to run
-	if (not just_updating or Details.initializing) then
-		local callbackFunc = this_skin.callback
-		if (callbackFunc) then
-			DetailsFramework:SetEnvironment(callbackFunc)
-			local okey, result = pcall(callbackFunc, this_skin, self, just_updating)
-			if (not okey) then
-				Details:Msg("|cFFFF9900error on skin callback function|r:", result)
-			end
+	local baseFrame = self.baseframe
+	local fullWindowFrame = baseFrame.fullWindowFrame
+
+	if (self.rounded_corner_enabled) then
+        baseFrame:SetBackdropColor(0, 0, 0, 0)
+        baseFrame:SetBackdropBorderColor(0, 0, 0, 0)
+        baseFrame:SetBackdrop(nil)
+
+		fullWindowFrame = baseFrame.fullWindowFrame
+		if (not fullWindowFrame.__rcorners) then
+			local preset = Details.PlayerBreakdown.RoundedCornerPreset
+			DetailsFramework:AddRoundedCornersToFrame(fullWindowFrame, preset)
+		else
+			fullWindowFrame:EnableRoundedCorners()
 		end
 
-		if (this_skin.control_script) then
-			local onStartScript = this_skin.control_script_on_start
-			if (onStartScript) then
-				DetailsFramework:SetEnvironment(onStartScript)
-				local okey, result = pcall(onStartScript, this_skin, self)
-				if (not okey) then
-					Details:Msg("|cFFFF9900error on skin control on start function|r:", result)
-				end
-			end
-
-			local controlFunc = this_skin.control_script
-			DetailsFramework:SetEnvironment(controlFunc)
-			self.bgframe:SetScript("OnUpdate", controlFunc)
-			self.bgframe.skin_script = true
-			self.bgframe.skin = this_skin
+		self.menu_attribute_string:SetParent(fullWindowFrame)
+	else
+		if (fullWindowFrame.__rcorners) then
+			fullWindowFrame:DisableRoundedCorners()
+			self.menu_attribute_string:SetParent(baseFrame)
 		end
 	end
 
@@ -8125,6 +8149,7 @@ function Details:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, 
 	if (not self.menu_attribute_string) then
 		--local label = gump:NewLabel(self.floatingframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
 		local label = gump:NewLabel(self.baseframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
+		self.baseframe.titleText = label
 		self.menu_attribute_string = label
 		self.menu_attribute_string.owner_instance = self
 		self.menu_attribute_string.Enabled = true

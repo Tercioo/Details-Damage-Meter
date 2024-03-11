@@ -205,6 +205,7 @@ DetailsMythicPlusFrame.EventListener:RegisterEvent("COMBAT_PLAYER_ENTER")
 DetailsMythicPlusFrame.EventListener:RegisterEvent("COMBAT_PLAYER_LEAVE")
 DetailsMythicPlusFrame.EventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_START")
 DetailsMythicPlusFrame.EventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_END")
+DetailsMythicPlusFrame.EventListener:RegisterEvent("COMBAT_MYTHICPLUS_OVERALL_READY")
 
 function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, event, ...)
     --these events triggers within Details control functions, they run exactly after details! creates or close a segment
@@ -328,6 +329,9 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
         --delay to wait the encounter_end trigger first
         --assuming here the party cleaned the mobs kill objective before going to kill the last boss
         C_Timer.After(2, DetailsMythicPlusFrame.MythicDungeonFinished)
+
+    elseif (event == "COMBAT_MYTHICPLUS_OVERALL_READY") then
+        DetailsMythicPlusFrame.SaveMythicPlusStats(...)
     end
 end
 
@@ -368,3 +372,78 @@ DetailsMythicPlusFrame:SetScript("OnEvent", function(_, event, ...)
         end
     end
 end)
+
+---@param combatObject combat
+function DetailsMythicPlusFrame.SaveMythicPlusStats(combatObject)
+    local mapChallengeModeID, mythicLevel, time, onTime, keystoneUpgradeLevels, practiceRun, oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord, PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetCompletionInfo()
+    if (mapChallengeModeID) then
+        local statName = "mythicdungeoncompletedDF2"
+
+        ---@type table<challengemapid, table>
+        local mythicDungeonRuns = Details222.PlayerStats:GetStat(statName)
+        if (not mythicDungeonRuns) then
+            mythicDungeonRuns = mythicDungeonRuns or {}
+        end
+
+        --mythicDungeonRuns [mapChallengeModeID] [mythicLevel]
+
+        ---@class mythicplusrunstats
+        ---@field onTime boolean
+        ---@field deaths number
+        ---@field date number
+        ---@field affix number
+        ---@field runTime milliseconds
+        ---@field combatTime number
+
+        ---@class mythicplusstats
+        ---@field completed number
+        ---@field totalTime number
+        ---@field minTime number
+        ---@field history mythicplusrunstats[]
+
+        ---@type table<keylevel, mythicplusstats>
+        local statsForDungeon = mythicDungeonRuns[mapChallengeModeID]
+        if (not statsForDungeon) then
+            statsForDungeon = {}
+            mythicDungeonRuns[mapChallengeModeID] = statsForDungeon
+        end
+
+        ---@type mythicplusstats
+        local statsForLevel = statsForDungeon[mythicLevel]
+        if (not statsForLevel) then
+            ---@type mythicplusstats
+            statsForLevel = {
+                completed = 0,
+                totalTime = 0,
+                minTime = 0,
+                history = {},
+            }
+            statsForDungeon[mythicLevel] = statsForLevel
+        end
+
+        statsForLevel.completed = (statsForLevel.completed or 0) + 1
+        statsForLevel.totalTime = (statsForLevel.totalTime or 0) + time
+        if (not statsForLevel.minTime or time < statsForLevel.minTime) then
+            statsForLevel.minTime = time
+        end
+
+        statsForLevel.history = statsForLevel.history or {}
+
+        local amountDeaths = C_ChallengeMode.GetDeathCount() or 0
+
+        ---@type mythicplusrunstats
+        local runStats = {
+            date = time(),
+            runTime = math.floor(time/1000),
+            onTime = onTime,
+            deaths = amountDeaths,
+            affix = PrimaryAffix,
+            combatTime = combatObject:GetCombatTime(),
+        }
+
+        table.insert(statsForLevel.history, runStats)
+
+        Details222.PlayerStats:SetStat("mythicdungeoncompletedDF2", mythicDungeonRuns)
+    end
+end
+

@@ -179,7 +179,7 @@
 ---@field GetCombatSegments fun(self: details) : combat[] return a table with all the combat segments
 ---@field ListInstances fun(self: details) : instance[] return a table with all the instances
 ---@field UnpackMythicDungeonInfo fun(self: details, mythicDungeonInfo: mythicdungeoninfo) : boolean, segmentid, number, number, number, string, number, string, number, number, number unpack the mythic dungeon info and return the values
----@field 
+---@field CreateRightClickToCloseLabel fun(self: details, parent: frame) : df_label return a df_label with the text "Right click to close", need to set point
 ---@field 
 ---@field 
 
