@@ -1,6 +1,6 @@
 
 
-local dversion = 522
+local dversion = 523
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1450,7 +1450,7 @@ local ValidOutlines = {
 }
 
 DF.FontOutlineFlags = {
-	{"NONE", "None"},
+	{"", "None"},
 	{"MONOCHROME", "Monochrome"},
 	{"OUTLINE", "Outline"},
 	{"THICKOUTLINE", "Thick Outline"},
@@ -1462,32 +1462,32 @@ DF.FontOutlineFlags = {
 ---@param fontString table
 ---@param outline outline
 function DF:SetFontOutline(fontString, outline)
-	local font, fontSize = fontString:GetFont()
-	if (outline) then
-		if (type(outline) == "string") then
-			outline = outline:upper()
-		end
+    local font, fontSize = fontString:GetFont()
+    if (outline) then
+        if (type(outline) == "string") then
+            outline = outline:upper()
+        end
 
-		if (ValidOutlines[outline]) then
-			outline = outline
+        if (ValidOutlines[outline]) then
+            outline = outline
 
-		elseif (type(outline) == "boolean" and outline) then
-			outline = "OUTLINE"
+        elseif (type(outline) == "boolean" and outline) then
+            outline = "OUTLINE"
 
-		elseif (type(outline) == "boolean" and not outline) then
-			outline = "NONE"
+        elseif (type(outline) == "boolean" and not outline) then
+            outline = "" --"NONE"
 
-		elseif (outline == 1) then
-			outline = "OUTLINE"
+        elseif (outline == 1) then
+            outline = "OUTLINE"
 
-		elseif (outline == 2) then
-			outline = "THICKOUTLINE"
-		end
-	end
+        elseif (outline == 2) then
+            outline = "THICKOUTLINE"
+        end
+    end
 
-	outline = (not outline or outline == "NONE") and "NONE" or outline
+    outline = (not outline or outline == "NONE") and "" or outline
 
-	fontString:SetFont(font, fontSize, outline)
+    fontString:SetFont(font, fontSize, outline)
 end
 
 ---remove spaces from the start and end of the string
