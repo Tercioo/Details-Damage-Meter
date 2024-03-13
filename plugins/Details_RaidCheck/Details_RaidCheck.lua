@@ -17,6 +17,9 @@ local DF = DetailsFramework
 local UnitGroupRolesAssigned = DF.UnitGroupRolesAssigned
 local version = "95"
 
+---@type detailsframework
+local detailsFramework = DetailsFramework
+
 --build the list of buffs to track
 local flaskList = LIB_OPEN_RAID_FLASK_BUFF
 local runeIds = DF.RuneIDs
@@ -188,27 +191,19 @@ local CreatePluginFrames = function()
 		end
 	end
 
-	local raidCheckFrame = CreateFrame("frame", nil, UIParent, "BackdropTemplate")
+	local raidCheckFrame = CreateFrame("frame", "RaidCheckDetailsPlugin", UIParent, "BackdropTemplate")
 	raidCheckFrame:SetPoint("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
 	raidCheckFrame:SetClampedToScreen(true)
 	raidCheckFrame:SetFrameStrata("TOOLTIP")
 
-	raidCheckFrame.background = raidCheckFrame:CreateTexture("DetailsAllAttributesFrameBackground111", "background")
-	raidCheckFrame.background:SetDrawLayer("background", 2)
-	raidCheckFrame.background:SetPoint("topleft", raidCheckFrame, "topleft", 4, -4)
-	raidCheckFrame.background:SetPoint("bottomright", raidCheckFrame, "bottomright", -4, 4)
+	detailsFramework:AddRoundedCornersToFrame(raidCheckFrame, Details.PlayerBreakdown.RoundedCornerPreset)
 
-	raidCheckFrame.wallpaper = raidCheckFrame:CreateTexture("DetailsAllAttributesFrameWallPaper111", "background")
-	raidCheckFrame.wallpaper:SetDrawLayer("background", 4)
-	raidCheckFrame.wallpaper:SetPoint("topleft", raidCheckFrame, "topleft", 4, -4)
-	raidCheckFrame.wallpaper:SetPoint("bottomright", raidCheckFrame, "bottomright", -4, 4)		
-
-	raidCheckFrame:SetBackdrop(Details.menu_backdrop_config.menus_backdrop)
-	raidCheckFrame:SetBackdropColor(unpack(Details.menu_backdrop_config.menus_backdropcolor))
-	raidCheckFrame:SetBackdropBorderColor(unpack(Details.menu_backdrop_config.menus_bordercolor))
+	C_Timer.After(10, function()
+		Details:RegisterFrameToColor(raidCheckFrame)
+	end)
 
 	local reportString1 = raidCheckFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-	reportString1:SetPoint("bottomleft", raidCheckFrame, "bottomleft", 10, 8)
+	reportString1:SetPoint("bottomleft", raidCheckFrame, "bottomleft", 10, 5)
 	reportString1:SetText("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:225:307|t Report No Food/Flask  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:328:409|t Report No Pre-Pot  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:126:204|t Report No Rune  |  |cFFFFFFFFShift+Click: Options|r") 
 
 	DetailsRaidCheck:SetFontSize(reportString1, 10)
@@ -230,6 +225,7 @@ local CreatePluginFrames = function()
 	}
 	local headerOptions = {
 		padding = 2,
+		backdrop_color = {.2, .2, .2, 0.834}
 	}
 
 	DetailsRaidCheck.Header = DF:CreateHeader(raidCheckFrame, headerTable, headerOptions)
@@ -425,7 +421,7 @@ local CreatePluginFrames = function()
 
 					line.TalentsRow:ClearIcons()
 
-					if (playerTable.Talents) then
+					if (playerTable.Talents and type(playerTable.Talents) == "table") then
 						for i = 1, #playerTable.Talents do
 							local talent = playerTable.Talents[i]
 							local talentID, name, texture, selected, available = GetTalentInfoByID(talent)
@@ -492,6 +488,8 @@ local CreatePluginFrames = function()
 	mainScroll:SetPoint("topleft", raidCheckFrame, "topleft", 10, scrollY)
 	mainScroll:SetPoint("bottomright", raidCheckFrame, "bottomright", -10, 20)
 	mainScroll:Refresh()
+
+	mainScroll:SetBackdrop(nil)
 
 	--create lines
 	for i = 1, scrollLinesAmount do
@@ -959,7 +957,7 @@ local CreatePluginFrames = function()
 end
 
 local buildOptionsPanel = function()
-	local optionsFrame = DetailsRaidCheck:CreatePluginOptionsFrame("DetailsRaidCheckOptionsWindow", "Details! Raid Check Options", 1)
+	local optionsFrame = DetailsRaidCheck:CreatePluginOptionsFrame("DetailsRaidCheckOptionsWindow", "Details! Raid Check Options")
 	local optionsTable = {
 		{type = "label", get = function() return "General Settings:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
 		{

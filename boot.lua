@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12330
-		Details.alpha_build_counter = 12330 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12550
+		Details.alpha_build_counter = 12550 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -180,14 +180,17 @@ do
 
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
-	--change logs
-	--[=[
-		12329
-		"Frame for 'Ask to Erase Data' can now be moved.",
-		"Small bug fixes and continued development on End of Mythic+ Panel.",
-	--]=]
-
 	local news = {
+		{"v10.2.5.12550.156", "March 13th, 2024"},
+		"Added a combat selection option into the breakdown window, providing convenience when browsing damage or healing data in that window.",
+		"Added a report button to the breakdown window, allowing you to report spell damage, targets, and phases directly from that window.",
+		"Added combat comparison (Compare tab), allowing you to compare yourself between different combats. This is especially useful for training dummies.",
+		"Added the option to show or hide the Augmentation Evoker extra bar.",
+		"Added bar texture option 'Skyline Compact' and alert sounds 'Details Truck' and 'Details Bass Drop'.",
+		"The menu for combat selection has received a visual update.",
+		"Breakdown options received text settings, these settings also change the text in the display selection (right click at window title bar).",
+		"Applied a visual patch for windows other than the main ones, making them with rounded corners.",
+
 		{"v10.2.5.12329.155", "February 18th, 2024"},
 		"Frame for 'Ask to Erase Data' can now be moved.",
 		"Small bug fixes and continued development on End of Mythic+ Panel.",
@@ -452,112 +455,6 @@ do
 		"Fixed an issue where the Frags display was showinig death of friendly objects like Efflorescense.",
 		"Fixed an issue where item damage was showing 'Unknown Item' on cold logins.",
 		"Fixed defenses gauge (miss, dodge, parry) not showing in the spell details on the breakdown window.",
-
-		{"v10.1.0.10985.151", "May 4th, 2023"},
-		"The Breakdown Window has been completely rebuilt from the ground up and now includes support for several new features.",
-		"A significant portion of the back-end code has been revamped, resulting in improved performance and stability.",
-		"Combatlog now supports options, check them at the Combat Log section in the options panel.",
-		"Big plugin updates with improvements to Cast Log and new features for Advanced Death Log.",
-		"Added Real-time dps bar for arena streamers.",
-		"Flamanis:",
-		"Changed Pet Ownership detection to be hopefully more robust for future patches.",
-		"Added option to merge Atonement, Contrition, Ancient Teachings, and Awakened Faeline with their Crits, in the Combat Log section.",
-		"Added DemonHunter and Evoker Defensive cooldowns.",
-		"Readded option to have M+ Overall Segment only contain Bosses.",
-		"Fixed issue with swapping to/from Tiny Threat and other plugins using bookmarks.",
-		"Fixed position persistency for Statusbar elements.",
-		"Fixed alpha channel persistency for certain color options.",
-		"Fixed stack overflow related to changing option tabs or profiles too many times.",
-		"Fixed the highlight image of a bar icon not swapping to the new icon upon scrolling.",
-		"Fixed issues related to the new Left Text Offset position.",
-		"Fixed the wrong options being unusable with Aligned Text Columns enabled.",
-
-		{"v10.0.5.10661.147", "Mar 1st, 2023"},
-		"Major fixes and updates on the Event Tracker feature (for streamers).",
-		"When trying to import a profile with a name that already exists, it'll rename it and import (Flamanis).",
-		"Ignoring Fodder to the Flame npcs (Flamanis).",
-		"Mythic plus overall segments now have the list of player deaths.",
-
-		{"v10.0.2.10333.147", "Feb 08th, 2023"},
-		"Fixed load errors on Wrath.",
-		"Fixed enemy cast time in the death tooltip sometimes showing off time.",
-		"Allow negative offsets on Aligned Text Columns (Flamanis).",
-		"Fixed Shaman and Warrior spec detection (Flamanis).",
-		"More Demon hunter abilities added to be merged (Flamanis).",
-		"Added duck polymorph to Mage CCs (Flamanis).",
-		"Fixed offline player showing as party members in the /keys panel and players from other realms not caching (Flamanis).",
-		"Fixed an issue with some options not updating when the window is selected at the bottom right corner of the options panel (Flamanis).",
-		"Fixed some issues with the breakdown window for 'Damage Taken' (Flamanis).",
-		"Fixed an issue where sometimes the 'Always Show Me' wouldn't show if the total bar is enabled (Ricodyn).",
-
-		{"v10.0.2.10333.147", "Jan 04th, 2023"},
-		"Enemy Cast (non-interrupted) now is shown in the death log.",
-		"Damage Done by Blessing of Winter and Summer now counts torward the paladin.",
-		"Tooltips for Mythic Dungeon segments in the segments menu, now brings more information about the combat.",
-		"List of Potions updated (Jooooo)",
-		"Priest Spirit of Redemption now shows in the Death Log breakdown.",
-		"/keystone doesn't show the player realm anymore",
-		"When importing a profile, the confirmation box (asking a name for the new profile) got a check box to opt-out of importing Code.",
-		"Major fixes for Guild Sync and Statistics window: /details stats",
-		"Raid Check (plugin): Added M+ Score and fixed the flask usage.",
-		"Streamer (plugin): Fixed the plugin window hidding after login.",
-		"Fixed Evoker and several other cooldowns which wasn't showing in the cooldown usage display.",
-		"Fixed a small freeze that was happening when hovering over the segments menu.",
-		"Fixed some slash commands not working for deDE localization.",
-		"Fixed Rogue Akaari's Soul not getting detected properly during combat (Flamanis).",
-		"Fixed the sorting columns on /keystone panel which key stone level wasn't sorting correctly (Benjamin H.).",
-		"Fix for Fire Elemental on Wrath (Flamanis).",
-		"Fixed Evoker bug where empowered abilities wasn't showing in overall data (Flamanis).",
-		"Fixed an error when Details! attempted to use Ghost Frame in Wrath, but Ghost frame doesn't exists on that expansion (Flamanis).",
-		"Fixed spec detection for some specs on retail (Flamanis).",
-		"Fixed ToC for Compare2, how it also works on Wrath (Flamanis).",
-		"Fixed an issue with buff and debuff uptime sometimes not closing properly after the combat.",
-
-
-		{"v10.0.2.10333.147", "Nov 18th, 2022"},
-		"Added two checkboxes for Merge Pet and Player spell on the Breakdown window.",
-		"Added uptime for Hunter's Pet Frenzy Buff, it now show in the 'Auras' tab in the Breakdown Window.",
-		"/played is showing something new!",
-		"Options panel now closes by pressing Escape (Flamanis).",
-
-		{"v10.0.2.10277.146", "Nov 18th, 2022"},
-		"REMINDER: '/details coach' to get damage/healing/deaths in real time as the 21st person (coach) for the next raid tier in dragonflight.",
-		"New Compare tab: recreated from scratch, this new Compare has no player limitation, pets merged, bigger lines.",
-		"New <Plugin: Cast Log> show a time line of spells used by players in the group, Raid Leader: show all attack and defense cooldowns used by the raid (download it now on wago or curseforge).",
-		"Wago: Details! Standalone version is now hosted on addons.wago.io and WowUp.com.",
-		"",
-
-		"Added a little damage chart for your spells in the Player Breakdown Window.",
-		"Details! will count class play time, everyone using Details! from day 1 in Dragonflight should have an accurate play time in the class.",
-		"Visual updates on default skin.",
-		"All panels from options to plugins received visual updates.",
-		"Profiles won't export Auto Hide automations to stop issues with players not knowing why the window is hidding.",
-		"Details! should decrease the amount of chat spam errors and instead show them in the bug report window like al the other addons.",
-		"Player Details! Breakdown window: player selection now uses the same font as the regular window.",
-		"Death log tooltip revamp for more clarity to see the ability name and the damage done.",
-		"Dragonflight Trinkets damage will show the trinket name after the spell name.",
-		"'/details scroll' feature: spell name and spell id can now be copied, the frame got a scale bar.",
-		"Added option: 'Use Dynamic Overall Damage', if enabled swap to Dynamic Overall Damage when combat start while showing Overall Damage.",
-		"Fixed for most of the user having the problem of the encounter time not showing.",
-		"Fixed most of the issues with the melee spell name being called 'Word of Recall'.",
-		"Details! Damage Meter, Deatails! Framework, LibOpenRaid has been successfully updated to Dragonflight.",
-		"New class Evoker are now fully supported by Details!.",
-		"",
-		"Fixed an issue where warlocks was entering in combat from a debug doing damage (Flamanis).",
-		"Fixed 'Auto of Range' problem in Wrath of the Lich King (Flamanis).",
-		"Fixed a bug with custom displays when showing players outside the player group (Flamanis).",
-		"Fixed an issue where specs wheren't sent on Wrath (Flamanis).",
-		"Fixed Buff Uptime Tooltip where the buff had zero uptime (Flamanis)",
-		"Fixed shield damage preventing rare error when the absorption was zero (Flamanis).",
-		"Fixed chat embed system built in Details! from the Skins section (Flamanis).",
-		"Fixed an issue where damage in battlegrounds was not being sync with battleground score board in Wrath (Flamanis).",
-		"",
-		"New Slash Commands:",
-		"/playedclass: show how much time you have played this class on this expansion.",
-		"/dumpt <anything>: show the value of any table, global, spellId, etc.",
-		"/details auras: show a panel with your current auras, spell ids and spell payload.",
-		"/details perf: show performance issues when you get a warning about freezes due to UpdateAddOnMemoryUsage().",
-		"/details npcid: get the npc id of your target (a box is shown with the number ready to be copied).",
 	}
 
 	local newsString = "|cFFF1F1F1"
@@ -1272,6 +1169,7 @@ do
 
 		SharedMedia:Register("sound", "Details Warning", [[Interface\Addons\Details\sounds\Details Warning 100.ogg]])
 		SharedMedia:Register("sound", "Details Truck", [[Interface\Addons\Details\sounds\Details Truck.ogg]])
+		SharedMedia:Register("sound", "Details Bass Drop", [[Interface\Addons\Details\sounds\bassdrop2.mp3]])
 
 	--dump table contents over chat panel
 		function Details.VarDump(t)

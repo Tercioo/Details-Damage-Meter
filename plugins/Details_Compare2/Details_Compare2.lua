@@ -14,6 +14,8 @@ do
 	--'another player' is a terms used to refer to the other players being compared to the main player
 	--the scrollboxes for the main player being compared are created in the compare frame, the scrollboxes for the other players are created in the compareplayerframe
 
+	--search ~start to go to the start of the main code
+
 	local weakTable = {__mode = "v"}
 
 	---@class compare : frame
@@ -50,6 +52,7 @@ do
 	---@field mainPlayer actor
 	---@field mainSpellTable spelltable
 	---@field mainTargetTable comparetargettable
+	---@field combatTimeLabel df_label
 
 	---@class comparespelltable : spelltable
 	---@field spellId number?
@@ -1126,6 +1129,8 @@ do
 			comparePlugin.mainSpellTable = mainPlayerSpellTable
 			comparePlugin.mainTargetTable = mainPlayerTargetTable
 
+			comparePlugin.combatTimeLabel.text = detailsFramework:CreateAtlasString(Details:GetTextureAtlas("small-clock"), 10, 10) .. " " .. detailsFramework:IntegerToTimer(combat:GetCombatTime())
+
 			--depending on what data the user wants to compare, the data captue is different
 			--perform a search on the same combat when comparing the main player with other players using the same specialization.
 			--perform a seach on the next segments when comparing the main player against itself.
@@ -1137,6 +1142,8 @@ do
 			setmetatable(actorObjectsToCompare, weakTable)
 
 			local maxCompares = compareTwo.db.max_compares
+
+			--~start
 
 			if (compareTwo.db.compare_type == CONST_COMPARETYPE_SEGMENT) then
 				--get the segmentId from the combat
@@ -1176,7 +1183,11 @@ do
 				for _, actorObject in actorContainer:ListActors() do
 					if (actorObject:IsPlayer() and actorObject:IsGroupPlayer() and actorObject.spec == playerActorObject.spec and actorObject.serial ~= playerActorObject.serial) then
 						---@type compareactortable
-						local actorCompareTable = {actor = actorObject, total = actorObject.total, combat = combat}
+						local actorCompareTable = {
+							actor = actorObject,
+							total = actorObject.total,
+							combat = combat
+						}
 						actorObjectsToCompare[#actorObjectsToCompare + 1] = setmetatable(actorCompareTable, weakTable)
 
 						--stop the loop the the max amount of compares is reached
@@ -1185,10 +1196,10 @@ do
 						end
 					end
 				end
-				comparePlugin.mainPlayerName.text = playerActorObject:GetDisplayName()
-			end
 
-			table.sort(actorObjectsToCompare, sortByTotalKey)
+				comparePlugin.mainPlayerName.text = playerActorObject:GetDisplayName()
+				table.sort(actorObjectsToCompare, sortByTotalKey)
+			end
 
 			---hold the spell data for all other players which will be compared with the main player
 			---@type comparespelltable[]
@@ -1226,6 +1237,8 @@ do
 				comparisonFrame.mainTargetTable = mainPlayerTargetTable
 				--store the another player actorobject and name
 				comparisonFrame.playerObject = playerObject
+
+				comparisonFrame.combatTimeLabel.text = detailsFramework:CreateAtlasString(Details:GetTextureAtlas("small-clock"), 10, 10) .. " " .. detailsFramework:IntegerToTimer(combatObject:GetCombatTime())
 
 				--depending on the compare mode, the "player name" will be the segment name or the player name
 				if (compareTwo.db.compare_type == CONST_COMPARETYPE_SPEC) then
@@ -1613,7 +1626,7 @@ do
 				end
 			end
 
-			--main player spells scroll
+			--main player spells scroll ~playerscroll
 			---@type comparescrollbox
 			local mainSpellsFrameScroll = detailsFramework:CreateScrollBox(comparePlugin, "$parentComparisonMainPlayerSpellsScroll", mainPlayerRefreshSpellScroll, {}, comparisonFrameSettings.mainScrollWidth, comparisonFrameSettings.spellScrollHeight, comparisonFrameSettings.spellLineAmount, comparisonFrameSettings.spellLineHeight)
 			mainSpellsFrameScroll:SetPoint("topleft", comparePlugin, "topleft", 5, -30)
@@ -1658,6 +1671,20 @@ do
 			comparePlugin.mainPlayerName = detailsFramework:CreateLabel(mainSpellsFrameScroll, "")
 			comparePlugin.mainPlayerName:SetPoint("topleft", mainSpellsFrameScroll, "topleft", 2, comparisonFrameSettings.playerNameYOffset)
 			comparePlugin.mainPlayerName.fontsize = comparisonFrameSettings.playerNameSize
+
+
+			--gradient below the spellsScroll using the atlas "BossBanner-BgBanner-Top"
+			local gradientBottom = detailsFramework:CreateTexture(comparePlugin, "BossBanner-BgBanner-Top", 1, 20, "border")
+			gradientBottom:SetPoint("topleft", mainSpellsFrameScroll, "bottomleft", -12, 6)
+			gradientBottom:SetPoint("topright", mainSpellsFrameScroll, "bottomright", 12, 6)
+			comparePlugin.bottomGradient = gradientBottom
+
+			--combat time shown below the spellscroll ~time
+			---@type df_label
+			comparePlugin.combatTimeLabel = detailsFramework:CreateLabel(comparePlugin, "")
+			comparePlugin.combatTimeLabel:SetPoint("top", mainSpellsFrameScroll, "bottom", 0, -1)
+			comparePlugin.combatTimeLabel.fontsize = comparisonFrameSettings.playerNameSize - 1
+			comparePlugin.combatTimeLabel:SetAlpha(0.834)
 
 			--create the framework for the comparing players
 			local settings = {
@@ -1899,6 +1926,19 @@ do
 				detailsFramework:ReskinSlider(spellsScroll)
 
 				newComparisonFrame.spellsScroll = spellsScroll
+
+				--gradient below the spellsScroll using the atlas "BossBanner-BgBanner-Top"
+				local gradientBottom = detailsFramework:CreateTexture(newComparisonFrame, "BossBanner-BgBanner-Top", 1, 20, "border")
+				gradientBottom:SetPoint("topleft", spellsScroll, "bottomleft", -12, 6)
+				gradientBottom:SetPoint("topright", spellsScroll, "bottomright", 12, 6)
+				newComparisonFrame.bottomGradient = gradientBottom
+
+				--combat time shown below the spellscroll ~time
+				---@type df_label
+				newComparisonFrame.combatTimeLabel = detailsFramework:CreateLabel(newComparisonFrame, "")
+				newComparisonFrame.combatTimeLabel:SetPoint("top", spellsScroll, "bottom", 0, -1)
+				newComparisonFrame.combatTimeLabel.fontsize = comparisonFrameSettings.playerNameSize - 1
+				newComparisonFrame.combatTimeLabel:SetAlpha(0.834)
 
 				--targets scroll
 				---@type comparescrollbox
