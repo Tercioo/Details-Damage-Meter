@@ -96,7 +96,7 @@ local addonName, Details222 = ...
 		right_corner_anchor_bottom = {96, 0},
 		
 		attribute_icon_anchor = {34, -6},
-		attribute_icon_size = {24, 24},
+		attribute_icon_size = 24,
 		
 		micro_frames = {left = "DETAILS_STATUSBAR_PLUGIN_THREAT"},
 		
