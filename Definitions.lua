@@ -223,6 +223,8 @@
 ---@field last_events_tables table[] where the death log of each player is stored
 ---@field boss_hp number percentage of the health points of the boss
 ---@field training_dummy boolean if true, the combat is against a training dummy
+---@field playerTalents table<actorname, string> [playerName] = "talent string"
+---@field bossName string? the name of the boss, if the combat has no unitId "boss1", this value is nil
 ---@field 
 ---@field 
 ---@field __call table
@@ -256,6 +258,8 @@
 ---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
+---@field GetCurrentPhase fun(combat: combat) : number return the current phase of the combat or the phase where the combat ended
+---@field StoreTalents fun(self:combat)
 ---@field FindEnemyName fun(combat: combat) : string attempt to get the name of the enemy in the combat by getting the top most damaged unit by the player
 ---@field GetTryNumber fun(combat: combat) : number?
 ---@field GetFormattedCombatTime fun(combat: combat) : string
@@ -298,6 +302,9 @@
 ---@field GetEncounterName fun(combat: combat) : string get the name of the encounter
 ---@field GetBossImage fun(combat: combat) : texturepath|textureid get the icon of the encounter
 ---@field SetDateToNow fun(combat: combat, bSetStartDate: boolean?, bSetEndDate: boolean?) set the date to the current time. format: "H:M:S"
+---@field GetBossHealth fun(combat: combat) : number get the percentage of the boss health when the combat ended
+---@field GetBossName fun(combat: combat) : string? return the name of the unitId "boss1", nil if the unit doesn't existed during the combat
+
 
 ---@class actorcontainer : table contains two tables _ActorTable and _NameIndexTable, the _ActorTable contains the actors, the _NameIndexTable contains the index of the actors in the _ActorTable, making quick to reorder them without causing overhead
 ---@field need_refresh boolean when true the container is dirty and needs to be refreshed

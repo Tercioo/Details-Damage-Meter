@@ -3,6 +3,9 @@
 	local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
 	local _
 
+	---@type detailsframework
+	local detailsFramework = DetailsFramework
+
 	--register namespace
 	Details.network = {}
 
@@ -77,6 +80,30 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --item level
+
+	local getHorizontalTalentsAsString = function()
+		local talents = ""
+		for i = 1, 7 do
+			for o = 1, 3 do
+				local talentID, name, texture, selected, available = GetTalentInfo(i, o, 1)
+				if (selected) then
+					talents = "" .. talentID .. ","
+					break
+				end
+			end
+		end
+
+		--remove the comma after the last talent id
+		if (talents:sub(-1) == ",") then
+			talents = talents:sub(1, -2)
+		end
+
+		return talents
+	end
+
+	---send item level data to the group the player is in
+	---@param self details
+	---@return nil
 	function Details:SendCharacterData()
 		--only send if in group
 		if (not IsInGroup() and not IsInRaid()) then
@@ -87,7 +114,8 @@
 			return
 		end
 
-		--check the player level
+		--check the player level to be at least 60
+		---@type number
 		local playerLevel = UnitLevel("player")
 		if (not playerLevel) then
 			return
@@ -97,23 +125,52 @@
 
 		--delay to sent information again
 		if (Details.LastPlayerInfoSync and Details.LastPlayerInfoSync + 10 > GetTime()) then
-			--do not send info if recently sent
+			--do not send info if it was recently sent
 			return
 		end
 
-		--get player item level
+		--get the equipped player item level
 		local overall, equipped = GetAverageItemLevel()
 
+		local talentsAsString = ""
+
 		--get player talents
-		local talents = {}
-		for i = 1, 7 do
-			for o = 1, 3 do
-				local talentID, name, texture, selected, available = GetTalentInfo(i, o, 1)
-				if (selected) then
-					tinsert(talents, talentID)
-					break
-				end
-			end
+		--depending on the game version, the talent API is different
+
+		--vertical tree
+		if (DetailsFramework.IsClassicWow()) then --vanilla
+			talentsAsString = ""
+
+		elseif (DetailsFramework.IsTBCWow()) then --burning crusade
+			talentsAsString = ""
+
+		elseif (DetailsFramework.IsWotLKWow()) then --wrath of the lich king
+			talentsAsString = ""
+
+		elseif (DetailsFramework.IsCataWow()) then --cataclysm
+			talentsAsString = ""
+		end
+
+		--horizontal pick one
+		if (DetailsFramework.IsPandaWow()) then
+			talentsAsString = getHorizontalTalentsAsString()
+
+		elseif (DetailsFramework.IsWarlordsWow()) then
+			talentsAsString = getHorizontalTalentsAsString()
+
+		elseif (DetailsFramework.IsLegionWow()) then
+			talentsAsString = getHorizontalTalentsAsString()
+
+		elseif (DetailsFramework.IsBFAWow()) then
+			talentsAsString = getHorizontalTalentsAsString()
+
+		elseif (DetailsFramework.IsShadowlandsWow()) then
+			talentsAsString = getHorizontalTalentsAsString()
+		end
+
+		--vertical, horizonal tree
+		if (DetailsFramework.IsDragonflight()) then
+			talentsAsString = detailsFramework:GetDragonlightTalentString()
 		end
 
 		--get the spec ID
@@ -130,13 +187,13 @@
 		local serial = UnitGUID("player")
 
 		if (IsInRaid()) then
-			Details:SendRaidData(CONST_ITEMLEVEL_DATA, serial, equipped, talents, currentSpec)
+			Details:SendRaidData(CONST_ITEMLEVEL_DATA, serial, equipped, talentsAsString, currentSpec)
 			if (Details.debugnet) then
 				Details:Msg("(debug) sent ilevel data to Raid")
 			end
 
 		elseif (IsInGroup()) then
-			Details:SendPartyData(CONST_ITEMLEVEL_DATA, serial, equipped, talents, currentSpec)
+			Details:SendPartyData(CONST_ITEMLEVEL_DATA, serial, equipped, talentsAsString, currentSpec)
 			if (Details.debugnet) then
 				Details:Msg("(debug) sent ilevel data to Party")
 			end

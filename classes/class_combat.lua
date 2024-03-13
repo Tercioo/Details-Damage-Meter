@@ -863,6 +863,7 @@ local segmentTypeToString = {
 	end
 
 	---Return how many attempts were made for this boss
+	---@param self combat
 	---@return number|nil
 	function classCombat:GetTryNumber()
 		---@type bossinfo
@@ -870,6 +871,32 @@ local segmentTypeToString = {
 		if (bossInfo) then
 			return bossInfo.try_number
 		end
+	end
+
+	---Return the percentage of the boss health when the combat ended
+	---1 = 100% 0.5 = 50%
+	---@param self combat
+	---@return number
+	function classCombat:GetBossHealth()
+		return self.boss_hp
+	end
+
+	---Get the boss name
+	---@param self combat
+	---@return string?
+	function classCombat:GetBossName()
+		return self.bossName
+	end
+
+	---Return the current phase of the combat or which phase the combat was when it ended
+	---@param self combat
+	---@return number
+	function classCombat:GetCurrentPhase()
+		local phaseData = self.PhaseData
+		local lastPhase = #phaseData
+		--the phase data has on its first index the ID of the phase and on the second the time when it started
+		local lastPhaseId = phaseData[lastPhase][1]
+		return lastPhaseId
 	end
 
 	---copy deaths from combat2 into combat1
@@ -896,6 +923,11 @@ local segmentTypeToString = {
 	--return the total of a specific attribute
 	local power_table = {0, 1, 3, 6, 0, "alternatepower"}
 
+	---return the total of a specific attribute, example: total damage, total healing, total resources, etc
+	---@param attribute number
+	---@param subAttribute number
+	---@param onlyGroup boolean?
+	---@return number
 	function classCombat:GetTotal(attribute, subAttribute, onlyGroup)
 		if (attribute == 1 or attribute == 2) then
 			if (onlyGroup) then
@@ -934,6 +966,20 @@ local segmentTypeToString = {
 		local alternatePowerTable = {last = 0, total = 0}
 		self.alternate_power[actorName] = alternatePowerTable
 		return alternatePowerTable
+	end
+
+	---transfer talents from Details talent cache to the combat combat
+	---@param self combat
+	function classCombat:StoreTalents()
+		local talentStorage = Details.cached_talents
+		local damageContainer = self:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		for idx, actorObject in damageContainer:ListActors() do
+			local thisActorTalents = talentStorage[actorObject.serial]
+			if (thisActorTalents) then
+				local actorName = actorObject:Name()
+				self.playerTalents[actorName] = thisActorTalents
+			end
+		end
 	end
 
 	--delete an actor from the combat ~delete ~erase ~remove
@@ -1026,6 +1072,15 @@ function classCombat:CreateNewCombatTable()
 	return classCombat:NovaTabela()
 end
 
+local getBossName = function()
+	if (UnitExists("boss1") and Details.in_combat) then
+		local bossName = UnitName("boss1")
+		if (bossName) then
+			Details:GetCurrentCombat().bossName = bossName
+		end
+	end
+end
+
 ---class constructor
 ---@param bTimeStarted boolean if true set the start time to now with GetTime
 ---@param overallCombatObject combat
@@ -1084,10 +1139,16 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 
 	combatObject.boss_hp = 1
 
+	C_Timer.After(0.5, getBossName)
+
 	combatObject.bossTimers = {}
 
 	---store trinket procs
 	combatObject.trinketProcs = {}
+
+	--store talents of players
+	---@type table<actorname, string>
+	combatObject.playerTalents = {}
 
 	---store the amount of casts of each player
 	---@type table<actorname, table<spellname, number>>

@@ -1,6 +1,6 @@
 
 
-local dversion = 521
+local dversion = 522
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -30,6 +30,8 @@ local UnitIsTapDenied = UnitIsTapDenied
 
 SMALL_NUMBER = 0.000001
 ALPHA_BLEND_AMOUNT = 0.8400251
+
+local _, _, _, buildInfo = GetBuildInfo()
 
 DF.dversion = dversion
 
@@ -77,61 +79,103 @@ function DF:GetDefaultBackdropColor()
 	return 0.1215, 0.1176, 0.1294, 0.8
 end
 
+---return if the wow version the player is playing is dragonflight
+---@return boolean
+function DF.IsDragonflight()
+	if (buildInfo < 110000 and buildInfo >= 100000) then return true end
+	return false
+end
+
 ---return if the wow version the player is playing is dragonflight or an expansion after it
 ---@return boolean
 function DF.IsDragonflightAndBeyond()
 	return select(4, GetBuildInfo()) >= 100000
 end
 
----return if the wow version the player is playing is dragonflight
----@return boolean
-function DF.IsDragonflight()
-	local _, _, _, buildInfo = GetBuildInfo()
-	if (buildInfo < 110000 and buildInfo >= 100000) then
-		return true
-	end
-	return false
-end
-
 ---return if the wow version the player is playing is a classic version of wow
 ---@return boolean
 function DF.IsTimewalkWoW()
-    local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 40000) then
-        return true
-    end
+    if (buildInfo < 40000) then        return true    end
 	return false
 end
 
 ---return if the wow version the player is playing is the vanilla version of wow
 ---@return boolean
 function DF.IsClassicWow()
-    local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 20000) then
-        return true
-    end
+    if (buildInfo < 20000) then        return true    end
 	return false
 end
 
 ---return true if the player is playing in the TBC version of wow
 ---@return boolean
 function DF.IsTBCWow()
-    local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 30000 and buildInfo >= 20000) then
-        return true
-    end
+    if (buildInfo < 30000 and buildInfo >= 20000) then        return true    end
 	return false
 end
 
 ---return true if the player is playing in the WotLK version of wow
 ---@return boolean
 function DF.IsWotLKWow()
-    local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 40000 and buildInfo >= 30000) then
-        return true
-    end
+    if (buildInfo < 40000 and buildInfo >= 30000) then        return true    end
 	return false
 end
+
+---return true if the player is playing in the Cataclysm version of wow
+---@return boolean
+function DF.IsCataWow()
+    if (buildInfo < 50000 and buildInfo >= 40000) then        return true    end
+	return false
+end
+
+---return true if the player is playing in the Mists version of wow
+---@return boolean
+function DF.IsPandaWow()
+    if (buildInfo < 60000 and buildInfo >= 50000) then        return true    end
+	return false
+end
+
+---return true if the player is playing in the Warlords of Draenor version of wow
+---@return boolean
+function DF.IsWarlordsWow()
+    if (buildInfo < 70000 and buildInfo >= 60000) then        return true    end
+	return false
+end
+
+---return true if the player is playing in the Legion version of wow
+---@return boolean
+function DF.IsLegionWow()
+	if (buildInfo < 80000 and buildInfo >= 70000) then		return true	end
+	return false
+end
+
+---return true if the player is playing in the BFA version of wow
+---@return boolean
+function DF.IsBFAWow()
+	if (buildInfo < 90000 and buildInfo >= 80000) then		return true	end
+	return false
+end
+
+---return true if the player is playing in the Shadowlands version of wow
+---@return boolean
+function DF.IsShadowlandsWow()
+	if (buildInfo < 100000 and buildInfo >= 90000) then		return true	end
+	return false
+end
+
+---return if the wow version the player is playing is dragonflight
+---@return boolean
+function DF.IsDragonflightWow()
+	if (buildInfo < 110000 and buildInfo >= 100000) then		return true	end
+	return false
+end
+
+---return if the wow version the player is playing is the war within
+---@return boolean
+function DF.IsWarWow()
+	if (buildInfo < 120000 and buildInfo >= 110000) then		return true	end
+	return false
+end
+
 
 ---return true if the player is playing in the WotLK version of wow with the retail api
 ---@return boolean
@@ -4287,6 +4331,9 @@ local specs_per_class = {
 }
 
 
+---return an array table with the spec ids the class can have
+---@param engClass string
+---@return table
 function DF:GetClassSpecIDs(engClass)
 	return specs_per_class[engClass]
 end
@@ -4320,7 +4367,6 @@ local getDragonflightTalents = function()
 
 	local treeInfo = C_Traits.GetTreeInfo(configId, configInfo.treeIDs[1])
 	local treeHash = C_Traits.GetTreeHash(treeInfo.ID)
-
 	local serializationVersion = C_Traits.GetLoadoutSerializationVersion()
 
 	DF.TalentExporter:WriteLoadoutHeader(exportStream, serializationVersion, currentSpecID, treeHash)
@@ -4329,12 +4375,14 @@ local getDragonflightTalents = function()
 	return exportStream:GetExportString()
 end
 
---/dump DetailsFramework:GetDragonlightTalentExportString()
+--/dump DetailsFramework:GetDragonlightTalentString()
 function DF:GetDragonlightTalentString()
-	local talentString, errorText = pcall(getDragonflightTalents)
-	if (errorText) then
+	local runOkay, errorText = pcall(getDragonflightTalents)
+	if (not runOkay) then
+		DF:Msg("error 0x4517", errorText)
 		return ""
 	else
+		local talentString = errorText
 		return talentString
 	end
 end

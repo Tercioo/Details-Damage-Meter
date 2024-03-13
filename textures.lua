@@ -288,6 +288,20 @@ Details.TextureAtlas = {
         nativeWidth = 512,
         nativeHeight = 512,
     },
+
+    ["small-clock"] = {
+        file = [[Interface\AddOns\Details\images\icons]],
+        width = 16,
+        height = 16,
+        leftTexCoord = 211/512,
+        rightTexCoord = 245/512,
+        topTexCoord = 145/512,
+        bottomTexCoord = 179/512,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 512,
+        nativeHeight = 512,
+    },
 }
 
 C_Timer.After(1, function()

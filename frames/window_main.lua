@@ -2119,11 +2119,14 @@ local iconFrame_OnEnter = function(self)
 			Details:AddTooltipHeaderStatusbar()
 
 			local talentString = ""
-			if (talents and not (DetailsFramework.IsClassicWow() or DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow())) then
-				for i = 1, #talents do
-					local talentID, talentName, texture, selected, available = GetTalentInfoByID(talents [i])
-					if (texture) then
-						talentString = talentString ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
+
+			if (type(talents) == "table") then
+				if (talents and not (DetailsFramework.IsClassicWow() or DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow())) then
+					for i = 1, #talents do
+						local talentID, talentName, texture, selected, available = GetTalentInfoByID(talents [i])
+						if (texture) then
+							talentString = talentString ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
+						end
 					end
 				end
 			end
@@ -6628,7 +6631,8 @@ local buildSegmentTooltip = function(self, deltaTime)
 						elseif (bossInfo.killed) then
 							gameCooltip:AddLine(combatName, formattedElapsedTime, 1, "lime", combatTimeColor)
 						else
-							gameCooltip:AddLine(combatName, formattedElapsedTime, 1, "orange", combatTimeColor)
+							--include phase string: "P" .. thisCombat:GetCurrentPhase() .. " " ..  
+							gameCooltip:AddLine(combatName, math.floor(thisCombat:GetBossHealth()*100) .. "%", 1, "orange", combatTimeColor) --formattedElapsedTime
 						end
 
 						gameCooltip:AddIcon(combatIcon, "main", "left")

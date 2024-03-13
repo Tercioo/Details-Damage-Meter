@@ -1903,7 +1903,7 @@ function _detalhes:IlvlFromNetwork (player, realm, core, serialNumber, itemLevel
 	end
 
 	--won't inspect this actor
-	_detalhes.trusted_characters [serialNumber] = true
+	_detalhes.trusted_characters[serialNumber] = true
 
 	if (type(serialNumber) ~= "string") then
 		return
@@ -1911,19 +1911,22 @@ function _detalhes:IlvlFromNetwork (player, realm, core, serialNumber, itemLevel
 
 	--store the item level
 	if (type(itemLevel) == "number") then
-		_detalhes.item_level_pool [serialNumber] = {name = player, ilvl = itemLevel, time = time()}
+		_detalhes.item_level_pool[serialNumber] = {name = player, ilvl = itemLevel, time = time()}
 	end
 
 	--store talents
 	if (type(talentsSelected) == "table") then
-		if (talentsSelected [1]) then
-			_detalhes.cached_talents [serialNumber] = talentsSelected
+		if (talentsSelected[1]) then
+			_detalhes.cached_talents[serialNumber] = talentsSelected
 		end
+
+	elseif (type(talentsSelected) == "string" and talentsSelected ~= "") then
+		_detalhes.cached_talents[serialNumber] = talentsSelected
 	end
 
 	--store the spec the player is playing
 	if (type(currentSpec) == "number") then
-		_detalhes.cached_specs [serialNumber] = currentSpec
+		_detalhes.cached_specs[serialNumber] = currentSpec
 	end
 end
 

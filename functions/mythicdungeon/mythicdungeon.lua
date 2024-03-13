@@ -433,7 +433,7 @@ function DetailsMythicPlusFrame.SaveMythicPlusStats(combatObject)
 
         ---@type mythicplusrunstats
         local runStats = {
-            date = time(),
+            date = _G.time(),
             runTime = math.floor(time/1000),
             onTime = onTime,
             deaths = amountDeaths,

@@ -339,6 +339,7 @@
 		local combatCounter = Details:GetOrSetCombatId(1)
 
 		--create a new combat object and preplace the current one
+		---@type combat
 		local newCombatObject = Details.combate:NovaTabela(true, Details.tabela_overall, combatCounter, ...)
 		Details:SetCurrentCombat(newCombatObject)
 
@@ -771,6 +772,9 @@
 		if (not bShouldForceDiscard and (zoneType == "none" or tempo_do_combate >= Details.minimum_combat_time or not segmentsTable[1])) then
 			--combat accepted
 			Details.tabela_historico:AddCombat(currentCombat) --move a tabela atual para dentro do hist�rico
+
+			currentCombat:StoreTalents()
+
 			if (currentCombat.is_boss) then
 				if (IsInRaid()) then
 					local cleuID = currentCombat.is_boss.id

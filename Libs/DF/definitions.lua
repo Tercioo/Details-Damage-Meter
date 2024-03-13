@@ -157,8 +157,23 @@
 ---@field SliderCounter number when no name is given, a string plus an incremental number is used instead
 ---@field SwitchCounter number when no name is given, a string plus an incremental number is used instead
 ---@field SplitBarCounter number when no name is given, a string plus an incremental number is used instead
+---@field TalentExporter table
 ---@field FormatNumber fun(number:number) : string abbreviate a number, e.g. 1000 -> 1k 1000 -> 1천, depending on the client language
 ---@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean?, specId: specializationid?) : string there's no self here
+---@field IsDragonflight fun():boolean
+---@field IsDragonflightAndBeyond fun():boolean
+---@field IsTimewalkWoW fun():boolean
+---@field IsClassicWow fun():boolean
+---@field IsTBCWow fun():boolean
+---@field IsWotLKWow fun():boolean
+---@field IsCataWow fun():boolean
+---@field IsPandaWow fun():boolean
+---@field IsWarlordsWow fun():boolean
+---@field IsLegionWow fun():boolean
+---@field IsBFAWow fun():boolean
+---@field IsShadowlandsWow fun():boolean
+---@field IsDragonflightWow fun():boolean
+---@field IsWarWow fun():boolean
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
 ---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
 ---@field GetCurrentClassName fun(self:table) : string return the name of the class the player is playing
@@ -167,7 +182,9 @@
 ---@field GetCurrentSpec fun(self:table):number?
 ---@field GetCurrentSpecId fun(self:table):number? return the specId of the current spec, retuns nil if the expansion the player is playing does not support specs
 ---@field GetClassSpecIds fun(self:table, engClass:string):number[]
+---@field GetClassSpecIDs fun(self:table, engClass:string):number[]
 ---@field IsValidSpecId fun(self:table, specId:number):boolean check if the passed specId is valid for the player class, also return false for tutorial specs
+---@field GetDragonlightTalentString fun(self:table):string return the talent config string
 ---@field GetClassList fun(self:table):{ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[]
 ---@field DebugVisibility fun(self:table, object:uiobject) print the reason why the frame isn't shown in the screen
 ---@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall, print to chat if the function passed is invalid
