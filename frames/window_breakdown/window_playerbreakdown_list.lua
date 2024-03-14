@@ -454,6 +454,7 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 			return
 		end
 
+		--current breakdown combat
 		local currentBKCombat = Details:GetCombatFromBreakdownWindow()
 		--unique combat id from the combat the breakdown window is using
 		local currentBKCombatUniqueID = currentBKCombat:GetCombatUID()
