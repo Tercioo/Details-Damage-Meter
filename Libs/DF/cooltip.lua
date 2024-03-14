@@ -17,7 +17,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 23
+local version = 24
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -1202,7 +1202,11 @@ function DF:CreateCoolTip()
 			if (leftIconSettings[10]) then
 				menuButton.leftIconMask:SetTexture(leftIconSettings[10])
 			else
-				menuButton.leftIconMask:SetTexture([[Interface\COMMON\common-iconmask]])
+				if (DF.IsDragonflightAndBeyond()) then
+					menuButton.leftIconMask:SetTexture([[Interface\COMMON\common-iconmask]])
+				else
+					menuButton.leftIconMask:SetTexture([[Interface\CHATFRAME\chatframebackground]])
+				end
 			end
 
 			local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(leftIconSettings[8])

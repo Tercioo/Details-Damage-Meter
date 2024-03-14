@@ -1,6 +1,6 @@
 
 
-local dversion = 523
+local dversion = 525
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1447,6 +1447,8 @@ local ValidOutlines = {
 	["MONOCHROME"] = true,
 	["OUTLINE"] = true,
 	["THICKOUTLINE"] = true,
+	["OUTLINEMONOCHROME"] = true,
+	["THICKOUTLINEMONOCHROME"] = true,
 }
 
 DF.FontOutlineFlags = {
