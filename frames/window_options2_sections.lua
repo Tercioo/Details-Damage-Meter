@@ -4417,6 +4417,17 @@ do
                 desc = "Divisor Color",
             },
 
+            {--rounded corner
+                type = "toggle",
+                get = function() return Details.tooltip.rounded_corner end,
+                set = function(self, fixedparam, value)
+                    Details.tooltip.rounded_corner = value
+                    afterUpdate()
+                end,
+                name = "Show Rounded Border",
+                desc = "Show Rounded Border",
+            },
+
             {type = "blank"},
 
             {--show amount

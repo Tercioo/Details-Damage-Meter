@@ -1674,8 +1674,14 @@
 				end
 			end
 
-			GameCooltip:ShowRoundedCorner()
+			Details:AddRoundedCornerToTooltip()
 			GameCooltip:ShowCooltip()
+		end
+	end
+
+	function Details:AddRoundedCornerToTooltip()
+		if (Details.tooltip.rounded_corner) then
+			GameCooltip:ShowRoundedCorner()
 		end
 	end
 

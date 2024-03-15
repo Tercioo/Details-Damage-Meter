@@ -1116,6 +1116,8 @@ local default_profile = {
 			header_statusbar = {0.3, 0.3, 0.3, 0.8, false, false, "WorldState Score"},
 			submenu_wallpaper = true,
 
+			rounded_corner = true,
+
 			anchored_to = 1,
 			anchor_screen_pos = {507.700, -350.500},
 			anchor_point = "bottom",

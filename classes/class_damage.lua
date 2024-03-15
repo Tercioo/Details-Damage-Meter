@@ -753,7 +753,7 @@ end
 		GameCooltip:SetOption("AlignAsBlizzTooltip", false)
 		GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
 		GameCooltip:SetOption("YSpacingMod", -6)
-		GameCooltip:ShowRoundedCorner()
+		Details:AddRoundedCornerToTooltip()
 
 		for index, t in ipairs(Targets) do
 			GameCooltip:AddLine(Details:GetOnlyName(t[1]), Details:ToK(t[2]) .. " (" .. format("%.1f", t[2]/total*100) .. "%)")
@@ -1182,7 +1182,7 @@ end
 			GameCooltip:SetOption("AlignAsBlizzTooltip", false)
 			GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
 			GameCooltip:SetOption("YSpacingMod", -6)
-			GameCooltip:ShowRoundedCorner()
+			Details:AddRoundedCornerToTooltip()
 
 			--Details:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_FROM"], headerColor, #damage_taken_table, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.1796875, 0, 0.0546875)
 			--Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
@@ -1617,7 +1617,7 @@ end
 		GameCooltip:SetOption("AlignAsBlizzTooltip", false)
 		GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
 		GameCooltip:SetOption("YSpacingMod", -6)
-		GameCooltip:ShowRoundedCorner()
+		Details:AddRoundedCornerToTooltip()
 
 		--local lineHeight = Details.tooltip.line_height
 
