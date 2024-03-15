@@ -303,6 +303,7 @@
 ---@field GetBossImage fun(combat: combat) : texturepath|textureid get the icon of the encounter
 ---@field SetDateToNow fun(combat: combat, bSetStartDate: boolean?, bSetEndDate: boolean?) set the date to the current time. format: "H:M:S"
 ---@field GetBossHealth fun(combat: combat) : number get the percentage of the boss health when the combat ended
+---@field GetBossHealthString fun(combat: combat) : string get the percentage of the boss health when the combat ended as a string
 ---@field GetBossName fun(combat: combat) : string? return the name of the unitId "boss1", nil if the unit doesn't existed during the combat
 
 

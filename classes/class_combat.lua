@@ -881,6 +881,22 @@ local segmentTypeToString = {
 		return self.boss_hp
 	end
 
+	---Return the percentage of the boss as a string, includes a zero on the left side if the number is less than 10
+	---@param self combat
+	---@return string
+	function classCombat:GetBossHealthString()
+		local bossHealth = self:GetBossHealth()
+		if (bossHealth) then
+			bossHealth = math.floor(bossHealth * 100)
+			local bossHealthString = tostring(bossHealth)
+			if (bossHealth < 10) then
+				bossHealthString = "0" .. bossHealthString
+			end
+			return bossHealthString
+		end
+		return "00"
+	end
+
 	---Get the boss name
 	---@param self combat
 	---@return string?

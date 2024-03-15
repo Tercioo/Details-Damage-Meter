@@ -6625,14 +6625,20 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 						local combatIcon, categoryIcon = thisCombat:GetCombatIcon()
 
+						--remove anything after the first comma from the combat name
+						local commaIndex = string.find(combatName, ",")
+						if (commaIndex) then
+							combatName = string.sub(combatName, 1, commaIndex - 1)
+						end
+
 						if (combatInstanceType == "party") then
 							gameCooltip:AddLine(combatName, formattedElapsedTime, 1, dungeonColor, combatTimeColor)
 
 						elseif (bossInfo.killed) then
 							gameCooltip:AddLine(combatName, formattedElapsedTime, 1, "lime", combatTimeColor)
 						else
-							--include phase string: "P" .. thisCombat:GetCurrentPhase() .. " " ..  
-							gameCooltip:AddLine(combatName, math.floor(thisCombat:GetBossHealth()*100) .. "%", 1, "orange", combatTimeColor) --formattedElapsedTime
+							local bossHealth = thisCombat:GetBossHealthString()
+							gameCooltip:AddLine(combatName,  "P" .. thisCombat:GetCurrentPhase() .. "  " ..  bossHealth .. "%  " .. formattedElapsedTime, 1, "orange", combatTimeColor) --formattedElapsedTime
 						end
 
 						gameCooltip:AddIcon(combatIcon, "main", "left")

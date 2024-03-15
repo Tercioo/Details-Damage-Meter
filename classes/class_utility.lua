@@ -175,7 +175,7 @@ local statusBarBackgroundTable_ForDeathTooltip = {
 --expose in case someone want to customize the death tooltip background
 Details.StatusBarBackgroundTable_ForDeathTooltip = statusBarBackgroundTable_ForDeathTooltip
 
-function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
+function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable) --~death
 	local events = deathTable[1]
 	local timeOfDeath = deathTable[2]
 	local maxHP = max(deathTable[5], 0.001)
