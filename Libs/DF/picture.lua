@@ -694,11 +694,24 @@ function detailsFramework:IsTexture(texture, bCheckTextureObject)
 	return false
 end
 
+---Return if the table passed has the structure of an atlasinfo
+---@param self table
+---@param atlasTale table
+---@return boolean
+function detailsFramework:TableIsAtlas(atlasTale)
+	if (type(atlasTale) == "table") then
+		if (atlasTale.file or atlasTale.filename) then
+			return true
+		end
+	end
+	return false
+end
+
 ---Receives a texture object and a texture to use as mask
 ---If the mask texture is not created, it will be created and added to a key named MaskTexture
 ---@param self table
 ---@param texture texture
----@param maskTexture string|number
+---@param maskTexture string|number|table
 function detailsFramework:SetMask(texture, maskTexture)
 	if (not texture.MaskTexture) then
 		local parent = texture:GetParent()
@@ -707,6 +720,23 @@ function detailsFramework:SetMask(texture, maskTexture)
 		texture:AddMaskTexture(maskTextureObject)
 		texture.MaskTexture = maskTextureObject
 	end
+
+	--is this a game texture atlas?
+	if (type(maskTexture) == "string") then
+		local isAtlas = C_Texture.GetAtlasInfo(maskTexture)
+		if (isAtlas) then
+			texture.MaskTexture:SetAtlas(maskTexture)
+			return
+		end
+
+	elseif (type(maskTexture) == "table") then
+		local bIsAtlas = detailsFramework:TableIsAtlas(maskTexture)
+		if (bIsAtlas) then
+			detailsFramework:SetAtlas(texture.MaskTexture, maskTexture)
+			return
+		end
+	end
+
 	texture.MaskTexture:SetTexture(maskTexture)
 end
 

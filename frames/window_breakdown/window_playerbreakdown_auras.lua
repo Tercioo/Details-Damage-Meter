@@ -75,7 +75,7 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
         local iconTexture = line:CreateTexture("$parentIcon", "overlay")
         iconTexture:SetSize(scroll_line_height -2 , scroll_line_height - 2)
         iconTexture:SetAlpha(0.924)
-        detailsFramework:SetMask(iconTexture, [[Interface\COMMON\common-iconmask]])
+        detailsFramework:SetMask(iconTexture, Details:GetTextureAtlas("iconmask"))
 
         local nameLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
         local uptimeLabel = line:CreateFontString("$parentUptime", "overlay", "GameFontNormal")

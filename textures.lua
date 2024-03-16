@@ -302,6 +302,21 @@ Details.TextureAtlas = {
         nativeWidth = 512,
         nativeHeight = 512,
     },
+
+    ["iconmask"] = {
+        file = [[Interface\AddOns\Details\images\common-iconmask.png]],
+        width = 64,
+        height = 64,
+        leftTexCoord = 0,
+        rightTexCoord = 1,
+        topTexCoord = 0,
+        bottomTexCoord = 1,
+        tilesHorizontally = false,
+        tilesVertically = false,
+        nativeWidth = 64,
+        nativeHeight = 64,
+    },
+
 }
 
 C_Timer.After(1, function()

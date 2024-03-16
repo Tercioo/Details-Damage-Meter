@@ -1538,7 +1538,7 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	local spellIcon = spellIconFrame:CreateTexture("$parentTexture", "overlay")
 	spellIcon:SetAllPoints()
 	spellIcon:SetTexCoord(.1, .9, .1, .9)
-	detailsFramework:SetMask(spellIcon, [[Interface\COMMON\common-iconmask]])
+	detailsFramework:SetMask(spellIcon, Details:GetTextureAtlas("iconmask"))
 	spellBar.spellIcon = spellIcon
 
 	--create a square frame which is placed at the right side of the line to show which targets for damaged by the spell
