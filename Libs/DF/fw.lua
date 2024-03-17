@@ -95,7 +95,7 @@ end
 ---return if the wow version the player is playing is a classic version of wow
 ---@return boolean
 function DF.IsTimewalkWoW()
-    if (buildInfo < 40000) then        return true    end
+    if (buildInfo < 50000) then        return true    end
 	return false
 end
 
@@ -188,15 +188,6 @@ function DF.IsNonRetailWowWithRetailAPI()
 end
 DF.IsWotLKWowWithRetailAPI = DF.IsNonRetailWowWithRetailAPI -- this is still in use
 
----return true if the version of wow the player is playing is the shadowlands
-function DF.IsShadowlandsWow()
-    local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 100000 and buildInfo >= 90000) then
-        return true
-    end
-	return false
-end
-
 ---for classic wow, get the role using the texture from the talents frame
 local roleBySpecTextureName = {
 	DruidBalance = "DAMAGER",
@@ -257,7 +248,12 @@ function DF:GetRoleByClassicTalentTree()
 	for i = 1, (MAX_TALENT_TABS or 3) do
 		if (i <= numTabs) then
 			--tab information
-			local name, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+			local id, name, description, iconTexture, pointsSpent, fileName
+			if DF.IsCataWow() then
+				id, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+			else
+				name, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+			end
 			if (name) then
 				table.insert(pointsPerSpec, {name, pointsSpent, fileName})
 			end
