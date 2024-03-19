@@ -335,6 +335,26 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
     end
 end
 
+local playerLeftDungeonZoneTimer_Callback = function()
+    if (DetailsMythicPlusFrame.IsDoingMythicDungeon) then
+        local _, _, difficulty, _, _, _, _, currentZoneID = GetInstanceInfo()
+        if (currentZoneID ~= Details.MythicPlus.DungeonID) then
+            Details222.MythicPlus.LogStep("ZONE_CHANGED_NEW_AREA | player has left the dungeon and Details! finished the dungeon because of that.")
+
+            --send mythic dungeon end event
+            Details:SendEvent("COMBAT_MYTHICDUNGEON_END") --on leave dungeon
+
+            --finish the segment
+            DetailsMythicPlusFrame.BossDefeated(true)
+
+            --finish the mythic run
+            DetailsMythicPlusFrame.MythicDungeonFinished(true)
+
+            DetailsMythicPlusFrame.ZoneLeftTimer = nil
+        end
+    end
+end
+
 DetailsMythicPlusFrame:SetScript("OnEvent", function(_, event, ...)
     if (event == "START_TIMER") then
         --DetailsMythicPlusFrame.LastTimer = GetTime()
@@ -358,16 +378,17 @@ DetailsMythicPlusFrame:SetScript("OnEvent", function(_, event, ...)
                     print("Zone changed and the zone is different than the dungeon")
                 end
 
-                Details222.MythicPlus.LogStep("ZONE_CHANGED_NEW_AREA | player has left the dungeon and Details! finished the dungeon because of that.")
+                --player left the dungeon zone, start a timer to check if the player will return to the dungeon
+                if (DetailsMythicPlusFrame.DevelopmentDebug) then
+                    print("Details!", "ZONE_CHANGED_NEW_AREA | player left the dungeon zone, return to dungeon timer started.")
+                end
 
-                --send mythic dungeon end event
-                Details:SendEvent("COMBAT_MYTHICDUNGEON_END") --on leave dungeon
+                --check if the timer already exists, if does, ignore this event
+                if (DetailsMythicPlusFrame.ZoneLeftTimer and not DetailsMythicPlusFrame.ZoneLeftTimer:IsCancelled()) then
+                    return
+                end
 
-                --finish the segment
-                DetailsMythicPlusFrame.BossDefeated(true)
-
-                --finish the mythic run
-                DetailsMythicPlusFrame.MythicDungeonFinished(true)
+                DetailsMythicPlusFrame.ZoneLeftTimer = C_Timer.NewTimer(40, playerLeftDungeonZoneTimer_Callback)
             end
         end
     end
