@@ -4440,6 +4440,7 @@ function Details:SetBarSpecIconSettings(enabled, iconfile, fulltrack)
 			Details.track_specs = true
 			Details:TrackSpecsNow (fulltrack)
 		end
+		self.row_info.no_icon = false
 	else
 		local have_enabled
 		for _, instance in ipairs(Details.tabela_instancias) do
