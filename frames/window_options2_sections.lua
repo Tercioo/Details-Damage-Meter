@@ -1166,14 +1166,14 @@ do
     end
 
     local builtIconList = function()
-		for k,v in ipairs(Details222.iconSetList) do
+		for k,v in ipairs(Details222.BarIconSetList) do
             if v.isSpec then
                 v.onclick = OnSelectIconFileSpec
             else
                 v.onclick = OnSelectIconFile
             end
         end
-        return Details222.iconSetList
+        return Details222.BarIconSetList
     end
 
     local buildSection = function(sectionFrame)

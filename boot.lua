@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12553
-		Details.alpha_build_counter = 12553 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12578
+		Details.alpha_build_counter = 12578 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -119,6 +119,8 @@
 		Details222.AutoRunCode = {}
 		--options panel
 		Details222.OptionsPanel = {}
+		--store bar icons (left side of the damage bar)
+		Details222.BarIconSetList = {}
 		Details222.Instances = {}
 		Details222.Combat = {}
 		Details222.MythicPlus = {
@@ -181,6 +183,14 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 	local news = {
+		{"v10.2.6.12578.156", "March 25th, 2024"},
+		"Added phase and elapsed time for boss wipes on the segment selection menu.",
+		"Added an option to toggle between rounded and squared tooltips.",
+		"Fixed an issue with icons not showing on classic versions of the game.",
+		"Changed Augmentation tooltip color to darkgreen.",
+		"When leaving a m+ dungeon, Details! will wait for the player to re-enter the dungeon before finishing and creating the overall m+ segment.",
+		"Added a function for artists add custom icon sets for class or specs: Details:AddCustomIconSet(path, dropdownOptionName[[[[[, isSpecIcons], icon], texCoords], iconSize], iconColor]) (Flamanis).",
+
 		{"v10.2.5.12550.156", "March 13th, 2024"},
 		"Added a combat selection option into the breakdown window, providing convenience when browsing damage or healing data in that window.",
 		"Added a report button to the breakdown window, allowing you to report spell damage, targets, and phases directly from that window.",

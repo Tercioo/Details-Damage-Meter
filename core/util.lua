@@ -1810,7 +1810,7 @@ end
     local defaultClassIconCoords = {0.25, 0.50, 0, 0.25}
     local defaultSpecIconCoords = {2/512, 32/512, 480/512, 510/512}
 
-    Details222.iconSetList = {
+    Details222.BarIconSetList = {
         {value = [[]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE1"], icon = defaultIconTexture, texcoord = defaultClassIconCoords, iconsize = defaultIconSize, iconcolor = {1, 1, 1, .3}},
         {value = [[Interface\AddOns\Details\images\classes_small]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE2"], icon = defaultIconTexture, texcoord = defaultClassIconCoords, iconsize = defaultIconSize},
         {value = [[Interface\AddOns\Details\images\spec_icons_normal]], label = "Specialization", isSpec = true, icon = [[Interface\AddOns\Details\images\icons]], texcoord = defaultSpecIconCoords, iconsize = defaultIconSize},
@@ -1821,16 +1821,23 @@ end
         {value = [[Interface\AddOns\Details\images\classes]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE5"], icon = defaultIconTexture, texcoord = defaultClassIconCoords, iconsize = defaultIconSize},
     }
 
-    function Details:AddCustomIconSet (path, label, isSpecIcons, icon, texCoords, iconSize, iconColor)
-        table.insert(Details222.iconSetList,
+    function Details:AddCustomIconSet(path, dropdownLabel, isSpecIcons, dropdownIcon, dropdownIconTexCoords, dropdownIconSize, dropdownIconColor)
+		--checking the parameters to improve debug for the icon set author
+		assert(type(self) == "string", "Details:AddCustomIconSet() did you used Details.AddCustomIconSet instead of Details:AddCustomIconSet?")
+		assert(type(path) ~= "string", "Details:AddCustomIconSet() 'path' must be a string.")
+		assert(string.len(path) < 16, "Details:AddCustomIconSet() invalid path.")
+
+        table.insert(Details222.BarIconSetList,
             {
-                value = path or [[]],
-                label = label or 'Missing Label',
+                value = path,
+                label = dropdownLabel or "Missing Label",
                 isSpec = isSpecIcons,
-                icon = icon or defaultIconTexture,
-                texcoord = texCoords or (isSpecIcons and defaultSpecIconCoords or defaultClassIconCoords),
-                iconsize = iconSize or defaultIconSize,
-                iconcolor = iconColor
+                icon = dropdownIcon or defaultIconTexture,
+                texcoord = dropdownIconTexCoords or (isSpecIcons and defaultSpecIconCoords or defaultClassIconCoords),
+                iconsize = dropdownIconSize or defaultIconSize,
+                iconcolor = dropdownIconColor
             }
         )
+
+		return true
     end
