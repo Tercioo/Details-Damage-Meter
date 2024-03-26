@@ -1415,8 +1415,8 @@ elseif (DF.IsWotLKWow()) then
 	}
 	DF.FeastIDs = {}
 	DF.RuneIDs = {}
-
-elseif (DF.IsClassicWow()) then
+--~Cata temp
+elseif (DF.IsClassicWow() or DF.IsCataWow()) then
 	DF.PotionIDs = {}
 	DF.FeastIDs = {}
 	DF.RuneIDs = {}

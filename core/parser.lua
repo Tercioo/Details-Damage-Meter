@@ -28,6 +28,7 @@
 	local _GetSpellInfo = Details.getspellinfo
 	local isWOTLK = detailsFramework.IsWotLKWow()
 	local isERA = detailsFramework.IsClassicWow()
+	local isCATA = detailsFramework.IsCataWow()
 	local _tempo = time()
 	local _, Details222 = ...
 	_ = nil
@@ -593,7 +594,7 @@
 		Details.SpecialSpellActorsName = {}
 
 		--add sanguine affix
-		if (not isWOTLK) then
+		if (not isWOTLK and not isCATA and not isERA) then
 			if (Details.SanguineHealActorName) then
 				Details.SpecialSpellActorsName[Details.SanguineHealActorName] = SPELLID_SANGUINE_HEAL
 			end
@@ -2250,7 +2251,7 @@
 			12/14 21:14:44.545  SPELL_SUMMON,Creature-0-4391-615-3107-15439-00001A8313,"Fire Elemental Totem",0x2112,0x0,Creature-0-4391-615-3107-15438-00001A8313,"Greater Fire Elemental",0x2112,0x0,32982,"Fire Elemental Totem",0x1
 			]]
 
-		if (isWOTLK) then
+		if (isWOTLK or isCATA) then
 			if (npcId == 15439) then
 				Details.tabela_pets:AddPet(petSerial:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags)
 
@@ -2477,7 +2478,7 @@
 			effectiveHeal = effectiveHeal + amount - overHealing
 		end
 
-		if (isWOTLK) then
+		if (isWOTLK or isCATA) then
 			--earth shield
 			if (spellId == SPELLID_SHAMAN_EARTHSHIELD_HEAL) then
 				--get the information of who placed the buff into this actor
@@ -2924,7 +2925,7 @@
 				return parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, sourceSerial, sourceName, sourceFlags, 0x0, spellId, spellName, "BUFF_UPTIME_IN")
 			end
 
-			if (isWOTLK) then
+			if (isWOTLK or isCATA) then
 				if (SHAMAN_EARTHSHIELD_BUFF[spellId]) then
 					TBC_EarthShieldCache[targetName] = {sourceSerial, sourceName, sourceFlags}
 
