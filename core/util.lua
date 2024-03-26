@@ -1823,9 +1823,9 @@ end
 
     function Details:AddCustomIconSet(path, dropdownLabel, isSpecIcons, dropdownIcon, dropdownIconTexCoords, dropdownIconSize, dropdownIconColor)
 		--checking the parameters to improve debug for the icon set author
-		assert(type(self) == "string", "Details:AddCustomIconSet() did you used Details.AddCustomIconSet instead of Details:AddCustomIconSet?")
-		assert(type(path) ~= "string", "Details:AddCustomIconSet() 'path' must be a string.")
-		assert(string.len(path) < 16, "Details:AddCustomIconSet() invalid path.")
+		assert(self == Details, "Details:AddCustomIconSet() did you used Details.AddCustomIconSet instead of Details:AddCustomIconSet?")
+		assert(type(path) == "string", "Details:AddCustomIconSet() 'path' must be a string.")
+		assert(string.len(path) > 16, "Details:AddCustomIconSet() invalid path.")
 
         table.insert(Details222.BarIconSetList,
             {
