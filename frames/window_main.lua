@@ -4806,6 +4806,7 @@ function Details:InstanceRefreshRows(instance)
 	--icons
 	local no_icon = self.row_info.no_icon
 	local start_after_icon = self.row_info.start_after_icon
+	local start_after_icon_offset_x = 2
 	local isDesaturated = self.row_info.icon_grayscale
 	local icon_offset_x, icon_offset_y = unpack(self.row_info.icon_offset)
 	local iconMask = self.row_info.icon_mask
@@ -4879,7 +4880,12 @@ function Details:InstanceRefreshRows(instance)
 				row.icone_classe:Show()
 
 				if (start_after_icon) then
-					row.statusbar:SetPoint("topleft", row.icone_classe, "topright")
+					row.statusbar:ClearAllPoints()
+					row.statusbar:SetPoint("left", row.icone_classe, "right", start_after_icon_offset_x, 0)
+					row.background:ClearAllPoints()
+					row.background:SetAllPoints(row.statusbar)
+					row.overlayTexture:ClearAllPoints()
+					row.overlayTexture:SetAllPoints(row.statusbar)
 				else
 					row.statusbar:SetPoint("topleft", row, "topleft")
 				end
@@ -4918,7 +4924,12 @@ function Details:InstanceRefreshRows(instance)
 				row.icone_classe:Show()
 
 				if (start_after_icon) then
-					row.statusbar:SetPoint("bottomright", row.icone_classe, "bottomleft")
+					row.statusbar:ClearAllPoints()
+					row.statusbar:SetPoint("right", row.icone_classe, "left", -start_after_icon_offset_x, 0)
+					row.background:ClearAllPoints()
+					row.background:SetAllPoints(row.statusbar)
+					row.overlayTexture:ClearAllPoints()
+					row.overlayTexture:SetAllPoints(row.statusbar)
 				else
 					row.statusbar:SetPoint("bottomright", row, "bottomright")
 				end
@@ -5036,6 +5047,8 @@ function Details:InstanceRefreshRows(instance)
 		--backdrop
 		if (lineBorderEnabled) then
 			row.lineBorder:Show()
+			row.lineBorder:ClearAllPoints()
+			row.lineBorder:SetAllPoints(row.statusbar)
 			row.lineBorder:SetVertexColor(unpack(lineBorderColor))
 			row.lineBorder:SetBorderSizes(lineBorderSize, lineBorderSize, lineBorderSize, lineBorderSize)
 			row.lineBorder:UpdateSizes()
