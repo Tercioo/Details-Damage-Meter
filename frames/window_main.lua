@@ -7437,6 +7437,7 @@ function Details:ChangeSkin(skin_name)
 	end
 
 	self:UpdateClickThrough()
+	self:ReajustaGump()
 end
 
 --update the window click through state
