@@ -32,8 +32,6 @@ local modo_all = Details._detalhes_props["MODO_ALL"]
 local atributos = Details.atributos
 local sub_atributos = Details.sub_atributos
 
-local grouped_windows_horizontal_gap = 4
-
 --STARTUP reativa as instancias e regenera as tabelas das mesmas
 	function Details:RestartInstances()
 		return Details:ReativarInstancias()
@@ -1415,7 +1413,7 @@ function Details:BaseFrameSnap()
 		if (instancia_alvo) then
 			if (instancia_alvo.ativa and instancia_alvo.baseframe) then
 				if (lado == 1) then --a esquerda
-					instancia_alvo.baseframe:SetPoint("TOPRIGHT", my_baseframe, "TOPLEFT", -grouped_windows_horizontal_gap, 0)
+					instancia_alvo.baseframe:SetPoint("TOPRIGHT", my_baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
 
 				elseif (lado == 2) then --em baixo
 					local statusbar_y_mod = 0
@@ -1425,7 +1423,7 @@ function Details:BaseFrameSnap()
 					instancia_alvo.baseframe:SetPoint("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
 				elseif (lado == 3) then --a direita
-					instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT", grouped_windows_horizontal_gap, 0)
+					instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
 
 				elseif (lado == 4) then --em cima
 					local statusbar_y_mod = 0
@@ -1468,7 +1466,7 @@ function Details:BaseFrameSnap()
 					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
 
 						if (lado_reverso == 1) then --a esquerda
-							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", grouped_windows_horizontal_gap, 0)
+							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
 
 						elseif (lado_reverso == 2) then --em baixo
 
@@ -1480,7 +1478,7 @@ function Details:BaseFrameSnap()
 							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
 
 						elseif (lado_reverso == 3) then --a direita
-							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -grouped_windows_horizontal_gap, 0)
+							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
 
 						elseif (lado_reverso == 4) then --em cima
 
@@ -1507,7 +1505,7 @@ function Details:BaseFrameSnap()
 
 					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
 						if (lado == 1) then --a esquerda
-							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -grouped_windows_horizontal_gap, 0)
+							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
 
 						elseif (lado == 2) then --em baixo
 							local statusbar_y_mod = 0
@@ -1517,7 +1515,7 @@ function Details:BaseFrameSnap()
 							instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
 						elseif (lado == 3) then --a direita
-							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", grouped_windows_horizontal_gap, 0)
+							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
 
 						elseif (lado == 4) then --em cima
 
@@ -1549,9 +1547,9 @@ function Details:agrupar_janelas(lados)
 
 			if (lado == 3) then --direita
 				--mover frame
-				instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "TOPLEFT", -grouped_windows_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("RIGHT", esta_instancia.baseframe, "LEFT", -grouped_windows_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "BOTTOMLEFT", -grouped_windows_horizontal_gap, 0)
+				instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
+				instancia.baseframe:SetPoint("RIGHT", esta_instancia.baseframe, "LEFT", -Details.grouping_horizontal_gap, 0)
+				instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "BOTTOMLEFT", -Details.grouping_horizontal_gap, 0)
 
 				local _, height = esta_instancia:GetSize()
 				instancia:SetSize(nil, height)
@@ -1582,9 +1580,9 @@ function Details:agrupar_janelas(lados)
 			elseif (lado == 1) then --esquerda
 				--mover frame
 
-				instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT", grouped_windows_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("LEFT", esta_instancia.baseframe, "RIGHT", grouped_windows_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT", grouped_windows_horizontal_gap, 0)
+				instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
+				instancia.baseframe:SetPoint("LEFT", esta_instancia.baseframe, "RIGHT", Details.grouping_horizontal_gap, 0)
+				instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
 
 				local _, height = esta_instancia:GetSize()
 				instancia:SetSize(nil, height)
