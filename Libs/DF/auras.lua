@@ -377,15 +377,28 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			buffNameBlacklistEntry:ClearFocus()
 
 			if (text ~= "") then
-				--get the spellId
-				local spellId = getSpellIDFromSpellName(text)
-				if (not spellId) then
-					DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
-					return
-				end
+				if (text:find(";")) then
+					for _, spellName in ipairs({strsplit(";", text)}) do
+						spellName = strtrim(spellName)
+						local spellId = getSpellIDFromSpellName(spellName)
 
-				--add the spellName to the blacklist
-				newAuraPanel.db.aura_tracker.buff_banned [spellId] = true
+						if (spellId) then
+							newAuraPanel.db.aura_tracker.buff_banned [spellId] = true
+						else
+							DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found: " .. (spellName or ""))
+						end
+					end
+				else
+					--get the spellId
+					local spellId = getSpellIDFromSpellName(text)
+					if (not spellId) then
+						DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
+						return
+					end
+
+					--add the spellName to the blacklist
+					newAuraPanel.db.aura_tracker.buff_banned [spellId] = true
+				end
 
 				--refresh the buff blacklist frame
 				newAuraPanel.buff_ignored:Refresh()
@@ -401,19 +414,36 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			buffNameBlacklistEntry:ClearFocus()
 
 			if (text ~= "") then
-				if (not tonumber(text)) then
-					DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID.")
-				end
+				if (text:find(";")) then
+					for _, spellName in ipairs({strsplit(";", text)}) do
+						spellName = strtrim(spellName)
+						if (not tonumber(spellName)) then
+							DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID: " .. (spellName or ""))
+						end
+						
+						local spellId = getSpellIDFromSpellName(spellName)
 
-				--get the spellId
-				local spellId = getSpellIDFromSpellName(text)
-				if (not spellId) then
-					DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
-					return
-				end
+						if (spellId) then
+							newAuraPanel.db.aura_tracker.buff_banned [spellId] = false
+						else
+							DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found: " .. (spellName or ""))
+						end
+					end
+				else
+					if (not tonumber(text)) then
+						DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID.")
+					end
 
-				--add the spellId to the blacklist
-				newAuraPanel.db.aura_tracker.buff_banned [spellId] = false
+					--get the spellId
+					local spellId = getSpellIDFromSpellName(text)
+					if (not spellId) then
+						DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
+						return
+					end
+
+					--add the spellId to the blacklist
+					newAuraPanel.db.aura_tracker.buff_banned [spellId] = false
+				end
 
 				--refresh the buff blacklist frame
 				newAuraPanel.buff_ignored:Refresh()
@@ -429,15 +459,29 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			debuffNameBlacklistEntry:ClearFocus()
 
 			if (text ~= "") then
-				--get the spellId
-				local spellId = getSpellIDFromSpellName(text)
-				if (not spellId) then
-					DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
-					return
-				end
+				if (text:find(";")) then
+					for _, spellName in ipairs({strsplit(";", text)}) do
+						spellName = strtrim(spellName)
+						local spellId = getSpellIDFromSpellName(spellName)
 
-				--add the spellName to the blacklist
-				newAuraPanel.db.aura_tracker.debuff_banned [spellId] = true
+						if (spellId) then
+							newAuraPanel.db.aura_tracker.debuff_banned [spellId] = true
+						else
+							DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found: " .. (spellName or ""))
+						end
+					end
+				else
+				
+					--get the spellId
+					local spellId = getSpellIDFromSpellName(text)
+					if (not spellId) then
+						DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
+						return
+					end
+
+					--add the spellName to the blacklist
+					newAuraPanel.db.aura_tracker.debuff_banned [spellId] = true
+				end
 
 				--refresh the buff blacklist frame
 				newAuraPanel.debuff_ignored:Refresh()
@@ -452,19 +496,36 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			debuffNameBlacklistEntry:ClearFocus()
 
 			if (text ~= "") then
-				if (not tonumber(text)) then
-					DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID.")
-				end
+				if (text:find(";")) then
+					for _, spellName in ipairs({strsplit(";", text)}) do
+						spellName = strtrim(spellName)
+						if (not tonumber(spellName)) then
+							DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID: " .. (spellName or ""))
+						end
+						
+						local spellId = getSpellIDFromSpellName(spellName)
 
-				--get the spellId
-				local spellId = getSpellIDFromSpellName(text)
-				if (not spellId) then
-					DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
-					return
-				end
+						if (spellId) then
+							newAuraPanel.db.aura_tracker.debuff_banned [spellId] = false
+						else
+							DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found: " .. (spellName or ""))
+						end
+					end
+				else
+					if (not tonumber(text)) then
+						DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID: " .. text)
+					end
 
-				--add the spellId to the blacklist
-				newAuraPanel.db.aura_tracker.debuff_banned [spellId] = false
+					--get the spellId
+					local spellId = getSpellIDFromSpellName(text)
+					if (not spellId) then
+						DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
+						return
+					end
+
+					--add the spellId to the blacklist
+					newAuraPanel.db.aura_tracker.debuff_banned [spellId] = false
+				end
 
 				--refresh the buff blacklist frame
 				newAuraPanel.debuff_ignored:Refresh()
@@ -829,7 +890,7 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			--check for more than one spellname
 			if (text:find(";")) then
 				for _, spellName in ipairs({strsplit(";", text)}) do
-					spellName = self:trim(spellName)
+					spellName = strtrim(spellName)
 					local spellID = getSpellIDFromSpellName(spellName)
 
 					if (spellID) then
@@ -876,7 +937,7 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			--check for more than one spellname
 			if (text:find(";")) then
 				for _, spellName in ipairs({strsplit(";", text)}) do
-					spellName = self:trim(spellName)
+					spellName = strtrim(spellName)
 					local spellID = getSpellIDFromSpellName(spellName)
 
 					if (spellID) then
