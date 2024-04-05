@@ -2488,7 +2488,7 @@ Details.specToRole = {
 }
 
 --oldschool talent tree
-if (DetailsFramework.IsWotLKWow()) then
+if (DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow()) then
 	local talentWatchClassic = CreateFrame("frame")
 	talentWatchClassic:RegisterEvent("CHARACTER_POINTS_CHANGED")
 	talentWatchClassic:RegisterEvent("SPELLS_CHANGED")
@@ -2526,7 +2526,12 @@ if (DetailsFramework.IsWotLKWow()) then
 		for i = 1, (MAX_TALENT_TABS or 3) do
 			if (i <= numTabs) then
 				--tab information
-				local name, iconTexture, pointsSpent, fileName = GetTalentTabInfo (i)
+				local id, name, description, iconTexture, pointsSpent, fileName
+				if DetailsFramework.IsCataWow() then
+					id, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+				else
+					name, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+				end
 				if (name) then
 					tinsert(pointsPerSpec, {name, pointsSpent, fileName})
 				end

@@ -533,8 +533,8 @@ do
 
 
 		}
-
-	elseif (DetailsFramework.IsWotLKWow()) then
+	--~Cata temp
+	elseif (DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow()) then
 		_detalhes.SpecSpellList = { --~spec
 
 			-- Balance Druid:
