@@ -125,8 +125,14 @@ do
 
 		if (itemIcon and itemName) then
 			--limit the amount of characters of the item name
-			if (#itemName > 20) then
-				itemName = string.sub(itemName, 1, 20)
+			if (GetLocale() == "zhCN" or GetLocale() == "zhTW" or GetLocale() == "koKR") then
+				if (#itemName > 56) then
+					itemName = string.sub(itemName, 1, 56)
+				end
+			else
+				if (#itemName > 20) then
+					itemName = string.sub(itemName, 1, 20)
+				end
 			end
 			result = "" .. CreateTextureMarkup(itemIcon, iconSize, iconSize, iconSize, iconSize, unpack(coords)) .. " " .. itemName .. ""
 		end
