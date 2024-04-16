@@ -862,8 +862,9 @@ do
 			[605] = {cooldown = 0,		class = "PRIEST"}, --Mind Control
 			[8122] = {cooldown = 45,	class = "PRIEST"}, --Psychic Scream
 			[200200] = {cooldown = 60,	class = "PRIEST"}, --Holy Word: Chastise
-			[9484] = {cooldown = 0,		class = "PRIEST"}, --Shackle Undead
 			[200196] = {cooldown = 60,	class = "PRIEST"}, --Holy Word: Chastise
+			[9484] = {cooldown = 0,		class = "PRIEST"}, --Shackle Undead
+			[114404] = {cooldown = 20,	class = "PRIEST"}, --Void Tendril's Grasp
 			[6770] = {cooldown = 0,		class = "ROGUE"}, --Sap
 			[2094] = {cooldown = 120,	class = "ROGUE"}, --Blind
 			[1766] = {cooldown = 15,	class = "ROGUE"}, --Kick
