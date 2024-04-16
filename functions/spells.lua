@@ -1238,9 +1238,6 @@ do
 		[321739]        =       62,     --      Arcane Power
 		[343208]        =       62,     --      Arcane Power
 		[235711]        =       62,     --      Chrono Shift
-		[16870] =       62,     --      Clearcasting
-		[321420]        =       62,     --      Clearcasting
-		[321758]        =       62,     --      Clearcasting
 		[321387]        =       62,     --      Enlightened
 		[12051] =       62,     --      Evocation
 		[231565]        =       62,     --      Evocation
