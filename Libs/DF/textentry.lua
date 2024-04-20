@@ -460,7 +460,7 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 		end
 
 		self:SetJustifyH("left")
-		self:SetJustifyV("center")
+		self:SetJustifyV("middle")
 		self:SetTextInsets(18, 14, 0, 0)
 
 		local magnifyingGlassTexture = self:CreateTexture(nil, "OVERLAY")
