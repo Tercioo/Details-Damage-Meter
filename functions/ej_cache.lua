@@ -158,7 +158,10 @@ function Details222.EJCache.CreateEncounterJournalDump()
             --use current tier for dungeons, as the current tier shows the dungeons used for the current season of Mythic+
             local startIndex, endIndex
             if (bIsRaid) then
-                if currentTierId == 1 then break end --Cata has only one tier. Looking up tier 0 errors. ~CATA
+
+                if (detailsFramework.IsCataWow()) then
+                    if currentTierId == 1 then break end --Cata has only one tier. Looking up tier 0 errors. ~CATA
+                end
                 EJ_SelectTier(currentTierId - 1) --print("tier selected:", currentTierId - 1, "raids") --debug
                 startIndex = raidTierStartIndex
                 endIndex = 20
