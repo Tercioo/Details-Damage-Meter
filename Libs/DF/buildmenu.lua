@@ -107,7 +107,7 @@ local onWidgetSetInUse = function(widget, widgetTable)
     if (widgetTable.disabled) then
         widget:Disable()
     else
-        if (not widget:IsEnabled()) then
+        if (widget.IsEnabled and not widget:IsEnabled()) then
             widget:Enable()
         end
     end
