@@ -64,6 +64,55 @@ local _
 --which object attributes are used to build the editor menu for each object type
 local attributes = {
     ---@type df_editor_attribute[]
+    Texture = {
+        {
+            key = "texture",
+            label = "Texture",
+            widget = "textentry",
+            default = "",
+            setter = function(widget, value) widget:SetTexture(value) end,
+        },
+        {
+            key = "width",
+            label = "Width",
+            widget = "range",
+            minvalue = 5,
+            maxvalue = 120,
+            setter = function(widget, value) widget:SetWidth(value) end
+        },
+        {
+            key = "height",
+            label = "Height",
+            widget = "range",
+            minvalue = 5,
+            maxvalue = 120,
+            setter = function(widget, value) widget:SetHeight(value) end
+        },
+        {widget = "blank"},
+        {
+            key = "anchor",
+            label = "Anchor",
+            widget = "anchordropdown",
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+        },
+        {
+            key = "anchoroffsetx",
+            label = "Anchor X Offset",
+            widget = "range",
+            minvalue = -20,
+            maxvalue = 20,
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+        },
+        {
+            key = "anchoroffsety",
+            label = "Anchor Y Offset",
+            widget = "range",
+            minvalue = -20,
+            maxvalue = 20,
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+        },
+    },
+
     FontString = {
         {
             key = "text",
@@ -147,16 +196,16 @@ local attributes = {
             key = "anchoroffsetx",
             label = "Anchor X Offset",
             widget = "range",
-            minvalue = -100,
-            maxvalue = 100,
+            minvalue = -20,
+            maxvalue = 20,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
         },
         {
             key = "anchoroffsety",
             label = "Anchor Y Offset",
             widget = "range",
-            minvalue = -100,
-            maxvalue = 100,
+            minvalue = -20,
+            maxvalue = 20,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
         },
         {
@@ -291,6 +340,7 @@ detailsFramework.EditorMixin = {
         local objectRegistered = self:GetObjectById(id)
         assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
         self:EditObject(objectRegistered)
+        self.objectSelector:RefreshMe()
     end,
 
     EditObjectByIndex = function(self, index)
@@ -298,6 +348,7 @@ detailsFramework.EditorMixin = {
         local objectRegistered = self:GetObjectByIndex(index)
         assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
         self:EditObject(objectRegistered)
+        self.objectSelector:RefreshMe()
     end,
 
     ---@param self df_editor
@@ -389,6 +440,8 @@ detailsFramework.EditorMixin = {
         local profileTable, profileMap = self:GetEditingProfile()
         profileMap = profileMap or {}
 
+        local conditionalKeys = profileMap.enable_if or {}
+
         if (not object or not profileTable) then
             return
         end
@@ -404,6 +457,10 @@ detailsFramework.EditorMixin = {
         --get the attribute list for the object type
         if (objectType == "FontString") then
             ---@cast object fontstring
+            attributeList = attributes[objectType]
+
+        elseif (objectType == "Texture") then
+            ---@cast object texture
             attributeList = attributes[objectType]
         end
 
@@ -445,6 +502,8 @@ detailsFramework.EditorMixin = {
                     value = profileTable[profileKey]
                 end
 
+                --print(value, profileKey, profileTable, option.key)
+
                 --if no value is found, attempt to get a default
                 if (type(value) == "nil") then
                     value = option.default
@@ -456,11 +515,11 @@ detailsFramework.EditorMixin = {
                 local maxValue = option.maxvalue
 
                 if (option.key == "anchoroffsetx") then
-                    minValue = -object:GetParent():GetWidth()/2
-                    maxValue = object:GetParent():GetWidth()/2
+                    minValue = -math.floor(object:GetParent():GetWidth()/10)
+                    maxValue = math.floor(object:GetParent():GetWidth()/10)
                 elseif (option.key == "anchoroffsety") then
-                    minValue = -object:GetParent():GetHeight()/2
-                    maxValue = object:GetParent():GetHeight()/2
+                    minValue = -math.floor(object:GetParent():GetHeight()/10)
+                    maxValue = math.floor(object:GetParent():GetHeight()/10)
                 end
 
                 if (bHasValue) then
@@ -470,7 +529,7 @@ detailsFramework.EditorMixin = {
                         anchorSettings = parentTable
                     end
 
-                    menuOptions[#menuOptions+1] = {
+                    local optionTable = {
                         type = option.widget,
                         name = option.label,
                         get = function() return value end,
@@ -526,6 +585,16 @@ detailsFramework.EditorMixin = {
                         usedecimals = option.usedecimals,
                         id = option.key,
                     }
+
+                    --disabled = true
+                    if (conditionalKeys[option.key]) then
+                        local bIsEnabled = conditionalKeys[option.key](object, profileTable, profileKey)
+                        if (not bIsEnabled) then
+                            optionTable.disabled = true
+                        end
+                    end
+
+                    menuOptions[#menuOptions+1] = optionTable
                 end
             end
         end

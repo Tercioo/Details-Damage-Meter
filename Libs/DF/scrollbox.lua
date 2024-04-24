@@ -6,7 +6,7 @@ if (not detailsFramework or not DetailsFrameworkCanLoad) then
 end
 
 local CreateFrame = CreateFrame
-local GetSpellInfo = GetSpellInfo
+local GetSpellInfo = GetSpellInfo or function(spellID) if not spellID then return nil end local si = C_Spell.GetSpellInfo(spellID) if si then return si.name, nil, si.iconID, si.castTime, si.minRange, si.maxRange, si.spellID, si.originalIconID end end
 local GameTooltip = GameTooltip
 local unpack = unpack
 
@@ -143,6 +143,7 @@ detailsFramework.ScrollBoxFunctions = {
 	---@param data table The data to be set.
 	SetData = function(self, data)
 		self.data = data
+		self.data_original = data
 		if (self.OnSetData) then
 			detailsFramework:CoreDispatch((self:GetName() or "ScrollBox") .. ":OnSetData()", self.OnSetData, self, self.data)
 		end
@@ -362,6 +363,7 @@ local grid_scrollbox_options = {
 }
 
 ---@class df_gridscrollbox : df_scrollbox
+---@field RefreshMe fun(self:df_gridscrollbox)
 
 ---create a scrollbox with a grid layout
 ---@param parent frame
@@ -410,6 +412,7 @@ function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, c
     end
 
     local onSetData = function(self, data)
+		self.data_original = data
         local newData = {}
 
         for i = 1, #data, columnsPerLine do
@@ -464,6 +467,11 @@ function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, c
 	return scrollBox
 end
 
+---@class df_gridscrollbox_menu : df_gridscrollbox
+---@field data_original table the data passed into :SetData()
+---@field searchBox df_searchbox
+---@field Select fun(self:df_gridscrollbox_menu, value:any, key:string) --select a line by a value on a key, example: :Select("Power Infusion", "spellName")
+
 ---create a scrollbox with a grid layout to be used as a menu
 ---@param parent frame
 ---@param name string?
@@ -472,7 +480,7 @@ end
 ---@param clickFunc fun(button:button, data:table)
 ---@param onCreateButton fun(button:button, lineIndex:number, columnIndex:number)
 ---@param gridScrollBoxOptions df_gridscrollbox_options
----@return df_gridscrollbox
+---@return df_gridscrollbox_menu
 function detailsFramework:CreateMenuWithGridScrollBox(parent, name, refreshMeFunc, refreshButtonFunc, clickFunc, onCreateButton, gridScrollBoxOptions)
 	local dataSelected = nil
 	local gridScrollBox
@@ -528,6 +536,8 @@ function detailsFramework:CreateMenuWithGridScrollBox(parent, name, refreshMeFun
         detailsFramework:AddRoundedCornersToFrame(button.widget, gridScrollBoxOptions.roundedFramePreset)
         button.textsize = 11
 
+		line.button = button
+
         button:SetHook("OnEnter", function(self)
             local dfButton = self:GetObject()
             GameCooltip:Reset()
@@ -555,6 +565,8 @@ function detailsFramework:CreateMenuWithGridScrollBox(parent, name, refreshMeFun
     end
 
     gridScrollBox = detailsFramework:CreateGridScrollBox(parent, name, refreshLine, {}, createButton, gridScrollBoxOptions)
+	---@cast gridScrollBox df_gridscrollbox_menu
+
     gridScrollBox:SetBackdrop({})
     gridScrollBox:SetBackdropColor(0, 0, 0, 0)
     gridScrollBox:SetBackdropBorderColor(0, 0, 0, 0)
@@ -562,9 +574,44 @@ function detailsFramework:CreateMenuWithGridScrollBox(parent, name, refreshMeFun
     gridScrollBox:Show()
 
 	gridScrollBox.searchBox = searchBox
-
 	searchBox:SetPoint("bottomleft", gridScrollBox, "topleft", 0, 2)
 	searchBox:SetWidth(gridScrollBoxOptions.width)
+
+	function gridScrollBox:Select(value, key)
+		local bFoundResult = false
+		local originalData
+
+		for _, data in ipairs(gridScrollBox.data_original) do
+			originalData = data
+
+			if (type(value) == string) then
+				value = value:lower()
+				local dataValue = data[key]:lower()
+				if (dataValue == value) then
+					dataSelected = originalData
+					bFoundResult = true
+					break
+				end
+			else
+				if (data[key] == value) then
+					dataSelected = originalData
+					bFoundResult = true
+					break
+				end
+			end
+		end
+
+		if (bFoundResult) then
+			for _, line in ipairs(gridScrollBox:GetFrames()) do
+				local button = line.button
+				if (button.data == originalData) then
+					gridScrollBox:Refresh()
+					onClickButtonSelectorButton(nil, nil, button, originalData)
+					break
+				end
+			end
+		end
+	end
 
 	function gridScrollBox:RefreshMe()
 		xpcall(refreshMeFunc, geterrorhandler(), gridScrollBox, searchBox:GetText())
@@ -613,7 +660,8 @@ local auraScrollDefaultSettings = {
 ---@param data table? --can be set later with :SetData()
 ---@param onAuraRemoveCallback function?
 ---@param options df_aurascrollbox_options?
-function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCallback, options)
+---@param onSetupAuraClick function?
+function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCallback, options, onSetupAuraClick)
     --hack the construction of the options table here, as the scrollbox is created much later
     options = options or {}
     local scrollOptions = {}
@@ -663,6 +711,11 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
             GameTooltip:AddLine(" ")
             GameTooltip:Show()
         end
+
+		if (line.setupbutton:IsShown()) then
+			
+		end
+
         line:SetBackdropColor(unpack(options.backdrop_onenter))
 
 		local bTrackByName = line.Flag --the user entered the spell name to track the spell (and not a spellId)
@@ -748,12 +801,42 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
         removeButton:SetPoint("topright", line, "topright", 0, 0)
         removeButton:GetNormalTexture():SetDesaturated(true)
 
+		local setupAuraButton = CreateFrame("button", "$parentSetupButton", line)
+		setupAuraButton:SetSize(16, 16)
+		setupAuraButton:SetPoint("right", removeButton, "left", -4, 0)
+		setupAuraButton:SetScript("OnClick", onSetupAuraClick)
+
+		line:SetScript("OnMouseUp", function(self, button)
+			if (onSetupAuraClick) then
+				setupAuraButton:Click()
+			end
+		end)
+
+		local clickToSetupText = setupAuraButton:CreateFontString("$parentText", "overlay", "GameFontNormal")
+		clickToSetupText:SetText("click to setup")
+		clickToSetupText:SetPoint("right", setupAuraButton, "left", -2, 0)
+		detailsFramework:SetFontSize(clickToSetupText, 9)
+
+		local setupAuraTexture = setupAuraButton:CreateTexture(nil, "overlay")
+		setupAuraTexture:SetAllPoints()
+		setupAuraTexture:SetTexture([[Interface\ICONS\INV_Misc_Wrench_01.blp]])
+		setupAuraTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+		setupAuraButton.Texture = setupAuraTexture
+		setupAuraButton.Text = clickToSetupText
+
+		if (not onSetupAuraClick) then
+			setupAuraButton:Hide()
+		end
+
         iconTexture:SetPoint("left", line, "left", 2, 0)
         spellNameFontString:SetPoint("left", iconTexture, "right", 3, 0)
 
         line.icon = iconTexture
         line.name = spellNameFontString
         line.removebutton = removeButton
+		line.setupbutton = setupAuraButton
+		line.clicktosetuptext = clickToSetupText
 
         return line
     end

@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12580
-		Details.alpha_build_counter = 12580 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12650
+		Details.alpha_build_counter = 12650 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -183,6 +183,12 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 	local news = {
+		{"v10.2.6.12650.156", "April 23th, 2024"},
+		"Framework and Backend upgrades.",
+		"Added prist's void tendrils to crowd control list.",
+		"Fixes for asian clients where the spell names were not showing properly when the spell name is too long.",
+		"Cataclysm Clasic and MOP Remix are now working.",
+
 		{"v10.2.6.12578.156", "March 25th, 2024"},
 		"Added phase and elapsed time for boss wipes on the segment selection menu.",
 		"Added an option to toggle between rounded and squared tooltips.",

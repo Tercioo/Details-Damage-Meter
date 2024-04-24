@@ -438,7 +438,8 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 
 	local OnTabPressed = function(textentry)
 		local capsule = textentry.MyObject
-		local kill = capsule:RunHooksForWidget("OnTabPressed", textentry, byUser, capsule)
+		local bByUser = false
+		local kill = capsule:RunHooksForWidget("OnTabPressed", textentry, bByUser, capsule)
 		if (kill) then
 			return
 		end
@@ -583,6 +584,7 @@ end
 ---@param labelTemplate table?
 ---@return df_textentry
 function detailsFramework:CreateTextEntry(parent, textChangedCallback, width, height, member, name, labelText, textentryTemplate, labelTemplate)
+---@diagnostic disable-next-line: return-type-mismatch
 	return detailsFramework:NewTextEntry(parent, parent, name, member, width, height, textChangedCallback, nil, nil, nil, labelText, textentryTemplate, labelTemplate)
 end
 
@@ -726,16 +728,26 @@ function detailsFramework:NewTextEntry(parent, container, name, member, width, h
 	return newTextEntryObject, withLabel
 end
 
+---@class df_searchbox : df_textentry
+---@field ClearSearchButton button
+---@field MagnifyingGlassTexture texture
+---@field SearchFontString fontstring
+---@field BottomLineTexture texture
+---@field PressEnter fun(self:df_searchbox)
+---@field ClearFocus fun(self:df_searchbox)
+
 ---create a search box with no backdrop, a magnifying glass icon and a clear search button
 ---@param parent frame
 ---@param callback any
----@return df_textentry
+---@return df_searchbox
 function detailsFramework:CreateSearchBox(parent, callback)
     local onSearchPressEnterCallback = function(_, _, text, self)
         callback(self)
     end
 
     local searchBox = detailsFramework:CreateTextEntry(parent, onSearchPressEnterCallback, 220, 26)
+	---@cast searchBox df_searchbox
+
     searchBox:SetAsSearchBox()
     searchBox:SetTextInsets(25, 5, 0, 0)
     searchBox:SetBackdrop(nil)

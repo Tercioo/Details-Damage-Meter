@@ -39,7 +39,14 @@ DF.Math = {}
 ---@field GetObjectCoordinates fun(object: uiobject) : objectcoordinates return the coordinates of the four corners of an object
 ---@field MultiplyBy fun(value: number, ...) : ... multiply all the passed values by value.
 ---@field MapRangeColor fun(inputX: number, inputY: number, outputX: number, outputY: number, red: number, green: number, blue: number) : number, number, number
+---@field RandomFraction fun(minValue: number, maxValue: number) : number
 
+---return a random fraction between two values, example: RandomFraction(.2, .3) returns a number between .2 and .3, 0.25, 0.28, 0.21, etc
+function DF.Math.RandomFraction(minValue, maxValue)
+    minValue = minValue or 0
+    maxValue = maxValue or 1
+    return DF.Math.MapRangeClamped(0, 1, minValue, maxValue, math.random())
+end
 
 ---find distance between two units
 ---@param unitId1 string

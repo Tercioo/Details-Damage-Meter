@@ -9,9 +9,13 @@ local detailsFramework = DF
 
 local _
 local tinsert = table.insert
-local GetSpellInfo = GetSpellInfo
+local GetSpellInfo = GetSpellInfo or function(spellID) if not spellID then return nil end local si = C_Spell.GetSpellInfo(spellID) if si then return si.name, nil, si.iconID, si.castTime, si.minRange, si.maxRange, si.spellID, si.originalIconID end end
 local lower = string.lower
-local GetSpellBookItemInfo = GetSpellBookItemInfo
+local SpellBookItemTypeMap = Enum.SpellBookItemType and {[Enum.SpellBookItemType.Spell] = "SPELL", [Enum.SpellBookItemType.None] = "NONE", [Enum.SpellBookItemType.Flyout] = "FLYOUT", [Enum.SpellBookItemType.FutureSpell] = "FUTURESPELL", [Enum.SpellBookItemType.PetAction] = "PETACTION" } or {}
+local GetSpellBookItemInfo = GetSpellBookItemInfo or function(...) local si = C_SpellBook.GetSpellBookItemInfo(...) if si then return SpellBookItemTypeMap[si.itemType] or "NONE", si.spellID end end
+local SPELLBOOK_BANK_PLAYER = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
+local GetNumSpellTabs = GetNumSpellTabs or C_SpellBook.GetNumSpellBookSkillLines
+local GetSpellTabInfo = GetSpellTabInfo or function(tabLine) local skillLine = C_SpellBook.GetSpellBookSkillLineInfo(tabLine) if skillLine then return skillLine.name, skillLine.iconID, skillLine.itemIndexOffset, skillLine.numSpellBookItems, skillLine.isGuild, skillLine.offSpecID end end
 local unpack = unpack
 local CreateFrame = CreateFrame
 local GameTooltip = GameTooltip
@@ -1042,15 +1046,17 @@ end
 
 function DF:GetAllPlayerSpells(include_lower_case)
 	local playerSpells = {}
-	local tab, tabTex, offset, numSpells = GetSpellTabInfo(2)
-	for i = 1, numSpells do
-		local index = offset + i
-		local spellType, spellId = GetSpellBookItemInfo(index, "player")
-		if (spellType == "SPELL") then
-			local spellName = GetSpellInfo(spellId)
-			tinsert(playerSpells, spellName)
-			if (include_lower_case) then
-				tinsert(playerSpells, lower(spellName))
+	for i = 1, GetNumSpellTabs() do
+		local _, _, offset, numSpells = GetSpellTabInfo(i)
+		for i = 1, numSpells do
+			local index = offset + i
+			local spellType, spellId = GetSpellBookItemInfo(index, SPELLBOOK_BANK_PLAYER)
+			if (spellType == "SPELL") then
+				local spellName = GetSpellInfo(spellId)
+				tinsert(playerSpells, spellName)
+				if (include_lower_case) then
+					tinsert(playerSpells, lower(spellName))
+				end
 			end
 		end
 	end

@@ -15,6 +15,10 @@ local wipe = table.wipe
 local insert = table.insert
 local max = math.max
 
+local GetSpellInfo = GetSpellInfo or function(spellID) if not spellID then return nil end local si = C_Spell.GetSpellInfo(spellID) if si then return si.name, nil, si.iconID, si.castTime, si.minRange, si.maxRange, si.spellID, si.originalIconID end end
+local SPELLBOOK_BANK_PLAYER = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
+local IsPassiveSpell = IsPassiveSpell or C_Spell.IsSpellPassive
+
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
 local version = 24
@@ -1945,7 +1949,7 @@ function DF:CreateCoolTip()
 				local spellDescription = GetSpellDescription(spellId)
 				local cooldownTime, globalCooldown = GetSpellBaseCooldown(spellId)
 				--local cooldown = cooldownTime / 1000
-				local bIsPassive = IsPassiveSpell(spellId, "player")
+				local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
 				local chargesAvailable, maxCharges, chargeCooldownStart, rechargeTime, chargeModRate = GetSpellCharges(spellId)
 
 				local tResourceCost = GetSpellPowerCost(spellId)

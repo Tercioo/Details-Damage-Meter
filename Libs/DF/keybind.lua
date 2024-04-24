@@ -26,7 +26,7 @@ local IsShiftKeyDown = _G["IsShiftKeyDown"]
 local IsControlKeyDown = _G["IsControlKeyDown"]
 local IsAltKeyDown = _G["IsAltKeyDown"]
 local CreateFrame = _G["CreateFrame"]
-local GetSpellInfo = _G["GetSpellInfo"]
+local GetSpellInfo = _G["GetSpellInfo"] or function(spellID) if not spellID then return nil end local si = C_Spell.GetSpellInfo(spellID) if si then return si.name, nil, si.iconID, si.castTime, si.minRange, si.maxRange, si.spellID, si.originalIconID end end
 local unpack = unpack ---@diagnostic disable-line
 
 ---@alias actionidentifier string a string in the format of "spell-spellId" or "macro-macroName" or "system-target", etc, used to pass information about the action more easily
@@ -940,6 +940,10 @@ detailsFramework.KeybindMixin = {
 		self.Header = DetailsFramework:CreateHeader(self, headerTable, headerOptions)
 		self.Header:SetPoint("topleft", self, "topleft", 0, 0)
 
+		--this is a hack to hide the background black texture column of the header
+		--making the area more clean for the create macro button
+		self.Header.columnHeadersCreated[2].Center:SetAlpha(0)
+
 		local onClickCreateMacroButton = function() --~macro
 			local newMacroName = "New @Macro (" .. math.random(10000, 99999) .. ")"
 			local actionIdentifier = "macro-" .. newMacroName
@@ -970,10 +974,13 @@ detailsFramework.KeybindMixin = {
 			macroEditBox:SetFocus()
 		end
 
-		local createMacroButton = detailsFramework:CreateButton(self.Header, onClickCreateMacroButton, 100, 20, "Create Macro Keybind", nil, nil, nil, "CreateMacroButton", "$parentCreateMacroButton", 0, DARK_BUTTON_TEMPLATE, detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
-		createMacroButton:SetPoint("left", self.Header, "left", 0, 0)
+		local createMacroButton = detailsFramework:CreateButton(self.Header, onClickCreateMacroButton, 200, 32, "Create Macro Keybind", nil, nil, nil, "CreateMacroButton", "$parentCreateMacroButton", 0, DARK_BUTTON_TEMPLATE, detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
+		createMacroButton:SetPoint("left", self.Header, "left", 2, 0)
 		createMacroButton:SetFrameLevel(self.Header:GetFrameLevel()+10)
 		createMacroButton:SetIcon(136377)
+		createMacroButton:SetTemplate("OPTIONS_CIRCLEBUTTON_TEMPLATE")
+		createMacroButton:SetScale(0.9)
+		createMacroButton:SetFontSize(13)
 
 		local keybindScroll = detailsFramework:CreateScrollBox(self, "$parentScrollBox", detailsFramework.KeybindMixin.RefreshKeybindScroll, {}, scroll_width, scroll_height, scroll_lines, scroll_line_height)
 		---@cast keybindScroll df_keybindscroll
