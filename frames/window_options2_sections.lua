@@ -4796,7 +4796,7 @@ do
             }
 
         --create preview
-            local previewX, previewY = 460, -60
+            local previewX, previewY = 460, startY-20
 
             local preview = sectionFrame:CreateTexture(nil, "overlay")
             preview:SetDrawLayer("artwork", 3)
