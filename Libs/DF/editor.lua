@@ -29,13 +29,15 @@ local _
 ---@field editingProfileTable table
 ---@field editingProfileMap table
 ---@field editingOptions df_editobjectoptions
+---@field currentObjectNinePoints df_ninepoints
 ---@field editingExtraOptions table
+---@field registeredObjectInfo df_editor_objectinfo
 ---@field moverGuideLines table<string, texture>
 ---@field onEditCallback function
 ---@field optionsFrame frame
 ---@field overTheTopFrame frame
 ---@field objectSelector df_scrollbox
----@field moverFrame frame
+---@field moverFrames df_editor_mover[]
 ---@field canvasScrollBox df_canvasscrollbox
 
 ---@class df_editor_attribute
@@ -60,6 +62,19 @@ local _
 ---@field callback function?
 ---@field options df_editobjectoptions
 ---@field selectButton button
+---@field refFrame frame
+
+---@class df_editor_mover_movinginfo : table
+---@field startX number
+---@field startY number
+---@field restingX number
+---@field restingY number
+
+---@class df_editor_mover : frame
+---@field MovingInfo df_editor_mover_movinginfo
+---@field ObjectBackgroundTexture texture
+---@field MoverIcon texture
+---@field bIsMoving boolean
 
 --which object attributes are used to build the editor menu for each object type
 local attributes = {
@@ -99,16 +114,16 @@ local attributes = {
             key = "anchoroffsetx",
             label = "Anchor X Offset",
             widget = "range",
-            minvalue = -20,
-            maxvalue = 20,
+            minvalue = -120,
+            maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
         },
         {
             key = "anchoroffsety",
             label = "Anchor Y Offset",
             widget = "range",
-            minvalue = -20,
-            maxvalue = 20,
+            minvalue = -120,
+            maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
         },
     },
@@ -196,16 +211,16 @@ local attributes = {
             key = "anchoroffsetx",
             label = "Anchor X Offset",
             widget = "range",
-            minvalue = -20,
-            maxvalue = 20,
+            minvalue = -120,
+            maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
         },
         {
             key = "anchoroffsety",
             label = "Anchor Y Offset",
             widget = "range",
-            minvalue = -20,
-            maxvalue = 20,
+            minvalue = -120,
+            maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
         },
         {
@@ -232,21 +247,23 @@ local attributes = {
 ---@class df_editormixin : table
 ---@field GetAllRegisteredObjects fun(self:df_editor):df_editor_objectinfo[]
 ---@field GetEditingObject fun(self:df_editor):uiobject
+---@field GetEditingObjectIndex fun(self:df_editor):number?
 ---@field GetEditingOptions fun(self:df_editor):df_editobjectoptions
 ---@field GetExtraOptions fun(self:df_editor):table
 ---@field GetEditingProfile fun(self:df_editor):table, table
 ---@field GetOnEditCallback fun(self:df_editor):function
----@field GetOptionsFrame fun(self:df_editor):frame
+---@field GetOptionsFrame fun(self:df_editor):df_menu
 ---@field GetCanvasScrollBox fun(self:df_editor):df_canvasscrollbox
 ---@field GetObjectSelector fun(self:df_editor):df_scrollbox
 ---@field EditObject fun(self:df_editor, object:uiobject, profileTable:table?, profileKeyMap:table?, extraOptions:table?, callback:function?, options:df_editobjectoptions?)
 ---@field PrepareObjectForEditing fun(self:df_editor)
 ---@field CreateMoverGuideLines fun(self:df_editor)
 ---@field GetOverTheTopFrame fun(self:df_editor):frame
----@field GetMoverFrame fun(self:df_editor):frame
+---@field CreateMoverFrames fun(self:df_editor):df_editor_mover[]
+---@field GetMoverFrames fun(self:df_editor):df_editor_move
 ---@field StartObjectMovement fun(self:df_editor, anchorSettings:df_anchor)
 ---@field StopObjectMovement fun(self:df_editor)
----@field RegisterObject fun(self:df_editor, object:uiobject, localizedLabel:string, id:any, profileTable:table, subTablePath:string, profileKeyMap:table, extraOptions:table?, callback:function?, options:df_editobjectoptions?):df_editor_objectinfo
+---@field RegisterObject fun(self:df_editor, object:uiobject, localizedLabel:string, id:any, profileTable:table, subTablePath:string, profileKeyMap:table, extraOptions:table?, callback:function?, options:df_editobjectoptions?, refFrame:frame):df_editor_objectinfo
 ---@field UnregisterObject fun(self:df_editor, object:uiobject)
 ---@field EditObjectById fun(self:df_editor, id:any)
 ---@field EditObjectByIndex fun(self:df_editor, index:number)
@@ -254,8 +271,10 @@ local attributes = {
 ---@field GetObjectByRef fun(self:df_editor, object:uiobject):df_editor_objectinfo
 ---@field GetObjectByIndex fun(self:df_editor, index:number):df_editor_objectinfo
 ---@field GetObjectById fun(self:df_editor, id:any):df_editor_objectinfo
+---@field GetEditingRegisteredObject fun(self:df_editor):df_editor_objectinfo
 ---@field CreateObjectSelectionList fun(self:df_editor, scroll_width:number, scroll_height:number, scroll_lines:number, scroll_line_height:number):df_scrollbox
 ---@field OnHide fun(self:df_editor)
+---@field OnShow fun(self:df_editor)
 ---@field UpdateProfileTableOnAllRegisteredObjects fun(self:df_editor, profileTable:table)
 ---@field GetProfileTableFromObject fun(self:df_editor, object:df_editor_objectinfo):table
 
@@ -273,6 +292,7 @@ local editObjectDefaultOptions = {
     text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"),
 }
 
+
 local getParentTable = function(profileTable, profileKey)
     local parentPath
     if (profileKey:match("%]$")) then
@@ -289,6 +309,18 @@ detailsFramework.EditorMixin = {
     ---@param self df_editor
     GetEditingObject = function(self)
         return self.editingObject
+    end,
+
+    ---@param self df_editor
+    GetEditingObjectIndex = function(self)
+        local object = self:GetEditingObject()
+        local registeredObjects = self:GetAllRegisteredObjects()
+        for i = 1, #registeredObjects do
+            local objectRegistered = registeredObjects[i]
+            if (objectRegistered.object == object) then
+                return i
+            end
+        end
     end,
 
     ---@param self df_editor
@@ -323,8 +355,8 @@ detailsFramework.EditorMixin = {
         return self.overTheTopFrame
     end,
 
-    GetMoverFrame = function(self)
-        return self.moverFrame
+    GetMoverFrames = function(self)
+        return self.moverFrames
     end,
 
     GetCanvasScrollBox = function(self)
@@ -335,60 +367,9 @@ detailsFramework.EditorMixin = {
         return self.objectSelector
     end,
 
-    EditObjectById = function(self, id)
-        ---@type df_editor_objectinfo
-        local objectRegistered = self:GetObjectById(id)
-        assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
-        self:EditObject(objectRegistered)
-        self.objectSelector:RefreshMe()
-    end,
-
-    EditObjectByIndex = function(self, index)
-        ---@type df_editor_objectinfo
-        local objectRegistered = self:GetObjectByIndex(index)
-        assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
-        self:EditObject(objectRegistered)
-        self.objectSelector:RefreshMe()
-    end,
-
-    ---@param self df_editor
-    ---@param registeredObject df_editor_objectinfo
-    EditObject = function(self, registeredObject)
-        --clear previous values
-        self.editingObject = nil
-        self.editingProfileMap = nil
-        self.editingProfileTable = nil
-        self.editingOptions = nil
-        self.editingExtraOptions = nil
-        self.onEditCallback = nil
-
-        local object = registeredObject.object
-        local profileKeyMap = registeredObject.profilekeymap
-        local extraOptions = registeredObject.extraoptions
-        local callback = registeredObject.callback
-        local options = registeredObject.options
-
-        local profileTable = self:GetProfileTableFromObject(registeredObject)
-        assert(type(profileTable) == "table", "EditObject() profileTable is invalid.")
-
-        --as there's no other place which this members are set, there is no need to create setter functions
-        self.editingObject = object
-        self.editingProfileMap = profileKeyMap
-        self.editingProfileTable = profileTable
-        self.editingOptions = options
-        self.editingExtraOptions = extraOptions
-
-        if (type(callback) == "function") then
-            self.onEditCallback = callback
-        end
-
-        self:PrepareObjectForEditing()
-    end,
-
     ---@param self df_editor
     CreateMoverGuideLines = function(self)
         local overTheTopFrame = self:GetOverTheTopFrame()
-        local moverFrame = self:GetMoverFrame()
 
         self.moverGuideLines = {
             left = overTheTopFrame:CreateTexture(nil, "overlay"),
@@ -434,11 +415,325 @@ detailsFramework.EditorMixin = {
         end
     end,
 
+    --screen position offset is the XY screen position offset from the bottom left of the screen, they are always positive, they go from 0 to screen width or height
+    CreateAnchorFrames = function(editorFrame)
+        --table containing 9 buttons, each one in a different position of the object, indexes one to nine in this order: topleft, left, bottomleft, bottom, bottomright, right, topright, top, center
+        editorFrame.AnchorFrames = {
+            anchorFrames = {},
+
+            DisableAllAnchors = function(self)
+                for i = 1, 9 do
+                    local anchorFrame = self:GetAnchorFrame(i)
+                    self:SetNotInUse(anchorFrame)
+                    anchorFrame:Hide()
+                end
+            end,
+
+            SetupAnchorsForObject = function(self, object, anchorTable)
+                editorFrame.AnchorFrames:DisableAllAnchors()
+
+                local registeredObject = editorFrame:GetEditingRegisteredObject()
+
+                if (registeredObject.refFrame) then
+                    for i = 1, 9 do
+                        local anchorFrame = self.anchorFrames[i]
+                        local anchorName = detailsFramework.AnchorPointsByIndex[i]
+                        anchorFrame:ClearAllPoints()
+                        anchorFrame:SetPoint(anchorName, registeredObject.refFrame, anchorName, 0, 0)
+                        anchorFrame:Show()
+                    end
+
+                    local sideSelected = anchorTable.side
+                    local anchorFrameSelected = self:GetAnchorFrame(detailsFramework.InsidePointsToAnchor[sideSelected] or sideSelected)
+                    self:SetInUse(anchorFrameSelected)
+
+                    self.anchorTable = anchorTable
+                end
+            end,
+
+            --when the user click on one of the anchor points, change the anchor side setting and recalculate the xy offset of the new point related to the same point in the object
+            SelectAnchorPoint = function(anchorFrame)
+                editorFrame.AnchorFrames:SetNotInUseForAllAnchors()
+
+                --change the color of the anchor point to show it's selected
+                anchorFrame.Texture:SetColorTexture(1, 0, 0, 0.5)
+
+                --get the object being edited in the editor
+                local object = editorFrame:GetEditingObject()
+
+                --get the xy of the nine points of the object
+                local ninePoints = detailsFramework.Math.GetNinePoints(object)
+
+                --get the coordinates of the anchorIndex within the ninePoints table
+                --the xy point in here is the XY screen position offset from the bottom left of the screen
+                local screenPoint = ninePoints[anchorFrame.anchorIndex]
+                local objectScreenPosX = screenPoint.x
+                local objectScreenPosY = screenPoint.y
+
+                --get the screen position offset of the anchor
+                local anchorScreenPosX, anchorScreenPosY = anchorFrame:GetCenter()
+
+                --calculate the xy offset of the anchor point related to the object
+                local offsetX = objectScreenPosX - anchorScreenPosX
+                local offsetY = objectScreenPosY - anchorScreenPosY
+
+                --get the anchor settings table
+                local anchorTable = editorFrame.AnchorFrames.anchorTable
+
+                --set the anchor settings
+                anchorTable.x = offsetX
+                anchorTable.y = offsetY
+                anchorTable.side = detailsFramework.AnchorPointsToInside[anchorFrame.anchorIndex]
+
+                C_Timer.After(0, function()
+                    editorFrame:PrepareObjectForEditing()
+                end)
+            end,
+
+            GetAnchorFrame = function(self, anchorIndex)
+                return self.anchorFrames[anchorIndex]
+            end,
+
+            SetNotInUseForAllAnchors = function(self)
+                for i = 1, 9 do
+                    local anchorFrame = self:GetAnchorFrame(i)
+                    self:SetNotInUse(anchorFrame)
+                end
+            end,
+
+            SetNotInUse = function(self, anchorFrame)
+                anchorFrame.Texture:SetColorTexture(1, 1, 1, 0.5)
+            end,
+
+            SetInUse = function(self, anchorFrame)
+                anchorFrame.Texture:SetColorTexture(1, 0, 0, 0.5)
+            end,
+
+            CreateNineAnchors = function(self)
+                local overTheTopFrame = editorFrame:GetOverTheTopFrame()
+
+                for i = 1, 9 do
+                    local anchorFrame = CreateFrame("button", "$parentAnchorFrame" .. i, overTheTopFrame, "BackdropTemplate")
+                    anchorFrame:SetSize(8, 8)
+                    anchorFrame:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+                    anchorFrame:SetBackdropColor(1, 0, 0, 0.5)
+                    anchorFrame:SetFrameStrata("TOOLTIP")
+                    anchorFrame:SetFrameLevel(10)
+                    anchorFrame.anchorIndex = i
+                    anchorFrame:Hide()
+
+                    anchorFrame:SetScript("OnClick", editorFrame.AnchorFrames.SelectAnchorPoint)
+
+                    self.anchorFrames[i] = anchorFrame
+
+                    anchorFrame.Texture = anchorFrame:CreateTexture("$parentTexture", "border")
+                    anchorFrame.Texture:SetColorTexture(1, 1, 1, 0.5)
+                    anchorFrame.Texture:SetAllPoints(anchorFrame)
+                end
+            end,
+        }
+
+        editorFrame.AnchorFrames:CreateNineAnchors()
+        return editorFrame.AnchorFrames
+    end,
+
+    ---create a frame to move the object, the frame is attached into the bottom right of the selected object
+    ---@param editorFrame df_editor
+    ---@return df_editor_movermain
+    CreateMoverFrames = function(editorFrame)
+        local amountOfMovers = 1
+
+        --frame that is used to move the object
+        ---@type df_editor_movermain
+        local movers = {
+            anchorNames = {"bottomright", "bottomleft", "topright", "topleft"},
+
+            Hide = function(self)
+                for i = 1, amountOfMovers do
+                    self[i]:Hide()
+                end
+            end,
+
+            Stop = function(self)
+                self.bIsMoving = false
+                for i = 1, amountOfMovers do
+                    local moverFrame = self[i]
+                    moverFrame:StopMovingOrSizing()
+                    moverFrame:SetScript("OnUpdate", nil)
+                end
+            end,
+
+            UpdatePosition = function(self, moverFrame)
+                for i = 1, amountOfMovers do
+                    local thisMoverFrame = self[i]
+                    if (thisMoverFrame ~= moverFrame) then
+                        thisMoverFrame.OnTickNotMoving(thisMoverFrame, 0)
+                    end
+                end
+            end,
+
+            Setup = function(self, object, registeredObject, onTickWhileMoving, onTickNotMoving)
+                for i = 1, amountOfMovers do
+                    local moverFrame = self[i]
+                    moverFrame:Show()
+                    moverFrame:EnableMouse(true)
+                    moverFrame.OnTickWhileMoving = onTickWhileMoving
+                    moverFrame.OnTickNotMoving = onTickNotMoving
+                    moverFrame.anchorName = self.anchorNames[i]
+
+                    moverFrame:SetScript("OnMouseDown", function()
+                        --save the current position of the object
+                        local startX, startY = moverFrame:GetCenter()
+                        moverFrame.MovingInfo.startX = startX
+                        moverFrame.MovingInfo.startY = startY
+
+                        editorFrame.currentObjectNinePoints = detailsFramework.Math.GetNinePoints(registeredObject.refFrame)
+
+                        --start moving
+                        moverFrame:SetScript("OnUpdate", onTickWhileMoving)
+                        moverFrame.bIsMoving = true
+                        moverFrame:StartMoving()
+                    end)
+
+                    moverFrame:SetScript("OnMouseUp", function()
+                        self:Stop()
+                        moverFrame:EnableMouse(true)
+
+                        --save the current position of the object selected
+                        local x, y = object:GetCenter()
+                        moverFrame.MovingInfo.restingX = x
+                        moverFrame.MovingInfo.restingY = y
+                        moverFrame:SetScript("OnUpdate", onTickNotMoving)
+
+                        local currentNinePoints = editorFrame.currentObjectNinePoints
+                        local startX, startY = moverFrame:GetCenter()
+                        local closestPoint = editorFrame.currentObjectNinePoints:GetClosestPoint(CreateVector2D(startX, startY))
+                        --if (closestPoint ~= parentTable.side) then
+                            --print("side is different", closestPoint, parentTable.side)
+                        --end
+                    end)
+
+                    moverFrame:ClearAllPoints()
+
+                    if (i == 1) then
+                        if (amountOfMovers == 1) then
+                            moverFrame:SetPoint("topleft", object, "topleft", 0, 0)
+                            moverFrame:SetPoint("bottomright", object, "bottomright", 0, 0)
+                        else
+                            moverFrame:SetPoint("center", object, "bottomright", 0, 0)
+                        end
+                    elseif (i == 2) then
+                        moverFrame:SetPoint("center", object, "bottomleft", 0, 0)
+                    elseif (i == 3) then
+                        moverFrame:SetPoint("center", object, "topright", 0, 0)
+                    elseif (i == 4) then
+                        moverFrame:SetPoint("center", object, "topleft", 0, 0)
+                        moverFrame:SetSize(object:GetWidth(), object:GetHeight())
+                    end
+
+                    local x, y = moverFrame:GetCenter()
+                    moverFrame:SetPoint("center", UIParent, "bottomleft", x, y)
+
+                    --current position of object selected
+                    local x, y = object:GetCenter()
+                    moverFrame.MovingInfo.restingX = x
+                    moverFrame.MovingInfo.restingY = y
+                    moverFrame:SetScript("OnUpdate", onTickNotMoving)
+                end
+
+                self.ObjectBackgroundTexture:SetPoint("topleft", object, "topleft", 0, 0)
+                self.ObjectBackgroundTexture:SetSize(object:GetWidth(), object:GetHeight())
+            end,
+        }
+
+        for i = 1, amountOfMovers do
+            ---@type df_editor_mover
+            local moverFrame = CreateFrame("button", "$parentMover" .. i, UIParent, "BackdropTemplate")
+            moverFrame:SetFrameStrata("TOOLTIP")
+            moverFrame:SetSize(16, 16)
+            moverFrame:SetClampedToScreen(true)
+            moverFrame:EnableMouse(true)
+            moverFrame:SetMovable(true)
+            moverFrame:SetFrameLevel(math.abs(i-5))
+            moverFrame.MovingInfo = {
+                startX = 0,
+                startY = 0,
+                restingX = 0,
+                restingY = 0,
+            }
+
+            movers[i] = moverFrame
+
+            moverFrame.MoverIcon = moverFrame:CreateTexture("$parentMoverIcon", "overlay")
+            moverFrame.MoverIcon:SetTexture([[Interface\CHATFRAME\CHATFRAMEBACKGROUND]])
+            moverFrame.MoverIcon:SetSize(6, 6)
+            moverFrame.MoverIcon:SetPoint("center", moverFrame, "center", 0, 0)
+        end
+
+        movers.ObjectBackgroundTexture = movers[1]:CreateTexture("$parentMoverObjectBackground", "artwork")
+        movers.ObjectBackgroundTexture:SetColorTexture(1, 1, 1, 0.25)
+
+        return movers
+    end,
+
+    EditObjectById = function(self, id)
+        ---@type df_editor_objectinfo
+        local objectRegistered = self:GetObjectById(id)
+        assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
+        self:EditObject(objectRegistered)
+        self.objectSelector:RefreshMe()
+    end,
+
+    EditObjectByIndex = function(self, index)
+        ---@type df_editor_objectinfo
+        local objectRegistered = self:GetObjectByIndex(index)
+        assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
+        self:EditObject(objectRegistered)
+        self.objectSelector:RefreshMe()
+    end,
+
+    ---@param self df_editor
+    ---@param registeredObject df_editor_objectinfo
+    EditObject = function(self, registeredObject)
+        --clear previous values
+        self.editingObject = nil
+        self.editingProfileMap = nil
+        self.editingProfileTable = nil
+        self.editingOptions = nil
+        self.editingExtraOptions = nil
+        self.onEditCallback = nil
+
+        local object = registeredObject.object
+        local profileKeyMap = registeredObject.profilekeymap
+        local extraOptions = registeredObject.extraoptions
+        local callback = registeredObject.callback
+        local options = registeredObject.options
+
+        local profileTable = self:GetProfileTableFromObject(registeredObject)
+        assert(type(profileTable) == "table", "EditObject() profileTable is invalid.")
+
+        --as there's no other place which this members are set, there is no need to create setter functions
+        self.registeredObjectInfo = registeredObject
+        self.editingObject = object
+        self.editingProfileMap = profileKeyMap
+        self.editingProfileTable = profileTable
+        self.editingOptions = options
+        self.editingExtraOptions = extraOptions
+
+        if (type(callback) == "function") then
+            self.onEditCallback = callback
+        end
+
+        self:PrepareObjectForEditing()
+    end,
+
     PrepareObjectForEditing = function(self) --~edit
         --get the object and its profile table with the current values
         local object = self:GetEditingObject()
         local profileTable, profileMap = self:GetEditingProfile()
         profileMap = profileMap or {}
+
+        self.AnchorFrames:DisableAllAnchors()
 
         local conditionalKeys = profileMap.enable_if or {}
 
@@ -502,8 +797,6 @@ detailsFramework.EditorMixin = {
                     value = profileTable[profileKey]
                 end
 
-                --print(value, profileKey, profileTable, option.key)
-
                 --if no value is found, attempt to get a default
                 if (type(value) == "nil") then
                     value = option.default
@@ -515,11 +808,11 @@ detailsFramework.EditorMixin = {
                 local maxValue = option.maxvalue
 
                 if (option.key == "anchoroffsetx") then
-                    minValue = -math.floor(object:GetParent():GetWidth()/10)
-                    maxValue = math.floor(object:GetParent():GetWidth()/10)
+                    minValue = -math.floor(object:GetParent():GetWidth())
+                    maxValue = math.floor(object:GetParent():GetWidth())
                 elseif (option.key == "anchoroffsety") then
-                    minValue = -math.floor(object:GetParent():GetHeight()/10)
-                    maxValue = math.floor(object:GetParent():GetHeight()/10)
+                    minValue = -math.floor(object:GetParent():GetHeight())
+                    maxValue = math.floor(object:GetParent():GetHeight())
                 end
 
                 if (bHasValue) then
@@ -586,7 +879,6 @@ detailsFramework.EditorMixin = {
                         id = option.key,
                     }
 
-                    --disabled = true
                     if (conditionalKeys[option.key]) then
                         local bIsEnabled = conditionalKeys[option.key](object, profileTable, profileKey)
                         if (not bIsEnabled) then
@@ -597,6 +889,10 @@ detailsFramework.EditorMixin = {
                     menuOptions[#menuOptions+1] = optionTable
                 end
             end
+        end
+
+        if (anchorSettings) then
+            self.AnchorFrames:SetupAnchorsForObject(object, anchorSettings)
         end
 
         --at this point, the optionsTable is ready to be used on DF:BuildMenuVolatile()
@@ -637,12 +933,6 @@ detailsFramework.EditorMixin = {
     StartObjectMovement = function(self, anchorSettings)
         local object = self:GetEditingObject()
 
-        local moverFrame = self:GetMoverFrame()
-        moverFrame:EnableMouse(true)
-        moverFrame:SetMovable(true)
-        moverFrame:ClearAllPoints()
-        moverFrame:Show()
-
         --update guidelines
         if (self:GetEditingOptions().use_guide_lines) then
             --self:UpdateGuideLinesAnchors()
@@ -652,117 +942,75 @@ detailsFramework.EditorMixin = {
             end
         end
 
+        local registeredObject = self:GetEditingRegisteredObject()
         local optionsFrame = self:GetOptionsFrame()
+        local objectParent = object:GetParent()
+        local moverFrames = self:GetMoverFrames()
 
-        --getting the size this way due to the cascade of different scales that are applyed to unitFrame objects
-        moverFrame:ClearAllPoints()
-        moverFrame:SetPoint("topleft", object, "topleft", -5, 5)
-        moverFrame:SetPoint("bottomright", object, "bottomright", 5, -5)
-        local moverWidth, moverHeight = moverFrame:GetSize()
+        local onTickWhileMoving = function(moverFrame, deltaTime)
+            local startX, startY = moverFrame:GetCenter()
+            local xOffset = startX - moverFrame.MovingInfo.startX
+            local yOffset = startY - moverFrame.MovingInfo.startY
 
-        local objectWidth, objectHeight = object:GetSize()
-        moverFrame:SetSize(moverWidth, moverHeight)
-        detailsFramework:SetAnchor(moverFrame, anchorSettings, object:GetParent())
-        local currentPosX, currentPosY
+            if (xOffset ~= 0 or yOffset ~= 0) then
+                moverFrame.MovingInfo.startX = startX
+                moverFrame.MovingInfo.startY = startY
+                anchorSettings.x = anchorSettings.x + xOffset
+                anchorSettings.y = anchorSettings.y + yOffset
+                detailsFramework:SetAnchor(object, anchorSettings, objectParent)
 
-        moverFrame:SetScript("OnMouseDown", function()
-            object:ClearAllPoints()
-            object:SetPoint("topleft", moverFrame, "topleft", 0, 0)
+                --update the slider offset in the options frame
+                local anchorXSlider = optionsFrame:GetWidgetById("anchoroffsetx")
+                anchorXSlider:SetValueNoCallback(anchorSettings.x)
+                local anchorYSlider = optionsFrame:GetWidgetById("anchoroffsety")
+                anchorYSlider:SetValueNoCallback(anchorSettings.y)
 
-            currentPosX, currentPosY = moverFrame:GetCenter()
-            moverFrame.bIsMoving = true
-            moverFrame:StartMoving()
-        end)
+                --save the new position
+                local profileTable, profileMap = self:GetEditingProfile()
+                local profileKey = profileMap.anchor
+                local parentTable = getParentTable(profileTable, profileKey)
+                parentTable.x = anchorSettings.x
+                parentTable.y = anchorSettings.y
 
-        moverFrame:SetScript("OnMouseUp", function()
-            moverFrame:StopMovingOrSizing()
-            moverFrame.bIsMoving = false
-
-            --0.64 UIParent
-            --0.96 object
-            --local scale = object:GetEffectiveScale() / UIParent:GetEffectiveScale() --1.5
-
-            local originX = anchorSettings.x
-            local originY = anchorSettings.y
-
-            local newPosX, newPosY = moverFrame:GetCenter()
-
-            local xOffset = newPosX - currentPosX
-            local yOffset = newPosY - currentPosY
-
-            xOffset = xOffset
-            yOffset = yOffset
-
-            anchorSettings.x = (originX + xOffset)
-            anchorSettings.y = (originY + yOffset)
-
-            local anchorXSlider = optionsFrame:GetWidgetById("anchoroffsetx")
-            anchorXSlider:SetValueNoCallback(anchorSettings.x)
-
-            local anchorYSlider = optionsFrame:GetWidgetById("anchoroffsety")
-            anchorYSlider:SetValueNoCallback(anchorSettings.y)
-
-            object:ClearAllPoints()
-            detailsFramework:SetAnchor(object, anchorSettings, object:GetParent())
-
-            --save the new position
-            local profileTable, profileMap = self:GetEditingProfile()
-            local profileKey = profileMap.anchor
-            local parentTable = getParentTable(profileTable, profileKey)
-            parentTable.x = anchorSettings.x
-            parentTable.y = anchorSettings.y
-
-            if (self:GetOnEditCallback()) then
-                self:GetOnEditCallback()(object, "x", anchorSettings.x, profileTable, profileKey)
-                self:GetOnEditCallback()(object, "y", anchorSettings.x, profileTable, profileKey)
-            end
-        end)
-
-        --detailsFramework:SetAnchor(moverFrame, anchorSettings)
-        --detailsFramework:SetAnchor(object, anchorSettings, moverFrame)
-
-        moverFrame:SetScript("OnUpdate", function() --not in use
-            --if the object isn't moving, make the mover follow the object position
-            if (false and moverFrame.bIsMoving) then
-                --object:ClearAllPoints()
-                --object:SetPoint("topleft", moverFrame, "topleft", 0, 0)
-
-                --if the object is moving, check if the moverFrame has moved
-                local newPosX, newPosY = moverFrame:GetCenter()
-
-                --did the frame moved?
-                if (newPosX ~= currentPosX) then
-                    local xOffset = newPosX - currentPosX
-                    anchorSettings.x = anchorSettings.x + xOffset
-                    local anchorXSlider = optionsFrame:GetWidgetById("anchoroffsetx")
-                    anchorXSlider:SetValueNoCallback(anchorSettings.x)
+                local closestPoint = self.currentObjectNinePoints:GetClosestPoint(CreateVector2D(startX, startY))
+                if (closestPoint ~= parentTable.side) then
+                    --print("side is different", closestPoint, parentTable.side)
                 end
 
-                if (newPosY ~= currentPosY) then
-                    local yOffset = newPosY - currentPosY
-                    anchorSettings.y = anchorSettings.y + yOffset
-                    local anchorYSlider = optionsFrame:GetWidgetById("anchoroffsety")
-                    anchorYSlider:SetValueNoCallback(anchorSettings.y)
+                if (self:GetOnEditCallback()) then
+                    self:GetOnEditCallback()(object, "x", anchorSettings.x, profileTable, profileKey)
+                    self:GetOnEditCallback()(object, "y", anchorSettings.y, profileTable, profileKey)
                 end
 
-                currentPosX, currentPosY = newPosX, newPosY
+                moverFrames:UpdatePosition(moverFrame)
             end
-        end)
+        end
+
+        local onTickNotMoving = function(moverFrame, deltaTime)
+            --current position of the selected object
+            local objectX, objectY = object:GetCenter()
+            --did the object move?
+            if (objectX ~= moverFrame.MovingInfo.restingX or objectY ~= moverFrame.MovingInfo.restingY) then
+                moverFrame:SetPoint("center", object, moverFrame.anchorName, 0, 0)
+                local x, y = moverFrame:GetCenter()
+                moverFrame:SetPoint("center", UIParent, "bottomleft", x, y)
+                moverFrame.MovingInfo.restingX = objectX
+                moverFrame.MovingInfo.restingY = objectY
+            end
+        end
+
+        moverFrames:Setup(object, registeredObject, onTickWhileMoving, onTickNotMoving)
     end,
 
     ---@param self df_editor
     StopObjectMovement = function(self)
-        local moverFrame = self:GetMoverFrame()
-
-        moverFrame:EnableMouse(false)
-        moverFrame:SetScript("OnUpdate", nil)
+        local moverFrame = self:GetMoverFrames()
+        moverFrame:Stop()
 
         --hide all four guidelines
         for side, texture in pairs(self.moverGuideLines) do
             texture:Hide()
         end
-
-        moverFrame:Hide()
     end,
 
     ---@param self df_editor
@@ -794,7 +1042,7 @@ detailsFramework.EditorMixin = {
         objectSelector:RefreshMe()
     end,
 
-    RegisterObject = function(self, object, localizedLabel, id, profileTable, subTablePath, profileKeyMap, extraOptions, callback, options)
+    RegisterObject = function(self, object, localizedLabel, id, profileTable, subTablePath, profileKeyMap, extraOptions, callback, options, refFrame)
         assert(type(object) == "table", "RegisterObjectToEdit() expects an UIObject on #1 parameter.")
         assert(object.GetObjectType, "RegisterObjectToEdit() expects an UIObject on #1 parameter.")
         assert(type(profileTable) == "table", "RegisterObjectToEdit() expects a table on #4 parameter.")
@@ -833,17 +1081,19 @@ detailsFramework.EditorMixin = {
             callback = callback,
             options = options,
             selectButton = selectButton,
+            refFrame = refFrame,
         }
-
-        selectButton:SetScript("OnClick", function()
-            self:EditObject(objectRegistered)
-        end)
 
         registeredObjects[#registeredObjects+1] = objectRegistered
         self.registeredObjectsByID[id] = objectRegistered
 
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
+
+        selectButton:SetScript("OnClick", function()
+            self:EditObject(objectRegistered)
+            objectSelector:RefreshMe()
+        end)
 
         --what to do after an object is registered?
         return objectRegistered
@@ -883,6 +1133,13 @@ detailsFramework.EditorMixin = {
                 return objectRegistered
             end
         end
+    end,
+
+
+    ---@param self df_editor
+    ---@return df_editor_objectinfo
+    GetEditingRegisteredObject = function(self)
+        return self.registeredObjectInfo
     end,
 
     GetObjectByIndex = function(self, index)
@@ -987,6 +1244,18 @@ detailsFramework.EditorMixin = {
 
     OnHide = function(self)
         self:StopObjectMovement()
+        local moverFrames = self:GetMoverFrames()
+        moverFrames:Hide()
+    end,
+
+    ---@param self df_editor
+    OnShow = function(self)
+        --get the editing object
+        local objectIndex = self:GetEditingObjectIndex()
+        if (objectIndex) then
+            self:EditObjectByIndex(objectIndex)
+            self.objectSelector:RefreshMe()
+        end
     end,
 }
 
@@ -1023,6 +1292,7 @@ function detailsFramework:CreateEditor(parent, name, options)
     detailsFramework:Mixin(editorFrame, detailsFramework.EditorMixin)
     detailsFramework:Mixin(editorFrame, detailsFramework.OptionsFunctions)
 
+    editorFrame:SetScript("OnShow", editorFrame.OnShow)
     editorFrame:SetScript("OnHide", editorFrame.OnHide)
 
     editorFrame.registeredObjects = {}
@@ -1033,6 +1303,7 @@ function detailsFramework:CreateEditor(parent, name, options)
     editorFrame:SetSize(editorFrame.options.width, editorFrame.options.height)
 
     --The options frame holds the options for the object being edited. It is used as the parent frame for the BuildMenuVolatile() function.
+    ---@type df_menu
     local optionsFrame = CreateFrame("frame", name .. "OptionsFrame", editorFrame, "BackdropTemplate")
     optionsFrame:SetSize(editorFrame.options.options_width, 5000)
 
@@ -1068,14 +1339,9 @@ function detailsFramework:CreateEditor(parent, name, options)
     OTTFrame:SetFrameStrata("TOOLTIP")
     editorFrame.overTheTopFrame = OTTFrame
 
-    --frame that is used to move the object
-    local moverFrame = CreateFrame("frame", "$parentMoverFrame", OTTFrame, "BackdropTemplate")
-    moverFrame:SetClampedToScreen(true)
-    detailsFramework:ApplyStandardBackdrop(moverFrame)
-    moverFrame:SetBackdropColor(.10, .10, .10, 0)
-    moverFrame.__background:SetAlpha(0.1)
-    editorFrame.moverFrame = moverFrame
+    editorFrame:CreateAnchorFrames()
 
+    editorFrame.moverFrames = editorFrame:CreateMoverFrames()
     editorFrame:CreateMoverGuideLines()
 
     editorFrame.optionsFrame = optionsFrame

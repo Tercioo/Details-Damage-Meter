@@ -11,6 +11,13 @@ local CreateFrame = CreateFrame
 local PixelUtil = PixelUtil
 local _
 
+---@class df_menu : frame
+---@field RefreshOptions fun()
+---@field widget_list table
+---@field widget_list_by_type table
+---@field widgetids table
+---@field GetWidgetById fun(optionsFrame: df_menu, id: string): table this should return a widget from the widgetids table
+
 ---@class df_menu_table : table
 ---@field text_template table
 ---@field id string an unique string or number to identify the button, from parent.widgetids[id], parent is the first argument of BuildMenu and BuildMenuVolatile

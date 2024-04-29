@@ -40,6 +40,87 @@ DF.Math = {}
 ---@field MultiplyBy fun(value: number, ...) : ... multiply all the passed values by value.
 ---@field MapRangeColor fun(inputX: number, inputY: number, outputX: number, outputY: number, red: number, green: number, blue: number) : number, number, number
 ---@field RandomFraction fun(minValue: number, maxValue: number) : number
+---@field GetNinePoints fun(object: uiobject) : df_ninepoints
+---@field GetClosestPoint fun(ninePoints: df_ninepoints, coordinate: df_coordinate) : anchorid
+
+---@class df_coordinate : table
+---@field x number
+---@field y number
+
+---@class df_ninepoints : df_coordinate[]
+---@field GetClosestPoint fun(ninePoints: df_ninepoints, coordinate: df_coordinate) : anchorid
+
+---this function receives a df_ninepoints and a df_coordinate, iterates among the points and return the closest point to the given coordinate
+---@param ninePoints df_ninepoints
+---@param coordinate df_coordinate
+---@return anchorid, number, number, number, number
+function DF.Math.GetClosestPoint(ninePoints, coordinate)
+	local closestPoint = 1
+	local closestDistance = DF.Math.GetPointDistance(ninePoints[1].x, ninePoints[1].y, coordinate.x, coordinate.y)
+
+	--get the x and y offset from the closest point to the given coordinate
+	local offsetX = coordinate.x - ninePoints[1].x
+	local offsetY = coordinate.y - ninePoints[1].y
+
+	for i = 2, #ninePoints do
+		local distance = DF.Math.GetPointDistance(ninePoints[i].x, ninePoints[i].y, coordinate.x, coordinate.y)
+		if (distance < closestDistance) then
+			closestDistance = distance
+			closestPoint = i
+
+			--updade the offset
+			offsetX = coordinate.x - ninePoints[i].x
+			offsetY = coordinate.y - ninePoints[i].y
+		end
+	end
+
+	return closestPoint, offsetX, offsetY, ninePoints[closestPoint].x, ninePoints[closestPoint].y
+end
+
+---this function receives an object and get the location of the topleft, left, bottomleft, bottom, bottomright, right, topright, top and center points
+---return a table with subtables with x and y values for each point
+---@param object uiobject
+---@return df_ninepoints
+function DF.Math.GetNinePoints(object)
+	local centerX, centerY = object:GetCenter()
+	local width = object:GetWidth()
+	local height = object:GetHeight()
+
+	local halfWidth = width / 2
+	local halfHeight = height / 2
+
+	---@type df_ninepoints
+	local ninePoints = {
+		{x = centerX - halfWidth, y = centerY + halfHeight}, --topleft 1
+		{x = centerX - halfWidth, y = centerY}, --left 2
+		{x = centerX - halfWidth, y = centerY - halfHeight}, --bottomleft 3
+		{x = centerX, y = centerY - halfHeight}, --bottom 4
+		{x = centerX + halfWidth, y = centerY - halfHeight}, --bottomright 5
+		{x = centerX + halfWidth, y = centerY}, --right 6
+		{x = centerX + halfWidth, y = centerY + halfHeight}, --topright 7
+		{x = centerX, y = centerY + halfHeight}, --top 8
+		{x = centerX, y = centerY}, --center 9
+		GetClosestPoint = DF.Math.GetClosestPoint
+	}
+
+	--debug
+	--[=[
+	local f = CreateFrame("frame", nil, UIParent)
+	f:SetFrameStrata("TOOLTIP")
+	f:SetSize(1, 1)
+	f:SetPoint("center", UIParent, "center", 0, 0)
+	for i = 1, #ninePoints do
+		local point = ninePoints[i]
+
+		local t = f:CreateTexture(nil, "overlay")
+		t:SetColorTexture(1, 0, 0, 1)
+		t:SetSize(2, 2)
+		t:SetPoint("bottomleft", UIParent, "bottomleft", point.x, point.y)
+	end
+	--]=]
+
+	return ninePoints
+end
 
 ---return a random fraction between two values, example: RandomFraction(.2, .3) returns a number between .2 and .3, 0.25, 0.28, 0.21, etc
 function DF.Math.RandomFraction(minValue, maxValue)

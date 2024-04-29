@@ -2453,7 +2453,7 @@ function detailsFramework:ShowPromptPanel(message, trueCallback, falseCallback, 
 	if (not DetailsFrameworkPromptSimple) then
 		local promptFrame = CreateFrame("frame", "DetailsFrameworkPromptSimple", UIParent, "BackdropTemplate")
 		promptFrame:SetSize(400, 80)
-		promptFrame:SetFrameStrata("DIALOG")
+		promptFrame:SetFrameStrata("FULLSCREEN")
 		promptFrame:SetPoint("center", UIParent, "center", 0, 300)
 		detailsFramework:ApplyStandardBackdrop(promptFrame)
 		table.insert(UISpecialFrames, "DetailsFrameworkPromptSimple")

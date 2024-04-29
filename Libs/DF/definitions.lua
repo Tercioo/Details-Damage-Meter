@@ -137,7 +137,10 @@
 ---@field Math df_math
 ---@field FontOutlineFlags table<outline, boolean>
 ---@field table df_table_functions
----@field AnchorPoints string[]
+---@field AnchorPoints string[] localized point names
+---@field AnchorPointsByIndex string[] api point names
+---@field AnchorPointsToInside table<anchorid, anchorid>
+---@field InsidePointsToAnchor table<anchorid, anchorid>
 ---@field alias_text_colors table<string, number[]>
 ---@field ClassFileNameToIndex table<string, number> engClass -> classIndex
 ---@field ClientLanguage string
@@ -313,7 +316,7 @@
 ---@field CreateBorder fun(self:table, parent:frame, alpha1:number?, alpha2:number?, alpha3:number?) : frame
 ---@field CreateMenuWithGridScrollBox fun(self:table, parent:frame, name:string?, refreshMeFunc:function, refreshButtonFunc:function, clickFunc:function, onCreateButton:function, gridScrollBoxOptions:df_gridscrollbox_options) : df_gridscrollbox create a scrollbox with a grid layout to be used as a menu
 ---@field CreateSearchBox fun(self:table, parent:frame, callback:function) : df_searchbox
----@field
+---@field ConvertAnchorPointToInside fun(self:table, anchorPoint:anchorid) : anchorid
 ---@field
 
 

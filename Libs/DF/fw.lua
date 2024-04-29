@@ -1,6 +1,6 @@
 
 
-local dversion = 532
+local dversion = 534
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -2038,6 +2038,7 @@ end
 ---@field x number
 ---@field y number
 
+
 DF.AnchorPoints = {
 	"Top Left",
 	"Left",
@@ -2047,16 +2048,122 @@ DF.AnchorPoints = {
 	"Right",
 	"Top Right",
 	"Top",
-	"Center",
-	"Inside Left",
-	"Inside Right",
-	"Inside Top",
-	"Inside Bottom",
-	"Inside Top Left",
-	"Inside Bottom Left",
-	"Inside Bottom Right",
-	"Inside Top Right",
+	"Center", --9
+	"Inside Left", --10
+	"Inside Right", --11
+	"Inside Top", --12
+	"Inside Bottom", --13
+	"Inside Top Left", --14
+	"Inside Bottom Left", --15
+	"Inside Bottom Right", --16
+	"Inside Top Right", --17
 }
+
+DF.AnchorPointsByIndex = {
+	"topleft", --1
+	"left", --2
+	"bottomleft", --3
+	"bottom", --4
+	"bottomright", --5
+	"right", --6
+	"topright", --7
+	"top", --8
+	"center", --9
+}
+
+DF.AnchorPointsToInside = {
+	[9] = 9,
+	[8] = 12,
+	[7] = 17,
+	[6] = 11,
+	[5] = 16,
+	[4] = 13,
+	[3] = 15,
+	[2] = 10,
+	[1] = 14,
+}
+
+DF.InsidePointsToAnchor = {
+	[9] = 9,
+	[12] = 8,
+	[17] = 7,
+	[11] = 6,
+	[16] = 5,
+	[13] = 4,
+	[15] = 3,
+	[10] = 2,
+	[14] = 1,
+}
+
+function DF:ConvertAnchorPointToInside(anchorPoint)
+	return DF.AnchorPointsToInside[anchorPoint] or anchorPoint
+end
+
+local calcPointCoords = function(ninePointsWidget, ninePointsRef, anchorTable, coordIndex, newAnchorSide)
+	--get the location of the topleft corner relative to the bottomleft corner of the screen
+	---@type df_coordinate
+	local widgetPointCoords = ninePointsWidget[coordIndex]
+	--get the topleft coords of the reference widget
+	---@type df_coordinate
+	local refPointCoords = ninePointsRef[coordIndex]
+
+	--calculate the offset of the x and y axis
+	local x = refPointCoords.x - widgetPointCoords.x
+	local y = refPointCoords.y - widgetPointCoords.y
+	anchorTable.x = x
+	anchorTable.y = y
+	anchorTable.side = newAnchorSide
+
+	print("new anchor side", newAnchorSide, "x", x, "y", y)
+end
+
+function DF:ConvertAnchorOffsets(widget, referenceWidget, anchorTable, newAnchorSide)
+	if (anchorTable.side == newAnchorSide) then
+		return anchorTable
+	end
+
+	local ninePoints = DF.Math.GetNinePoints(widget)
+	local refNinePoints = DF.Math.GetNinePoints(referenceWidget)
+
+	--the numeration from 1 to 9 is the index within a ninePoints table
+
+	anchorTable.side = newAnchorSide
+
+	if (newAnchorSide == 14) then --inside topleft
+		anchorTable.x = ninePoints[1].x - refNinePoints[1].x
+		anchorTable.y = ninePoints[1].y - refNinePoints[1].y
+		--print("inside topleft", anchorTable.x, anchorTable.y)
+
+	elseif (newAnchorSide == 15) then --inside bottomleft
+		anchorTable.x = ninePoints[3].x - refNinePoints[3].x
+		anchorTable.y = ninePoints[3].y - refNinePoints[3].y
+
+	elseif (newAnchorSide == 16) then --inside bottomright
+		anchorTable.x = refNinePoints[5].x - ninePoints[5].x
+		anchorTable.y = refNinePoints[5].y - ninePoints[5].y
+
+	elseif (newAnchorSide == 17) then --inside topright
+		anchorTable.x = refNinePoints[7].x - ninePoints[7].x
+		anchorTable.y = refNinePoints[7].y - ninePoints[7].y
+
+	elseif (newAnchorSide == 10) then --inside left
+		calcPointCoords(ninePoints, refNinePoints, anchorTable, 2, newAnchorSide)
+
+	elseif (newAnchorSide == 11) then --inside right
+		calcPointCoords(ninePoints, refNinePoints, anchorTable, 6, newAnchorSide)
+
+	elseif (newAnchorSide == 12) then --inside top
+		calcPointCoords(ninePoints, refNinePoints, anchorTable, 8, newAnchorSide)
+
+	elseif (newAnchorSide == 13) then --inside bottom
+		calcPointCoords(ninePoints, refNinePoints, anchorTable, 4, newAnchorSide)
+
+	elseif (newAnchorSide == 9) then --center
+		calcPointCoords(ninePoints, refNinePoints, anchorTable, 9, newAnchorSide)
+	else
+		--print("not implemented")
+	end
+end
 
 local anchoringFunctions = {
 	function(frame, anchorTo, offSetX, offSetY) --1 TOP LEFT
