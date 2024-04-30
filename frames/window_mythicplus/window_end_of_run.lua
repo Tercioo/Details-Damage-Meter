@@ -13,6 +13,7 @@ local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UIParent = UIParent
 local PixelUtil = PixelUtil
 local C_Timer = C_Timer
+local GameTooltip = GameTooltip
 
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
@@ -34,6 +35,8 @@ _G.MythicDungeonFrames = mythicDungeonFrames
 ---@field BackgroundBannerTextureScaleAnimation animationgroup
 ---@field BackgroundBannerFlashTextureColorAnimation animationgroup
 ---@field BounceFrameShake df_frameshake
+---@field NextLootSquare number
+---@field LootSquares details_lootsquare[]
 ---@field LevelUpFrame frame
 ---@field LevelUpTextFrame frame
 ---@field LevelFontString fontstring
@@ -55,6 +58,56 @@ _G.MythicDungeonFrames = mythicDungeonFrames
 ---@field Name fontstring
 ---@field AnimIn animationgroup
 ---@field AnimOut animationgroup
+---@field ClearLootSquares fun(self:playerbanner)
+---@field GetLootSquare fun(self:playerbanner):details_lootsquare
+
+---@class details_lootsquare : frame
+---@field LootIcon texture
+---@field LootIconBorder texture
+---@field LootItemLevel fontstring
+---@field itemLink string
+
+local createLootSquare = function(playerBanner, name, parent, lootIndex)
+	---@type details_lootsquare
+	local lootSquare = CreateFrame("frame", playerBanner:GetName() .. "LootSquare" .. lootIndex, parent)
+	lootSquare:SetSize(46, 46)
+	lootSquare:SetFrameLevel(parent:GetFrameLevel()+1)
+	playerBanner.LootSquare = lootSquare
+	lootSquare:Hide()
+
+	lootSquare:SetScript("OnEnter", function(self)
+		if (self.itemLink) then
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetHyperlink(lootSquare.itemLink)
+			GameTooltip:Show()
+		end
+	end)
+
+	lootSquare:SetScript("OnLeave", function(self)
+		GameTooltip:Hide()
+	end)
+
+	local lootIcon = lootSquare:CreateTexture("$parentLootIcon", "artwork")
+	lootIcon:SetSize(46, 46)
+	lootIcon:SetPoint("center", lootSquare, "center", 0, 0)
+	lootIcon:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+	lootSquare.LootIcon = lootIcon
+
+	local lootIconBorder = lootSquare:CreateTexture("$parentLootSquareBorder", "overlay")
+	lootIconBorder:SetTexture([[Interface\COMMON\WhiteIconFrame]])
+	lootIconBorder:SetTexCoord(0, 1, 0, 1)
+	lootIconBorder:SetSize(46, 46)
+	lootIconBorder:SetPoint("center", lootIcon, "center", 0, 0)
+	lootSquare.LootIconBorder = lootIconBorder
+
+	local lootItemLevel = lootSquare:CreateFontString("$parentLootItemLevel", "overlay", "GameFontNormal")
+	lootItemLevel:SetPoint("top", lootSquare, "bottom", 0, -2)
+	lootItemLevel:SetTextColor(1, 1, 1)
+	DetailsFramework:SetFontSize(lootItemLevel, 12)
+	lootSquare.LootItemLevel = lootItemLevel
+
+	return lootSquare
+end
 
 local createPlayerBanner = function(parent, name)
     local template = "ChallengeModeBannerPartyMemberTemplate"
@@ -270,43 +323,30 @@ local createPlayerBanner = function(parent, name)
 	detailsFramework:CreateFlashAnimation(flashTexture)
 	--flashTexture:Flash(0.1, 0.5, 0.01)
 
-	local lootSquare = CreateFrame("frame", name, parent)
-	lootSquare:SetSize(46, 46)
-	lootSquare:SetPoint("top", playerBanner, "bottom", 0, -90)
-	lootSquare:SetFrameLevel(parent:GetFrameLevel()+1)
-	playerBanner.LootSquare = lootSquare
-	lootSquare:Hide()
+	playerBanner.LootSquares = {}
 
-	lootSquare:SetScript("OnEnter", function(self)
-		if (self.itemLink) then
-			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-			GameTooltip:SetHyperlink(lootSquare.itemLink)
-			GameTooltip:Show()
+	local lootSquare1 = createLootSquare(playerBanner, name, parent, 1)
+	lootSquare1:SetPoint("top", playerBanner, "bottom", 0, -90)
+	playerBanner.LootSquares[1] = lootSquare1
+
+	local lootSquare2 = createLootSquare(playerBanner, name, parent, 2)
+	lootSquare2:SetPoint("top", lootSquare1, "bottom", 0, -2)
+	playerBanner.LootSquares[2] = lootSquare2
+
+	function playerBanner:ClearLootSquares()
+		playerBanner.NextLootSquare = 1
+
+		for _, lootSquare in ipairs(self.LootSquares) do
+			lootSquare:Hide()
+			lootSquare.itemLink = nil
+			lootSquare.LootIcon:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+			lootSquare.LootItemLevel:SetText("")
 		end
-	end)
+	end
 
-	lootSquare:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-	end)
-
-	local lootIcon = lootSquare:CreateTexture("$parentLootIcon", "artwork")
-	lootIcon:SetSize(46, 46)
-	lootIcon:SetPoint("center", lootSquare, "center", 0, 0)
-	lootIcon:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
-	lootSquare.LootIcon = lootIcon
-
-	local lootIconBorder = lootSquare:CreateTexture("$parentLootSquareBorder", "overlay")
-	lootIconBorder:SetTexture([[Interface\COMMON\WhiteIconFrame]])
-	lootIconBorder:SetTexCoord(0, 1, 0, 1)
-	lootIconBorder:SetSize(46, 46)
-	lootIconBorder:SetPoint("center", lootIcon, "center", 0, 0)
-	lootSquare.LootIconBorder = lootIconBorder
-
-	local lootItemLevel = lootSquare:CreateFontString("$parentLootItemLevel", "overlay", "GameFontNormal")
-	lootItemLevel:SetPoint("top", lootSquare, "bottom", 0, -2)
-	lootItemLevel:SetTextColor(1, 1, 1)
-	DetailsFramework:SetFontSize(lootItemLevel, 12)
-	lootSquare.LootItemLevel = lootItemLevel
+	function playerBanner:GetLootSquare()
+		return playerBanner.LootSquares[playerBanner.NextLootSquare]
+	end
 
 	return playerBanner
 end
@@ -651,7 +691,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		--make a text dot animation, which will show no dots at start and then "." then ".." then "..." and back to "" and so on
 		function readyFrame.StartTextDotAnimation()
-			--update the Waiting for Loot labels 
+			--update the Waiting for Loot labels
 			waitingForLootLabel:Show()
 			waitingForLootDotsAnimationLabel:Show()
 
@@ -793,10 +833,8 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 				local _, instanceType = GetInstanceInfo()
 				--print("Is encounter the same:", lootEncounterId == bossKillEncounterId)
-				if (instanceType == "party") then -- or instanceType == "raid" --lootEncounterId == bossKillEncounterId and 
+				if (instanceType == "party") then -- or instanceType == "raid" --lootEncounterId == bossKillEncounterId and
 					--print("all good showing loot for player", playerName)
-					local lootSquare = unitBanner.LootSquare
-					lootSquare.itemLink = itemLink
 
 					local effectiveILvl, nop, baseItemLevel = GetDetailedItemLevelInfo(itemLink)
 
@@ -805,8 +843,11 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 					expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
 
 					--print("equip loc:", itemEquipLoc)
-
+					--unitBanner:ClearLootSquares()
 					if (effectiveILvl > 300 and baseItemLevel > 5) then --avoid showing loot that isn't items
+						local lootSquare = unitBanner:GetLootSquare()
+						lootSquare.itemLink = itemLink --will error if this the thrid lootSquare (creates only 2 per banner)
+
 						local rarityColor = ITEM_QUALITY_COLORS[itemQuality]
 						lootSquare.LootIconBorder:SetVertexColor(rarityColor.r, rarityColor.g, rarityColor.b, 1)
 
@@ -872,7 +913,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 	--hide the lootSquare
 	for i = 1, #readyFrame.PlayerBanners do
-		readyFrame.PlayerBanners[i].LootSquare:Hide()
+		readyFrame.PlayerBanners[i]:ClearLootSquares()
 	end
 
 	for i = 1, #readyFrame.PlayerBanners do
