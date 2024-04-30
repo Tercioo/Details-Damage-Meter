@@ -345,7 +345,9 @@ local createPlayerBanner = function(parent, name)
 	end
 
 	function playerBanner:GetLootSquare()
-		return playerBanner.LootSquares[playerBanner.NextLootSquare]
+		local lootSquare = playerBanner.NextLootSquare
+		playerBanner.NextLootSquare = playerBanner.NextLootSquare + 1
+		return playerBanner.LootSquares[lootSquare]
 	end
 
 	return playerBanner
