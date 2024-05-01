@@ -354,6 +354,10 @@
 			[199667] = 199658, --warrior whirlwind
 			[199852] = 199658, --warrior whirlwind
 			[199851] = 199658, --warrior whirlwind
+			[199851] = 199658, --warrior whirlwind
+			[411547] = 199658, --arms warrior whirlwind
+			[385228] = 199658, --arms warrior whirlwind
+			[105771] = 126664, --warrior charge
 
 			[222031] = 199547, --deamonhunter ChaosStrike
 			[200685] = 199552, --deamonhunter Blade Dance
@@ -402,6 +406,8 @@
 			[417134] = 414532, --rage of Fyr'alath
 			[413584] = 414532,
 			[424094] = 414532,
+
+			[228649] = 100784, --monk blackout kick
 		}
 
 		--all totem
