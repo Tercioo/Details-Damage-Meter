@@ -881,6 +881,7 @@ local default_profile = {
 		max_window_size = {width = 480, height = 450},
 		new_window_size = {width = 310, height = 158},
 		window_clamp = {-8, 0, 21, -14},
+		grouping_horizontal_gap = 0,
 		disable_window_groups = false,
 		disable_reset_button = false,
 		disable_lock_ungroup_buttons = false,
@@ -2145,6 +2146,3 @@ function Details.ShowImportProfileConfirmation(message, callback)
 	Details.profileConfirmationDialog.button_true.true_function = callback
 	Details.profileConfirmationDialog.textbox:SetFocus(true)
 end
-
-
-

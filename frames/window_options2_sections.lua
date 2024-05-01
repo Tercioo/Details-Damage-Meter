@@ -2917,6 +2917,23 @@ do
             },            
             {type = "blank"},
 
+            {--grouped windows horizontal gap
+                type = "range",
+                get = function() return tonumber(Details.grouping_horizontal_gap) end,
+                set = function(self, fixedparam, value)
+                    Details.grouping_horizontal_gap = value
+                    currentInstance:BaseFrameSnap()
+                    afterUpdate()
+                end,
+                min = 0,
+                max = 20,
+                usedecimals = true,
+                step = 0.5,
+                name = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"],
+                desc = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP_DESC"],
+                thumbscale = 2.2,
+            },
+
             {--disable grouping
                 type = "toggle",
                 get = function() return Details.disable_window_groups end,
