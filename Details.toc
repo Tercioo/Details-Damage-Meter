@@ -1,4 +1,5 @@
 ## Interface: 100206
+## Interface-Cata: 40400
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Незаменимый инструмент, чтобы произвести впечатление на цыпочку в вашем рейде.
