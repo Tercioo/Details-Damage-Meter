@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12651
-		Details.alpha_build_counter = 12651 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12699
+		Details.alpha_build_counter = 12699 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -183,6 +183,14 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 	local news = {
+		{"v10.2.6.12699.156", "May 03th, 2024"},
+		"Framework and Backend upgrades.",
+		"Added Toc data for Cata classic.",
+		"Warrior Arms Whirlwind has been merged into one spell (WillowGryph).",
+		"Added an option to control the horizontal gap between two groupped windows (Elitesparkle).",
+		"Fixed an issue where looting two itens at the end of a mythic+ would result in the icon of one item and the tooltip of another.",
+		"Fixed the preview of the Wallpaper option where it was too high positioned reaching the title bar.",
+
 		{"v10.2.6.12650.156", "April 23th, 2024"},
 		"Framework and Backend upgrades.",
 		"Added prist's void tendrils to crowd control list.",
@@ -446,31 +454,6 @@ do
 		"Added IconTexture directive to the TOC files.",
 		"Disabled time captures for spellTables, this should be done by a plugin.",
 		"Replacing table.wipe with Details:Destroy().",
-
-		{"v10.1.0.11022.151", "May 20th, 2023"},
-		"Breakdown pet options has changed to: 'Group Pets by Their Names' or 'Group Pets by Their Spells'.",
-		"Evoker empowered level now ocupies less space on the rectangle showing the damage by empower level.",
-		"Another Framework update.",
-		"Fixed an issue where some pet bars still showing the owner name.",
-		"Fixed an issue with the player selector on Breakdown window causing an error when selecting some players.",
-		"Fixed an issue caused by opening the breakdown window while seeing healing overall.",
-		"Fixed an issue with the min and max damage of a spell when viewing the 'merged' damage of two or more spells.",
-		"Fixed an issue with the Raid Check plugin throwing an error on Shuffle Arenas.",
-		"Fixed shields for Classic versions (Flamanis).",
-
-		{"v10.1.0.11011.151", "May 13th, 2023"},
-		"Added options: 'Group Player Spells With Same Name' and 'Group Pets By Spell' on the breakdown options.",
-		"Added combat log options for 'Calculate Shield Wasted Amount' and 'Calculate Energy Wasted Amount' under the options > Combat Log.",
-		"Framework and OpenRaid Updated.",
-		"Breakdown window won't go off screen anymore.",
-		"Breakdown now shows damage per phase if the segment has more than one phase.",
-		"Overhealing can now be seen within the Healing Done breakdown. This removes the necessity of having to go back and forward between healing done and overhealing.",
-		"Friendly Fire can now be seen in the breakdown window by clicking on the player bar (before the click on the player bar opened the report screen).",
-		"Healing Taken can also be seen on the breakdown window.",
-		"Some options from the Breakdown options got removed, most of them are now auto calculated by the system.",
-		"Fixed an issue where the Frags display was showinig death of friendly objects like Efflorescense.",
-		"Fixed an issue where item damage was showing 'Unknown Item' on cold logins.",
-		"Fixed defenses gauge (miss, dodge, parry) not showing in the spell details on the breakdown window.",
 	}
 
 	local newsString = "|cFFF1F1F1"
