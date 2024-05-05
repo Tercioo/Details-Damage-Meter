@@ -2094,6 +2094,8 @@ local iconFrame_OnEnter = function(self)
 
 			instance:BuildInstanceBarTooltip(self)
 
+			local bIsClassic = (DetailsFramework.IsClassicWow() or DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow())
+
 			local classIcon, classL, classR, classT, classB = Details:GetClassIcon(class)
 
 			local specId, specName, specDescription, specIcon, specRole, specClass = DetailsFramework.GetSpecializationInfoByID(spec or 0) --thanks pas06
@@ -2121,9 +2123,9 @@ local iconFrame_OnEnter = function(self)
 			local talentString = ""
 
 			if (type(talents) == "table") then
-				if (talents and not (DetailsFramework.IsClassicWow() or DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow())) then
+				if (talents and not bIsClassic) then
 					for i = 1, #talents do
-						local talentID, talentName, texture, selected, available = GetTalentInfoByID(talents [i])
+						local talentID, talentName, texture, selected, available = GetTalentInfoByID(talents[i])
 						if (texture) then
 							talentString = talentString ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
 						end
@@ -2199,7 +2201,7 @@ local iconFrame_OnEnter = function(self)
 
 			local lineHeight = 21
 
-			if (RaiderIO) then
+			if (RaiderIO and not bIsClassic) then
 				local addedInfo = false
 
 				local playerName, playerRealm = actorName:match("(%w+)%-(%w+)")
