@@ -289,8 +289,8 @@ do
 		customItemList[426647] = {itemId = 207168, isPassive = true, nameExtra = "(mast)", icon = [[Interface\AddOns\Details\images\spells\lil_dragon_left.jpg]]} --trinket: Pip's Emerald Friendship Badge pip
 		customItemList[426648] = {itemId = 207168, isPassive = true, nameExtra = "(*mast*)", icon = 5342919} --trinket: Pip's Emerald Friendship Badge pip
 
-		customItemList[426431] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
-		customItemList[426486] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
+		customItemList[426431] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (ranged dps)
+		customItemList[426486] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (ranged dps)
 		customItemList[424324] = {itemId = 207788, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Mace INT] - shadowflame corrupted?
 		customItemList[424965] = {itemId = 207784, isPassive = true} --weapon: Thorncaller Claw
 		customItemList[425181] = {itemId = 207784, isPassive = true, nameExtra = "(*aoe*)"} --weapon: Thorncaller Claw
@@ -333,8 +333,8 @@ do
 		customItemList[426898] = {itemId = 207167, onUse = true, castId = 423611, nameExtra = "*on use*", defaultName = GetSpellInfo(423611)} --trinket: Ashes of the Embersoul
 		customItemList[429271] = {itemId = 110009, onUse = true, castId = 429271, defaultName = GetSpellInfo(429271)} --trinket: Leaf of the Ancient Protectors
 		customItemList[429272] = {itemId = 110009, onUse = true, castId = 429271, nameExtra = "(*vers*)", defaultName = GetSpellInfo(429271)} --trinket: Leaf of the Ancient Protectors
-
-
+		customItemList[433522] = {itemId = 212684, isPassive = true} -- trinket: Umbrelskul's Fractured Heart dot
+		customItemList[433549] = {itemId = 212684, isPassive = true} -- trinket: Umbrelskul's Fractured Heart execute
 	end
 
 	if (LIB_OPEN_RAID_SPELL_CUSTOM_NAMES) then
