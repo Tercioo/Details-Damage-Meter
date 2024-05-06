@@ -3005,6 +3005,7 @@ do
             {type = "blank"},
 
             {--delete window
+                id = 'deleteWindow',
                 type = "select",
                 get = function() return 0 end,
                 values = function()
@@ -3017,8 +3018,8 @@ do
             {--delete window
                 type = "execute",
                 func = function(self)
-                    local profileDropdown = sectionFrame.widget_list_by_type.dropdown[3]
-                    local selectedWindow = profileDropdown:GetValue()
+                    local windowDropdown = self.MyObject.container:GetWidgetById('deleteWindow')
+                    local selectedWindow = windowDropdown and windowDropdown:GetValue()
 
                     if (selectedWindow) then
                         Details:DeleteInstance(selectedWindow)
