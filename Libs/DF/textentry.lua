@@ -461,11 +461,7 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 		end
 
 		self:SetJustifyH("left")
-        if detailsFramework.IsCataWow() then
-		    self:SetJustifyV("middle")
-        else
-		    self:SetJustifyV("center")
-        end
+        self:SetJustifyV("middle")
 		self:SetTextInsets(18, 14, 0, 0)
 
 		local magnifyingGlassTexture = self:CreateTexture(nil, "OVERLAY")
