@@ -464,7 +464,7 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
         if detailsFramework.IsCataWow() then
 		    self:SetJustifyV("middle")
         else
-		    self:SetJustifyV("center")
+		    self:SetJustifyV("middle")
         end
 		self:SetTextInsets(18, 14, 0, 0)
 
