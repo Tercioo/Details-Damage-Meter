@@ -3327,8 +3327,7 @@ do
 	tooltip_anchor:SetBackdropColor(0, 0, 0, 1)
 
 	tooltip_anchor:SetScript("OnEnter", function(self)
-		tooltip_anchor.alert.animIn:Stop()
-		tooltip_anchor.alert.animOut:Play()
+		tooltip_anchor.glowAnimation:Stop()
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 		GameTooltip:ClearLines()
 		GameTooltip:AddLine(Loc["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT_DESC"])
@@ -3370,16 +3369,14 @@ do
 			self:SetMovable(true)
 			self:SetFrameStrata("FULLSCREEN")
 			self.locked = false
-			tooltip_anchor.alert.animOut:Stop()
-			tooltip_anchor.alert.animIn:Play()
+			tooltip_anchor.glowAnimation:Play()
 		else
 			self:SetAlpha(0)
 			self:EnableMouse(false)
 			self:SetFrameStrata("MEDIUM")
 			self:SetMovable(false)
 			self.locked = true
-			tooltip_anchor.alert.animIn:Stop()
-			tooltip_anchor.alert.animOut:Play()
+			tooltip_anchor.glowAnimation:Stop()
 		end
 	end
 
@@ -3399,6 +3396,9 @@ do
 	tooltip_anchor.alert:Hide()
 	tooltip_anchor.alert:SetPoint("topleft", tooltip_anchor, "topleft", -60, 6)
 	tooltip_anchor.alert:SetPoint("bottomright", tooltip_anchor, "bottomright", 40, -6)
+
+	local glowAnimation = gump:CreateGlowOverlay(tooltip_anchor, "yellow", "white")
+	tooltip_anchor.glowAnimation = glowAnimation
 
 	local icon = tooltip_anchor:CreateTexture(nil, "overlay")
 	icon:SetTexture([[Interface\AddOns\Details\images\minimap]])

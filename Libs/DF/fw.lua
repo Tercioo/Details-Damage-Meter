@@ -1,6 +1,6 @@
 
 
-local dversion = 535
+local dversion = 536
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -4488,6 +4488,7 @@ function DF:GetClassSpecIds(engClass) --naming conventions
 	return DF:GetClassSpecIDs(engClass)
 end
 
+--kinda deprecated
 local getDragonflightTalents = function()
 	if (not ClassTalentFrame) then
 		ClassTalentFrame_LoadUI()
@@ -4522,9 +4523,17 @@ local getDragonflightTalents = function()
 	return exportStream:GetExportString()
 end
 
+local getDragonflightTalentsEasy = function()
+	local activeConfigID = C_ClassTalents.GetActiveConfigID()
+	if (activeConfigID and activeConfigID > 0) then
+		return C_Traits.GenerateImportString(activeConfigID)
+	end
+	return ""
+end
+
 --/dump DetailsFramework:GetDragonlightTalentString()
 function DF:GetDragonlightTalentString()
-	local runOkay, errorText = pcall(getDragonflightTalents)
+	local runOkay, errorText = pcall(getDragonflightTalentsEasy)
 	if (not runOkay) then
 		DF:Msg("error 0x4517", errorText)
 		return ""
