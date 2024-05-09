@@ -3918,7 +3918,11 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				local petActor = instancia.showing[class_type]:PegarCombatente (nil, petName)
 				if (petActor) then
 					for _spellid, _skill in pairs(petActor:GetActorSpells()) do
-						ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo, petName:gsub((" <.*"), "")}
+						local formattedPetName = petName:gsub((" <.*"), "")
+						if (instancia.row_info.textL_translit_text) then
+							formattedPetName = Translit:Transliterate(formattedPetName, "!")
+						end
+						ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo, formattedPetName}
 					end
 				end
 			end
