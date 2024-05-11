@@ -399,6 +399,10 @@ function DropDownMetaFunctions:Select(optionName, byOptionNumber, bOnlyShown, ru
 
 	local runOkay, optionsTable = xpcall(self.func, geterrorhandler(), self)
 
+	if (type(optionsTable) ~= "table") then
+		error("optionsTable for Dropdown:Select() is not of type 'table'. Check if the dropdown menu function is returning a table.")
+	end
+
 	if (#optionsTable == 0) then
 		self:NoOption(true)
 		return true
