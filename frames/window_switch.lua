@@ -693,6 +693,14 @@ function Details.switch:ShowMe(instancia)
 		return
 
 	else
+		if (Details.no_bookmark) then
+			return
+		end
+
+		if (Details.no_bookmark_on_combat and InCombatLockdown()) then
+			return
+		end
+
 		if (Details.switch.segments_blocks) then
 			Details.switch:ClearSegmentBlocks()
 		end
