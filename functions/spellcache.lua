@@ -267,7 +267,10 @@ do
 		customItemList[397376] = {itemId = 193748, isPassive = true} --trinket: Kyrakka's Searing Embers (damage)
 		customItemList[214985] = {itemId = 137486} --trinket: Windscar Whetstone
 		customItemList[384004] = {itemId = 193815} --trinket: Homeland Raid Horn
-		customItemList[377459] = {itemId = 194306} --trinket: All-Totem of the Master
+		customItemList[377459] = {itemId = 194306} --trinket: All-Totem of the Master Fire Damage
+		customItemList[377461] = {itemId = 194306} --trinket: All-Totem of the Master Air Damage
+		customItemList[382133] = {itemId = 194306} --trinket: All-Totem of the Master Ice Damage
+		customItemList[377458] = {itemId = 194306} --trinket: All-Totem of the Master Earth Damage
 		customItemList[408815] = {itemId = 202569} --weapon: Djaruun, Pillar of the Elder Flame
 		customItemList[407961] = {itemId = 203996, isPassive = true} --trinket: Igneous Flowstone
 		customItemList[408682] = {itemId = 202610} --trinket: Dragonfire Bomb Dispenser
@@ -291,7 +294,6 @@ do
 
 		customItemList[426431] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (ranged dps)
 		customItemList[426486] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (ranged dps)
-		customItemList[424324] = {itemId = 207788, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Mace INT] - shadowflame corrupted?
 		customItemList[424965] = {itemId = 207784, isPassive = true} --weapon: Thorncaller Claw
 		customItemList[425181] = {itemId = 207784, isPassive = true, nameExtra = "(*aoe*)"} --weapon: Thorncaller Claw
 		customItemList[425127] = {itemId = 207783, isPassive = true} --weapon: Cruel Dreamcarver (heal)
