@@ -267,7 +267,10 @@ do
 		customItemList[397376] = {itemId = 193748, isPassive = true} --trinket: Kyrakka's Searing Embers (damage)
 		customItemList[214985] = {itemId = 137486} --trinket: Windscar Whetstone
 		customItemList[384004] = {itemId = 193815} --trinket: Homeland Raid Horn
-		customItemList[377459] = {itemId = 194306} --trinket: All-Totem of the Master
+		customItemList[377459] = {itemId = 194306} --trinket: All-Totem of the Master Fire Damage
+		customItemList[377461] = {itemId = 194306} --trinket: All-Totem of the Master Air Damage
+		customItemList[382133] = {itemId = 194306} --trinket: All-Totem of the Master Ice Damage
+		customItemList[377458] = {itemId = 194306} --trinket: All-Totem of the Master Earth Damage
 		customItemList[408815] = {itemId = 202569} --weapon: Djaruun, Pillar of the Elder Flame
 		customItemList[407961] = {itemId = 203996, isPassive = true} --trinket: Igneous Flowstone
 		customItemList[408682] = {itemId = 202610} --trinket: Dragonfire Bomb Dispenser
