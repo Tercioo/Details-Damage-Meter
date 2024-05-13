@@ -294,7 +294,6 @@ do
 
 		customItemList[426431] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (ranged dps)
 		customItemList[426486] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (ranged dps)
-		customItemList[424324] = {itemId = 207788, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Mace INT] - shadowflame corrupted?
 		customItemList[424965] = {itemId = 207784, isPassive = true} --weapon: Thorncaller Claw
 		customItemList[425181] = {itemId = 207784, isPassive = true, nameExtra = "(*aoe*)"} --weapon: Thorncaller Claw
 		customItemList[425127] = {itemId = 207783, isPassive = true} --weapon: Cruel Dreamcarver (heal)
