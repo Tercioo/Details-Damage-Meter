@@ -4,6 +4,8 @@ local debugmode = false --print debug lines
 local verbosemode = false --auto open the chart panel
 local addonName, Details222 = ...
 local mPlus = Details222.MythicPlusBreakdown
+
+---@type detailsframework
 local detailsFramework = DetailsFramework
 local _
 
@@ -72,7 +74,6 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 	local lootSquare = CreateFrame("frame", playerBanner:GetName() .. "LootSquare" .. lootIndex, parent)
 	lootSquare:SetSize(46, 46)
 	lootSquare:SetFrameLevel(parent:GetFrameLevel()+1)
-	playerBanner.LootSquare = lootSquare
 	lootSquare:Hide()
 
 	lootSquare:SetScript("OnEnter", function(self)
@@ -103,7 +104,7 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 	local lootItemLevel = lootSquare:CreateFontString("$parentLootItemLevel", "overlay", "GameFontNormal")
 	lootItemLevel:SetPoint("top", lootSquare, "bottom", 0, -2)
 	lootItemLevel:SetTextColor(1, 1, 1)
-	DetailsFramework:SetFontSize(lootItemLevel, 12)
+	detailsFramework:SetFontSize(lootItemLevel, 12)
 	lootSquare.LootItemLevel = lootItemLevel
 
 	return lootSquare
@@ -128,7 +129,7 @@ local createPlayerBanner = function(parent, name)
     local playerNameFontString = playerBanner:CreateFontString("$parentPlayerNameText", "overlay", "GameFontNormal")
     playerNameFontString:SetTextColor(1, 1, 1)
     playerNameFontString:SetPoint("top", playerBanner, "bottom", -1, -7)
-    DetailsFramework:SetFontSize(playerNameFontString, 12)
+    detailsFramework:SetFontSize(playerNameFontString, 12)
 	playerBanner.PlayerNameFontString = playerNameFontString
 
 	local playerNameBackgroundTexture = playerBanner:CreateTexture("$parentPlayerNameBackgroundTexture", "overlay", nil, 6)
@@ -243,7 +244,7 @@ local createPlayerBanner = function(parent, name)
     local levelFontString = levelUpTextFrame:CreateFontString("$parentLVLText", "artwork", "GameFontNormal")
     levelFontString:SetTextColor(1, 1, 1)
     levelFontString:SetPoint("center", levelUpTextFrame, "center", 0, 0)
-    DetailsFramework:SetFontSize(levelFontString, 20)
+    detailsFramework:SetFontSize(levelFontString, 20)
 	levelFontString:SetText("")
 	playerBanner.LevelFontString = levelFontString
 
@@ -325,13 +326,18 @@ local createPlayerBanner = function(parent, name)
 
 	playerBanner.LootSquares = {}
 
-	local lootSquare1 = createLootSquare(playerBanner, name, parent, 1)
-	lootSquare1:SetPoint("top", playerBanner, "bottom", 0, -90)
-	playerBanner.LootSquares[1] = lootSquare1
+	local lootSquareAmount = 2
 
-	local lootSquare2 = createLootSquare(playerBanner, name, parent, 2)
-	lootSquare2:SetPoint("top", lootSquare1, "bottom", 0, -2)
-	playerBanner.LootSquares[2] = lootSquare2
+	for i = 1, lootSquareAmount do
+		local lootSquare = createLootSquare(playerBanner, name, parent, i)
+		if (i == 1) then
+			lootSquare:SetPoint("top", playerBanner, "bottom", 0, -90)
+		else
+			lootSquare:SetPoint("top", playerBanner.LootSquares[i-1], "bottom", 0, -2)
+		end
+		playerBanner.LootSquares[i] = lootSquare
+		playerBanner["lootSquare" .. i] = lootSquare
+	end
 
 	function playerBanner:ClearLootSquares()
 		playerBanner.NextLootSquare = 1
@@ -345,9 +351,11 @@ local createPlayerBanner = function(parent, name)
 	end
 
 	function playerBanner:GetLootSquare()
-		local lootSquare = playerBanner.NextLootSquare
-		playerBanner.NextLootSquare = playerBanner.NextLootSquare + 1
-		return playerBanner.LootSquares[lootSquare]
+		local lootSquareIdx = playerBanner.NextLootSquare
+		playerBanner.NextLootSquare = lootSquareIdx + 1
+		local lootSquare = playerBanner.LootSquares[lootSquareIdx]
+		lootSquare:Show()
+		return lootSquare
 	end
 
 	return playerBanner
@@ -635,12 +643,12 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		readyFrame.bottomFiligree:SetSize(66, 28)
 		readyFrame.bottomFiligree:SetPoint("bottom", readyFrame, "bottom", 0, -19)
 
-		local titleLabel = DetailsFramework:CreateLabel(contentFrame, "Details! Mythic Run Completed!", 12, "yellow")
+		local titleLabel = detailsFramework:CreateLabel(contentFrame, "Details! Mythic Run Completed!", 12, "yellow")
 		titleLabel:SetPoint("top", readyFrame, "top", 0, -7)
 		titleLabel.textcolor = textColor
 
 		---@type df_closebutton
-		local closeButton = DetailsFramework:CreateCloseButton(contentFrame, "$parentCloseButton")
+		local closeButton = detailsFramework:CreateCloseButton(contentFrame, "$parentCloseButton")
 		closeButton:SetPoint("topright", readyFrame, "topright", -2, -2)
 		closeButton:SetScale(1.4)
 		closeButton:SetAlpha(0.823)
@@ -649,14 +657,15 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		end)
 
 		--warning footer
-		local warningFooter = DetailsFramework:CreateLabel(contentFrame, "Under development.", 9, "yellow")
-		warningFooter:SetPoint("bottom", readyFrame, "bottom", 0, 20)
+		local warningFooter = detailsFramework:CreateLabel(contentFrame, "Under development", 9, "orange")
+		warningFooter:SetPoint("bottomright", readyFrame, "bottomright", -5, 5)
+		warningFooter:SetAlpha(0.5)
 
 		--waiting for loot label
-		local waitingForLootLabel = DetailsFramework:CreateLabel(contentFrame, "Waiting for loot", 12, "silver")
+		local waitingForLootLabel = detailsFramework:CreateLabel(contentFrame, "Waiting for loot", 12, "silver")
 		waitingForLootLabel:SetPoint("bottom", readyFrame, "bottom", 0, 54)
 		waitingForLootLabel:Hide()
-		local waitingForLootDotsAnimationLabel = DetailsFramework:CreateLabel(contentFrame, "...", 12, "silver")
+		local waitingForLootDotsAnimationLabel = detailsFramework:CreateLabel(contentFrame, "...", 12, "silver")
 		waitingForLootDotsAnimationLabel:SetPoint("left", waitingForLootLabel, "right", 0, 0)
 		waitingForLootDotsAnimationLabel:Hide()
 
@@ -746,7 +755,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 			mPlus.ShowSummary()
 		end
 		---@type df_button
-		readyFrame.ShowBreakdownButton = DetailsFramework:CreateButton(contentFrame, showBreakdownFunc, 145, 30, "Show Breakdown")
+		readyFrame.ShowBreakdownButton = detailsFramework:CreateButton(contentFrame, showBreakdownFunc, 145, 30, "Show Breakdown")
 		PixelUtil.SetPoint(readyFrame.ShowBreakdownButton, "topleft", readyFrame, "topleft", 31, -30)
 		PixelUtil.SetSize(readyFrame.ShowBreakdownButton, 145, 32)
 		readyFrame.ShowBreakdownButton:SetBackdrop(nil)
@@ -762,7 +771,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 			readyFrame:Hide()
 		end
 		---@type df_button
-		readyFrame.ShowChartButton = DetailsFramework:CreateButton(contentFrame, showChartFunc, 145, 30, "Show Damage Graphic")
+		readyFrame.ShowChartButton = detailsFramework:CreateButton(contentFrame, showChartFunc, 145, 30, "Show Damage Graphic")
 		PixelUtil.SetPoint(readyFrame.ShowChartButton, "left", readyFrame.ShowBreakdownButton, "right", 6, 0)
 		PixelUtil.SetSize(readyFrame.ShowChartButton, 145, 32)
 		readyFrame.ShowChartButton:SetBackdrop(nil)
@@ -775,24 +784,24 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 			Details.mythic_plus.show_damage_graphic = not value
 		end
 
-		local elapsedTimeLabel = DetailsFramework:CreateLabel(contentFrame, "Run Time:", textSize, textColor)
+		local elapsedTimeLabel = detailsFramework:CreateLabel(contentFrame, "Run Time:", textSize, textColor)
 		--elapsedTimeLabel:SetPoint("topleft", leftAnchor, "bottomleft", 0, -8)
 		elapsedTimeLabel:SetPoint("topleft", readyFrame, "topleft", 5, -70)
-		local elapsedTimeAmount = DetailsFramework:CreateLabel(contentFrame, "00:00", textSize, textColor)
+		local elapsedTimeAmount = detailsFramework:CreateLabel(contentFrame, "00:00", textSize, textColor)
 		elapsedTimeAmount:SetPoint("left", elapsedTimeLabel, "left", 130, 0)
 
-		local timeNotInCombatLabel = DetailsFramework:CreateLabel(contentFrame, "Time not in combat:", textSize, "orangered")
+		local timeNotInCombatLabel = detailsFramework:CreateLabel(contentFrame, "Time not in combat:", textSize, "orangered")
 		timeNotInCombatLabel:SetPoint("topleft", elapsedTimeLabel, "bottomleft", 0, -5)
-		local timeNotInCombatAmount = DetailsFramework:CreateLabel(contentFrame, "00:00", textSize, "orangered")
+		local timeNotInCombatAmount = detailsFramework:CreateLabel(contentFrame, "00:00", textSize, "orangered")
 		timeNotInCombatAmount:SetPoint("left", timeNotInCombatLabel, "left", 130, 0)
 
-		local youBeatTheTimerLabel = DetailsFramework:CreateLabel(contentFrame, "", textSize, "white")
+		local youBeatTheTimerLabel = detailsFramework:CreateLabel(contentFrame, "", textSize, "white")
 		youBeatTheTimerLabel:SetPoint("topleft", timeNotInCombatLabel, "bottomleft", 0, -5)
 
-		--local keystoneUpgradeLabel = DetailsFramework:CreateLabel(readyFrame, "Keystone Upgrade:", textSize, "white")
+		--local keystoneUpgradeLabel = detailsFramework:CreateLabel(readyFrame, "Keystone Upgrade:", textSize, "white")
 		--keystoneUpgradeLabel:SetPoint("topleft", youBeatTheTimerLabel, "bottomleft", 0, -5)
 
-		local rantingLabel = DetailsFramework:CreateLabel(contentFrame, "", textSize, textColor)
+		local rantingLabel = detailsFramework:CreateLabel(contentFrame, "", textSize, textColor)
 		--rantingLabel:SetPoint("topleft", keystoneUpgradeLabel, "bottomleft", 0, -5)
 		rantingLabel:SetPoint("topleft", youBeatTheTimerLabel, "bottomleft", 0, -5)
 
@@ -885,12 +894,14 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		Details222.MythicPlus.BackgroundTexture = backgroundTexture
 		--]=]
 
-		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch(contentFrame, on_switch_enable, not Details.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		local notAgainSwitch, notAgainLabel = detailsFramework:CreateSwitch(contentFrame, on_switch_enable, not Details.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		notAgainLabel.textcolor = "orange"
 		notAgainSwitch:ClearAllPoints()
 		notAgainLabel:SetPoint("left", notAgainSwitch, "right", 2, 0)
 		notAgainSwitch:SetPoint("bottomleft", readyFrame, "bottomleft", 5, 5)
 		notAgainSwitch:SetAsCheckBox()
 		notAgainSwitch:SetSize(12, 12)
+		notAgainSwitch:SetAlpha(0.5)
 		notAgainLabel.textsize = 9
 
 		readyFrame.TimeNotInCombatAmountLabel = timeNotInCombatAmount
@@ -961,12 +972,12 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 	--update the run time and time not in combat
 	local elapsedTime = Details222.MythicPlus.time or 1507
-	readyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
+	readyFrame.ElapsedTimeAmountLabel.text = detailsFramework:IntegerToTimer(elapsedTime)
 
 	if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
 		local combatTime = overallMythicDungeonCombat:GetCombatTime()
 		local notInCombat = elapsedTime - combatTime
-		readyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
+		readyFrame.TimeNotInCombatAmountLabel.text = detailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
 	else
 		readyFrame.TimeNotInCombatAmountLabel.text = "Unknown for this run"
 	end
