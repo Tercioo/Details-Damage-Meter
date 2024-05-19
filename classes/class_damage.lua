@@ -3905,6 +3905,13 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				meu_tempo = instancia.showing:GetCombatTime()
 			end
 
+			if (not meu_tempo) then
+				meu_tempo = instancia.showing:GetCombatTime()
+				if (Details.time_type == 3) then --time type 3 is deprecated
+					Details.time_type = 2
+				end
+			end
+
 			--add actor spells
 			for _spellid, _skill in pairs(ActorSkillsContainer) do
 				ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo}
