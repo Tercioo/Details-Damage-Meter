@@ -509,6 +509,7 @@
 		pluginContainerFrame:EnableMouse(true)
 		pluginContainerFrame:SetMovable(true)
 		pluginContainerFrame:SetPoint("center", UIParent, "center", 0, 0)
+		pluginContainerFrame:SetClampedToScreen(true)
 		table.insert(UISpecialFrames, "DetailsPluginContainerWindow")
 
 		pluginContainerFrame:Hide()
