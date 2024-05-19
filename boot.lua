@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12717
-		Details.alpha_build_counter = 12717 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12755
+		Details.alpha_build_counter = 12755 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -183,6 +183,17 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 	local news = {
+		{"v10.2.7.12755.156", "May 19th, 2024"},
+		"Pet names on tooltips are now transliterate from Cyrillic.",
+		"Default segments amount are now 25 and save 15, users with different amount set won't have their settings changed.",
+		"Fixed an error when the user opens the death recap.",
+		"Merging the effects of All-Totem of the Mastr (Flamanis).",
+		"Added a season setting to stop right click for bookmark: '/run Details.no_bookmark = true' stop the right click for bookmark in combat or not.\n/run Details.no_bookmark_on_combat = true stop the right click for bookmark only in combat.\nYou need to run this command every time you log in or add it into the Auto Run Code.",
+		"A few changes has been done in an attempt to fix the loot squares not showing properly in the mythic+ end screen.",
+		"The options panel now cannot be dragged outside the screen, this will stop users with two monitors to acciently moving the window out of screen.",
+		"Tooltip bar colors are now fixed and won't lost its setting on reload.",
+		"The buff Rallied to Victory should now be shown in the player breakdown window Auras tab.",
+
 		{"v10.2.6.12699.156", "May 03th, 2024"},
 		"Framework and Backend upgrades.",
 		"Added Toc data for Cata classic.",
