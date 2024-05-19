@@ -553,11 +553,6 @@ function Details:StartMeUp()
 	--no no, enforece 8, 8 is much better, 8 is more lines, we like 8
 	Details.tooltip.tooltip_max_abilities = 8
 
-	local tooltipBarColor = Details.tooltip.bar_color
-	tooltipBarColor[1] = 0.149
-	tooltipBarColor[2] = 0.149
-	tooltipBarColor[3] = 0.149
-
 	Details.InstallRaidInfo()
 
 	--Plater integration
