@@ -6200,7 +6200,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		local _, _, _, toc = GetBuildInfo()
 		if (toc >= 100200) then
-			Details.playername = UnitName("player") .. "-" .. (GetRealmName():gsub("%s", ''))
+			Details.playername = UnitName("player") .. "-" .. (GetRealmName():gsub("[%s-]", ''))
 		else
 			Details.playername = UnitName("player")
 		end
