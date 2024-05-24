@@ -627,6 +627,7 @@ L["STRING_OPTIONS_COMBAT_ALPHA_DESC"] = [=[Select how combat affects the window 
 L["STRING_OPTIONS_COMBATTWEEKS"] = "Combat Tweaks"
 L["STRING_OPTIONS_COMBATTWEEKS_DESC"] = "Behavioral adjustments on how Details! deal with some combat aspects."
 L["STRING_OPTIONS_CONFIRM_ERASE"] = "Do you want to erase data?"
+L["STRING_OPTIONS_KEEP_MYTHICPLUS_OVERALL"] = "Yes, but keep Mythic+ Overall Segments"
 L["STRING_OPTIONS_CUSTOMSPELL_ADD"] = "Add Spell"
 L["STRING_OPTIONS_CUSTOMSPELLTITLE"] = "Edit Spell Settings"
 L["STRING_OPTIONS_CUSTOMSPELLTITLE_DESC"] = "This panel alows you modify the name and icon of spells."
@@ -1715,5 +1716,6 @@ L["STRING_WIPE_ERROR1"] = "a wipe already has been call."
 L["STRING_WIPE_ERROR2"] = "we aren't in a raid encounter."
 L["STRING_WIPE_ERROR3"] = "couldn't end the encounter."
 L["STRING_YES"] = "Yes"
+L["STRING_RESET_KEEP_MYTHICPLUS_OVERALL"] = "Reset, but keep Mythic+ Overall Segments"
 
 --@localization(locale="enUS", format="lua_additive_table")@

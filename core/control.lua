@@ -1866,7 +1866,7 @@
 		local panel = _G.DetailsEraseDataConfirmation
 		if (not panel) then
 			panel = CreateFrame("frame", "DetailsEraseDataConfirmation", UIParent, "BackdropTemplate")
-			panel:SetSize(400, 85)
+			panel:SetSize(600, 85)
 			panel:SetPoint("center", UIParent)
 
 			DetailsFramework:AddRoundedCornersToFrame(panel, Details.PlayerBreakdown.RoundedCornerPreset)
@@ -1900,6 +1900,11 @@
 			local yes = Details.gump:CreateButton(panel, function() panel:Hide(); Details.tabela_historico:ResetAllCombatData() end, 90, 20, Loc ["STRING_YES"])
 			yes:SetPoint("bottomright", panel, "bottomright", -30, 10)
 			yes:InstallCustomTexture(nil, nil, nil, nil, true)
+
+			local keepMythicPlus = Details.gump:CreateButton(panel, function() panel:Hide(); Details.tabela_historico:ResetDataByCombatType("m+overall") end, 90, 20, Loc ["STRING_OPTIONS_KEEP_MYTHICPLUS_OVERALL"])
+			keepMythicPlus:SetPoint("center", panel, "center")
+			keepMythicPlus:SetPoint("bottom", panel, "bottom", 0, 10)
+			keepMythicPlus:InstallCustomTexture(nil, nil, nil, nil, true)
 		end
 
 		panel:Show()
