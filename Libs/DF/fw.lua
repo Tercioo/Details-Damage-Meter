@@ -187,6 +187,9 @@ function DF.IsWarWow()
 	return false
 end
 
+function DF.IsTWWWow()
+	return DF.IsWarWow()
+end
 
 ---return true if the player is playing in the WotLK version of wow with the retail api
 ---@return boolean
@@ -198,6 +201,10 @@ function DF.IsNonRetailWowWithRetailAPI()
 	return false
 end
 DF.IsWotLKWowWithRetailAPI = DF.IsNonRetailWowWithRetailAPI -- this is still in use
+
+function DF.ExpansionHasAugEvoker()
+	return DF.IsDragonflightWow() or DF.IsWarWow()
+end
 
 ---for classic wow, get the role using the texture from the talents frame
 local roleBySpecTextureName = {

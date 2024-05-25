@@ -177,6 +177,8 @@
 ---@field IsShadowlandsWow fun():boolean
 ---@field IsDragonflightWow fun():boolean
 ---@field IsWarWow fun():boolean
+---@field IsTWWWow fun():boolean
+---@field ExpansionHasAugEvoker fun():boolean
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
 ---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
 ---@field GetCurrentClassName fun(self:table) : string return the name of the class the player is playing

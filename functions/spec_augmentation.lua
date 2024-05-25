@@ -3,6 +3,9 @@ local addonName, Details222 = ...
 local Details = Details
 local _
 
+---@type detailsframework
+local detailsFramework = DetailsFramework
+
 local CONST_SPELLID_EBONMIGHT = 395152
 local CONST_SPELLID_SS = 413984
 local CONST_SPELLID_PRESCIENCE = 410089
@@ -44,6 +47,11 @@ end
 local eventListener = Details:CreateEventListener()
 --eventListener:RegisterEvent("COMBAT_PLAYER_ENTER")
 eventListener:RegisterEvent("COMBAT_PLAYER_LEAVING", function(eventName, combatObject)
+    --check if the expansion the player is playing has the augmentation evokers
+    if (not detailsFramework.ExpansionHasAugEvoker()) then
+        return
+    end
+
     --close the time on the current amount of prescience stacks the evoker have
     ---@type combat
     local combat = Details:GetCurrentCombat()
