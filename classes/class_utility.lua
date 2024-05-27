@@ -212,6 +212,15 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 
 		local evType = event[1]
 		local spellName, _, spellIcon = _GetSpellInfo(event[2])
+
+		if (not spellName) then
+			spellName = _G.UNKNOWN
+		end
+
+		if (not spellIcon) then
+			spellIcon = [[Interface\ICONS\INV_MISC_QUESTIONMARK]]
+		end
+
 		local amount = event[3]
 		local eventTime = event[4]
 		local source = Details:GetOnlyName(event[6] or "")
