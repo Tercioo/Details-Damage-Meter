@@ -4160,6 +4160,11 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				local petDPS = damageTable[3]
 
 				petName = damageTable[1]:gsub(("%s%<.*"), "")
+
+				if (instance.row_info.textL_translit_text) then
+					petName = Translit:Transliterate(petName, "!")
+				end
+
 				if (instancia.sub_atributo == 1) then
 					GameCooltip:AddLine(petName, FormatTooltipNumber(_, petDamageDone) .. " (" .. math.floor(petDamageDone/self.total*100) .. "%)")
 				else
