@@ -716,7 +716,7 @@ function detailsFramework:SetMask(texture, maskTexture)
 	if (not texture.MaskTexture) then
 		local parent = texture:GetParent()
 		local maskTextureObject = parent:CreateMaskTexture(nil, "artwork")
-		maskTextureObject:SetAllPoints(texture)
+		maskTextureObject:SetAllPoints(texture.widget or texture)
 		texture:AddMaskTexture(maskTextureObject)
 		texture.MaskTexture = maskTextureObject
 	end

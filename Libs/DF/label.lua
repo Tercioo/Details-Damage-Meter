@@ -408,6 +408,11 @@ function detailsFramework:NewLabel(parent, container, name, member, text, font, 
 	--if template has been passed as the third parameter
 	if (size and type(size) == "table") then
 		labelObject:SetTemplate(size)
+
+	--check if a template was passed as the 3rd argument
+	elseif (size and type(size) == "string") then
+		local template = detailsFramework:ParseTemplate(labelObject.type, size)
+		labelObject:SetTemplate(template)
 	end
 
 	return labelObject

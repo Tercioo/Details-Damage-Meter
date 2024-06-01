@@ -2106,7 +2106,14 @@ local iconFrame_OnEnter = function(self)
 				end
 			end
 
-			GameCooltip:AddLine(name, specName)
+			if (instance.row_info.textL_translit_text) then
+				--translate cyrillic alphabet to western alphabet by Vardex (https://github.com/Vardex May 22, 2019)
+				local Translit = LibStub("LibTranslit-1.0")
+				GameCooltip:AddLine(Translit:Transliterate(name, "!"), specName)
+			else
+				GameCooltip:AddLine(name, specName)
+			end
+
 			if (class == "UNKNOW" or class == "UNGROUPPLAYER") then
 				GameCooltip:AddIcon([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, iconSize, iconSize, 0, 0.25, 0.75, 1)
 			else
