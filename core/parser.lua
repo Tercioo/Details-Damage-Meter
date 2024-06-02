@@ -3669,8 +3669,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		[SPELL_POWER_FURY] = {file = [[Interface\PLAYERFRAME\UI-PlayerFrame-Deathknight-Blood-On]], coords = {0, 1, 0, 1}},
 	}
 
-	local alternatePowerEnableFrame = CreateFrame("frame")
-	local alternatePowerMonitorFrame = CreateFrame("frame")
+	local alternatePowerEnableFrame = CreateFrame("frame", "DetailsAlternatePowerEventHandler")
+	local alternatePowerMonitorFrame = CreateFrame("frame", "DetailsAlternatePowerMonitor")
 	alternatePowerEnableFrame:RegisterEvent("UNIT_POWER_BAR_SHOW")
 	alternatePowerEnableFrame:RegisterEvent("ENCOUNTER_END")
 	alternatePowerEnableFrame.IsRunning = false
@@ -3691,7 +3691,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (powerType == "ALTERNATE") then
 			local actorName = Details:GetFullName(unitID)
 			if (actorName) then
-				local power = _current_combat.alternate_power[actorName]
+				--weird bug on cata as described below
+				if (not _current_combat.alternate_power) then
+					_current_combat.alternate_power = {}
+				end
+
+				local power = _current_combat.alternate_power[actorName] --cata: 120x Details/core/parser.lua:3694: attempt to index field 'alternate_power' (a nil value)
 				if (not power) then
 					power = _current_combat:CreateAlternatePowerTable(actorName)
 				end
