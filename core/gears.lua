@@ -7,6 +7,7 @@ local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
 local select = select
 local floor = floor
 local GetNumGroupMembers = GetNumGroupMembers
+local GetSpellInfo = Details222.GetSpellInfo
 
 local CONST_INSPECT_ACHIEVEMENT_DISTANCE = 1 --Compare Achievements, 28 yards
 local CONST_SPELLBOOK_GENERAL_TABID = 1

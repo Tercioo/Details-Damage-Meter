@@ -9,7 +9,7 @@ do
 		_detalhes.PotionList [spellID] = true
 	end
 
-	if (DetailsFramework.IsDragonflight()) then
+	if (DetailsFramework.IsDragonflight() or DetailsFramework.IsWarWow()) then
 		--/details generatespelllist
 		_detalhes.SpecSpellList = { --~spec
 			--Evoker Augmentation

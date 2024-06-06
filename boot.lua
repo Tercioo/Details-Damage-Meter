@@ -172,6 +172,17 @@
 		--aura scanner
 		Details222.AuraScan = {}
 
+        local GetSpellInfo = GetSpellInfo or C_Spell.GetSpellInfo
+        Details222.GetSpellInfo = GetSpellInfo
+        if (DetailsFramework.IsWarWow()) then
+            Details222.GetSpellInfo = function(...)
+                local result = GetSpellInfo(...)
+                if result then
+                    return result.name, 1, result.iconID
+                end
+            end
+        end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
 local _

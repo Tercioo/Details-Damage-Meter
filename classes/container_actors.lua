@@ -68,7 +68,7 @@
 	local debugPetname = false
 
 	local SPELLID_SANGUINE_HEAL = 226510
-	local sanguineActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
+	local sanguineActorName = Details222.GetSpellInfo(SPELLID_SANGUINE_HEAL)
 
 
 ---attempt to get the owner of rogue's Akaari's Soul from Secrect Technique

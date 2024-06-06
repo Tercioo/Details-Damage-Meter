@@ -29,6 +29,25 @@ local GetItemInfo = GetItemInfo
 local GetItemStats = GetItemStats
 local GetInventoryItemLink = GetInventoryItemLink
 
+local GetSpellInfo = GetSpellInfo or function(...) local result = C_Spell.GetSpellInfo(...) if result then return result.name, nil, result.iconID end end
+
+local GetSpellTabInfo = GetSpellTabInfo or function(index)
+    local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(index);
+    if skillLineInfo then
+        return	skillLineInfo.name, 
+                skillLineInfo.iconID, 
+                skillLineInfo.itemIndexOffset, 
+                skillLineInfo.numSpellBookItems, 
+                skillLineInfo.isGuild, 
+                skillLineInfo.offSpecID,
+                skillLineInfo.shouldHide,
+                skillLineInfo.specID;
+    end
+end
+
+local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo or C_Item.GetDetailedItemLevelInfo
+local GetSpellBookItemInfo = GetSpellBookItemInfo or C_SpellBook.GetSpellBookItemInfo
+
 local isTimewalkWoW = function()
     local _, _, _, buildInfo = GetBuildInfo()
     if (buildInfo < 40000) then

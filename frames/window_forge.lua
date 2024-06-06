@@ -1,6 +1,9 @@
 
 local Details = _G.Details
+local addonName, Details222 = ...
 local L = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
+
+local GetSpellInfo = Details222.GetSpellInfo
 
 --default weaktable
 Details.weaktable = {__mode = "v"}

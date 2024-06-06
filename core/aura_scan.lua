@@ -4,7 +4,7 @@ local addonName, Details222 = ...
 local detailsFramework = DetailsFramework
 local _
 
-local AuraUtil, wipe, C_UnitAuras, GetSpellInfo, GetTime, UnitGUID, UnitExists = AuraUtil, table.wipe, C_UnitAuras, GetSpellInfo, GetTime, UnitGUID, UnitExists
+local AuraUtil, wipe, C_UnitAuras, GetSpellInfo, GetTime, UnitGUID, UnitExists = AuraUtil, table.wipe, C_UnitAuras, Details222.GetSpellInfo, GetTime, UnitGUID, UnitExists
 
 local AuraScan = Details222.AuraScan
 AuraScan.Enabled = false
