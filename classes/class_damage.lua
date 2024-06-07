@@ -2034,7 +2034,7 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 											this_spell [2] = this_spell [2] + on_player
 											total = total + on_player
 										else
-											error("error - no spell id for DTBS friendly fire " .. spellid)
+											--error("error - no spell id for DTBS friendly fire " .. spellid)
 										end
 									end
 								end
