@@ -3,6 +3,8 @@ local addonName, Details222 = ...
 local Details = Details
 local detailsFramework = DetailsFramework
 
+local GetSpellInfo = Details222.GetSpellInfo
+
 --this are the fields from spellTable that can be summed
 local spellTable_FieldsToSum = {
 	["counter"] = true,

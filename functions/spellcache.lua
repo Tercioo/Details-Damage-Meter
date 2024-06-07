@@ -7,7 +7,6 @@ do
 	local rawget = rawget
 	local rawset = rawset
 	local setmetatable = setmetatable
-	local GetSpellInfo = GetSpellInfo
 	local unpack = unpack
 	local tinsert = table.insert
 	local tremove = tremove
@@ -15,6 +14,9 @@ do
 
 	--is this a timewalking exp?
 	local bIsClassicWow = DetailsFramework.IsClassicWow()
+    local bIsWarWow = DetailsFramework.IsWarWow()
+
+    local GetSpellInfo = Details222.GetSpellInfo
 
 	--default spell cache container
 	Details.spellcache = {}

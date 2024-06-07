@@ -10,6 +10,8 @@ end
 
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
+local GetItemInfo = GetItemInfo or C_Item.GetItemInfo
+
 local CONST_FRACTION_OF_A_SECOND = 0.01
 
 local CONST_COOLDOWN_TYPE_OFFENSIVE = 1

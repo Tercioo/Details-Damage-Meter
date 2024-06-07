@@ -20,7 +20,7 @@ local tinsert = table.insert
 local _math_min = math.min
 local _math_ceil = math.ceil
 --api locals
-local GetSpellInfo = GetSpellInfo
+local GetSpellInfo = Details222.GetSpellInfo
 local _GetSpellInfo = _detalhes.getspellinfo
 local IsInRaid = IsInRaid
 local IsInGroup = IsInGroup

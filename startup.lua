@@ -489,7 +489,7 @@ function Details:StartMeUp()
 				---@type trinketdata
 				local thisTrinketData = {
 					itemName = C_Item.GetItemNameByID(trinketTable.itemId),
-					spellName = GetSpellInfo(spellId) or "spell not found",
+					spellName = Details222.GetSpellInfo(spellId) or "spell not found",
 					lastActivation = 0,
 					lastPlayerName = "",
 					totalCooldownTime = 0,

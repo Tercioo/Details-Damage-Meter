@@ -1,6 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local Details = _G.Details
+    local addonName, Details222 = ...
 	local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 	local detailsFramework = DetailsFramework
 
@@ -26,6 +27,7 @@
 
 	local _UnitGroupRolesAssigned = detailsFramework.UnitGroupRolesAssigned
 	local _GetSpellInfo = Details.getspellinfo
+    local GetSpellInfo = Details222.GetSpellInfo
 	local isWOTLK = detailsFramework.IsWotLKWow()
 	local isERA = detailsFramework.IsClassicWow()
 	local isCATA = detailsFramework.IsCataWow()
