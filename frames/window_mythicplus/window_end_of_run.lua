@@ -84,7 +84,10 @@ _G.MythicDungeonFrames = mythicDungeonFrames
 --frame to handle loot events
 local lootFrame = CreateFrame("frame", "DetailsEndOfMythicLootFrame", UIParent)
 lootFrame:RegisterEvent("BOSS_KILL")
-lootFrame:RegisterEvent("ENCOUNTER_LOOT_RECEIVED")
+
+if (C_EventUtils.IsEventValid("ENCOUNTER_LOOT_RECEIVED")) then
+	lootFrame:RegisterEvent("ENCOUNTER_LOOT_RECEIVED")
+end
 
 --register the loot players looted at the end of the mythic dungeon
 lootFrame.LootCache = {}
