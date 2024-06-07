@@ -1,96 +1,41 @@
 
---data for dragonflight expansion
+--data for war within expansion
 do
 	local versionString, revision, launchDate, gameVersion = GetBuildInfo()
 	if (gameVersion >= 120000 or gameVersion < 110000) then
 		return
 	end
-    
-    --TWW TODO, make sure LOR works properly. C_SpellBook.GetSpellBookItemInfo is not accepting arguments
-	-- if (not LIB_OPEN_RAID_CAN_LOAD) then
-	-- 	return
-	-- end
 
-	-- local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+	if (not LIB_OPEN_RAID_CAN_LOAD) then
+		return
+	end
 
-	-- local loadLibDatabase = function()
-	-- 	--localization
-		local gameLanguage = GetLocale()
+    local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
-		local L = { --default localization
-			["STRING_EXPLOSION"] = "explosion",
-			["STRING_MIRROR_IMAGE"] = "Mirror Image",
-			["STRING_CRITICAL_ONLY"]  = "critical",
-			["STRING_BLOOM"] = "Bloom", --lifebloom 'bloom' healing
-			["STRING_GLAIVE"] = "Glaive", --DH glaive toss
-			["STRING_MAINTARGET"] = "Main Target",
-			["STRING_AOE"] = "AoE", --multi targets
-			["STRING_SHADOW"] = "Shadow", --the spell school 'shadow'
-			["STRING_PHYSICAL"] = "Physical", --the spell school 'physical'
-			["STRING_PASSIVE"] = "Passive", --passive spell
-			["STRING_TEMPLAR_VINDCATION"] = "Templar's Vindication", --paladin spell
-			["STRING_PROC"] = "proc", --spell proc
-			["STRING_TRINKET"] = "Trinket", --trinket
-		}
+	local loadLibDatabase = function()
+        --localization
+        local gameLanguage = GetLocale()
+
+        local L = {} --default localization
 
 		if (gameLanguage == "enUS") then
 			--default language
-
 		elseif (gameLanguage == "deDE") then
-			L["STRING_EXPLOSION"] = "Explosion"
-			L["STRING_MIRROR_IMAGE"] = "Bilder spiegeln"
-			L["STRING_CRITICAL_ONLY"]  = "kritisch"
-
 		elseif (gameLanguage == "esES") then
-			L["STRING_EXPLOSION"] = "explosión"
-			L["STRING_MIRROR_IMAGE"] = "Imagen de espejo"
-			L["STRING_CRITICAL_ONLY"]  = "crítico"
-
 		elseif (gameLanguage == "esMX") then
-			L["STRING_EXPLOSION"] = "explosión"
-			L["STRING_MIRROR_IMAGE"] = "Imagen de espejo"
-			L["STRING_CRITICAL_ONLY"]  = "crítico"
-
 		elseif (gameLanguage == "frFR") then
-			L["STRING_EXPLOSION"] = "explosion"
-			L["STRING_MIRROR_IMAGE"] = "Effet miroir"
-			L["STRING_CRITICAL_ONLY"]  = "critique"
-
 		elseif (gameLanguage == "itIT") then
-			L["STRING_EXPLOSION"] = "esplosione"
-			L["STRING_MIRROR_IMAGE"] = "Immagine Speculare"
-			L["STRING_CRITICAL_ONLY"]  = "critico"
-
 		elseif (gameLanguage == "koKR") then
-			L["STRING_EXPLOSION"] = "폭발"
-			L["STRING_MIRROR_IMAGE"] = "미러 이미지"
-			L["STRING_CRITICAL_ONLY"]  = "치명타"
-
 		elseif (gameLanguage == "ptBR") then
-			L["STRING_EXPLOSION"] = "explosão"
-			L["STRING_MIRROR_IMAGE"] = "Imagem Espelhada"
-			L["STRING_CRITICAL_ONLY"]  = "critico"
-
 		elseif (gameLanguage == "ruRU") then
-			L["STRING_EXPLOSION"] = "взрыв"
-			L["STRING_MIRROR_IMAGE"] = "Зеркальное изображение"
-			L["STRING_CRITICAL_ONLY"]  = "критический"
-
 		elseif (gameLanguage == "zhCN") then
-			L["STRING_EXPLOSION"] = "爆炸"
-			L["STRING_MIRROR_IMAGE"] = "镜像"
-			L["STRING_CRITICAL_ONLY"]  = "爆击"
-
 		elseif (gameLanguage == "zhTW") then
-			L["STRING_EXPLOSION"] = "爆炸"
-			L["STRING_MIRROR_IMAGE"] = "鏡像"
-			L["STRING_CRITICAL_ONLY"]  = "致命"
 		end
 
-		LIB_OPEN_RAID_FOOD_BUFF = {} --default
+        LIB_OPEN_RAID_FOOD_BUFF = {} --default
 		LIB_OPEN_RAID_FLASK_BUFF = {} --default
 
-		LIB_OPEN_RAID_BLOODLUST = {
+        LIB_OPEN_RAID_BLOODLUST = {
 			[2825] = true, --bloodlust (shaman)
 			[32182] = true, --heroism (shaman)
 			[80353] = true, --timewarp (mage)
@@ -100,19 +45,20 @@ do
 			[390386] = true, --fury of the aspects
 		}
 
-		LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 180653
-		LIB_OPEN_RAID_AUGMENTATED_RUNE = 0 --need to update to dragonflight
+		LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 0 -- TODO: need to update to war within
+		LIB_OPEN_RAID_AUGMENTATED_RUNE = 0 -- TODO: need to update to war within
 
 		LIB_OPEN_RAID_COVENANT_ICONS = {
-			--need to get the icon for the new 4 covanants in dragonflight
+			--need to get the icon for the new 4 covanants in war within
 			--"Interface\\ICONS\\UI_Sigil_Kyrian", --kyrian
 			--"Interface\\ICONS\\UI_Sigil_Venthyr", --venthyr
 			--"Interface\\ICONS\\UI_Sigil_NightFae", --nightfae
 			--"Interface\\ICONS\\UI_Sigil_Necrolord", --necrolords
 		}
 
-		--which gear slots can be enchanted on the latest retail version of the game
+        --which gear slots can be enchanted on the latest retail version of the game
 		--when the value is a number, the slot only receives enchants for a specific attribute
+        -- TODO: Confirm
 		LIB_OPEN_RAID_ENCHANT_SLOTS = {
 			--[INVSLOT_NECK] = true,
 			[INVSLOT_BACK] = true,
@@ -150,7 +96,7 @@ do
 		--local gemId = select(4, strsplit(":", itemLink))
 		--print("gemId:", gemId)
 		LIB_OPEN_RAID_GEM_IDS = {
-			--need update to dragonflight
+			-- TODO: need update to war within
 		}
 
 		--/dump GetWeaponEnchantInfo()
@@ -159,93 +105,33 @@ do
 			[5400] = {spell=318038}, -- Flametongue
 			[6498] = {spell=382021}, -- Earthliving
 			-- Runes, whetstones, weightstones
-			[6512] = {tier = 1, item=194823},
-			[6513] = {tier = 2, item=194823},
-			[6514] = {tier = 3, item=194823},
-
-			[6515] = {tier = 1, item=194826},
-			[6694] = {tier = 2, item=194826},
-			[6695] = {tier = 3, item=194826},
-
-			[6516] = {tier = 1, item=194820},
-			[6517] = {tier = 2, item=194820},
-			[6518] = {tier = 3, item=194820},
-
-			[6529] = {tier = 1, item=198162},
-			[6530] = {tier = 2, item=198162},
-			[6531] = {tier = 3, item=198162},
-
-			[6379] = {tier = 1, item=191940},
-			[6380] = {tier = 2, item=191940},
-			[6381] = {tier = 3, item=191940},
-
-			[6696] = {tier = 1, item=191945},
-			[6697] = {tier = 2, item=191945},
-			[6698] = {tier = 3, item=191945},
+            -- TODO: Update for war within
 		}
 
 		--buff spellId, the value of the food is the tier level
 		--use /details auras
-		LIB_OPEN_RAID_FOOD_BUFF = {
-			[382145] = {tier = {[220] = 1}, status = {"haste"}, localized = {STAT_HASTE}}, --Well Fed haste 220
-			[382146] = {tier = {[220] = 1}, status = {"critical"}, localized = {STAT_CRITICAL_STRIKE}}, --Well Fed crit 220
-			[382149] = {tier = {[220] = 1}, status = {"versatility"}, localized = {STAT_VERSATILITY}}, --Well Fed vers 220
-			[382150] = {tier = {[220] = 1}, status = {"mastery"}, localized = {STAT_MASTERY}}, --Well Fed mastery 220
-			[382152] = {tier = {[130] = 1}, status = {"haste", "critical"}, localized = {STAT_HASTE, STAT_CRITICAL_STRIKE}}, --Well Fed haste + crit 130
-			[382153] = {tier = {[130] = 1}, status = {"haste", "versatility"}, localized = {STAT_HASTE, STAT_VERSATILITY}}, --Well Fed haste + vers 130
-			[382154] = {tier = {[130] = 1}, status = {"haste", "mastery"}, localized = {STAT_HASTE, STAT_MASTERY}}, --Well Fed haste + mastery 130
-			[382155] = {tier = {[130] = 1}, status = {"critical", "versatility"}, localized = {STAT_CRITICAL_STRIKE, STAT_VERSATILITY}}, --Well Fed crit + vers 130
-			[382156] = {tier = {[130] = 1}, status = {"critical", "mastery"}, localized = {STAT_CRITICAL_STRIKE, STAT_MASTERY}}, --Well Fed crit + mastery 130
-			[382157] = {tier = {[130] = 1}, status = {"mastery", "versatility"}, localized = {STAT_MASTERY, STAT_VERSATILITY}}, --Well Fed vers + mastery 130
-		}
+        -- TODO: Update for war within
+		LIB_OPEN_RAID_FOOD_BUFF = {}
 
 		--use /details auras
-		LIB_OPEN_RAID_FLASK_BUFF = {
-			--phials
-			[371354] = {tier = {[131] = 1, [151] = 2, [174] = 3}}, --Phial of the Eye in the Storm
-			[370652] = {tier = {[470] = 1, [541] = 2, [622] = 3}}, --Phial of Static Empowerment
-			[371172] = {tier = {[236] = 1, [257] = 2, [279] = 3}}, --Phial of Tepid Versatility
-			[371204] = {tier = {[8125] = 1, [9344] = 2, [10746] = 3}}, --Phial of Still Air
-			[371036] = {tier = {[-4] = 1, [-5] = 2, [-6] = 3}}, --Phial of Icy Preservation
-			[374000] = {tier = {[690] = 1, [752] = 2, [814] = 3}}, --Iced Phial of Corrupting Rage
-			[371386] = {tier = {[432] = 1, [497] = 2, [572] = 3}}, --Phial of Charged Isolation
-			[373257] = {tier = {[4603] = 2, [3949] = 1, [5365] = 3}}, --Phial of Glacial Fury
-			[393700] = {tier = {[45] = 3, [38] = 2, [32] = 1}}, --Aerated Phial of Deftness
-			[393717] = {tier = {[45] = 3, [38] = 2, [32] = 1}}, --Steaming Phial of Finesse
-			[371186] = {tier = {[558] = 3, [473] = 1, [515] = 2}}, --Charged Phial of Alacrity
-			[393714] = {tier = {[45] = 3, [38] = 2, [32] = 1}}, --Crystalline Phial of Perception
-			[371339] = {tier = {[562] = 3, [476] = 1, [519] = 2}}, --Phial of Elemental Chaos
-		}
+        -- TODO: Update for war within
+		LIB_OPEN_RAID_FLASK_BUFF = {}
 
-		LIB_OPEN_RAID_ALL_POTIONS = {
-			[415569] = 1, --Dreamwalker's Healing Potion
-			[370511] = 1, --Refreshing Healing Potion
-			[371039] = 1, --Potion of Withering Vitality
-			[370607] = 1, --Aerated Mana Potion
-			[371024] = 1, --Elemental Potion of Power --querying cooldown with GetSpellCooldown(371024) gives the cooldown of both potions
-			[371028] = 1, --Elemental Potion of Ultimate Power
-			[371033] = 1, --Potion of Frozen Focus
-			[371125] = 1, --Potion of the Hushed Zephyr
-			[371052] = 1, --Potion of Chilled Clarity
-		}
+        -- TODO: Update for war within
+		LIB_OPEN_RAID_ALL_POTIONS = {}
 
 		--spellId of healing from potions
-		LIB_OPEN_RAID_HEALING_POTIONS = {
-			[415569] = 1, --Dreamwalker's Healing Potion
-			[370511] = 1, --Refreshing Healing Potion
-			[371039] = 1, --Potion of Withering Vitality
-			[6262] = 1, --Warlock's Healthstone
-		}
+        -- TODO: Update for war within
+		LIB_OPEN_RAID_HEALING_POTIONS = {}
 
-		LIB_OPEN_RAID_MANA_POTIONS = {
-			[370607] = 1, --Aerated Mana Potion -- CAST_SUCCESS | ENERGIZE
-		}
+        -- TODO: Update for war within
+		LIB_OPEN_RAID_MANA_POTIONS = {}
 
 
 		--end of per expansion content
 		--------------------------------------------------------------------------------------------
 
-
+        -- TODO: Confirm for war within
 		LIB_OPEN_RAID_MELEE_SPECS = {
 			[251] = "DEATHKNIGHT",
 			[252] = "DEATHKNIGHT",
@@ -272,6 +158,7 @@ do
 		--get cooldown duration from the buff placed on the player or target player
 		--spell scanner not getting the spell from the pet spellbook
 
+        -- TODO: Update for war within
 		LIB_OPEN_RAID_COOLDOWNS_INFO = {
 
 			-- Filter Types:
@@ -784,6 +671,7 @@ do
 
 		--list of all crowd control spells
 		--it is not transmitted to other clients
+        -- TODO: Update for war within
 		LIB_OPEN_RAID_CROWDCONTROL = {
 			[331866] = {cooldown = 0,	class = "COVENANT|VENTHYR"}, --Agent of Chaos
 			[334693] = {cooldown = 0,	class = "DEAHTKNIGHT"}, --Absolute Zero
@@ -1105,49 +993,13 @@ do
 		}
 
 		LIB_OPEN_RAID_DATABASE_LOADED = true
-	end
+    end
 
-	--this will make sure to always have the latest data
+    --this will make sure to always have the latest data
 	C_Timer.After(0, function()
 		if (openRaidLib.__version == LIB_OPEN_RAID_MAX_VERSION) then
 			loadLibDatabase()
 		end
 	end)
 	loadLibDatabase()
--- end
-
-
---[=[ code used to build the crowd control list
-for spellId, spellInfo in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
-	if (spellInfo.type == 8) then
-		LIB_OPEN_RAID_CROWDCONTROL[spellId] = spellInfo
-	end
 end
-
-LIB_OPEN_RAID_CROWDCONTROL = {}
-
-C_Timer.After(5, function()
-	--for debugging, compares which crowd control spells are in the details framework that are not in the lib
-	local notInLib = {}
-
-	local DF_CrowdControlSpells = DetailsFramework.CrowdControlSpells
-	for spellId, className in pairs(DF_CrowdControlSpells) do
-		local spellName = GetSpellInfo(spellId)
-		if (spellName) then -- and not LIB_OPEN_RAID_CROWDCONTROL[spellId]
-			local spellCooldown = math.floor(GetSpellBaseCooldown(spellId)/1000)
-			notInLib[#notInLib+1] = {spellId, spellName, spellCooldown, className}
-		end
-	end
-
-	table.sort(notInLib, function(t1, t2) return t1[4] < t2[4] end)
-
-	--make a string like the one above
-	local result = ""
-	for i = 1, #notInLib do
-		local spellId, spellName, spellCooldown, className = unpack(notInLib[i])
-		result = result .. "["..spellId.."] =\t{cooldown = "..spellCooldown..",\t\tclass = \"" .. className .. "\"}, --" .. spellName .. "\n"
-	end
-
-	dumpt(result)
-end)
---]=]

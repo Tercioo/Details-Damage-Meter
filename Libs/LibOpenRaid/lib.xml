@@ -3,10 +3,10 @@
 	<Script file="Functions.lua" />
 	<Script file="GetPlayerInformation.lua" />
 	<Script file="Deprecated.lua" />
+	<Script file="ThingsToMantain_WarWithin.lua" />
 	<Script file="ThingsToMantain_Dragonflight.lua" />
 	<Script file="ThingsToMantain_Shadowlands.lua" />
 	<Script file="ThingsToMantain_Wrath.lua" />
 	<Script file="ThingsToMantain_Era.lua" />
 	<Script file="ThingsToMantain_Cata.lua" />
-    <Script file="ThingsToMantain_TheWarWithin.lua" />
 </Ui>

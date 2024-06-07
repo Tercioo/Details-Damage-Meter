@@ -10,6 +10,8 @@ end
 
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
+-- TWW compat
+-- TODO: Remove when TWW is released
 local GetItemInfo = GetItemInfo or C_Item.GetItemInfo
 
 local CONST_FRACTION_OF_A_SECOND = 0.01

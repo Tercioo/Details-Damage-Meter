@@ -32,13 +32,13 @@ LIB_OPEN_RAID_CAN_LOAD = false
 local versionString, revision, launchDate, gameVersion = GetBuildInfo()
 
 local isExpansion_Dragonflight = function()
-	if (gameVersion >= 100000 and gameVersion < 110000) then
+	if (gameVersion >= 100000) then
 		return true
 	end
 end
 
 --don't load if it's not retail, emergencial patch due to classic and bcc stuff not transposed yet
-if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE or not isExpansion_Dragonflight()) then
+if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) then
     return
 end
 

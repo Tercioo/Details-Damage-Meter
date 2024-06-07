@@ -2,6 +2,7 @@
 --global name declaration
 --local _StartDebugTime = debugprofilestop() print(debugprofilestop() - _StartDebugTime)
 --https://github.com/LuaLS/lua-language-server/wiki/Annotations#documenting-types
+--updated the lib open raid for v11
 
 		_ = nil
 		_G.Details = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
