@@ -950,3 +950,17 @@ detailsFramework.StatusBarFunctions = {
 		end
 	end,
 }
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--frame mixin
+local createTexture = CreateFrame('Frame').CreateTexture -- need a local "original" CreateFrame
+
+detailsFramework.FrameFunctions = {
+	CreateTexture = function(self, name, drawLayer, templateName, subLevel)
+		local texture = createTexture(self, name, drawLayer, templateName, subLevel)
+        -- pixel perfection
+        texture:SetTexelSnappingBias(0)
+        texture:SetSnapToPixelGrid(false)
+        return texture
+	end,
+}

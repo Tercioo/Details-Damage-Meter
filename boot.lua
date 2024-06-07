@@ -1,7 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --global name declaration
 --local _StartDebugTime = debugprofilestop() print(debugprofilestop() - _StartDebugTime)
---test if the packager will deploy to wago
 --https://github.com/LuaLS/lua-language-server/wiki/Annotations#documenting-types
 
 		_ = nil
@@ -18,8 +17,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12755
-		Details.alpha_build_counter = 12755 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12800
+		Details.alpha_build_counter = 12800 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -183,6 +182,15 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 	local news = {
+		{"v10.2.7.12800.156", "June 06th, 2024"},
+		"Added transliteration for pet names in Cyrillic.",
+		"Fixed an error with extra power bars (alternate power) on cataclysm classic.",
+		"Fixed a rare error shown as 'combat already deleted' when trying to reset data.",
+		"Fixed an issue which was preventing to open the death recap window.",
+		"Fixed cataclysm classic attempting to calculate Evoker buffs.",
+		"Fixed battleground problems with cataclysm classic. (Flamanis)",
+		"Fixed an issue with player nicknames not showing properly when the player isn't inside a guild. (Flamanis)",
+
 		{"v10.2.7.12755.156", "May 19th, 2024"},
 		"Pet names on tooltips are now transliterate from Cyrillic.",
 		"Default segments amount are now 25 and save 15, users with different amount set won't have their settings changed.",

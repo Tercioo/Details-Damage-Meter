@@ -4800,6 +4800,7 @@ function detailsFramework:CreateBorderFrame(parent, name)
 	local parentName = name or ("DetailsFrameworkBorderFrame" .. tostring(math.random(1, 100000000)))
 
 	local f = CreateFrame("frame", parentName, parent, "BackdropTemplate")
+	detailsFramework:Mixin(f, detailsFramework.FrameFunctions)
 	f:SetFrameLevel(f:GetFrameLevel()+1)
 	f:SetAllPoints()
 

@@ -14,7 +14,13 @@ local unpack = table.unpack or unpack --lua local
 local type = type --lua local
 local floor = math.floor --lua local
 local loadstring = loadstring --lua local
-local CreateFrame = CreateFrame
+local G_CreateFrame = _G.CreateFrame
+local CreateFrame = function (frameType , name, parent, template, id)
+	local frame = G_CreateFrame(frameType , name, parent, template, id)
+	detailsFramework:Mixin(frame, detailsFramework.FrameFunctions)
+	frame:SetClipsChildren(false)
+	return frame
+end
 
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
