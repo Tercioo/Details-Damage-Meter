@@ -269,6 +269,35 @@ function LibStub:IterateLibraries()end
 ---| "INCLUDE_NAME_PLATE_ONLY"
 ---| "MAW"
 
+---@class privateaura_anchor : table
+---@field unitToken unit
+---@field auraIndex number
+---@field parent frame
+---@field showCountdownFrame boolean
+---@field showCountdownNumbers boolean
+---@field iconInfo privateaura_iconinfo?
+---@field durationAnchor privateaura_anchorbinding?
+
+---@class privateaura_iconinfo : table
+---@field iconAnchor privateaura_anchorbinding
+---@field iconWidth number
+---@field iconHeight number
+
+---@class privateaura_anchorbinding : table
+---@field point anchorpoint
+---@field relativeTo uiobject
+---@field relativePoint anchorpoint
+---@field offsetX number
+---@field offsetY number
+
+---@class privateaura_appliedsoundinfo : table
+---@field unitToken unit
+---@field spellID spellid
+---@field soundFileName string? 	
+---@field soundFileID number? 	
+---@field outputChannel audiochannels?
+
+---@class privateaura_soundid : number
 
 ---@class aurainfo : table
 ---@field applications number
@@ -760,37 +789,6 @@ LE_PARTY_CATEGORY_INSTANCE = true
 
 --functions
 C_ChatInfo = true
-
-
----@class privateaura_anchor : table
----@field unitToken unit
----@field auraIndex number
----@field parent frame
----@field showCountdownFrame boolean
----@field showCountdownNumbers boolean
----@field iconInfo privateaura_iconinfo?
----@field durationAnchor privateaura_anchorbinding?
-
----@class privateaura_iconinfo : table
----@field iconAnchor privateaura_anchorbinding
----@field iconWidth number
----@field iconHeight number
-
----@class privateaura_anchorbinding : table
----@field point anchorpoint
----@field relativeTo uiobject
----@field relativePoint anchorpoint
----@field offsetX number
----@field offsetY number
-
----@class privateaura_appliedsoundinfo : table
----@field unitToken unit
----@field spellID spellid
----@field soundFileName string? 	
----@field soundFileID number? 	
----@field outputChannel audiochannels?
-
----@class privateaura_soundid : number
 
 C_UnitAuras = {}
 

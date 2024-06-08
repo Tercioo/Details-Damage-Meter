@@ -173,7 +173,7 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 					effectiveILvl = effectiveILvl,
 					itemQuality = itemQuality, --this is a number
 					itemID = itemID,
-					time = time()
+					time = GetTime()
 				}
 				table.insert(lootFrame.LootCache[unitName], lootCacheTable)
 
@@ -981,6 +981,8 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		readyFrame.KeystoneUpgradeLabel = keystoneUpgradeLabel
 		readyFrame.RantingLabel = rantingLabel
 	end --end of creating of the readyFrame
+
+	--< end of mythic+ end of run frame creation >--
 
 	--mythic+ finished, showing the readyFrame for the user
 	local readyFrame = mythicDungeonFrames.ReadyFrame
