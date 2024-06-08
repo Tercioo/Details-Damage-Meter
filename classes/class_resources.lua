@@ -1025,7 +1025,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 
 	for i = 1, #allGeneratorSpells do
 		local thisGenerator = allGeneratorSpells [i]
-		local spellName, _, spellIcon = GetSpellInfo(thisGenerator[1].id)
+		local spellName, _, spellIcon = _GetSpellInfo(thisGenerator[1].id)
 		GameCooltip:AddLine(spellName, FormatTooltipNumber (_,  thisGenerator[2]) .. " (|cFFFF5555overflow: " .. FormatTooltipNumber (_,  thisGenerator[3]) .. "|r | " .. _cstr ("%.1f", (thisGenerator[2] / allGenerated) * 100).."%)")
 		GameCooltip:AddIcon (spellIcon, nil, nil, icon_size.W, icon_size.H, .1, .9, .1, .9)
 		_detalhes:AddTooltipBackgroundStatusbar()
