@@ -15,6 +15,7 @@ local CONST_SPELLID_INFERNOBLESS = 410263
 
 local UnitExists = UnitExists
 local UnitIsUnit = UnitIsUnit
+local GetSpellInfo = Details222.GetSpellInfo
 
 local augmentationFunctions = Details222.SpecHelpers[1473]
 local augmentationCache = Details222.SpecHelpers[1473].augmentation_cache
