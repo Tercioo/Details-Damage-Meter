@@ -1816,7 +1816,6 @@ restrictedAddonFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 
 local function disableRestrictedAddons()
     for _, addonName in pairs(restrictedAddons) do
-        print(addonName)
         if C_AddOns.GetAddOnEnableState(addonName) ~= 0 then
             StaticPopupDialogs["DETAILS_RESTRICTED_ADDON"] = {
                 text = "You are running " .. addonName .. " which is incompatible with Details! Damage Meter. It must be disabled for Details to function properly.",
