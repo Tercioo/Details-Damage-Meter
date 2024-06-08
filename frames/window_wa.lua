@@ -1958,7 +1958,7 @@ local empty_other_values = {}
 function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, triggertype, auratype, other_values)
     
     if (not spellname) then
-        spellname = select(1, GetSpellInfo(spellid))
+        spellname = select(1, _detalhes.GetSpellInfo(spellid))
     end
 
     Details:Destroy(empty_other_values)

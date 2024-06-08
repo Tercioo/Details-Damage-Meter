@@ -3,6 +3,7 @@ local Details = _G.Details
 local DF = _G.DetailsFramework
 local C_Timer = _G.C_Timer
 local addonName, Details222 = ...
+local GetSpellInfo = Details222.GetSpellInfo
 
 --get the sectionInfo and try to extract the spellID from it
 --sectionInfo is always a valid table

@@ -3,6 +3,8 @@ local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 local LDB = LibStub ("LibDataBroker-1.1", true)
 local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 local LibWindow = LibStub ("LibWindow-1.1")
+local Details = _G.Details
+local GetSpellInfo = Details.GetSpellInfo
 local _
 
 ---need cleanup Loc ["STRING_MEMORY_ALERT_BUTTON"],

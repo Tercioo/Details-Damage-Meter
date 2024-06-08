@@ -458,7 +458,7 @@ do
 
 			--amount of casts
 			local combatObject = Details:GetCombatFromBreakdownWindow()
-			local castAmount = combatObject:GetSpellCastAmount(playerName, GetSpellInfo(spellId))
+			local castAmount = combatObject:GetSpellCastAmount(playerName, Details.GetSpellInfo(spellId))
 			local playerMiscObject = combatObject:GetActor(DETAILS_ATTRIBUTE_MISC, playerName)
 
 			if (castAmount > 0) then
@@ -579,7 +579,7 @@ do
 			local combatObject = Details:GetCombatFromBreakdownWindow()
 			local playerMiscObject = combatObject:GetActor(DETAILS_ATTRIBUTE_MISC, playerName)
 
-			local castAmount = combatObject:GetSpellCastAmount(playerName, GetSpellInfo(spellId))
+			local castAmount = combatObject:GetSpellCastAmount(playerName, Details.GetSpellInfo(spellId))
 			if (castAmount > 0) then
 				tooltip.casts_label2:SetText(getPercentComparison(mainCastAmount, castAmount))
 				tooltip.casts_label3:SetText(castAmount)

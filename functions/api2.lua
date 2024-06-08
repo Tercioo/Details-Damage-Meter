@@ -9,6 +9,8 @@ This is a high level API for Details! Damage Meter
 
 local addonName, Details222 = ...
 
+local GetSpellInfo = Details222.GetSpellInfo
+
 --local helpers
 local getCombatObject = function(segmentNumber)
 	---@type combat
