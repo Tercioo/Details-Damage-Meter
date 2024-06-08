@@ -19,6 +19,7 @@ local _UnitAura = UnitAura
 local UnitGUID = UnitGUID
 local _UnitName = UnitName
 local format = _G.format
+local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 
 local UnitIsUnit = UnitIsUnit
 

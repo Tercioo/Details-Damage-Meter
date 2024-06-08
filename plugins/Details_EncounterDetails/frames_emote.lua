@@ -11,6 +11,7 @@ local detailsFramework = DetailsFramework
 local CreateFrame = CreateFrame
 local GameCooltip = GameCooltip
 local _
+local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 
 local encounterDetails = _G.EncounterDetailsGlobal
 local edFrame = encounterDetails.Frame

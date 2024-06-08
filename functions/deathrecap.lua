@@ -5,6 +5,7 @@ local textAlpha = 0.9
 local AceLocale = LibStub("AceLocale-3.0")
 local L = AceLocale:GetLocale ( "Details" )
 local addonName, Details222 = ...
+local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 
 local on_deathrecap_line_enter = function(self)
 	if (self.spellid) then

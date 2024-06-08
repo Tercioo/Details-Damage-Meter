@@ -11,6 +11,7 @@
 	local _math_floor = math.floor --lua local
 	local _cstr = string.format --lua local
 	local _UnitClass = UnitClass
+    local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 
 	local gump = _detalhes.gump --details local
 
