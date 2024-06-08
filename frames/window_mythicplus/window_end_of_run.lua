@@ -18,6 +18,8 @@ local C_Timer = C_Timer
 local GameTooltip = GameTooltip
 local SOUNDKIT = SOUNDKIT
 
+local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo or C_Item.GetDetailedItemLevelInfo --C_Item.GetDetailedItemLevelInfo does not return a table
+
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 local mythicDungeonCharts = Details222.MythicPlus.Charts.Listener
