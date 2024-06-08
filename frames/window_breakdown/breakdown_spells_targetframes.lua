@@ -148,7 +148,7 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 			textIndex = textIndex + 1
 
 		elseif (header.name == "percent") then
-			targetBar.percent = value / totalValue * 100 --totalValue is nil
+			targetBar.percent = value / math.max(totalValue, 0.001) * 100 --totalValue is nil
 			---@type string
 			local percentFormatted = string.format("%.1f", targetBar.percent) .. "%"
 			text:SetText(percentFormatted)

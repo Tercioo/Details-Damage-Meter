@@ -115,7 +115,7 @@ local onEnterSpellTarget = function(targetFrame)
 	end
 
 	---@type number the top value of targets
-	local topValue = targets[1] and targets[1][2] or 0
+	local topValue = math.max(targets[1] and targets[1][2] or 0, 0.001)
 
 	local cooltip = GameCooltip
 	cooltip:Preset(2)
@@ -336,14 +336,15 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			local normalAverage = spellTable.n_total / math.max(normalHitsAmt, 0.0001)
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(normalAverage))
 
+            local normalHPS = 0
             if (spellTable.n_total > 0) then
 				local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
 				local normalAveragePercent = spellBar.average / normalAverage * 100
 				local normalTempoPercent = normalAveragePercent * tempo / 100
-				blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
-			else
-				blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(0))
+				normalHPS = spellTable.n_total / normalTempoPercent
 			end
+
+            blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(normalHPS))
 		end
 
 		---@type number
@@ -368,10 +369,15 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			local critAverage = spellTable.c_total / math.max(criticalHitsAmt, 0.0001)
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(critAverage))
 
-			local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
-			local critAveragePercent = spellBar.average / critAverage * 100
-			local critTempoPercent = critAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
+            local critHPS = 0
+            if (spellTable.c_total > 0) then
+                local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
+                local critAveragePercent = spellBar.average / critAverage * 100
+                local critTempoPercent = critAveragePercent * tempo / 100
+                critHPS = spellTable.c_total / critTempoPercent
+            end
+
+            blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(critHPS))
 		end
 
 		---@type number
