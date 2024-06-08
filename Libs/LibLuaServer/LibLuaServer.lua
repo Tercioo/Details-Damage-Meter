@@ -13,7 +13,7 @@
 
 ---This table contains documentation for functions inside C_ChallengeMode.
 ---@class blizzard_documentation : table
----@field Name string the name of the field, can be 
+---@field Name string the name of the field, can be
 ---@field Type string most of the time the type is "Function"
 ---@field Arguments blizzard_documentation_arguments[]? a table containing the arguments of the function
 ---@field Returns blizzard_documentation_returns[]? a table containing the returns of the function, the the type is table, it may have "InnerType" which is the type of the elements inside the table
@@ -258,6 +258,17 @@ function LibStub:IterateLibraries()end
 ---| "OUT"
 ---| "IN_OUT"
 ---| "NONE"
+
+---@alias aurafilter : table
+---| "HELPFUL"
+---| "HARMFUL"
+---| "PLAYER"
+---| "RAID"
+---| "CANCELABLE"
+---| "NOT_CANCELABLE"
+---| "INCLUDE_NAME_PLATE_ONLY"
+---| "MAW"
+
 
 ---@class aurainfo : table
 ---@field applications number
@@ -749,6 +760,121 @@ LE_PARTY_CATEGORY_INSTANCE = true
 
 --functions
 C_ChatInfo = true
+
+
+---@class privateaura_anchor : table
+---@field unitToken unit
+---@field auraIndex number
+---@field parent frame
+---@field showCountdownFrame boolean
+---@field showCountdownNumbers boolean
+---@field iconInfo privateaura_iconinfo?
+---@field durationAnchor privateaura_anchorbinding?
+
+---@class privateaura_iconinfo : table
+---@field iconAnchor privateaura_anchorbinding
+---@field iconWidth number
+---@field iconHeight number
+
+---@class privateaura_anchorbinding : table
+---@field point anchorpoint
+---@field relativeTo uiobject
+---@field relativePoint anchorpoint
+---@field offsetX number
+---@field offsetY number
+
+---@class privateaura_appliedsoundinfo : table
+---@field unitToken unit
+---@field spellID spellid
+---@field soundFileName string? 	
+---@field soundFileID number? 	
+---@field outputChannel audiochannels?
+
+---@class privateaura_soundid : number
+
+C_UnitAuras = {}
+
+---@param privateAuraAnchor privateaura_anchor
+function C_UnitAuras.AddPrivateAuraAnchor(privateAuraAnchor)end
+
+---@param privateAuraAnchor privateaura_anchor
+---@return number
+function C_UnitAuras.AddPrivateAuraAppliedSound(privateAuraAnchor) return 0 end
+
+---@param spellID spellid
+---@return boolean
+function C_UnitAuras.AuraIsPrivate(spellID) return true end
+
+---@param parent uiobject
+---@param anchor privateaura_anchorbinding
+function C_UnitAuras.SetPrivateWarningTextAnchor(parent, anchor) end
+
+---@param anchorID number
+function C_UnitAuras.RemovePrivateAuraAnchor(anchorID) end
+
+---@param privateAuraSoundID number
+function C_UnitAuras.RemovePrivateAuraAppliedSound(privateAuraSoundID) end
+
+---@param unitToken unit
+---@param auraInstanceID number
+---@return aurainfo
+function C_UnitAuras.GetAuraDataByAuraInstanceID(unitToken, auraInstanceID) return {} end
+
+---@param unitToken unit
+---@param auraIndex number
+---@param filter aurafilter?
+---@return aurainfo
+function C_UnitAuras.GetAuraDataByIndex(unitToken, auraIndex, filter) return {} end
+
+---@param unitToken unit
+---@param auraSlot number
+---@return aurainfo
+function C_UnitAuras.GetAuraDataBySlot(unitToken, auraSlot) return {} end
+
+---@param unitToken unit
+---@param spellName spellname
+---@param filter aurafilter?
+---@return aurainfo
+function C_UnitAuras.GetAuraDataBySpellName(unitToken, spellName, filter) return {} end
+
+---@param unitToken unit
+---@param filter aurafilter
+---@param maxSlots number
+---@param continuationToken number
+---@return number outContinuationToken
+---@return ...
+function C_UnitAuras.GetAuraSlots(unitToken, filter, maxSlots, continuationToken) return 0, 0 end
+
+---@param unitToken unit
+---@param index number
+---@param filter aurafilter?
+---@return aurainfo
+function C_UnitAuras.GetBuffDataByIndex(unitToken, index, filter) return {} end
+
+---@param unitToken unit
+---@param index number
+---@param filter aurafilter?
+---@return aurainfo
+function C_UnitAuras.GetDebuffDataByIndex(unitToken, index, filter) return {} end
+
+---@param spellID spellid
+---@return spellid
+function C_UnitAuras.GetCooldownAuraBySpellID(spellID) return 0 end
+
+---@param spellID spellid
+---@return aurainfo
+function C_UnitAuras.GetPlayerAuraBySpellID(spellID) return {} end
+
+---@param unitToken unit
+---@param auraInstanceID number
+---@param filterString aurafilter
+---@return boolean
+function C_UnitAuras.IsAuraFilteredOutByInstanceID(unitToken, auraInstanceID, filterString) return true end
+
+---@param unitToken unit
+---@return boolean
+function C_UnitAuras.WantsAlteredForm(unitToken) return true end
+
 
 
 ---linearly interpolates between two values. Example: Lerp(1, 2, 0.5) return 1.5
@@ -4879,7 +5005,7 @@ ShowingCloak = function() return true end
 ShowingHelm = function() return true end
 
 ---@param settings table
-UploadSettings = function(settings) 
+UploadSettings = function(settings)
     return true
 end
 
