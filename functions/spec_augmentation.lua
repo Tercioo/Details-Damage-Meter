@@ -476,6 +476,7 @@ function augmentationFunctions.BuffRefresh(token, time, sourceSerial, sourceName
             local attributeGained = v2
             if (type(attributeGained) == "number") then
                 Details222.DebugMsg("Ebon Might Refreshed!, but the evoker was not found in the cache (2), adding:", sourceName, sourceSerial, targetName, targetSerial)
+                augmentationCache.ebon_might[targetSerial] = {} --This is needed because the cache was nil
                 table.insert(augmentationCache.ebon_might[targetSerial], {sourceSerial, sourceName, sourceFlags, attributeGained})
             end
         end
