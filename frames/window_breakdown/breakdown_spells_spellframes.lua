@@ -7,7 +7,7 @@ local unpack = unpack
 local GetTime = GetTime
 local CreateFrame = CreateFrame
 local GetSpellLink = GetSpellLink
-local GetSpellInfo = GetSpellInfo
+local GetSpellInfo = Details222.GetSpellInfo
 local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
@@ -336,10 +336,14 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			local normalAverage = spellTable.n_total / math.max(normalHitsAmt, 0.0001)
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(normalAverage))
 
-			local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
-			local normalAveragePercent = spellBar.average / normalAverage * 100
-			local normalTempoPercent = normalAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
+            if (spellTable.n_total > 0) then
+				local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
+				local normalAveragePercent = spellBar.average / normalAverage * 100
+				local normalTempoPercent = normalAveragePercent * tempo / 100
+				blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
+			else
+				blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(0))
+			end
 		end
 
 		---@type number

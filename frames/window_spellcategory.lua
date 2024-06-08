@@ -221,7 +221,7 @@ function Details.Survey.OpenSpellCategoryScreen()
                     local spellId = spellTable[1]
                     --get a line
 					local line = self:GetLine(i)
-                    local spellName, _, spellIcon = GetSpellInfo(spellId)
+                    local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
                     line.Icon:SetTexture(spellIcon)
                     line.Icon:SetTexCoord(.1, .9, .1, .9)
                     line.SpellNameText.text = spellName

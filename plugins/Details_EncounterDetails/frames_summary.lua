@@ -14,7 +14,7 @@ local DETAILS_ATTRIBUTE_DAMAGE = DETAILS_ATTRIBUTE_DAMAGE
 local CONST_DETAILS_MODE_GROUP = DETAILS_MODE_GROUP
 local DETAILS_SEGMENTTYPE_MYTHICDUNGEON = DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 local DETAILS_ATTRIBUTE_MISC = DETAILS_ATTRIBUTE_MISC
-local GetSpellInfo = GetSpellInfo
+local GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 
 local encounterDetails = _G.EncounterDetailsGlobal

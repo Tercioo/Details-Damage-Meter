@@ -1,6 +1,7 @@
 
 local Details = _G.Details
 local C_Timer = _G.C_Timer
+local GetSpellInfo = Details.GetSpellInfo
 local libwindow = LibStub("LibWindow-1.1")
 
 function Details:OpenEventTrackerOptions(bFromOptionsPanel)
@@ -262,7 +263,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 		local screenFrame = CreateFrame("frame", name, parentObject or UIParent,"BackdropTemplate")
 		screenFrame:SetPoint("center", UIParent, "center")
 
-		if (not DetailsFramework.IsDragonflight() and not DetailsFramework.IsNonRetailWowWithRetailAPI()) then
+		if (not DetailsFramework.IsDragonflightAndBeyond() and not DetailsFramework.IsNonRetailWowWithRetailAPI()) then
 			screenFrame:SetMinResize (150, 40)
 			screenFrame:SetMaxResize (800, 1024)
 		else

@@ -4,9 +4,10 @@ if (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFrame
 	return
 end
 
+local Details = _G.Details
+local GetSpellInfo = Details.GetSpellInfo
 local UnitAura = UnitAura
 local UnitBuff = UnitBuff
-local GetSpellInfo = GetSpellInfo
 local UnitClass = UnitClass
 local UnitName = UnitName
 local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS

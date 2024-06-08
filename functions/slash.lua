@@ -11,6 +11,7 @@ local UIParent = UIParent
 local UnitGUID = UnitGUID
 local tonumber= tonumber
 local LoggingCombat = LoggingCombat
+local GetSpellInfo = Details222.GetSpellInfo
 
 SLASH_PLAYEDCLASS1 = "/playedclass"
 function SlashCmdList.PLAYEDCLASS(msg, editbox)

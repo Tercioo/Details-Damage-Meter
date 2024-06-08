@@ -10,6 +10,8 @@ local _IsInRaid = IsInRaid --> wow api
 local _IsInGroup = IsInGroup --> wow api
 local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --> wow api
 local GetUnitName = GetUnitName
+local Details = _G.Details
+local GetSpellInfo = Details.GetSpellInfo
 
 local _ipairs = ipairs --> lua api
 local _table_sort = table.sort --> lua api

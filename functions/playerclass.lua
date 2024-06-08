@@ -6,7 +6,7 @@ do
 	local pairs = pairs
 	local ipairs = ipairs
 	local unpack = table.unpack or _G.unpack
-	local GetSpellInfo = GetSpellInfo
+	local GetSpellInfo = Details222.GetSpellInfo
 	local UnitClass = UnitClass
 	local UnitGUID = UnitGUID
 

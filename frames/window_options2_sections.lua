@@ -6383,7 +6383,7 @@ do
 			spellname_entry:SetPoint("left", spellname, "right", 2, 0)
 
 			local spellid_entry_func = function(arg1, arg2, spellid) 
-				local spellname, _, icon = GetSpellInfo(spellid)
+				local spellname, _, icon = _GetSpellInfo(spellid)
 				if (spellname) then
 					spellname_entry:SetText(spellname) 
 					addframe.spellIconButton.icon.texture = icon
