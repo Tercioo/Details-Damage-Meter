@@ -115,7 +115,7 @@ local onEnterSpellTarget = function(targetFrame)
 	end
 
 	---@type number the top value of targets
-	local topValue = targets[1] and targets[1][2] or 0
+	local topValue = math.max(targets[1] and targets[1][2] or 0, 0.001)
 
 	local cooltip = GameCooltip
 	cooltip:Preset(2)
