@@ -1253,7 +1253,7 @@ end
 
 		local currentCombat = Details:GetCurrentCombat()
 		if (Details.encounter_table.start and not Details.encounter_table["end"] and currentCombat.is_boss) then
-			local encounterHealth = UnitHealth("boss1") or 0
+			local encounterHealth = UnitHealth("boss1") or 0.000001
 			local encounterMaxHealth = UnitHealthMax("boss1") or 1
 			currentCombat.boss_hp = encounterHealth / encounterMaxHealth
 		end
