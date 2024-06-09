@@ -1961,7 +1961,8 @@ local lineScript_Onmouseup = function(self, button)
 
 	if (self.mouse_down and (self.mouse_down+0.4 > GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		if (self.button == "LeftButton" or self.button == "MiddleButton") then
-			if (instanceObject.atributo == 5 or bIsShiftDown) then
+            --Temporary disabling of Resource breakdowns since not implemented
+			if (instanceObject.atributo == 5 or instanceObject.atributo == 3 or bIsShiftDown) then
 				--report
 				if (instanceObject.atributo == 5 and bIsShiftDown) then
 					local custom = instanceObject:GetCustomObject()
