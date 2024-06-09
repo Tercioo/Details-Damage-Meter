@@ -162,11 +162,13 @@ local getDragonflightTalentsAsIndexTable = function()
                         local definitionId = traitEntryInfo.definitionID
 
                         --definition info
-                        local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
-                        local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
-                        local spellName, _, spellTexture = GetSpellInfo(spellId)
-                        if (spellName) then
-                            allTalents[#allTalents+1] = spellId
+                        if (definitionId) then
+                            local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+                            local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+                            local spellName, _, spellTexture = GetSpellInfo(spellId)
+                            if (spellName) then
+                                allTalents[#allTalents+1] = spellId
+                            end
                         end
                     end
                 end
