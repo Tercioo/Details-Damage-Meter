@@ -1227,6 +1227,8 @@ end
 
 function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 
+    if true then return end
+
 	reset_tooltips_table()
 
 	local barras = breakdownWindowFrame.barras3
