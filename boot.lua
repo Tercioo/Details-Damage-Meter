@@ -1239,7 +1239,7 @@ do
 			--check if this is a spellId
 			local spellId = tonumber(value)
 			if (spellId) then
-				local spellInfo = {GetSpellInfo(spellId)}
+				local spellInfo = {Details222.GetSpellInfo(spellId)}
 				if (type(spellInfo[1]) == "string") then
 					return Details:Dump(spellInfo)
 				end

@@ -172,6 +172,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 	end
 
 	spellsTab.currentSpellBar = spellBar
+	Details222.FocusedSpellId = spellBar.spellId
 
     ---@type instance
     local instance = spellsTab.GetInstance()
