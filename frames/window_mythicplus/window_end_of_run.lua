@@ -117,6 +117,7 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 					lootCandidates[lootIndex] = lootInfo
 					lootIndex = lootIndex + 1
 				end
+				table.remove(lootCache, i)
 			end
 		end
 	end
@@ -128,7 +129,7 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 		local itemQuality = lootInfo.itemQuality
 		local itemID = lootInfo.itemID
 
-		local lootSquare = unitBanner:GetLootSquare()
+		local lootSquare = unitBanner:GetLootSquare() --internally controls the loot square index
 		lootSquare.itemLink = itemLink --will error if this the thrid lootSquare (creates only 2 per banner)
 
 		local rarityColor = --[[GLOBAL]]ITEM_QUALITY_COLORS[itemQuality]
