@@ -30,19 +30,19 @@ local GetInventoryItemLink = GetInventoryItemLink
 -- TWW compat
 -- TODO: Remove when TWW is released
 local GetItemStats = C_Item.GetItemStats
-local GetSpellInfo = GetSpellInfo or function(spellID) 
-    if not spellID then return nil end 
+local GetSpellInfo = GetSpellInfo or function(spellID)
+    if not spellID then return nil end
 
-    local spellInfo = C_Spell.GetSpellInfo(spellID) 
-    if spellInfo then 
-        return spellInfo.name, nil, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange, 
-                spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID 
-    end 
+    local spellInfo = C_Spell.GetSpellInfo(spellID)
+    if spellInfo then
+        return spellInfo.name, nil, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange,
+                spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID
+    end
 end
 local GetSpellCooldown = GetSpellCooldown or C_Spell.GetSpellCooldown
 local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo or C_Item.GetDetailedItemLevelInfo
 local GetSpellTabInfo = GetSpellTabInfo or (function(tabLine)
-    if not tabLine then return nil end 
+    if not tabLine then return nil end
 
     local skillLine = C_SpellBook.GetSpellBookSkillLineInfo(tabLine)
     if skillLine then
@@ -60,15 +60,22 @@ local GetSpellCharges = GetSpellCharges or C_Spell.GetSpellCharges
 local GetSpellBookItemName = GetSpellBookItemName or C_SpellBook.GetSpellBookItemName
 local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
+local _, _, _, buildInfo = GetBuildInfo()
+
 local isTimewalkWoW = function()
-    local _, _, _, buildInfo = GetBuildInfo()
     if (buildInfo < 40000) then
         return true
     end
 end
 
-local IsDragonflight = function()
-	return select(4, GetBuildInfo()) >= 100000
+local IsTWWExpansion = function()
+    if (buildInfo >= 110000) then
+        return true
+    end
+end
+
+local IsDragonflight = function() --and beyond
+	return buildInfo >= 100000
 end
 
 local IsShadowlands = function()
@@ -136,7 +143,7 @@ local getDragonflightTalentsExportedString = function()
         local treeHash = C_Traits.GetTreeHash(treeInfo.ID)
         local serializationVersion = C_Traits.GetLoadoutSerializationVersion()
 
-        
+
     end
 end
 
@@ -279,23 +286,23 @@ function openRaidLib.UnitInfoManager.GetPlayerConduits()
             local C_Soulbinds_GetConduitCollectionData = C_Soulbinds.GetConduitCollectionData
             for nodeId, nodeInfo in ipairs(nodes) do
                 --check if the node is a conduit placed by the player
-                
+
                 if (nodeInfo.state == Enum.SoulbindNodeState.Selected)  then
                     local conduitId = nodeInfo.conduitID
                     local conduitRank = nodeInfo.conduitRank
-                    
+
                     if (conduitId and conduitRank) then
                         --have spell id when it's a default conduit from the game
                         local spellId = nodeInfo.spellID
                         --have conduit id when is a conduid placed by the player
                         local conduitId  = nodeInfo.conduitID
-                        
+
                         if (spellId == 0) then
                             --is player conduit
                             spellId = C_Soulbinds.GetConduitSpellID(nodeInfo.conduitID, nodeInfo.conduitRank)
                             conduits[#conduits+1] = spellId
                             local collectionData = C_Soulbinds_GetConduitCollectionData(conduitId)
-                            conduits[#conduits+1] = collectionData and collectionData.conduitItemLevel or 0         
+                            conduits[#conduits+1] = collectionData and collectionData.conduitItemLevel or 0
                         else
                             --is default conduit
                             conduits[#conduits+1] = spellId
@@ -632,7 +639,7 @@ local getSpellListAsHashTableFromSpellBook = function()
         return HasPetSpells()
     end
 
-    --get pet spells from the pet spellbook 
+    --get pet spells from the pet spellbook
     local numPetSpells = getNumPetSpells()
     if (numPetSpells) then
         for i = 1, numPetSpells do
@@ -821,16 +828,30 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
                 return ceil(timeLeft), chargesAvailable, startTimeOffset, duration, buffDuration
             end
         else
-            local spellCooldownInfo = GetSpellCooldown(spellId)
-            local start = spellCooldownInfo.startTime
-            local duration = spellCooldownInfo.duration
-            if (start == 0) then --cooldown is ready
-                return 0, 1, 0, 0, 0 --time left, charges, startTime
+
+            if (IsTWWExpansion()) then
+                local spellCooldownInfo = GetSpellCooldown(spellId)
+                local start = spellCooldownInfo.startTime
+                local duration = spellCooldownInfo.duration
+                if (start == 0) then --cooldown is ready
+                    return 0, 1, 0, 0, 0 --time left, charges, startTime
+                else
+                    local timeLeft = start + duration - GetTime()
+                    local startTimeOffset = start - GetTime()
+                    return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                end
             else
-                local timeLeft = start + duration - GetTime()
-                local startTimeOffset = start - GetTime()
-                return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                local start, duration = GetSpellCooldown(spellId)
+                if (start == 0) then --cooldown is ready
+                    return 0, 1, 0, 0, 0 --time left, charges, startTime
+                else
+                    local timeLeft = start + duration - GetTime()
+                    local startTimeOffset = start - GetTime()
+                    return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                end
             end
+
+
         end
     else
         return openRaidLib.DiagnosticError("CooldownManager|GetPlayerCooldownStatus()|cooldownInfo not found|", spellId)
