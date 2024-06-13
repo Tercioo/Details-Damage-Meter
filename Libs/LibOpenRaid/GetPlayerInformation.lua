@@ -822,8 +822,8 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
             end
         else
             local spellCooldownInfo = GetSpellCooldown(spellId)
-            local start = spellCooldownInfo["startTime"]
-            local duration = spellCooldownInfo["duration"]
+            local start = spellCooldownInfo.startTime
+            local duration = spellCooldownInfo.duration
             if (start == 0) then --cooldown is ready
                 return 0, 1, 0, 0, 0 --time left, charges, startTime
             else
