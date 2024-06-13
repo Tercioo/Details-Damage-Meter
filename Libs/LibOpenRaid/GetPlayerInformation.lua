@@ -51,11 +51,14 @@ local GetSpellTabInfo = GetSpellTabInfo or (function(tabLine)
     end
 end)
 local GetSpellBookItemInfo = GetSpellBookItemInfo or C_SpellBook.GetSpellBookItemType
-local IsPassiveSpell = IsPassiveSpell or C_SpellBook.isSpellPassive
+local IsPassiveSpell = IsPassiveSpell or C_SpellBook.IsSpellBookItemPassive
 local GetNumSpellTabs = GetNumSpellTabs or C_SpellBook.GetNumSpellBookSkillLines
 local spellBookPlayerEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
 local GetOverrideSpell = C_SpellBook.GetOverrideSpell or C_Spell.GetOverrideSpell
+local GetSpellCharges = GetSpellCharges or C_Spell.GetSpellCharges
+local GetSpellBookItemName = GetSpellBookItemName or C_SpellBook.GetSpellBookItemName
+local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
 local isTimewalkWoW = function()
     local _, _, _, buildInfo = GetBuildInfo()
@@ -546,7 +549,7 @@ local getSpellListAsHashTableFromSpellBook = function()
                     if (raceId[playerRaceId]) then
                         spellId = GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
                         if (spellName and not bIsPassive) then
                             completeListOfSpells[spellId] = true
                         end
@@ -556,7 +559,7 @@ local getSpellListAsHashTableFromSpellBook = function()
                     if (raceId == playerRaceId) then
                         spellId = GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
                         if (spellName and not bIsPassive) then
                             completeListOfSpells[spellId] = true
                         end
@@ -578,7 +581,7 @@ local getSpellListAsHashTableFromSpellBook = function()
                     if (spellType == "SPELL") then
                         spellId = GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
                         if LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId] then
                             for _, overrideSpellId in pairs(LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId]) do
                                 completeListOfSpells[overrideSpellId] = true
@@ -602,7 +605,7 @@ local getSpellListAsHashTableFromSpellBook = function()
             if (spellType == "SPELL") then
                 spellId = GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
-                local bIsPassive = IsPassiveSpell(spellId, "player")
+                local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
 
                 if LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId] then
                     for _, overrideSpellId in pairs(LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId]) do
@@ -633,10 +636,10 @@ local getSpellListAsHashTableFromSpellBook = function()
     local numPetSpells = getNumPetSpells()
     if (numPetSpells) then
         for i = 1, numPetSpells do
-            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, "pet")
+            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
             if (unmaskedSpellId) then
                 unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
-                local bIsPassive = IsPassiveSpell(unmaskedSpellId, "pet")
+                local bIsPassive = IsPassiveSpell(unmaskedSpellId, spellBookPetEnum)
                 if (spellName and not bIsPassive) then
                     completeListOfSpells[unmaskedSpellId] = true
                 end
@@ -818,7 +821,9 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
                 return ceil(timeLeft), chargesAvailable, startTimeOffset, duration, buffDuration
             end
         else
-            local start, duration = GetSpellCooldown(spellId)
+            local spellCooldownInfo = GetSpellCooldown(spellId)
+            local start = spellCooldownInfo.startTime
+            local duration = spellCooldownInfo.duration
             if (start == 0) then --cooldown is ready
                 return 0, 1, 0, 0, 0 --time left, charges, startTime
             else
