@@ -783,6 +783,9 @@ function LibStub:IterateLibraries()end
 ---@field SetThumbTexture fun(self: slider, texture: textureid|texturepath)
 ---@field SetStepsPerPage fun(self: slider, steps: number)
 
+---@return number
+function debugprofilestop() return 0 end
+
 INVSLOT_FIRST_EQUIPPED = true
 INVSLOT_LAST_EQUIPPED = true
 LE_PARTY_CATEGORY_INSTANCE = true
@@ -855,7 +858,13 @@ function C_Item.GetItemGemID() end
 function C_Item.IsHarmfulItem() end
 function C_Item.GetItemIcon() end
 function C_Item.DropItemOnUnit() end
-function C_Item.GetDetailedItemLevelInfo() end
+
+---@param itemInfo number|string
+---@return number actualItemLevel
+---@return number previewLevel
+---@return number sparseItemLevel
+function C_Item.GetDetailedItemLevelInfo(itemInfo) return 0, 0, 0 end
+
 function C_Item.IsEquippedItemType() end
 function C_Item.GetItemFamily() end
 function C_Item.GetLimitedCurrencyItemInfo() end
@@ -4038,8 +4047,8 @@ GetItemFamily = function(itemID) return 0 end
 GetItemIcon = function(itemID) return "" end
 
 ---@param itemID number
----@return string, string, string, number
-GetItemInfo = function(itemID) return "", "", "", 0 end
+---@return string, string, number, number
+GetItemInfo = function(itemID) return "", "", 0, 0 end
 
 ---@param quality number
 ---@return table
@@ -5203,7 +5212,7 @@ GetSpellInfo = function(spellNameOrID) return "", 0, 0, 0, 0, 0, 0, 0 end
 GetSpellLink = function(spellID) return "" end
 
 ---@param tabIndex number
----@param isFlyout boolean
+---@param isFlyout boolean?
 ---@return string, string, number, number
 GetSpellTabInfo = function(tabIndex, isFlyout) return "", "", 0, 0 end
 
@@ -5279,8 +5288,11 @@ UnitChannelInfo = function() return "", "", 0, 0, false, "" end
 ---@param command string
 ConsoleExec = function(command) end
 
----@return string, string, string, string
-GetBuildInfo = function() return "", "", "", "" end
+---@return string game version
+---@return string buildId
+---@return string compileDate
+---@return number buildNumber
+GetBuildInfo = function() return "", "", "", 0 end
 
 ---@return number
 GetFramerate = function() return 0 end

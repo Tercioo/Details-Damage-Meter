@@ -305,7 +305,6 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internal functions
--- Details.statistics = {container_calls = 0, container_pet_calls = 0, container_unknow_pet = 0, damage_calls = 0, heal_calls = 0, absorbs_calls = 0, energy_calls = 0, pets_summons = 0}
 	function Details:StartCombat(...)
 		return Details:EntrarEmCombate (...)
 	end
@@ -369,7 +368,7 @@
 		Details:Destroy(Details.encounter_end_table)
 		Details:Destroy(Details.pets_ignored)
 		Details:Destroy(Details.pets_no_owner)
-		Details.container_pets:BuscarPets()
+		Details222.PetContainer.PetScan("CombatStart")
 
 		Details:Destroy(Details.cache_damage_group)
 		Details:Destroy(Details.cache_healing_group)
@@ -1222,30 +1221,13 @@
 		end
 	end
 
-	function Details:EqualizePets()
-		--check for pets without owner
-		for _, actor in ipairs(Details.tabela_vigente[1]._ActorTable) do
-			--have flag and the flag tell us he is a pet
-			if (actor.flag_original and bit.band(actor.flag_original, OBJECT_TYPE_PETS) ~= 0) then
-				--do not have owner and he isn't on owner container
-				if (not actor.owner and not Details.tabela_pets.pets [actor.serial]) then
-					Details:SendPetOwnerRequest (actor.serial, actor.nome)
-				end
-			end
-		end
-	end
-
-	function Details:EqualizeActorsSchedule (host_of)
-
+	function Details:EqualizeActorsSchedule(host_of)
 		--store pets sent through 'needpetowner'
 		Details.sent_pets = Details.sent_pets or {n = time()}
 		if (Details.sent_pets.n+20 < time()) then
 			Details:Destroy(Details.sent_pets)
 			Details.sent_pets.n = time()
 		end
-
-		--pet equilize disabled on details 1.4.0
-		--Details:ScheduleTimer("EqualizePets", 1+math.random())
 
 		--do not equilize if there is any disabled capture
 		--if (Details:CaptureIsAllEnabled()) then

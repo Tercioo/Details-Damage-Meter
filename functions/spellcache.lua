@@ -113,6 +113,7 @@ do
 
 	---@type table<number, customiteminfo>
 	local customItemList = {}
+	Details222.CustomItemList = customItemList
 
 	local iconSize = 14
 	local coords = {0.14, 0.86, 0.14, 0.86}
@@ -251,7 +252,25 @@ do
 
 		--onUse = true, castId = 427113, defaultName = GetSpellInfo(427113)
 
-		customItemList[443539] = {itemId = 219313, isPassive = false, onUse = true, castId = 450561, defaultName = GetSpellInfo(427113), aura1 = 443539, aura2 = 450551} -- [Mereldar's Toll]
+		customItemList[443539] = {itemId = 219313, isPassive = false, onUse = true, castId = 450561, defaultName = GetSpellInfo(427113), aura1 = 443539, aura2 = 450551} --[Mereldar's Toll]
+		customItemList[443124] = {itemId = 212454, isPassive = false, onUse = true, castId = 443124, defaultName = GetSpellInfo(443124), aura1 = 446067, aura2 = nil} --[Mad Queen's Mandate]
+		customItemList[451866] = {itemId = 212451, isPassive = true, onUse = true, castId = 445619, defaultName = GetSpellInfo(451866), aura1 = 451895, aura2 = 445619} --[Aberrant Spellforge] 451895 = passive
+
+		customItemList[452310] = {itemId = 219295, isSummon = true, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(452310), aura1 = nil, aura2 = nil} --[Sigil of Algari Concordance]
+
+
+
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
+		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
 
 
 	else --retail (dragonflight)
@@ -366,6 +385,24 @@ do
 		customItemList[429272] = {itemId = 110009, onUse = true, castId = 429271, nameExtra = "(*vers*)", defaultName = GetSpellInfo(429271)} --trinket: Leaf of the Ancient Protectors
 		customItemList[433522] = {itemId = 212684, isPassive = true} -- trinket: Umbrelskul's Fractured Heart dot
 		customItemList[433549] = {itemId = 212684, isPassive = true} -- trinket: Umbrelskul's Fractured Heart execute
+	end
+
+	function Details222.Pets.GetPetNameFromCustomSpells(petName, spellId, npcId)
+		---@type customiteminfo
+		local customItem = Details222.CustomItemList[spellId]
+		if (customItem and customItem.isSummon) then
+			local defaultName = customItem.defaultName
+			if (defaultName) then
+				petName = defaultName
+				if (customItem.nameExtra) then
+					petName = petName .. " " .. customItem.nameExtra
+				end
+
+				return petName
+			end
+		end
+
+		return petName
 	end
 
 	if (LIB_OPEN_RAID_SPELL_CUSTOM_NAMES) then

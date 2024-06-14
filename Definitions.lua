@@ -201,7 +201,20 @@
 ---@field spec specializationid
 
 ---@class customspellinfo : {name: string, isPassive: boolean, itemId: number, icon: string|number}
----@class customiteminfo: {itemId: number, isPassive: boolean, nameExtra: string?, icon: string|number|nil}
+
+---@class customiteminfo: table
+---@field itemId number
+---@field isPassive boolean?
+---@field nameExtra string?
+---@field icon string|number|nil
+---@field onUse boolean?
+---@field isSummon boolean?
+---@field castId spellid?
+---@field defaultName string?
+---@field aura1 spellid?
+---@field aura2 spellid?
+
+
 ---@class savedspelldata : {key1: number, key2: string, key3: number}
 ---@class alternatepowertable : {last: number, total: number}
 
@@ -800,6 +813,7 @@
 
 ---@class details222 : table
 ---@field TimeMachine timemachine
+---@field PetContainer petcontainer
 
 ---@class profile_breakdown_settings : table
 ---@field font_size number

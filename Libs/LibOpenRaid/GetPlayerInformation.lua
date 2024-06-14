@@ -50,6 +50,8 @@ local GetSpellTabInfo = GetSpellTabInfo or (function(tabLine)
         skillLine.numSpellBookItems, skillLine.isGuild, skillLine.specID
     end
 end)
+
+
 local GetSpellBookItemInfo = GetSpellBookItemInfo or C_SpellBook.GetSpellBookItemType
 local IsPassiveSpell = IsPassiveSpell or C_SpellBook.IsSpellBookItemPassive
 local GetNumSpellTabs = GetNumSpellTabs or C_SpellBook.GetNumSpellBookSkillLines
@@ -542,13 +544,20 @@ local getSpellListAsHashTableFromSpellBook = function()
     --local classNameLoc, className, classId = UnitClass("player") --not in use
     local locPlayerRace, playerRace, playerRaceId = UnitRace("player")
 
+    --Enum.SpellBookSkillLineIndex
+    --["OffSpecStart"] = 4,
+    --["Class"] = 2,
+    --["General"] = 1,
+    --["MainSpec"] = 3,
+
     --get racials from the general tab
-    local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(CONST_SPELLBOOK_GENERAL_TABID)
+    local generalIndex = Enum.SpellBookSkillLineIndex and Enum.SpellBookSkillLineIndex.General or CONST_SPELLBOOK_GENERAL_TABID
+    local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(Enum.SpellBookSkillLineIndex.General) --CONST_SPELLBOOK_GENERAL_TABID
     offset = offset + 1
     local tabEnd = offset + numSpells
     for entryOffset = offset, tabEnd - 1 do
         local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
-        local spellData = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
+        local spellData = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId] --from the cooldowns table
         if (spellData) then
             local raceId = spellData.raceid
             if (raceId) then
@@ -577,7 +586,7 @@ local getSpellListAsHashTableFromSpellBook = function()
     end
 
 	--get spells from the Spec spellbook
-    for i = 1, GetNumSpellTabs() do
+    for i = 1, GetNumSpellTabs() do --called "lines" in new v11 api
         local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(i)
         if (tabTexture == specIconTexture) then
             offset = offset + 1
@@ -585,7 +594,8 @@ local getSpellListAsHashTableFromSpellBook = function()
             for entryOffset = offset, tabEnd - 1 do
                 local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
                 if (spellId) then
-                    if (spellType == "SPELL") then
+                    if (spellType == "SPELL" or spellType == 1) then
+                        --print(tabName, tabTexture == specIconTexture, offset, tabEnd,spellType, spellId)
                         spellId = GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
                         local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
@@ -654,6 +664,7 @@ local getSpellListAsHashTableFromSpellBook = function()
         end
     end
 
+    --dumpt(completeListOfSpells)
     return completeListOfSpells
 end
 

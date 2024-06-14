@@ -1,245 +1,470 @@
 
 local Details = 		_G.Details
-local container_pets =		Details.container_pets
 local _
 local addonName, Details222 = ...
+
+---@type detailsframework
+local detailsFramework = DetailsFramework
+
+--what is a unit pet? unit pets are persistant pets (with no expiration time) which the player has full control over it.
+--the event UNIT_PET is triggered by the client each time a unit pet is summoned or dismissed
 
 local UnitGUID = _G.UnitGUID
 local UnitName = _G.UnitName
 local IsInRaid = _G.IsInRaid
 local IsInGroup = _G.IsInGroup
-local GetNumGroupMembers = _G.GetNumGroupMembers
-local setmetatable = setmetatable
 local bitBand = bit.band --lua local
 local pairs = pairs
 
-local unitIDRaidCache = Details222.UnitIdCache.Raid
+---@class petdata : table
+---@field ownerName actorname
+---@field ownerGuid guid
+---@field ownerFlags number
+---@field petName actorname
+---@field petGuid guid
+---@field petFlags number
+---@field bIsFriendly boolean
+---@field foundTime number
+---@field displayName actorname
+---@field hashName string petName + <ownerName-OwnerRealmName>
+---@field summonSpellId number?
 
---details locals
-local bIsIgnored = Details.pets_ignored
+---@class petcontainer : table
+---@field Pets table<guid, petdata>
+---@field IgnoredActors table<guid, boolean>
+---@field UnitPetCache table<guid, guid>
+---@field GetPetInfo fun(petGuid: guid):petdata
+---@field AddPet fun(petGuid: guid, petName: actorname?, petFlags: number?, ownerGuid: guid?, ownerName: actorname?, ownerFlags: number?, summonSpellId: number?):petdata
+---@field AddPetByTable fun(petData: petdata):petdata
+---@field PetScan fun()
+---@field Reset fun()
+---@field IgnorePet fun(petGuid: guid)
+---@field IsPetInCache fun(petGuid: guid):boolean
+---@field RemovePet fun(petGuid: guid, bRemoveFromParser: boolean?)
+---@field GetOwner fun(petGuid: guid, petName:string):actorname?, actorname?, guid?, number?
+---@field SavePetFrom_UNITPET fun(unitGuid: guid, petGuid: guid)
+---@field IsPetFrom_UNITPET fun(unitGuid: guid):boolean
+---@field GetUnitPetFrom_UNITPET fun(unitGuid: guid):guid
+---@field RemovePetFrom_UNITPET fun(unitGuid: guid)
+---@field GetPets fun():table<guid, petdata>
+---@field DoMaintenance fun()
+---@field UNIT_PET fun(unitId: string)
 
-function container_pets:NovoContainer()
-	local newPetContainer = {}
-	setmetatable(newPetContainer, Details.container_pets)
-
-	---@type petinfo
-	local newPetCacheTable = {}
-	newPetContainer.pets = newPetCacheTable
-
-	newPetContainer._ActorTable = {}
-	return newPetContainer
-end
+--[=[
+["petContainer.PetScan.ENCOUNTER_END"] = "0.000 ms | runs: 2",
+["Details:UpdatePets"] = "0.001 ms | runs: 14",
+["petContainer.DoMaintenance"] = "0.000 ms | runs: 3",
+["petContainer.GetOwner"] = "0.027 ms | runs: 1451",
+["petContainer.PetScan.UpdatePets"] = "0.001 ms | runs: 14",
+["Total"] = "0.038 ms",
+["petContainer.UNIT_PET"] = "0.000 ms | runs: 2",
+["petContainer.PetScan.CombatStart"] = "0.000 ms | runs: 4",
+["petContainer.AddPet"] = "0.001 ms | runs: 183",
+["petContainer.PetScan.GetOwner"] = "0.008 ms | runs: 183",
+["petContainer.SetPetData"] = "0.000 ms | runs: 1",
+--]=]
 
 local OBJECT_TYPE_PET = 0x00001000
 local OBJECT_IN_GROUP = 0x00000007
 
-function container_pets:GetPetOwner(petGUID, petName, petFlags)
-	--sair se o pet estiver na ignore
-	if (bIsIgnored[petGUID]) then
+--details locals
+local petContainer = Details222.PetContainer
+
+---copy all pet data from the passed table into the pet cache
+---@param petData table<guid, petdata>
+function petContainer.SetPetData(petData)
+	Details222.Profiling.ProfileStart("petContainer.SetPetData")
+	---@type guid, table<guid, petdata>
+	for petGuid, thisPetData in pairs(petData) do
+		petContainer.Pets[petGuid] = thisPetData
+	end
+	Details222.Profiling.ProfileStop("petContainer.SetPetData")
+end
+
+---return a table where the pet data are stored
+function petContainer.GetPets()
+	return petContainer.Pets
+end
+
+---reset the pet cache, wiping Pets, UnitPetCache and IgnoredActors
+function petContainer.Reset()
+	table.wipe(petContainer.Pets)
+	table.wipe(petContainer.UnitPetCache)
+	table.wipe(petContainer.IgnoredActors)
+end
+
+function Details.DebugPets()
+	local amountPets = 0
+	print("amounf of pets:", detailsFramework.table.countkeys(petContainer.Pets))
+	local toShow = {petContainer.Pets, petContainer.UnitPetCache, petContainer.IgnoredActors}
+	dumpt(toShow)
+end
+
+---add a pet guid into the ignored list, when a pet is ignored the system will not try to find its owner as it already failed to find it once
+---@param petGuid guid
+function petContainer.IgnorePet(petGuid)
+	petContainer.IgnoredActors[petGuid] = true
+end
+
+---remove a pet from the cache
+---@param petGuid guid
+---@param bRemoveFromParser boolean?
+function petContainer.RemovePet(petGuid, bRemoveFromParser)
+	if (bRemoveFromParser) then
+		Details.parser:RevomeActorFromCache(petGuid)
+	end
+	petContainer.RemovePetFrom_UNITPET(petGuid)
+	petContainer.Pets[petGuid] = nil
+end
+
+---return the pet data from the cache by passing the pet guid
+---@param petGuid guid
+function petContainer.GetPetInfo(petGuid)
+	return petContainer.Pets[petGuid]
+end
+
+---return tue if the pet guid is inside the pet cache
+---@param petGuid guid
+---@return boolean
+function petContainer.IsPetInCache(petGuid)
+	return petContainer.Pets[petGuid] ~= nil
+end
+
+---@param petData petdata
+function petContainer.AddPetByTable(petData)
+	local newPetData = petContainer.AddPet(petData.petGuid, petData.petName, petData.petFlags, petData.ownerGuid, petData.ownerName, petData.ownerFlags, petData.summonSpellId)
+	return newPetData
+end
+
+---@param petGuid guid
+---@param petName actorname
+---@param petFlags number
+---@param ownerGuid guid
+---@param ownerName actorname
+---@param ownerFlags number
+---@param summonSpellId number
+---@return petdata
+function petContainer.AddPet(petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags, summonSpellId)
+	Details222.Profiling.ProfileStart("petContainer.AddPet")
+	local bIsFriendly = petFlags and bitBand(petFlags, OBJECT_TYPE_PET) ~= 0 and bitBand(petFlags, OBJECT_IN_GROUP) ~= 0
+
+	if (not ownerName) then
+		print("NO OWNER NAME",petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags, summonSpellId)
+		--NO OWNER NAME Creature-0-4218-2549-4490-61056-00006A5157 Primal Earth Elemental 2600 nil nil nil 118323 --spellId 118323: Earth Elemental
+		--NO OWNER NAME Pet-0-4218-2549-4490-26125-0102D77C2C Casketmuncher 4648 nil nil nil 52150 --spellId: 52150 raise dead
+		--NO OWNER NAME Creature-0-4214-2569-1456-202167-00006B35A1 Ray of Anguish 2632 nil nil nil 402191 --spellId: 402191 Ray of Anguish
+		--NO OWNER NAME Creature-0-2085-2657-26413-98035-00006C9B11 Dreadstalker 8466 nil nil nil 193332 --Call Dreadstalkers
+		--NO OWNER NAME Creature-0-2085-2657-26413-98035-0000EC9B11 Dreadstalker 8466 nil nil nil 193331 --Call Dreadstalkers
+		--NO OWNER NAME Creature-0-2085-2657-26894-54983-00006C9EB4 Treant 8466 nil nil nil 102693 --Grove Guardians
+		Details222.Profiling.ProfileStop("petContainer.AddPet")
+		---@diagnostic disable-next-line: missing-return-value
 		return
 	end
 
-	--buscar pelo pet no container de pets
-	local petInfo = self.pets[petGUID]
-	if (petInfo) then
-		--in merging operations, make sure to not add the owner name a second time in the name
+	--print("====================================")
+	--print(petName)
+	--print(debugstack())
 
-		--check if the pet name already has the owner name in, if not, add it
-		if (not petName:find("<")) then
-			--get the owner name
-			local ownerName = petInfo[1]
-			--add the owner name to the pet name
-			petName = petName .. " <".. ownerName ..">"
-		end
+	---@type petdata
+	local petData = {
+		ownerName = ownerName,
+		ownerGuid = ownerGuid,
+		ownerFlags = ownerFlags,
+		petName = petName,
+		petGuid = petGuid,
+		petFlags = petFlags,
+		bIsFriendly = bIsFriendly,
+		summonSpellId = summonSpellId,
+		foundTime = Details._tempo,
+		displayName = petName,
+		hashName = petName .. " <" .. ownerName .. ">"
+	}
 
-		return petName, petInfo[1], petInfo[2], petInfo[3] --petName, ownerName, ownerGUID, ownerFlags
-	end
+	petContainer.Pets[petGuid] = petData
+	Details222.Profiling.ProfileStop("petContainer.AddPet")
+	return petData
+end
 
-	--buscar pelo pet na raide
-	local ownerName, ownerGUID, ownerFlags
 
+function petContainer.PetScan(from)
+	Details222.Profiling.ProfileStart("petContainer.PetScan." .. from)
 	if (IsInRaid()) then
-		for i = 1, GetNumGroupMembers() do
-			if (petGUID == UnitGUID("raidpet"..i)) then
-				ownerGUID = UnitGUID(unitIDRaidCache[i])
-				ownerFlags = 0x00000417 --emulate sourceflag flag
-				local unitName = Details:GetFullName(unitIDRaidCache[i])
-				ownerName = unitName
+		local unitIds = Details222.UnitIdCache.Raid
+		for i = 1, #unitIds do
+			local ownerUnitId = unitIds[i]
+
+			if (UnitExists(ownerUnitId)) then
+				local petUnitId = Details222.UnitIdCache.RaidPet[i]
+				local petGuid = UnitGUID(petUnitId)
+
+				if (petGuid) then
+					if (not petContainer.IsPetInCache(petGuid)) then
+						local petName = UnitName(petUnitId)
+						local ownerFullName = Details:GetFullName(ownerUnitId)
+						---@type petdata
+						local petData = {
+							ownerName = ownerFullName,
+							ownerGuid = UnitGUID(ownerUnitId),
+							ownerFlags = 0x514,
+							petName = petName,
+							petGuid = petGuid,
+							petFlags = 0x1114,
+							bIsFriendly = true,
+							foundTime = Details._tempo,
+							displayName = petName,
+							hashName = petName .. " <" .. ownerFullName .. ">"
+						}
+
+						petContainer.AddPetByTable(petData)
+					end
+				end
 			end
 		end
 
 	elseif (IsInGroup()) then
-		for i = 1, GetNumGroupMembers()-1 do
-			if (petGUID == UnitGUID("partypet"..i)) then
-				ownerGUID = UnitGUID("party"..i)
-				ownerFlags = 0x00000417 --emulate sourceflag flag
-				local unitName = Details:GetFullName("party"..i)
-				ownerName = unitName
+		local unitIds = Details222.UnitIdCache.Party
+		for i = 1, #unitIds do
+			local ownerUnitId = unitIds[i]
+			if (UnitExists(ownerUnitId)) then
+				local petUnitId = Details222.UnitIdCache.PartyPet[i]
+				local petGuid = UnitGUID(petUnitId)
+
+				if (petGuid) then
+					if (not petContainer.IsPetInCache(petGuid)) then
+						local petName = UnitName(petUnitId)
+						local ownerFullName = Details:GetFullName(ownerUnitId)
+						---@type petdata
+						local petData = {
+							ownerName = ownerFullName,
+							ownerGuid = UnitGUID(ownerUnitId),
+							ownerFlags = 0x514,
+							petName = petName,
+							petGuid = petGuid,
+							petFlags = 0x1114,
+							bIsFriendly = true,
+							foundTime = Details._tempo,
+							displayName = petName,
+							hashName = petName .. " <" .. ownerFullName .. ">"
+						}
+
+						petContainer.AddPetByTable(petData)
+					end
+				end
 			end
 		end
-	end
-
-	if (not ownerName) then
-		if (petGUID == UnitGUID("pet")) then
-			ownerName = Details:GetFullName("player")
-			ownerGUID = UnitGUID("player")
-			if (IsInGroup() or IsInRaid()) then
-				ownerFlags = 0x00000417 --emulate sourceflag flag
-			else
-				ownerFlags = 0x00000411 --emulate sourceflag flag
-			end
-		end
-	end
-
-	if (ownerName) then
-		local foundTime = Details._tempo
-		self.pets[petGUID] = {ownerName, ownerGUID, ownerFlags, foundTime, true, petName, petGUID} --adicionada a flag emulada
-
-		if (not petName:find("<")) then
-			petName = petName .. " <".. ownerName ..">"
-		end
-
-		return petName, ownerName, ownerGUID, ownerFlags
 	else
-		if (petFlags and bitBand(petFlags, OBJECT_TYPE_PET) ~= 0) then --is a pet
-			if (not Details.pets_no_owner[petGUID] and bitBand(petFlags, OBJECT_IN_GROUP) ~= 0) then
-				Details.pets_no_owner[petGUID] = {petName, petFlags}
-				Details:Msg("couldn't find the owner of the pet:", petName)
+		local petGuid = UnitGUID("pet")
+		if (petGuid) then
+			if (not petContainer.IsPetInCache(petGuid)) then
+				local petName = UnitName("pet")
+				local ownerFullName = Details:GetFullName("player")
+				---@type petdata
+				local petData = {
+					ownerName = ownerFullName,
+					ownerGuid = UnitGUID("player"),
+					ownerFlags = 0x514,
+					petName = petName,
+					petGuid = petGuid,
+					petFlags = 0x1114,
+					bIsFriendly = true,
+					foundTime = Details._tempo,
+					displayName = petName,
+					hashName = petName .. " <" .. ownerFullName .. ">"
+				}
+
+				petContainer.AddPetByTable(petData)
+			end
+		end
+	end
+	Details222.Profiling.ProfileStop("petContainer.PetScan." .. from)
+end
+
+---@param petGuid guid
+---@param petName actorname
+---@return actorname?, actorname?, guid?, number?
+function petContainer.GetOwner(petGuid, petName)
+	Details222.Profiling.ProfileStart("petContainer.GetOwner")
+
+	--check if this pet is being ignored
+	if (petContainer.IgnoredActors[petGuid]) then
+		Details222.Profiling.ProfileStop("petContainer.GetOwner")
+		return
+	end
+
+	--check if the pet is already in the cache
+	local petInfo = petContainer.GetPetInfo(petGuid)
+	if (petInfo) then
+		Details222.Profiling.ProfileStop("petContainer.GetOwner")
+		return petInfo.hashName, petInfo.ownerName, petInfo.ownerGuid, petInfo.ownerFlags
+	end
+
+	--attempt to find the pet owner by searching the party, raid or the player pet
+	--pet scan already adds the pet into the cache
+	petContainer.PetScan("GetOwner")
+
+	--check if the pet scan found the pet owner
+	local petInfo = petContainer.GetPetInfo(petGuid)
+	if (petInfo) then
+		Details222.Profiling.ProfileStop("petContainer.GetOwner")
+		return petInfo.hashName, petInfo.ownerName, petInfo.ownerGuid, petInfo.ownerFlags
+	end
+
+	--attempt to get the pet owner by tooltip scan
+	local ownerName, ownerGuid, ownerFlags = Details222.Pets.GetPetOwner(petGuid, petName)
+
+	--if the tooltip scan worked, add the pet into the cache
+	if (ownerName) then
+		---@type petdata
+		local petData = {
+			ownerName = ownerName,
+			ownerGuid = ownerGuid,
+			ownerFlags = ownerFlags,
+			petName = petName,
+			petGuid = petGuid,
+			petFlags = 0x1114,
+			bIsFriendly = false,
+			foundTime = Details._tempo,
+			displayName = petName,
+			hashName = petName .. " <" .. ownerName .. ">"
+		}
+
+		petContainer.AddPetByTable(petData)
+		Details222.Profiling.ProfileStop("petContainer.GetOwner")
+		return petData.hashName, petData.ownerName, petData.ownerGuid, petData.ownerFlags
+	end
+
+	--couldn't find the pet owner, ignore this pet
+	petContainer.IgnorePet(petGuid)
+	Details222.Profiling.ProfileStop("petContainer.GetOwner")
+	return nil
+end
+
+---store in a cache the pet from UNIT_PET
+---@param unitGuid guid
+---@param petGuid guid
+function petContainer.SavePetFrom_UNITPET(unitGuid, petGuid)
+	petContainer.UnitPetCache[unitGuid] = petGuid
+end
+
+---returns true if the petGuid passed is a pet from the UNIT_PET event
+---@param unitGuid guid
+---@return boolean
+function petContainer.IsPetFrom_UNITPET(unitGuid)
+	return petContainer.UnitPetCache[unitGuid] ~= nil
+end
+
+---returns the petGuid from the UNIT_PET event
+---@param unitGuid guid
+---@return guid
+function petContainer.GetUnitPetFrom_UNITPET(unitGuid)
+	return petContainer.UnitPetCache[unitGuid]
+end
+
+---remove a pet guid from the unit pet cache
+---@param unitGuid guid
+function petContainer.RemovePetFrom_UNITPET(unitGuid)
+	petContainer.UnitPetCache[unitGuid] = nil
+end
+
+function petContainer.UNIT_PET(unitId)
+	Details222.Profiling.ProfileStart("petContainer.UNIT_PET")
+	local ownerGuid = UnitGUID(unitId)
+	--print("owner guid:", ownerGuid)
+
+	if (ownerGuid) then
+		do
+			--check if the player had a pet and remove it from the cache
+			--this guarantees that the pet is not in the cache when the new pet is added
+			--is the UNIT_PET event was triggered by a pet being dismissed
+			local petGuid = petContainer.GetUnitPetFrom_UNITPET(ownerGuid)
+			if (petGuid) then
+				--print("pet existed!")
+				petContainer.RemovePet(petGuid, true)
+			end
+		end
+
+		do
+			local petUnitId = unitId .. "pet"
+			--print("pet unitId", petUnitId)
+			if (UnitExists(petUnitId)) then
+				--print("player pet exists!")
+				--add the new pet into the pet cache
+				local petGuid = UnitGUID(petUnitId)
+				if (petGuid) then
+					if (not petContainer.IsPetInCache(petGuid)) then
+						local ownerFullName = Details:GetFullName(unitId)
+						local petName = UnitName(petUnitId)
+
+						---@type petdata
+						local petData = {
+							ownerName = ownerFullName,
+							ownerGuid = ownerGuid,
+							ownerFlags = 0x514,
+							petName = petName,
+							petGuid = petGuid,
+							petFlags = 0x1114,
+							bIsFriendly = true,
+							foundTime = Details._tempo,
+							displayName = petName,
+							hashName = petName .. " <" .. ownerFullName .. ">"
+						}
+
+						--print(petData.petName, petData.hashName)
+
+						petContainer.AddPetByTable(petData)
+
+						petContainer.SavePetFrom_UNITPET(ownerGuid, petGuid)
+					else
+						--print("pet already in cache! ALREADY ALREADT")
+					end
+				end
+			else
+				--print("player pet does not exist!NOPNOPNOPNOP")
+			end
+		end
+	end
+
+	Details222.Profiling.ProfileStop("petContainer.UNIT_PET")
+end
+
+function petContainer.DoMaintenance()
+	Details222.Profiling.ProfileStart("petContainer.DoMaintenance")
+	local petCache = petContainer.Pets
+
+	for petGuid, petData in pairs(petCache) do
+		local petInfo = petContainer.GetPetInfo(petGuid)
+
+		--check if the pet is a unit pet, unit pets are persistant, never timeout
+		local bIsUnitPet = petContainer.IsPetFrom_UNITPET(petGuid)
+		if (bIsUnitPet) then
+			if (not petInfo or not UnitExists(petInfo.ownerGuid) or not UnitExists(petInfo.ownerName)) then
+				petContainer.RemovePet(petGuid, true)
 			end
 		else
-			bIsIgnored[petGUID] = true
-		end
-	end
-end
-
-function container_pets:Unpet(...)
-	local unitId = ...
-	local ownerGUID = UnitGUID(unitId)
-
-	if (ownerGUID) then
-		--remove existing pet from thecache
-		do
-			local petGUID = Details.pets_players[ownerGUID]
-			if (petGUID) then
-				Details.parser:RevomeActorFromCache(petGUID)
-				container_pets:Remover(petGUID)
-				Details.pets_players[ownerGUID] = nil
-			end
-		end
-
-		--check if the player has a new pet
-		do
-			local petGUID = UnitGUID(unitId .. "pet")
-			if (petGUID) then
-				if (not Details.tabela_pets.pets[petGUID]) then
-					local unitName = Details:GetFullName(unitId)
-					Details.tabela_pets:AddPet(petGUID, UnitName(unitId .. "pet"), 0x1114, ownerGUID, unitName, 0x514)
-				end
-
-				Details.parser:RevomeActorFromCache(petGUID)
-				container_pets:PlayerPet(ownerGUID, petGUID)
+			local expirationTime = petData.foundTime + 1800
+			if (expirationTime < Details._tempo + 1) then
+				petContainer.RemovePet(petGuid, true)
 			end
 		end
 	end
-end
-
-function container_pets:PlayerPet(player_serial, pet_serial)
-	Details.pets_players[player_serial] = pet_serial
-end
-
-function container_pets:BuscarPets()
-	if (IsInRaid()) then
-		for i = 1, GetNumGroupMembers(), 1 do
-			local petGUID = UnitGUID("raidpet" .. i)
-			if (petGUID) then
-				if (not Details.tabela_pets.pets[petGUID]) then
-					local unitName = Details:GetFullName(unitIDRaidCache[i])
-					local ownerGUID = UnitGUID(unitIDRaidCache[i])
-					Details.tabela_pets:AddPet(petGUID, UnitName("raidpet"..i), 0x1114, ownerGUID, unitName, 0x514)
-					Details.parser:RevomeActorFromCache(petGUID)
-					container_pets:PlayerPet(ownerGUID, petGUID)
-				end
-			end
-		end
-
-	elseif (IsInGroup()) then
-		for i = 1, GetNumGroupMembers()-1, 1 do
-			local petGUID = UnitGUID("partypet"..i)
-			if (petGUID) then
-				if (not Details.tabela_pets.pets[petGUID]) then
-					local unitName = Details:GetFullName("party"..i)
-					Details.tabela_pets:AddPet(petGUID, UnitName("partypet"..i), 0x1114, UnitGUID("party"..i), unitName, 0x514)
-				end
-			end
-		end
-
-		local petGUID = UnitGUID("pet")
-		if (petGUID) then
-			if (not Details.tabela_pets.pets[petGUID]) then
-				Details.tabela_pets:AddPet(petGUID, UnitName("pet"), 0x1114, UnitGUID("player"), Details.playername, 0x514)
-			end
-		end
-
-	else
-		local petGUID = UnitGUID("pet")
-		if (petGUID) then
-			if (not Details.tabela_pets.pets[petGUID]) then
-				Details.tabela_pets:AddPet(petGUID, UnitName("pet"), 0x1114, UnitGUID("player"), Details.playername, 0x514)
-			end
-		end
-	end
-end
-
-function container_pets:Remover(petGUID)
-	if (Details.tabela_pets.pets[petGUID]) then
-		Details:Destroy(Details.tabela_pets.pets[petGUID])
-	end
-	Details.tabela_pets.pets[petGUID] = nil
-end
-
-function container_pets:AddPet(petGUID, petName, petFlags, ownerGUID, ownerName, ownerFlags)
-	if (petFlags and bitBand(petFlags, OBJECT_TYPE_PET) ~= 0 and bitBand(petFlags, OBJECT_IN_GROUP) ~= 0) then
-		self.pets[petGUID] = {ownerName, ownerGUID, ownerFlags, Details._tempo, true, petName, petGUID}
-	else
-		self.pets[petGUID] = {ownerName, ownerGUID, ownerFlags, Details._tempo, false, petName, petGUID}
-	end
-end
-
-function Details:WipePets()
-	return Details:Destroy(Details.tabela_pets.pets)
-end
-
-function Details222.Pets.PetContainerCleanup()
-	--erase old pet table by creating a new one
-	local newPetTable = {}
-
-	--minimum of 90 minutes to clean a pet from the pet table data
-	for petGUID, petTable in pairs(Details.tabela_pets.pets) do
-		if ((petTable[4] + 5400 > Details._tempo + 1) or (petTable[5] and petTable[4] + 43200 > Details._tempo)) then
-			newPetTable[petGUID] = petTable
-		end
-	end
-
-	Details.tabela_pets.pets = newPetTable
-	Details:UpdatePetCache()
+	Details222.Profiling.ProfileStop("petContainer.DoMaintenance")
 end
 
 local bHasSchedule = false
 function Details:UpdatePets()
+	Details222.Profiling.ProfileStart("Details:UpdatePets")
 	bHasSchedule = false
-	return container_pets:BuscarPets()
+	petContainer.PetScan("UpdatePets")
+	Details222.Profiling.ProfileStop("Details:UpdatePets")
 end
 
 function Details:SchedulePetUpdate(seconds)
 	if (bHasSchedule) then
 		return
 	end
+
 	bHasSchedule = true
+	seconds = seconds or 5
 
-	Details.Schedules.NewTimer(seconds or 5, Details.UpdatePets, Details)
+	Details.Schedules.NewTimer(seconds, Details.UpdatePets, Details)
 end
-
-function Details.refresh:r_container_pets(container)
-	setmetatable(container, container_pets)
-end
-

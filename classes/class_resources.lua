@@ -24,15 +24,9 @@ local _
 local addonName, Details222 = ...
 local detailsFramework = DetailsFramework
 
-local gump = 			_detalhes.gump
-
-local alvo_da_habilidade = 	_detalhes.alvo_da_habilidade
+local gump = _detalhes.gump
 local container_habilidades = 	_detalhes.container_habilidades
-local container_combatentes = _detalhes.container_combatentes
-local container_pets =		_detalhes.container_pets
 local atributo_energy =		_detalhes.atributo_energy
-local habilidade_energy = 	_detalhes.habilidade_energy
-
 local container_energy = _detalhes.container_type.CONTAINER_ENERGY_CLASS
 
 --local modo_ALONE = _detalhes.modos.alone
@@ -40,9 +34,6 @@ local modo_GROUP = _detalhes.modos.group
 local modo_ALL = _detalhes.modos.all
 
 local class_type = _detalhes.atributos.e_energy
-
-local DATA_TYPE_START = _detalhes._detalhes_props.DATA_TYPE_START
-local DATA_TYPE_END = _detalhes._detalhes_props.DATA_TYPE_END
 
 local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]

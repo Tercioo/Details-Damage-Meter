@@ -27,7 +27,7 @@ local getAmountOfBuffsAppliedBySpellId = function(spellId)
     local amountBuffs = 0
     local spellName = GetSpellInfo(spellId)
 
-    for i, unitId in ipairs(Details222.UnitIdCache.PartyIds) do
+    for i, unitId in ipairs(Details222.UnitIdCache.Party) do
         if (UnitExists(unitId)) then
             if UnitAuraBySpellName(unitId, spellName) then
                 amountBuffs = amountBuffs + 1

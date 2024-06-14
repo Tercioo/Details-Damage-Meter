@@ -15,6 +15,9 @@ local wipe = table.wipe
 
 local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 
+---@type petcontainer
+local petContainer = Details222.PetContainer
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --API
 
@@ -890,7 +893,8 @@ function segmentClass:ResetAllCombatData()
 	Details:Destroy(Details.cache_damage_group)
 	Details:Destroy(Details.cache_healing_group)
 
-	Details222.Pets.PetContainerCleanup()
+	petContainer.DoMaintenance()
+
 	Details:ResetSpecCache(true)
 
 	--stop combat ticker
@@ -941,9 +945,8 @@ function segmentClass:ResetAllCombatData()
 		Details.tabela_vigente = combatClass:NovaTabela(nil, Details.tabela_overall)
 
 		--create new container to store pets
-		Details.tabela_pets = Details.container_pets:NovoContainer()
-		Details:UpdatePetCache()
-		Details.container_pets:BuscarPets()
+		petContainer.Reset()
+		petContainer.PetScan("ResetAllCombatData")
 	end
 
 	---@type instance[]

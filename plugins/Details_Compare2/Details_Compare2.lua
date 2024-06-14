@@ -18,6 +18,41 @@ do
 
 	local weakTable = {__mode = "v"}
 
+	local Details222 = {}
+	local GetSpellInfo = GetSpellInfo or C_Spell.GetSpellInfo
+	Details222.GetSpellInfo = GetSpellInfo
+
+	local UnitBuff = UnitBuff or C_UnitAuras.GetBuffDataByIndex
+	Details222.UnitBuff = UnitBuff
+
+	local UnitDebuff = UnitDebuff or C_UnitAuras.GetDebuffDataByIndex
+	Details222.UnitDebuff = UnitDebuff
+
+	if (DetailsFramework.IsWarWow()) then
+		Details222.GetSpellInfo = function(...)
+			local result = GetSpellInfo(...)
+			if result then
+				return result.name, 1, result.iconID
+			end
+		end
+
+		Details222.UnitBuff = function(unitToken, index, filter)
+			local auraData = C_UnitAuras.GetBuffDataByIndex(unitToken, index, filter)
+			if (not auraData) then
+				return nil
+			end
+			return AuraUtil.UnpackAuraData(auraData)
+		end
+
+		Details222.UnitDebuff = function(unitToken, index, filter)
+			local auraData = C_UnitAuras.GetDebuffDataByIndex(unitToken, index, filter)
+			if (not auraData) then
+				return nil
+			end
+			return AuraUtil.UnpackAuraData(auraData)
+		end
+	end
+
 	---@class compare : frame
 	---@field mainPlayerObject actor the actor object of the main player being compared
 	---@field isComparisonTab boolean indicates this frame is part of the comparison tab
@@ -458,7 +493,7 @@ do
 
 			--amount of casts
 			local combatObject = Details:GetCombatFromBreakdownWindow()
-			local castAmount = combatObject:GetSpellCastAmount(playerName, Details.GetSpellInfo(spellId))
+			local castAmount = combatObject:GetSpellCastAmount(playerName, Details222.GetSpellInfo(spellId))
 			local playerMiscObject = combatObject:GetActor(DETAILS_ATTRIBUTE_MISC, playerName)
 
 			if (castAmount > 0) then
@@ -579,7 +614,7 @@ do
 			local combatObject = Details:GetCombatFromBreakdownWindow()
 			local playerMiscObject = combatObject:GetActor(DETAILS_ATTRIBUTE_MISC, playerName)
 
-			local castAmount = combatObject:GetSpellCastAmount(playerName, Details.GetSpellInfo(spellId))
+			local castAmount = combatObject:GetSpellCastAmount(playerName, Details222.GetSpellInfo(spellId))
 			if (castAmount > 0) then
 				tooltip.casts_label2:SetText(getPercentComparison(mainCastAmount, castAmount))
 				tooltip.casts_label3:SetText(castAmount)

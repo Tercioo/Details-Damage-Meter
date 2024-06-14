@@ -1,11 +1,9 @@
 
 --do not load if this is a classic version of the game
-if (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsClassicWow() or DetailsFramework.IsCataWow()) then
+if (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsClassicWow()) then
 	return
 end
 
-local Details = _G.Details
-local GetSpellInfo = Details.GetSpellInfo
 local UnitAura = UnitAura
 local UnitBuff = UnitBuff
 local UnitClass = UnitClass
@@ -34,6 +32,41 @@ local foodList = { --list for previous dragonflight expsansions
 }
 
 local foodInfoList = {} --list for dragonflight and beyond
+
+local Details222 = {}
+local GetSpellInfo = GetSpellInfo or C_Spell.GetSpellInfo
+Details222.GetSpellInfo = GetSpellInfo
+
+local UnitBuff = UnitBuff or C_UnitAuras.GetBuffDataByIndex
+Details222.UnitBuff = UnitBuff
+
+local UnitDebuff = UnitDebuff or C_UnitAuras.GetDebuffDataByIndex
+Details222.UnitDebuff = UnitDebuff
+
+if (DetailsFramework.IsWarWow()) then
+	Details222.GetSpellInfo = function(...)
+		local result = GetSpellInfo(...)
+		if result then
+			return result.name, 1, result.iconID
+		end
+	end
+
+	Details222.UnitBuff = function(unitToken, index, filter)
+		local auraData = C_UnitAuras.GetBuffDataByIndex(unitToken, index, filter)
+		if (not auraData) then
+			return nil
+		end
+		return AuraUtil.UnpackAuraData(auraData)
+	end
+
+	Details222.UnitDebuff = function(unitToken, index, filter)
+		local auraData = C_UnitAuras.GetDebuffDataByIndex(unitToken, index, filter)
+		if (not auraData) then
+			return nil
+		end
+		return AuraUtil.UnpackAuraData(auraData)
+	end
+end
 
 local getUnitId = function(i)
 	local unitId
@@ -119,7 +152,7 @@ local CreatePluginFrames = function()
 		elseif (event == "COMBAT_PLAYER_ENTER") then
 
 		elseif (event == "DETAILS_STARTED") then
-			localizedFoodDrink = GetSpellInfo(isDrinking)
+			localizedFoodDrink = Details222.GetSpellInfo(isDrinking)
 			DetailsRaidCheck:CheckCanShowIcon()
 
 		elseif (event == "PLUGIN_DISABLED") then

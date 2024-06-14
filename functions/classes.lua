@@ -5,10 +5,6 @@ do
 	local Details = 	_G.Details
 	local addonName, Details222 = ...
 	local setmetatable = setmetatable
-	-------- container que armazena o cache de pets
-		Details.container_pets = {}
-		Details.container_pets.__index = Details.container_pets
-		setmetatable(Details.container_pets, Details)
 
 	-------- time machine controla o tempo em combate dos jogadores
 		Details.timeMachine = {}

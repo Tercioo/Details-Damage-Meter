@@ -10,7 +10,6 @@ local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink
 local GetSpellInfo = Details222.GetSpellInfo
 local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
-local IsShiftKeyDown = IsShiftKeyDown
 local DF = DetailsFramework
 local detailsFramework = DetailsFramework
 local tinsert = table.insert

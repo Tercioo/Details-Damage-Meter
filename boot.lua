@@ -23,7 +23,7 @@
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 156 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 158 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
 
@@ -113,8 +113,20 @@
 		Details222.DamageSpells = {}
 		--namespace for texture
 		Details222.Textures = {}
+
 		--namespace for pet
 		Details222.Pets = {}
+		Details222.PetContainer = {
+			---@type table<guid, petdata>
+			Pets = {},
+			---@type table<guid, boolean>
+			IgnoredActors = {},
+			---table that stores the player guid as keys and their petguid as values
+			---this is useful to know which pets are the legit class pet from the UNIT_PET event
+			---@type table<guid, guid>
+			UnitPetCache = {},
+		}
+
 		--auto run code
 		Details222.AutoRunCode = {}
 		--options panel
@@ -144,6 +156,8 @@
 		Details222.GuessSpecSchedules = {
 			Schedules = {},
 		}
+		Details222.Profiling = {}
+		Details222.ProfilingCache = {}
 		Details222.TimeMachine = {}
 		Details222.OnUseItem = {Trinkets = {}}
 
@@ -488,7 +502,6 @@ do
 		"- 'ClearTempTables' renamed to 'ClearCacheTables'.",
 		"- 'SpellIsDot' renamed to 'SetAsDotSpell'.",
 		"- 'FlagCurrentCombat' remamed to 'FlagNewCombat_PVPState'.",
-		"- 'UpdateContainerCombatentes' renamed to 'UpdatePetCache'.",
 		"- 'segmentClass:AddCombat(combatObject)' renamed to 'Details222.Combat.AddCombat(combatToBeAdded)'.",
 		"- 'CurrentCombat.verifica_combate' timer is now obsolete.",
 		"- 'Details.last_closed_combat' is now obsolete.",
@@ -621,7 +634,6 @@ do
 		--ignored pets
 			_detalhes.pets_ignored = {}
 			_detalhes.pets_no_owner = {}
-			_detalhes.pets_players = {}
 		--dual candidates
 			_detalhes.duel_candidates = {}
 		--armazena as skins dispon�veis para as janelas
@@ -1381,8 +1393,7 @@ do
 				_detalhes.tabela_historico = _detalhes.historico:CreateNewSegmentDatabase()
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-				_detalhes:UpdatePetCache()
+				Details222.PetContainer.Reset()
 
 				_detalhes_database.tabela_overall = nil
 				_detalhes_database.tabela_historico = nil
@@ -1488,120 +1499,35 @@ function Details222.ClassCache.MakeCache()
 	end
 end
 
-Details222.UnitIdCache.Raid = {
-	[1] = "raid1",
-	[2] = "raid2",
-	[3] = "raid3",
-	[4] = "raid4",
-	[5] = "raid5",
-	[6] = "raid6",
-	[7] = "raid7",
-	[8] = "raid8",
-	[9] = "raid9",
-	[10] = "raid10",
-	[11] = "raid11",
-	[12] = "raid12",
-	[13] = "raid13",
-	[14] = "raid14",
-	[15] = "raid15",
-	[16] = "raid16",
-	[17] = "raid17",
-	[18] = "raid18",
-	[19] = "raid19",
-	[20] = "raid20",
-	[21] = "raid21",
-	[22] = "raid22",
-	[23] = "raid23",
-	[24] = "raid24",
-	[25] = "raid25",
-	[26] = "raid26",
-	[27] = "raid27",
-	[28] = "raid28",
-	[29] = "raid29",
-	[30] = "raid30",
-	[31] = "raid31",
-	[32] = "raid32",
-	[33] = "raid33",
-	[34] = "raid34",
-	[35] = "raid35",
-	[36] = "raid36",
-	[37] = "raid37",
-	[38] = "raid38",
-	[39] = "raid39",
-	[40] = "raid40",
-}
+Details222.UnitIdCache.Party = {"player"}
+Details222.UnitIdCache.PartyPet = {"playetpet"}
+for i = 1, 4 do
+	table.insert(Details222.UnitIdCache.Party, "party" .. i)
+	table.insert(Details222.UnitIdCache.PartyPet, "partypet" .. i)
+end
 
-Details222.UnitIdCache.Party = {
-	[1] = "party1",
-	[2] = "party2",
-	[3] = "party3",
-	[4] = "party4",
-}
+Details222.UnitIdCache.Raid = {}
+Details222.UnitIdCache.RaidPet = {}
+for i = 1, 40 do
+	Details222.UnitIdCache.Raid[i] = "raid" .. i
+	Details222.UnitIdCache.RaidPet[i] = "raidpet" .. i
+end
 
-Details222.UnitIdCache.PartyIds = {"player", "party1", "party2", "party3", "party4"}
+Details222.UnitIdCache.Boss = {}
+for i = 1, 9 do
+	Details222.UnitIdCache.Boss[i] = "boss" .. i
+end
 
-Details222.UnitIdCache.Boss = {
-	[1] = "boss1",
-	[2] = "boss2",
-	[3] = "boss3",
-	[4] = "boss4",
-	[5] = "boss5",
-	[6] = "boss6",
-	[7] = "boss7",
-	[8] = "boss8",
-	[9] = "boss9",
-}
+Details222.UnitIdCache.Nameplate = {}
+for i = 1, 40 do
+	Details222.UnitIdCache.Nameplate[i] = "nameplate" .. i
+end
 
-Details222.UnitIdCache.Nameplate = {
-	[1] = "nameplate1",
-	[2] = "nameplate2",
-	[3] = "nameplate3",
-	[4] = "nameplate4",
-	[5] = "nameplate5",
-	[6] = "nameplate6",
-	[7] = "nameplate7",
-	[8] = "nameplate8",
-	[9] = "nameplate9",
-	[10] = "nameplate10",
-	[11] = "nameplate11",
-	[12] = "nameplate12",
-	[13] = "nameplate13",
-	[14] = "nameplate14",
-	[15] = "nameplate15",
-	[16] = "nameplate16",
-	[17] = "nameplate17",
-	[18] = "nameplate18",
-	[19] = "nameplate19",
-	[20] = "nameplate20",
-	[21] = "nameplate21",
-	[22] = "nameplate22",
-	[23] = "nameplate23",
-	[24] = "nameplate24",
-	[25] = "nameplate25",
-	[26] = "nameplate26",
-	[27] = "nameplate27",
-	[28] = "nameplate28",
-	[29] = "nameplate29",
-	[30] = "nameplate30",
-	[31] = "nameplate31",
-	[32] = "nameplate32",
-	[33] = "nameplate33",
-	[34] = "nameplate34",
-	[35] = "nameplate35",
-	[36] = "nameplate36",
-	[37] = "nameplate37",
-	[38] = "nameplate38",
-	[39] = "nameplate39",
-	[40] = "nameplate40",
-}
+Details222.UnitIdCache.Arena = {}
+for i = 1, 5 do
+	Details222.UnitIdCache.Arena[i] = "arena" .. i
+end
 
-Details222.UnitIdCache.Arena = {
-	[1] = "arena1",
-	[2] = "arena2",
-	[3] = "arena3",
-	[4] = "arena4",
-	[5] = "arena5",
-}
 
 function Details222.Tables.MakeWeakTable(mode)
 	local newTable = {}
@@ -1630,6 +1556,63 @@ end
 ---@param value number
 function Details222.PlayerStats:SetStat(statName, value)
 	Details.player_stats[statName] = value
+end
+
+local profileStartFunc = function(functionName)
+	local profile = Details222.ProfilingCache[functionName]
+
+	if (not profile) then
+		Details222.ProfilingCache[functionName] = {elapsed = 0, startTime = 0, runs = 0}
+		profile = Details222.ProfilingCache[functionName]
+	end
+
+	profile.startTime = debugprofilestop()
+	profile.runs = profile.runs + 1
+end
+
+local profileStopFunc = function(functionName)
+	local profile = Details222.ProfilingCache[functionName]
+	if (profile) then
+		profile.elapsed = profile.elapsed + debugprofilestop() - profile.startTime
+	end
+end
+
+function Details222.Profiling.ProfileStart()end
+function Details222.Profiling.ProfileStop()end
+
+function Details222.Profiling.EnableProfiler()
+	Details222.Profiling.ProfileStart = profileStartFunc
+	Details222.Profiling.ProfileStop = profileStopFunc
+end
+
+function Details222.Profiling.DisableProfiler()
+	Details222.Profiling.ProfileStart = function()end
+	Details222.Profiling.ProfileStop = function()end
+end
+
+function Details222.Profiling.ResetProfiler()
+	table.wipe(Details222.ProfilingCache)
+end
+
+if (select(4, GetBuildInfo()) >= 100000) then
+	Details222.Profiling.EnableProfiler()
+end
+
+function Details:ProfilerResult()
+	local resultTable = {}
+	local total = 0
+
+	for functionName, profile in pairs(Details222.ProfilingCache) do
+		local runTime = string.format("%.3f", profile.elapsed / 1000)
+		resultTable[functionName] = runTime .. " ms | runs: " .. profile.runs
+		total = total + profile.elapsed
+	end
+
+	resultTable["Total"] = string.format("%.3f", total / 1000) .. " ms"
+	dumpt(resultTable)
+end
+function Details:ResetProfilerResult()
+
 end
 
 ---destroy a table and remove it from the object, if the key isn't passed, the object itself is destroyed
@@ -1839,3 +1822,7 @@ local function disableRestrictedAddons()
 end
 
 restrictedAddonFrame:SetScript('OnEvent', function() C_Timer.After(2, disableRestrictedAddons) end )
+
+C_Timer.After(5, function()
+--TutorialPointerFrame_1:HookScript("OnShow", function(self) self:Hide() end) --remove on v11 launch
+end)

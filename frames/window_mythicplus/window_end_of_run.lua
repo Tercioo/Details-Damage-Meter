@@ -27,6 +27,7 @@ local mythicDungeonCharts = Details222.MythicPlus.Charts.Listener
 local mythicDungeonFrames = Details222.MythicPlus.Frames
 
 local CONST_DEBUG_MODE = false
+local SOFT_DEBUG_MODE = true
 
 --debug
 _G.MythicDungeonFrames = mythicDungeonFrames
@@ -106,6 +107,12 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 	---@type details_loot_cache[]
 	local lootCandidates = {}
 
+	if (SOFT_DEBUG_MODE) then
+		if (UnitIsUnit("player", unitId)) then
+			Details:Msg("Loot UpdateUnitLoot:", unitName, GetTime())
+		end
+	end
+
 	if (lootCache) then
 		local lootCacheSize = #lootCache
 		if (lootCacheSize > 0) then
@@ -118,6 +125,12 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 					lootIndex = lootIndex + 1
 				end
 				table.remove(lootCache, i)
+
+				if (SOFT_DEBUG_MODE) then
+					if (UnitIsUnit("player", unitId)) then
+						Details:Msg("Loot ENTRY REMOVED:", unitName, GetTime())
+					end
+				end
 			end
 		end
 	end
@@ -141,6 +154,12 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 		mythicDungeonFrames.ReadyFrame.StopTextDotAnimation()
 
 		lootSquare:Show()
+
+		if (SOFT_DEBUG_MODE) then
+			if (UnitIsUnit("player", unitId)) then
+				Details:Msg("Loot DISPLAYED:", unitName, GetTime())
+			end
+		end
 	end
 end
 
@@ -181,6 +200,10 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 				}
 				table.insert(lootFrame.LootCache[unitName], lootCacheTable)
 
+				if (SOFT_DEBUG_MODE) then
+					Details:Msg("Loot ADDED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel)
+				end
+
 				--check if the end of mythic plus frame is opened and call a function to update the loot frame of the player
 				if (mythicDungeonFrames.ReadyFrame and mythicDungeonFrames.ReadyFrame:IsVisible()) then
 					C_Timer.After(1.5, function()
@@ -189,6 +212,10 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 							lootFrame.UpdateUnitLoot(unitBanner)
 						end
 					end)
+				end
+			else
+				if (SOFT_DEBUG_MODE) then
+					Details:Msg("Loot SKIPPED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel)
 				end
 			end
 		end

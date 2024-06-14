@@ -99,7 +99,7 @@ function Details:SaveConfig()
 	local name, instanceType = GetInstanceInfo()
 	if (instanceType == "party" or instanceType == "raid") then
 		--save pet ownership information
-		_detalhes_database.tabela_pets = Details.tabela_pets.pets
+		_detalhes_database.saved_pet_cache = Details222.PetContainer.GetPets()
 	end
 
 	--clear temporarly time data (charts)

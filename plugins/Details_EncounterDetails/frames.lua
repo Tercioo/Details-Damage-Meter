@@ -479,7 +479,14 @@ do
 				for index, combate in ipairs(segmentList) do
 					if (combate.is_boss and combate.is_boss.index) then
 						local bossIcon = Details:GetBossEncounterTexture(combate.is_boss.id or combate.is_boss.encounter or combate.is_boss.name)
-						resultTable[#resultTable+1] = {value = index, label = "#" .. index .. " " .. combate.is_boss.name, icon = bossIcon, iconsize = {32, 20}, texcoord = {0, 1, 0, 0.9}, onclick = encounterDetails.OpenAndRefresh}
+						resultTable[#resultTable+1] = {
+							value = index,
+							label = "#" .. index .. " " .. (combate.is_boss.encounter or combate.is_boss.name or _G["UNKNOWN"]),
+							icon = bossIcon,
+							iconsize = {32, 20},
+							texcoord = {0, 1, 0, 0.9},
+							onclick = encounterDetails.OpenAndRefresh
+						}
 					end
 				end
 

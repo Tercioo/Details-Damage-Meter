@@ -6,7 +6,9 @@
 	local _
 	local addonName, Details222 = ...
 
-	local bIsDragonflight = DetailsFramework.IsDragonflight()
+	---@cast Details222 details222
+
+	local bIsDragonflightOrAbove = DetailsFramework.IsDragonflightAndBeyond()
 	local CONST_CLIENT_LANGUAGE = DF.ClientLanguage
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -14,8 +16,6 @@
 
 	local _IsInInstance = IsInInstance --api local
 	local UnitGUID = UnitGUID --api local
-	local strsplit = strsplit --api local
-
 	local setmetatable = setmetatable --lua local
 	local bitBand = bit.band --lua local
 	local bitBor = bit.bor --lua local
@@ -28,7 +28,6 @@
 
 	local GetNumDeclensionSets = _G.GetNumDeclensionSets
 	local DeclineName = _G.DeclineName
-
 	local pet_tooltip_frame = _G.DetailsPetOwnerFinder
 
 	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
@@ -50,7 +49,10 @@
 	local container_misc = 		Details.container_type.CONTAINER_MISC_CLASS
 	local container_enemydebufftarget_target = Details.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
 
-	local container_pets = {}
+	---@type petcontainer
+	local petContainer = Details222.PetContainer
+	---@type table<guid, petdata>
+	local petCache = petContainer.Pets
 
 	--flags
 	local REACTION_HOSTILE	=	0x00000040
@@ -64,8 +66,6 @@
 	local OBJECT_TYPE_NPC =		0x00000800
 	local OBJECT_TYPE_PLAYER =	0x00000400
 	local OBJECT_TYPE_PETS = 	OBJECT_TYPE_PET + OBJECT_TYPE_GUARDIAN
-
-	local debugPetname = false
 
 	local SPELLID_SANGUINE_HEAL = 226510
 	local sanguineActorName = Details222.GetSpellInfo(SPELLID_SANGUINE_HEAL)
@@ -180,13 +180,13 @@ end
 ---@return string|nil ownerName
 ---@return string|nil ownerGUID
 ---@return integer|nil ownerFlags
-	function Details222.Pets.GetPetOwner(petGUID, petName)
+	function Details222.Pets.GetPetOwner(petGUID, petName) --this is under the Pets namespace, the new pet system is under the PetContainer namespace
 		pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
 		pet_tooltip_frame:SetHyperlink(("unit:" .. petGUID) or "")
 
 		--C_TooltipInfo.GetHyperlink
 
-		if (bIsDragonflight) then
+		if (bIsDragonflightOrAbove) then
 			local tooltipData = pet_tooltip_frame:GetTooltipData() --is pet tooltip reliable with the new tooltips changes?
 			if (tooltipData) then
 				if (not tooltipData.args and tooltipData.lines[1].leftText == '') then --Assume this unit acts like Akaari's soul, where it returns the tooltip for the player instead, with line 1 blank.
@@ -264,25 +264,25 @@ end
 
 					elseif (lineType == 16) then --controller guid
 						--assuming the unit name always comes before the controller guid
-						local GUID = thisLine.guid
+						local guid = thisLine.guid
 						--very fast way to get an actorObject, this cache only lives while in combat
-						local actorObject = Details:GetActorFromCache(GUID)
+						local actorObject = Details:GetActorFromCache(guid)
 						if (actorObject) then
 							--Details:Msg("(debug) pet found (1)", petName, "owner:", actorObject.nome)
-							return actorObject.nome, GUID, actorObject.flag_original
+							return actorObject.nome, guid, actorObject.flag_original
 						else
 							--return the actor name for a guid, this cache lives for current combat until next segment
 							local guidCache = Details:GetParserPlayerCache()
-							local ownerName = guidCache[GUID]
+							local ownerName = guidCache[guid]
 							if (ownerName) then
 								--Details:Msg("(debug) pet found (2)", petName, "owner:", ownerName)
-								return ownerName, GUID, 0x514
+								return ownerName, guid, 0x514
 							end
 
 							if(Details.zone_type == 'arena') then --Attempt to find enemy pet owner
 								for enemyName, enemyToken in pairs(Details.arena_enemies) do
-									if(UnitGUID(enemyToken) == ownerGUID) then
-										return enemyName, ownerGUID, 0x548
+									if(UnitGUID(enemyToken) == guid) then
+										return enemyName, guid, 0x548
 									end
 								end
 							end
@@ -292,23 +292,25 @@ end
 			end
 		end
 
+		---@type combat
+		local currentCombat = Details:GetCurrentCombat()
+
 		local ownerName, ownerGUID, ownerFlags
-		if (not Details.tabela_vigente) then return end --Should exist at all times but load. Just in case.
+		if (not currentCombat) then return end --Should exist at all times but load. Just in case.
 
 		for i=1,3 do --Loop through the 3 texts on the PetOwnerFinder tooltip
 			local actorNameString = _G["DetailsPetOwnerFinderTextLeft"..i]
 			if (actorNameString and not ownerName) then --Tooltip line exists and we haven't found a valid match yes.
 				local actorName = actorNameString:GetText()
 				if (actorName and type(actorName) == "string") then
-					local isInRaid = Details.tabela_vigente.raid_roster[actorName]
+					local isInRaid = currentCombat.raid_roster[actorName]
 					if (isInRaid) then
 						ownerGUID = UnitGUID(actorName)
 						ownerName = actorName
 						ownerFlags = 0x514
 					else
-
 						if (CONST_CLIENT_LANGUAGE == "ruRU") then --If russian client, then test for declensions in the string of text.
-							for playerName, _ in pairs(Details.tabela_vigente.raid_roster) do
+							for playerName, _ in pairs(currentCombat.raid_roster) do
 								local pName = playerName
 								playerName = playerName:gsub("%-.*", "") --remove realm name
 								if (find_name_declension(actorName, playerName)) then
@@ -319,10 +321,9 @@ end
 								end
 							end
 						else
-
 							for playerName in actorName:gmatch("([^%s]+)") do
 								playerName = playerName:gsub(",", "")
-								local playerIsOnRaidCache = Details.tabela_vigente.raid_roster[playerName]
+								local playerIsOnRaidCache = currentCombat.raid_roster[playerName]
 								if (playerIsOnRaidCache) then
 									ownerGUID = UnitGUID(playerName)
 									ownerName = playerName
@@ -662,7 +663,7 @@ end
 					end
 				end
 
-			--does this actor has an owner?
+			--does this actor has an owner? (a.k.a. is a pet)
 			elseif (ownerActorObject) then
 				actorObject.owner = ownerActorObject
 				actorObject.ownerName = ownerActorObject.nome
@@ -672,6 +673,9 @@ end
 				else
 					actorObject.displayName = actorName
 				end
+
+				local npcId = Details:GetNpcIdFromGuid(actorSerial)
+				local petCustomname = Details222.Pets.GetPetNameFromCustomSpells(actorObject.displayName, spellId, npcId)
 			else
 				--anything else that isn't a player or a pet
 				actorObject.displayName = actorName
@@ -703,20 +707,21 @@ end
 		end
 	end
 
+	--pet black list locally for this file
 	local petBlackList = {}
 
-	local petOwnerFound = function(ownerName, petGUID, petName, petFlags, self, ownerGUID, ownerFlags)
-		local ownerGuid = ownerGUID or UnitGUID(ownerName)
+	local petOwnerFound = function(ownerName, petGuid, petName, petFlags, self, ownerGuid, ownerFlags)
+		local ownerGuid = ownerGuid or UnitGUID(ownerName)
 		if (ownerGuid) then
-
 			-- 0xA00 is the flag for NPC controlled, NPC unit. 0x500 is the flag for Player Controlled, Player Unit.
 			-- Or those together with the last 2 hex bits for reaction/affiliation to 'guess' the correct flags.
 			if not ownerFlags then
 				local npcControlled = bitBand(petFlags, 0x200) ~= 0
-				ownerFlags = bitBor( npcControlled and 0xA00 or 0x500, bitBand(petFlags, 0xFF))
+				ownerFlags = bitBor(npcControlled and 0xA00 or 0x500, bitBand(petFlags, 0xFF))
 			end
-			Details.tabela_pets:AddPet(petGUID, petName, petFlags, ownerGuid, ownerName, ownerFlags)
-			local petNameWithOwner, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:GetPetOwner(petGUID, petName, petFlags)
+
+			petContainer.AddPet(petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags)
+			local petNameWithOwner, ownerName, ownerGUID, ownerFlags = petContainer.GetOwner(petGuid, petName)
 
 			local petOwnerActorObject
 
@@ -750,27 +755,29 @@ end
 		local petOwnerObject
 		actorSerial = actorSerial or "ns"
 
-		if (container_pets[actorSerial]) then --this is a registered pet
-			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:GetPetOwner(actorSerial, actorName, actorFlags)
-			if (petName and ownerName and ownerGUID ~= actorSerial) then
+		--check if this actor is a pet and the pet is in the pet cache
+		if (petContainer.IsPetInCache(actorSerial)) then --this is a registered pet
+			local petName, ownerName, ownerGuid, ownerFlag = petContainer.GetOwner(actorSerial, actorName)
+			if (petName and ownerName and ownerGuid and ownerGuid ~= actorSerial and ownerFlag) then
 				actorName = petName
-				petOwnerObject = self:PegarCombatente(ownerGUID, ownerName, ownerFlag, true)
+				petOwnerObject = self:PegarCombatente(ownerGuid, ownerName, ownerFlag, true)
 			end
 
+		--this actor isn't in the pet cache
 		elseif (not petBlackList[actorSerial]) then --check if is a pet
-			petBlackList[actorSerial] = true
-
 			--try to find the owner
 			if (actorFlags and bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
-				local ownerName, ownerGUID, ownerFlags = Details222.Pets.GetPetOwner(actorSerial, actorName)
-				if (ownerName and ownerGUID) then
-					--Don't pass ownerFlags just in case the cached owner happens to be an enemy last combat, but ally now.
-					local newPetName, ownerObject = petOwnerFound(ownerName, actorSerial, actorName, actorFlags, self, ownerGUID)
+				local ownerName, ownerGuid, ownerFlags = petContainer.GetOwner(actorSerial, actorName)
+				if (ownerName and ownerGuid) then
+					--don't pass ownerFlags just in case the cached owner happens to be an enemy from last combat, but ally now.
+					local newPetName, ownerObject = petOwnerFound(ownerName, actorSerial, actorName, actorFlags, self, ownerGuid)
 					if (newPetName and ownerObject) then
 						actorName, petOwnerObject = newPetName, ownerObject
 					end
 				end
 			end
+
+			petBlackList[actorSerial] = true
 		end
 
 		--get the actor index in the hash map
@@ -865,19 +872,6 @@ end
 			if (petOwnerObject) then
 				AddUnique(petOwnerObject.pets, actorName)
 			end
-
-		elseif (self.tipo == container_energy_target) then --deprecated
-			newActor.mana = 0
-			newActor.e_rage = 0
-			newActor.e_energy = 0
-			newActor.runepower = 0
-			print("111111111111111111")
-
-		elseif (self.tipo == container_enemydebufftarget_target) then --deprecated
-			newActor.uptime = 0
-			newActor.actived = false
-			newActor.activedamt = 0
-			print("222222222222222222")
 		end
 
 		--sanguine affix
@@ -926,11 +920,6 @@ end
 				end
 			end
 		end
-	end
-
-	function Details:UpdatePetCache()
-		container_pets = Details.tabela_pets.pets
-		Details:UpdatePetsOnParser()
 	end
 
 	function Details:ClearCCPetsBlackList()

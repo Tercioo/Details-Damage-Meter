@@ -1,6 +1,6 @@
 
 
-local dversion = 539
+local dversion = 540
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -741,6 +741,17 @@ function DF.table.setfrompath(t, path, value)
 	end
 
 	return false
+end
+
+---return the amount of keys in a table
+---@param t table
+---@return number
+function DF.table.countkeys(t)
+	local count = 0
+	for _ in pairs(t) do
+		count = count + 1
+	end
+	return count
 end
 
 ---find the value inside the table, and it it's not found, add it

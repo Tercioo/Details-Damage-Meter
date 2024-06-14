@@ -384,28 +384,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		instance2.baseframe:SetPoint("bottomright", RightChatToggleButton, "topright", -1, 1)
 
 	elseif (msg == "pets") then
-		local petFrame = Details.PetFrame
-		if (not petFrame) then
-			petFrame = Details:CreateListPanel()
-			Details.PetFrame = petFrame
-		end
-
-		local i = 1
-		for k, v in pairs(Details.tabela_pets.pets) do
-			petFrame:add( k .. ": " ..  v[1] .. " | " .. v[2] .. " | " .. v[3] .. " | " .. v[6], i)
-			i = i + 1
-		end
-
-		petFrame:Show()
-
-	elseif (msg == "savepets") then
-		Details.tabela_vigente.saved_pets = {}
-
-		for k, v in pairs(Details.tabela_pets.pets) do
-			Details.tabela_vigente.saved_pets[k] = {v[1], v[2], v[3]}
-		end
-
-		Details:Msg("pet table has been saved on current combat.")
+		Details.DebugPets()
 
 	elseif (msg == "model") then
 		local frame = CreateFrame("PlayerModel");
