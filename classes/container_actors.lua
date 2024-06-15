@@ -721,12 +721,13 @@ end
 			end
 
 			petContainer.AddPet(petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags)
-			local petNameWithOwner, ownerName, ownerGUID, ownerFlags = petContainer.GetOwner(petGuid, petName)
+			--hashName is "petName <ownerName>"
+			local hashName, ownerName, ownerGUID, ownerFlags = petContainer.GetOwner(petGuid, petName)
 
 			local petOwnerActorObject
 
-			if (petNameWithOwner and ownerName) then
-				petName = petNameWithOwner
+			if (hashName and ownerName) then
+				petName = hashName
 				petOwnerActorObject = self:PegarCombatente(ownerGUID, ownerName, ownerFlags, true)
 			end
 
@@ -757,9 +758,10 @@ end
 
 		--check if this actor is a pet and the pet is in the pet cache
 		if (petContainer.IsPetInCache(actorSerial)) then --this is a registered pet
-			local petName, ownerName, ownerGuid, ownerFlag = petContainer.GetOwner(actorSerial, actorName)
-			if (petName and ownerName and ownerGuid and ownerGuid ~= actorSerial and ownerFlag) then
-				actorName = petName
+			--hashName is "petName <ownerName>"
+			local hashName, ownerName, ownerGuid, ownerFlag = petContainer.GetOwner(actorSerial, actorName) --hashName, ownerName, ownerGuid, ownerFlags
+			if (hashName and ownerName and ownerGuid and ownerGuid ~= actorSerial and ownerFlag) then
+				actorName = hashName
 				petOwnerObject = self:PegarCombatente(ownerGuid, ownerName, ownerFlag, true)
 			end
 
@@ -767,7 +769,8 @@ end
 		elseif (not petBlackList[actorSerial]) then --check if is a pet
 			--try to find the owner
 			if (actorFlags and bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
-				local ownerName, ownerGuid, ownerFlags = petContainer.GetOwner(actorSerial, actorName)
+				--hashName is "petName <ownerName>"
+				local hashName, ownerName, ownerGuid, ownerFlags = petContainer.GetOwner(actorSerial, actorName) --hashName, ownerName, ownerGuid, ownerFlags
 				if (ownerName and ownerGuid) then
 					--don't pass ownerFlags just in case the cached owner happens to be an enemy from last combat, but ally now.
 					local newPetName, ownerObject = petOwnerFound(ownerName, actorSerial, actorName, actorFlags, self, ownerGuid)

@@ -149,7 +149,7 @@ function petContainer.AddPet(petGuid, petName, petFlags, ownerGuid, ownerName, o
 	local bIsFriendly = petFlags and bitBand(petFlags, OBJECT_TYPE_PET) ~= 0 and bitBand(petFlags, OBJECT_IN_GROUP) ~= 0
 
 	if (not ownerName) then
-		print("NO OWNER NAME",petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags, summonSpellId)
+		--print("NO OWNER NAME",petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags, summonSpellId)
 		--NO OWNER NAME Creature-0-4218-2549-4490-61056-00006A5157 Primal Earth Elemental 2600 nil nil nil 118323 --spellId 118323: Earth Elemental
 		--NO OWNER NAME Pet-0-4218-2549-4490-26125-0102D77C2C Casketmuncher 4648 nil nil nil 52150 --spellId: 52150 raise dead
 		--NO OWNER NAME Creature-0-4214-2569-1456-202167-00006B35A1 Ray of Anguish 2632 nil nil nil 402191 --spellId: 402191 Ray of Anguish
@@ -281,7 +281,10 @@ end
 
 ---@param petGuid guid
 ---@param petName actorname
----@return actorname?, actorname?, guid?, number?
+---@return actorname? petNameWithOwner
+---@return actorname? ownerName
+---@return guid? ownerGuid
+---@return number? ownerFlags
 function petContainer.GetOwner(petGuid, petName)
 	Details222.Profiling.ProfileStart("petContainer.GetOwner")
 
