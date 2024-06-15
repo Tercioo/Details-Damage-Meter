@@ -1,6 +1,6 @@
 
 
-local dversion = 540
+local dversion = 541
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -268,11 +268,10 @@ function DF:GetRoleByClassicTalentTree()
 	for i = 1, (MAX_TALENT_TABS or 3) do
 		if (i <= numTabs) then
 			--tab information
-			local id, name, description, iconTexture, pointsSpent, fileName
-			if DF.IsCataWow() then
-				id, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
-			else
-				name, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+			local id, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+			if DF.IsClassicWow() and not fileName then
+				--On pre 1.15.3
+                name, iconTexture, pointsSpent, fileName = id, name, description, iconTexture
 			end
 			if (name) then
 				table.insert(pointsPerSpec, {name, pointsSpent, fileName})
