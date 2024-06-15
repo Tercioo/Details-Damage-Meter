@@ -264,6 +264,8 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 end
 
 local createPlayerBanner = function(parent, name)
+
+
     local template = "ChallengeModeBannerPartyMemberTemplate"
 
 	---@type playerbanner
@@ -375,6 +377,10 @@ local createPlayerBanner = function(parent, name)
 	--load this addon, required to have access to the garrison templates
 	if (not C_AddOns.IsAddOnLoaded("Blizzard_GarrisonTemplates")) then
 		C_AddOns.LoadAddOn("Blizzard_GarrisonTemplates")
+	end
+
+	if (not C_AddOns.IsAddOnLoaded("Blizzard_ChallengesUI")) then
+		C_AddOns.LoadAddOn("Blizzard_ChallengesUI")
 	end
 
 	--animation for the key leveling up
