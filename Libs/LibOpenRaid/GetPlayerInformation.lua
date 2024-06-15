@@ -552,7 +552,7 @@ local getSpellListAsHashTableFromSpellBook = function()
 
     --get racials from the general tab
     local generalIndex = Enum.SpellBookSkillLineIndex and Enum.SpellBookSkillLineIndex.General or CONST_SPELLBOOK_GENERAL_TABID
-    local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(Enum.SpellBookSkillLineIndex.General) --CONST_SPELLBOOK_GENERAL_TABID
+    local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(generalIndex) --CONST_SPELLBOOK_GENERAL_TABID
     offset = offset + 1
     local tabEnd = offset + numSpells
     for entryOffset = offset, tabEnd - 1 do
