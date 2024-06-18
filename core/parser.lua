@@ -2246,15 +2246,15 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--SUMMON 	serach key: ~summon										|
 -----------------------------------------------------------------------------------------------------------------------------------------
-	function parser:summon(token, time, sourceSerial, sourceName, sourceFlags, petSerial, petName, petFlags, petRaidFlags, spellId, spellName)
+	function parser:summon(token, time, sourceSerial, sourceName, sourceFlags, petGuid, petName, petFlags, petRaidFlags, summonSpellId, summonSpellName)
 		if (not sourceName) then
-			sourceName = "[*] " .. spellName
+			sourceName = "[*] " .. summonSpellName
 		end
-		local npcId = tonumber(select(6, strsplit("-", petSerial)) or 0)
+		local npcId = tonumber(select(6, strsplit("-", petGuid)) or 0)
 
 		--differenciate army and apoc pets for DK
-		if (spellId == 42651) then --army of the dead
-			dk_pets_cache.army[petSerial] = sourceName
+		if (summonSpellId == 42651) then --army of the dead
+			dk_pets_cache.army[petGuid] = sourceName
 		end
 
 		--If fire elemental totem on Wrath, then ignore the summon of the fire elemental totem itself and instead create the Greater Fire Elemental early.
@@ -2269,26 +2269,28 @@
 
 		if (isWOTLK or isCATA) then
 			if (npcId == 15439) then
-				petContainer.AddPet(petSerial:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags, spellId)
+				petContainer.AddPet(petGuid:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags, summonSpellId)
 			elseif (npcId == 15438) then
 				return
 			end
 		end
 
-		petName = Details222.Pets.GetPetNameFromCustomSpells(petName, spellId, npcId)
+		--send the summonSpellId to spellcache in order to identify if the pet is from an item, for instance: a trinket
+		petName = Details222.Pets.GetPetNameFromCustomSpells(petName, summonSpellId, npcId)
 
-		--pet summon another pet
+		--if the caster is inside the petCache, it means this is a pet summoning another pet
+		---@type petdata
 		local petTable = petCache[sourceSerial]
 		if (petTable) then
-			sourceName, sourceSerial, sourceFlags = petTable[1], petTable[2], petTable[3]
+			sourceName, sourceSerial, sourceFlags = petTable.ownerName, petTable.ownerGuid, petTable.ownerFlags
 		end
 
-		petTable = petCache[petSerial]
+		petTable = petCache[petGuid]
 		if (petTable) then
 			sourceName, sourceSerial, sourceFlags = petTable[1], petTable[2], petTable[3]
 		end
 
-		petContainer.AddPet(petSerial, petName, petFlags, sourceSerial, sourceName, sourceFlags, spellId)
+		petContainer.AddPet(petGuid, petName, petFlags, sourceSerial, sourceName, sourceFlags, summonSpellId)
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------
