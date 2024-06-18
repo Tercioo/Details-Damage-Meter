@@ -19,6 +19,7 @@ local GameTooltip = GameTooltip
 local SOUNDKIT = SOUNDKIT
 
 local GetItemInfo = GetItemInfo or C_Item.GetItemInfo
+local GetItemIcon = GetItemIcon or C_Item.GetItemIcon
 local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo or C_Item.GetDetailedItemLevelInfo --C_Item.GetDetailedItemLevelInfo does not return a table
 
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
@@ -264,8 +265,11 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 end
 
 local createPlayerBanner = function(parent, name)
+	if (not C_AddOns.IsAddOnLoaded("Blizzard_ChallengesUI")) then
+		C_AddOns.LoadAddOn("Blizzard_ChallengesUI")
+	end
 
-
+	--this template is from Blizzard_ChallengesUI.xml
     local template = "ChallengeModeBannerPartyMemberTemplate"
 
 	---@type playerbanner
