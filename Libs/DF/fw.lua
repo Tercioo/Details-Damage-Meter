@@ -1,6 +1,6 @@
 
 
-local dversion = 541
+local dversion = 542
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -785,6 +785,25 @@ function DF.table.reverse(t)
 		index = index + 1
 	end
 	return new
+end
+
+---remove a value from an array table
+---@param t table
+---@param value any
+---@return boolean
+function DF.table.remove(t, value)
+	local bRemoved = false
+	local removedAmount = 0
+
+	for i = 1, #t do
+		if (t[i] == value) then
+			table.remove(t, i)
+			bRemoved = true
+			removedAmount = removedAmount + 1
+		end
+	end
+
+	return bRemoved, removedAmount
 end
 
 ---copy the values from table2 to table1 overwriting existing values, ignores __index and __newindex, keys pointing to a UIObject are preserved

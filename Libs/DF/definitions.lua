@@ -14,6 +14,7 @@
 ---@field setfrompath fun(tbl:table, path:string, value:any) : boolean set the value of a table using a path, e.g. setfrompath(tbl, "a.b.c", 10) is the same as tbl.a.b.c = 10
 ---@field dump fun(tbl:table, resultString:string, deep:number) : string dump a table to a string
 ---@field findsubtable fun(tbl:table, index:number, value:any) : integer|nil find the value passed inside a sub table, return the index of the main table where the sub table with the value found is located
+---@field remove fun(tbl:table, value:any) : boolean, number remove all values found inside the array, return true if any value was removed and the amount of values removed
 
 ---@class df_language : table
 ---@field Register fun(addonId:any, languageId:string, gameLanguageOnly:boolean?) : table
