@@ -11,6 +11,8 @@
 	local bIsDragonflightOrAbove = DetailsFramework.IsDragonflightAndBeyond()
 	local CONST_CLIENT_LANGUAGE = DF.ClientLanguage
 
+	local GetSpellTexture = C_Spell.GetSpellTexture or GetSpellTexture
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 
@@ -533,127 +535,133 @@ end
 	--read the actor flag
 	local readActorFlag = function(actorObject, ownerActorObject, actorSerial, actorFlags, actorName)
 		if (actorFlags) then
-			local _, zoneType, difficultyId = GetInstanceInfo()
+			local _, zoneType, instanceDifficultyId = GetInstanceInfo()
 
-			--this is player actor
+			--if the actor is a player
 			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
-				if (not Details.ignore_nicktag) then
-					local actorNameAmbiguated = Ambiguate(actorName, "none")
-                    local nickname = Details:GetNickname(actorNameAmbiguated, false, true)
-                    if nickname then
-					    actorObject.displayName = checkValidNickname(nickname, actorName) --defaults to player name
-                    end
-				end
-
-				if (not actorObject.displayName) then
-					if (Details.remove_realm_from_name) then
-						actorObject.displayName = actorName:gsub(("%-.*"), "")
-					else
-						actorObject.displayName = actorName
-					end
-				end
-
-				if (zoneType ~= "arena" and (Details.all_players_are_group or Details.immersion_enabled)) then
-					actorObject.grupo = true
-				end
-
-				--special spells to add into the group view - they are set within the parser.lua file
-				local spellId = Details.SpecialSpellActorsName[actorObject.nome]
-				if (spellId) then
-					actorObject.grupo = true
-					actorObject.spellicon = GetSpellTexture(spellId)
-				end
-
-				--check if this actor can be flagged as a unit in the player's group
-				if ((bitBand(actorFlags, IS_GROUP_OBJECT) ~= 0 and actorObject.classe ~= "UNKNOW" and actorObject.classe ~= "UNGROUPPLAYER") or Details:IsInCache(actorSerial)) then
-					actorObject.grupo = true
-
-					if (difficultyId == 205) then
-						dungeonFollowersNpcs[actorName] = true
+				--display name
+					if (not Details.ignore_nicktag) then
+						local actorNameAmbiguated = Ambiguate(actorName, "none")
+						local nickname = Details:GetNickname(actorNameAmbiguated, false, true)
+						if nickname then
+							actorObject.displayName = checkValidNickname(nickname, actorName) --defaults to player name
+						end
 					end
 
-					--/dump Details:GetCurrentCombat():GetActor(1, "Captain Garrick").grupo
-					--check if this actor is a tank (player)
-					if (Details:IsATank(actorSerial)) then
-						actorObject.isTank = true
+					--the actor does not have a nickname, use the character name instead
+					if (not actorObject.displayName) then
+						if (Details.remove_realm_from_name) then
+							actorObject.displayName = actorName:gsub(("%-.*"), "")
+						else
+							actorObject.displayName = actorName
+						end
 					end
-				else
-					--if this is a pvp segment (combat) and the option to show pvp players as group is enabled
-					if (Details.pvp_as_group and (Details.tabela_vigente and Details.tabela_vigente.is_pvp) and Details.is_in_battleground) then
+
+				--group attributions
+					if (zoneType ~= "arena" and (Details.all_players_are_group or Details.immersion_enabled)) then
 						actorObject.grupo = true
 					end
-				end
 
-				--pvp duel - this functionality needs more development, the goal is to show the duel players as group members
-				if (Details.duel_candidates[actorSerial]) then
-					--check if is recent
-					if (Details.duel_candidates[actorSerial]+20 > GetTime()) then
+					--special spells that Details! converted them in actor, add them to the group view. the list of these spells are set within the parser.lua file
+					--they are added into the group view as they are considered important imformation
+					local spellId = Details.SpecialSpellActorsName[actorObject.nome]
+					if (spellId) then
 						actorObject.grupo = true
-						actorObject.enemy = true
+						actorObject.spellicon = GetSpellTexture(spellId)
 					end
-				end
 
-				if (zoneType == "arena") then
-					--local my_team_color = GetBattlefieldArenaFaction and GetBattlefieldArenaFaction() or 0
+					--check if this actor can be flagged as a unit in the player's group
+					local bIsValidGroupMember = bitBand(actorFlags, IS_GROUP_OBJECT) ~= 0 and actorObject.classe ~= "UNKNOW" and actorObject.classe ~= "UNGROUPPLAYER"
+					if (bIsValidGroupMember or Details:IsInCache(actorSerial)) then
+						actorObject.grupo = true
 
-					--my team
-					if (actorObject.grupo) then
-						actorObject.arena_ally = true
-						actorObject.arena_team = 0 -- former my_team_color | forcing the player team to always be the same color
+						--/dump Details:GetCurrentCombat():GetActor(1, "Captain Garrick").grupo
+						if (instanceDifficultyId == 205) then
+							dungeonFollowersNpcs[actorName] = true
+						end
 
-					--enemy team
+						--check if this actor is a tank (player)
+						if (Details:IsATank(actorSerial)) then
+							actorObject.isTank = true
+						end
 					else
-						actorObject.enemy = true
-						actorObject.arena_enemy = true
-						actorObject.arena_team = 1 -- former my_team_color
-
-						Details:GuessArenaEnemyUnitId(actorName)
+						--if this is a pvp combat and the option to show pvp players as group is enabled
+						local currentCombat = Details:GetCurrentCombat()
+						if (Details.pvp_as_group and currentCombat.is_pvp and Details.is_in_battleground) then
+							actorObject.grupo = true
+						end
 					end
 
-					local playerArenaInfo = Details.arena_table[actorName]
+					--pvp duel - this functionality needs more development, the goal is to show the duel players as group members
+					if (Details.duel_candidates[actorSerial]) then
+						--check if is recent
+						if (Details.duel_candidates[actorSerial]+20 > GetTime()) then
+							actorObject.grupo = true
+							actorObject.enemy = true
+						end
+					end
 
-					if (playerArenaInfo) then
-						actorObject.role = playerArenaInfo.role
-						if (playerArenaInfo.role == "NONE") then
+					if (zoneType == "arena") then
+						--local my_team_color = GetBattlefieldArenaFaction and GetBattlefieldArenaFaction() or 0
+
+						--my team
+						if (actorObject.grupo) then
+							actorObject.arena_ally = true
+							actorObject.arena_team = 0 -- former my_team_color | forcing the player team to always be the same color
+
+						--enemy team
+						else
+							actorObject.enemy = true
+							actorObject.arena_enemy = true
+							actorObject.arena_team = 1 -- former my_team_color
+
+							Details:GuessArenaEnemyUnitId(actorName)
+						end
+
+						local playerArenaInfo = Details.arena_table[actorName]
+
+						if (playerArenaInfo) then
+							actorObject.role = playerArenaInfo.role
+							if (playerArenaInfo.role == "NONE") then
+								local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned(actorName)
+								if (role and role ~= "NONE") then
+									actorObject.role = role
+								end
+							end
+						else
+							local amountOpponents = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
+							local found = false
+							for i = 1, amountOpponents do
+								local name = Details:GetFullName("arena" .. i)
+								if (name == actorName) then
+									local spec = GetArenaOpponentSpec and GetArenaOpponentSpec(i)
+									if (spec) then
+										local id, name, description, icon, role, class = DetailsFramework.GetSpecializationInfoByID(spec) --thanks pas06
+										actorObject.role = role
+										actorObject.classe = class
+										actorObject.enemy = true
+										actorObject.arena_enemy = true
+										found = true
+									end
+								end
+							end
+
 							local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned(actorName)
 							if (role and role ~= "NONE") then
 								actorObject.role = role
+								found = true
 							end
-						end
-					else
-						local amountOpponents = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
-						local found = false
-						for i = 1, amountOpponents do
-							local name = Details:GetFullName("arena" .. i)
-							if (name == actorName) then
-								local spec = GetArenaOpponentSpec and GetArenaOpponentSpec(i)
-								if (spec) then
-									local id, name, description, icon, role, class = DetailsFramework.GetSpecializationInfoByID(spec) --thanks pas06
+
+							if (not found and actorName == Details.playername) then
+								local role = UnitGroupRolesAssigned("player")
+								if (role and role ~= "NONE") then
 									actorObject.role = role
-									actorObject.classe = class
-									actorObject.enemy = true
-									actorObject.arena_enemy = true
-									found = true
 								end
 							end
 						end
 
-						local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned(actorName)
-						if (role and role ~= "NONE") then
-							actorObject.role = role
-							found = true
-						end
-
-						if (not found and actorName == Details.playername) then
-							local role = UnitGroupRolesAssigned("player")
-							if (role and role ~= "NONE") then
-								actorObject.role = role
-							end
-						end
+						actorObject.grupo = true
 					end
-
-					actorObject.grupo = true
-				end
 
 				--player custom bar color
 				--at this position in the code, the color will replace colors from arena matches
@@ -674,8 +682,8 @@ end
 					actorObject.displayName = actorName
 				end
 
-				local npcId = Details:GetNpcIdFromGuid(actorSerial)
-				local petCustomname = Details222.Pets.GetPetNameFromCustomSpells(actorObject.displayName, spellId, npcId)
+				--local npcId = Details:GetNpcIdFromGuid(actorSerial)
+				--local petCustomname = Details222.Pets.GetPetNameFromCustomSpells(actorObject.displayName, spellId, npcId)
 			else
 				--anything else that isn't a player or a pet
 				actorObject.displayName = actorName
@@ -699,7 +707,7 @@ end
 				end
 			end
 
-			if (difficultyId == 205) then
+			if (instanceDifficultyId == 205) then
 				if (dungeonFollowersNpcs[actorName]) then
 					actorObject.grupo = true
 				end
