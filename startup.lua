@@ -646,8 +646,10 @@ function Details:StartMeUp()
 	if (DetailsFramework:IsNearlyEqual(Details.class_coords.ROGUE[4], 0.25)) then
 		DetailsFramework.table.copy(Details.class_coords, Details.default_profile.class_coords)
 	end
+
 --[=
 	--remove on v11 launch
+	if (DetailsFramework.IsWarWow()) then
 	C_Timer.After(1, function() if (SplashFrame) then SplashFrame:Hide() end end)
 	function HelpTip:SetHelpTipsEnabled(flag, enabled)
 		HelpTip.supressHelpTips[flag] = false
@@ -658,13 +660,18 @@ function Details:StartMeUp()
 	hooksecurefunc(HelpTipTemplateMixin, "OnUpdate", function(self)
 		self:Hide()
 	end)
-	
 
-
+	C_Timer.After(5, function()
+	if (TutorialPointerFrame_1) then
+		TutorialPointerFrame_1:Hide()
+		hooksecurefunc(TutorialPointerFrame_1, "Show", function(self)
+			self:Hide()
+		end)
+	end
+end)
+end
 --]=]
-	--shutdown the old OnDeathMenu
-	--cleanup: this line can be removed after the first month of dragonflight
-	Details.on_death_menu = false
+
 end
 
 Details.AddOnLoadFilesTime = _G.GetTime()
