@@ -2276,7 +2276,11 @@
 		end
 
 		--send the summonSpellId to spellcache in order to identify if the pet is from an item, for instance: a trinket
-		petName = Details222.Pets.GetPetNameFromCustomSpells(petName, summonSpellId, npcId)
+		local newPetName = Details222.Pets.GetPetNameFromCustomSpells(petName, summonSpellId, npcId)
+		if (newPetName ~= petName) then
+			--print("Details! debug trinket summon| player:", sourceName, "| old pet name:", petName, "| new pet name:", newPetName, "| spellId:", summonSpellId)
+			petName = newPetName
+		end
 
 		--if the caster is inside the petCache, it means this is a pet summoning another pet
 		---@type petdata
