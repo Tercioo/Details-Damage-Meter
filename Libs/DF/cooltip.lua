@@ -19,9 +19,16 @@ local GetSpellInfo = GetSpellInfo or function(spellID) if not spellID then retur
 local SPELLBOOK_BANK_PLAYER = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
 local IsPassiveSpell = IsPassiveSpell or C_Spell.IsSpellPassive
 
+local GetSpellCharges = GetSpellCharges or function(spellId)
+    local chargesInfo = C_Spell.GetSpellCharges(spellId)
+    if (chargesInfo) then
+        return chargesInfo.currentCharges, chargesInfo.maxCharges, chargesInfo.cooldownStartTime, chargesInfo.cooldownDuration, chargesInfo.chargeModRate
+    end
+end
+
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 24
+local version = 25
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
