@@ -250,28 +250,30 @@ do
 			[422779] = {name = (GetSpellInfo(422779) or "none") .. " (4P)", icon = "Interface\\Addons\\Details\\images\\spells\\burning_frenzy_tier4.jpg", defaultName = GetSpellInfo(422779)}, --feral 4pc tier 10.2
 		}
 
-		--onUse = true, castId = 427113, defaultName = GetSpellInfo(427113)
-
 		customItemList[443539] = {itemId = 219313, isPassive = false, onUse = true, castId = 450561, defaultName = GetSpellInfo(427113), aura1 = 443539, aura2 = 450551} --[Mereldar's Toll]
 		customItemList[443124] = {itemId = 212454, isPassive = false, onUse = true, castId = 443124, defaultName = GetSpellInfo(443124), aura1 = 446067, aura2 = nil} --[Mad Queen's Mandate]
 		customItemList[451866] = {itemId = 212451, isPassive = true, onUse = true, castId = 445619, defaultName = GetSpellInfo(451866), aura1 = 451895, aura2 = 445619} --[Aberrant Spellforge] 451895 = passive
-
+		customItemList[451292] = {itemId = 219317, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(451292), aura1 = 451303, aura2 = nil} --[Harvester's Edict]
 		customItemList[452310] = {itemId = 219295, isSummon = true, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(452310), aura1 = nil, aura2 = nil} --[Sigil of Algari Concordance]
+		customItemList[450921] = {itemId = 219303, isPassive = false, onUse = true, castId = 443415, defaultName = GetSpellInfo(450921), aura1 = 451248, aura2 = nil} --[High Speaker's Accretion]
+		customItemList[452032] = {itemId = 219307, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(452032), aura1 = 451369, aura2 = nil} --[Remnant of Darkness]
+		customItemList[449386] = {itemId = 219299, isSummon = false, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(449386), aura1 = nil, aura2 = nil} --[Synergistic Brewterializer] | damage
+		customItemList[449490] = {itemId = 219299, isSummon = true, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(449490), aura1 = nil, aura2 = nil} --[Synergistic Brewterializer] | summon
+		customItemList[443531] = {itemId = 219308, isPassive = false, onUse = true, castId = 443531, defaultName = GetSpellInfo(443531), aura1 = 443531, aura2 = nil} --[Signet of the Priory] | aura
+		customItemList[449954] = {itemId = 221023, isPassive = true, onUse = false, castId = 449946, defaultName = GetSpellInfo(449954), aura1 = 449954, aura2 = nil} --[Treacherous Transmitter] | aura | when get a dose, use castId
+		customItemList[449275] = {itemId = 219312, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(449275), aura1 = 449275, aura2 = nil} --[Empowering Crystal of Anub'ikkaj]
+		customItemList[452229] = {itemId = 219314, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(452229), aura1 = 452226, aura2 = nil} --[Ara-Kara Sacbrood]
+		customItemList[451367] = {itemId = 219305, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(451367), aura1 = 451367, aura2 = nil} --[Carved Blazikon Wax]
+		customItemList[452337] = {itemId = 219321, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(452337), aura1 = 452337, aura2 = nil} --[Cirral Concoctory]
+		customItemList[449254] = {itemId = 219296, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(449254), aura1 = 449254, aura2 = nil} --[Entropic Skardyn Core]
+		customItemList[455910] = {itemId = 221032, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(455910), aura1 = 456652, aura2 = nil} --[Voltaic Stormcaller]
+		customItemList[457928] = {itemId = 225578, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(457928), aura1 = 457925, aura2 = 457928} --[Seal of the Poisoned Pact] ring, first aura: player buff, second aura: dot debuff on enemy
+		customItemList[457684] = {itemId = 225577, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(457684), aura1 = 457684, aura2 = nil} --[Sureki Zealot's Insignia] neck
 
-
-
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
-		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
 		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
 		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
 
+		--[Ovinax's Mercurial Egg] couldn't detect the buffId
 
 	else --retail (dragonflight)
 		defaultSpellCustomization = {
@@ -387,6 +389,10 @@ do
 		customItemList[433549] = {itemId = 212684, isPassive = true} -- trinket: Umbrelskul's Fractured Heart execute
 	end
 
+	---@param petName petname
+	---@param spellId spellid
+	---@param npcId npcid?
+	---@return petname
 	function Details222.Pets.GetPetNameFromCustomSpells(petName, spellId, npcId)
 		---@type customiteminfo
 		local customItem = Details222.CustomItemList[spellId]
