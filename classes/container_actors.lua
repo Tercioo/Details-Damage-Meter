@@ -513,21 +513,21 @@ end
 			nickname = nickname:trim()
 
 			if (nickname == "" or nickname:len() < 2) then
-				return playerName
+				return false
 			end
 
 			if (nickname:len() > 20) then
-				return playerName
+				return false
 			end
 
 			if (not UnitIsInMyGuild(playerName) and playerName ~= Details.playername) then
-				return playerName
+				return false
 			end
 		else
-			return playerName
+			return false
 		end
 
-		return nickname
+		return true
 	end
 
 	local dungeonFollowersNpcs = {}
@@ -539,14 +539,16 @@ end
 
 			--if the actor is a player
 			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
-				--display name
-					if (not Details.ignore_nicktag) then
-						local actorNameAmbiguated = Ambiguate(actorName, "none")
-						local nickname = Details:GetNickname(actorNameAmbiguated, false, true)
-						if nickname then
-							actorObject.displayName = checkValidNickname(nickname, actorName) --defaults to player name
-						end
-					end
+
+                    if (not Details.ignore_nicktag) then
+                        local actorNameAmbiguated = Ambiguate(actorName, "none")
+                        local nickname = Details:GetNickname(actorNameAmbiguated, false, true)
+                        if nickname then
+                            if checkValidNickname(nickname, actorName) then
+                                actorObject.displayName = nickname --defaults to player name
+                            end
+                        end
+                    end
 
 					--the actor does not have a nickname, use the character name instead
 					if (not actorObject.displayName) then
