@@ -1940,9 +1940,9 @@ end
 ---@param newProfileName string
 ---@param bImportAutoRunCode boolean
 ---@param bIsFromImportPrompt boolean
----@param overwriteProfile boolean --if the profile already exists, overwrite it
+---@param overwriteExisting boolean
 ---@return boolean
-function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCode, bIsFromImportPrompt, overwriteProfile)
+function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCode, bIsFromImportPrompt, overwriteExisting)
 	if (not newProfileName or type(newProfileName) ~= "string" or string.len(newProfileName) < 2) then
 		Details:Msg("invalid profile name or profile name is too short.") --localize-me
 		return false
@@ -1956,7 +1956,7 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 
 		local profileObject = Details:GetProfile (newProfileName, false)
 		local nameWasDuplicate = false
-    if not overwriteProfile then
+    if not overwriteExisting then
       while(profileObject) do
         newProfileName = newProfileName .. '2';
         profileObject = Details:GetProfile(newProfileName, false)
