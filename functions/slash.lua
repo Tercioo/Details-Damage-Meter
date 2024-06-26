@@ -939,26 +939,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		Details222.Debug.SetMythicPlusLootDebugState() --passing nothing will toggle the debug state
 
 	elseif (command == "debug") then
-		if (Details.debug) then
-			Details.debug = false
-			print(Loc ["STRING_DETAILS1"] .. "diagnostic mode has been turned off.")
-			return
-		else
-			Details.debug = true
-			print(Loc ["STRING_DETAILS1"] .. "diagnostic mode has been turned on.")
-
-			if (rest and rest ~= "") then
-				if (rest == "-clear") then
-					_detalhes_global.debug_chr_log = ""
-					print(Loc ["STRING_DETAILS1"] .. "log for characters has been wiped.")
-					return
-				end
-				Details.debug_chr = rest
-				_detalhes_global.debug_chr_log = _detalhes_global.debug_chr_log or ""
-				print(Loc ["STRING_DETAILS1"] .. "diagnostic for character " .. rest .. " turned on.")
-				return
-			end
-		end
+		Details.ShowDebugOptionsPanel()
 
 	--debug combat log
 	elseif (msg == "combatlog") then

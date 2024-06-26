@@ -38,6 +38,11 @@ function Details222.Debug.SetMythicPlusDebugState(bState)
 	Details:Msg("mythic+ debug mode:", tostring(CONST_DEBUG_MODE))
 end
 
+---@return boolean CONST_DEBUG_MODE, boolean LOOT_DEBUG_MODE
+function Details222.Debug.GetMythicPlusDebugState()
+	return CONST_DEBUG_MODE, LOOT_DEBUG_MODE
+end
+
 function Details222.Debug.SetMythicPlusLootDebugState(bState)
 	if (bState == nil) then
 		bState = not LOOT_DEBUG_MODE

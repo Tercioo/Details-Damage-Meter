@@ -120,6 +120,7 @@ frames\window_brokertexteditor.lua
 frames\window_bookmark.lua
 frames\window_classcolor.lua
 frames\window_statistics.lua
+frames\window_debug.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua
