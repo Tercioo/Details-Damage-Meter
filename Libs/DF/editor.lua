@@ -21,6 +21,9 @@ local _
 --the editor doesn't know which key in the profileTable holds the current value for an attribute, so it uses a map table to find it.
 --the mapTable is a table with the attribute name as a key, and the value is the profile key. For example, {["size"] = "text_size"} means profileTable["text_size"] = 10.
 
+
+
+
 ---@class df_editor : frame, df_optionsmixin, df_editormixin
 ---@field options table
 ---@field registeredObjects df_editor_objectinfo[]
@@ -39,6 +42,7 @@ local _
 ---@field objectSelector df_scrollbox
 ---@field moverFrames df_editor_mover[]
 ---@field canvasScrollBox df_canvasscrollbox
+---@field AnchorFrames df_editor_anchorframes
 
 ---@class df_editor_attribute
 ---@field key string?
@@ -62,7 +66,7 @@ local _
 ---@field callback function?
 ---@field options df_editobjectoptions
 ---@field selectButton button
----@field refFrame frame
+---@field refFrame frame usually the parent of the object registered
 
 ---@class df_editor_mover_movinginfo : table
 ---@field startX number
@@ -415,6 +419,17 @@ detailsFramework.EditorMixin = {
         end
     end,
 
+---@class df_editor_anchorframes : table
+---@field anchorFrames table
+---@field DisableAllAnchors fun(self:df_editor_anchorframes)
+---@field SetupAnchorsForObject fun(self:df_editor_anchorframes, anchorTable:table)
+---@field SelectAnchorPoint fun(self:df_editor_anchorframes)
+---@field GetAnchorFrame fun(self:df_editor_anchorframes, index:number):frame
+---@field SetNotInUseForAllAnchors fun(self:df_editor_anchorframes)
+---@field SetNotInUse fun(self:df_editor_anchorframes, anchorFrame:frame)
+---@field SetInUse fun(self:df_editor_anchorframes, anchorFrame:frame)
+---@field CreateNineAnchors fun(self:df_editor_anchorframes)
+
     --screen position offset is the XY screen position offset from the bottom left of the screen, they are always positive, they go from 0 to screen width or height
     CreateAnchorFrames = function(editorFrame)
         --table containing 9 buttons, each one in a different position of the object, indexes one to nine in this order: topleft, left, bottomleft, bottom, bottomright, right, topright, top, center
@@ -429,7 +444,7 @@ detailsFramework.EditorMixin = {
                 end
             end,
 
-            SetupAnchorsForObject = function(self, object, anchorTable)
+            SetupAnchorsForObject = function(self, anchorTable)
                 editorFrame.AnchorFrames:DisableAllAnchors()
 
                 local registeredObject = editorFrame:GetEditingRegisteredObject()
@@ -892,7 +907,7 @@ detailsFramework.EditorMixin = {
         end
 
         if (anchorSettings) then
-            self.AnchorFrames:SetupAnchorsForObject(object, anchorSettings)
+            self.AnchorFrames:SetupAnchorsForObject(anchorSettings)
         end
 
         --at this point, the optionsTable is ready to be used on DF:BuildMenuVolatile()
@@ -1246,6 +1261,7 @@ detailsFramework.EditorMixin = {
         self:StopObjectMovement()
         local moverFrames = self:GetMoverFrames()
         moverFrames:Hide()
+        self.AnchorFrames:DisableAllAnchors()
     end,
 
     ---@param self df_editor

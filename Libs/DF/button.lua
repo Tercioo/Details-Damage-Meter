@@ -471,6 +471,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	end
 
 	---@param self df_button
+	---@param filterMode texturefilter
 	function ButtonMetaFunctions:SetIconFilterMode(filterMode)
 		if (self.icon) then
 			self.icon:SetTexture(self.icon:GetTexture(), nil, nil, filterMode)

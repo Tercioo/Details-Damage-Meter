@@ -269,6 +269,15 @@ function LibStub:IterateLibraries()end
 ---| "INCLUDE_NAME_PLATE_ONLY"
 ---| "MAW"
 
+---@class spellinfo : table
+---@field name string
+---@field iconID number
+---@field castTime number
+---@field mimRange number
+---@field maxRange number
+---@field spellID number
+---@field originalIconID number
+
 ---@class privateaura_anchor : table
 ---@field unitToken unit
 ---@field auraIndex number

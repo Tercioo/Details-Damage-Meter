@@ -114,6 +114,8 @@
 		--namespace for texture
 		Details222.Textures = {}
 
+		Details222.Debug = {}
+
 		--namespace for pet
 		Details222.Pets = {}
 		Details222.PetContainer = {

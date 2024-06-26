@@ -28,7 +28,23 @@ local mythicDungeonCharts = Details222.MythicPlus.Charts.Listener
 local mythicDungeonFrames = Details222.MythicPlus.Frames
 
 local CONST_DEBUG_MODE = false
-local SOFT_DEBUG_MODE = true
+local LOOT_DEBUG_MODE = false
+
+function Details222.Debug.SetMythicPlusDebugState(bState)
+	if (bState == nil) then
+		bState = not CONST_DEBUG_MODE
+	end
+	CONST_DEBUG_MODE = bState
+	Details:Msg("mythic+ debug mode:", tostring(CONST_DEBUG_MODE))
+end
+
+function Details222.Debug.SetMythicPlusLootDebugState(bState)
+	if (bState == nil) then
+		bState = not LOOT_DEBUG_MODE
+	end
+	LOOT_DEBUG_MODE = bState
+	Details:Msg("mythic+ loot debug mode:", tostring(LOOT_DEBUG_MODE))
+end
 
 --debug
 _G.MythicDungeonFrames = mythicDungeonFrames
@@ -108,7 +124,7 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 	---@type details_loot_cache[]
 	local lootCandidates = {}
 
-	if (SOFT_DEBUG_MODE) then
+	if (LOOT_DEBUG_MODE) then
 		if (UnitIsUnit("player", unitId)) then
 			Details:Msg("Loot UpdateUnitLoot:", unitName, GetTime())
 		end
@@ -127,7 +143,7 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 				end
 				table.remove(lootCache, i)
 
-				if (SOFT_DEBUG_MODE) then
+				if (LOOT_DEBUG_MODE) then
 					if (UnitIsUnit("player", unitId)) then
 						Details:Msg("Loot ENTRY REMOVED:", unitName, GetTime())
 					end
@@ -156,7 +172,7 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 
 		lootSquare:Show()
 
-		if (SOFT_DEBUG_MODE) then
+		if (LOOT_DEBUG_MODE) then
 			if (UnitIsUnit("player", unitId)) then
 				Details:Msg("Loot DISPLAYED:", unitName, GetTime())
 			end
@@ -201,7 +217,7 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 				}
 				table.insert(lootFrame.LootCache[unitName], lootCacheTable)
 
-				if (SOFT_DEBUG_MODE) then
+				if (LOOT_DEBUG_MODE) then
 					Details:Msg("Loot ADDED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel)
 				end
 
@@ -215,7 +231,7 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 					end)
 				end
 			else
-				if (SOFT_DEBUG_MODE) then
+				if (LOOT_DEBUG_MODE) then
 					Details:Msg("Loot SKIPPED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel)
 				end
 			end

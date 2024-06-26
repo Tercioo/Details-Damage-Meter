@@ -932,6 +932,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print(Loc["STRING_DETAILS1"] .. "net diagnostic mode has been turned on.")
 		end
 
+	elseif (command == "m+debug") then
+		Details222.Debug.SetMythicPlusDebugState() --passing nothing will toggle the debug state
+
+	elseif (command == "m+debugloot") then
+		Details222.Debug.SetMythicPlusLootDebugState() --passing nothing will toggle the debug state
+
 	elseif (command == "debug") then
 		if (Details.debug) then
 			Details.debug = false

@@ -32,7 +32,6 @@ local mythicDungeonCharts = Details222.MythicPlus.Charts.Listener
 
 --debug
 _G.DetailsMythicDungeonChartHandler = mythicDungeonCharts
---DetailsMythicDungeonChartHandler.ChartTable.Players["playername"].ChartData = {max_value = 0}
 
 function mythicDungeonCharts:Debug(...)
 	if (debugmode or verbosemode) then
