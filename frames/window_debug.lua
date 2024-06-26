@@ -129,7 +129,7 @@ local createDebugOptionsFrame = function()
     local options_slider_template = detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
     local options_button_template = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
-    detailsFramework:BuildMenu(debugOptionsPanel, options, 5, -40, 150, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+    detailsFramework:BuildMenu(debugOptionsPanel, options, 5, -40, windowHeight - 50, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 end
 
 function Details.ShowDebugOptionsPanel()
