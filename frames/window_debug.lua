@@ -5,12 +5,6 @@ local addonName, Details222 = ...
 local detailsFramework = DetailsFramework
 local _
 
---namespace
-Details.AuraTracker = {
-    buff = {},
-    debuff = {},
-}
-
 --frame options
 local windowWidth = 800
 local windowHeight = 670
@@ -115,6 +109,19 @@ local createDebugOptionsFrame = function()
             end,
             name = "Loot Shown in the End of Mythic+ Panel Debug",
             desc = "Loot shown in the Panel shown at the end of a Mythic+ dungeon",
+        },
+
+        {--mythic+ chart debug
+            type = "toggle",
+            get = function()
+                return Details222.Debug.MythicPlusChartWindowDebug
+            end,
+            set = function(self, fixedparam, value)
+                Details222.Debug.MythicPlusChartWindowDebug = value
+            end,
+            name = "Mythic+ Chart Save and Use The Same Chart Data",
+            desc = "When enabled, Details! will save the chart data from the next m+ run and use it when showing the chart panel. This save persist on saved variables and I don't think it is deleted, never.",
+            --/run Details.mythic_plus.last_mythicrun_chart = {}
         },
     }
 
