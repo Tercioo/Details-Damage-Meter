@@ -3,6 +3,7 @@ local Details = _G.Details
 local C_Timer = _G.C_Timer
 local GetSpellInfo = Details.GetSpellInfo
 local libwindow = LibStub("LibWindow-1.1")
+local playerGUID = UnitGUID('player')
 
 function Details:OpenEventTrackerOptions(bFromOptionsPanel)
 	if (not _G.DetailsEventTrackerOptions) then
@@ -129,6 +130,30 @@ function Details:OpenEventTrackerOptions(bFromOptionsPanel)
 				get = function() return Details.event_tracker.frame.strata end,
 				values = function() return strataTable end,
 				name = "Frame Strata"
+			},
+            --anonymize names
+			{
+				type = "toggle",
+				get = function() return Details.event_tracker.anonymize_names end,
+				set = function(self, fixedparam, value)
+					Details.event_tracker.anonymize_names = not Details.event_tracker.anonymize_names
+					Details:UpdateEventTrackerFrame()
+				end,
+				desc = "Sets all player names as the last digits of their GUID when displaying in the event tracker.",
+				name = "Anonymize Player Names",
+				text_template = options_text_template,
+			},
+            --anonymize self
+			{
+				type = "toggle",
+				get = function() return Details.event_tracker.anonymize_self end,
+				set = function(self, fixedparam, value)
+					Details.event_tracker.anonymize_self = not Details.event_tracker.anonymize_self
+					Details:UpdateEventTrackerFrame()
+				end,
+				desc = "Anonymize the current player's name from the event tracker.",
+				name = "Anonymize Self",
+				text_template = options_text_template,
 			},
 			{type = "breakline"},
 			{type = "label", get = function() return "Line Settings:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
@@ -461,6 +486,26 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			end
 		end
 
+        local anonymize_name = function(name, guid)
+            if not Details.event_tracker.anonymize_names then 
+                return name
+            end
+
+            if guid:sub(1,6) ~= 'Player' then
+                return name
+            end
+
+            if not Details.event_tracker.anonymize_self and guid == playerGUID then
+                return name
+            end
+
+            -- Example GUID: Player-0301-0D23FC41
+            -- We only care about the last part
+            local _,_, guid_end = string.split('-', guid)
+
+            return guid_end
+        end
+
 		local add_role_and_class_color = function(unitName, unitSerial)
 			--get the actor object
 			local actor = Details.tabela_vigente[1]:GetActor(unitName)
@@ -473,6 +518,8 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 				if (not class) then
 					spec, class = get_spec_or_class (unitSerial, unitName)
 				end
+
+                unitName = anonymize_name(unitName, unitSerial)
 
 				--add the class color
 				if (Details.player_class [class]) then
@@ -489,6 +536,8 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			else
 				local spec, class = get_spec_or_class (unitSerial, unitName)
 				unitName = Details:GetOnlyName(unitName)
+                
+                unitName = anonymize_name(unitName, unitSerial)
 
 				if (class) then
 					--add the class color
@@ -555,6 +604,8 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 					--]=]
 
 					local sourceNameNoRealm = Details:GetOnlyName(sourceName)
+
+                    sourceNameNoRealm = anonymize_name(sourceNameNoRealm, ability[ABILITYTABLE_CASTERSERIAL])
 
 					--need to use the language system from details framework to detect which language is being used
 					local languageId = DF.Language.DetectLanguageId(sourceNameNoRealm)
