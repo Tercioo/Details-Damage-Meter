@@ -491,7 +491,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
                 return name
             end
 
-            if guid:sub(1,6) ~= 'Player' then
+            if not guid:match('^P') then
                 return name
             end
 
@@ -501,9 +501,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 
             -- Example GUID: Player-0301-0D23FC41
             -- We only care about the last part
-            local _,_, guid_end = string.split('-', guid)
-
-            return guid_end
+            return guid:sub(-8)
         end
 
 		local add_role_and_class_color = function(unitName, unitSerial)
