@@ -75,6 +75,7 @@ functions\editmode.lua
 functions\warcraftlogs.lua
 functions\textures.lua
 functions\journal.lua
+functions\commentator.lua
 
 core\aura_scan.lua
 core\timemachine.lua

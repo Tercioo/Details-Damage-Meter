@@ -69,6 +69,7 @@ functions\macros.lua
 functions\testbars.lua
 functions\warcraftlogs.lua
 functions\textures.lua
+functions\commentator.lua
 
 core\aura_scan.lua
 core\timemachine.lua
