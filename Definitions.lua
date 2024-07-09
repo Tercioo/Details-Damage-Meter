@@ -214,6 +214,14 @@
 ---@field aura1 spellid?
 ---@field aura2 spellid?
 
+---@class pvpcombatinfo : table
+---@field name string zone name
+---@field mapid number zone mapid
+
+---@class arenacombatinfo : table
+---@field name string zone name
+---@field zone string zone name
+---@field mapid number zone mapid
 
 ---@class savedspelldata : {key1: number, key2: string, key3: number}
 ---@class alternatepowertable : {last: number, total: number}
@@ -255,11 +263,16 @@
 ---@field end_time gametime
 ---@field combat_counter number
 ---@field is_trash boolean while in raid this is set to true if the combat isn't raid boss, in dungeon this is set to true if the combat isn't a boss or if the dungeon isn't a mythic+
----@field raid_roster table<string, string> [unitName] = unitGUID
----@field overall_added boolean is true when the combat got added into the overall combat
+---@field is_boss bossinfo
+---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
 ---@field is_mythic_dungeon mythicdungeoninfo
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
+---@field is_pvp pvpcombatinfo
+---@field is_arena arenacombatinfo
+---@field arena boolean
+---@field raid_roster table<string, string> [unitName] = unitGUID
+---@field overall_added boolean is true when the combat got added into the overall combat
 ---@field trinketProcs table<actorname, table<spellid, {cooldown: number, total: number}>>
 ---@field _trashoverallalreadyadded boolean
 ---@field alternate_power table<actorname, alternatepowertable>
@@ -267,8 +280,6 @@
 ---@field totals_grupo {key1: table, key2: table, key3: table, key3: table}
 ---@field __destroyed boolean
 ---@field PhaseData table
----@field is_boss bossinfo
----@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
 ---@field GetCurrentPhase fun(combat: combat) : number return the current phase of the combat or the phase where the combat ended
@@ -322,7 +333,7 @@
 
 ---@class actorcontainer : table contains two tables _ActorTable and _NameIndexTable, the _ActorTable contains the actors, the _NameIndexTable contains the index of the actors in the _ActorTable, making quick to reorder them without causing overhead
 ---@field need_refresh boolean when true the container is dirty and needs to be refreshed
----@field _ActorTable table array of actors
+---@field _ActorTable table a table containing all actors stored in the container
 ---@field _NameIndexTable table<string, number> [actorName] = actorIndex in the _ActorTable, actorcontainer:Remap() refreshes the _NameIndexTable
 ---@field GetActor fun(container: actorcontainer, actorName: string) get an actor by its name
 ---@field GetOrCreateActor fun(container: actorcontainer, actorSerial: guid, actorName: actorname, actorFlags: controlflags, bShouldCreateActor: boolean) get an actor by its name, if the actor doesn't exist it will be created
@@ -442,6 +453,7 @@
 ---@field GetDisplayName fun(actor: actor) : string Get the display name of the actor. Display name is often the player name without the realm name.
 ---@field GetActorSpells fun(actor: actor) : spellcontainer get the spell container of the actor
 ---@field Pets fun(actor: actor) : petname[] get the pets of the actor
+---@field SetSpecId fun(actor: actor, specId: number) set the specId of the actor
 ---@field 
 
 ---@class actordamage : actor
