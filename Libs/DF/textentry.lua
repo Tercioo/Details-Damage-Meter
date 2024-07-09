@@ -636,6 +636,9 @@ function detailsFramework:NewTextEntry(parent, container, name, member, width, h
 	newTextEntryObject.editbox:SetAutoFocus(false)
 	newTextEntryObject.editbox:SetFontObject("GameFontHighlightSmall")
 
+	newTextEntryObject.editbox:SetJustifyH("left")
+	newTextEntryObject.editbox:SetTextInsets(5, 3, 0, 0)
+
 	--editbox label
 	newTextEntryObject.editbox.label = newTextEntryObject.editbox:CreateFontString("$parent_Desc", "OVERLAY", "GameFontHighlightSmall")
 	newTextEntryObject.editbox.label:SetJustifyH("left")

@@ -1265,6 +1265,16 @@ end
 ---classes used by the menu builder on the menuOptions table on both functions BuildMenu and BuildMenuVolatile
 ---the menuOptions consists of a table with several tables inside in array, each table is a widget to be created
 ---class df_menu_label is used when the sub table of menuOptions has a key named "type" with the value "label" or "text"
+
+--[=[
+function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, height, useColon, textTemplate, dropdownTemplate, switchTemplate, switchIsCheckbox, sliderTemplate, buttonTemplate, valueChangeHook)
+    local tNow = debugprofilestop()
+    detailsFramework:BuildMenu22(parent, menuOptions, xOffset, yOffset, height, useColon, textTemplate, dropdownTemplate, switchTemplate, switchIsCheckbox, sliderTemplate, buttonTemplate, valueChangeHook)
+    local tEnd = debugprofilestop()
+    print("BuildMenu for", (menuOptions.Name or "--"), floor(tEnd - tNow), "ms")
+end
+--]=]
+
 function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, height, useColon, textTemplate, dropdownTemplate, switchTemplate, switchIsCheckbox, sliderTemplate, buttonTemplate, valueChangeHook)
     --how many widgets has been created on this line loop pass
     local amountLineWidgetAdded = 0

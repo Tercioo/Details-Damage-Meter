@@ -1,6 +1,6 @@
 
 
-local dversion = 544
+local dversion = 547
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -44,13 +44,24 @@ local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
 SMALL_NUMBER = 0.000001
 ALPHA_BLEND_AMOUNT = 0.8400251
 
-local _, _, _, buildInfo = GetBuildInfo()
+--cache this stuff
+local g, b, d, t = GetBuildInfo()
+DF.BuildYear = tonumber(d:match("%d+$") or 0)
+DF.GamePatch = g --string "10.2.7"
+DF.BuildId = b --string "55000"
+DF.Toc = t --number 100000
+DF.Exp = floor(DF.Toc/10000)
+
+local buildInfo = DF.Toc
 
 DF.dversion = dversion
 
 DF.AuthorInfo = {
-	Name = "Terciob",
+	Author = "",
+	Name = "Terciob", --terciob
 	Discord = "https://discord.gg/AGSzAZX",
+	Support = "www.patreon.com",
+	SearchVideos = "www.youtube.com",
 }
 
 function DF:Msg(msg, ...)
@@ -3320,6 +3331,8 @@ end
 --animations
 
 ---create an animation 'hub' which is an animationGroup but with some extra functions
+--tags: create, animation, hub, group, animationgroup, createanimationhub
+--prompt example: create an animation group for the object 'variable name' with the start animation function doing 'what to do' and the finish animation function doing 'what to do'
 ---@param parent uiobject
 ---@param onPlay function?
 ---@param onFinished function?
@@ -3333,30 +3346,35 @@ function DF:CreateAnimationHub(parent, onPlay, onFinished)
 	return newAnimation
 end
 
----* Create a new animation for an animation hub or group.
+---animation descriptions:
+--tags: animation, create, alpha, scale, translation, rotation, path, vertexcolor, color, animation type, animation duration, animation order, animation object, return variable
+--prompt example: create a new animation of type 'alpha' for the animation group 'variable name', with an order of 'number', a duration of 'number', from alpha 'number' to alpha 'number'
+---* Create a new animation for an animation hub created with CreateAnimationHub().
 ---* Alpha: CreateAnimation(animGroup, "Alpha", order, duration, fromAlpha, toAlpha).
 ---* Scale: CreateAnimation(animGroup, "Scale", order, duration, fromScaleX, fromScaleY, toScaleX, toScaleY, originPoint, x, y).
 ---* Translation: CreateAnimation(animGroup, "Translation", order, duration, xOffset, yOffset).
 ---* Rotation: CreateAnimation(animGroup, "Rotation", order, duration, degrees, originPoint, x, y).
 ---* Path: CreateAnimation(animGroup, "Path", order, duration, xOffset, yOffset, curveType).
 ---* VertexColor: CreateAnimation(animGroup, "VertexColor", order, duration, r1, g1, b1, a1, r2, g2, b2, a2).
----@param animationGroup animationgroup
----@param animationType animationtype
----@param order number
----@param duration number
----@param arg1 any
----@param arg2 any
----@param arg3 any
----@param arg4 any
----@param arg5 any
----@param arg6 any
----@param arg7 any
----@param arg8 any
+---@param animationGroup animationgroup the animation group created with CreateAnimationHub()
+---@param animationType animationtype "Alpha", "Scale", "Translation", "Rotation", "Path", "VertexColor"
+---@param order number the order of the animation, the lower the number, the earlier the animation will play
+---@param duration number the duration of the animation in seconds
+---@param arg1 any for Alpha: fromAlpha, for Scale: fromScaleX, for Translation: xOffset, for Rotation: degrees, for Path: xOffset, for VertexColor: r1
+---@param arg2 any for Alpha: toAlpha, for Scale: fromScaleY, for Translation: yOffset, for Rotation: originPoint, for Path: yOffset, for VertexColor: g1
+---@param arg3 any for Scale: toScaleX, for VertexColor: blue1, for Rotation: originXOffset, for Path: curveType, for VertexColor: b1
+---@param arg4 any for Scale: toScaleY, for VertexColor: a1, for Rotation: originYOffset, for VertexColor: a1
+---@param arg5 any for Scale: originPoint, for VertexColor: r2
+---@param arg6 any for Scale: originXOffset, for VertexColor: g2
+---@param arg7 any for Scale: originYOffset, for VertexColor: b2
+---@param arg8 any for VertexColor: a2
 ---@return animation
 function DF:CreateAnimation(animationGroup, animationType, order, duration, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
 	---@type animation
 	local anim = animationGroup:CreateAnimation(animationType)
+	--set the order of the animation, the 'order' parameter isn't passed, it will use the NextAnimation property of the animationGroup
 	anim:SetOrder(order or animationGroup.NextAnimation)
+	--set the duration of the animation
 	anim:SetDuration(duration)
 
 	animationType = string.upper(animationType)
@@ -3373,11 +3391,11 @@ function DF:CreateAnimation(animationGroup, animationType, order, duration, arg1
 			anim:SetFromScale(arg1, arg2)
 			anim:SetToScale(arg3, arg4)
 		end
-		anim:SetOrigin(arg5 or "center", arg6 or 0, arg7 or 0) --point, x, y
+		anim:SetOrigin(arg5 or "center", arg6 or 0, arg7 or 0) --point, originXOffset, originYOffset
 
 	elseif (animationType == "ROTATION") then
 		anim:SetDegrees(arg1) --degree
-		anim:SetOrigin(arg2 or "center", arg3 or 0, arg4 or 0) --point, x, y
+		anim:SetOrigin(arg2 or "center", arg3 or 0, arg4 or 0) --originPoint, originXOffset, originYOffset
 
 	elseif (animationType == "TRANSLATION") then
 		anim:SetOffset(arg1, arg2)
@@ -3403,6 +3421,7 @@ function DF:CreateAnimation(animationGroup, animationType, order, duration, arg1
 			r2, g2, b2, a2 = DF:ParseColors(r2)
 		end
 
+		--CreateColor is a function declared in the game api that return a table with the color values in keys r, g, b, a
 		anim:SetStartColor(CreateColor(r1, g1, b1, a1))
 		anim:SetEndColor(CreateColor(r2, g2, b2, a2))
 	end

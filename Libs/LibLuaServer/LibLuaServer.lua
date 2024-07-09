@@ -5291,8 +5291,9 @@ ToggleSpellAutocast = function() end
 ---@return string, string, number, number, boolean, string
 UnitCastingInfo = function() return "", "", 0, 0, false, "" end
 
+---@param unit string
 ---@return string, string, number, number, boolean, string
-UnitChannelInfo = function() return "", "", 0, 0, false, "" end
+UnitChannelInfo = function(unit) return "", "", 0, 0, false, "" end
 
 ---@param command string
 ConsoleExec = function(command) end

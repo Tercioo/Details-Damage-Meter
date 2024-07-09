@@ -12,7 +12,18 @@ local wipe = wipe
 
 --definitions
 
----@class df_headercolumndata : {key: string, name: string, icon: string, texcoord: table, text: string, canSort: boolean, selected: boolean, width: number, height: number, align: string, offset: number}
+---@class df_headercolumndata : table
+---@field key string
+---@field name string
+---@field icon string
+---@field texcoord table
+---@field text string
+---@field canSort boolean
+---@field selected boolean
+---@field width number
+---@field height number
+---@field align string
+---@field offset number
 
 ---@class df_headerchild : uiobject
 ---@field FramesToAlign table
@@ -637,7 +648,7 @@ local default_header_options = {
 ---a header is used to organize columns giving them a name/title, a way to sort and align them.
 ---each column is placed on the right side of the previous column.
 ---@param parent frame
----@param headerTable table
+---@param headerTable df_headercolumndata[]
 ---@param options table?
 ---@param frameName string?
 ---@return df_headerframe

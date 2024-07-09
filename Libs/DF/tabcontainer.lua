@@ -9,7 +9,10 @@ local unpack = unpack
 local CreateFrame = CreateFrame
 local PixelUtil = PixelUtil
 
----@class df_tabinfotable : {name: string, text: string, createOnDemandFunc:function?}
+---@class df_tabinfotable : table
+---@field name string
+---@field text string
+---@field createOnDemandFunc function?
 
 ---@class df_tabcontainer : frame
 ---@field AllFrames df_tabcontainerframe[]

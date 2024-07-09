@@ -151,7 +151,11 @@ function detailsFramework.Schedules.NewTicker(time, callback, ...)
     return newTicker
 end
 
---schedule a task with an interval of @time
+--schedule a function/callback/ to run after 'time' with a payload passed in the varargs
+--return an object that can be used to cancel the scheduled task
+--difference from Schedules.After is that this function returns an object that can be used to cancel the scheduled task and also pass a payload to the callback
+--prompt example: schedule 'function variable name' to run after 'time' amount of seconds with payload 'variable name, variable name...'
+--prompt example: run 'function name' after 'time' leaving an object as reference
 function detailsFramework.Schedules.NewTimer(time, callback, ...)
     local payload = {...}
     local newTimer = C_Timer.NewTimer(time, triggerScheduledTick)
@@ -165,7 +169,9 @@ function detailsFramework.Schedules.NewTimer(time, callback, ...)
     return newTimer
 end
 
---cancel an ongoing ticker, the native call tickerObject:Cancel() also works with no problem
+--cancel an ongoing ticker or timer, the native call tickerObject:Cancel() also works
+---prompt example: cancel schedule 'variable name'
+---@param tickerObject timer
 function detailsFramework.Schedules.Cancel(tickerObject)
     --ignore if there's no ticker object
     if (tickerObject) then
@@ -262,16 +268,22 @@ function detailsFramework.Schedules.AfterById(time, callback, id, ...)
     return newTimer
 end
 
-
---schedule a task with an interval of @time without payload
+--schedule a function to be called after 'time'
+--prompt example: create a schedule that runs the function 'variable name' after 'time' amount of seconds
 function detailsFramework.Schedules.After(time, callback)
     C_Timer.After(time, callback)
 end
 
-function detailsFramework.Schedules.SetName(object, name)
-    object.name = name
-end
-
+--schedule a function to be called on the next frame
+--prompt example: run 'function name' on next tick
+---@param callback function
 function detailsFramework.Schedules.RunNextTick(callback)
     return detailsFramework.Schedules.After(0, callback)
+end
+
+--set a name to a scheduled object
+---@param object timer
+---@param name string
+function detailsFramework.Schedules.SetName(object, name)
+    object.name = name
 end

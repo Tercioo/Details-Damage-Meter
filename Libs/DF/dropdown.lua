@@ -647,7 +647,16 @@ end
 function DetailsFrameworkDropDownOptionOnEnter(self)
 	if (self.table.desc) then
 		GameCooltip2:Preset(2)
-		GameCooltip2:AddLine(self.table.desc)
+
+		local addonId = self.table.addonId
+		if (addonId) then
+			local phraseId = self.table.desc
+			local text = DF.Language.GetText(addonId, phraseId)
+			GameCooltip2:AddLine(text or phraseId)
+		else
+			GameCooltip2:AddLine(self.table.desc)
+		end
+
 		if (self.table.descfont) then
 			GameCooltip2:SetOption("TextFont", self.table.descfont)
 		end
