@@ -3,8 +3,9 @@ local Details = _G.Details
 local addonName, Details222 = ...
 local _
 
-local debugmode = false
+Details222.Debug.MythicPlusChartWindowDebug = false
 local verbosemode = false
+
 
 local CreateFrame = CreateFrame
 local UIParent = UIParent
@@ -283,7 +284,7 @@ function mythicDungeonCharts.ShowChart()
 	mythicDungeonCharts.Frame.ChartFrame:Reset()
 
 	if (not mythicDungeonCharts.ChartTable) then
-		if (debugmode) then
+		if (Details222.Debug.MythicPlusChartWindowDebug) then
 			--development
 			if (Details.mythic_plus.last_mythicrun_chart) then
 				--load the last mythic dungeon run chart
@@ -593,6 +594,6 @@ mythicDungeonCharts.ClassColors = {
 	["EVOKER3"] = { r = 0.0, g = 0.6 , b = 0.19, colorStr = "FF274B3C" },
 };
 
-if (debugmode) then
+if (Details222.Debug.MythicPlusChartWindowDebug) then
 	--C_Timer.After(1, mythicDungeonCharts.ShowChart)
 end

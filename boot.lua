@@ -1,8 +1,9 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --global name declaration
---local _StartDebugTime = debugprofilestop() print(debugprofilestop() - _StartDebugTime)
+--use lua-language-server annotations to help the linter:
 --https://github.com/LuaLS/lua-language-server/wiki/Annotations#documenting-types
---updated the lib open raid for v11
+--follow definitions declared in the file definitions.lua
+--follow game api definitions in the file LibLuaServer.lua
 
 		_ = nil
 		_G.Details = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
@@ -16,7 +17,7 @@
 		end
 
 		local addonName, Details222 = ...
-		local version, build, date, tocversion = GetBuildInfo()
+		local version, build, date, tvs = GetBuildInfo()
 
 		Details.build_counter = 12801
 		Details.alpha_build_counter = 12801 --if this is higher than the regular counter, use it instead
@@ -24,6 +25,7 @@
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
 		Details.realversion = 158 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.gametoc = tvs
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
 
@@ -40,10 +42,11 @@
 		Details.BFACORE = 131 --core version on BFA launch
 		Details.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 		Details.DRAGONFLIGHT = 147 --core version on Dragonflight launch
+		Details.V11CORE = 158 --core version on V11 launch
 
 		Details = Details
 
-		local gameVersionPrefix = "VWD" --vanilla, wrath, dragonflight
+		local gameVersionPrefix = "VCT" --v1, v4, v11
 
 		Details.gameVersionPrefix = gameVersionPrefix
 
@@ -113,9 +116,8 @@
 		Details222.DamageSpells = {}
 		--namespace for texture
 		Details222.Textures = {}
-
 		Details222.Debug = {}
-
+		Details222.Tvs = tvs
 		--namespace for pet
 		Details222.Pets = {}
 		Details222.PetContainer = {
@@ -177,6 +179,8 @@
 		Details222.SpecHelpers = {
 			[1473] = {},
 		}
+
+		Details222.Parser = {}
 
 		Details222.Actors = {}
 
@@ -565,9 +569,9 @@ do
 		--armazenas as fun��es do parser - All parse functions
 			_detalhes.parser = {}
 			_detalhes.parser_functions = {}
-			_detalhes.parser_frame = CreateFrame("Frame")
+			Details222.parser_frame = CreateFrame("Frame")
+			Details222.parser_frame:Hide()
 			_detalhes.pvp_parser_frame = CreateFrame("Frame")
-			_detalhes.parser_frame:Hide()
 
 			_detalhes.MacroList = {
 				{Name = "Click on Your Own Bar", Desc = "To open the player details window on your character, like if you click on your bar in the damage window. The number '1' is the window number where it'll click.", MacroText = "/script Details:OpenPlayerDetails(1)"},
@@ -582,7 +586,8 @@ do
 
 		--current instances of the exp (need to maintain)
 			_detalhes.InstancesToStoreData = { --mapId
-				[2549] = true, --amirdrassil
+				[2657] = true, --Nerub-ar Palace v11 T1
+				[2294] = true, --Nerub-ar Palace v11 T1
 			}
 
 		--store shield information for absorbs
@@ -1249,13 +1254,37 @@ do
 			end
 		end
 
+		local bIsDump = false
+		local waitForSpellLoad = CreateFrame("frame")
+		if (C_EventUtils.IsEventValid("SPELL_TEXT_UPDATE")) then
+			waitForSpellLoad:RegisterEvent("SPELL_TEXT_UPDATE")
+			waitForSpellLoad:SetScript("OnEvent", function(self, event, spellId)
+				if (bIsDump) then
+					dumpt(spellId)
+				end
+			end)
+		end
+
 		function dumpt(value) --[[GLOBAL]]
 			--check if this is a spellId
 			local spellId = tonumber(value)
 			if (spellId) then
 				local spellInfo = {Details222.GetSpellInfo(spellId)}
 				if (type(spellInfo[1]) == "string") then
-					return Details:Dump(spellInfo)
+					local desc = C_Spell.GetSpellDescription and C_Spell.GetSpellDescription(spellId) or GetSpellDescription(spellId)
+					if (not desc or desc == "") then
+						bIsDump = true
+						return
+					end
+
+					if (C_Spell.GetSpellInfo) then
+						Details:Dump({desc, C_Spell.GetSpellInfo(spellId)})
+						return
+					else
+						return Details:Dump({desc, spellInfo})
+					end
+
+					bIsDump = false
 				end
 			end
 

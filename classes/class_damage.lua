@@ -2592,19 +2592,20 @@ end
 		--space between string4 and string3 (usually dps is 4 and total value is 3)
 		for lineId = 1, self:GetNumLinesShown() do
 			local thisLine = self:GetLine(lineId)
+			if (thisLine) then
+				--check strings 3 and 4
+				if (thisLine.lineText4:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
+					--the length of the far right string determines the space between it and the next string in the left
+					local stringLength = thisLine.lineText4:GetStringWidth()
+					maxStringLength_StringFour = stringLength > maxStringLength_StringFour and stringLength or maxStringLength_StringFour
+				end
 
-			--check strings 3 and 4
-			if (thisLine.lineText4:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
-				--the length of the far right string determines the space between it and the next string in the left
-				local stringLength = thisLine.lineText4:GetStringWidth()
-				maxStringLength_StringFour = stringLength > maxStringLength_StringFour and stringLength or maxStringLength_StringFour
-			end
-
-			--check strings 2 and 3
-			if (thisLine.lineText2:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
-				--the length of the middle string determines the space between it and the next string in the left
-				local stringLength = thisLine.lineText3:GetStringWidth()
-				maxStringLength_StringThree = stringLength > maxStringLength_StringThree and stringLength or maxStringLength_StringThree
+				--check strings 2 and 3
+				if (thisLine.lineText2:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
+					--the length of the middle string determines the space between it and the next string in the left
+					local stringLength = thisLine.lineText3:GetStringWidth()
+					maxStringLength_StringThree = stringLength > maxStringLength_StringThree and stringLength or maxStringLength_StringThree
+				end
 			end
 		end
 
@@ -2625,7 +2626,9 @@ end
 			--update the lines
 			for lineId = 1, self:GetNumLinesShown() do
 				local thisLine = self:GetLine(lineId)
-				thisLine.lineText3:SetPoint("right", thisLine.statusbar, "right", -newOffset, profileYOffset)
+				if (thisLine) then
+					thisLine.lineText3:SetPoint("right", thisLine.statusbar, "right", -newOffset, profileYOffset)
+				end
 			end
 		end
 
@@ -2646,7 +2649,9 @@ end
 				--update the lines
 				for lineId = 1, self:GetNumLinesShown() do
 					local thisLine = self:GetLine(lineId)
-					thisLine.lineText2:SetPoint("right", thisLine.statusbar, "right", -newOffset, profileYOffset)
+					if (thisLine) then
+						thisLine.lineText2:SetPoint("right", thisLine.statusbar, "right", -newOffset, profileYOffset)
+					end
 				end
 			end
 		end
@@ -2657,7 +2662,7 @@ end
 
 			--check if there's something showing in this line
 			--check if the line is shown and if the text exists for sanitization
-			if (thisLine.minha_tabela and thisLine:IsShown() and thisLine.lineText1:GetText()) then
+			if (thisLine and thisLine.minha_tabela and thisLine:IsShown() and thisLine.lineText1:GetText()) then
 				local playerNameFontString = thisLine.lineText1
 				local text2 = thisLine.lineText2
 				local text3 = thisLine.lineText3
@@ -2669,10 +2674,10 @@ end
 				DetailsFramework:TruncateTextSafe(playerNameFontString, self.cached_bar_width - totalWidth) --this avoid truncated strings with ...
 
 				--these commented lines are for to create a cache and store the name already truncated there to safe performance
-					--local truncatedName = playerNameFontString:GetText()
-					--local actorObject = thisLine.minha_tabela
-					--actorObject.name_cached = truncatedName
-					--actorObject.name_cached_time = GetTime()
+				--local truncatedName = playerNameFontString:GetText()
+				--local actorObject = thisLine.minha_tabela
+				--actorObject.name_cached = truncatedName
+				--actorObject.name_cached_time = GetTime()
 			end
 		end
 	end

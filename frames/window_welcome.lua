@@ -1,3 +1,5 @@
+
+local addonName, Details222 = ...
 local _detalhes = 		_G.Details
 local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -1061,7 +1063,7 @@ local window_openned_at = time()
 
 			_detalhes.zone_type = "pvp"
 
-			_detalhes:EntrarEmCombate()
+			Details222.StartCombat()
 
 			_detalhes:StartTestBarUpdate()
 

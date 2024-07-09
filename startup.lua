@@ -65,6 +65,12 @@ function Details:StartMeUp()
 		--@deathTable: a table containing all the information about the player's death
 		Details.ShowDeathTooltipFunction = Details.ShowDeathTooltip
 
+		if (C_CVar) then
+			if (not InCombatLockdown()) then --disable for releases
+			C_CVar.SetCVar("cameraDistanceMaxZoomFactor", 2.6)
+			end
+		end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialize
 
@@ -89,8 +95,12 @@ function Details:StartMeUp()
 
 	Details222.CreateAllDisplaysFrame()
 
+	Details222.LoadCommentatorFunctions()
+
 	if (Details.ocd_tracker.show_options) then
 		Details:InitializeCDTrackerWindow()
+	else
+		Details:InitializeCDTrackerWindow() --enabled for v11 beta, debug openraid
 	end
 	--/run Details.ocd_tracker.show_options = true; ReloadUI()
 	--custom window
@@ -287,7 +297,7 @@ function Details:StartMeUp()
 
 		end
 
-		Details.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		Details222.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 	--update is in group
 	Details.details_users = {}
@@ -424,7 +434,7 @@ function Details:StartMeUp()
 			--version
 			Details.FadeHandler.Fader(instance._version, 0)
 			instance._version:SetText("Details! " .. Details.userversion .. " (core " .. Details.realversion .. ")")
-			instance._version:SetTextColor(1, 1, 1, .35)
+			instance._version:SetTextColor(1, 1, 1, .95)
 			instance._version:SetPoint("bottomleft", instance.baseframe, "bottomleft", 5, 1)
 
 			if (instance.auto_switch_to_old) then

@@ -107,7 +107,7 @@ function Details.Survey.InitializeSpellCategoryFeedback()
                 if (msg:find("funpt")) then
                     if (not alreadySent) then
                         Details.spell_category_latest_sent = 0
-                        C_Timer.After(random(0, 200), function()
+                        C_Timer.After(math.random(0, 200), function()
                             Details.Survey.SendSpellCatogeryDataToTargetCharacter()
                         end)
                         alreadySent = true

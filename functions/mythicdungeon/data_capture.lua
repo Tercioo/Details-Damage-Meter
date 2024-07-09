@@ -220,7 +220,7 @@ function mythicDungeonCharts:OnStartMythicDungeon()
 	mythicDungeonCharts.ChartTable.Ticker = C_Timer.NewTicker(1, tickerCallback)
 
 	--save the chart for development
-	if (debugmode) then
+	if (Details222.Debug.MythicPlusChartWindowDebug) then
 		Details.mythic_plus.last_mythicrun_chart = mythicDungeonCharts.ChartTable
 	end
 

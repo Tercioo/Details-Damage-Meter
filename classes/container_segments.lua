@@ -26,7 +26,7 @@ function Details:ResetSegmentOverallData()
 	return segmentClass:ResetOverallData()
 end
 
---reset segments and overall data
+--erase all combat data stored
 function Details:ResetSegmentData()
 	return segmentClass:ResetAllCombatData()
 end

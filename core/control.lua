@@ -1,34 +1,32 @@
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	local _detalhes = 		_G.Details
-	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
+	local Details = 		_G.Details
+	local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	local _tempo = time()
-	local _
 	local addonName, Details222 = ...
+	---@type detailsframework
 	local detailsFramework = DetailsFramework
+	local _
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
-	local _math_max = math.max --lua local
-	local ipairs = ipairs --lua local
-	local pairs = pairs --lua local
-	local bitBand = bit.band --lua local
-
-	local GetInstanceInfo = GetInstanceInfo --wow api local
-	local UnitExists = UnitExists --wow api local
-	local UnitGUID = UnitGUID --wow api local
+	local max = math.max
+	local ipairs = ipairs
+	local pairs = pairs
+	local bitBand = bit.band
+	local GetInstanceInfo = GetInstanceInfo
+	local UnitExists = UnitExists
+	local UnitGUID = UnitGUID
 	local GetTime = GetTime
-
 	local IsAltKeyDown = IsAltKeyDown
 	local IsShiftKeyDown = IsShiftKeyDown
 	local IsControlKeyDown = IsControlKeyDown
 
-	local atributo_damage = Details.atributo_damage
-	local atributo_heal = Details.atributo_heal
-	local atributo_energy = Details.atributo_energy
-	local atributo_misc = Details.atributo_misc
-	local atributo_custom = Details.atributo_custom
+	local damageClass = Details.atributo_damage
+	local healingClass = Details.atributo_heal
+	local resourceClass = Details.atributo_energy
+	local utilityClass = Details.atributo_misc
+	local customClass = Details.atributo_custom
 
 	local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
 
@@ -36,12 +34,12 @@
 --constants
 	local groupMode = Details.modos.group
 	local everythingMode = Details.modos.all
-	local attributeDamage = Details.atributos.dano
-	local OBJECT_TYPE_PETS = 0x00003000
+	local damageAttributeId = Details.atributos.dano
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --details api functions
 	---for a number to the current selected abbreviation
+	--Details.ps_abbreviation tell the current abbreviation type
 	---@param number number
 	---@return string
 	function Details:Format(number)
@@ -67,7 +65,7 @@
 		if (playerActorObject) then
 			local targets = playerActorObject.targets
 
-			--make an array of targets {{targetName, amount}}
+			---@type table<actorname, number>[]
 			local targetsArray = {}
 			for targetName, amount in pairs(targets) do
 				table.insert(targetsArray, {targetName, amount})
@@ -83,23 +81,27 @@
 			end
 		end
 
-		for _, actor in ipairs(currentCombat[attributeDamage]._ActorTable) do
-			if (not actor.grupo and not actor.owner and not actor.nome:find("[*]") and bitBand(actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
-				for name, _ in pairs(actor.targets) do
-					if (name == Details.playername) then
-						return actor.nome
+		---@type actorcontainer
+		local damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		for _, actor in damageContainer:ListActors() do
+			---@cast actor actor
+			if (not actor:IsGroupPlayer() and not actor.owner and not actor.nome:find("[*]") and bitBand(actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
+				for targetName in pairs(actor.targets) do
+					if (targetName == Details.playername) then
+						return actor:Name()
 					else
-						local targetActor = currentCombat(attributeDamage, name)
-						if (targetActor and targetActor.grupo) then
-							return actor.nome
+						local targetActor = damageContainer:GetActor(targetName)
+						if (targetActor and targetActor:IsGroupPlayer()) then
+							return actor:Name()
 						end
 					end
 				end
 			end
 		end
 
-		for _, actor in ipairs(currentCombat[attributeDamage]._ActorTable) do
-			if (actor.grupo and not actor.owner) then
+		for _, actor in damageContainer:ListActors() do
+			---@cast actor actor
+			if (actor:IsGroupPlayer() and not actor.owner) then
 				for targetName, _ in pairs(actor.targets) do
 					return targetName
 				end
@@ -109,7 +111,7 @@
 		return Loc ["STRING_UNKNOW"]
 	end
 
-	--try get the current encounter name during the encounter
+	--create and set a table in the current combat, this table store information about the boss in the current combat
 	local createBossTable = function(t, zoneName, zoneMapID, difficultyID)
 		local bossTable = {
 			index = 0,
@@ -169,39 +171,35 @@
 	end
 
 	function Details:ReadBossFrames()
+		---@type combat
 		local currentCombat = Details:GetCurrentCombat()
 
-		if (currentCombat.is_boss) then
-			return --no need to check
+		if (currentCombat:GetBossInfo()) then
+			return --the combat already has a bossInfo
 		end
 
 		if (Details.encounter_table.name) then
-
-		--store the encounter time inside the encounter table for the encounter plugin
-		Details.encounter_table.start = GetTime()
-		Details.encounter_table ["end"] = nil
---		local encounterID = Details.encounter_table.id
-		Details.encounter_table.id = encounterID
-		Details.encounter_table.name = encounterName
-		Details.encounter_table.diff = difficultyID
-		Details.encounter_table.size = raidSize
-		Details.encounter_table.zone = zoneName
-		Details.encounter_table.mapid = zoneMapID
+			local encounterID = Details.encounter_table.id
+			local encounterName = Details.encounter_table.name
+			local zoneName = Details.encounter_table.zone
+			local zoneMapID = Details.encounter_table.mapid
+			local difficultyID = Details.encounter_table.diff
 
 			local encounterTable = Details.encounter_table
-			return foundEncounterInfo(encounterTable.index, encounterTable.name, encounterTable.zone, encounterTable.mapid, encounterTable.diff, encounterTable.id)
+			return foundEncounterInfo(encounterTable.index, encounterName, zoneName, zoneMapID, difficultyID, encounterID)
 		end
 
-		for index = 1, 5 do
-			if (UnitExists("boss" .. index)) then
-				local bossGuid = UnitGUID("boss" .. index)
+		for index = 1, #Details222.UnitIdCache.Boss do
+			local bossUnitId = Details222.UnitIdCache.Boss[index]
+			if (UnitExists(bossUnitId)) then
+				local bossGuid = UnitGUID(bossUnitId)
 				if (bossGuid) then
-					local serial = Details:GetNpcIdFromGuid(bossGuid)
-					if (serial) then
+					local npcId = Details:GetNpcIdFromGuid(bossGuid)
+					if (npcId) then
 						local zoneName, _, difficultyID, _, _, _, _, zoneMapID = GetInstanceInfo()
 						local bossIds = Details:GetBossIds(zoneMapID)
 						if (bossIds) then
-							local bossIndex = bossIds[serial]
+							local bossIndex = bossIds[npcId]
 							if (bossIndex) then
 								if (Details.debug) then
 									Details:Msg("(debug) boss found:", Details:GetBossName(zoneMapID, bossIndex))
@@ -218,26 +216,26 @@
 	--try to get the encounter name after the encounter (can be called during the combat as well)
 	function Details:FindBoss(noJournalSearch)
 		if (Details.encounter_table.name) then
-			local encounter_table = Details.encounter_table
-			return foundEncounterInfo(encounter_table.index, encounter_table.name, encounter_table.zone, encounter_table.mapid, encounter_table.diff, encounter_table.id)
+			local encounterTable = Details.encounter_table
+			return foundEncounterInfo(encounterTable.index, encounterTable.name, encounterTable.zone, encounterTable.mapid, encounterTable.diff, encounterTable.id)
 		end
 
+		---@type combat
 		local currentCombat = Details:GetCurrentCombat()
 		local zoneName, instanceType, difficultyID, _, _, _, _, zoneMapID = GetInstanceInfo()
 		local bossIds = Details:GetBossIds(zoneMapID)
 
 		if (bossIds) then
-			local actorContainer = currentCombat[attributeDamage]._ActorTable
-			if (actorContainer) then
-				for index, actorObject in ipairs(actorContainer) do
-					if (not actorObject.grupo) then
-						local serial = Details:GetNpcIdFromGuid(actorObject.serial)
-						if (serial) then
-							local bossIndex = bossIds[serial]
-							if (bossIndex) then
-								actorObject.boss = true
-								return foundEncounterInfo(bossIndex, Details:GetBossName(zoneMapID, bossIndex), zoneName, zoneMapID, difficultyID)
-							end
+			---@type actorcontainer
+			local damageContainer = currentCombat:GetContainer(damageAttributeId)
+			for index, actorObject in damageContainer:ListActors() do
+				if (not actorObject:IsGroupPlayer()) then
+					local npcId = Details:GetNpcIdFromGuid(actorObject.serial)
+					if (npcId) then
+						local bossIndex = bossIds[npcId]
+						if (bossIndex) then
+							actorObject.boss = true
+							return foundEncounterInfo(bossIndex, Details:GetBossName(zoneMapID, bossIndex), zoneName, zoneMapID, difficultyID)
 						end
 					end
 				end
@@ -247,18 +245,17 @@
 		noJournalSearch = true --disabling the scan on encounter journal
 
 		if (not noJournalSearch) then
-			local in_instance = IsInInstance() --garrison returns party as instance type.
-			if ((instanceType == "party" or instanceType == "raid") and in_instance) then
-				local boss_list = Details:GetCurrentDungeonBossListFromEJ()
-				if (boss_list) then
-					local ActorsContainer = currentCombat[attributeDamage]._ActorTable
-					if (ActorsContainer) then
-						for index, Actor in ipairs(ActorsContainer) do
-							if (not Actor.grupo) then
-								if (boss_list [Actor.nome]) then
-									Actor.boss = true
-									return createBossTable (boss_list [Actor.nome], zoneName, zoneMapID, difficultyID)
-								end
+			local bIsInInstance = IsInInstance() --garrison returns party as instance type.
+			if ((instanceType == "party" or instanceType == "raid") and bIsInInstance) then
+				local bossList = Details:GetCurrentDungeonBossListFromEJ()
+				if (bossList) then
+					---@type actorcontainer
+					local damageContainer = currentCombat:GetContainer(damageAttributeId)
+					for index, actorObject in damageContainer:ListActors() do
+						if (not actorObject:IsGroupPlayer()) then
+							if (bossList[actorObject:Name()]) then
+								actorObject.boss = true
+								return createBossTable (bossList [actorObject:Name()], zoneName, zoneMapID, difficultyID)
 							end
 						end
 					end
@@ -294,6 +291,7 @@
 
 		--iterate over the segments table from the most recent to the oldest, check if the combatObject of the segment has is_boss and get the encounter Id from the member is_boss.id
 		for i = 1, #segmentsTable do
+			---@type combat
 			local combatObject = segmentsTable[i]
 			if (combatObject.is_boss) then
 				table.insert(resultTable, 1, combatObject.is_boss.id)
@@ -304,18 +302,25 @@
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 --internal functions
 	function Details:StartCombat(...)
-		return Details:EntrarEmCombate (...)
+		return Details:EntrarEmCombate(...)
 	end
 
-	-- ~start ~inicio ~novo �ovo
-	function Details:EntrarEmCombate (...)
+	function Details:EntrarEmCombate(...)
+		Details:Msg("deprecated path on control.lua")
+		print(debugstack())
+		return Details222.StartCombat(...)
+	end
+
+	-- ~start
+	function Details222.StartCombat(...)
 		if (Details.debug) then
 			Details:Msg("(debug) |cFFFFFF00started a new combat|r|cFFFF7700", Details.encounter_table and Details.encounter_table.name or "")
 			--local from = debugstack(2, 1, 0)
 			--print("from:", from)
-			DetailsParserDebugFrame:Show()
+			--DetailsParserDebugFrame:Show()
 		end
 
 		local segmentsTable = Details:GetCombatSegments()
@@ -384,31 +389,14 @@
 		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_IN")
 		Details:UptadeRaidMembersCache()
 
-		--is inside a mythic dungeon and running a mythic+?
-
-		if (newCombatObject.is_challenge or Details.debug) then
-			--local bRegisterAuraScanTimeLine = true
-			--Details222.AuraScan.AddAura(395152) --ebon might
-			--Details222.AuraScan.AddAura(395296) --the evoker buff on it self
-			--Details222.AuraScan.AddAura(410089--[[, bRegisterAuraScanTimeLine--]]) --prescience
-			--Details222.AuraScan.AddAura(413984) --Shifting Sands
-			--Details222.AuraScan.AddAura(409560) --Temporal Wound
-			--Details222.AuraScan.AddAura(360827) --Blistering Scales
-			--Details222.AuraScan.AddAura(410263) --Inferno's Blessing
-			--Details222.AuraScan.RegisterCallback(Details222.SpecHelpers[1473].OnAugmentationBuffUpdate)
-			--Details222.AuraScan.Start() --combat started (m+ active)
-		end
-
-		--Details222.TimeCapture.StartCombatTimer(Details.tabela_vigente)
-
 		--we already have boss information? build .is_boss table
-		if (Details.encounter_table.id and Details.encounter_table ["start"] >= GetTime() - 3 and not Details.encounter_table ["end"]) then
-			local encounter_table = Details.encounter_table
+		if (Details.encounter_table.id and Details.encounter_table["start"] >= GetTime() - 3 and not Details.encounter_table["end"]) then
+			local encounterTable = Details.encounter_table
 			--boss_found will trigger "COMBAT_BOSS_FOUND" event, but at this point of the combat creation is safe to send it
-			foundEncounterInfo (encounter_table.index, encounter_table.name, encounter_table.zone, encounter_table.mapid, encounter_table.diff, encounter_table.id)
+			foundEncounterInfo (encounterTable.index, encounterTable.name, encounterTable.zone, encounterTable.mapid, encounterTable.diff, encounterTable.id)
 		else
 			--if we don't have this infor right now, lets check in few seconds dop
-			if (Details.EncounterInformation [Details.zone_id]) then
+			if (Details.EncounterInformation[Details.zone_id]) then
 				Details:ScheduleTimer("ReadBossFrames", 1)
 				Details:ScheduleTimer("ReadBossFrames", 30)
 			end
@@ -422,27 +410,8 @@
 		Details.host_of = nil
 		Details.host_by = nil
 
-		if (Details.in_group and Details.cloud_capture) then
-			if (Details:IsInInstance() or Details.debug) then
-				if (not Details:CaptureIsAllEnabled()) then
-					Details:ScheduleSendCloudRequest()
-					--if (Details.debug) then
-					--	Details:Msg("(debug) requesting a cloud server.")
-					--end
-				end
-			else
-				--if (Details.debug) then
-				--	Details:Msg("(debug) isn't inside a registred instance", Details:IsInInstance())
-				--end
-			end
-		else
-			--if (Details.debug) then
-			--	Details:Msg("(debug) isn't in group or cloud is turned off", Details.in_group, Details.cloud_capture)
-			--end
-		end
-
 		--hide / alpha / switch in combat
-		for index, instancia in ipairs(Details.tabela_instancias) do
+		for index, instancia in ipairs(Details:GetAllInstances()) do
 			if (instancia.ativa) then
 				instancia:CheckSwitchOnCombatStart(true)
 			end
@@ -465,18 +434,6 @@
 
 		--stop bar testing if any
 		Details:StopTestBarUpdate()
-	end
-
-	function Details:DelayedSyncAlert()
-		local lower_instance = Details:GetLowerInstanceNumber()
-		if (lower_instance) then
-			lower_instance = Details:GetInstance(lower_instance)
-			if (lower_instance) then
-				if (not lower_instance:HaveInstanceAlert()) then
-					lower_instance:InstanceAlert (Loc ["STRING_EQUILIZING"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {function() end})
-				end
-			end
-		end
 	end
 
 	function Details:ScheduleSyncPlayerActorData()
@@ -534,19 +491,15 @@
 
 			--still didn't find the boss
 			if (not currentCombat.is_boss) then
-				local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = GetInstanceInfo()
-				local findboss = Details:GetRaidBossFindFunction(ZoneMapID)
+				local zoneName, _, difficultyID, _, _, _, _, zoneMapID = GetInstanceInfo()
+				local findboss = Details:GetRaidBossFindFunction(zoneMapID)
 				if (findboss) then
-					local BossIndex = findboss()
-					if (BossIndex) then
-						foundEncounterInfo(BossIndex, Details:GetBossName(ZoneMapID, BossIndex), ZoneName, ZoneMapID, DifficultyID)
+					local bossIndex = findboss()
+					if (bossIndex) then
+						foundEncounterInfo(bossIndex, Details:GetBossName(zoneMapID, bossIndex), zoneName, zoneMapID, difficultyID)
 					end
 				end
 			end
-		end
-
-		if (currentCombat.is_challenge or Details.debug) then
-			--Details222.AuraScan.Stop() --combat ended (m+ active)
 		end
 
 		Details:OnCombatPhaseChanged()
@@ -571,7 +524,7 @@
 		currentCombat.player_last_events = {}
 
 		--flag instance type
-		local zoneName, instanceType, DifficultyID, DifficultyName, _, _, _, zoneMapID = GetInstanceInfo()
+		local zoneName, instanceType, difficultyID, difficultyName, _, _, _, zoneMapID = GetInstanceInfo()
 		currentCombat.instance_type = instanceType
 
 		if (not currentCombat.is_boss and bIsFromEncounterEnd and type(bIsFromEncounterEnd) == "table") then
@@ -596,8 +549,8 @@
 					encounter = encounterName,
 					zone = zoneName,
 					mapid = zoneMapID,
-					diff = DifficultyID,
-					diff_string = DifficultyName,
+					diff = difficultyID,
+					diff_string = difficultyName,
 					ej_instance_id = ejid or 0,
 					id = encounterID,
 					unixtime = time()
@@ -746,9 +699,7 @@
 			end
 
 			--schedule sync
-			Details:EqualizeActorsSchedule(Details.host_of)
 			if (Details:GetEncounterEqualize(currentCombat.is_boss.mapid, currentCombat.is_boss.index)) then
-				Details:ScheduleTimer("DelayedSyncAlert", 3)
 			end
 		end
 
@@ -843,7 +794,7 @@
 			end
 
 			currentCombat.resincked = true
-			Details:InstanceCallDetailsFunc(Details.AtualizarJanela)
+			Details:InstanceCallDetailsFunc(Details.UpdateWindow)
 
 			if (Details.solo) then --code to update "solo" plugins, there's no solo plugins for details! at the moment
 				if (Details.SoloTables.CombatID == Details:GetOrSetCombatId()) then --significa que o solo mode validou o combate, como matar um bixo muito low level com uma s� porrada
@@ -934,12 +885,12 @@
 
 		--enemies
 		local enemiesAmount = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
-		Details:Destroy(_detalhes.arena_enemies)
+		Details:Destroy(Details.arena_enemies)
 
 		for i = 1, enemiesAmount do
 			local enemyName = Details:GetFullName("arena" .. i)
 			if (enemyName) then
-				_detalhes.arena_enemies[enemyName] = "arena" .. i
+				Details.arena_enemies[enemyName] = "arena" .. i
 			end
 		end
 	end
@@ -947,21 +898,21 @@
 	--attempt to get the arena unitId for an actor
 	--this function is called from containerActors while reading the actor flag and parser when managing deathlog
 	function Details:GuessArenaEnemyUnitId(unitName)
-		for i = 1, 5 do
-			local unitId = "arena" .. i
+		for i = 1, #Details222.UnitIdCache.Arena do
+			local unitId = Details222.UnitIdCache.Arena[i]
 			local enemyName = Details:GetFullName(unitId)
 			if (enemyName == unitName) then
-				_detalhes.arena_enemies[enemyName] = unitId
+				Details.arena_enemies[enemyName] = unitId
 				return unitId
 			end
 		end
 	end
 
 	local string_arena_enemyteam_damage = [[
-		local combat = Details:GetCombat("current")
+		local combat = Details:GetCurrentCombat()
 		local total = 0
 
-		for _, actor in combat[1]:ListActors() do
+		for _, actor in combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
 			if (actor.arena_enemy) then
 				total = total + actor.total
 			end
@@ -971,10 +922,10 @@
 	]]
 
 	local string_arena_myteam_damage = [[
-		local combat = Details:GetCombat("current")
+		local combat = Details:GetCurrentCombat()
 		local total = 0
 
-		for _, actor in combat[1]:ListActors() do
+		for _, actor in combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
 			if (actor.arena_ally) then
 				total = total + actor.total
 			end
@@ -984,10 +935,10 @@
 	]]
 
 	local string_arena_enemyteam_heal = [[
-		local combat = Details:GetCombat("current")
+		local combat = Details:GetCurrentCombat()
 		local total = 0
 
-		for _, actor in combat[2]:ListActors() do
+		for _, actor in combat:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
 			if (actor.arena_enemy) then
 				total = total + actor.total
 			end
@@ -997,10 +948,10 @@
 	]]
 
 	local string_arena_myteam_heal = [[
-		local combat = Details:GetCombat("current")
+		local combat = Details:GetCurrentCombat()
 		local total = 0
 
-		for _, actor in combat[2]:ListActors() do
+		for _, actor in combat:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
 			if (actor.arena_ally) then
 				total = total + actor.total
 			end
@@ -1019,21 +970,23 @@
 			Details:SairDoCombate()
 		end
 
-		--registra os gr�ficos
-		Details:TimeDataRegister ("Your Team Damage", string_arena_myteam_damage, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
-		Details:TimeDataRegister ("Enemy Team Damage", string_arena_enemyteam_damage, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+		--register chart data
+		Details:TimeDataRegister("Your Team Damage", string_arena_myteam_damage, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+		Details:TimeDataRegister("Enemy Team Damage", string_arena_enemyteam_damage, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
 
-		Details:TimeDataRegister ("Your Team Healing", string_arena_myteam_heal, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
-		Details:TimeDataRegister ("Enemy Team Healing", string_arena_enemyteam_heal, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+		Details:TimeDataRegister("Your Team Healing", string_arena_myteam_heal, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+		Details:TimeDataRegister("Enemy Team Healing", string_arena_enemyteam_heal, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
 
 		Details.lastArenaStartTime = GetTime()
 
-		--inicia um novo combate
-		Details:EntrarEmCombate()
+		Details222.StartCombat()
 
-		--sinaliza que esse combate � arena
-		Details.tabela_vigente.arena = true
-		Details.tabela_vigente.is_arena = {name = Details.zone_name, zone = Details.zone_name, mapid = Details.zone_id}
+		---@type combat
+		local currentCombat = Details:GetCurrentCombat()
+
+		--set this combat as an arena segment type
+		currentCombat.arena = true
+		currentCombat.is_arena = {name = Details.zone_name, zone = Details.zone_name, mapid = Details.zone_id}
 
 		Details:SendEvent("COMBAT_ARENA_START")
 
@@ -1064,10 +1017,9 @@
 		if (Details.start_arena) then
 			Details:CancelTimer(Details.start_arena, true)
 		end
+
 		Details.start_arena = Details:ScheduleTimer("CreateArenaSegment", timeSeconds)
 		Details:GetPlayersInArena()
-
-		--CHAT_MSG_BG_SYSTEM_NEUTRAL - "The Arena battle has begun!""
 	end
 
 	function Details:EnteredInArena()
@@ -1092,11 +1044,11 @@
 			Details:CancelTimer(Details.start_arena, true)
 		end
 
-		Details:TimeDataUnregister ("Your Team Damage")
-		Details:TimeDataUnregister ("Enemy Team Damage")
+		Details:TimeDataUnregister("Your Team Damage")
+		Details:TimeDataUnregister("Enemy Team Damage")
 
-		Details:TimeDataUnregister ("Your Team Healing")
-		Details:TimeDataUnregister ("Enemy Team Healing")
+		Details:TimeDataUnregister("Your Team Healing")
+		Details:TimeDataUnregister("Enemy Team Healing")
 
 		Details:SendEvent("COMBAT_ARENA_END")
 
@@ -1104,282 +1056,107 @@
 		Details:SetWindowUpdateSpeed(Details.update_speed)
 	end
 
-	local validSpells = {
-		[220893] = {class = "ROGUE", spec = 261, maxPercent = 0.075, container = 1, commID = "MISSDATA_ROGUE_SOULRIP"},
-		--[11366] = {class = "MAGE", spec = 63, maxPercent = 0.9, container = 1, commID = "MISSDATA_ROGUE_SOULRIP"},
-	}
-
-	function Details:CanSendMissData()
-		if (not IsInRaid() and not IsInGroup()) then
-			return
-		end
-		local _, playerClass = UnitClass("player")
-		local specIndex = DetailsFramework.GetSpecialization()
-		local playerSpecID
-		if (specIndex) then
-			playerSpecID = DetailsFramework.GetSpecializationInfo(specIndex)
-		end
-
-		if (playerSpecID and playerClass) then
-			for spellID, t in pairs(validSpells) do
-				if (playerClass == t.class and playerSpecID == t.spec) then
-					Details:SendMissData (spellID, t.container, Details.network.ids [t.commID])
-				end
-			end
-		end
-		return false
-	end
-
-	function Details:SendMissData (spellID, containerType, commID)
-		local combat = Details.tabela_vigente
-		if (combat) then
-			local damageActor = combat (containerType, Details.playername)
-			if (damageActor) then
-				local spell = damageActor.spells:GetSpell (spellID)
-				if (spell) then
-					local data = {
-						[1] = containerType,
-						[2] = spellID,
-						[3] = spell.total,
-						[4] = spell.counter
-					}
-
-					if (Details.debug) then
-						Details:Msg("(debug) sending miss data packet:", spellID, containerType, commID)
-					end
-
-					Details:SendRaidOrPartyData (commID, data)
-				end
-			end
-		end
-	end
-
-	function Details.HandleMissData (playerName, data)
-		local combat = Details.tabela_vigente
-
-		if (Details.debug) then
-			Details:Msg("(debug) miss data received from:", playerName, "spellID:", data [2], data [3], data [4])
-		end
-
-		if (combat) then
-			local containerType = data[1]
-			if (type(containerType) ~= "number" or containerType < 1 or containerType > 4) then
-				return
-			end
-
-			local damageActor = combat (containerType, playerName)
-			if (damageActor) then
-				local spellID = data[2] --a spellID has been passed?
-				if (not spellID or type(spellID) ~= "number") then
-					return
-				end
-
-				local validateSpell = validSpells [spellID]
-				if (not validateSpell) then --is a valid spell?
-					return
-				end
-
-				--does the target player fit in the spell requirement on OUR end?
-				local class, spec, maxPercent = validateSpell.class, validateSpell.spec, validateSpell.maxPercent
-				if (class ~= damageActor.classe or spec ~= damageActor.spec) then
-					return
-				end
-
-				local total, counter = data[3], data[4]
-				if (type(total) ~= "number" or type(counter) ~= "number") then
-					return
-				end
-
-				if (total > (damageActor.total * maxPercent)) then
-					return
-				end
-
-				local spellObject = damageActor.spells:PegaHabilidade (spellID, true)
-				if (spellObject) then
-					if (spellObject.total < total and total > 0 and damageActor.nome ~= Details.playername) then
-						local difference = total - spellObject.total
-						if (difference > 0) then
-							spellObject.total = total
-							spellObject.counter = counter
-							damageActor.total = damageActor.total + difference
-
-							combat [containerType].need_refresh = true
-
-							if (Details.debug) then
-								Details:Msg("(debug) miss data successful added from:", playerName, data [2], "difference:", difference)
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-
-	function Details:MakeEqualizeOnActor (player, realm, receivedActor)
-		if (true) then --disabled for testing
-			return
-		end
-	end
-
-	function Details:EqualizeActorsSchedule(host_of)
-		--store pets sent through 'needpetowner'
-		Details.sent_pets = Details.sent_pets or {n = time()}
-		if (Details.sent_pets.n+20 < time()) then
-			Details:Destroy(Details.sent_pets)
-			Details.sent_pets.n = time()
-		end
-
-		--do not equilize if there is any disabled capture
-		--if (Details:CaptureIsAllEnabled()) then
-			Details:ScheduleTimer("EqualizeActors", 2+math.random()+math.random() , host_of)
-		--end
-	end
-
-	function Details:EqualizeActors (host_of)
-
-		--Disabling the sync. Since WoD combatlog are sent between player on phased zones during encounters.
-		if (not host_of or true) then --full disabled for testing
-			return
-		end
-
-		if (Details.debug) then
-			Details:Msg("(debug) sending equilize actor data")
-		end
-
-		local damage, heal, energy, misc
-
-		if (host_of) then
-			damage, heal, energy, misc = Details:GetAllActors("current", host_of)
-		else
-			damage, heal, energy, misc = Details:GetAllActors("current", Details.playername)
-		end
-
-		if (damage) then
-			damage = {damage.total or 0, damage.damage_taken or 0, damage.friendlyfire_total or 0}
-		else
-			damage = {0, 0, 0}
-		end
-
-		if (heal) then
-			heal = {heal.total or 0, heal.totalover or 0, heal.healing_taken or 0}
-		else
-			heal = {0, 0, 0}
-		end
-
-		if (energy) then
-			energy = {energy.mana or 0, energy.e_rage or 0, energy.e_energy or 0, energy.runepower or 0}
-		else
-			energy = {0, 0, 0, 0}
-		end
-
-		if (misc) then
-			misc = {misc.interrupt or 0, misc.dispell or 0}
-		else
-			misc = {0, 0}
-		end
-
-		local data = {damage, heal, energy, misc}
-
-		--envia os dados do proprio host pra ele antes
-		if (host_of) then
-			Details:SendRaidDataAs (Details.network.ids.CLOUD_EQUALIZE, host_of, nil, data)
-			Details:EqualizeActors()
-		else
-			Details:SendRaidData (Details.network.ids.CLOUD_EQUALIZE, data)
-		end
-
-	end
-
 	function Details:FlagActorsOnPvPCombat()
-		for class_type, container in ipairs(Details.tabela_vigente) do
-			for _, actor in ipairs(container._ActorTable) do
-				actor.pvp_component = true
+		---@type combat
+		local currentCombat = Details:GetCurrentCombat()
+		for containerId = 1, 4 do
+			---@type actorcontainer
+			local container = currentCombat:GetContainer(containerId)
+			for _, actorObject in container:ListActors() do
+				actorObject.pvp_component = true
 			end
 		end
 	end
 
 	function Details:FlagActorsOnBossFight()
-		for class_type, container in ipairs(Details.tabela_vigente) do
-			for _, actor in ipairs(container._ActorTable) do
-				actor.boss_fight_component = true
+		---@type combat
+		local currentCombat = Details:GetCurrentCombat()
+		for containerId = 1, 4 do
+			---@type actorcontainer
+			local container = currentCombat:GetContainer(containerId)
+			for _, actorObject in container:ListActors() do
+				actorObject.boss_fight_component = true
 			end
 		end
 	end
 
-	local fight_component = function(energy_container, misc_container, name)
-		local on_energy = energy_container._ActorTable [energy_container._NameIndexTable [name]]
-		if (on_energy) then
-			on_energy.fight_component = true
+	local findAndMarkActorAsFightComponent = function(resourceContainer, utilityContainer, actorName)
+		local resourceActor = resourceContainer:GetActor(actorName)
+		if (resourceActor) then
+			resourceActor.fight_component = true
 		end
-		local on_misc = misc_container._ActorTable [misc_container._NameIndexTable [name]]
-		if (on_misc) then
-			on_misc.fight_component = true
+
+		local utilityActor = utilityContainer:GetActor(actorName)
+		if (utilityActor) then
+			utilityActor.fight_component = true
 		end
 	end
 
 	function Details:FlagActorsOnCommonFight()
+		---@type combat
 		local currentCombat = Details:GetCurrentCombat()
-		local damage_container = currentCombat[1]
-		local healing_container = currentCombat[2]
-		local energy_container = currentCombat[3]
-		local misc_container = currentCombat[4]
+		local damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		local healContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_HEAL)
+		local resourceContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_ENERGY)
+		local utilityContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_MISC)
 
 		local mythicDungeonRun = currentCombat.is_mythic_dungeon_segment
 
-		for class_type, container in ipairs({damage_container, healing_container}) do
-
-			for _, actor in ipairs(container._ActorTable) do
-
+		for classType, actorContainer in ipairs({damageContainer, healContainer}) do
+			for _, actor in actorContainer:ListActors() do
 				if (mythicDungeonRun) then
 					actor.fight_component = true
 				end
 
-				if (actor.grupo) then
-					if (class_type == 1 or class_type == 2) then
-						for target_name, amount in pairs(actor.targets) do
-							local target_object = container._ActorTable [container._NameIndexTable [target_name]]
-							if (target_object) then
-								target_object.fight_component = true
-								fight_component (energy_container, misc_container, target_name)
+				if (actor:IsGroupPlayer()) then
+					if (classType == DETAILS_ATTRIBUTE_DAMAGE or classType == DETAILS_ATTRIBUTE_HEAL) then
+						for targetName, amount in pairs(actor.targets) do
+							local targetObject = actorContainer:GetActor(targetName)
+							if (targetObject) then
+								targetObject.fight_component = true
+								findAndMarkActorAsFightComponent(resourceContainer, utilityContainer, targetName)
 							end
 						end
-						if (class_type == 1) then
-							for damager_actor, _ in pairs(actor.damage_from) do
-								local target_object = container._ActorTable [container._NameIndexTable [damager_actor]]
-								if (target_object) then
-									target_object.fight_component = true
-									fight_component (energy_container, misc_container, damager_actor)
+
+						if (classType == DETAILS_ATTRIBUTE_DAMAGE) then
+							for damagerName in pairs(actor.damage_from) do
+								local targetObject = actorContainer:GetActor(damagerName)
+								if (targetObject) then
+									targetObject.fight_component = true
+									findAndMarkActorAsFightComponent(resourceContainer, utilityContainer, damagerName)
 								end
 							end
-						elseif (class_type == 2) then
-							for healer_actor, _ in pairs(actor.healing_from) do
-								local target_object = container._ActorTable [container._NameIndexTable [healer_actor]]
-								if (target_object) then
-									target_object.fight_component = true
-									fight_component (energy_container, misc_container, healer_actor)
+
+						elseif (classType == DETAILS_ATTRIBUTE_HEAL) then
+							for healerName in pairs(actor.healing_from) do
+								local targetObject = actorContainer:GetActor(healerName)
+								if (targetObject) then
+									targetObject.fight_component = true
+									findAndMarkActorAsFightComponent(resourceContainer, utilityContainer, healerName)
 								end
 							end
 						end
 					end
 				end
 			end
-
 		end
 	end
 
-	function Details:AtualizarJanela (instancia, _segmento)
-		if (_segmento) then --apenas atualizar janelas que estejam mostrando o segmento solicitado
-			if (_segmento == instancia.segmento) then
-				instancia:TrocaTabela(instancia, instancia.segmento, instancia.atributo, instancia.sub_atributo, true)
+	function Details:UpdateWindow(instance, segmentId)
+		if (segmentId) then
+			if (segmentId == instance.segmento) then
+				local displayId, subDisplayId = instance:GetDisplay()
+				instance:TrocaTabela(instance, instance:GetSegment(), displayId, subDisplayId, true)
 			end
 		else
-			if (instancia.modo == groupMode or instancia.modo == everythingMode) then
-				instancia:TrocaTabela(instancia, instancia.segmento, instancia.atributo, instancia.sub_atributo, true)
+			if (instance.modo == groupMode or instance.modo == everythingMode) then
+				local displayId, subDisplayId = instance:GetDisplay()
+				instance:TrocaTabela(instance, instance:GetSegment(), displayId, subDisplayId, true)
 			end
 		end
 	end
 
-	function Details:PostponeInstanceToCurrent (instance)
+	function Details:PostponeInstanceToCurrent(instance)
 		if (
 			not instance.last_interaction or
 			(
@@ -1391,7 +1168,7 @@
 		) then
 			instance._postponing_current = nil
 			if (instance.segmento == 0) then
-				return Details:TrocaSegmentoAtual (instance)
+				return Details:TrocaSegmentoAtual(instance)
 			else
 				return
 			end
@@ -1402,55 +1179,57 @@
 		instance._postponing_current = Details:ScheduleTimer("PostponeInstanceToCurrent", 1, instance)
 	end
 
-	function Details:TrocaSegmentoAtual (instancia, is_encounter)
-		if (instancia.segmento == 0 and instancia.baseframe and instancia.ativa) then
+	function Details:TrocaSegmentoAtual(instance, bIsEncounter)
+		if (instance.segmento == 0 and instance.baseframe and instance.ativa) then
 
-			if (not is_encounter) then
-				if (instancia.is_interacting) then
-					if (not instancia.last_interaction or instancia.last_interaction < _tempo) then
-						instancia.last_interaction = _tempo or time()
+			if (not bIsEncounter) then
+				if (instance.is_interacting) then
+					if (not instance.last_interaction or instance.last_interaction < _tempo) then
+						instance.last_interaction = _tempo or time()
 					end
 				end
 
-				if ((instancia.last_interaction and (instancia.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.BreakdownWindowFrame:IsShown())) then
+				if ((instance.last_interaction and (instance.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.BreakdownWindowFrame:IsShown())) then
 					--postpone
-					instancia._postponing_current = Details:ScheduleTimer("PostponeInstanceToCurrent", 1, instancia)
+					instance._postponing_current = Details:ScheduleTimer("PostponeInstanceToCurrent", 1, instance)
 					return
 				end
 			end
 
-			--print("==> Changing the Segment now! - control.lua 1220")
-
-			instancia.last_interaction = _tempo - 4 --pode setar, completou o ciclo
-			instancia._postponing_current = nil
-			instancia.showing = Details.tabela_vigente
-			instancia:ResetaGump()
-			Details.FadeHandler.Fader(instancia, "in", nil, "barras")
+			instance.last_interaction = _tempo - 4 --pode setar, completou o ciclo
+			instance._postponing_current = nil
+			instance.showing = Details.tabela_vigente
+			instance:ResetaGump()
+			Details.FadeHandler.Fader(instance, "in", nil, "barras")
 		end
 	end
 
-	function Details:SetTrashSuppression (n)
+	function Details:SetTrashSuppression(n)
 		assert(type(n) == "number", "SetTrashSuppression expects a number on index 1.")
 		if (n < 0) then
 			n = 0
 		end
 		Details.instances_suppress_trash = n
 	end
+
 	function Details:CheckFor_SuppressedWindowsOnEncounterFound()
 		for _, instance in Details:ListInstances() do
 			if (instance.ativa and instance.baseframe and (not instance.last_interaction or instance.last_interaction > _tempo) and instance.segmento == 0) then
-				Details:TrocaSegmentoAtual (instance, true)
+				Details:TrocaSegmentoAtual(instance, true)
 			end
 		end
 	end
+
 	function Details:CheckFor_EnabledTrashSuppression()
 		if (Details.HasTrashSuppression and Details.HasTrashSuppression > _tempo) then
 			self.last_interaction = Details.HasTrashSuppression
 		end
 	end
+
 	function Details:SetTrashSuppressionAfterEncounter()
 		Details:InstanceCall("CheckFor_EnabledTrashSuppression")
 	end
+
 	function Details:CheckFor_TrashSuppressionOnEncounterEnd()
 		if (Details.instances_suppress_trash > 0) then
 			Details.HasTrashSuppression = _tempo + Details.instances_suppress_trash
@@ -1481,8 +1260,8 @@
 	local avatarTextColor = {1, 1, 1, 1}
 
 	function Details:AddTooltipReportLineText()
-		GameCooltip:AddLine (Loc ["STRING_CLICK_REPORT_LINE1"], Loc ["STRING_CLICK_REPORT_LINE2"])
-		GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.8)
+		GameCooltip:AddLine(Loc ["STRING_CLICK_REPORT_LINE1"], Loc ["STRING_CLICK_REPORT_LINE2"])
+		GameCooltip:AddStatusBar(100, 1, 0, 0, 0, 0.8)
 	end
 
 	function Details:AddTooltipBackgroundStatusbar(side, value, useSpark, statusBarColor)
@@ -1521,22 +1300,22 @@
 				r, g, b, a = detailsFramework:ParseColors(statusBarColor)
 			end
 			local rBG, gBG, bBG, aBG = unpack(Details.tooltip.background)
-			GameCooltip:AddStatusBar (value, 1, r, g, b, a, useSpark, {value = 100, color = {rBG, gBG, bBG, aBG}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+			GameCooltip:AddStatusBar(value, 1, r, g, b, a, useSpark, {value = 100, color = {rBG, gBG, bBG, aBG}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		else
-			GameCooltip:AddStatusBar (value, 2, unpack(Details.tooltip.bar_color))
+			GameCooltip:AddStatusBar(value, 2, unpack(Details.tooltip.bar_color))
 		end
 	end
 
-	function Details:AddTooltipHeaderStatusbar (r, g, b, a)
+	function Details:AddTooltipHeaderStatusbar(r, g, b, a)
 		local r, g, b, a, statusbarGlow, backgroundBar = unpack(Details.tooltip.header_statusbar)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, a, statusbarGlow, backgroundBar, "Skyline")
+		GameCooltip:AddStatusBar(100, 1, r, g, b, a, statusbarGlow, backgroundBar, "Skyline")
 	end
 
 -- /run local a,b=Details.tooltip.header_statusbar,0.3;a[1]=b;a[2]=b;a[3]=b;a[4]=0.8;
 
 	function Details:AddTooltipSpellHeaderText(headerText, headerColor, amount, iconTexture, L, R, T, B, separator, iconSize)
 		if (separator and separator == true) then
-			GameCooltip:AddLine ("", "", nil, nil, 1, 1, 1, 1, 8)
+			GameCooltip:AddLine("", "", nil, nil, 1, 1, 1, 1, 8)
 			return
 		end
 
@@ -1545,13 +1324,13 @@
 		end
 
 		if (Details.tooltip.show_amount) then
-			GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, 1, 1, 1, .4, Details.tooltip.fontsize_title)
+			GameCooltip:AddLine(headerText, "x" .. amount .. "", nil, headerColor, 1, 1, 1, .4, Details.tooltip.fontsize_title)
 		else
-			GameCooltip:AddLine (headerText, nil, nil, headerColor, nil, Details.tooltip.fontsize_title)
+			GameCooltip:AddLine(headerText, nil, nil, headerColor, nil, Details.tooltip.fontsize_title)
 		end
 
 		if (iconTexture) then
-			GameCooltip:AddIcon (iconTexture, 1, 1, iconSize, iconSize, L or 0, R or 1, T or 0, B or 1)
+			GameCooltip:AddIcon(iconTexture, 1, 1, iconSize, iconSize, L or 0, R or 1, T or 0, B or 1)
 		end
 	end
 
@@ -1587,7 +1366,7 @@
 	function Details:BuildInstanceBarTooltip(frame)
 		local GameCooltip = GameCooltip
 		Details:FormatCooltipForSpells()
-		GameCooltip:SetOption("MinWidth", _math_max(230, self.baseframe:GetWidth()*0.98))
+		GameCooltip:SetOption("MinWidth", max(230, self.baseframe:GetWidth()*0.98))
 
 		local myPoint = Details.tooltip.anchor_point
 		local anchorPoint = Details.tooltip.anchor_relative
@@ -1730,19 +1509,19 @@
 		--local startTime = debugprofilestop()
 
 		if (self.atributo == 1) then --damage
-			--[[return]] atributo_damage:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
+			--[[return]] damageClass:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
 
 		elseif (self.atributo == 2) then --heal
-			--[[return]] atributo_heal:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
+			--[[return]] healingClass:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
 
 		elseif (self.atributo == 3) then --energy
-			--[[return]] atributo_energy:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
+			--[[return]] resourceClass:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
 
 		elseif (self.atributo == 4) then --outros
-			--[[return]] atributo_misc:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
+			--[[return]] utilityClass:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
 
 		elseif (self.atributo == 5) then --ocustom
-			--[[return]] atributo_custom:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
+			--[[return]] customClass:RefreshWindow(self, combatObject, bForceRefresh, nil, needRefresh)
 		end
 
 		--[[if (Details222.Perf.WindowUpdateC) then
@@ -1845,22 +1624,22 @@
 --core
 
 	function Details:AutoEraseConfirm()
-		local panel = _G.DetailsEraseDataConfirmation
-		if (not panel) then
-			panel = CreateFrame("frame", "DetailsEraseDataConfirmation", UIParent, "BackdropTemplate")
-			panel:SetSize(400, 85)
-			panel:SetPoint("center", UIParent)
+		local dataEraseConfirmationFrame = _G.DetailsEraseDataConfirmation
+		if (not dataEraseConfirmationFrame) then
+			dataEraseConfirmationFrame = CreateFrame("frame", "DetailsEraseDataConfirmation", UIParent, "BackdropTemplate")
+			dataEraseConfirmationFrame:SetSize(400, 85)
+			dataEraseConfirmationFrame:SetPoint("center", UIParent)
 
-			DetailsFramework:AddRoundedCornersToFrame(panel, Details.PlayerBreakdown.RoundedCornerPreset)
+			DetailsFramework:AddRoundedCornersToFrame(dataEraseConfirmationFrame, Details.PlayerBreakdown.RoundedCornerPreset)
 
 			local LibWindow = LibStub("LibWindow-1.1")
-			LibWindow.RegisterConfig(panel, Details.ask_to_erase_frame)
-			LibWindow.MakeDraggable(panel)
-			LibWindow.RestorePosition(panel)
+			LibWindow.RegisterConfig(dataEraseConfirmationFrame, Details.ask_to_erase_frame)
+			LibWindow.MakeDraggable(dataEraseConfirmationFrame)
+			LibWindow.RestorePosition(dataEraseConfirmationFrame)
 
-			panel:SetScript("OnMouseDown", function(self, button)
+			dataEraseConfirmationFrame:SetScript("OnMouseDown", function(self, button)
 				if (button == "RightButton") then
-					panel:Hide()
+					dataEraseConfirmationFrame:Hide()
 				end
 			end)
 
@@ -1871,20 +1650,18 @@
 				- both
 			--]=]
 
-			local text = Details.gump:CreateLabel(panel, Loc ["STRING_OPTIONS_CONFIRM_ERASE"], nil, nil, "GameFontNormal")
-			text:SetPoint("center", panel, "center")
-			text:SetPoint("top", panel, "top", 0, -10)
+			local text = detailsFramework:CreateLabel(dataEraseConfirmationFrame, Loc ["STRING_OPTIONS_CONFIRM_ERASE"], nil, nil, "GameFontNormal")
+			text:SetPoint("center", dataEraseConfirmationFrame, "center")
+			text:SetPoint("top", dataEraseConfirmationFrame, "top", 0, -10)
 
-			local no = Details.gump:CreateButton(panel, function() panel:Hide() end, 90, 20, Loc ["STRING_NO"])
-			no:SetPoint("bottomleft", panel, "bottomleft", 30, 10)
-			no:InstallCustomTexture(nil, nil, nil, nil, true)
+			local noButton = detailsFramework:CreateButton(dataEraseConfirmationFrame, function() dataEraseConfirmationFrame:Hide() end, 90, 20, Loc ["STRING_NO"])
+			noButton:SetPoint("bottomleft", dataEraseConfirmationFrame, "bottomleft", 30, 10)
 
-			local yes = Details.gump:CreateButton(panel, function() panel:Hide(); Details.tabela_historico:ResetAllCombatData() end, 90, 20, Loc ["STRING_YES"])
-			yes:SetPoint("bottomright", panel, "bottomright", -30, 10)
-			yes:InstallCustomTexture(nil, nil, nil, nil, true)
+			local yesButton = detailsFramework:CreateButton(dataEraseConfirmationFrame, function() dataEraseConfirmationFrame:Hide(); Details:ResetSegmentData() end, 90, 20, Loc ["STRING_YES"])
+			yesButton:SetPoint("bottomright", dataEraseConfirmationFrame, "bottomright", -30, 10)
 		end
 
-		panel:Show()
+		dataEraseConfirmationFrame:Show()
 	end
 
 	function Details:CheckForAutoErase(mapId)
@@ -1897,7 +1674,7 @@
 			elseif (Details.segments_auto_erase == 3) then
 				--erase
 				C_Timer.After(2, function()
-					Details.tabela_historico:ResetAllCombatData()
+					Details:ResetSegmentData()
 				end)
 			end
 		else
@@ -1907,7 +1684,7 @@
 					Details:ScheduleTimer("AutoEraseConfirm", 1)
 				elseif (Details.segments_auto_erase == 3) then
 					--erase
-					Details.tabela_historico:ResetAllCombatData()
+					Details:ResetSegmentData()
 				end
 			end
 		end

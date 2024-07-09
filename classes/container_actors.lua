@@ -418,7 +418,7 @@ end
 		return ipairs(self._ActorTable)
 	end
 
-	---return a table<actorIndex, actorObject> for all actors stored in this Container
+	---return a table with actor[] for all actors stored in this container
 	---@return table
 	function actorContainer:GetActorTable()
 		return self._ActorTable
@@ -427,8 +427,8 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internals
 
-	---create a new actor container, can be a damage container, heal container, enemy container or utility container
-	---actors can be added by using newContainer.GetOrCreateActor
+	---create a new actor container, can be a damage container, heal container, resource container or utility container
+	---actors can be added by using the method newContainer:GetOrCreateActor(actorGuid, actorName, actorFlags, bShouldCreateActor)
 	---actors can be retrieved using the same function above
 	---@param containerType number
 	---@param combatObject table

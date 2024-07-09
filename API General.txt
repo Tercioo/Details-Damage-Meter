@@ -1,16 +1,5 @@
 
 =======================================
-Background Tasks
-=======================================
-
-Details:RegisterBackgroundTask (name, func, priority, ...)
-register a function to be called while the player isn't in: combat, group, raid instances.
-priority determines the interval time and support "LOW", "MEDIUM", "HIGH" values.
-
-Details:UnregisterBackgroundTask (name)
-unregister a background task.
-
-=======================================
 Item Level
 =======================================
 

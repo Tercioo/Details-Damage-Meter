@@ -2594,7 +2594,7 @@ function Details:AtualizaSegmentos_AfterCombat(instancia)
 		instancia.v_barras = true
 		instancia:ResetaGump()
 		instancia:RefreshMainWindow(true)
-		Details:AtualizarJanela (instancia)
+		Details:UpdateWindow (instancia)
 
 	elseif (segmento < Details.segments_amount and segmento > 0) then
 		instancia.showing = segmentsTable[segmento]
@@ -2605,7 +2605,7 @@ function Details:AtualizaSegmentos_AfterCombat(instancia)
 		instancia.v_barras = true
 		instancia:ResetaGump()
 		instancia:RefreshMainWindow(true)
-		Details:AtualizarJanela (instancia)
+		Details:UpdateWindow (instancia)
 	end
 end
 

@@ -1283,7 +1283,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 
 		--create a new combat to be the overall for the mythic run
-		Details:EntrarEmCombate()
+		Details222.StartCombat()
 
 		--get the current combat just created and the table with all past segments
 		local newCombat = Details:GetCurrentCombat()
@@ -1436,7 +1436,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local tokenId = line:match("%s%s(.*)"):match("^(.-),")
 
 			if (tokenId == "ENCOUNTER_START") then
-				Details:StartCombat()
+				Details222.StartCombat()
 			end
 
 			if (tokenId == "ENCOUNTER_END") then
