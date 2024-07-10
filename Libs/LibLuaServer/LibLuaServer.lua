@@ -5562,8 +5562,8 @@ function GetTalentLink(tabIndex, talentIndex, isInspect) return "" end
 function GetTalentPrereqs(tabIndex, talentIndex, isInspect) return 0 end
 
 ---@param tabIndex number
----@return string, string, number, number, number, number
-function GetTalentTabInfo(tabIndex) return "", "", 0, 0, 0, 0 end
+---@return number, string, string, number, number, string, number, boolean
+function GetTalentTabInfo(tabIndex) return 0, "", "", 0, 0, "", 0, false end
 
 ---@param tabIndex number
 ---@param talentIndex number
