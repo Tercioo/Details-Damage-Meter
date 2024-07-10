@@ -2208,19 +2208,20 @@ local iconFrame_OnEnter = function(self)
 			end
 
 			local combat = instance:GetShowingCombat()
-			local diff = combat:GetDifficulty()
+			local diff, diffEngName = combat:GetDifficulty()
 			local attribute, subattribute = instance:GetDisplay()
 
 			--check if is a raid encounter and if is heroic or mythic
-			if (diff and (diff == 15 or diff == 16) and (attribute == 1 or attribute == 2)) then
+			if (diff and (diff == 15 or diff == 16) and (attribute == 1 or attribute == 2)) then --might give errors
 				local db = Details.OpenStorage()
 				if (db) then
-					local bestRank, encounterTable = Details.storage:GetBestFromPlayer(diff, combat:GetBossInfo().id, attribute == 1 and "damage" or "healing", name, true)
+					---@type details_storage_unitresult, details_encounterkillinfo
+					local bestRank, encounterTable = Details222.storage.GetBestFromPlayer(diffEngName, combat:GetBossInfo().id, attribute == 1 and "DAMAGER" or "HEALER", name, true)
 					if (bestRank) then
 						--discover which are the player position in the guild rank
-						local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank(diff, combat:GetBossInfo().id, attribute == 1 and "damage" or "healing", name, true)
+						local rankPosition = Details222.storage.GetUnitGuildRank(diffEngName, combat:GetBossInfo().id, attribute == 1 and "DAMAGER" or "HEALER", name, true)
 
-						GameCooltip:AddLine("Best Score:", Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. " [|cFFFFFF00Rank: " .. (rankPosition or "#") .. "|r]", 1, "white")
+						GameCooltip:AddLine("Best Score:", Details:ToK2((bestRank.total or 0) / encounterTable.elapsed) .. " [|cFFFFFF00Rank: " .. (rankPosition or "#") .. "|r]", 1, "white")
 						Details:AddTooltipBackgroundStatusbar()
 
 						GameCooltip:AddLine("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t Open Rank", "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents", 1, "white", "white")
@@ -2449,13 +2450,13 @@ local icon_frame_on_click_up = function(self, button)
 		if (instance) then
 			local attribute, subattribute = instance:GetDisplay()
 			local combat = instance:GetShowingCombat()
-			local diff = combat:GetDifficulty()
+			local diff, diffName = combat:GetDifficulty()
 			local bossInfo = combat:GetBossInfo()
 
 			if ((attribute == 1 or attribute == 2) and bossInfo) then --if bossInfo is nil, means the combat isn't a boss
 				local db = Details.OpenStorage()
 				if (db and bossInfo.id) then
-					local haveData = Details.storage:HaveDataForEncounter (diff, bossInfo.id, true) --attempt to index local 'bossInfo' (a nil value)
+					local haveData = Details222.storage.HaveDataForEncounter (diffName, bossInfo.id, true) --attempt to index local 'bossInfo' (a nil value)
 					if (haveData) then
 						Details:OpenRaidHistoryWindow (bossInfo.zone, bossInfo.id, diff, attribute == 1 and "damage" or "healing", true, 1, false, 2)
 					end

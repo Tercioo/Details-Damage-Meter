@@ -677,10 +677,16 @@
 		--this block won't execute if the storage isn't loaded
 		--self is a timer reference from C_Timer
 
+		local diffNumberToName = {
+			[14] = "normal",
+			[15] = "heroic",
+			[16] = "mythic",
+		}
+
 		local encounterID = self.Boss
 		local diff = self.Diff
 
-		if (diff == 15 or diff == 16) then
+		if (diff == 15 or diff == 16) then --might give errors
 			local value, rank, combatTime = 0, 0, 0
 
 			if (encounterID == lastRecordFound.id and diff == lastRecordFound.diff) then
@@ -691,12 +697,14 @@
 
 				local role = _UnitGroupRolesAssigned("player")
 				local isDamage = (role == "DAMAGER") or (role == "TANK") --or true
-				local bestRank, encounterTable = Details.storage:GetBestFromPlayer (diff, encounterID, isDamage and "damage" or "healing", Details.playername, true)
+				---@type details_storage_unitresult, details_encounterkillinfo
+				local bestRank, encounterTable = Details222.storage.GetBestFromPlayer(diffNumberToName[diff], encounterID, isDamage and "DAMAGER" or "HEALER", Details.playername, true)
 
 				if (bestRank) then
-					local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, encounterID, isDamage and "damage" or "healing", Details.playername, true)
+					---@type number
+					local rankPosition = Details222.storage.GetUnitGuildRank(diffNumberToName[diff], encounterID, isDamage and "DAMAGER" or "HEALER", Details.playername, true)
 
-					value = bestRank[1] or 0
+					value = bestRank.total or 0
 					rank = rankPosition or 0
 					combatTime = encounterTable.elapsed
 
@@ -5367,7 +5375,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 			Details.is_in_arena = true
 			Details:EnteredInArena()
-
 		else
 			local inInstance = IsInInstance()
 			if ((zoneType == "raid" or zoneType == "party") and inInstance) then
@@ -5375,8 +5382,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 				--if the current raid is current tier raid, pre-load the storage database
 				if (zoneType == "raid") then
-					if (Details.InstancesToStoreData[zoneMapID]) then
-						--Details.ScheduleLoadStorage()
+					if (Details:IsZoneIdFromCurrentExpansion(zoneMapID)) then
+						Details.ScheduleLoadStorage()
 					end
 				end
 
@@ -5431,7 +5438,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
-		if (Details.InstancesToStoreData[zoneMapID]) then
+		if (Details:IsZoneIdFromCurrentExpansion(zoneMapID)) then
 			Details.current_exp_raid_encounters[encounterID] = true
 		end
 
@@ -5451,7 +5458,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
-		if (IsInGuild() and IsInRaid() and Details.announce_damagerecord.enabled and Details.StorageLoaded) then
+		if (IsInGuild() and IsInRaid() and Details.announce_damagerecord.enabled and Details222.storageLoaded) then
 			Details.TellDamageRecord = C_Timer.NewTimer(0.6, Details.PrintEncounterRecord)
 			Details.TellDamageRecord.Boss = encounterID
 			Details.TellDamageRecord.Diff = difficultyID
@@ -5749,11 +5756,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--Details:Msg("(debug) running scheduled events after combat end.")
 		end
 
-
 		--when the user requested data from the storage but is in combat lockdown
 		if (Details.schedule_storage_load) then
 			Details.schedule_storage_load = nil
-			--Details.ScheduleLoadStorage()
+			Details.ScheduleLoadStorage()
 		end
 
 		--store a boss encounter when out of combat since it might need to load the storage

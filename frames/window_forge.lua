@@ -59,7 +59,7 @@ function Details:OpenForge()
         local have_plugins_enabled
 
         for id, instanceTable in pairs(Details.EncounterInformation) do
-            if (Details.InstancesToStoreData [id]) then
+            if (Details:IsZoneIdFromCurrentExpansion(id)) then
                 have_plugins_enabled = true
                 break
             end

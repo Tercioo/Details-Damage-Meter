@@ -24,22 +24,19 @@ return a new numeric table with sorted in decreasing order:
 Raid History
 =======================================
 
-Details.storage:OpenRaidStorage()
+Details222.storage.OpenRaidStorage()
 get the table containing all stored data.
 
-Details.storage:ListDiffs()
-return a indexed table with dificulty numbers.
-
-Details.storage:ListEncounters (diff)
+Details222.storage.ListEncounters (diff)
 return a indexed table with all encounters stored for the dificulty.
 
-Details.storage:GetEncounterData (diff, encounterId, guildname)
+Details222.storage.GetEncounterData (diff, encounterId, guildname)
 return a indexed table with encounter tables playd by the guild.
 
-Details.storage:GetPlayerData (diff, encounterId, playername)
+Details222.storage.GetUnitData (diff, encounterId, role, playername)
 return a indexed table with player tables for the player.
 
-Details.storage:GetBestFromPlayer (diff, encounterId, role, playername)
+Details222.storage.GetBestFromPlayer (diff, encounterId, role, playername)
 return the best result from the player.
 
 Structure:

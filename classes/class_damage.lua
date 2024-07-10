@@ -5301,7 +5301,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	---@type combat
 	local combatObject = instance:GetCombat()
 	---@type number
-	local diff = combatObject:GetDifficulty()
+	local diff, diffEngName = combatObject:GetDifficulty()
 	---@type string
 	local playerName = actorObject:Name()
 
@@ -5310,14 +5310,15 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	--guild ranking on a boss
 	--check if is a raid encounter and if is heroic or mythic
 	do
-		if (diff and (diff == 15 or diff == 16)) then
+		if (diff and (diff == 15 or diff == 16)) then --this might give errors
 			local db = Details.OpenStorage()
 			if (db) then
-				local bestRank, encounterTable = Details.storage:GetBestFromPlayer(diff, combatObject:GetBossInfo().id, "damage", playerName, true)
+				---@type details_storage_unitresult, details_encounterkillinfo
+				local bestRank, encounterTable = Details222.storage.GetBestFromPlayer(diffEngName, combatObject:GetBossInfo().id, "DAMAGER", playerName, true)
 				if (bestRank) then
 					--discover which are the player position in the guild rank
-					local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, combatObject:GetBossInfo().id, "damage", playerName, true)
-					local text1 = playerName .. " Guild Rank on " .. (combatObject:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
+					local rankPosition = Details222.storage.GetUnitGuildRank(diffEngName, combatObject:GetBossInfo().id, "DAMAGER", playerName, true)
+					local text1 = playerName .. " Guild Rank on " .. (combatObject:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank.total or SMALL_NUMBER) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
 					breakdownWindowFrame:SetStatusbarText (text1, 10, "gray")
 				else
 					breakdownWindowFrame:SetStatusbarText()

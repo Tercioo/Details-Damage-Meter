@@ -559,7 +559,7 @@ Details:GetSourceFromNpcId (npcId)
 return the npc name for the specific npcId.
 this is a expensive function, once you get a valid result, store the npc name somewhere.
 
-bestResult, encounterTable = Details.storage:GetBestFromPlayer (encounterDiff, encounterId, playerRole, playerName)
+bestResult, encounterTable = Details222.storage.GetBestFromPlayer (encounterDiff, encounterId, playerRole, playerName)
 query the storage for the best result of the player on the encounter.
 encounterDiff = raid difficult ID (15 for heroic, 16 for mythic).
 encounterId = may be found on "id" member getting combat:GetBossInfo().
@@ -568,7 +568,7 @@ playerName = name of the player to query (with server name if the player is from
 bestResult = integer, best damage or healing done on the boss made by the player.
 encounterTable = {["date"] = formated time() ["time"] = time() ["elapsed"] = combat time ["guild"] = guild name ["damage"] = all damage players ["healing"] = all healers}
 
-heal_or_damage_done = Details.storage:GetPlayerData (encounterDiff, encounterId, playerName)
+heal_or_damage_done = Details222.storage.GetUnitData (encounterDiff, encounterId, role, playerName)
 query the storage for previous ecounter data for the player.
 returns a numeric table with the damage or healing done by the player on all encounters found.
 encounterDiff = raid difficult ID (15 for heroic, 16 for mythic).

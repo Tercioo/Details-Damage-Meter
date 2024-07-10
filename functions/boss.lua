@@ -379,6 +379,19 @@ do
 	--this cache is local and isn't shared with other components of the addon
 	local expansionBossList_Cache = {build = false}
 
+	---@class details_bossinfo : table
+	---@field bossName string name
+	---@field journalEncounterID number journalEncounterID
+	---@field bossRaidName string instanceName
+	---@field bossIcon number iconImage
+	---@field bossIconCoords table<number, number, number, number> {0, 1, 0, 0.95}
+	---@field bossIconSize table<number, number> {70, 36}
+	---@field instanceId number raidInstanceID
+	---@field uiMapId number UiMapID
+	---@field instanceIndex number instanceIndex
+	---@field journalInstanceId number journalInstanceID
+	---@field dungeonEncounterID number dungeonEncounterID
+
 	function Details:GetExpansionBossList() --~bosslist - load on demand from gears-gsync and statistics-valid boss for exp
 		if (expansionBossList_Cache.build) then
 			return expansionBossList_Cache.bossIndexedTable, expansionBossList_Cache.bossInfoTable, expansionBossList_Cache.raidInfoTable
@@ -426,6 +439,7 @@ do
 					local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = EJ_GetEncounterInfoByIndex(i, raidInstanceID)
 					if (name) then
 						local id, creatureName, creatureDescription, displayInfo, iconImage = EJ_GetCreatureInfo(1, journalEncounterID)
+						---@type details_bossinfo
 						local thisbossIndexedTable = {
 							bossName = name,
 							journalEncounterID = journalEncounterID,

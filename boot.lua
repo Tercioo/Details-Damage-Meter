@@ -112,6 +112,14 @@
 			[153292] = true, --stormwind
 		}
 
+		---@type details_storage_feature
+		---@diagnostic disable-next-line: missing-fields
+		local storage = {
+			DiffNames = {"normal", "heroic", "mythic"},
+			DiffNamesHash = {normal = 14, heroic = 15, mythic = 16},
+		}
+		Details222.storage = storage
+
 		--namespace for damage spells (spellTable)
 		Details222.DamageSpells = {}
 		--namespace for texture
@@ -584,8 +592,8 @@ do
 				{Name = "Report What is Shown In the Window", Desc = "Report the current data shown in the window, the number 1 is the window number, replace it to report another window.", MacroText = "/script Details:FastReportWindow(1)"},
 			}
 
-		--current instances of the exp (need to maintain)
-			_detalhes.InstancesToStoreData = { --mapId
+		--current instances of the exp (need to maintain) - deprecated july 2024 - should do this automatically
+			Details.InstancesToStoreData = { --mapId
 				[2657] = true, --Nerub-ar Palace v11 T1
 				[2294] = true, --Nerub-ar Palace v11 T1
 			}

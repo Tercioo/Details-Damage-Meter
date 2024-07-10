@@ -16,13 +16,14 @@ local CONST_SPELLBOOK_GENERAL_TABID = 1
 local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
 
 local storageDebug = false --remember to turn this to false!
-local instancesToStoreData = Details.InstancesToStoreData
 
 function Details:UpdateGears()
 	Details:UpdateParser()
 	Details:UpdateControl()
 	Details:UpdateCombat()
 end
+
+---@alias raid_difficulty_eng_name_lowercase "normal" | "heroic" | "mythic"
 
 ------------------------------------------------------------------------------------------------------------
 --chat hooks
@@ -378,7 +379,7 @@ function Details:TrackSpecsNow(bTrackEverything)
 	local currentCombat = Details:GetCurrentCombat()
 
 	if (not bTrackEverything) then
-		local damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE) --DETAILS_ATTRIBUTE_DAMAGE is the integer 1, container 1 store damage data
+		local damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE) --DETAILS_ATTRIBUTE_DAMAGE is the integer 1, container 1 store DAMAGER data
 		for _, actor in damageContainer:ListActors() do
 			---@cast actor actor
 			if (actor:IsPlayer()) then
@@ -825,12 +826,75 @@ end)
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --storage stuff ~storage
 
+---@class details_storage_unitresult : table
+---@field total number
+---@field itemLevel number
+---@field classId number
+
+---@class details_encounterkillinfo : table
+---@field guild guildname
+---@field time unixtime
+---@field date date
+---@field elapsed number
+---@field HEALER table<actorname, details_storage_unitresult>
+---@field servertime unixtime
+---@field DAMAGER table<actorname, details_storage_unitresult>
+
+---@class details_bosskillinfo : table
+---@field kills number
+---@field wipes number
+---@field time_fasterkill number
+---@field time_fasterkill_when unixtime
+---@field time_incombat number
+---@field dps_best number
+---@field dps_best_when unixtime
+---@field dps_best_raid number
+---@field dps_best_raid_when unixtime
+
+---@class details_storage : table
+---@field VERSION number the database version
+---@field normal table<encounterid, details_encounterkillinfo[]>
+---@field heroic table<encounterid, details_encounterkillinfo[]>
+---@field mythic table<encounterid, details_encounterkillinfo[]>
+---@field mythic_plus table
+---@field saved_encounters table
+---@field totalkills table<string, table<encounterid, details_bosskillinfo>>
+
+---@class details_storage_feature : table
+---@field diffNames string[] {"normal", "heroic", "mythic"}
+---@field OpenRaidStorage fun():details_storage
+---@field HaveDataForEncounter fun(difficulty:string, encounterId:number, guildName:string|boolean):boolean
+---@field GetBestFromGuild fun(difficulty:string, encounterId:number, role:role, dps:boolean, guildName:string):actorname, details_storage_unitresult, details_encounterkillinfo
+---@field GetUnitGuildRank fun(difficulty:string, encounterId:number, role:role, guildName:guildname, unitName:actorname):number?, details_storage_unitresult?, details_encounterkillinfo?
+---@field GetBestFromPlayer fun(difficulty:string, encounterId:number, role:role, dps:boolean, playerName:actorname):details_storage_unitresult, details_encounterkillinfo
+---@field DBGuildSync fun()
+
 local CONST_ADDONNAME_DATASTORAGE = "Details_DataStorage"
 
---global database
-Details.storage = {}
+local diffNumberToName = {
+	[14] = "normal",
+	[15] = "heroic",
+	[16] = "mythic",
+}
 
-function Details.storage:OpenRaidStorage()
+local createStorageTables = function()
+	local storageDatabase = DetailsDataStorage
+
+	if (not storageDatabase and Details.CreateStorageDB) then
+		storageDatabase = Details:CreateStorageDB()
+		if (not storageDatabase) then
+			return
+		end
+
+	elseif (not storageDatabase) then
+		return
+	end
+
+	return storageDatabase
+end
+
+---@return details_storage?
+function Details222.storage.OpenRaidStorage()
 	--check if the storage is already loaded
 	if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
 		local loaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
@@ -839,111 +903,126 @@ function Details.storage:OpenRaidStorage()
 		end
 	end
 
-	do return end
-
 	--get the storage table
-	local db = DetailsDataStorage
+	local savedData = DetailsDataStorage
 
-	if (not db and Details.CreateStorageDB) then
-		db = Details:CreateStorageDB()
-		if (not db) then
+	if (not savedData and Details.CreateStorageDB) then
+		savedData = Details:CreateStorageDB()
+		if (not savedData) then
 			return
 		end
-	elseif (not db) then
+
+	elseif (not savedData) then
 		return
 	end
 
-	return db
+	return savedData
 end
 
-function Details.storage:HaveDataForEncounter(diff, encounter_id, guild_name)
-	local db = Details.storage:OpenRaidStorage()
-
-	if (not db) then
-		return
+---check if there is data for a specific encounter and difficulty, if a guildName is passed, check if there is data for the guild
+---@param difficulty string
+---@param encounterId number
+---@param guildName string|boolean
+---@return boolean bHasData
+function Details222.storage.HaveDataForEncounter(difficulty, encounterId, guildName)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
+	if (not savedData) then
+		return false
 	end
 
-	if (guild_name and type(guild_name) == "boolean") then
-		guild_name = GetGuildInfo("player")
+	difficulty = diffNumberToName[difficulty] or difficulty
+
+	if (guildName and type(guildName) == "boolean") then
+		guildName = GetGuildInfo("player")
 	end
 
-	local table = db [diff]
-	if (table) then
-		local encounters = table [encounter_id]
-		if (encounters) then
+	---@type table<encounterid, details_encounterkillinfo[]>
+	local encountersTable = savedData[difficulty]
+	if (encountersTable) then
+		local allEncountersStored = encountersTable[encounterId]
+		if (allEncountersStored) then
 			--didn't requested a guild name, so just return 'we have data for this encounter'
-			if (not guild_name) then
+			if (not guildName) then
 				return true
 			end
 
 			--data for a specific guild is requested, check if there is data for the guild
-			for index, encounter in ipairs(encounters) do
-				if (encounter.guild == guild_name) then
+			for index, encounterKillInfo in ipairs(allEncountersStored) do
+				if (encounterKillInfo.guild == guildName) then
 					return true
 				end
 			end
 		end
 	end
+
+	return false
 end
 
-function Details.storage:GetBestFromGuild(diff, encounter_id, role, dps, guild_name)
-	local db = Details.storage:OpenRaidStorage()
+---find the best unit from a specific role from a specific guild in a specific encounter and difficulty
+---check all encounters saved for the guild and difficulty and return the unit with the best performance
+---@param difficulty string
+---@param encounterId number
+---@param role role
+---@param dps boolean?
+---@param guildName string
+---@return boolean|string playerName
+---@return boolean|details_storage_unitresult storageUnitResult
+---@return boolean|details_encounterkillinfo encounterKillInfo
+function Details222.storage.GetBestFromGuild(difficulty, encounterId, role, dps, guildName)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	if (not db) then
-		return
+	if (not savedData) then
+		return false, false, false
 	end
 
-	if (not guild_name) then
-		guild_name = GetGuildInfo("player")
+	if (not guildName) then
+		guildName = GetGuildInfo("player")
 	end
 
-	if (not guild_name) then
+	if (not guildName) then
 		if (Details.debug) then
 			Details:Msg("(debug) GetBestFromGuild() guild name invalid.")
 		end
-		return
+		return false, false, false
 	end
 
 	local best = 0
-	local bestdps = 0
-	local bestplayername
-	local onencounter
-	local bestactor
+	local bestDps = 0
+	local bestEncounterKillInfo
+	local bestUnitName
+	local bestStorageResultTable
 
 	if (not role) then
-		role = "damage"
-	end
-	role = string.lower(role)
-	if (role == "damager") then
-		role = "damage"
-	elseif (role == "healer") then
-		role = "healing"
+		role = "DAMAGER"
 	end
 
-	local table = db [diff]
-	if (table) then
-		local encounters = table [encounter_id]
-		if (encounters) then
-			for index, encounter in ipairs(encounters) do
-				if (encounter.guild == guild_name) then
-					local players = encounter [role]
-					if (players) then
-						for playername, t in pairs(players) do
+	---@type table<encounterid, details_encounterkillinfo[]>
+	local encountersTable = savedData[difficulty]
+	if (encountersTable) then
+		local allEncountersStored = encountersTable[encounterId]
+		if (allEncountersStored) then
+			for index, encounterKillInfo in ipairs(allEncountersStored) do
+				if (encounterKillInfo.guild == guildName) then
+					---@type table<actorname, details_storage_unitresult>
+					local unitListFromRole = encounterKillInfo[role]
+					if (unitListFromRole) then
+						for unitName, storageUnitResult in pairs(unitListFromRole) do
 							if (dps) then
-								if (t[1]/encounter.elapsed > bestdps) then
-									bestdps = t[1]/encounter.elapsed
-									bestplayername = playername
-									onencounter = encounter
-									bestactor = t
+								if (storageUnitResult.total / encounterKillInfo.elapsed > bestDps) then
+									bestDps = storageUnitResult.total / encounterKillInfo.elapsed
+									bestUnitName = unitName
+									bestEncounterKillInfo = encounterKillInfo
+									bestStorageResultTable = storageUnitResult
 								end
 							else
-								if (t[1] > best) then
-									best = t [1]
-									bestplayername = playername
-									onencounter = encounter
-									bestactor = t
+								if (storageUnitResult.total > best) then
+									best = storageUnitResult.total
+									bestUnitName = unitName
+									bestEncounterKillInfo = encounterKillInfo
+									bestStorageResultTable = storageUnitResult
 								end
-
 							end
 						end
 					end
@@ -952,22 +1031,33 @@ function Details.storage:GetBestFromGuild(diff, encounter_id, role, dps, guild_n
 		end
 	end
 
-	return t, onencounter
+	return bestUnitName, bestStorageResultTable, bestEncounterKillInfo
 end
 
-function Details.storage:GetPlayerGuildRank(diff, encounter_id, role, playername, dps, guild_name)
+---find and return the rank position of a unit among all other players guild
+---the rank is based on the biggest total amount of damage or healing (role) done in a specific encounter and difficulty
+---@param difficulty string
+---@param encounterId number
+---@param role role
+---@param unitName actorname
+---@param dps boolean?
+---@param guildName guildname
+---@return number positionIndex?
+---@return details_storage_unitresult storageUnitResult?
+---@return details_encounterkillinfo encounterKillInfo?
+function Details222.storage.GetUnitGuildRank(difficulty, encounterId, role, unitName, dps, guildName)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	local db = Details.storage:OpenRaidStorage()
-
-	if (not db) then
+	if (not savedData) then
 		return
 	end
 
-	if (not guild_name) then
-		guild_name = GetGuildInfo("player")
+	if (not guildName) then
+		guildName = GetGuildInfo("player")
 	end
 
-	if (not guild_name) then
+	if (not guildName) then
 		if (Details.debug) then
 			Details:Msg("(debug) GetBestFromGuild() guild name invalid.")
 		end
@@ -975,156 +1065,158 @@ function Details.storage:GetPlayerGuildRank(diff, encounter_id, role, playername
 	end
 
 	if (not role) then
-		role = "damage"
-	end
-	role = string.lower(role)
-	if (role == "damager") then
-		role = "damage"
-	elseif (role == "healer") then
-		role = "healing"
+		role = "DAMAGER"
 	end
 
-	local playerScore = {}
+	---@class details_storage_unitscore : table
+	---@field total number
+	---@field persecond number
+	---@field storageUnitResult details_storage_unitresult?
+	---@field encounterKillInfo details_encounterkillinfo?
+	---@field unitName actorname?
 
-	local _table = db [diff]
-	if (_table) then
-		local encounters = _table [encounter_id]
-		if (encounters) then
-			for index, encounter in ipairs(encounters) do
-				if (encounter.guild == guild_name) then
-					local roleTable = encounter [role]
-					for playerName, playerTable in pairs(roleTable) do
+	---@type table<actorname, details_storage_unitscore>
+	local unitScores = {}
 
-						if (not playerScore [playerName]) then
-							playerScore [playerName] = {0, 0, {}}
+	---@type table<encounterid, details_encounterkillinfo[]>
+	local encountersTable = savedData[difficulty]
+	if (encountersTable) then
+		local allEncountersStored = encountersTable[encounterId]
+		if (allEncountersStored) then
+			for index, encounterKillInfo in ipairs(allEncountersStored) do
+				if (encounterKillInfo.guild == guildName) then
+					local roleTable = encounterKillInfo[role]
+					for thisUnitName, storageUnitResult in pairs(roleTable) do
+						---@cast storageUnitResult details_storage_unitresult
+						if (not unitScores[thisUnitName]) then
+							unitScores[thisUnitName] = {
+								total = 0,
+								persecond = 0,
+								unitName = thisUnitName,
+							}
 						end
 
-						local total = playerTable[1]
-						local persecond = total / encounter.elapsed
+						--in this part the code is searching what is the performance of each unit in
+						--all encounters saved for the guild in the specific difficulty and role
+
+						local total = storageUnitResult.total
+						local persecond = total / encounterKillInfo.elapsed
 
 						if (dps) then
-							if (persecond > playerScore [playerName][2]) then
-								playerScore [playerName][1] = total
-								playerScore [playerName][2] = total / encounter.elapsed
-								playerScore [playerName][3] = playerTable
-								playerScore [playerName][4] = encounter
+							if (persecond > unitScores[thisUnitName].persecond) then
+								unitScores[thisUnitName].total = total
+								unitScores[thisUnitName].persecond = total / encounterKillInfo.elapsed
+								unitScores[thisUnitName].storageUnitResult = storageUnitResult
+								unitScores[thisUnitName].encounterKillInfo = encounterKillInfo
 							end
 						else
-							if (total > playerScore [playerName][1]) then
-								playerScore [playerName][1] = total
-								playerScore [playerName][2] = total / encounter.elapsed
-								playerScore [playerName][3] = playerTable
-								playerScore [playerName][4] = encounter
+							if (total > unitScores[thisUnitName].total) then
+								unitScores[thisUnitName].total = total
+								unitScores[thisUnitName].persecond = total / encounterKillInfo.elapsed
+								unitScores[thisUnitName].storageUnitResult = storageUnitResult
+								unitScores[thisUnitName].encounterKillInfo = encounterKillInfo
 							end
 						end
 					end
 				end
 			end
 
-			if (not playerScore [playername]) then
+			--if the unit requested in the function parameter is not in the unitScores table, return
+			if (not unitScores[unitName]) then
 				return
 			end
 
-			local t = {}
-			for playerName, playerTable in pairs(playerScore) do
-				playerTable [5]  = playerName
-				tinsert(t, playerTable)
+			local sortedResults = {}
+			for playerName, playerTable in pairs(unitScores) do
+				playerTable[1] = playerTable.total
+				playerTable[2] = playerTable.persecond
+				tinsert(sortedResults, playerTable)
 			end
 
-			table.sort(t, dps and Details.Sort2 or Details.Sort1)
+			table.sort(sortedResults, dps and Details.Sort2 or Details.Sort1)
 
-			for i = 1, #t do
-				if (t[i][5] == playername) then
-					return t[i][3], t[i][4], i
+			for positionIndex = 1, #sortedResults do
+				if (sortedResults[positionIndex].unitName == unitName) then
+					local result = {positionIndex, sortedResults[positionIndex].storageUnitResult, sortedResults[positionIndex].encounterKillInfo}
+					Details:Destroy(unitScores)
+					Details:Destroy(sortedResults)
+					return unpack(result)
 				end
 			end
 		end
 	end
-
 end
 
-function Details.storage:GetBestFromPlayer(diff, encounter_id, role, playername, dps)
-	local db = Details.storage:OpenRaidStorage()
 
-	if (not db) then
-		print("DB noot found on GetBestFromPlayer()")
+---find and return the best result from a specific unit in a specific encounter and difficulty
+---@param difficulty string
+---@param encounterId number
+---@param role role
+---@param unitName actorname
+---@param dps boolean?
+---@return details_storage_unitresult storageUnitResult?
+---@return details_encounterkillinfo encounterKillInfo?
+function Details222.storage.GetBestFromPlayer(difficulty, encounterId, role, unitName, dps)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
+
+	if (not savedData) then
 		return
 	end
 
-	local best
-	local onencounter
-	local topdps
+	---@type details_storage_unitresult
+	local bestStorageUnitResult
+	---@type details_encounterkillinfo
+	local bestEncounterKillInfo
+	local topPerSecond
 
 	if (not role) then
-		role = "damage"
-	end
-	role = string.lower(role)
-	if (role == "damager") then
-		role = "damage"
-	elseif (role == "healer") then
-		role = "healing"
+		role = "DAMAGER"
 	end
 
-	local table = db [diff]
-	if (table) then
-		local encounters = table [encounter_id]
-		if (encounters) then
-			for index, encounter in ipairs(encounters) do
-				local player = encounter [role] and encounter [role] [playername]
-				if (player) then
-					if (best) then
+	local encountersTable = savedData[difficulty]
+	if (encountersTable) then
+		local allEncountersStored = encountersTable[encounterId]
+		if (allEncountersStored) then
+			for index, encounterKillInfo in ipairs(allEncountersStored) do
+				local storageUnitResult = encounterKillInfo[role] and encounterKillInfo[role] [unitName]
+				if (storageUnitResult) then
+					if (bestStorageUnitResult) then
 						if (dps) then
-							if (player[1]/encounter.elapsed > topdps) then
-								onencounter = encounter
-								best = player
-								topdps = player[1]/encounter.elapsed
+							if (storageUnitResult.total/encounterKillInfo.elapsed > topPerSecond) then
+								bestEncounterKillInfo = encounterKillInfo
+								bestStorageUnitResult = storageUnitResult
+								topPerSecond = storageUnitResult.total/encounterKillInfo.elapsed
 							end
 						else
-							if (player[1] > best[1]) then
-								onencounter = encounter
-								best = player
+							if (storageUnitResult.total > bestStorageUnitResult.total) then
+								bestEncounterKillInfo = encounterKillInfo
+								bestStorageUnitResult = storageUnitResult
 							end
 						end
 					else
-						onencounter = encounter
-						best = player
-						topdps = player[1]/encounter.elapsed
+						bestEncounterKillInfo = encounterKillInfo
+						bestStorageUnitResult = storageUnitResult
+						topPerSecond = storageUnitResult.total/encounterKillInfo.elapsed
 					end
 				end
 			end
 		end
 	end
 
-	return best, onencounter
+	return bestStorageUnitResult, bestEncounterKillInfo
 end
 
-function Details.storage:DBGuildSync()
-
+--network
+function Details222.storage.DBGuildSync()
 	Details:SendGuildData("GS", "R")
-
 end
 
-local OnlyFromCurrentRaidTier = true
-local encounter_is_current_tier = function(encounterID)
-	if (OnlyFromCurrentRaidTier) then
-		local mapID = Details:GetInstanceIdFromEncounterId(encounterID)
-		if (mapID) then
-			--if isn'y the mapID in the table to save data
-			if (not Details.InstancesToStoreData [mapID]) then
-				return false
-			end
-		else
-			return false
-		end
-	end
-	return true
-end
-
-local hasEncounterByEncounterSyncId = function(db, encounterSyncId)
+local hasEncounterByEncounterSyncId = function(savedData, encounterSyncId)
 	local minTime = encounterSyncId - 120
 	local maxTime = encounterSyncId + 120
 
-	for difficultyId, encounterIdTable in pairs(db or {}) do
+	for difficultyId, encounterIdTable in pairs(savedData or {}) do
 		if (type(encounterIdTable) == "table") then
 			for dungeonEncounterID, encounterTable in pairs(encounterIdTable) do
 				for index, encounter in ipairs(encounterTable) do
@@ -1144,51 +1236,100 @@ local hasEncounterByEncounterSyncId = function(db, encounterSyncId)
 	return false
 end
 
+local recentRequestedIDs = {}
 local hasRecentRequestedEncounterSyncId = function(encounterSyncId)
 	local minTime = encounterSyncId - 120
 	local maxTime = encounterSyncId + 120
 
-	for requestedID in pairs(Details.RecentRequestedIDs) do
+	for requestedID in pairs(recentRequestedIDs) do
 		if (requestedID >= minTime and requestedID <= maxTime) then
 			return true
 		end
 	end
 end
 
-local getBossIdsForCurrentExpansion = function()
-	--make a list of raids and bosses that belong to the current expansion
-	local bossIndexedTable, bossInfoTable, raidInfoTable = Details:GetExpansionBossList()
-	local allowedBosses = {}
-	for bossId, bossTable in pairs(bossInfoTable) do
-		allowedBosses[bossTable.dungeonEncounterID] = true
+local allowedBossesCached = nil
+local getBossIdsForCurrentExpansion = function() --need to check this!
+	if (allowedBossesCached) then
+		return allowedBossesCached
 	end
+
+	--make a list of raids and bosses that belong to the current expansion
+	local _, bossInfoTable = Details:GetExpansionBossList()
+	local allowedBosses = {}
+
+	for bossId, bossTable in pairs(bossInfoTable) do
+		---@cast bossTable details_bossinfo
+		allowedBosses[bossTable.dungeonEncounterID] = true
+		allowedBosses[bossTable.journalEncounterID] = true
+		allowedBosses[bossId] = true
+	end
+
+	allowedBossesCached = allowedBosses
 	return allowedBosses
 end
 
---remote call RoS
-function Details.storage:GetIDsToGuildSync()
-	local db = Details.storage:OpenRaidStorage()
+function Details:IsBossIdFromCurrentExpansion(bossId)
+	local allowedBosses = getBossIdsForCurrentExpansion()
+	return allowedBosses[bossId]
+end
 
-	if (not db) then
-		return
+local currentExpZoneIds = nil
+function Details:IsZoneIdFromCurrentExpansion(zoneId)
+	if (currentExpZoneIds) then
+		return currentExpZoneIds[zoneId]
 	end
 
-	local encounterSyncIds = {}
+	currentExpZoneIds = {}
+
+	local _, bossInfoTable, raidInfoTable = Details:GetExpansionBossList()
+	for bossId, bossTable in pairs(bossInfoTable) do
+		---@cast bossTable details_bossinfo
+		currentExpZoneIds[bossTable.uiMapId] = true
+		currentExpZoneIds[bossTable.instanceId] = true
+		currentExpZoneIds[bossTable.journalInstanceId] = true
+	end
+
+	for raidInstanceID, raidTable in pairs(raidInfoTable) do
+		currentExpZoneIds[raidInstanceID] = true
+		currentExpZoneIds[raidTable.raidMapID] = true
+	end
+
+	return currentExpZoneIds[zoneId]
+end
+
+---remote call RoS
+---get the server time of each encounter defeated by the guild
+---@return servertime[]
+function Details222.storage.GetIDsToGuildSync()
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
+
+	if (not savedData) then
+		return {}
+	end
+
 	local myGuildName = GetGuildInfo("player")
+	if (not myGuildName) then
+		return {}
+	end
 	--myGuildName = "Patifaria"
 
+	---@type servertime[]
+	local encounterSyncIds = {}
 	local allowedBosses = getBossIdsForCurrentExpansion()
 
 	--build the encounter synchronized ID list
-	for difficultyId, encounterIdTable in pairs(db or {}) do
-		if (type(encounterIdTable) == "table") then
-			for dungeonEncounterID, encounterTable in pairs(encounterIdTable) do
-				if (allowedBosses[dungeonEncounterID]) then
-					for index, encounter in ipairs(encounterTable) do
-						if (encounter.servertime) then
-							if (myGuildName == encounter.guild) then
-								tinsert(encounterSyncIds, encounter.servertime)
-							end
+	for i, diffName in ipairs(Details222.storage.DiffNames) do
+		---@type table<encounterid, details_encounterkillinfo>
+		local encountersTable = savedData[diffName]
+
+		for dungeonEncounterID, allEncountersStored in pairs(encountersTable) do
+			if (allowedBosses[dungeonEncounterID]) then
+				for index, encounterKillInfo in ipairs(allEncountersStored) do
+					if (encounterKillInfo.servertime) then
+						if (myGuildName == encounterKillInfo.guild) then
+							tinsert(encounterSyncIds, encounterKillInfo.servertime)
 						end
 					end
 				end
@@ -1204,10 +1345,12 @@ function Details.storage:GetIDsToGuildSync()
 end
 
 --local call RoC - received the encounterSyncIds - need to know which fights is missing
-function Details.storage:CheckMissingIDsToGuildSync(encounterSyncIds)
-	local db = Details.storage:OpenRaidStorage()
+---@param encounterSyncIds servertime[]
+function Details222.storage.CheckMissingIDsToGuildSync(encounterSyncIds)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	if (not db) then
+	if (not savedData) then
 		return
 	end
 
@@ -1218,18 +1361,15 @@ function Details.storage:CheckMissingIDsToGuildSync(encounterSyncIds)
 		return
 	end
 
-	--prevent to request the same fight from multiple people
-	Details.RecentRequestedIDs = Details.RecentRequestedIDs or {}
-
 	--store the IDs which need to be sync
 	local requestEncounterSyncIds = {}
 
 	--check missing IDs
 	for index, encounterSyncId in ipairs(encounterSyncIds) do
-		if (not hasEncounterByEncounterSyncId(db, encounterSyncId)) then
+		if (not hasEncounterByEncounterSyncId(savedData, encounterSyncId)) then
 			if (not hasRecentRequestedEncounterSyncId(encounterSyncId)) then
 				tinsert(requestEncounterSyncIds, encounterSyncId)
-				Details.RecentRequestedIDs[encounterSyncId] = true
+				recentRequestedIDs[encounterSyncId] = true
 			end
 		end
 	end
@@ -1242,10 +1382,12 @@ function Details.storage:CheckMissingIDsToGuildSync(encounterSyncIds)
 end
 
 --remote call RoS - build the encounter list from the encounterSyncIds
-function Details.storage:BuildEncounterDataToGuildSync(encounterSyncIds)
-	local db = Details.storage:OpenRaidStorage()
+---@param encounterSyncIds servertime[]
+function Details222.storage.BuildEncounterDataToGuildSync(encounterSyncIds)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	if (not db) then
+	if (not savedData) then
 		return
 	end
 
@@ -1259,8 +1401,12 @@ function Details.storage:BuildEncounterDataToGuildSync(encounterSyncIds)
 	local amtToSend = 0
 	local maxAmount = 0
 
+	---@type table<string, table<number, details_encounterkillinfo[]>>[]
 	local encounterList = {}
+
+	---@type table<raid_difficulty_eng_name_lowercase, table<encounterid, details_encounterkillinfo[]>>
 	local currentTable = {}
+
 	tinsert(encounterList, currentTable)
 
 	if (Details.debug) then
@@ -1268,16 +1414,18 @@ function Details.storage:BuildEncounterDataToGuildSync(encounterSyncIds)
 	end
 
 	for index, encounterSyncId in ipairs(encounterSyncIds) do
-		for difficultyId, encounterIdTable in pairs(db or {}) do
-			if (type(encounterIdTable) == "table") then
-				for dungeonEncounterID, encounterTable in pairs(encounterIdTable) do
-					for index, encounter in ipairs(encounterTable) do
-						if (encounterSyncId == encounter.time or encounterSyncId == encounter.servertime) then --the time here is always exactly
+		for difficulty, encountersTable in pairs(savedData) do
+			---@cast encountersTable details_encounterkillinfo[]
+			if (Details222.storage.DiffNamesHash[difficulty]) then --this ensures that the difficulty is valid
+				for dungeonEncounterID, allEncountersStored in pairs(encountersTable) do
+					for index, encounterKillInfo in ipairs(allEncountersStored) do
+						---@cast encounterKillInfo details_encounterkillinfo
+						if (encounterSyncId == encounterKillInfo.time or encounterSyncId == encounterKillInfo.servertime) then --the time here is always exactly
 							--send this encounter
-							currentTable[difficultyId] = currentTable[difficultyId] or {}
-							currentTable[difficultyId][dungeonEncounterID] = currentTable[difficultyId][dungeonEncounterID] or {}
+							currentTable[difficulty] = currentTable[difficulty] or {}
+							currentTable[difficulty][dungeonEncounterID] = currentTable[difficulty][dungeonEncounterID] or {}
 
-							tinsert(currentTable[difficultyId][dungeonEncounterID], encounter)
+							tinsert(currentTable[difficulty][dungeonEncounterID], encounterKillInfo)
 
 							amtToSend = amtToSend + 1
 							maxAmount = maxAmount + 1
@@ -1298,15 +1446,29 @@ function Details.storage:BuildEncounterDataToGuildSync(encounterSyncIds)
 		Details:Msg("(debug) [RoS-EncounterSync] sending " .. amtToSend .. " encounters.")
 	end
 
+	--the resulting table is a table with subtables, each subtable has a maximum of 3 encounters on indexes 1, 2 and 3
+	--resulting in 
+	--{
+	--	{[raid_difficulty_eng_name_lowercase][encounterid] = {details_encounterkillinfo, details_encounterkillinfo, details_encounterkillinfo}},
+	--  {[raid_difficulty_eng_name_lowercase][encounterid] = {details_encounterkillinfo, details_encounterkillinfo, details_encounterkillinfo}}
+	--}
 	return encounterList
 end
 
 
 --local call RoC - add the fights to the client db
-function Details.storage:AddGuildSyncData(data, source)
-	local db = Details.storage:OpenRaidStorage()
+function Details222.storage.AddGuildSyncData(data, source)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	if (not db) then
+	if (not savedData) then
+		return
+	end
+
+	if (not data or type(data) ~= "table") then
+		if (Details.debug) then
+			Details:Msg("(debug) [RoC-AddGuildSyncData] data isn't a table.")
+		end
 		return
 	end
 
@@ -1314,39 +1476,36 @@ function Details.storage:AddGuildSyncData(data, source)
 	Details.LastGuildSyncReceived = GetTime()
 	local allowedBosses = getBossIdsForCurrentExpansion()
 
-	for difficultyId, encounterIdTable in pairs(data) do
-		if (type(difficultyId) == "number" and type(encounterIdTable) == "table") then
-			for dungeonEncounterID, encounterTable in pairs(encounterIdTable) do
-				if (type(dungeonEncounterID) == "number" and type(encounterTable) == "table") then
-					for index, encounter in ipairs(encounterTable) do
+	---@cast data raid_difficulty_eng_name_lowercase, table<encounterid, details_encounterkillinfo[]>
+
+	for difficulty, encounterIdTable in pairs(data) do
+		---@cast encounterIdTable table<encounterid, details_encounterkillinfo[]>
+
+		if (Details222.storage.DiffNamesHash[difficulty] and type(encounterIdTable) == "table") then
+			for dungeonEncounterID, allEncountersStored in pairs(encounterIdTable) do
+				if (type(dungeonEncounterID) == "number" and type(allEncountersStored) == "table" and allowedBosses[dungeonEncounterID]) then
+					for index, encounterKillInfo in ipairs(allEncountersStored) do
 						--validate the encounter
-						if (type(encounter.servertime) == "number" and type(encounter.time) == "number" and type(encounter.guild) == "string" and type(encounter.date) == "string" and type(encounter.healing) == "table" and type(encounter.elapsed) == "number" and type(encounter.damage) == "table") then
-							--check if the encounter is from the current raiding tier
-							if (allowedBosses[dungeonEncounterID]) then
-								--check if this encounter already has been added from another sync
-								if (not hasEncounterByEncounterSyncId(db, encounter.servertime)) then
-									db[difficultyId] = db[difficultyId] or {}
-									db[difficultyId][dungeonEncounterID] = db[difficultyId][dungeonEncounterID] or {}
-									tinsert(db[difficultyId][dungeonEncounterID], encounter)
+						if (type(encounterKillInfo.servertime) == "number" and type(encounterKillInfo.time) == "number" and type(encounterKillInfo.guild) == "string" and type(encounterKillInfo.date) == "string" and type(encounterKillInfo.HEALER) == "table" and type(encounterKillInfo.elapsed) == "number" and type(encounterKillInfo.DAMAGER) == "table") then
+							--check if this encounter already has been added from another sync
+							if (not hasEncounterByEncounterSyncId(savedData, encounterKillInfo.servertime)) then
+								savedData[difficulty] = savedData[difficulty] or {}
+								savedData[difficulty][dungeonEncounterID] = savedData[difficulty][dungeonEncounterID] or {}
+								tinsert(savedData[difficulty][dungeonEncounterID], encounterKillInfo)
 
-									if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
-										_G.DetailsRaidHistoryWindow:Refresh()
-									end
-
-									addedAmount = addedAmount + 1
-								else
-									if (Details.debug) then
-										Details:Msg("(debug) [RoS-EncounterSync] received a duplicated encounter table.")
-									end
+								if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
+									_G.DetailsRaidHistoryWindow:Refresh()
 								end
+
+								addedAmount = addedAmount + 1
 							else
 								if (Details.debug) then
-									Details:Msg("(debug) [RoS-EncounterSync] received an old tier encounter.")
+									Details:Msg("(debug) [RoC-AddGuildSyncData] received a duplicated encounter table.")
 								end
 							end
 						else
 							if (Details.debug) then
-								Details:Msg("(debug) [RoS-EncounterSync] received an invalid encounter table.")
+								Details:Msg("(debug) [RoC-AddGuildSyncData] received an invalid encounter table.")
 							end
 						end
 					end
@@ -1356,7 +1515,7 @@ function Details.storage:AddGuildSyncData(data, source)
 	end
 
 	if (Details.debug) then
-		Details:Msg("(debug) [RoS-EncounterSync] added " .. addedAmount .. " to database.")
+		Details:Msg("(debug) [RoC-AddGuildSyncData] added " .. addedAmount .. " to database.")
 	end
 
 	if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
@@ -1365,104 +1524,62 @@ function Details.storage:AddGuildSyncData(data, source)
 	end
 end
 
-function Details.storage:ListDiffs()
-	local db = Details.storage:OpenRaidStorage()
+---@param difficulty string
+---@return encounterid[]
+function Details222.storage.ListEncounters(difficulty)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	if (not db) then
-		return
+	if (not savedData) then
+		return {}
 	end
 
+	if (not difficulty) then
+		return {}
+	end
+
+	---@type encounterid[]
 	local resultTable = {}
-	for difficultyId in pairs(db) do
-		tinsert(resultTable, difficultyId)
-	end
-	return resultTable
-end
 
-function Details.storage:ListEncounters(difficultyId)
-	local db = Details.storage:OpenRaidStorage()
-
-	if (not db) then
-		return
-	end
-
-	local resultTable = {}
-	if (difficultyId) then
-		local encounterIdTable = db[difficultyId]
-		if (encounterIdTable) then
-			for dungeonEncounterID in pairs(encounterIdTable) do
-				tinsert(resultTable, {difficultyId, dungeonEncounterID})
-			end
-		end
-	else
-		for difficultyId, encounterIdTable in pairs(db) do
-			for dungeonEncounterID in pairs(encounterIdTable) do
-				tinsert(resultTable, {difficultyId, dungeonEncounterID})
-			end
+	local encountersTable = savedData[difficulty]
+	if (encountersTable) then
+		for dungeonEncounterID in pairs(encountersTable) do
+			tinsert(resultTable, dungeonEncounterID)
 		end
 	end
 
 	return resultTable
 end
 
-function Details.storage:GetPlayerData(difficultyId, dungeonEncounterID, playerName)
-	local db = Details.storage:OpenRaidStorage()
+---@param difficulty string
+---@param dungeonEncounterID encounterid
+---@param role role
+---@param unitName actorname
+---@return details_storage_unitresult[]
+function Details222.storage.GetUnitData(difficulty, dungeonEncounterID, role, unitName)
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	if (not db) then
-		return
+	if (not savedData) then
+		return {}
 	end
 
-	local resultTable = {}
-	assert(type(playerName) == "string", "playerName must be a string.")
+	assert(type(unitName) == "string", "unitName must be a string.")
+	assert(type(dungeonEncounterID) == "number", "dungeonEncounterID must be a string.")
 
-	if (not difficultyId) then
-		for difficultyId, encounterIdTable in pairs(db) do
-			if (dungeonEncounterID) then
-				local encounters = encounterIdTable[dungeonEncounterID]
-				if (encounters) then
-					for i = 1, #encounters do
-						local encounter = encounters[i]
-						local playerData = encounter.healing[playerName] or encounter.damage[playerName]
-						if (playerData) then
-							tinsert(resultTable, playerData)
-						end
-					end
-				end
-			else
-				for dungeonEncounterID, encounters in pairs(encounterIdTable) do
-					for i = 1, #encounters do
-						local encounter = encounters[i]
-						local playerData = encounter.healing[playerName] or encounter.damage[playerName]
-						if (playerData) then
-							tinsert(resultTable, playerData)
-						end
-					end
-				end
-			end
-		end
-	else
-		local encounterIdTable = db[difficultyId]
-		if (encounterIdTable) then
-			if (dungeonEncounterID) then
-				local encounters = encounterIdTable[dungeonEncounterID]
-				if (encounters) then
-					for i = 1, #encounters do
-						local encounter = encounters[i]
-						local playerData = encounter.healing[playerName] or encounter.damage[playerName]
-						if (playerData) then
-							tinsert(resultTable, playerData)
-						end
-					end
-				end
-			else
-				for dungeonEncounterID, encounters in pairs(encounterIdTable) do
-					for i = 1, #encounters do
-						local encounter = encounters[i]
-						local playerData = encounter.healing[playerName] or encounter.damage[playerName]
-						if (playerData) then
-							tinsert(resultTable, playerData)
-						end
-					end
+	---@type details_storage_unitresult[]
+	local resultTable = {}
+
+	---@type details_encounterkillinfo[]
+	local encountersTable = savedData[difficulty]
+	if (encountersTable) then
+		local allEncountersStored = encountersTable[dungeonEncounterID]
+		if (allEncountersStored) then
+			for i = 1, #allEncountersStored do
+				---@type details_encounterkillinfo
+				local encounterKillInfo = allEncountersStored[i]
+				local playerData = encounterKillInfo[role][unitName]
+				if (playerData) then
+					tinsert(resultTable, playerData)
 				end
 			end
 		end
@@ -1471,88 +1588,75 @@ function Details.storage:GetPlayerData(difficultyId, dungeonEncounterID, playerN
 	return resultTable
 end
 
-function Details.storage:GetEncounterData(difficultyId, dungeonEncounterID, guildName)
-	local db = Details.storage:OpenRaidStorage()
+---return a table with all encounters saved for a specific guild in a specific difficulty for a specific encounter
+---@param difficulty string
+---@param dungeonEncounterID encounterid
+---@param guildName guildname
+---@return details_encounterkillinfo[]
+function Details222.storage.GetEncounterData(difficulty, dungeonEncounterID, guildName)
+	---@type details_storage?
+	local savedData = Details222.storage.OpenRaidStorage()
 
-	if (not db) then
+	if (not savedData) then
 		return
 	end
 
-	if (not difficultyId) then
-		return db
-	end
+	local encountersTable = savedData[difficulty]
 
-	local encounterIdTable = db[difficultyId]
+	assert(encountersTable, "Difficulty not found. Use: normal, heroic or mythic.")
+	assert(type(dungeonEncounterID) == "number", "dungeonEncounterID must be a number.")
 
-	assert(encounterIdTable, "Difficulty not found. Use: 14, 15 or 16.")
-	assert(type(dungeonEncounterID) == "number", "EncounterId must be a number.")
+	---@type details_encounterkillinfo[]
+	local allEncountersStored = encountersTable[dungeonEncounterID]
 
-	local encounters = encounterIdTable[dungeonEncounterID]
 	local resultTable = {}
 
-	if (not encounters) then
+	if (not allEncountersStored) then
 		return resultTable
 	end
 
-	for i = 1, #encounters do
-		local encounter = encounters[i]
-
-		if (guildName) then
-			if (encounter.guild == guildName) then
-				tinsert(resultTable, encounter)
-			end
-		else
-			tinsert(resultTable, encounter)
+	for i = 1, #allEncountersStored do
+		local encounterKillInfo = allEncountersStored[i]
+		if (encounterKillInfo.guild == guildName) then
+			tinsert(resultTable, encounterKillInfo)
 		end
 	end
 
 	return resultTable
 end
 
-local createStorageTables = function()
-	--get the storage table
-	local storageDatabase = DetailsDataStorage
-
-	if (not storageDatabase and Details.CreateStorageDB) then
-		storageDatabase = Details:CreateStorageDB()
-		if (not storageDatabase) then
-			return
-		end
-
-	elseif (not storageDatabase) then
+---load the storage addon when the player leave combat, this function is also called from the parser when the player has its regen enabled
+function Details.ScheduleLoadStorage()
+	--check first if the storage is already loaded
+	if (C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
+		Details.schedule_storage_load = nil
+		Details222.storageLoaded = true
 		return
 	end
-
-	return storageDatabase
-end
-
-function Details.ScheduleLoadStorage()
-	do return end
 
 	if (InCombatLockdown() or UnitAffectingCombat("player")) then
 		if (Details.debug) then
 			print("|cFFFFFF00Details! storage scheduled to load (player in combat).")
 		end
-
+		--load when the player leave combat
 		Details.schedule_storage_load = true
 		return
 	else
 		if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
-			local loaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
-			if (not loaded) then
+			local bSuccessLoaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
+			if (not bSuccessLoaded) then
 				if (Details.debug) then
 					print("|cFFFFFF00Details! Storage|r: can't load storage, may be the addon is disabled.")
 				end
 				return
 			end
-
 			createStorageTables()
 		end
 	end
 
 	if (C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
 		Details.schedule_storage_load = nil
-		Details.StorageLoaded = true
+		Details222.storageLoaded = true
 		if (Details.debug) then
 			print("|cFFFFFF00Details! storage loaded.")
 		end
@@ -1569,11 +1673,9 @@ function Details.GetStorage()
 end
 
 --this function is used on the breakdown window to show ranking and on the main window when hovering over the spec icon
+--if the storage is not loaded, it will try to load it even if the player is in combat
 function Details.OpenStorage()
 	--if the player is in combat, this function return false, if failed to load by other reason it returns nil
-
-	do return end
-
 	--check if the storage is already loaded
 	if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
 		--can't open it during combat
@@ -1592,10 +1694,10 @@ function Details.OpenStorage()
 			return
 		end
 
-		local db = createStorageTables()
+		local savedData = createStorageTables()
 
-		if (db and C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
-			Details.StorageLoaded = true
+		if (savedData and C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
+			Details222.storageLoaded = true
 		end
 
 		return DetailsDataStorage
@@ -1607,9 +1709,8 @@ end
 Details.Database = {}
 
 --this function is called on storewipe and storeencounter
+---@return details_storage?
 function Details.Database.LoadDB()
-	do return end
-
 	--check if the storage is not loaded yet and try to load it
 	if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
 		local loaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
@@ -1622,39 +1723,37 @@ function Details.Database.LoadDB()
 	end
 
 	--get the storage table
-	local db = _G.DetailsDataStorage
+	local savedData = _G.DetailsDataStorage
 
-	if (not db and Details.CreateStorageDB) then
-		db = Details:CreateStorageDB()
-		if (not db) then
+	if (not savedData and Details.CreateStorageDB) then
+		savedData = Details:CreateStorageDB()
+		if (not savedData) then
 			if (Details.debug) then
 				print("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")
 			end
 			return
 		end
-	elseif (not db) then
+
+	elseif (not savedData) then
 		if (Details.debug) then
 			print("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")
 		end
 		return
 	end
 
-	return db
+	return savedData
 end
 
-function Details.Database.GetBossKillsDB(db)
-	--total kills in a boss on raid or dungeon
-	local totalKillsDataBase = db["totalkills"]
-	if (not totalKillsDataBase) then
-		db["totalkills"] = {}
-		totalKillsDataBase = db["totalkills"]
-	end
-	return totalKillsDataBase
+---@param savedData details_storage
+function Details.Database.GetBossKillsDB(savedData)
+	return savedData.totalkills
 end
 
----@param combat combat
+---@param combat combat?
 function Details.Database.StoreWipe(combat)
-	combat = combat or Details.tabela_vigente
+	if (not combat) then
+		combat = Details:GetCurrentCombat()
+	end
 
 	if (not combat) then
 		if (Details.debug) then
@@ -1663,9 +1762,9 @@ function Details.Database.StoreWipe(combat)
 		return
 	end
 
-	local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
+	local name, type, zoneDifficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
 
-	if (not instancesToStoreData[mapID]) then
+	if (not Details:IsZoneIdFromCurrentExpansion(mapID)) then
 		if (Details.debug) then
 			print("|cFFFFFF00Details! Storage|r: instance not allowed.")
 		end
@@ -1683,32 +1782,21 @@ function Details.Database.StoreWipe(combat)
 	end
 
 	--get the difficulty
-	local difficultyId = combat:GetDifficulty()
+	local _, difficulty = combat:GetDifficulty()
 
 	--load database
-	local db = Details.Database.LoadDB()
-	if (not db) then
+	---@type details_storage?
+	local savedData = Details.Database.LoadDB()
+	if (not savedData) then
 		return
 	end
 
-	local encounterIdTable = db[difficultyId]
-	if (not encounterIdTable) then
-		db [difficultyId] = {}
-		encounterIdTable = db[difficultyId]
-	end
-
-	local encounters = encounterIdTable[dungeonEncounterID]
-	if (not encounters) then
-		encounterIdTable[dungeonEncounterID] = {}
-		encounters = encounterIdTable[dungeonEncounterID]
-	end
-
-	--total kills in a boss on raid or dungeon
-	local totalKillsDataBase = Details.Database.GetBossKillsDB(db)
-
 	if (IsInRaid()) then
-		totalKillsDataBase[dungeonEncounterID] = totalKillsDataBase[dungeonEncounterID] or {}
-		totalKillsDataBase[dungeonEncounterID][difficultyId] = totalKillsDataBase[dungeonEncounterID][difficultyId] or {
+		--total kills in a boss on raid or dungeon
+		local totalKillsDataBase = Details.Database.GetBossKillsDB(savedData)
+
+		totalKillsDataBase[difficulty] = totalKillsDataBase[difficulty] or {}
+		totalKillsDataBase[difficulty][dungeonEncounterID] = totalKillsDataBase[difficulty][dungeonEncounterID] or {
 			kills = 0,
 			wipes = 0,
 			time_fasterkill = 0,
@@ -1720,16 +1808,14 @@ function Details.Database.StoreWipe(combat)
 			dps_best_raid_when = 0
 		}
 
-		local bossData = totalKillsDataBase[dungeonEncounterID][difficultyId]
+		local bossData = totalKillsDataBase[difficulty][dungeonEncounterID]
 		bossData.wipes = bossData.wipes + 1
-
-		--wipes amount
-		if (bossData.wipes % 10 == 0) then
-			--nah player does not want to know that
-			--Details:Msg("Wipe stored, you have now " .. bossData.wipes .. " wipes on this boss.")
-		end
 	end
 end
+
+
+---PAREI AQUI
+
 
 ---@param combat combat
 function Details.Database.StoreEncounter(combat)
@@ -1744,7 +1830,7 @@ function Details.Database.StoreEncounter(combat)
 
 	local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
 
-	if (not instancesToStoreData[mapID]) then
+	if (not Details:IsZoneIdFromCurrentExpansion(mapID)) then
 		if (Details.debug) then
 			print("|cFFFFFF00Details! Storage|r: instance not allowed.")
 		end
@@ -1752,9 +1838,9 @@ function Details.Database.StoreEncounter(combat)
 	end
 
 	local encounterInfo = combat:GetBossInfo()
-	local encounter_id = encounterInfo and encounterInfo.id
+	local encounterId = encounterInfo and encounterInfo.id
 
-	if (not encounter_id) then
+	if (not encounterId) then
 		if (Details.debug) then
 			print("|cFFFFFF00Details! Storage|r: encounter ID not found.")
 		end
@@ -1762,89 +1848,127 @@ function Details.Database.StoreEncounter(combat)
 	end
 
 	--get the difficulty
-	local diff = combat:GetDifficulty()
+	local diffId, diff = combat:GetDifficulty()
 
 	--database
-		local db = Details.Database.LoadDB()
-		if (not db) then
-			return
-		end
+	---@type details_storage?
+	local savedData = Details.Database.LoadDB()
+	if (not savedData) then
+		return
+	end
 
-		local diff_storage = db [diff]
-		if (not diff_storage) then
-			db [diff] = {}
-			diff_storage = db [diff]
-		end
+	--[=[
+		savedData[mythic] = {
+			[encounterId] = { --indexed table
+				[1] = { 
+					DAMAGER = {
+						[actorname] = details_storage_unitresult
+					},
+					HEALER = {
+						[actorname] = details_storage_unitresult
+					},
+					date = date("%H:%M %d/%m/%y"),
+					time = time(),
+					servertime = GetServerTime(),
+					elapsed = combat:GetCombatTime(),
+					guild = guildName,
+				}
+			}
+		}
+	--]=]
 
-		local encounter_database = diff_storage [encounter_id]
-		if (not encounter_database) then
-			diff_storage [encounter_id] = {}
-			encounter_database = diff_storage [encounter_id]
-		end
+	---@type combattime
+	local elapsedCombatTime = combat:GetCombatTime()
 
-		--total kills in a boss on raid or dungeon
-		local totalkills_database = Details.Database.GetBossKillsDB(db)
+	---@type table<encounterid, details_encounterkillinfo[]>
+	local encountersTable = savedData[diff]
+	if (not encountersTable) then
+		savedData[diff] = {}
+		encountersTable = savedData[diff]
+	end
+
+	---@type details_encounterkillinfo[]
+	local allEncountersStored = encountersTable[encounterId]
+	if (not allEncountersStored) then
+		encountersTable[encounterId] = {}
+		allEncountersStored = encountersTable[encounterId]
+	end
+
+	--total kills in a boss on raid or dungeon
+	local totalkillsTable = Details.Database.GetBossKillsDB(savedData)
 
 	--store total kills on this boss
-		--if the player is facing a raid boss
-		if (IsInRaid()) then
-			totalkills_database[encounter_id] = totalkills_database[encounter_id] or {}
-			totalkills_database[encounter_id][diff] = totalkills_database[encounter_id][diff] or {kills = 0, wipes = 0, time_fasterkill = 0, time_fasterkill_when = 0, time_incombat = 0, dps_best = 0, dps_best_when = 0, dps_best_raid = 0, dps_best_raid_when = 0}
+	--if the player is facing a raid boss
+	if (IsInRaid()) then
+		totalkillsTable[encounterId] = totalkillsTable[encounterId] or {}
+		totalkillsTable[encounterId][diff] = totalkillsTable[encounterId][diff] or {
+			kills = 0,
+			wipes = 0,
+			time_fasterkill = 1000000,
+			time_fasterkill_when = 0,
+			time_incombat = 0,
+			dps_best = 0, --player best dps
+			dps_best_when = 0, --when the player did the best dps
+			dps_best_raid = 0,
+			dps_best_raid_when = 0
+		}
 
-			local bossData = totalkills_database[encounter_id][diff]
-			local encounterElapsedTime = combat:GetCombatTime()
+		---@type details_bosskillinfo
+		local bossData = totalkillsTable[encounterId][diff]
+		---@type combattime
+		local encounterElapsedTime = elapsedCombatTime
 
-			--kills amount
-			bossData.kills = bossData.kills + 1
+		--kills amount
+		bossData.kills = bossData.kills + 1
 
-			--best time
-			if (encounterElapsedTime > bossData.time_fasterkill) then
-				bossData.time_fasterkill = encounterElapsedTime
-				bossData.time_fasterkill_when = time()
-			end
-
-			--total time in combat
-			bossData.time_incombat = bossData.time_incombat + encounterElapsedTime
-
-			--player best dps
-			local player = combat(DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
-			if (player) then
-				local playerDps = player.total / encounterElapsedTime
-				if (playerDps > bossData.dps_best) then
-					bossData.dps_best = playerDps
-					bossData.dps_best_when = time()
-				end
-			end
-
-			--raid best dps
-			local raidTotalDamage = combat:GetTotal(DETAILS_ATTRIBUTE_DAMAGE, false, true)
-			local raidDps = raidTotalDamage / encounterElapsedTime
-			if (raidDps > bossData.dps_best_raid) then
-				bossData.dps_best_raid = raidDps
-				bossData.dps_best_raid_when = time()
-			end
-
+		--best time
+		if (encounterElapsedTime < bossData.time_fasterkill) then
+			bossData.time_fasterkill = encounterElapsedTime
+			bossData.time_fasterkill_when = time()
 		end
 
+		--total time in combat
+		bossData.time_incombat = bossData.time_incombat + encounterElapsedTime
+
+		--player best dps
+		---@actor
+		local playerActorObject = combat(DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
+		if (playerActorObject) then
+			local playerDps = playerActorObject.total / encounterElapsedTime
+			if (playerDps > bossData.dps_best) then
+				bossData.dps_best = playerDps
+				bossData.dps_best_when = time()
+			end
+		end
+
+		--raid best dps
+		local raidTotalDamage = combat:GetTotal(DETAILS_ATTRIBUTE_DAMAGE, nil, true)
+		local raidDps = raidTotalDamage / encounterElapsedTime
+		if (raidDps > bossData.dps_best_raid) then
+			bossData.dps_best_raid = raidDps
+			bossData.dps_best_raid_when = time()
+		end
+	end
 
 	--check for heroic and mythic
-	if (storageDebug or(diff == 15 or diff == 16 or diff == 14)) then --test on raid finder:  ' or diff == 17' -- normal mode: diff == 14 or
-
+	if (storageDebug or Details222.storage.DiffNamesHash[diff]) then
 		--check the guild name
 		local match = 0
 		local guildName = GetGuildInfo("player")
 		local raidSize = GetNumGroupMembers() or 0
 
+		local cachedUnitIds = Details222.UnitIdCache.Raid
+
 		if (not storageDebug) then
 			if (guildName) then
 				for i = 1, raidSize do
-					local gName = GetGuildInfo("raid" .. i) or ""
+					local gName = GetGuildInfo(cachedUnitIds[i]) or ""
 					if (gName == guildName) then
 						match = match + 1
 					end
 				end
 
-				if (match < raidSize * 0.75 and not storageDebug) then
+				if (match < raidSize * 0.75) then
 					if (Details.debug) then
 						print("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
 					end
@@ -1860,97 +1984,114 @@ function Details.Database.StoreEncounter(combat)
 			guildName = "Test Guild"
 		end
 
-		local this_combat_data = {
-			damage = {},
-			healing = {},
+		---@type details_encounterkillinfo
+		local combatResultData = {
+			DAMAGER = {},
+			HEALER = {},
 			date = date("%H:%M %d/%m/%y"),
 			time = time(),
 			servertime = GetServerTime(),
-			elapsed = combat:GetCombatTime(),
+			elapsed = elapsedCombatTime,
 			guild = guildName,
 		}
 
-		local damage_container_hash = combat [1]._NameIndexTable
-		local damage_container_pool = combat [1]._ActorTable
-
-		local healing_container_hash = combat [2]._NameIndexTable
-		local healing_container_pool = combat [2]._ActorTable
+		local damageContainer = combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		local healingContainer = combat:GetContainer(DETAILS_ATTRIBUTE_HEAL)
 
 		for i = 1, GetNumGroupMembers() do
+			local role = UnitGroupRolesAssigned(cachedUnitIds[i])
 
-			local role = UnitGroupRolesAssigned("raid" .. i)
-
-			if (UnitIsInMyGuild("raid" .. i)) then
+			if (UnitIsInMyGuild(cachedUnitIds[i])) then
 				if (role == "DAMAGER" or role == "TANK") then
-					local player_name = Details:GetFullName("raid" .. i)
-					local _, _, class = Details:GetUnitClassFull(player_name)
+					local playerName = Details:GetFullName(cachedUnitIds[i])
+					local _, _, class = Details:GetUnitClassFull(playerName)
 
-					local damage_actor = damage_container_pool [damage_container_hash [player_name]]
-					if (damage_actor) then
-						local guid = UnitGUID("raid" .. i)
-						this_combat_data.damage [player_name] = {floor(damage_actor.total), Details.item_level_pool [guid] and Details.item_level_pool [guid].ilvl or 0, class or 0}
+					local damagerActor = damageContainer:GetActor(playerName)
+					if (damagerActor) then
+						local guid = UnitGUID(cachedUnitIds[i])
+
+						---@type details_storage_unitresult
+						local unitResultInfo = {
+							total = floor(damagerActor.total),
+							itemLevel = Details:GetItemLevelFromGuid(guid),
+							classId = class or 0
+						}
+						combatResultData.DAMAGER[playerName] = unitResultInfo
 					end
 
 				elseif (role == "HEALER") then
-					local player_name = Details:GetFullName("raid" .. i)
+					local playerName = Details:GetFullName(cachedUnitIds[i])
+					local _, _, class = Details:GetUnitClassFull(playerName)
 
-					local _, _, class = Details:GetUnitClassFull(player_name)
+					local healingActor = healingContainer:GetActor(playerName)
+					if (healingActor) then
+						local guid = UnitGUID(cachedUnitIds[i])
 
-					local heal_actor = healing_container_pool [healing_container_hash [player_name]]
-					if (heal_actor) then
-						local guid = UnitGUID("raid" .. i)
-						this_combat_data.healing [player_name] = {floor(heal_actor.total), Details.item_level_pool [guid] and Details.item_level_pool [guid].ilvl or 0, class or 0}
+						---@type details_storage_unitresult
+						local unitResultInfo = {
+							total = floor(healingActor.total),
+							itemLevel = Details:GetItemLevelFromGuid(guid),
+							classId = class or 0
+						}
+						combatResultData.HEALER[playerName] = unitResultInfo
 					end
 				end
 			end
 		end
 
 		--add the encounter data
-		tinsert(encounter_database, this_combat_data)
+		tinsert(allEncountersStored, combatResultData)
 		if (Details.debug) then
 			print("|cFFFFFF00Details! Storage|r: combat data added to encounter database.")
 		end
 
-		local myrole = UnitGroupRolesAssigned("player")
-		local mybest, onencounter = Details.storage:GetBestFromPlayer(diff, encounter_id, myrole, Details.playername, true) --get dps or hps
-		local mybest2 = mybest and mybest[1] or 0
+		local playerRole = UnitGroupRolesAssigned("player")
+		---@type details_storage_unitresult, details_encounterkillinfo
+		local bestRank, encounterKillInfo = Details222.storage.GetBestFromPlayer(diff, encounterId, playerRole, Details.playername, true) --get dps or hps
 
-		if (mybest and onencounter) then
-			local myBestDps = mybest2 / onencounter.elapsed
+		if (bestRank and encounterKillInfo) then
+			local registeredBestTotal = bestRank and bestRank.total or 0
+			local registeredBestPerSecond = registeredBestTotal / encounterKillInfo.elapsed
 
-			local d_one = 0
-			if (myrole == "DAMAGER" or myrole == "TANK") then
-				d_one = combat(1, Details.playername) and combat(1, Details.playername).total / combat:GetCombatTime()
-			elseif (myrole == "HEALER") then
-				d_one = combat(2, Details.playername) and combat(2, Details.playername).total / combat:GetCombatTime()
+			local currentPerSecond = 0
+			if (playerRole == "DAMAGER" or playerRole == "TANK") then
+				---@actor
+				local playerActorObject = damageContainer:GetActor(Details.playername)
+				if (playerActorObject) then
+					currentPerSecond = playerActorObject.total / elapsedCombatTime
+				end
+			elseif (playerRole == "HEALER") then
+				---@actor
+				local playerActorObject = healingContainer:GetActor(Details.playername)
+				if (playerActorObject) then
+					currentPerSecond = playerActorObject.total / elapsedCombatTime
+				end
 			end
 
-			if (myBestDps > d_one) then
+			if (registeredBestPerSecond > currentPerSecond) then
 				if (not Details.deny_score_messages) then
-					print(Loc ["STRING_DETAILS1"] .. format(Loc ["STRING_SCORE_NOTBEST"], Details:ToK2(d_one), Details:ToK2(myBestDps), onencounter.date, mybest[2]))
+					print(Loc ["STRING_DETAILS1"] .. format(Loc ["STRING_SCORE_NOTBEST"], Details:ToK2(currentPerSecond), Details:ToK2(registeredBestPerSecond), encounterKillInfo.date, bestRank[2]))
 				end
 			else
 				if (not Details.deny_score_messages) then
-					print(Loc ["STRING_DETAILS1"] .. format(Loc ["STRING_SCORE_BEST"], Details:ToK2(d_one)))
+					print(Loc ["STRING_DETAILS1"] .. format(Loc ["STRING_SCORE_BEST"], Details:ToK2(currentPerSecond)))
 				end
 			end
 		end
 
-		local lower_instance = Details:GetLowerInstanceNumber()
-		if (lower_instance) then
-			local instance = Details:GetInstance(lower_instance)
-			if (instance) then
-				local my_role = UnitGroupRolesAssigned("player")
-				if (my_role == "TANK") then
-					my_role = "DAMAGER"
+		local lowerInstanceId = Details:GetLowerInstanceNumber()
+		if (lowerInstanceId) then
+			local instanceObject = Details:GetInstance(lowerInstanceId)
+			if (instanceObject) then
+				if (playerRole == "TANK") then
+					playerRole = "DAMAGER"
 				end
-				local raid_name = GetInstanceInfo()
-				local func = {Details.OpenRaidHistoryWindow, Details, raid_name, encounter_id, diff, my_role, guildName}
-				--local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
-				local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
 
+				local raidName = GetInstanceInfo()
+				local func = {Details.OpenRaidHistoryWindow, Details, raidName, encounterId, diff, playerRole, guildName}
+				local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
 				if (not Details.deny_score_messages) then
-					instance:InstanceAlert(Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, Details.update_warning_timeout, func, true)
+					instanceObject:InstanceAlert(Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, Details.update_warning_timeout, func, true)
 				end
 			end
 		end
@@ -2440,8 +2581,12 @@ function Details.ilevel:GetPool()
 	return Details.item_level_pool
 end
 
+function Details:GetItemLevelFromGuid(guid)
+	return Details.item_level_pool[guid] and Details.item_level_pool[guid].ilvl or 0
+end
+
 function Details.ilevel:GetIlvl(guid)
-	return Details.item_level_pool [guid]
+	return Details.item_level_pool[guid]
 end
 
 function Details.ilevel:GetInOrder()

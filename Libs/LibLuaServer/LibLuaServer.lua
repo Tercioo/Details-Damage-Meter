@@ -369,6 +369,8 @@ function LibStub:IterateLibraries()end
 ---@alias actorid string unique id of a unit (GUID)
 ---@alias serial string unique id of a unit (GUID)
 ---@alias guid string unique id of a unit (GUID)
+---@alias guildname string name of the guild
+---@alias date string date in the format "YYYY-MM-DD"
 ---@alias keylevel number the level of a mythic dungeon key
 ---@alias mapid number each map in the game has a unique map id, this id can be used to identify a map.
 ---@alias challengemapid number each challenge mode map in the game has a unique map id, this id can be used to identify a challenge mode map.
@@ -387,6 +389,7 @@ function LibStub:IterateLibraries()end
 ---@alias unixtime number a number that represents the number of seconds that have elapsed since 00:00:00 Coordinated Universal Time (UTC), Thursday, 1 January 1970, not counting leap seconds.
 ---@alias timestring string refers to a string showing a time value, such as "1:23" or "1:23:45".
 ---@alias combattime number elapsed time of a combat or time in seconds that a unit has been in combat.
+---@alias servertime number unixtime on the server
 ---@alias auraduration number
 ---@alias gametime number number of seconds that have elapsed since the start of the game session.
 ---@alias milliseconds number a number in milliseconds, usually need to divide by 1000 to get the seconds.
@@ -1667,6 +1670,9 @@ function bit.rol(x, y) return 0 end
 ---@return number The bitwise rotate right of the number.
 function bit.ror(x, y) return 0 end
 
+---return the epoch time in seconds from the server.
+---@return number
+function GetServerTime() return 0 end
 
 
 C_Timer = {}
@@ -3526,8 +3532,9 @@ GetGuildCharterCost = function() return 0 end
 ---@return string, string, number, number, number, boolean, boolean, string, string
 GetGuildEventInfo = function(index) return "", "", 0, 0, 0, true, true, "", "" end
 
+---@param unit string
 ---@return string, string, number, number, number, number, string, string, number, string
-GetGuildInfo = function() return "", "", 0, 0, 0, 0, "", "", 0, "" end
+GetGuildInfo = function(unit) return "", "", 0, 0, 0, 0, "", "", 0, "" end
 
 ---@return string
 GetGuildInfoText = function() return "" end
