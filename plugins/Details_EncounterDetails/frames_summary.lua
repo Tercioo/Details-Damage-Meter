@@ -14,8 +14,18 @@ local DETAILS_ATTRIBUTE_DAMAGE = DETAILS_ATTRIBUTE_DAMAGE
 local CONST_DETAILS_MODE_GROUP = DETAILS_MODE_GROUP
 local DETAILS_SEGMENTTYPE_MYTHICDUNGEON = DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 local DETAILS_ATTRIBUTE_MISC = DETAILS_ATTRIBUTE_MISC
-local GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
+
+local GetSpellInfo = GetSpellInfo or C_Spell.GetSpellInfo
+
+if (detailsFramework.IsWarWow()) then
+    GetSpellInfo = function(...)
+        local result = GetSpellInfo(...)
+        if result then
+            return result.name, 1, result.iconID
+        end
+    end
+end
 
 local encounterDetails = _G.EncounterDetailsGlobal
 local edFrame = encounterDetails.Frame
@@ -257,6 +267,7 @@ do --~ability ~damage taken by spell
         local spellId = bar.spellId
         local spellName, _, spellIcon = Details_GetSpellInfo(spellId)
         local damageDone = bar.damageDone
+
         local spellTargets = bar.spellTargets
         if (not spellTargets) then
             return
@@ -281,6 +292,8 @@ do --~ability ~damage taken by spell
         Details:SetCooltipForPlugins()
 
         local topValue = targetActors[1] and targetActors[1][2]
+
+        GameCooltip:Preset(2)
 
         for index, playerDamageTable in ipairs(targetActors) do
             local playerName = playerDamageTable[1]
@@ -369,6 +382,7 @@ do --~ability ~damage taken by spell
         end
     end
 
+    --damage taken by spell
     local spellDamageScroll = detailsFramework:CreateScrollBox(edFrame, "$parentSpellDamageScroll", spellDamage_RefreshFunc, {}, CONST_BOX_WIDTH, CONST_BOX_HEIGHT_TOP, CONST_LINE_AMOUNT_TOP, CONST_LINE_HEIGHT)
     detailsFramework:ReskinSlider(spellDamageScroll)
     detailsFramework:ApplyStandardBackdrop(spellDamageScroll)
