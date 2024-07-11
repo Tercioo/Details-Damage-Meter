@@ -677,11 +677,7 @@
 		--this block won't execute if the storage isn't loaded
 		--self is a timer reference from C_Timer
 
-		local diffNumberToName = {
-			[14] = "normal",
-			[15] = "heroic",
-			[16] = "mythic",
-		}
+		local diffNumberToName = Details222.storage.DiffIdToName
 
 		local encounterID = self.Boss
 		local diff = self.Diff

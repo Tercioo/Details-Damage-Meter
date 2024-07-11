@@ -44,6 +44,8 @@
 	--show more information about spells
 	local debugmode = false
 
+	local GetSpellTexture = GetSpellTexture or C_Spell.GetSpellTexture
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 

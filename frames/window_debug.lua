@@ -123,6 +123,25 @@ local createDebugOptionsFrame = function()
             desc = "When enabled, Details! will save the chart data from the next m+ run and use it when showing the chart panel. This save persist on saved variables and I don't think it is deleted, never.",
             --/run Details.mythic_plus.last_mythicrun_chart = {}
         },
+
+        {type = "blank"},
+
+        {--storage debug
+            type = "toggle",
+            get = function()
+                return Details222.storage.IsDebug
+            end,
+            set = function(self, fixedparam, value)
+                Details222.storage.IsDebug = value
+                if (Details222.storage.IsDebug) then
+                    Details:Msg("Storage Debug is ON.")
+                else
+                    Details:Msg("Storage Debug is OFF.")
+                end
+            end,
+            name = "Encounter Storage Debug",
+            desc = "Internal tests of the storage feature.",
+        },
     }
 
     options.always_boxfirst = true

@@ -66,7 +66,7 @@ function Details:StartMeUp()
 		Details.ShowDeathTooltipFunction = Details.ShowDeathTooltip
 
 		if (C_CVar) then
-			if (not InCombatLockdown()) then --disable for releases
+			if (not InCombatLockdown() and DetailsFramework.IsDragonflightAndBeyond()) then --disable for releases
 			C_CVar.SetCVar("cameraDistanceMaxZoomFactor", 2.6)
 			end
 		end
@@ -190,6 +190,11 @@ function Details:StartMeUp()
 		for id = 1, Details:GetNumInstances() do
 			local instance = Details:GetInstance(id)
 			if (instance:IsEnabled()) then
+				if (instance.modo == 3) then --everything
+				instance.LastModo = 2 --standard
+				instance.modo = 2 --standard
+				end
+
 				--refresh wallpaper
 				if (instance.wallpaper.enabled) then
 					instance:InstanceWallpaper(true)
