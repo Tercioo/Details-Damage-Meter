@@ -1,0 +1,16 @@
+## Interface: 40400
+## Title: Details!: Vanguard (plugin)
+## Notes: Show the health and debuffs for tanks in your group.
+## SavedVariablesPerCharacter: _detalhes_databaseVanguard
+## RequiredDeps: Details
+## OptionalDeps: Ace3
+## IconTexture: Interface\AddOns\Details\images\minimap
+
+## X-Wago-ID: ZQ6abgKW
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+Details_Vanguard.lua
+
