@@ -2787,12 +2787,8 @@ if (DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow()) then
 		for i = 1,(MAX_TALENT_TABS or 3) do
 			if (i <= numTabs) then
 				--tab information
-				local id, name, description, iconTexture, pointsSpent, fileName
-				if DetailsFramework.IsCataWow() then
-					id, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
-				else
-					name, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
-				end
+				local id, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+
 				if (name) then
 					tinsert(pointsPerSpec, {name, pointsSpent, fileName})
 				end
