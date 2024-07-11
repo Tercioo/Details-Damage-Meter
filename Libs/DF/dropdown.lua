@@ -1206,6 +1206,40 @@ function DF:CreateAnchorPointListGenerator(callback)
 	return newGenerator
 end
 
+function DF:CreateAudioListGenerator(callback)
+	local newGenerator = function()
+		local dropdownOptions = {
+			{
+				label = "--x--x--",
+				value = "",
+				onclick = callback
+			}
+		}
+
+		--fetch all audio cues from the libsharedmedia
+		DF.AudioCues = {}
+		local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+		for audioName, audioPath in pairs(SharedMedia:HashTable("sound")) do
+			DF.AudioCues[#DF.AudioCues+1] = {audioName, audioPath}
+		end
+
+		--sort the audio cues by name
+		table.sort(DF.AudioCues, function(t1, t2) return t1[1] < t2[1] end)
+
+		for i, audioInfo in ipairs(DF.AudioCues) do
+			table.insert(dropdownOptions, {
+				label = audioInfo[1],
+				value = audioInfo[2],
+				onclick = callback
+			})
+		end
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
 ---create a dropdown object with a list of fonts
 ---@param parent frame
 ---@param callback function
@@ -1236,6 +1270,12 @@ end
 
 function DF:CreateAnchorPointDropDown(parent, callback, default, width, height, member, name, template)
 	local func = DF:CreateAnchorPointListGenerator(callback)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
+
+function DF:CreateAudioDropDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateAudioListGenerator(callback)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end

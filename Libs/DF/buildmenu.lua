@@ -755,6 +755,8 @@ local parseOptionsTypes = function(menuOptions)
             widgetTable.type = "selectoutline"
         elseif (widgetTable.type == "anchordropdown") then
             widgetTable.type = "selectanchor"
+        elseif (widgetTable.type == "audiodropdown") then
+            widgetTable.type = "selectaudio"
         elseif (widgetTable.type == "dropdown") then
             widgetTable.type = "select"
 
@@ -1102,6 +1104,10 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                         elseif (widgetTable.type == "selectoutline") then
                             local func = detailsFramework:CreateOutlineListGenerator(widgetTable.set)
                             dropdown:SetFunction(func)
+
+                        elseif (widgetTable.type == "selectaudio") then
+                            local func = detailsFramework:CreateAudioListGenerator(widgetTable.set)
+                            dropdown:SetFunction(func)
                         else
                             dropdown:SetFunction(widgetTable.values)
                         end
@@ -1352,6 +1358,9 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
                     elseif (widgetTable.type == "selectoutline") then
                         dropdown = detailsFramework:CreateOutlineDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)
+
+                    elseif (widgetTable.type == "selectaudio") then
+                        dropdown = detailsFramework:CreateAudioDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)
                     else
                         dropdown = detailsFramework:NewDropDown(parent, nil, "$parentWidget" .. index, nil, widgetWidth or 140, widgetHeight or defaultHeight, widgetTable.values, widgetTable.get(), dropdownTemplate)
                     end

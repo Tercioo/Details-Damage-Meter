@@ -471,3 +471,7 @@ function Details:SchedulePetUpdate(seconds)
 
 	Details.Schedules.NewTimer(seconds, Details.UpdatePets, Details)
 end
+
+function Details:GetPetInfo(petGuid)
+	return petContainer.GetPetInfo(petGuid)
+end
