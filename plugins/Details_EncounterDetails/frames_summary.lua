@@ -20,7 +20,7 @@ local GetSpellInfo = GetSpellInfo or C_Spell.GetSpellInfo
 
 if (detailsFramework.IsWarWow()) then
     GetSpellInfo = function(...)
-        local result = GetSpellInfo(...)
+        local result = C_Spell.GetSpellInfo(...)
         if result then
             return result.name, 1, result.iconID
         end
