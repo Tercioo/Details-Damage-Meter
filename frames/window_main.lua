@@ -6096,9 +6096,9 @@ local build_mode_list = function(self, deltaTime)
 		gameCooltip:AddMenu(1, function() instance:SetMode(2) end)
 		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256, 32/256*2, 0, 1)
 
-		--gameCooltip:AddLine(Loc["STRING_MODE_ALL"])
-		--gameCooltip:AddMenu(1, function() instance:SetMode(3) end)
-		--gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*2, 32/256*3, 0, 1)
+		gameCooltip:AddLine(Loc["STRING_MODE_ALL"])
+		gameCooltip:AddMenu(1, function() instance:SetMode(3) end)
+		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*2, 32/256*3, 0, 1)
 
 		gameCooltip:AddLine(Loc["STRING_OPTIONS_PLUGINS"])
 		gameCooltip:AddMenu(1, function() instance:SetMode(4) end)
