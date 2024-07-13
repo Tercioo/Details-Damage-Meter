@@ -115,9 +115,9 @@
 		---@type details_storage_feature
 		---@diagnostic disable-next-line: missing-fields
 		local storage = {
-			DiffNames = {"normal", "heroic", "mythic", "raidfinder"},
-			DiffNamesHash = {normal = 14, heroic = 15, mythic = 16, raidfinder = 17},
-			DiffIdToName = {[14] = "normal", [15] = "heroic", [16] = "mythic", [17] = "raidfinder"},
+			DiffNames = {"normal", "heroic", "mythic", "raidfinder", "10player", "25player", "10playerheroic", "25playerheroic", "raidfinderclassic", "raidfindertimewalking", "timewalking"},
+			DiffNamesHash = {normal = 14, heroic = 15, mythic = 16, raidfinder = 17, ["10player"] = 3, ["25player"] = 4, ["10playerheroic"] = 5, ["25playerheroic"] = 6, raidfinderclassic = 7, raidfindertimewalking = 151, timewalking = 33},
+			DiffIdToName = {[14] = "normal", [15] = "heroic", [16] = "mythic", [17] = "raidfinder", [3] = "10player", [4] = "25player", [5] = "10playerheroic", [6] = "25playerheroic", [7] = "raidfinderclassic", [151] = "raidfindertimewalking", [33] = "timewalking"},
 			IsDebug = false
 		}
 		Details222.storage = storage
