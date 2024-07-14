@@ -205,6 +205,7 @@ function petContainer.AddPet(petGuid, petName, petFlags, ownerGuid, ownerName, o
 	}
 
 	petContainer.Pets[petGuid] = petData
+    petContainer.IgnoredActors[petGuid] = nil
 	Details222.Profiling.ProfileStop("petContainer.AddPet")
 	return petData
 end
