@@ -100,6 +100,22 @@ function Details.DebugPets()
 	dumpt(toShow)
 end
 
+function Details.DebugMyPets()
+	local amountPets = 0
+	local myPets = {}
+	local playerGUID = UnitGUID("player")
+
+	for petGuid, petData in pairs(petContainer.Pets) do
+		---@cast petData petdata
+		if (petData.ownerGuid == playerGUID) then
+			myPets[petGuid] = petData
+			amountPets = amountPets + 1
+		end
+	end
+
+	dumpt(myPets)
+end
+
 ---add a pet guid into the ignored list, when a pet is ignored the system will not try to find its owner as it already failed to find it once
 ---@param petGuid guid
 function petContainer.IgnorePet(petGuid)
@@ -119,6 +135,7 @@ end
 
 ---return the pet data from the cache by passing the pet guid
 ---@param petGuid guid
+---@return petdata?
 function petContainer.GetPetInfo(petGuid)
 	return petContainer.Pets[petGuid]
 end
@@ -159,6 +176,13 @@ function petContainer.AddPet(petGuid, petName, petFlags, ownerGuid, ownerName, o
 		Details222.Profiling.ProfileStop("petContainer.AddPet")
 		---@diagnostic disable-next-line: missing-return-value
 		return
+	end
+
+	if (Details222.Debug.DebugPets) then
+		Details:Msg("petContainer.AddPet", petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags, summonSpellId)
+
+	elseif (Details222.Debug.DebugPlayerPets and ownerName == Details.playername) then
+		Details:Msg("petContainer.AddPet", petGuid, petName, petFlags, ownerGuid, ownerName, ownerFlags, summonSpellId)
 	end
 
 	--print("====================================")

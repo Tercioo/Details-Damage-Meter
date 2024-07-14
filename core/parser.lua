@@ -972,6 +972,14 @@
 				if (not damage_cache[ownerActor.serial] and ownerActor.serial ~= "") then
 					damage_cache[ownerActor.serial] = ownerActor
 				end
+
+				if (ownerActor) then
+					if (Details222.Debug.DebugPets) then
+						Details:Msg("Parser|DebugPets|ActorCreated|PetName:", sourceActor:Name(), "sourceName:", sourceName, "ownerName:", ownerActor:Name())
+					elseif (Details222.Debug.DebugPlayerPets and sourceName == Details.playername) then
+						Details:Msg("Parser|DebugPets|ActorCreated|PetName:", sourceActor:Name(), "sourceName:", sourceName, "ownerName:", ownerActor:Name())
+					end
+				end
 			else
 				--there's no owner actor
 				if (sourceFlags) then
@@ -985,6 +993,19 @@
 							sourceActor.spellicon = spellIcon
 						end
 					end
+				end
+			end
+
+			--if a owner actor isn't found and debug pets is enabled and this is a pet or guardian
+			if (not ownerActor and (Details222.Debug.DebugPets or Details222.Debug.DebugPlayerPets) and bitBand(sourceFlags, 0x00003000) ~= 0) then --OBJECT_TYPE_PETGUARDIAN
+				--note: the actor wasn't found in the cache and got created
+				Details:Msg("DebugPets|Parser|Owner Actor Not Found|", sourceName, sourceSerial, sourceFlags, bitBand(sourceFlags, 0x00003000) ~= 0)
+
+				---@type petdata?
+				local petData = petContainer.GetPetInfo(sourceSerial)
+				if (sourceName == "Fire Spirit") then
+					Details:Msg("DebugPets|Parser|PetData|Exists?", petData, sourceName, "Dumping petData on dumpt.")
+					dumpt(petData)
 				end
 			end
 
@@ -2255,6 +2276,10 @@
 			sourceName = "[*] " .. summonSpellName
 		end
 		local npcId = tonumber(select(6, strsplit("-", petGuid)) or 0)
+
+		if (Details222.Debug.DebugPets) then
+			
+		end
 
 		--differenciate army and apoc pets for DK
 		if (summonSpellId == 42651) then --army of the dead
@@ -6300,7 +6325,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	local playerLogin = CreateFrame("frame")
 	playerLogin:RegisterEvent("PLAYER_LOGIN")
 	playerLogin:SetScript("OnEvent", function()
-		Details:StartMeUp()
+		Details222.StartUp.StartMeUp()
 	end)
 
 	function Details.parser_functions:PET_BATTLE_OPENING_START(...)

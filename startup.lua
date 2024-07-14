@@ -1,15 +1,11 @@
 
---[=[
-	Details startup file
-	The function Details:StartMeUp() is called when the addon is fully loaded with saved variables and profiles
---]=]
-
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local _
 local tocName, Details222 = ...
+local detailsFramework = DetailsFramework
 
 --start funtion
-function Details:StartMeUp()
+function Details222.StartUp.StartMeUp()
 	if (Details.AndIWillNeverStop) then
 		return
 	end
@@ -67,7 +63,7 @@ function Details:StartMeUp()
 
 		if (C_CVar) then
 			if (not InCombatLockdown() and DetailsFramework.IsDragonflightAndBeyond()) then --disable for releases
-			C_CVar.SetCVar("cameraDistanceMaxZoomFactor", 2.6)
+			--C_CVar.SetCVar("cameraDistanceMaxZoomFactor", 2.6)
 			end
 		end
 
@@ -367,6 +363,12 @@ function Details:StartMeUp()
 			Details:AddDefaultCustomDisplays()
 		end
 		Details:FillUserCustomSpells()
+
+		if (C_CVar) then
+			if (not InCombatLockdown() and DetailsFramework.IsDragonflightAndBeyond()) then
+				C_CVar.SetCVar("cameraDistanceMaxZoomFactor", 2.6)
+			end
+		end
 	end
 
 	--check is this is the first run of this version

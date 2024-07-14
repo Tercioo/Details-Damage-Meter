@@ -386,6 +386,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "pets") then
 		Details.DebugPets()
 
+	elseif (msg == "mypets") then
+		Details.DebugMyPets()
+
 	elseif (msg == "model") then
 		local frame = CreateFrame("PlayerModel");
 		frame:SetPoint("center",UIParent,"center");

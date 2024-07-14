@@ -1375,6 +1375,10 @@ local default_global_data = {
 		damage_scroll_position = {
 			scale = 1,
 		},
+        cleu_debug_panel = {
+            position = {},
+            scaletable = {scale = 1},
+        },
 		data_wipes_exp = {
 			["9"] = false,
 			["10"] = false,

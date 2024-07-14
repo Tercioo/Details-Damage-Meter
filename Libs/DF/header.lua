@@ -13,17 +13,17 @@ local wipe = wipe
 --definitions
 
 ---@class df_headercolumndata : table
----@field key string
----@field name string
----@field icon string
----@field texcoord table
----@field text string
----@field canSort boolean
----@field selected boolean
----@field width number
----@field height number
----@field align string
----@field offset number
+---@field key string?
+---@field name string?
+---@field icon string?
+---@field texcoord table?
+---@field text string?
+---@field canSort boolean?
+---@field selected boolean?
+---@field width number?
+---@field height number?
+---@field align string?
+---@field offset number?
 
 ---@class df_headerchild : uiobject
 ---@field FramesToAlign table

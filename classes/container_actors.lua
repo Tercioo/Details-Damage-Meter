@@ -751,7 +751,7 @@ end
 	---@param actorName string
 	---@param actorFlags number
 	---@param bShouldCreateActor boolean
-	---@return table|nil, table|nil, string|nil
+	---@return actor|nil, actor|nil, actorname|nil
 	function actorContainer:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
 		return self:GetOrCreateActor(actorSerial, actorName, actorFlags, bShouldCreateActor)
 	end
@@ -760,7 +760,7 @@ end
 	---@param actorName string
 	---@param actorFlags number
 	---@param bShouldCreateActor boolean
-	---@return table|nil, table|nil, string|nil
+	---@return actor|nil, actor|nil, actorname|nil
 	function actorContainer:GetOrCreateActor(actorSerial, actorName, actorFlags, bShouldCreateActor)
 		--need to check if the actor is a pet
 		local petOwnerObject
@@ -769,10 +769,21 @@ end
 		--check if this actor is a pet and the pet is in the pet cache
 		if (petContainer.IsPetInCache(actorSerial)) then --this is a registered pet
 			--hashName is "petName <ownerName>"
+			--actorSerial: petGuid, actorName: petName
 			local hashName, ownerName, ownerGuid, ownerFlag = petContainer.GetOwner(actorSerial, actorName) --hashName, ownerName, ownerGuid, ownerFlags
+
 			if (hashName and ownerName and ownerGuid and ownerGuid ~= actorSerial and ownerFlag) then
 				actorName = hashName
 				petOwnerObject = self:PegarCombatente(ownerGuid, ownerName, ownerFlag, true)
+			end
+
+			if (Details222.Debug.DebugPets or Details222.Debug.DebugPlayerPets) then
+				Details:Msg("DebugPets|ActorContainer|petContainer.IsPetInCache(actorSerial) = true")
+				if (hashName) then
+					Details:Msg("DebugPets|ActorContainer|Owner Found In Pet Cache|OwnerName:", ownerName, "Actor Hash:", hashName, "petOwnerObject:", petOwnerObject)
+				else
+					Details:Msg("DebugPets|ActorContainer|Pet Is Orphan|petContainer.GetOwner(", actorSerial, actorName, ") == nil")
+				end
 			end
 
 		--this actor isn't in the pet cache

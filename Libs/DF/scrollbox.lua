@@ -131,6 +131,7 @@ detailsFramework.ScrollBoxFunctions = {
 	---@return frame line The line object at the specified index.
 	GetLine = function(self, lineIndex)
 		local line = self.Frames[lineIndex]
+		--print(self, line, line and line:GetName(), lineIndex, self:GetName())
 		if (line) then
 			line._InUse = true
 		end
