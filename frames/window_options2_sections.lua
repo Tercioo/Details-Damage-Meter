@@ -413,7 +413,6 @@ do
                 step = 1,
                 name = "Segments Boss Wipe",
                 desc = "Amount of segments to keep for wipes on the same boss.",
-                hidden = true,
             },
             {--wipe segments keep the best segments and delete the worst ones
                 type = "toggle",
@@ -424,7 +423,6 @@ do
                 name = "Keep Best Performance (boss wipes)",
                 desc = "Keep the segments with more progress in the boss health and delete the ones with less progress.",
                 boxfirst = true,
-                hidden = true,
             },
 
             {type = "breakline"},

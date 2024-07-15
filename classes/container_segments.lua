@@ -338,6 +338,35 @@ function Details:GetWipeCounter(guildName, encounterId, difficultyId)
 	return 0
 end
 
+---return the amount of segments in the segments table that are from the same boss as the combat passed as argument
+---@param currentCombat combat
+---@return number
+local getAmountOfSegmentsInThisBoss = function(currentCombat)
+	local segmentsTable = Details:GetCombatSegments()
+	local amountOfSegmentsInUse = #segmentsTable
+	local amountOfSegmentsInThisBoss = 0
+
+	---@type bossinfo
+	local thisCombatBossInfo = currentCombat:GetBossInfo()
+
+	if (thisCombatBossInfo) then
+		local currentBossName = thisCombatBossInfo.name
+		for i = 1, amountOfSegmentsInUse do
+			---@type combat
+			local thisCombatObject = segmentsTable[i]
+			---@type bossinfo
+			local bossInfo = thisCombatObject:GetBossInfo()
+			if (bossInfo and bossInfo ~= thisCombatBossInfo) then
+				if (bossInfo.name == currentBossName) then
+					amountOfSegmentsInThisBoss = amountOfSegmentsInThisBoss + 1
+				end
+			end
+		end
+	end
+
+	return amountOfSegmentsInThisBoss
+end
+
 ---count boss tries and set the value in the combat object
 ---@param combatToBeAdded combat
 local setBossTryCounter = function(combatToBeAdded, segmentsTable, amountSegmentsInUse)
@@ -440,6 +469,9 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 
 	---@type table<combat, boolean> store references of combat objects removed
 	local removedCombats = {}
+
+	---@type bossinfo
+	local combatToAddBossInfo = combatToBeAdded:GetBossInfo()
 
 	--check if there's a destroyed segment within the segment container
 	if (amountSegmentsInUse > 0) then
@@ -546,7 +578,60 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	end
 
 	--is the wipe counter saved in the details database?
-	--PAREI AQUI, implementar Details.segments_amount_boss_wipes e Details.segments_boss_wipes_keep_best_performance
+	if (IsInRaid() and Details.zone_type == "raid") then --filter only for raids
+		local bRunOkay2, result = getAmountOfSegmentsInThisBoss(combatToBeAdded)
+		if (not bRunOkay2) then
+			Details:Msg("bRunOkay2 Error > failed to get amount of segments in this boss > ", result)
+		else
+			local segmentRemoveResult = ""
+			local bRunOkay3, errorText3 = pcall(function()
+				local amountOfSegmentsInThisBoss = result
+				if (amountOfSegmentsInThisBoss > Details.segments_amount_boss_wipes) then
+					---@type combat[]
+					local allSegmentsWithThisBoss = {}
+					for i = 1, amountSegmentsInUse do
+						---@type combat
+						local thisCombatObject = segmentsTable[i]
+						local thisCombatBossInfo = thisCombatObject:GetBossInfo()
+						if (thisCombatBossInfo and thisCombatBossInfo.name == combatToAddBossInfo.name and thisCombatBossInfo.diff == combatToAddBossInfo.diff) then
+							table.insert(allSegmentsWithThisBoss, thisCombatObject)
+						end
+					end
+
+					segmentRemoveResult = segmentRemoveResult .. #allSegmentsWithThisBoss .. " added|"
+
+					--make sure the the len of the table is the same or more of the amount of segments in this boss
+					if (#allSegmentsWithThisBoss >= amountOfSegmentsInThisBoss) then
+						--sort the table by elapsed time
+						table.sort(allSegmentsWithThisBoss, function(a, b) return a:GetBossHealth() < b:GetBossHealth() end)
+
+						--remove the last segment
+						---@type combat
+						local combatToBeRemoved = allSegmentsWithThisBoss[#allSegmentsWithThisBoss]
+						---@type boolean, combat
+						local bSegmentRemoved, combatObjectRemoved = Details:RemoveSegmentByCombatObject(combatToBeRemoved)
+						---@cast combatObjectRemoved combat
+						if (bSegmentRemoved and combatObjectRemoved and combatObjectRemoved == combatToBeRemoved) then
+							--at this point the combat has been removed but not wipped from memory
+							segmentRemoveResult = segmentRemoveResult .. "segment removed|" .. combatObjectRemoved:GetBossHealth() .."|"
+							Details:DestroyCombat(combatObjectRemoved)
+							bSegmentDestroyed = true
+							--add the combat reference to removed combats table
+							removedCombats[combatObjectRemoved] = true
+						end
+					end
+				end
+			end)
+
+			if (not bRunOkay3) then
+				Details:Msg("bRunOkay3 Error > ", errorText3)
+			else
+				if (segmentRemoveResult ~= "") then
+					Details:Msg("(testing)", segmentRemoveResult)
+				end
+			end
+		end
+	end
 
 	--update the amount of segments in use in case a segment was removed
 	amountSegmentsInUse = #segmentsTable
