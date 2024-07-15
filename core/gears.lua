@@ -766,6 +766,7 @@ local checkForGroupCombat_Ticker = function()
 	end
 end
 
+--~parser
 local bConsiderGroupMembers = false
 Details222.Parser.Handler = {}
 Details222.Parser.EventFrame = CreateFrame("frame")
@@ -791,13 +792,13 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 					Details222.Parser.EventFrame.ticker = C_Timer.NewTicker(1, checkForGroupCombat_Ticker)
 				end
 			else
-				Details222.parser_frame:SetScript("OnEvent", nil)
+				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 			end
 		else
 			if (UnitAffectingCombat("player")) then
 				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
 			else
-				Details222.parser_frame:SetScript("OnEvent", nil)
+				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 			end
 		end
 
@@ -814,10 +815,10 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 					Details222.Parser.EventFrame.ticker = C_Timer.NewTicker(1, checkForGroupCombat_Ticker)
 				end
 			else
-				Details222.parser_frame:SetScript("OnEvent", nil)
+				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 			end
 		else
-			Details222.parser_frame:SetScript("OnEvent", nil)
+			Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 		end
 	end
 end)

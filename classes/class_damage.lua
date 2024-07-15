@@ -1776,6 +1776,7 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --main refresh function
 
+--~refresh
 ---@param instanceObject instance
 ---@param combatObject combat
 ---@param bForceUpdate boolean
@@ -1783,6 +1784,8 @@ end
 function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
 	---@type actorcontainer
 	local damageContainer = combatObject[class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
+
+	--print("updating the main window")
 
 	--not have something to show
 	if (#damageContainer._ActorTable < 1) then
