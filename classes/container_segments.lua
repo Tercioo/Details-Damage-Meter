@@ -319,13 +319,88 @@ function Details:CanAddCombatToOverall(combatObject)
 	return false
 end
 
+---get the amount of wipes for a guilda in a specific boss and difficulty
+---@param guildName string
+---@param encounterId number
+---@param difficultyId number
+---@return number
+function Details:GetWipeCounter(guildName, encounterId, difficultyId)
+	local guildWipes = Details.boss_wipe_counter[guildName]
+	if (guildWipes) then
+		local bossWipes = guildWipes[encounterId]
+		if (bossWipes) then
+			local difficultyWipes = bossWipes[difficultyId]
+			if (difficultyWipes) then
+				return difficultyWipes
+			end
+		end
+	end
+	return 0
+end
+
 ---count boss tries and set the value in the combat object
 ---@param combatToBeAdded combat
 local setBossTryCounter = function(combatToBeAdded, segmentsTable, amountSegmentsInUse)
-	---@type string
-	local bossName = combatToBeAdded.is_boss and combatToBeAdded.is_boss.name
+	---@type bossinfo
+	local bossInfo = combatToBeAdded:GetBossInfo()
+	local bossName = bossInfo and bossInfo.name
+	local encounterId = bossInfo and bossInfo.id
+	local bossDifficultyId = bossInfo and bossInfo.diff
 
-	if (bossName) then
+	if (bossName and encounterId and bossDifficultyId) then
+		--account global
+		---@type table<guildname, table<encounterid, table<encounterdifficulty, number>>>
+		local bossTriesDatabase = Details.boss_wipe_counter
+
+		--to store a wipe 70% of the raid must be from the same guild
+		--get the player guild name
+		local playerGuildName = GetGuildInfo("player")
+		if (playerGuildName) then
+			local amountOfPlayersInGroup = GetNumGroupMembers()
+			local amountOfPlayersFromGuild = 0
+
+			local cachedRaidUnitIds = Details222.UnitIdCache.Raid
+			for i = 1, amountOfPlayersInGroup do
+				local unitId = cachedRaidUnitIds[i]
+				--get the guild name of the unit
+				local unitGuildName = GetGuildInfo(unitId)
+				if (unitGuildName and unitGuildName == playerGuildName) then
+					amountOfPlayersFromGuild = amountOfPlayersFromGuild + 1
+				end
+			end
+
+			--check the 70%
+			if (amountOfPlayersFromGuild / amountOfPlayersInGroup >= 0.7) then
+				--check the elapsed time of the encounter is bigger than the min allowed
+				if (Details.boss_wipe_min_time <= combatToBeAdded:GetCombatTime()) then
+					--check if there is a table for the guild name in the database
+					local guildWipes = bossTriesDatabase[playerGuildName]
+					if (not guildWipes) then
+						guildWipes = {}
+						bossTriesDatabase[playerGuildName] = guildWipes
+					end
+
+					--check if there is a table for the bossId in the guild table
+					local bossWipes = guildWipes[encounterId]
+					if (not bossWipes) then
+						bossWipes = {}
+						guildWipes[encounterId] = bossWipes
+					end
+
+					--check if there's a difficulty table inside the boss wipes table
+					local difficultyWipes = bossWipes[bossDifficultyId]
+					if (not difficultyWipes) then
+						difficultyWipes = 0
+						bossWipes[bossDifficultyId] = difficultyWipes
+					end
+
+					--increment the wipe counter
+					bossWipes[bossDifficultyId] = difficultyWipes + 1
+					Details:Msg("(testing) wipes on this boss with this guild in this difficulty:", bossWipes[bossDifficultyId])
+				end
+			end
+		end
+
 		local tryNumber = Details.encounter_counter[bossName]
 		if (not tryNumber) then
 			---@type combat
@@ -392,7 +467,10 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 		end
 	end
 
-	setBossTryCounter(combatToBeAdded, segmentsTable, amountSegmentsInUse)
+	local bRunOkay, errorText = pcall(setBossTryCounter, combatToBeAdded, segmentsTable, amountSegmentsInUse)
+	if (not bRunOkay) then
+		Details:Msg("error > failed to set boss try counter > ", errorText)
+	end
 
 	--shutdown actors from the previous combat from the time machine
 	---@type combat
@@ -466,6 +544,9 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 			removedCombats[combatObjectRemoved] = true
 		end
 	end
+
+	--is the wipe counter saved in the details database?
+	--PAREI AQUI, implementar Details.segments_amount_boss_wipes e Details.segments_boss_wipes_keep_best_performance
 
 	--update the amount of segments in use in case a segment was removed
 	amountSegmentsInUse = #segmentsTable

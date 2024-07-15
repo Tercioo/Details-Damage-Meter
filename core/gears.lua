@@ -1952,12 +1952,12 @@ print(1)
 		local guildName = GetGuildInfo("player")
 		local raidSize = GetNumGroupMembers() or 0
 
-		local cachedUnitIds = Details222.UnitIdCache.Raid
+		local cachedRaidUnitIds = Details222.UnitIdCache.Raid
 
 		if (not Details222.storage.IsDebug) then
 			if (guildName) then
 				for i = 1, raidSize do
-					local gName = GetGuildInfo(cachedUnitIds[i]) or ""
+					local gName = GetGuildInfo(cachedRaidUnitIds[i]) or ""
 					if (gName == guildName) then
 						match = match + 1
 					end
@@ -1996,16 +1996,16 @@ print(1)
 		print(6, diff)
 
 		for i = 1, GetNumGroupMembers() do
-			local role = UnitGroupRolesAssigned(cachedUnitIds[i])
+			local role = UnitGroupRolesAssigned(cachedRaidUnitIds[i])
 
-			if (UnitIsInMyGuild(cachedUnitIds[i])) then
+			if (UnitIsInMyGuild(cachedRaidUnitIds[i])) then
 				if (role == "DAMAGER" or role == "TANK") then
-					local playerName = Details:GetFullName(cachedUnitIds[i])
+					local playerName = Details:GetFullName(cachedRaidUnitIds[i])
 					local _, _, class = Details:GetUnitClassFull(playerName)
 
 					local damagerActor = damageContainer:GetActor(playerName)
 					if (damagerActor) then
-						local guid = UnitGUID(cachedUnitIds[i])
+						local guid = UnitGUID(cachedRaidUnitIds[i])
 
 						---@type details_storage_unitresult
 						local unitResultInfo = {
@@ -2017,12 +2017,12 @@ print(1)
 					end
 
 				elseif (role == "HEALER") then
-					local playerName = Details:GetFullName(cachedUnitIds[i])
+					local playerName = Details:GetFullName(cachedRaidUnitIds[i])
 					local _, _, class = Details:GetUnitClassFull(playerName)
 
 					local healingActor = healingContainer:GetActor(playerName)
 					if (healingActor) then
-						local guid = UnitGUID(cachedUnitIds[i])
+						local guid = UnitGUID(cachedRaidUnitIds[i])
 
 						---@type details_storage_unitresult
 						local unitResultInfo = {

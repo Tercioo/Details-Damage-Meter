@@ -357,6 +357,7 @@ function LibStub:IterateLibraries()end
 ---@alias encounterid number encounter ID number received by the event ENCOUNTER_START and ENCOUNTER_END
 ---@alias encounterejid number encounter ID number used by the encounter journal
 ---@alias encountername string encounter name received by the event ENCOUNTER_START and ENCOUNTER_END also used by the encounter journal
+---@alias encounterdifficulty number difficulty of the encounter received by the event ENCOUNTER_START and ENCOUNTER_END
 ---@alias instancename string localized name of an instance (e.g. "The Nighthold")
 ---@alias spellid number each spell in the game has a unique spell id, this id can be used to identify a spell.
 ---@alias unitname string name of a unit

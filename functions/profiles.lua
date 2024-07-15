@@ -904,6 +904,10 @@ local default_profile = {
 	--segments
 		segments_amount = 25,
 		segments_amount_to_save = 15,
+		--max amount of boss wipes allowed
+		segments_amount_boss_wipes = 10,
+		--should boss wipes delete segments with less progression?
+		segments_boss_wipes_keep_best_performance = true,
 		segments_panic_mode = false,
 		segments_auto_erase = 1,
 
@@ -1395,6 +1399,9 @@ local default_global_data = {
 			scaletable = {scale = 1},
 			position = {},
 		},
+
+		boss_wipe_counter = {},
+		boss_wipe_min_time = 20, --minimum time to consider a wipe as a boss wipe
 
 		user_is_patreon_supporter = false,
 
@@ -2051,6 +2058,10 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 		Details.segments_amount = 25
 		--max segments to save between sections
 		Details.segments_amount_to_save = 15
+		--max amount of boss wipes allowed
+		Details.segments_amount_boss_wipes = 10
+		--should boss wipes delete segments with less progression?
+		Details.segments_boss_wipes_keep_best_performance = true
 
 		--transfer instance data to the new created profile
 		profileObject.instances = DetailsFramework.table.copy({}, profileData.instances)
