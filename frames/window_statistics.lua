@@ -4,6 +4,7 @@
 local Details = _G.Details
 local DF = _G.DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
+local tocName, Details222 = ...
 local _
 
 --prefix used on sync statistics
