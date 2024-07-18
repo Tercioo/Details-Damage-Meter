@@ -1905,7 +1905,7 @@ function Details.Database.StoreEncounter(combat)
 
 	--total kills in a boss on raid or dungeon
 	local totalkillsTable = Details.Database.GetBossKillsDB(savedData)
-	
+
 	--store total kills on this boss
 	--if the player is facing a raid boss
 	if (IsInRaid()) then

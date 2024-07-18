@@ -401,7 +401,7 @@ local setBossTryCounter = function(combatToBeAdded, segmentsTable, amountSegment
 			--check the 70%
 			if (amountOfPlayersFromGuild / amountOfPlayersInGroup >= 0.7) then
 				--check the elapsed time of the encounter is bigger than the min allowed
-				if (Details.boss_wipe_min_time <= combatToBeAdded:GetCombatTime()) then
+				if (combatToBeAdded:GetCombatTime() >= Details.boss_wipe_min_time) then --default 20 seconds
 					--check if there is a table for the guild name in the database
 					local guildWipes = bossTriesDatabase[playerGuildName]
 					if (not guildWipes) then
@@ -425,33 +425,39 @@ local setBossTryCounter = function(combatToBeAdded, segmentsTable, amountSegment
 
 					--increment the wipe counter
 					bossWipes[bossDifficultyId] = difficultyWipes + 1
+					combatToBeAdded.is_boss.try_number = bossWipes[bossDifficultyId]
 					Details:Msg("(testing) wipes on this boss with this guild in this difficulty:", bossWipes[bossDifficultyId])
 				end
 			end
 		end
+	end
+end
 
-		local tryNumber = Details.encounter_counter[bossName]
-		if (not tryNumber) then
-			---@type combat
-			local previousCombatObject
+--this function will shutdown all actors from the previous combat from the time machine
+local shutDownActorsOnTimeMachine = function(segmentsTable)
+	---@type combat
+	local previousCombatObject = segmentsTable[1]
+	if (previousCombatObject) then
+		---@type actorcontainer
+		local containerDamage = previousCombatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		---@type actorcontainer
+		local containerHeal = previousCombatObject:GetContainer(DETAILS_ATTRIBUTE_HEAL)
 
-			for i = 1, amountSegmentsInUse do
-				previousCombatObject = segmentsTable[i]
-				if (previousCombatObject and previousCombatObject.is_boss and previousCombatObject.is_boss.name and previousCombatObject.is_boss.try_number and previousCombatObject.is_boss.name == bossName and not previousCombatObject.is_boss.killed) then
-					tryNumber = previousCombatObject.is_boss.try_number + 1
-					break
-				end
-			end
-
-			if (not tryNumber) then
-				tryNumber = 1
-			end
-		else
-			tryNumber = Details.encounter_counter[bossName] + 1
+		for _, actorObject in containerDamage:ListActors() do
+			---@cast actorObject actor
+			--clear last events table (death logs)
+			actorObject.last_events_table =  nil
+			--remove from the time machine
+			Details222.TimeMachine.RemoveActor(actorObject)
 		end
 
-		Details.encounter_counter[bossName] = tryNumber
-		combatToBeAdded.is_boss.try_number = tryNumber
+		for _, actorObject in containerHeal:ListActors() do
+			---@cast actorObject actor
+			--clear last events table (death logs)
+			actorObject.last_events_table =  nil
+			--remove from the time machine
+			Details222.TimeMachine.RemoveActor(actorObject)
+		end
 	end
 end
 
@@ -471,7 +477,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	local removedCombats = {}
 
 	---@type bossinfo
-	local combatToAddBossInfo = combatToBeAdded:GetBossInfo()
+	local combatToAdd_BossInfo = combatToBeAdded:GetBossInfo()
 
 	--check if there's a destroyed segment within the segment container
 	if (amountSegmentsInUse > 0) then
@@ -499,36 +505,16 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 		end
 	end
 
-	local bRunOkay, errorText = pcall(setBossTryCounter, combatToBeAdded, segmentsTable, amountSegmentsInUse)
-	if (not bRunOkay) then
-		Details:Msg("error > failed to set boss try counter > ", errorText)
+	--check if this is a boss wipe and increment the try counter
+	if (combatToAdd_BossInfo and not combatToAdd_BossInfo.killed) then
+		local bRunOkay, errorText = pcall(setBossTryCounter, combatToBeAdded, segmentsTable, amountSegmentsInUse)
+		if (not bRunOkay) then
+			Details:Msg("error > failed to set boss try counter > ", errorText)
+		end
 	end
 
 	--shutdown actors from the previous combat from the time machine
-	---@type combat
-	local previousCombatObject = segmentsTable[1]
-	if (previousCombatObject) then
-		---@type actorcontainer
-		local containerDamage = previousCombatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
-		---@type actorcontainer
-		local containerHeal = previousCombatObject:GetContainer(DETAILS_ATTRIBUTE_HEAL)
-
-		for _, actorObject in containerDamage:ListActors() do
-			---@cast actorObject actor
-			--clear last events table (death logs)
-			actorObject.last_events_table =  nil
-			--remove from the time machine
-			Details222.TimeMachine.RemoveActor(actorObject)
-		end
-
-		for _, actorObject in containerHeal:ListActors() do
-			---@cast actorObject actor
-			--clear last events table (death logs)
-			actorObject.last_events_table =  nil
-			--remove from the time machine
-			Details222.TimeMachine.RemoveActor(actorObject)
-		end
-	end
+	shutDownActorsOnTimeMachine(segmentsTable)
 
 	---@type boolean user choise to remove trash combats or not
 	local bAutoRemoveTrashCombats = Details.trash_auto_remove
@@ -577,8 +563,12 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 		end
 	end
 
-	--is the wipe counter saved in the details database?
-	if (IsInRaid() and Details.zone_type == "raid") then --filter only for raids
+	--update the amount of segments in use in case a segment was removed
+	amountSegmentsInUse = #segmentsTable
+
+	--is this inside a raid and the boss isn't killed?
+	if (IsInRaid() and Details.zone_type == "raid" and combatToAdd_BossInfo and not combatToAdd_BossInfo.killed) then
+		--get the amount of segments in the segmentsTable that are from the same boss and difficulty as the combat to be added
 		local bRunOkay2, result = pcall(getAmountOfSegmentsInThisBoss, combatToBeAdded)
 		if (not bRunOkay2) then
 			Details:Msg("bRunOkay2 Error > failed to get amount of segments in this boss > ", result)
@@ -589,35 +579,42 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 			end
 
 			local bRunOkay3, errorText3 = pcall(function()
-				local amountOfSegmentsInThisBoss = result
+				local amountOfSegmentsInThisBoss = result --result of getAmountOfSegmentsInThisBoss()
 
 				if (not Details.segments_amount_boss_wipes) then
 					Details:Msg("Details.segments_amount_boss_wipes isn't a number, issue with profile? ", type(Details.segments_amount_boss_wipes))
 					Details:Msg("on default profile:", Details.default_profile.segments_amount_boss_wipes)
 				end
 
+				--is the amount of segments in this boss bigger than the amount of segment wipe allowed?
+				--context: segment wipe is when the raid wipes on a boss and the combat is stored in the segments table
+				--Details.segments_amount_boss_wipes store the max amount of segment wipes allowed for a boss
 				if (amountOfSegmentsInThisBoss > Details.segments_amount_boss_wipes) then
 					---@type combat[]
-					local allSegmentsWithThisBoss = {}
+					local allWipeSegmentsInThisBoss = {}
 					for i = 1, amountSegmentsInUse do
 						---@type combat
 						local thisCombatObject = segmentsTable[i]
 						local thisCombatBossInfo = thisCombatObject:GetBossInfo()
-						if (thisCombatBossInfo and thisCombatBossInfo.name == combatToAddBossInfo.name and thisCombatBossInfo.diff == combatToAddBossInfo.diff) then
-							table.insert(allSegmentsWithThisBoss, thisCombatObject)
+
+						--check if this segment has the same name and difficulty as the combat to be added
+						if (thisCombatBossInfo and thisCombatBossInfo.name == combatToAdd_BossInfo.name and thisCombatBossInfo.diff == combatToAdd_BossInfo.diff) then
+							if (not thisCombatBossInfo.killed) then --if the key killed is false or enexistent, it is a wipe
+								table.insert(allWipeSegmentsInThisBoss, thisCombatObject)
+							end
 						end
 					end
 
-					segmentRemoveResult = segmentRemoveResult .. #allSegmentsWithThisBoss .. " added|"
+					segmentRemoveResult = segmentRemoveResult .. #allWipeSegmentsInThisBoss .. " added|" --debug
 
-					--make sure the the len of the table is the same or more of the amount of segments in this boss
-					if (#allSegmentsWithThisBoss >= amountOfSegmentsInThisBoss) then
-						--sort the table by elapsed time
-						table.sort(allSegmentsWithThisBoss, function(a, b) return a:GetBossHealth() < b:GetBossHealth() end)
+					--make sure the the amount of wipes found is bigger than the amount of segment wipes allowed
+					if (#allWipeSegmentsInThisBoss > Details.segments_amount_boss_wipes) then
+						--sort the table by boss health, the less is the health, the less is the index in the table
+						table.sort(allWipeSegmentsInThisBoss, function(a, b) return a:GetBossHealth() < b:GetBossHealth() end)
 
-						--remove the last segment
+						--remove the last index in the 'allWipeSegmentsInThisBoss' table, as this segment has the most health of the boss, which means less progress
 						---@type combat
-						local combatToBeRemoved = allSegmentsWithThisBoss[#allSegmentsWithThisBoss]
+						local combatToBeRemoved = allWipeSegmentsInThisBoss[#allWipeSegmentsInThisBoss]
 						---@type boolean, combat
 						local bSegmentRemoved, combatObjectRemoved = Details:RemoveSegmentByCombatObject(combatToBeRemoved)
 						---@cast combatObjectRemoved combat
