@@ -1319,51 +1319,65 @@ do
 				for i = 1, #allTooltips do
 					local tooltipName = allTooltips[i]
 					local tooltip = _G[tooltipName]
+					if (tooltip and tooltip:IsVisible()) then
+                        if (tooltip.GetTooltipData) then
+                            local tooltipData = tooltip:GetTooltipData()
+                            if (tooltipData) then
+                                if (tooltip.ItemTooltip and tooltip.ItemTooltip:IsVisible()) then
+                                    local icon = tooltip.ItemTooltip.Icon
+                                    if (icon) then
+                                        local texture = icon:GetTexture()
+                                        local atlas = icon:GetAtlas()
+                                        if (texture or atlas) then
+                                            tooltipData.IconTexture = texture
+                                            tooltipData.IconAtlas = atlas
+                                        end
+                                    end
+                                end
 
-					if (tooltip and tooltip.GetTooltipData and tooltip:IsVisible()) then
-						local tooltipData = tooltip:GetTooltipData()
-						if (tooltipData) then
-							if (tooltip.ItemTooltip and tooltip.ItemTooltip:IsVisible()) then
-								local icon = tooltip.ItemTooltip.Icon
-								if (icon) then
-									local texture = icon:GetTexture()
-									local atlas = icon:GetAtlas()
-									if (texture or atlas) then
-										tooltipData.IconTexture = texture
-										tooltipData.IconAtlas = atlas
-									end
-								end
-							end
+                                if (tooltipData.hyperlink) then
+                                    local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
+                                    itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
+                                    expacID, setID, isCraftingReagent = GetItemInfo(tooltipData.hyperlink)
 
-							if (tooltipData.hyperlink) then
-								local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
-								itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
-								expacID, setID, isCraftingReagent = GetItemInfo(tooltipData.hyperlink)
+                                    local itemInfo = {
+                                        itemName = itemName,
+                                        itemLink = itemLink,
+                                        itemQuality = itemQuality,
+                                        itemLevel = itemLevel,
+                                        itemMinLevel = itemMinLevel,
+                                        itemType = itemType,
+                                        itemSubType = itemSubType,
+                                        itemStackCount = itemStackCount,
+                                        itemEquipLoc = itemEquipLoc,
+                                        itemTexture = itemTexture,
+                                        sellPrice = sellPrice,
+                                        classID = classID,
+                                        subclassID = subclassID,
+                                        bindType = bindType,
+                                        expacID = expacID,
+                                        setID = setID,
+                                        isCraftingReagent = isCraftingReagent
+                                    }
+                                    DetailsFramework.table.deploy(tooltipData, itemInfo)
+                                end
 
-								local itemInfo = {
-									itemName = itemName,
-									itemLink = itemLink,
-									itemQuality = itemQuality,
-									itemLevel = itemLevel,
-									itemMinLevel = itemMinLevel,
-									itemType = itemType,
-									itemSubType = itemSubType,
-									itemStackCount = itemStackCount,
-									itemEquipLoc = itemEquipLoc,
-									itemTexture = itemTexture,
-									sellPrice = sellPrice,
-									classID = classID,
-									subclassID = subclassID,
-									bindType = bindType,
-									expacID = expacID,
-									setID = setID,
-									isCraftingReagent = isCraftingReagent
-								}
-								DetailsFramework.table.deploy(tooltipData, itemInfo)
-							end
-
-							return Details:Dump(tooltipData)
-						end
+                                return Details:Dump(tooltipData)
+                            end
+                        else
+                            local outputTable = {}
+                            for lineNumber = 1, 10 do
+                                local leftText = _G[tooltipName..'TextLeft'..lineNumber]
+                                local rightText = _G[tooltipName..'TextRight'..lineNumber]
+                                if not (leftText and rightText) then
+                                    break
+                                end
+                                
+                                outputTable[#outputTable+1] = {left = leftText:GetText(), right = rightText:GetText()}
+                            end
+                            
+                            return Details:Dump(outputTable)                            
+                        end
 					end
 				end
 			end
