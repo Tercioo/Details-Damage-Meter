@@ -1395,6 +1395,8 @@ local default_global_data = {
 		encounter_journal_cache = {}, --store a dump of the encounter journal
 		installed_skins_cache = {},
 
+		auto_change_to_standard = true,
+
 		debug_options_panel = {
 			scaletable = {scale = 1},
 			position = {},

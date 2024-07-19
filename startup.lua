@@ -186,9 +186,9 @@ function Details222.StartUp.StartMeUp()
 		for id = 1, Details:GetNumInstances() do
 			local instance = Details:GetInstance(id)
 			if (instance:IsEnabled()) then
-				if (instance.modo == 3) then --everything
-				instance.LastModo = 2 --standard
-				instance.modo = 2 --standard
+				if (instance.modo == 3 and Details.auto_change_to_standard) then --everything
+					instance.LastModo = 2 --standard
+					instance.modo = 2 --standard
 				end
 
 				--refresh wallpaper
