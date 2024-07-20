@@ -1302,6 +1302,16 @@ end
 			end
 		end
 
+		--check if the player is a rogue and has the aura Vanish
+		if (Details.playerclass == "ROGUE") then
+			--if the player has vanish aura, skip this check
+			---@type aurainfo
+			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(11327)
+			if (auraInfo) then
+				return true
+			end
+		end
+
 		Details:StopCombatTicker()
 		Details:SairDoCombate()
 		return false

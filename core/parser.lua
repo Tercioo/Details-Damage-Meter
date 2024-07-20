@@ -5980,6 +5980,19 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details.parser_functions:PLAYER_REGEN_ENABLED(...)
+
+		--check if the player is a rogue and has the aura Vanish
+		if (not IsInGroup() and not IsInRaid()) then
+			if (Details.playerclass == "ROGUE") then
+				--if the player has vanish aura, skip this check
+				---@type aurainfo
+				local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(11327)
+				if (auraInfo) then
+					return true
+				end
+			end
+		end
+
 		if (Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, false)
 		end
@@ -6274,6 +6287,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		else
 			Details.playername = UnitName("player")
 		end
+
+		Details.playerclass = select(2, UnitClass("player"))
 
 		Details.playername = Details:Ambiguate(Details.playername)
 
