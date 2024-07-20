@@ -199,7 +199,7 @@ end
 
         local ownerGUID, ownerName, lineText
 
-		local cbMode = tonumber(GetCVar("colorblindMode")) or 0
+        local cbMode = tonumber(GetCVar("colorblindMode")) or 0
         if (bIsDragonflightOrAbove) then
             local tooltipData = C_TooltipInfo.GetHyperlink('unit:'.. petGUID)
             if (tooltipData) then
