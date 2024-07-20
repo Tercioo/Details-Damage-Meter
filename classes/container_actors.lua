@@ -176,6 +176,19 @@ local find_name_declension = function(tooltipString, playerName)
 	return false
 end
 
+local unitNameTitles = {
+    UNITNAME_TITLE_PET,
+    UNITNAME_TITLE_COMPANION,
+    UNITNAME_TITLE_GUARDIAN,
+    UNITNAME_TITLE_MINION,
+    UNITNAME_TITLE_CHARM,
+    UNITNAME_TITLE_CREATION,
+    UNITNAME_TITLE_SQUIRE
+}
+for i=1, #unitNameTitles do
+    unitNameTitles[i] = unitNameTitles[i]:gsub('%%s', '(.*)')
+end
+
 ---attempt to the owner of a pet using tooltip scan, if the owner isn't found, return nil
 ---@param petGUID string
 ---@param petName string
@@ -183,6 +196,79 @@ end
 ---@return string|nil ownerGUID
 ---@return integer|nil ownerFlags
 	function Details222.Pets.GetPetOwner(petGUID, petName) --this is under the Pets namespace, the new pet system is under the PetContainer namespace
+
+        local ownerGUID, ownerName, lineText
+
+		local cbMode = tonumber(GetCVar("colorblindMode")) or 0
+        if (bIsDragonflightOrAbove) then
+            local tooltipData = C_TooltipInfo.GetHyperlink('unit:'.. petGUID)
+            if (tooltipData) then
+                if (tooltipData.lines[1].leftText == '') then -- Assume this is an Akaari's soul / Storm Earth Fire tooltip
+                    ownerGUID = tooltipData.guid
+                elseif (tooltipData.lines[1].leftText == petName) then
+                    local lineTwo = tooltipData.lines[2 + cbMode]
+                    if (lineTwo.type == 16 and lineTwo.guid) then
+                        ownerGUID = lineTwo.guid
+                    else
+                        lineText = lineTwo.leftText
+                    end
+                end
+            end
+        else
+            pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
+            pet_tooltip_frame:SetHyperlink(("unit:" .. petGUID) or "")
+
+            local line = _G['DetailsPetOwnerFinderTextLeft' .. (2 + cbMode)]
+            lineText = line and line:GetText()
+        end
+
+        if (lineText) then
+            for i=1, #unitNameTitles do
+                ownerName = lineText:match(unitNameTitles[i])
+                if (ownerName) then
+                    break
+                end
+            end
+
+            if (not ownerName) then
+                return
+            end
+
+            ---@type combat
+            local currentCombat = Details:GetCurrentCombat()
+
+            if (not currentCombat) then
+                return
+            end
+
+            local isInRaid = currentCombat.raid_roster[ownerName]
+            if (isInRaid) then
+                return UnitGUID(ownerName), ownerName, 0x514
+            end
+        elseif (ownerGUID and ownerGUID:sub(1,6) == 'Player') then
+            local playerGUID = ownerGUID
+            local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
+            if (actorObject) then
+                return actorObject.nome, playerGUID, actorObject.flag_original
+            end
+
+            local guidCache = Details:GetParserPlayerCache() --cache exists until the next combat starts
+            ownerName = guidCache[playerGUID]
+            if (ownerName) then
+                return ownerName, playerGUID, 0x514
+            end
+
+            if(Details.zone_type == 'arena') then --Attempt to find enemy pet owner
+                for enemyName, enemyToken in pairs(Details.arena_enemies) do
+                    if(UnitGUID(enemyToken) == ownerGUID) then
+                        return enemyName, ownerGUID, 0x548
+                    end
+                end
+            end
+        end
+
+        if true then return end
+
 		pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
 		pet_tooltip_frame:SetHyperlink(("unit:" .. petGUID) or "")
 
