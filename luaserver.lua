@@ -411,6 +411,9 @@ function LibStub:IterateLibraries()end
 ---@field GetCursorPosition fun(): number, number return the position of the cursor on the screen, in pixels, relative to the bottom left corner of the screen.
 ---@field C_Timer C_Timer
 
+---table containing backdrop functions
+BackdropTemplateMixin = {}
+
 ---@class timer : table
 ---@field Cancel fun(self: timer)
 ---@field IsCancelled fun(self: timer): boolean

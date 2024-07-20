@@ -132,6 +132,7 @@
 		Details222.Debug = {
 			DebugPets = false,
 			DebugPlayerPets = false,
+			DebugBuff = false,
 		}
 
 		Details222.Tvs = tvs
@@ -1570,9 +1571,11 @@ end
 
 Details222.UnitIdCache.Raid = {}
 Details222.UnitIdCache.RaidPet = {}
+Details222.UnitIdCache.RaidTargets = {}
 for i = 1, 40 do
 	Details222.UnitIdCache.Raid[i] = "raid" .. i
 	Details222.UnitIdCache.RaidPet[i] = "raidpet" .. i
+	Details222.UnitIdCache.RaidTargets[i] = "raidtarget" .. i
 end
 
 Details222.UnitIdCache.Boss = {}

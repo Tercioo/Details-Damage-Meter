@@ -236,7 +236,13 @@
 ---@field CreateColorDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateOutlineDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateAnchorPointDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
+---@field CreateAudioDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateFontListGenerator fun(self:table, callback:function) : function return a function which when called returns a table filled with all fonts available and ready to be used on dropdowns
+---@field CreateAnchorPointListGenerator fun(self:table, callback:function) : function return a function which when called returns a table filled with all anchor points available and ready to be used on dropdowns
+---@field CreateColorListGenerator fun(self:table, callback:function) : function return a function which when called returns a table filled with all colors available and ready to be used on dropdowns
+---@field CreateOutlineListGenerator fun(self:table, callback:function) : function return a function which when called returns a table filled with all outline options available and ready to be used on dropdowns
+---@field CreateAudioListGenerator fun(self:table, callback:function) : function return a function which when called returns a table filled with all audio options available and ready to be used on dropdowns
+---@field BuildDropDownFontList fun(self:table, onClick:function, icon:atlasname|texturepath|textureid|nil, iconTexcoord:table?, iconSize:number?, bIncludeDefault:boolean?) : table build a list of fonts to be used as optionsTable for a dropdown
 ---@field CreateTextEntry fun(self:table, parent:frame, textChangedCallback:function, width:number, height:number, member:string?, name:string?, labelText:string?, textentryTemplate:table?, labelTemplate:table?) : df_textentry
 ---@field ReskinSlider fun(self:table, slider:frame)
 ---@field GetAvailableSpells fun(self:table) : table<spellid, boolean>

@@ -1012,15 +1012,21 @@ local iconSizeTable = {16, 16}
 function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize, bIncludeDefault)
 	local fontTable = {}
 
+	if (not iconSize) then
+		iconSize = iconSizeTable
+	else
+		iconSize = {iconSize, iconSize}
+	end
+
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	for name, fontPath in pairs(SharedMedia:HashTable("font")) do
-		fontTable[#fontTable+1] = {value = name, label = name, onclick = onClick, icon = icon, iconsize = iconSizeTable, texcoord = iconTexcoord, font = fontPath, descfont = "abcdefg ABCDEFG"}
+		fontTable[#fontTable+1] = {value = name, label = name, onclick = onClick, icon = icon, iconsize = iconSize, texcoord = iconTexcoord, font = fontPath, descfont = "abcdefg ABCDEFG"}
 	end
 
 	table.sort(fontTable, function(t1, t2) return t1.label < t2.label end)
 
 	if (bIncludeDefault) then
-		table.insert(fontTable, 1, {value = "DEFAULT", label = "DEFAULT", onclick = onClick, icon = icon, iconsize = iconSizeTable, texcoord = iconTexcoord, font = "", descfont = "abcdefg ABCDEFG"})
+		table.insert(fontTable, 1, {value = "DEFAULT", label = "DEFAULT", onclick = onClick, icon = icon, iconsize = iconSize, texcoord = iconTexcoord, font = "", descfont = "abcdefg ABCDEFG"})
 	end
 
 	return fontTable
