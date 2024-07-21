@@ -198,6 +198,8 @@
 			[1473] = {},
 		}
 
+		Details222.IgnoredWorldAuras = {}
+
 		Details222.Parser = {}
 
 		Details222.Actors = {}

@@ -16,6 +16,25 @@ AuraScan.UnitAurasStorage = {}
 AuraScan.AurasToTimeline = {} --which spells should be added to the timeline
 AuraScan.AuraTimelineStorage = {} --store the timeline here
 
+function AuraScan.FindAndIgnoreWorldAuras()
+    for buffIndex = 1, 41 do
+        ---@type aurainfo
+        local auraInfo = C_UnitAuras.GetAuraDataByIndex("player", buffIndex, "HELPFUL")
+        if (auraInfo) then
+            local auraName, unitCaster, spellId = auraInfo.name, auraInfo.sourceUnit, auraInfo.spellId
+            if (auraName and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
+                if (auraInfo.duration == 0 and auraInfo.expirationTime == 0) then --this aura is a world buff, probably a weekly buff
+                    Details222.IgnoredWorldAuras[spellId] = true
+                end
+            end
+        else
+            break
+        end
+    end
+end
+
+
+
 function AuraScan.RegisterCallback(callback)
     AuraScan.Callbacks[callback] = true
 end

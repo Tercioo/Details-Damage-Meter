@@ -1361,15 +1361,13 @@ function atributo_misc:ToolTipDispell(instancia, numero, barra)
 end
 
 local UnitReaction = UnitReaction
-local UnitDebuff = UnitDebuff
 
 function Details:CloseEnemyDebuffsUptime()
-	local combat = Details.tabela_vigente
-	local misc_container = combat [4]._ActorTable
-
-	for _, actor in ipairs(misc_container) do
+	local combat = Details:GetCurrentCombat()
+	local utilityContainer = combat:GetContainer(DETAILS_ATTRIBUTE_MISC)
+	for _, actor in utilityContainer:ListActors() do
 		if (actor.boss_debuff) then
-			for target_name, target in ipairs(actor.debuff_uptime_targets) do
+			for targetName, target in ipairs(actor.debuff_uptime_targets) do
 				if (target.actived and target.actived_at) then
 					target.uptime = target.uptime + Details._tempo - target.actived_at
 					actor.debuff_uptime = actor.debuff_uptime + Details._tempo - target.actived_at
@@ -1379,11 +1377,9 @@ function Details:CloseEnemyDebuffsUptime()
 			end
 		end
 	end
-
-	return
 end
 
-function Details:CatchRaidDebuffUptime(sOperationType) -- "DEBUFF_UPTIME_IN"
+function Details:CatchRaidDebuffUptime(sOperationType) -- "DEBUFF_UPTIME_IN" ~scan
 	if (sOperationType == "DEBUFF_UPTIME_OUT") then
 		local combatObject = Details:GetCurrentCombat()
 		local utilityContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_MISC)
@@ -1535,7 +1531,7 @@ local runeIds = {
 }
 
 --called from control on leave / enter combat
-function Details:CatchRaidBuffUptime(sOperationType)
+function Details:CatchRaidBuffUptime(sOperationType) -- ~scan
 	if (IsInRaid()) then
 		local potUsage = {}
 		local focusAugmentation = {}
@@ -1559,7 +1555,7 @@ function Details:CatchRaidBuffUptime(sOperationType)
 					local auraInfo = C_UnitAuras.GetAuraDataByIndex(unitId, buffIndex, "HELPFUL")
 					if (auraInfo) then
 						local auraName, unitCaster, spellId = auraInfo.name, auraInfo.sourceUnit, auraInfo.spellId
-						if (unitCaster and UnitExists(unitCaster) and UnitExists(unitId) and UnitIsUnit(unitCaster, unitId)) then
+						if (unitCaster and UnitExists(unitCaster) and UnitExists(unitId) and UnitIsUnit(unitCaster, unitId) and auraInfo.duration ~= 3600) then
 							Details.parser:add_buff_uptime(nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellId, auraName, sOperationType)
 							if (sOperationType == "BUFF_UPTIME_IN") then
 								if (Details.PotionList[spellId]) then
@@ -1626,7 +1622,7 @@ function Details:CatchRaidBuffUptime(sOperationType)
 
 								elseif (bUnitIsTheCaster) then
 									local playerGUID = UnitGUID(unitId)
-									if (playerGUID) then
+									if (playerGUID and auraInfo.duration ~= 3600) then
 										local playerName = Details:GetFullName(unitId)
 										if (sOperationType == "BUFF_UPTIME_IN") then
 											if (Details.PotionList[spellId]) then
@@ -1660,6 +1656,7 @@ function Details:CatchRaidBuffUptime(sOperationType)
 					if (UnitIsUnit(unitCaster, unitId) or bBuffIsPlacedOnTarget) then
 						if (bBuffIsPlacedOnTarget and not UnitIsUnit(unitCaster, unitId)) then
 							--could be prescince, ebom might or power infusion; casted on a target instead of the caster
+							--possible bug: the sOperationType could be BUFF_UP_TIME_OUT and it is calling aura applied, which shoud call aura_removed
 							local sourceSerial = UnitGUID(unitCaster)
 							local sourceName = Details:GetFullName(unitCaster)
 							local sourceFlags = 0x514
@@ -1672,7 +1669,7 @@ function Details:CatchRaidBuffUptime(sOperationType)
 						else
 							local playerName = Details:GetFullName(unitId)
 							local playerGUID = UnitGUID(unitId)
-							if (playerGUID) then
+							if (playerGUID and auraInfo.duration ~= 3600) then
 								if (sOperationType == "BUFF_UPTIME_IN") then
 									if (Details.PotionList[spellId]) then
 										potUsage [playerName] = spellId
@@ -1721,7 +1718,7 @@ function Details:CatchRaidBuffUptime(sOperationType)
 				if (auraName and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
 					local playerName = Details.playername
 					local playerGUID = UnitGUID("player")
-					if (playerGUID) then
+					if (playerGUID and auraInfo.duration ~= 3600) then --1hr buffs
 						if (sOperationType == "BUFF_UPTIME_IN") then
 							if (Details.PotionList[spellId]) then
 								pot_usage[playerName] = spellId
