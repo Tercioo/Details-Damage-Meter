@@ -6014,28 +6014,30 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--is in a raid or party group
 			C_Timer.After(1, function()
 				if (IsInRaid()) then
-					local inCombat = false
+					local raidUnitIdCache = Details222.UnitIdCache.Raid
+					local bInCombat = false
 					for i = 1, GetNumGroupMembers() do
-						if (UnitAffectingCombat("raid" .. i)) then
-							inCombat = true
+						if (UnitAffectingCombat(raidUnitIdCache[i])) then
+							bInCombat = true
 							break
 						end
 					end
 
-					if (not inCombat) then
+					if (not bInCombat) then
 						Details:RunScheduledEventsAfterCombat(true)
 					end
 
 				elseif (IsInGroup()) then
-					local inCombat = false
-					for i = 1, GetNumGroupMembers() -1 do
-						if (UnitAffectingCombat("party" .. i)) then
-							inCombat = true
+					local bInCombat = false
+					local partyUnitIds = Details222.UnitIdCache.Party
+					for i = 1, #partyUnitIds do
+						if (UnitExists(partyUnitIds[i]) and UnitAffectingCombat(partyUnitIds[i])) then
+							bInCombat = true
 							break
 						end
 					end
 
-					if (not inCombat) then
+					if (not bInCombat) then
 						Details:RunScheduledEventsAfterCombat(true)
 					end
 				end
