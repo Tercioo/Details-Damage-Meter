@@ -98,7 +98,7 @@ function Details222.StartUp.StartMeUp()
 	if (Details.ocd_tracker.show_options) then
 		Details:InitializeCDTrackerWindow()
 	else
-		Details:InitializeCDTrackerWindow() --enabled for v11 beta, debug openraid
+		--Details:InitializeCDTrackerWindow() --enabled for v11 beta, debug openraid
 	end
 	--/run Details.ocd_tracker.show_options = true; ReloadUI()
 	--custom window
