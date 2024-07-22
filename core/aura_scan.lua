@@ -33,7 +33,35 @@ function AuraScan.FindAndIgnoreWorldAuras()
     end
 end
 
+function AuraScan.CheckForOneHourBuffs()
+    ---@type combat
+    local currentCombat = Details:GetCurrentCombat()
+    ---@type actorcontainer
+    local utilityContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_MISC)
+    ---@type combattime
+    local combatTime = floor(currentCombat:GetCombatTime())
 
+    for _, utilityActor in utilityContainer:ListActors() do
+        ---@cast utilityActor actorutility
+        if (utilityActor:IsPlayer()) then
+            --get the buff container
+            ---@type spellcontainer
+            local buffUptimeContainer = utilityActor.buff_uptime_spells
+            if (buffUptimeContainer) then
+                for spellId, spellTable in buffUptimeContainer:ListSpells() do
+                    ---@cast spellTable spelltable
+                    if (Details222.OneHourAuras[spellId]) then
+                        --is this buff have 100% uptime?
+                        if (spellTable.uptime == combatTime) then
+                            utilityActor.buff_uptime = utilityActor.buff_uptime - spellTable.uptime
+                            utilityActor.buff_uptime_spells._ActorTable[spellId] = nil
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
 
 function AuraScan.RegisterCallback(callback)
     AuraScan.Callbacks[callback] = true

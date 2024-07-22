@@ -479,6 +479,7 @@
 		Details:CatchRaidBuffUptime("BUFF_UPTIME_OUT")
 		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_OUT")
 		Details:CloseEnemyDebuffsUptime()
+		Details222.AuraScan.CheckForOneHourBuffs()
 
 		Details222.GuessSpecSchedules.ClearSchedules()
 

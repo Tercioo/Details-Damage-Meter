@@ -199,6 +199,7 @@
 		}
 
 		Details222.IgnoredWorldAuras = {}
+		Details222.OneHourAuras = {}
 
 		Details222.Parser = {}
 

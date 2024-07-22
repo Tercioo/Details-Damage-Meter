@@ -28,7 +28,7 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 25
+local version = 26
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -344,6 +344,13 @@ function DF:CreateCoolTip()
 			self.titleText:SetJustifyH("LEFT")
 			DF:SetFontSize(self.titleText, 10)
 			self.titleText:SetPoint("CENTER", self.titleIcon, "CENTER", 0, 6)
+		end
+
+		if (not self.modelFrame) then
+			self.modelFrame = CreateFrame("PlayerModel", "$parent_ModelFrame", self)
+			self.modelFrame:SetPoint("topleft", self, "topleft", 5, -5)
+			self.modelFrame:SetPoint("bottomright", self, "bottomright", -5, 5)
+			self.modelFrame:Hide()
 		end
 	end
 
@@ -2766,6 +2773,9 @@ function DF:CreateCoolTip()
 		gameCooltip.Banner[2] = false
 		gameCooltip.Banner[3] = false
 
+		frame1.modelFrame:Hide()
+		frame2.modelFrame:Hide()
+
 		frame1.upperImage:Hide()
 		frame1.upperImage2:Hide()
 		frame1.upperImageText:Hide()
@@ -3050,6 +3060,19 @@ function DF:CreateCoolTip()
 
 	frame1.frameWallpaper:Hide()
 	frame2.frameWallpaper:Hide()
+
+	function gameCooltip:SetNpcModel(menuType, npcId)
+		menuType = gameCooltip:ParseMenuType(menuType)
+
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
+			frame1.modelFrame:Show()
+			frame1.modelFrame:SetCreature(npcId)
+
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
+			frame2.modelFrame:Show()
+			frame2.modelFrame:SetCreature(npcId)
+		end
+	end
 
 	---set an image as wallpaper for the cooltip frame
 	---@param menuType any
