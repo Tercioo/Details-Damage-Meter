@@ -1732,7 +1732,6 @@ function Details:CatchRaidBuffUptime(sOperationType) -- ~scan
 					if (playerGUID) then
 						if (auraInfo.duration == 3600) then  --1hr buffs, record auras which has 1 hr of duration, hence they can be checked for 100% at the end of the combat
 							Details222.OneHourAuras[spellId] = true
-							print("1 hour buff:", spellId)
 						end
 
 						if (sOperationType == "BUFF_UPTIME_IN") then
