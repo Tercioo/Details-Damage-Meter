@@ -851,9 +851,7 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
         else
 
             if (IsTWWExpansion()) then
-                local spellCooldownInfo = GetSpellCooldown(spellId)
-                local start = spellCooldownInfo.startTime
-                local duration = spellCooldownInfo.duration
+                local start, duration = GetSpellCooldown(spellId)
                 if (start == 0) then --cooldown is ready
                     return 0, 1, 0, 0, 0 --time left, charges, startTime
                 else
