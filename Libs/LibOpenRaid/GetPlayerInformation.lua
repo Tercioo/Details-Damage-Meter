@@ -39,8 +39,8 @@ local GetSpellInfo = GetSpellInfo or function(spellID)
                 spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID
     end
 end
-local GetSpellCooldown = GetSpellCooldown or C_Spell.GetSpellCooldown
-local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo or C_Item.GetDetailedItemLevelInfo
+local GetSpellCooldown = C_Spell and C_Spell.GetSpellCooldown or GetSpellCooldown
+local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo or GetDetailedItemLevelInfo
 local GetSpellTabInfo = GetSpellTabInfo or (function(tabLine)
     if not tabLine then return nil end
 
@@ -52,13 +52,13 @@ local GetSpellTabInfo = GetSpellTabInfo or (function(tabLine)
 end)
 
 
-local GetSpellBookItemInfo = GetSpellBookItemInfo or C_SpellBook.GetSpellBookItemType
-local IsPassiveSpell = IsPassiveSpell or C_SpellBook.IsSpellBookItemPassive
-local GetNumSpellTabs = GetNumSpellTabs or C_SpellBook.GetNumSpellBookSkillLines
+local GetSpellBookItemInfo = C_SpellBook and C_SpellBook.GetSpellBookItemType or GetSpellBookItemInfo
+local IsPassiveSpell = C_SpellBook and C_SpellBook.IsSpellBookItemPassive or IsPassiveSpell
+local GetNumSpellTabs = C_SpellBook and C_SpellBook.GetNumSpellBookSkillLines or GetNumSpellTabs
 local spellBookPlayerEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
-local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
-local GetOverrideSpell = C_SpellBook.GetOverrideSpell or C_Spell.GetOverrideSpell
-local GetSpellBookItemName = GetSpellBookItemName or C_SpellBook.GetSpellBookItemName
+local HasPetSpells = C_SpellBook and C_SpellBook.HasPetSpells or HasPetSpells
+local GetOverrideSpell = C_Spell and  C_Spell.GetOverrideSpell or C_SpellBook.GetOverrideSpell
+local GetSpellBookItemName = C_SpellBook and C_SpellBook.GetSpellBookItemName or GetSpellBookItemName 
 local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
 local GetSpellCharges = GetSpellCharges or function(spellId)
