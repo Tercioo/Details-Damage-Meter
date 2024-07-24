@@ -575,7 +575,7 @@ local getSpellListAsHashTableFromSpellBook = function()
                     if (raceId[playerRaceId]) then
                         spellId = GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
+                        local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
                         if (spellName and not bIsPassive) then
                             completeListOfSpells[spellId] = true
                         end
@@ -585,7 +585,7 @@ local getSpellListAsHashTableFromSpellBook = function()
                     if (raceId == playerRaceId) then
                         spellId = GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
+                        local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
                         if (spellName and not bIsPassive) then
                             completeListOfSpells[spellId] = true
                         end
@@ -608,7 +608,7 @@ local getSpellListAsHashTableFromSpellBook = function()
                         --print(tabName, tabTexture == specIconTexture, offset, tabEnd,spellType, spellId)
                         spellId = GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
+                        local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
                         if LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId] then
                             for _, overrideSpellId in pairs(LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId]) do
                                 completeListOfSpells[overrideSpellId] = true
@@ -629,10 +629,10 @@ local getSpellListAsHashTableFromSpellBook = function()
     for entryOffset = offset, tabEnd - 1 do
         local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
         if (spellId) then
-            if (spellType == "SPELL") then
+            if (spellType == "SPELL" or spellType == 1) then
                 spellId = GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
-                local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
+                local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
 
                 if LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId] then
                     for _, overrideSpellId in pairs(LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId]) do
@@ -666,7 +666,7 @@ local getSpellListAsHashTableFromSpellBook = function()
             local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
             if (unmaskedSpellId) then
                 unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
-                local bIsPassive = IsPassiveSpell(unmaskedSpellId, spellBookPetEnum)
+                local bIsPassive = IsPassiveSpell(i, spellBookPetEnum)
                 if (spellName and not bIsPassive) then
                     completeListOfSpells[unmaskedSpellId] = true
                 end

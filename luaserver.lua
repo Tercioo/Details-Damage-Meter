@@ -945,6 +945,16 @@ function C_Item.GetItemCount() end
 function C_Item.GetItemInfoInstant() end
 function C_Item.GetStackCount() end
 
+--quests
+---@class questrewardcurrencyinfo
+---@field texture number
+---@field name string
+---@field currencyID number
+---@field quality number
+---@field baseRewardAmount number
+---@field bonusRewardAmount number
+---@field totalRewardAmount number
+---@field questRewardContextFlags table?
 
 --faction
 ---@class factioninfo
