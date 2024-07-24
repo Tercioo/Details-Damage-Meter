@@ -213,7 +213,7 @@
 		--aura scanner
 		Details222.AuraScan = {}
 
-        local GetSpellInfo = GetSpellInfo or C_Spell.GetSpellInfo
+        local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo or GetSpellInfo
         Details222.GetSpellInfo = GetSpellInfo
 
 		local UnitBuff = UnitBuff or C_UnitAuras.GetBuffDataByIndex
