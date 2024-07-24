@@ -945,6 +945,37 @@ function C_Item.GetItemCount() end
 function C_Item.GetItemInfoInstant() end
 function C_Item.GetStackCount() end
 
+
+--faction
+---@class factioninfo
+---@field hasBonusRepGain boolean
+---@field description string
+---@field isHeaderWithRep boolean
+---@field isHeader boolean
+---@field currentReactionThreshold number
+---@field canSetInactive boolean
+---@field atWarWith boolean
+---@field isWatched boolean
+---@field isCollapsed boolean
+---@field canToggleAtWar boolean
+---@field nextReactionThreshold number
+---@field factionID number
+---@field name string
+---@field currentStanding number
+---@field isAccountWide boolean
+---@field isChild boolean
+---@field reaction number
+
+C_Reputation = {}
+---return a table of class 'factioninfo' containing the faction data
+---@param id number
+---@return factioninfo
+function C_Reputation.GetFactionDataByID(id) return {} end
+
+---return a table of class 'factioninfo' containing the player guild rep information
+---@return factioninfo
+function C_Reputation.GetGuildFactionData() return {} end
+
 C_UnitAuras = {}
 
 ---@param privateAuraAnchor privateaura_anchor
