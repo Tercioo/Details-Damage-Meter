@@ -220,6 +220,11 @@ end
 
             local line = _G['DetailsPetOwnerFinderTextLeft' .. (2 + cbMode)]
             lineText = line and line:GetText()
+
+            if (not lineText or lineText == '') then
+                line = _G['DetailsPetOwnerFinderTextLeft1']
+                lineText = line and line:GetText()
+            end
         end
 
         if (lineText) then
