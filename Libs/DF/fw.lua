@@ -1,6 +1,6 @@
 
 
-local dversion = 553
+local dversion = 554
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -113,13 +113,13 @@ end
 ---return if the wow version the player is playing is dragonflight or an expansion after it
 ---@return boolean
 function DF.IsDragonflightAndBeyond()
-	return 110000 >= 100000
+	return buildInfo >= 100000
 end
 
 ---return true if the wow version is Dragonflight or below
 ---@return boolean
 function DF.IsDragonflightOrBelow()
-	return 110000 < 110000
+	return buildInfo < 110000
 end
 
 ---return if the wow version the player is playing is a classic version of wow
