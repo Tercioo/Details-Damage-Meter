@@ -940,19 +940,19 @@ local segmentTypeToString = {
 		end
 	end
 
-	function classCombat:CutDeathByTime(time)
+	function classCombat:CutDeathEventsByTime(time)
+		time = time or 10
 		local deathsTable = self:GetDeaths()
 		for i = #deathsTable, 1, -1 do
 			local deathTable = deathsTable[i]
 			local playerName, playerClass, deathTime, deathCombatTime, deathTimeString, playerMaxHealth, deathEvents, lastCooldown, spec = Details:UnpackDeathTable(deathTable)
-			for evIndex = 1, #deathEvents do
+			for evIndex = #deathEvents, 1, -1 do
 				local event = deathEvents[evIndex]
 				local evType = event[1]
 				if (type(evType) == "boolean") then
 					local eventTime = event[4]
-					print(eventTime, deathTime)
 					if (eventTime+10 < deathTime) then
-						print("this event is ignored, and should be removed", event[1])
+						table.remove(deathEvents, evIndex)
 					end
 				end
 			end

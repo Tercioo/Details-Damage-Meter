@@ -511,6 +511,9 @@
 		--lock timers
 		currentCombat:LockActivityTime()
 
+		--remove death events that are irrelevant for the death log
+		currentCombat:CutDeathEventsByTime()
+
 		--get waste shields
 		if (Details.close_shields) then
 			Details:CloseShields(currentCombat)

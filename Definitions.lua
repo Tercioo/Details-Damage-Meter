@@ -282,6 +282,8 @@
 ---@field PhaseData table
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
+---@field LockActivityTime fun(self: combat)
+---@field CutDeathEventsByTime fun(self: combat, time: number?) remove death events by time, default 10 seconds
 ---@field GetTotal fun(self: combat, attribute: number, subAttribute: number?, onlyGroup: boolean?) : number return the total amount of the requested attribute
 ---@field GetCurrentPhase fun(self: combat) : number return the current phase of the combat or the phase where the combat ended
 ---@field StoreTalents fun(self:combat)
