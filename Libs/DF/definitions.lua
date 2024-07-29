@@ -167,6 +167,7 @@
 ---@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean?, specId: specializationid?) : string there's no self here
 ---@field IsDragonflight fun():boolean
 ---@field IsDragonflightAndBeyond fun():boolean
+---@field IsDragonflightOrBelow fun():boolean
 ---@field IsTimewalkWoW fun():boolean
 ---@field IsClassicWow fun():boolean
 ---@field IsTBCWow fun():boolean

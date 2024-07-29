@@ -521,7 +521,7 @@
 		currentCombat:SetDateToNow(bSetStartTime, bSetEndTime)
 		currentCombat:SetEndTime(GetTime())
 
-		--drop last events table to garbage collector
+		--drop player last events table to garbage collector
 		currentCombat.player_last_events = {}
 
 		--flag instance type

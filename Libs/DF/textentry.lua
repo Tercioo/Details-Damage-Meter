@@ -287,7 +287,12 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 
 		if (textentry:IsEnabled()) then
 			textentry.current_bordercolor = textentry.current_bordercolor or {textentry:GetBackdropBorderColor()}
-			textentry:SetBackdropBorderColor(1, 1, 1, 1)
+			local onEnterBorderColor = object.onenter_backdrop_border_color
+			if (onEnterBorderColor) then
+				textentry:SetBackdropBorderColor(detailsFramework:ParseColors(onEnterBorderColor))
+			else
+				textentry:SetBackdropBorderColor(1, 1, 1, 0.6)
+			end
 		end
 	end
 
@@ -522,11 +527,13 @@ function TextEntryMetaFunctions:SetTemplate(template)
 	if (template.backdrop) then
 		self.editbox:SetBackdrop(template.backdrop)
 	end
+
 	if (template.backdropcolor) then
 		local r, g, b, a = detailsFramework:ParseColors(template.backdropcolor)
 		self.editbox:SetBackdropColor(r, g, b, a)
 		self.onleave_backdrop = {r, g, b, a}
 	end
+
 	if (template.backdropbordercolor) then
 		local r, g, b, a = detailsFramework:ParseColors(template.backdropbordercolor)
 		self.editbox:SetBackdropBorderColor(r, g, b, a)
@@ -536,7 +543,39 @@ function TextEntryMetaFunctions:SetTemplate(template)
 		self.editbox.current_bordercolor[4] = a
 		self.onleave_backdrop_border_color = {r, g, b, a}
 	end
+
+	if (template.onentercolor) then
+		local r, g, b, a = detailsFramework:ParseColors(template.onentercolor)
+		self.onenter_backdrop = {r, g, b, a}
+		self:HookScript("OnEnter", detailsFramework.TemplateOnEnter)
+		self.__has_onentercolor_script = true
+	end
+
+	if (template.onleavecolor) then
+		local r, g, b, a = detailsFramework:ParseColors(template.onleavecolor)
+		self.onleave_backdrop = {r, g, b, a}
+		self:HookScript("OnLeave", detailsFramework.TemplateOnLeave)
+		self.__has_onleavecolor_script = true
+	end
+
+	if (template.onenterbordercolor) then
+		local r, g, b, a = detailsFramework:ParseColors(template.onenterbordercolor)
+		self.onenter_backdrop_border_color = {r, g, b, a}
+		if (not self.__has_onentercolor_script) then
+			self:HookScript("OnEnter", detailsFramework.TemplateOnEnter)
+		end
+	end
+
+	if (template.onleavebordercolor) then
+		local r, g, b, a = detailsFramework:ParseColors(template.onleavebordercolor)
+		self.onleave_backdrop_border_color = {r, g, b, a}
+		if (not self.__has_onleavecolor_script) then
+			self:HookScript("OnLeave", detailsFramework.TemplateOnLeave)
+		end
+	end
 end
+
+--TextEntryMetaFunctions.SetTemplate = DetailsFramework.SetTemplate
 
 ------------------------------------------------------------------------------------------------------------
 --object constructor

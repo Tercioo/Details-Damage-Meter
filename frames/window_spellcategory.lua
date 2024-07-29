@@ -3,6 +3,7 @@
 --this code should run only on beta periods of an new expansion
 
 local Details = _G.Details
+---@type detailsframework
 local DF = _G.DetailsFramework
 local _
 
@@ -23,11 +24,26 @@ local scrollLineHeight = 20
 Details.Survey = {}
 
 function Details.Survey.GetTargetCharacterForRealm()
+    if true then return "" end
     if (UnitFactionGroup("player") == "Horde") then
-        return "FistbirtbrezPQ"
+        return "" --character name
     end
 end
 
+---@class savedcooldowninfo
+---@field cooldown number
+---@field duration number
+---@field type number|boolean
+---@field silence number
+---@field charges number
+
+---@class savedcooldowninfoscrolldata
+---@field spellId number
+---@field type number|boolean
+---@field spellName string
+---@field savedCooldownInfo savedcooldowninfo
+
+---@return table<spellid,savedcooldowninfo>
 function Details.Survey.GetCategorySpellListForClass()
     local savedSpellsCategories = Details.spell_category_savedtable
     local unitClass = select(2, UnitClass("player"))
@@ -36,8 +52,117 @@ function Details.Survey.GetCategorySpellListForClass()
         thisClassSavedTable = {}
         savedSpellsCategories[unitClass] = thisClassSavedTable
     end
-    Details.FillTableWithPlayerSpells(thisClassSavedTable)
+
+    local allPlayerSpells = {}
+    Details.FillTableWithPlayerSpells(allPlayerSpells)
+
+    for spellId in pairs(allPlayerSpells) do
+        if (not thisClassSavedTable[spellId]) then
+            --get the cooldown time for the spell
+            local cooldownTime = GetSpellBaseCooldown(spellId)
+
+            local chargesInfo = C_Spell.GetSpellCharges(spellId)
+            local chargesAmount = 1
+
+            if (chargesInfo) then
+                chargesAmount = chargesInfo.maxCharges
+
+                --if the cooldown time doesn't match the requirement, check if the spell has charges and use the cooldown of the charge as the cooldown time
+                if (not cooldownTime or cooldownTime <= 5000) then
+                    if (chargesInfo and chargesInfo.maxCharges > 0) then
+                        cooldownTime = chargesInfo.cooldownDuration * 1000
+                    end
+                end
+            end
+
+            if (cooldownTime and cooldownTime > 5000 and cooldownTime <= 360000) then --requirement: cooldown time must be greater than 5 seconds and lower then 6 minutes
+                local cooldownTable = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
+                if (cooldownTable) then
+                    thisClassSavedTable[spellId] = {cooldown = cooldownTime, duration = cooldownTable.duration or 0, type = cooldownTable.type or true, silence = cooldownTable.silence or 0, charges = cooldownTable.charges or chargesAmount}
+                else
+                    thisClassSavedTable[spellId] = {cooldown = cooldownTime, duration = 0, type = true, silence = 0, charges = chargesAmount}
+                end
+            else
+                --local spellName = C_Spell.GetSpellInfo(spellId).name
+                --print("Cooldown not match:", spellName, spellId, cooldownTime)
+            end
+        end
+    end
+
     return thisClassSavedTable
+end
+
+---@param savedCooldownInfo savedcooldowninfo
+---@param spellId number
+---@param unitClass string
+---@return string
+local makeSpellExportString = function(savedCooldownInfo, spellId, unitClass)
+    local spellInfo = C_Spell.GetSpellInfo(spellId)
+    if (not spellInfo) then
+        Details:Msg("spell not found", spellId)
+        return ""
+    end
+
+    if (savedCooldownInfo.type == true) then
+        Details:Msg("spell not categorized:", spellInfo.name)
+        return ""
+    end
+
+    local spellName = spellInfo.name
+
+    if (savedCooldownInfo.type == 9) then --interrupt
+        return "["..spellId.."] = {cooldown = ".. (floor(savedCooldownInfo.cooldown / 1000)) ..",\tduration = "..savedCooldownInfo.duration..",\tsilence = ".. savedCooldownInfo.silence ..",\tspecs = {},\ttalent = false,\tcharges = " .. savedCooldownInfo.charges ..",\tclass = \""..unitClass.."\",\ttype = "..savedCooldownInfo.type.."}, --" .. spellName
+    else
+        return "["..spellId.."] = {cooldown = ".. (floor(savedCooldownInfo.cooldown / 1000)) ..",\tduration = "..savedCooldownInfo.duration..",\tspecs = {},\ttalent = false,\tcharges = " .. savedCooldownInfo.charges ..",\tclass = \""..unitClass.."\",\ttype = "..savedCooldownInfo.type.."}, --" .. spellName
+    end
+end
+
+
+function Details.Survey.ExportSpellCatogeryData()
+    local savedSpellsCategories = Details.spell_category_savedtable
+    local unitClass = select(2, UnitClass("player"))
+    local thisClassSavedTable = savedSpellsCategories[unitClass]
+    local exportString = "\n\n\n"
+
+    for spellId, savedCooldownInfo in pairs(thisClassSavedTable) do
+        ---@type spellinfo
+        local spellInfo = C_Spell.GetSpellInfo(spellId)
+
+        ---@cast savedCooldownInfo savedcooldowninfo
+        if (savedCooldownInfo.type ~= true) then
+            if (spellInfo) then
+                local stringToExport = makeSpellExportString(savedCooldownInfo, spellId, unitClass)
+                exportString = exportString .. stringToExport .. "\n"
+            end
+        end
+    end
+
+    exportString = exportString .. "\n\n\n"
+    dumpt(exportString)
+end
+
+function Details.Survey.ExportSingleSpellCatogeryData(line)
+    local spellId = line.spellId
+
+    local savedSpellsCategories = Details.spell_category_savedtable
+    local unitClass = select(2, UnitClass("player"))
+    local thisClassSavedTable = savedSpellsCategories[unitClass]
+
+    ---@type savedcooldowninfo
+    local savedCooldownInfo = spellId and thisClassSavedTable[spellId]
+
+    if (savedCooldownInfo) then
+        ---@type spellinfo
+        local spellInfo = C_Spell.GetSpellInfo(spellId)
+        if (spellInfo) then
+            local stringToExport = makeSpellExportString(savedCooldownInfo, spellId, unitClass)
+            if (stringToExport ~= "") then
+                dumpt("\n\n\n" .. stringToExport .. "\n\n\n")
+            end
+        end
+    end
+
+    return "something went wrong"
 end
 
 function Details.Survey.SendSpellCatogeryDataToTargetCharacter()
@@ -146,8 +271,10 @@ function Details.Survey.OpenSpellCategoryScreen()
 		DetailsSpellCategoryFrame = DetailsFramework:CreateSimplePanel(UIParent)
         local detailsSpellCategoryFrame = DetailsSpellCategoryFrame
 		detailsSpellCategoryFrame:SetSize(scroll_width, windowHeight+26)
-		detailsSpellCategoryFrame:SetTitle("Identifying and Categorizing Cooldown Spells")
+		detailsSpellCategoryFrame:SetTitle("Details! Damage Meter: Spell Category Selection")
 		detailsSpellCategoryFrame.Data = {}
+        detailsSpellCategoryFrame.Title:ClearAllPoints()
+        detailsSpellCategoryFrame.Title:SetPoint("left", detailsSpellCategoryFrame.TitleBar, "left", 5, 0)
 
 		--statusbar
 		local statusBar = CreateFrame("frame", nil, detailsSpellCategoryFrame, "BackdropTemplate")
@@ -162,26 +289,31 @@ function Details.Survey.OpenSpellCategoryScreen()
 		statusBar2:SetPoint("topleft", statusBar, "bottomleft")
 		statusBar2:SetPoint("topright", statusBar, "bottomright")
 		statusBar2:SetHeight(20)
-		statusBar2:SetAlpha(0.8)
+		statusBar2:SetAlpha(0.99)
 		DF:ApplyStandardBackdrop(statusBar2)
         DF:ApplyStandardBackdrop(statusBar2)
-        local dataInfoLabel = DF:CreateLabel(statusBar2, "This cooldown data is send to people on Details! team and shared in 'Open Raid' library where any weakaura or addon can use it", 12, "silver")
-        dataInfoLabel:SetPoint("center", 0, 0)
+        local dataInfoLabel = DF:CreateLabel(statusBar2, "An AddOn By Terciob", 12, "white")
+        dataInfoLabel:SetPoint("left", 5, 0)
         dataInfoLabel.justifyH = "center"
 
 		--create the header
+        local defaultWidth = 70
 		local headerTable = {
 			{text = "Icon", width = 24},
-			{text = "Spell Name", width = 140},
-            {text = "NONE", width = 70},
-			{text = "Offensive CD", width = 100},
-			{text = "Personal Defensive CD", width = 120},
-			{text = "Targeted Defensive CD", width = 120},
-			{text = "Raid Defensive CD", width = 120},
-			{text = "Raid Utility CD", width = 100},
-			{text = "Interrupt", width = 70},
-			{text = "Dispel", width = 50},
-			{text = "CC", width = 50},
+			{text = "Spell Name", width = 150},
+            {text = "NONE", width = defaultWidth},
+			{text = "Offensive CD", width = defaultWidth},
+			{text = "Personal CD", width = defaultWidth},
+			{text = "Targeted CD", width = defaultWidth},
+			{text = "Raid CD", width = defaultWidth},
+			{text = "Utility CD", width = defaultWidth},
+			{text = "Interrupt", width = defaultWidth},
+			{text = "Dispel", width = defaultWidth},
+			{text = "CC", width = defaultWidth},
+			{text = "Racial", width = defaultWidth},
+			{text = "Cooldown", width = defaultWidth},
+			{text = "Duration", width = defaultWidth},
+			{text = "Export", width = defaultWidth},
 		}
 		local headerOptions = {
 			padding = 2,
@@ -192,10 +324,11 @@ function Details.Survey.OpenSpellCategoryScreen()
             maxLineWidth = maxLineWidth + headerSettings.width
         end
 
-        detailsSpellCategoryFrame:SetWidth(maxLineWidth + 20)
+        detailsSpellCategoryFrame:SetWidth(maxLineWidth + 50)
 
         local thisClassSavedTable = Details.Survey.GetCategorySpellListForClass()
-        local sendButton = DetailsFramework:CreateButton(statusBar, function() Details.Survey.SendSpellCatogeryDataToTargetCharacter(); DetailsSpellCategoryFrame:Hide() end, 800, 20, "SAVE and SEND")
+        --local sendButton = DetailsFramework:CreateButton(statusBar, function() Details.Survey.SendSpellCatogeryDataToTargetCharacter(); DetailsSpellCategoryFrame:Hide() end, 800, 20, "SAVE and SEND")
+        local sendButton = DetailsFramework:CreateButton(statusBar, function() Details.Survey.ExportSpellCatogeryData(); DetailsSpellCategoryFrame:Hide() end, 800, 20, "EXPORT ALL")
         sendButton:SetPoint("center", statusBar, "center", 0, 0)
 
         detailsSpellCategoryFrame.Header = DetailsFramework:CreateHeader(detailsSpellCategoryFrame, headerTable, headerOptions)
@@ -204,21 +337,31 @@ function Details.Survey.OpenSpellCategoryScreen()
         local tooltipDesc = {}
         tooltipDesc[2] = "|cffffff00" .. headerTable[4].text .. "|r|n" .. "Examples:\nPower Infusion, Ice Veins, Combustion, Adrenaline Rush" --ofensive cooldowns
         tooltipDesc[3] = "|cffffff00" .. headerTable[5].text .. "|r|n" .. "Examples:\nIce Block, Dispersion, Cloak of Shadows, Shield Wall " --personal cooldowns
-        tooltipDesc[4] = "|cffffff00" .. headerTable[6].text .. "|r|n" .. "Examples:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression" --targetted devense cooldowns
+        tooltipDesc[4] = "|cffffff00" .. headerTable[6].text .. "|r|n" .. "Examples:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression" --targeted devense cooldowns
         tooltipDesc[5] = "|cffffff00" .. headerTable[7].text .. "|r|n" .. "Examples:\nPower Word: Barrier, Spirit Link Totem, Tranquility, Anti-Magic Zone" --raid wide cooldowns
         tooltipDesc[6] = "|cffffff00" .. headerTable[8].text .. "|r|n" .. "Examples:\nStampeding Roar, Leap of Faith"
         tooltipDesc[7] = ""
         tooltipDesc[8] = ""
         tooltipDesc[9] = ""
+        tooltipDesc[10] = ""
+        tooltipDesc[11] = ""
+        tooltipDesc[12] = ""
+        tooltipDesc[13] = ""
+        tooltipDesc[14] = ""
+        tooltipDesc[15] = ""
 
         --create the scroll bar
         local scrollRefreshFunc = function(self, data, offset, totalLines)
 			for i = 1, totalLines do
 				local index = i + offset
-				local spellTable = data[index]
+                ---@type savedcooldowninfoscrolldata
+				local savedCooldownScrollData = data[index]
 
-				if (spellTable) then
-                    local spellId = spellTable[1]
+				if (savedCooldownScrollData) then
+                    ---@type savedcooldowninfo
+                    local savedCooldownInfo = savedCooldownScrollData.savedCooldownInfo
+
+                    local spellId = savedCooldownScrollData.spellId
                     --get a line
 					local line = self:GetLine(i)
                     local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
@@ -227,16 +370,45 @@ function Details.Survey.OpenSpellCategoryScreen()
                     line.SpellNameText.text = spellName
                     local radioGroup = line.RadioGroup
                     line.spellId = spellId
+                    line.spellTable = savedCooldownScrollData
+
+                    local durationTextEntry = line.DurationEntry
+                    durationTextEntry:SetText(savedCooldownInfo.duration or "")
+
+                    local cooldownTextEntry = line.CooldownEntry
+                    local cdTime = savedCooldownInfo.cooldown
+                    if (cdTime) then
+                        cdTime = floor(cdTime / 1000)
+                    else
+                        cdTime = 0
+                    end
+                    cooldownTextEntry:SetText(cdTime)
 
                     local hasOptionSelected = false
                     local radioGroupOptions = {}
-                    for o in ipairs({"", "", "", "", "", "", "", "", ""}) do
-                        hasOptionSelected = spellTable[2] ~= 1
+                    local cooldownType = savedCooldownInfo.type
+
+                    for o = 1, 10 do
+                        if (not hasOptionSelected) then
+                            hasOptionSelected = cooldownType ~= true
+                        end
+
+                        local bOptionIsNone = o == 1
+
                         radioGroupOptions[o] = {
                             name = "",
-                            param = o,
-                            get = function() return spellTable[2] == o end,
-                            callback = function(param, optionId) spellTable[2] = param; thisClassSavedTable[spellId] = param; Details.spell_category_latest_save = time() end,
+
+                            param = (bOptionIsNone and true) or (o - 1),
+
+                            get = function()
+                                return (bOptionIsNone and cooldownType == true and true) or (o - 1 == cooldownType)
+                            end,
+
+                            callback = function(param, radioButtonIndex)
+                                savedCooldownInfo.type = param
+                                savedCooldownScrollData.type = param
+                                Details.spell_category_latest_save = time()
+                            end,
                         }
                     end
                     radioGroup:SetOptions(radioGroupOptions)
@@ -256,16 +428,21 @@ function Details.Survey.OpenSpellCategoryScreen()
                         if (not childrenFrame.haveTooltipAlready and childId > 1) then
                             if (tooltipDesc[childId] and tooltipDesc[childId] ~= "") then
                                 childrenFrame:SetScript("OnEnter", function()
-                                    GameCooltip:Preset(2)
-                                    GameCooltip:AddLine(tooltipDesc[childId])
-                                    GameCooltip:SetOwner(childrenFrame)
-                                    GameCooltip:Show()
-                                    GameCooltipFrame1:ClearAllPoints()
-                                    GameCooltipFrame1:SetPoint("bottomright", line, "bottomleft", -2, 0)
+                                    line.CurrectLineTexture:Show()
+                                    if (line.spellId) then
+                                        GameTooltip:SetOwner(line, "ANCHOR_NONE")
+                                        GameTooltip:SetPoint("bottomright", line, "bottomleft", -2, 0)
+                                        GameTooltip:SetSpellByID(line.spellId)
+                                        GameTooltip:Show()
+                                    end
                                 end)
+
                                 childrenFrame:SetScript("OnLeave", function()
+                                    line.CurrectLineTexture:Hide()
                                     GameCooltip:Hide()
+                                    GameTooltip:Hide()
                                 end)
+
                                 childrenFrame.haveTooltipAlready = true
                             end
                         end
@@ -278,6 +455,7 @@ function Details.Survey.OpenSpellCategoryScreen()
 
 		local lineOnEnter = function(self)
 			self:SetBackdropColor(unpack(backdrop_color_on_enter))
+            self.CurrectLineTexture:Show()
             if (self.spellId) then
                 GameTooltip:SetOwner(self, "ANCHOR_NONE")
                 GameTooltip:SetPoint("bottomright", self, "bottomleft", -2, 0)
@@ -288,6 +466,7 @@ function Details.Survey.OpenSpellCategoryScreen()
 
 		local lineOnLeave = function(self)
 			self:SetBackdropColor(unpack(self.backdropColor))
+            self.CurrectLineTexture:Hide()
             GameTooltip:Hide()
 		end
 
@@ -295,6 +474,45 @@ function Details.Survey.OpenSpellCategoryScreen()
 		DF:ReskinSlider(spellScroll)
 		spellScroll:SetPoint("topleft", detailsSpellCategoryFrame, "topleft", startX, scrollY)
         detailsSpellCategoryFrame.SpellScroll = spellScroll
+
+        local onCommitSpellDuration = function(_, _, text, self)
+            local line = self:GetParent()
+            local amountOfTime = tonumber(text)
+            if (amountOfTime and type(amountOfTime) == "number") then
+                ---@type savedcooldowninfoscrolldata
+                local spellTable = line.spellTable
+                local savedCooldownInfo = spellTable.savedCooldownInfo
+                savedCooldownInfo.duration = amountOfTime
+            end
+        end
+
+        local onCommitSpellCooldown = function(_, _, text, self)
+            local line = self:GetParent()
+            local amountOfTime = tonumber(text)
+            if (amountOfTime and type(amountOfTime) == "number") then
+                ---@type savedcooldowninfoscrolldata
+                local spellTable = line.spellTable
+                local savedCooldownInfo = spellTable.savedCooldownInfo
+                savedCooldownInfo.cooldown = amountOfTime
+            end
+        end
+
+        local onEnterExportButton = function(self)
+            local line = self:GetParent()
+            line.CurrectLineTexture:Show()
+            if (line.spellId) then
+                GameTooltip:SetOwner(line, "ANCHOR_NONE")
+                GameTooltip:SetPoint("bottomright", line, "bottomleft", -2, 0)
+                GameTooltip:SetSpellByID(line.spellId)
+                GameTooltip:Show()
+            end
+        end
+
+        local onLeaveExportButton = function(self)
+            local line = self:GetParent()
+            line.CurrectLineTexture:Hide()
+            GameTooltip:Hide()
+        end
 
         local scrollCreateline = function(self, lineId) --self is spellScroll
             local line = CreateFrame("frame", "$parentLine" .. lineId, self, "BackdropTemplate")
@@ -310,6 +528,13 @@ function Details.Survey.OpenSpellCategoryScreen()
             background:SetColorTexture(1, 1, 1, 0.08)
             line.hasDataBackground = background
             background:Hide()
+
+            local currectLineTexture = line:CreateTexture(nil, "background")
+            currectLineTexture:SetColorTexture(1, .2, .2, 0.4)
+            currectLineTexture:SetPoint("topleft", line, "topleft", 0, 0)
+            currectLineTexture:SetPoint("bottomright", line, "bottomright", 0, 0)
+            currectLineTexture:Hide()
+            line.CurrectLineTexture = currectLineTexture
 
 			line:SetBackdrop(backdrop)
             if (lineId % 2 == 0) then
@@ -331,6 +556,31 @@ function Details.Survey.OpenSpellCategoryScreen()
             --164 is the with of the first two headers (icon and spell name)
             local radioGroup = DF:CreateRadioGroup(line, {}, "$parentRadioGroup1", {width = maxLineWidth - 164, height = 20}, {offset_x = 0, amount_per_line = 7})
 
+            --create a button to export the data shown in the this line
+            local exportButton = DF:CreateButton(line, function() Details.Survey.ExportSingleSpellCatogeryData(line) end, 70-2, 20, "Export")
+            exportButton:SetPoint("right", line, "right", -2, 0)
+            exportButton:SetTemplate("STANDARD_GRAY")
+            exportButton:SetHook("OnEnter", onEnterExportButton)
+            exportButton:SetHook("OnLeave", onLeaveExportButton)
+
+            --create a text entry to allow the user to write the duration of the spell
+            local durationEntry = DF:CreateTextEntry(line, onCommitSpellDuration, 50, 20)
+            durationEntry:SetNumeric(true)
+            durationEntry:SetMaxLetters(5)
+            durationEntry:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            durationEntry:SetPoint("right", exportButton, "left", -14, 0)
+            durationEntry:SetHook("OnEnter", onEnterExportButton)
+            durationEntry:SetHook("OnLeave", onLeaveExportButton)
+
+            --create a text entry to allow the user to write the cooldown of the spell
+            local cooldownEntry = DF:CreateTextEntry(line, onCommitSpellCooldown, 50, 20)
+            cooldownEntry:SetNumeric(true)
+            cooldownEntry:SetMaxLetters(5)
+            cooldownEntry:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            cooldownEntry:SetPoint("right", durationEntry, "left", -22, 0)
+            cooldownEntry:SetHook("OnEnter", onEnterExportButton)
+            cooldownEntry:SetHook("OnLeave", onLeaveExportButton)
+
 			line:AddFrameToHeaderAlignment(icon)
 			line:AddFrameToHeaderAlignment(spellNameText)
 			line:AddFrameToHeaderAlignment(radioGroup)
@@ -339,6 +589,9 @@ function Details.Survey.OpenSpellCategoryScreen()
 			line.Icon = icon
 			line.SpellNameText = spellNameText
             line.RadioGroup = radioGroup
+            line.ExportButton = exportButton
+            line.DurationEntry = durationEntry
+            line.CooldownEntry = cooldownEntry
 
             return line
         end
@@ -350,10 +603,21 @@ function Details.Survey.OpenSpellCategoryScreen()
 
         function spellScroll:RefreshScroll()
             --create a list of spells from the spell book
+            ---@type savedcooldowninfoscrolldata[]
             local indexedSpells = {}
-            for spellId, result in pairs(thisClassSavedTable) do
-                indexedSpells[#indexedSpells+1] = {spellId, result == true and 1 or result}
+            for spellId, savedCooldownInfo in pairs(thisClassSavedTable) do
+                ---@cast savedCooldownInfo savedcooldowninfo
+                local spellInfo = C_Spell.GetSpellInfo(spellId)
+                if (spellInfo) then
+                    indexedSpells[#indexedSpells+1] = {
+                        spellId = spellId,
+                        type = savedCooldownInfo.type == true and 1 or savedCooldownInfo.type,
+                        spellName = spellInfo.name,
+                        savedCooldownInfo = savedCooldownInfo
+                    }
+                end
             end
+            table.sort(indexedSpells, function(a, b) return a.spellName < b.spellName end) --sort by name
             spellScroll:SetData(indexedSpells)
             spellScroll:Refresh()
         end

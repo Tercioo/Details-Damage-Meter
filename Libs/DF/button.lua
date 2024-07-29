@@ -1332,7 +1332,7 @@ detailsFramework.TabButtonMixin = {
 ---@return df_tabbutton
 function detailsFramework:CreateTabButton(parent, frameName)
 	---@type df_tabbutton
-	local tabButton = CreateFrame("button", frameName, parent)
+	local tabButton = CreateFrame("button", frameName, parent, "BackdropTemplate")
 	tabButton:SetSize(50, 20)
 	tabButton.bIsSelected = false
 

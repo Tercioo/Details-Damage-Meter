@@ -73,6 +73,8 @@ end
     openRaidLib.inGroup = false
     openRaidLib.UnitIDCache = {}
 
+    openRaidLib.Util = openRaidLib.Util or {}
+
     local CONST_CVAR_TEMPCACHE = "LibOpenRaidTempCache"
     local CONST_CVAR_TEMPCACHE_DEBUG = "LibOpenRaidTempCacheDebug"
 

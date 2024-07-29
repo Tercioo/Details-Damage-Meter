@@ -268,6 +268,28 @@ function detailsFramework.Schedules.AfterById(time, callback, id, ...)
     return newTimer
 end
 
+--Schedules a callback function to be executed after a specified time delay.
+--It uniquely identifies each scheduled task by an ID, if another schedule with the same id is made, it will be ignore until the previous one is finished.
+function detailsFramework.Schedules.AfterByIdNoCancel(time, callback, id, ...)
+    if (not detailsFramework.Schedules.ExecuteTimerTableNoCancel) then
+        detailsFramework.Schedules.ExecuteTimerTableNoCancel = {}
+    end
+
+    local alreadyHaveTimer = detailsFramework.Schedules.ExecuteTimerTableNoCancel[id]
+    if (alreadyHaveTimer) then
+        return
+    end
+
+    local newTimer = detailsFramework.Schedules.NewTimer(time, callback, ...)
+    detailsFramework.Schedules.ExecuteTimerTableNoCancel[id] = newTimer
+
+    C_Timer.After(time, function()
+        detailsFramework.Schedules.ExecuteTimerTableNoCancel[id] = nil
+    end)
+
+    return newTimer
+end
+
 --schedule a function to be called after 'time'
 --prompt example: create a schedule that runs the function 'variable name' after 'time' amount of seconds
 function detailsFramework.Schedules.After(time, callback)

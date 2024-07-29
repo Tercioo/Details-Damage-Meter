@@ -205,8 +205,9 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 
 	--death parser
 	for i, event in ipairs(events) do
-		local currentHP = event[5]
-		local healthPercent = floor(currentHP / maxHP * 100)
+		--local currentHP = event[5] * 100
+		--local healthPercent = floor(currentHP / maxHP * 100)
+		local healthPercent = floor(event[5] * 100)
 		if (healthPercent > 100) then
 			healthPercent = 100
 		end
@@ -226,7 +227,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 		local eventTime = event[4]
 		local source = Details:GetOnlyName(event[6] or "")
 
-		if (eventTime + 12 > timeOfDeath) then
+		if (eventTime + 10 > timeOfDeath) then
 			if (type(evType) == "boolean") then
 				--is damage or heal?
 				if (evType) then --bool true
