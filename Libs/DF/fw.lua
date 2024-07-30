@@ -1,6 +1,6 @@
 
 
-local dversion = 554
+local dversion = 555
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -2914,8 +2914,10 @@ end
 
 --DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = "Accidental Presidency"}
 --DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = "Accidental Presidency"}
-DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 10, font = DF:GetBestFontForLanguage()}
-DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 9.6, font = DF:GetBestFontForLanguage()}
+--DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 10, font = DF:GetBestFontForLanguage()}
+DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = {1, 0.8235, 0, 1}, size = 12, font = DF:GetBestFontForLanguage()}
+--DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 9.6, font = DF:GetBestFontForLanguage()}
+DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = {1, 1, 1, 0.9}, size = 9.6, font = DF:GetBestFontForLanguage()}
 DF.font_templates["SMALL_SILVER"] = {color = "silver", size = 9, font = DF:GetBestFontForLanguage()}
 
 --dropdowns
@@ -2929,9 +2931,10 @@ DF.dropdown_templates["OPTIONS_DROPDOWN_TEMPLATE"] = {
 		tile = true
 	},
 
-	backdropcolor = {0.1, 0.1, 0.1, .7},
+	--backdropcolor = {0.1, 0.1, 0.1, .7},
+	backdropcolor = {0.2, 0.2, 0.2, .7},
 	onentercolor = {0.3, 0.3, 0.3, .7},
-	backdropbordercolor = {0, 0, 0, .7},
+	backdropbordercolor = {0, 0, 0, .4},
 	onenterbordercolor = {0.3, 0.3, 0.3, 0.8},
 
 	dropicon = "Interface\\BUTTONS\\arrow-Down-Down",
@@ -3054,14 +3057,37 @@ DF.button_templates["STANDARD_GRAY"] = {
 DF.slider_templates = DF.slider_templates or {}
 DF.slider_templates["OPTIONS_SLIDER_TEMPLATE"] = {
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
-	backdropcolor = {1, 1, 1, .5},
-	backdropbordercolor = {0, 0, 0, 1},
-	onentercolor = {1, 1, 1, .5},
-	onenterbordercolor = {1, 1, 1, 1},
+
+	--original color wow10:
+	--backdropcolor = {1, 1, 1, .5},
+	--backdropbordercolor = {0, 0, 0, 1},
+	--onentercolor = {1, 1, 1, .5},
+	--onenterbordercolor = {1, 1, 1, 1},
+
+	backdropcolor = {0.2, 0.2, 0.2, .7},
+	onentercolor = {0.3, 0.3, 0.3, .7},
+	backdropbordercolor = {0, 0, 0, .4}, --0.7 original alpha wow10
+	onenterbordercolor = {0.3, 0.3, 0.3, 0.8},
+
 	thumbtexture = [[Interface\Tooltips\UI-Tooltip-Background]],
 	thumbwidth = 16,
 	thumbheight = 14,
-	thumbcolor = {0, 0, 0, 0.5},
+	--thumbcolor = {0, 0, 0, 0.5},
+	thumbcolor = {.8, .8, .8, 0.5},
+}
+
+DF.slider_templates["OPTIONS_SLIDERDARK_TEMPLATE"] = {
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+
+	backdropcolor = {0.05, 0.05, 0.05, .7},
+	onentercolor = {0.3, 0.3, 0.3, .7},
+	backdropbordercolor = {0, 0, 0, 1},
+	onenterbordercolor = {0, 0, 0, 1},
+
+	thumbtexture = [[Interface\Tooltips\UI-Tooltip-Background]],
+	thumbwidth = 24,
+	thumbheight = 14,
+	thumbcolor = {.8, .8, .8, 0.5},
 }
 
 DF.slider_templates["MODERN_SLIDER_TEMPLATE"] = {

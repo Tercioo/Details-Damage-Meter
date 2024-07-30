@@ -1170,6 +1170,7 @@ end
 --DF:Mixin(DFSliderMetaFunctions, DF.TooltipHandlerMixin)
 
 ---@class df_slider : slider, df_scripthookmixin, df_widgets
+---@field tooltip string?
 ---@field widget slider
 ---@field slider slider
 ---@field type string
