@@ -1539,6 +1539,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "spellcat") then
 		Details.Survey.OpenSurveyPanel()
 
+	elseif (msg == "pstate") then
+		local sEngineState = Details222.Parser.GetState()
+		Details:Msg("Parser State:", sEngineState)
 	else
 
 		--if (_detalhes.opened_windows < 1) then
@@ -2053,6 +2056,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							local line = self:GetLine(i)
 
 							local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty, isOnline, isGuildMember = unpack(unitTable)
+
+							if (mapName == "") then
+								mapName = "user need update details!"
+							end
 
 							local rioProfile
 							if (RaiderIO) then

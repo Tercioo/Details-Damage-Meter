@@ -3707,9 +3707,9 @@ GuildUninvite = function(unit) end
 ---@return boolean
 IsGuildLeader = function(unit) return true end
 
----@param unit string
+---return true if the player is in a guild
 ---@return boolean
-IsInGuild = function(unit) return true end
+IsInGuild = function() return true end
 
 ---@param eventIndex number
 QueryGuildEventLog = function(eventIndex) end
@@ -5737,9 +5737,11 @@ function FocusUnit(unit) end
 
 function ClearFocus() end
 
----@param unit string
+---if bFullName is true, return the full name of the unit if the unit is from another realm, otherwise return the short name
+---@param unit unit
+---@param bFullName boolean
 ---@return string
-function GetUnitName(unit) return "" end
+function GetUnitName(unit, bFullName) return "" end
 
 ---@param unit string
 ---@return number

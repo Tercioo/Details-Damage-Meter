@@ -827,6 +827,15 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
+function Details222.Parser.GetState()
+	local parserEngine = Details222.parser_frame:GetScript("OnEvent")
+	if (parserEngine == Details222.Parser.OnParserEvent) then
+		return "STATE_REGULAR"
+	elseif (parserEngine == Details222.Parser.OnParserEventOutOfCombat) then
+		return "STATE_RESTRICTED"
+	end
+end
+
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --storage stuff ~storage

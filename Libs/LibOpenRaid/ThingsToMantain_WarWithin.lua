@@ -45,7 +45,7 @@ do
 			[390386] = true, --fury of the aspects
 		}
 
-		LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 0 -- TODO: need to update to war within
+		LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 151086
 		LIB_OPEN_RAID_AUGMENTATED_RUNE = 0 -- TODO: need to update to war within
 
 		LIB_OPEN_RAID_COVENANT_ICONS = {
