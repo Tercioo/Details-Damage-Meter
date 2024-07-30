@@ -17,6 +17,8 @@ local CONST_INSPECT_ACHIEVEMENT_DISTANCE = 1 --Compare Achievements, 28 yards
 local CONST_SPELLBOOK_GENERAL_TABID = 1
 local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
 
+local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
+
 local storageDebug = false --remember to turn this to false!
 
 function Details:UpdateGears()
