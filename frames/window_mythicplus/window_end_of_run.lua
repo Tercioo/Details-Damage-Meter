@@ -53,7 +53,7 @@ end
 
 --debug
 _G.MythicDungeonFrames = mythicDungeonFrames
---/run _G.MythicDungeonFrames.ShowEndOfMythicPlusPanel(true)
+--/run _G.MythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 ---@class animatedtexture : texture, df_frameshake
 ---@field CreateRandomBounceSettings function
@@ -170,7 +170,8 @@ function lootFrame.UpdateUnitLoot(unitBanner)
 		local rarityColor = --[[GLOBAL]]ITEM_QUALITY_COLORS[itemQuality]
 		lootSquare.LootIconBorder:SetVertexColor(rarityColor.r, rarityColor.g, rarityColor.b, 1)
 
-		lootSquare.LootIcon:SetTexture(GetItemIcon(itemID))
+		lootSquare.LootIcon:SetTexture(C_Item.GetItemIconByID(itemID))
+		--lootSquare.LootIcon:SetTexture(GetItemIcon(itemID)) --deprecated on wow11
 		lootSquare.LootItemLevel:SetText(effectiveILvl or "0")
 
 		mythicDungeonFrames.ReadyFrame.StopTextDotAnimation()

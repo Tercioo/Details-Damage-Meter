@@ -822,7 +822,17 @@ function C_Item.IsBoundToAccountUntilEquip() end
 function C_Item.LockItem() end
 function C_Item.DoesItemMatchTargetEnchantingSpell() end
 function C_Item.IsItemCorruptionRelated() end
-function C_Item.GetItemIconByID() end
+
+---return the item's icon texture
+---@param itemInfo number|string
+---@return number
+function C_Item.GetItemIconByID(itemInfo) return 0 end
+
+---return the item's icon texture
+---@param itemLocation table
+---@return number
+function C_Item.GetItemIcon(itemLocation) return 0 end
+
 function C_Item.ConfirmOnUse() end
 function C_Item.GetItemIDForItemInfo() end
 function C_Item.IsCorruptedItem() end
@@ -879,7 +889,6 @@ function C_Item.GetItemClassInfo() end
 function C_Item.GetItemUniquenessByID() end
 function C_Item.GetItemGemID() end
 function C_Item.IsHarmfulItem() end
-function C_Item.GetItemIcon() end
 function C_Item.DropItemOnUnit() end
 
 ---@param itemInfo number|string

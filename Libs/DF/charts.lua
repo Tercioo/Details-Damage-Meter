@@ -87,6 +87,11 @@ end
 ---@field lines line[]
 ---@field fixedLineWidth number
 ---@field chartName string
+---@field dataPoint_OnEnterFunc fun(self: df_chart, onEnterFunc: function, ...) set the function to be called when the mouse hover over a data point in the chart
+---@field dataPoint_OnEnterPayload any[] set the payload to be passed to the function set by DataPoint_OnEnterFunc
+---@field dataPoint_OnLeaveFunc fun(self: df_chart, onLeaveFunc: function, ...) set the function to be called when the mouse leaves a data point in the chart
+---@field dataPoint_OnLeavePayload any[] set the payload to be passed to the function set by DataPoint_OnLeaveFunc
+---@field GetOnEnterLeaveFunctions fun(self: df_chart) : function, any[], function, any[] return the functions and payloads set by DataPoint_OnEnterFunc and DataPoint_OnLeaveFunc
 ---@field ChartFrameConstructor fun(self: df_chart) set the default values for the chart frame
 ---@field GetLine fun(self: df_chart) : line return a line and also internally handle next line
 ---@field GetLines fun(self: df_chart) : line[] return a table with all lines already created
@@ -684,6 +689,31 @@ detailsFramework.ChartFrameMixin = {
         self:UpdateFrameSizeCache()
     end,
 
+    ---when the mouse hover over a data point in the chart, this function will be called
+    ---@param self df_chart
+    SetOnEnterFunction = function(self, onEnterFunc, ...)
+        self.dataPoint_OnEnterFunc = onEnterFunc
+        self.dataPoint_OnEnterPayload = {...}
+    end,
+
+    ---when the mouse leaves a data point in the chart, this function will be called
+    ---@param self df_chart
+    SetOnLeaveFunction = function(self, onLeaveFunc, ...)
+        self.dataPoint_OnLeaveFunc = onLeaveFunc
+        self.dataPoint_OnLeavePayload = {...}
+    end,
+
+    ---get the data point on enter and on leave function
+    ---@param self df_chart
+    ---@return function onEnterFunc
+    ---@return any[] onEnterPayload
+    ---@return function onLeaveFunc
+    ---@return any[] onLeavePayload
+    GetOnEnterLeaveFunctions = function(self)
+        return self.dataPoint_OnEnterFunc, self.dataPoint_OnEnterPayload, self.dataPoint_OnLeaveFunc, self.dataPoint_OnLeavePayload
+    end,
+
+    ---this function will draw the chart lines
     ---@param self df_chart
     ---@param yPointScale number|nil
     ---@param bUpdateLabels boolean|nil
@@ -708,6 +738,8 @@ detailsFramework.ChartFrameMixin = {
         local eachLineWidth = self:GetLineWidth()
 
         self:ResetDataIndex()
+
+        print(maxLines)
 
         for i = 1, maxLines do
             local line = self:GetLine()
@@ -797,6 +829,8 @@ local createChartFrame = function(parent, name)
     createPlotFrame(chartFrame) --creates chartFrame.plotFrame
     return chartFrame
 end
+
+
 
 function detailsFramework:CreateGraphicLineFrame(parent, name)
     ---@type df_chart

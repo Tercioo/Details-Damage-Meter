@@ -550,13 +550,16 @@ local setColorProperties = function(parent, widget, widgetTable, currentXOffset,
     label:ClearAllPoints()
 
     if (bAlignAsPairs) then
-        PixelUtil.SetPoint(label, "topleft", widget:GetParent(), "topleft", currentXOffset, currentYOffset)
-        PixelUtil.SetPoint(widget.widget, "left", label, "left", nAlignAsPairsLength, 0)
-
         if (not widget.highlightFrame) then
             local highlightFrame = createOptionHighlightFrame(widget, label, (widgetWidth or 140) + nAlignAsPairsLength + 5)
             widget.highlightFrame = highlightFrame
         end
+
+        ----
+        widget._valueChangeHook = valueChangeHook
+        --widget.highlightFrame:SetScript("OnClick", highlightFrameOnClickToggle) --todo make this function for color picker color pick start
+        PixelUtil.SetPoint(label, "topleft", widget:GetParent(), "topleft", currentXOffset, currentYOffset)
+        PixelUtil.SetPoint(widget.widget, "right", widget.highlightFrame, "right", -3, 0)
     else
         if (widgetTable.boxfirst or bUseBoxFirstOnAllWidgets) then
             label:SetPoint("left", widget.widget, "right", 2, 0)

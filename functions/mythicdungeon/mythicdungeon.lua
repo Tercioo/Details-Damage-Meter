@@ -49,7 +49,7 @@ function DetailsMythicPlusFrame.BossDefeated(this_is_end_end, encounterID, encou
     end
 
     --local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-    Details222.MythicPlus.OnBossDefeated(encounterID, encounterName)
+    Details222.MythicPlus.OnBossDefeated(encounterID, encounterName) --data capture
 
     --increase the segment number for the mythic run
     Details.MythicPlus.SegmentID = Details.MythicPlus.SegmentID + 1

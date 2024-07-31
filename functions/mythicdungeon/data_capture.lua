@@ -170,8 +170,8 @@ function mythicDungeonCharts:OnBossDefeated()
 	if (mythicLevel and mythicLevel > 0) then
 		if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.Running and bossInfo) then
 
-			local copiedBossInfo = Details:GetFramework().table.copy({}, bossInfo)
-			table.insert(mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
+			local tCopiedBossInfo = Details:GetFramework().table.copy({}, bossInfo)
+			table.insert(mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, tCopiedBossInfo, currentCombat:GetCombatTime()})
 			mythicDungeonCharts:Debug("Boss defeated, time saved", currentCombat:GetCombatTime())
 		else
 			if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.EndTime ~= -1) then
