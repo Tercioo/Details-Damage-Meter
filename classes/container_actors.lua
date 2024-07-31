@@ -207,7 +207,12 @@ end
                     ownerGUID = tooltipData.guid
                 elseif (tooltipData.lines[1].leftText == petName) then
                     local lineTwo = tooltipData.lines[2 + cbMode]
-                    if (lineTwo.type == 16 and lineTwo.guid) then
+                    if (not lineTwo) then
+                        if (Details222.Debug.DebugPets or Details222.Debug.DebugPlayerPets) then
+					        Details:Msg("DebugPets|ActorContainer|Tooltip No LineTwo|PetName:", petName, "PetGUID:", petGUID, "ColorblindMode:", cbMode)
+                        end
+                        return
+                    elseif (lineTwo.type == 16 and lineTwo.guid) then
                         ownerGUID = lineTwo.guid
                     else
                         lineText = lineTwo.leftText
