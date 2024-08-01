@@ -2642,7 +2642,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
 
     function openRaidLib.KeystoneInfoManager.UpdatePlayerKeystoneInfo(keystoneInfo)
         keystoneInfo.level = C_MythicPlus.GetOwnedKeystoneLevel() or 0
-        keystoneInfo.mapID = C_MythicPlus.GetOwnedKeystoneMapID() or 0
+        keystoneInfo.mapID = C_MythicPlus.GetOwnedKeystoneMapID() or 0 --returning nil?
         keystoneInfo.mythicPlusMapID = getMythicPlusMapID() or 0
         keystoneInfo.challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() or 0
 

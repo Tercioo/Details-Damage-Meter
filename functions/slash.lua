@@ -2216,6 +2216,17 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					newData.offlineGuildPlayers = {}
 					local keystoneData = openRaidLib.GetAllKeystonesInfo()
 
+					--[=[
+						["Exudragão"] =  {
+							["mapID"] = 2526,
+							["challengeMapID"] = 402,
+							["mythicPlusMapID"] = 0,
+							["rating"] = 215,
+							["classID"] = 13,
+							["level"] = 6,
+						},
+					--]=]
+
 					local guildUsers = {}
 					local totalMembers, onlineMembers, onlineAndMobileMembers = GetNumGuildMembers()
 
@@ -2257,7 +2268,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							local coords = CLASS_ICON_TCOORDS
 							local _, class = GetClassInfo(classId)
 
-							local mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.mythicPlusMapID) or ""
+							local mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.mythicPlusMapID)
+							if (not mapName) then
+								mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.challengeMapID)
+							end
+
+							mapName = mapName or "map name not found"
 
 							--local mapInfoChallenge = C_Map.GetMapInfo(keystoneInfo.challengeMapID)
 							--local mapNameChallenge = mapInfoChallenge and mapInfoChallenge.name or ""
