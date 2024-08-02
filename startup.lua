@@ -610,6 +610,19 @@ function Details222.StartUp.StartMeUp()
 		end
 	end
 
+	if (GetExpansionLevel() == 10) then
+		if (not Details.data_wipes_exp["11"]) then
+			Details:Msg("New expansion detected, clearing data...")
+			Details:Destroy(Details.encounter_spell_pool or {})
+			Details:Destroy(Details.boss_mods_timers or {})
+			Details:Destroy(Details.spell_school_cache or {})
+			Details:Destroy(Details.spell_pool or {})
+			Details:Destroy(Details.npcid_pool or {})
+			Details:Destroy(Details.current_exp_raid_encounters or {})
+			Details.data_wipes_exp["11"] = true
+		end
+	end
+
 	Details.boss_mods_timers.encounter_timers_dbm = Details.boss_mods_timers.encounter_timers_dbm or {}
 	Details.boss_mods_timers.encounter_timers_bw = Details.boss_mods_timers.encounter_timers_bw or {}
 

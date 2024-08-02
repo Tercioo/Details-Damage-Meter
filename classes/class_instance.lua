@@ -606,7 +606,7 @@ local instanceMixins = {
 			local tableToDump = {}
 			for k, v in pairs(actor) do
 				if (type(k) == "string") then
-					if (type(v) == "number" or type(v) == "string") then
+					if (type(v) == "number" or type(v) == "string"or type(v) == "boolean") then
 						tableToDump[k] = v
 					end
 				end
