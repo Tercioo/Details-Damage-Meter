@@ -142,7 +142,8 @@
 ---@field DefaultTooltipIconSize number default size of the icons in the tooltip, this also dictates the size of each line in the tooltip
 ---@field 
 ---@field 
----@field 
+---@field GenerateActorInfo fun(self: details, actor: actor, errorText:string, bIncludeStack:boolean) : table<string, boolean|string|number> generates a table with the main attributes of the actor, this is mainly for debug purposes
+---@field DumpActorInfo fun(self: details, actor: actor) open a window showig the main attributes of an actor, this is mainly for debug purposes
 ---@field GetDisplayClassByDisplayId fun(self: details, displayId: number) : table -return the class object for the given displayId (attributeId)
 ---@field GetTextureAtlas fun(self: details, atlasName: atlasname) : df_atlasinfo return the texture atlas data
 ---@field GetTextureAtlasTable fun(self: details) : table<atlasname, df_atlasinfo>[] return the table with the texture atlas data

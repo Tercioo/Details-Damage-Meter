@@ -3414,9 +3414,17 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 			end
 		end
 
-		local localizedClass, englishClass
+		local englishClass
 		if (self.serial ~= "") then
-			localizedClass, englishClass = GetPlayerInfoByGUID(self.serial or "")
+			local bResult, sResult = pcall(function() local lClass, eClass = GetPlayerInfoByGUID(self.serial or "") return eClass end) --will error with: nil, table and boolean
+			if (bResult) then
+				englishClass = sResult
+			else
+				local bIncludeStackTrace = true
+				--[[GLOBAL]] DETAILS_FAILED_ACTOR = Details:GenerateActorInfo(self, sResult, bIncludeStackTrace) --avoid the game gc and details gc from destroying the actor info
+				Details:Msg("Bug happend on GetPlayerInfoByGUID() class_damage.lua:3419. Use command '/details bug' to report.")
+				englishClass = "UNKNOW"
+			end
 		end
 
 		if (englishClass) then

@@ -1536,6 +1536,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "generateracialslist") then
 		Details.GenerateRacialSpellList()
 
+	elseif (msg == "bug") then
+		dumpt(DETAILS_FAILED_ACTOR or {"No bug to report here."})
+
 	elseif (msg == "spellcat") then
 		Details.Survey.OpenSurveyPanel()
 
