@@ -194,6 +194,29 @@ local createDebugOptionsFrame = function()
         },
     }
 
+    --/run Details:GetWindow(1):GetActorInfoFromLineIndex(3)
+
+    --create a label with the text "actor info from window and line index"
+    local actorInfoLabel = detailsFramework:CreateLabel(debugOptionsPanel, "Get Actor Info From Window 'X' and Line Index 'X'", 12)
+    actorInfoLabel:SetPoint("bottomleft", debugOptionsPanel, "bottomleft", 5, 50)
+
+    local instanceIdEntry = detailsFramework:CreateTextEntry(debugOptionsPanel, function()end, 20, 20, _, _, _, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+    instanceIdEntry:SetPoint("topleft", actorInfoLabel, "bottomleft", 0, -5)
+    instanceIdEntry:SetText("1")
+
+    local lineIndexEntry = detailsFramework:CreateTextEntry(debugOptionsPanel, function()end, 20, 20, _, _, _, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+    lineIndexEntry:SetPoint("left", instanceIdEntry, "right", 5, 0)
+    lineIndexEntry:SetText("1")
+
+    --create a button with the get "Get", when the button is pressed, it get the text in the instanceIdEntry and lineIndexEntry and call the function GetActorInfoFromWindowAndLineIndex
+    local getButton = detailsFramework:CreateButton(debugOptionsPanel, function()
+        local instanceId = tonumber(instanceIdEntry:GetText())
+        local lineIndex = tonumber(lineIndexEntry:GetText())
+        Details:GetWindow(instanceId):GetActorInfoFromLineIndex(lineIndex)
+    end, 50, 20, "Get")
+    getButton:SetPoint("left", lineIndexEntry, "right", 5, 0)
+    getButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+
     options.always_boxfirst = true
     options.align_as_pairs = true
     options.align_as_pairs_string_space = 260

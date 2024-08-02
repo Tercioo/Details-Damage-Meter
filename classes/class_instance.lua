@@ -595,6 +595,27 @@ local instanceMixins = {
 		instance:ResetWindow()
 		instance:RefreshWindow(true)
 	end,
+
+	---open a window with the keys and values of the actor object being shown in the line index
+	---this function doesn't not return the values, it will 'dump' the values in a new window by calling 'dumpt'
+	---@param self instance
+	---@param index number
+	GetActorInfoFromLineIndex = function(self, index)
+		local actor = self.barras[index] and self.barras[index].minha_tabela
+		if (actor) then
+			local tableToDump = {}
+			for k, v in pairs(actor) do
+				if (type(k) == "string") then
+					if (type(v) == "number" or type(v) == "string") then
+						tableToDump[k] = v
+					end
+				end
+			end
+			dumpt(tableToDump)
+		else
+			Details:Msg("no actor found in line index", index)
+		end
+	end,
 }
 
 ---get the table with all instances, these instance could be not initialized yet, some might be open, some not in use
