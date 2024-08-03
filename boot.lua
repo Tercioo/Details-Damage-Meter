@@ -1566,7 +1566,7 @@ function Details222.ClassCache.MakeCache()
 end
 
 Details222.UnitIdCache.Party = {"player"}
-Details222.UnitIdCache.PartyPet = {"playetpet"}
+Details222.UnitIdCache.PartyPet = {"playerpet"}
 for i = 1, 4 do
 	table.insert(Details222.UnitIdCache.Party, "party" .. i)
 	table.insert(Details222.UnitIdCache.PartyPet, "partypet" .. i)
