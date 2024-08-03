@@ -44,7 +44,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 133
+local CONST_LIB_VERSION = 134
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -2762,12 +2762,8 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         end
     end
 
-    function openRaidLib.KeystoneInfoManager.OnPlayerEnterWorld()
-        --keystones are only available on retail
-        if (not checkClientVersion("retail")) then
-            return
-        end
-        --hack: on received data send data to party and guild
+    local keystoneManagerOnPlayerEnterWorld = function()
+        --hack: trigger a received data request to send data to party and guild when logging in
         openRaidLib.KeystoneInfoManager.OnReceiveRequestData()
 
         --trigger public callback
@@ -2776,6 +2772,18 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         openRaidLib.KeystoneInfoManager.UpdatePlayerKeystoneInfo(keystoneInfo)
 
         openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", unitName, keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)
+    end
+
+    function openRaidLib.KeystoneInfoManager.OnPlayerEnterWorld()
+        --keystones are only available on retail
+        if (not checkClientVersion("retail")) then
+            return
+        end
+
+        --attempt to load keystone item link as reports indicate it can be nil
+        getMythicPlusMapID()
+
+        C_Timer.After(2, keystoneManagerOnPlayerEnterWorld)
     end
 
     function openRaidLib.KeystoneInfoManager.OnMythicDungeonFinished()

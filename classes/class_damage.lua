@@ -2690,7 +2690,7 @@ end
 
 --handle internal details! events
 local eventListener = Details:CreateEventListener()
-eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
+eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function(eventName, combatObject)
 	if (Details.CacheInLineMaxDistance) then
 		Details:Destroy(Details.CacheInLineMaxDistance)
 
