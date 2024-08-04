@@ -1920,7 +1920,7 @@ function Details:ExportCurrentProfile()
 	local playerData = {}
 	--data saved for the account
 	local defaultGlobalData = Details.default_global_data
-	local globaData = {}
+	local globaData = {} --typo: 'globalData' was intended, cannot be fixed due to export strings compatibility
 
 	--fill player and global data tables
 	for key, _ in pairs(defaultPlayerData) do

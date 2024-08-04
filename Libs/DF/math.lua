@@ -289,6 +289,14 @@ end
 function DF:GetBezierPoint(value, point1, point2, point3)
 	return DF.Math.GetBezierPoint(value, point1, point2, point3)
 end
+
+function DF:GetVectorLength(vectorX, vectorY, vectorZ)
+	if (not vectorZ) then
+		return (vectorX * vectorX + vectorY * vectorY) ^ 0.5
+	end
+	return (vectorX * vectorX + vectorY * vectorY + vectorZ * vectorZ) ^ 0.5
+end
+
 --normalized value 0-1 result in the value on the range given, e.g 200-400 range with a value of .5 result in 300
 function DF:LerpNorm(minValue, maxValue, value)
 	return (minValue + value * (maxValue - minValue))
