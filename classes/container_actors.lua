@@ -253,7 +253,7 @@ end
 
             local isInRaid = currentCombat.raid_roster[ownerName]
             if (isInRaid) then
-                return UnitGUID(ownerName), ownerName, 0x514
+                return ownerName, UnitGUID(ownerName), 0x514
             end
         elseif (ownerGUID and ownerGUID:sub(1,6) == 'Player') then
             local playerGUID = ownerGUID
