@@ -25,17 +25,20 @@ function mythicDungeonCharts.ShowChart()
 		mythicDungeonCharts.Frame = CreateFrame("frame", "DetailsMythicDungeonChartFrame", UIParent, "BackdropTemplate")
 		local dungeonChartFrame = mythicDungeonCharts.Frame
 
-		dungeonChartFrame:SetSize(1200, 620)
-		dungeonChartFrame:SetPoint("center", UIParent, "center", 0, 0)
+		--get the screen width
+		local screenWidth = GetScreenWidth()
+
+		dungeonChartFrame:SetSize(screenWidth - 200, 400)
+		dungeonChartFrame:SetPoint("center", UIParent, "center", 0, 200)
 		dungeonChartFrame:SetFrameStrata("DIALOG")
 		dungeonChartFrame:EnableMouse(true)
 		dungeonChartFrame:SetMovable(true)
 		detailsFramework:ApplyStandardBackdrop(dungeonChartFrame)
+		dungeonChartFrame.__background:SetAlpha(0.834)
 
 		--minimized frame
 		mythicDungeonCharts.FrameMinimized = CreateFrame("frame", "DetailsMythicDungeonChartFrameminimized", UIParent, "BackdropTemplate")
 		local fMinimized = mythicDungeonCharts.FrameMinimized
-
 		fMinimized:SetSize(160, 24)
 		fMinimized:SetPoint("center", UIParent, "center", 0, 0)
 		fMinimized:SetFrameStrata("LOW")
@@ -90,44 +93,17 @@ function mythicDungeonCharts.ShowChart()
 		LibWindow.MakeDraggable(fMinimized)
 		LibWindow.SavePosition(fMinimized)
 
-		dungeonChartFrame.ChartFrame = detailsFramework:CreateChartPanel(dungeonChartFrame, 1200, 600, "DetailsMythicDungeonChartGraphicFrame")
-		dungeonChartFrame.ChartFrame:SetPoint("topleft", dungeonChartFrame, "topleft", 5, -20)
-
-		dungeonChartFrame.ChartFrame.FrameInUse = {}
-		dungeonChartFrame.ChartFrame.FrameFree = {}
-		dungeonChartFrame.ChartFrame.TextureID = 1
-
-		dungeonChartFrame.ChartFrame.ShowHeader = true
-		dungeonChartFrame.ChartFrame.HeaderOnlyIndicator = true
-		dungeonChartFrame.ChartFrame.HeaderShowOverlays = false
-
-		dungeonChartFrame.ChartFrame.Graphic.DrawLine = mythicDungeonCharts.CustomDrawLine
-
-		dungeonChartFrame.ChartFrame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-		dungeonChartFrame.ChartFrame:SetBackdropColor(0, 0, 0, 0.0)
-		dungeonChartFrame.ChartFrame:SetBackdropBorderColor(0, 0, 0, 0)
-
-		dungeonChartFrame.ChartFrame:EnableMouse(false)
-
-		dungeonChartFrame.ChartFrame.CloseButton:Hide()
-
-		dungeonChartFrame.BossWidgetsFrame = CreateFrame("frame", "$parentBossFrames", dungeonChartFrame, "BackdropTemplate")
-		dungeonChartFrame.BossWidgetsFrame:SetFrameLevel(dungeonChartFrame:GetFrameLevel()+10)
-		dungeonChartFrame.BossWidgetsFrame.Widgets = {}
-
-		dungeonChartFrame.BossWidgetsFrame.GraphPin = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "overlay")
-		dungeonChartFrame.BossWidgetsFrame.GraphPin:SetTexture([[Interface\BUTTONS\UI-RadioButton]])
-		dungeonChartFrame.BossWidgetsFrame.GraphPin:SetTexCoord(17/64, 32/64, 0, 1)
-		dungeonChartFrame.BossWidgetsFrame.GraphPin:SetSize(16, 16)
-
-		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "artwork")
-		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetTexture([[Interface\Calendar\EventNotificationGlow]])
-		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetTexCoord(0, 1, 0, 1)
-		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetSize(14, 14)
-		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetBlendMode("ADD")
-		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetPoint("center", dungeonChartFrame.BossWidgetsFrame.GraphPin, "center", 0, 0)
-
+		local chartFrame = detailsFramework:CreateGraphicMultiLineFrame(dungeonChartFrame, "DetailsMythicDungeonChartGraphicFrame")
+		chartFrame:SetPoint("topleft", dungeonChartFrame, "topleft", 1, -20)
+		chartFrame:SetSize(dungeonChartFrame:GetWidth(), dungeonChartFrame:GetHeight() - 20)
+		chartFrame:EnableMouse(false)
 		dungeonChartFrame:Hide()
+		dungeonChartFrame.ChartFrame = chartFrame
+
+		local red, green, blue, opacity = 1, 1, 1, 1
+		chartFrame:CreateAxesLines(48, 20, "left", 1, 10, 10, red, green, blue, opacity)
+		chartFrame:SetXAxisDataType("time")
+		chartFrame:SetLineThickness(2)
 
 		function dungeonChartFrame.ShowChartFrame()
 			if (dungeonChartFrame.IsMinimized) then
@@ -139,150 +115,18 @@ function mythicDungeonCharts.ShowChart()
 			end
 		end
 
-		local closeButton = CreateFrame("button", "$parentCloseButton", dungeonChartFrame, "UIPanelCloseButton")
-		closeButton:GetNormalTexture():SetDesaturated(true)
-		closeButton:SetWidth(24)
-		closeButton:SetHeight(24)
-		closeButton:SetPoint("topright", dungeonChartFrame, "topright", 0, -1)
-		closeButton:SetFrameLevel(dungeonChartFrame:GetFrameLevel()+16)
+		mythicDungeonCharts.CreateCloseMinimizeButtons(dungeonChartFrame)
+		mythicDungeonCharts.CreateBossWidgets(dungeonChartFrame)
+	end --finished created the chart frame
 
-		local minimizeButton = CreateFrame("button", "$parentCloseButton", dungeonChartFrame, "UIPanelCloseButton")
-		minimizeButton:GetNormalTexture():SetDesaturated(true)
-		minimizeButton:SetWidth(24)
-		minimizeButton:SetHeight(24)
-		minimizeButton:SetPoint("right", closeButton, "left", 2, 0)
-		minimizeButton:SetFrameLevel(dungeonChartFrame:GetFrameLevel()+16)
-		minimizeButton:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
-		minimizeButton:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
-		minimizeButton:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-MinimizeButton-Highlight]])
+	local dungeonChartFrame = mythicDungeonCharts.Frame
 
-		local closeButtonWhenMinimized = CreateFrame("button", "$parentCloseButton", fMinimized, "UIPanelCloseButton")
-		closeButtonWhenMinimized:GetNormalTexture():SetDesaturated(true)
-		closeButtonWhenMinimized:SetWidth(24)
-		closeButtonWhenMinimized:SetHeight(24)
-		closeButtonWhenMinimized:SetPoint("topright", fMinimized, "topright", 0, -1)
-		closeButtonWhenMinimized:SetFrameLevel(fMinimized:GetFrameLevel()+16)
+	---@type df_chartmulti
+	local chartFrame = dungeonChartFrame.ChartFrame
 
-		local minimizeButtonWhenMinimized = CreateFrame("button", "$parentCloseButton", fMinimized, "UIPanelCloseButton")
-		minimizeButtonWhenMinimized:GetNormalTexture():SetDesaturated(true)
-		minimizeButtonWhenMinimized:SetWidth(24)
-		minimizeButtonWhenMinimized:SetHeight(24)
-		minimizeButtonWhenMinimized:SetPoint("right", closeButtonWhenMinimized, "left", 2, 0)
-		minimizeButtonWhenMinimized:SetFrameLevel(fMinimized:GetFrameLevel()+16)
-		minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
-		minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
-		minimizeButtonWhenMinimized:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-MinimizeButton-Highlight]])
+	chartFrame:Reset()
 
-		closeButtonWhenMinimized:SetScript("OnClick", function()
-			dungeonChartFrame.IsMinimized = false
-			fMinimized:Hide()
-			minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
-			minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
-		end)
-
-		--replace the default click function
-		local minimize_func = function(self)
-			if (dungeonChartFrame.IsMinimized) then
-				dungeonChartFrame.IsMinimized = false
-				fMinimized:Hide()
-				dungeonChartFrame:Show()
-				minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
-				minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
-			else
-				dungeonChartFrame.IsMinimized = true
-				dungeonChartFrame:Hide()
-				fMinimized:Show()
-				minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-CollapseButton-Up]])
-				minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-CollapseButton-Up]])
-			end
-		end
-
-		minimizeButton:SetScript("OnClick", minimize_func)
-		minimizeButtonWhenMinimized:SetScript("OnClick", minimize_func)
-
-		--enabled box
-		-- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
-		local on_switch_enable = function(_, _, state)
-			Details.mythic_plus.show_damage_graphic = state
-		end
-		local enabledSwitch, enabledLabel = detailsFramework:CreateSwitch(dungeonChartFrame, on_switch_enable, Details.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, "Enabled", detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
-		enabledSwitch:SetAsCheckBox()
-		enabledSwitch.tooltip = "Show this chart at the end of a mythic dungeon run.\n\nIf disabled, you can reactivate it again at the options panel > streamer settings."
-
-		if (enabledLabel) then
-			enabledLabel:SetPoint("right", minimizeButton, "left", -22, 0)
-			enabledSwitch:SetSize(16, 16)
-			detailsFramework:SetFontColor(enabledLabel, "gray")
-		end
-
-		enabledSwitch.checked_texture:SetVertexColor(.75, .75, .75)
-
-		local leftDivisorLine = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "overlay")
-		leftDivisorLine:SetSize(2, dungeonChartFrame.ChartFrame.Graphic:GetHeight())
-		leftDivisorLine:SetColorTexture(1, 1, 1, 1)
-		leftDivisorLine:SetPoint("bottomleft", dungeonChartFrame.ChartFrame.Graphic.TextFrame, "bottomleft", -2, 0)
-
-		local bottomDivisorLine = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "overlay")
-		bottomDivisorLine:SetSize(dungeonChartFrame.ChartFrame.Graphic:GetWidth(), 2)
-		bottomDivisorLine:SetColorTexture(1, 1, 1, 1)
-		bottomDivisorLine:SetPoint("bottomleft", dungeonChartFrame.ChartFrame.Graphic.TextFrame, "bottomleft", 0, 0)
-
-		dungeonChartFrame.ChartFrame.Graphic:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-		dungeonChartFrame.ChartFrame.Graphic:SetBackdropColor(.5, .50, .50, 0.8)
-		dungeonChartFrame.ChartFrame.Graphic:SetBackdropBorderColor(0, 0, 0, 0.5)
-
-		function dungeonChartFrame.ChartFrame.RefreshBossTimeline(self, bossTable, elapsedTime)
-			for i, bossTable in ipairs(mythicDungeonCharts.ChartTable.BossDefeated) do
-				local bossWidget = dungeonChartFrame.BossWidgetsFrame.Widgets [i]
-
-				if (not bossWidget) then
-					local newBossWidget = CreateFrame("frame", "$parentBossWidget" .. i, dungeonChartFrame.BossWidgetsFrame, "BackdropTemplate")
-					newBossWidget:SetSize(64, 32)
-					newBossWidget:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-					newBossWidget:SetBackdropColor(0, 0, 0, 0.1)
-					newBossWidget:SetBackdropBorderColor(0, 0, 0, 0)
-
-					local bossAvatar = detailsFramework:CreateImage(newBossWidget, "", 64, 32, "border")
-					bossAvatar:SetPoint("bottomleft", newBossWidget, "bottomleft", 0, 0)
-					newBossWidget.AvatarTexture = bossAvatar
-
-					local verticalLine = detailsFramework:CreateImage(newBossWidget, "", 1, dungeonChartFrame.ChartFrame.Graphic:GetHeight(), "overlay")
-					verticalLine:SetColorTexture(1, 1, 1, 0.3)
-					verticalLine:SetPoint("bottomleft", newBossWidget, "bottomright", 0, 0)
-
-					local timeText = detailsFramework:CreateLabel(newBossWidget)
-					timeText:SetPoint("bottomright", newBossWidget, "bottomright", 0, 0)
-					newBossWidget.TimeText = timeText
-
-					local timeBackground = detailsFramework:CreateImage(newBossWidget, "", 30, 12, "artwork")
-					timeBackground:SetColorTexture(0, 0, 0, 0.5)
-					timeBackground:SetPoint("topleft", timeText, "topleft", -2, 2)
-					timeBackground:SetPoint("bottomright", timeText, "bottomright", 2, 0)
-
-					dungeonChartFrame.BossWidgetsFrame.Widgets [i] = newBossWidget
-					bossWidget = newBossWidget
-				end
-
-				local chartLength = dungeonChartFrame.ChartFrame.Graphic:GetWidth()
-				local secondsPerPixel = chartLength / elapsedTime
-				local xPosition = bossTable[1] * secondsPerPixel
-
-				bossWidget:SetPoint("bottomright", dungeonChartFrame.ChartFrame.Graphic, "bottomleft", xPosition, 0)
-
-				bossWidget.TimeText:SetText(detailsFramework:IntegerToTimer(bossTable[1]))
-
-				if (bossTable[2].bossimage) then
-					bossWidget.AvatarTexture:SetTexture(bossTable[2].bossimage)
-				else
-					local bossAvatar = Details:GetBossPortrait(nil, nil, bossTable[2].name, bossTable[2].ej_instance_id)
-					bossWidget.AvatarTexture:SetTexture(bossAvatar)
-				end
-			end
-		end
-	end
-
-	mythicDungeonCharts.Frame.ChartFrame:Reset()
-
+	--check if there is a valid chart table
 	if (not mythicDungeonCharts.ChartTable) then
 		if (Details222.Debug.MythicPlusChartWindowDebug) then
 			--development
@@ -295,12 +139,12 @@ function mythicDungeonCharts.ShowChart()
 
 			else
 				mythicDungeonCharts:Debug("no valid data and no saved data, canceling")
-				mythicDungeonCharts.Frame:Hide()
+				dungeonChartFrame:Hide()
 				return
 			end
 
 		else
-			mythicDungeonCharts.Frame:Hide()
+			dungeonChartFrame:Hide()
 			mythicDungeonCharts:Debug("no data found, canceling")
 
 			if (verbosemode) then
@@ -315,9 +159,9 @@ function mythicDungeonCharts.ShowChart()
 
 	mythicDungeonCharts.PlayerGraphIndex = {}
 
+	--add the lines to the chart (one line per player)
 	for playerName, playerTable in pairs(charts) do
 		local chartData = playerTable.ChartData
-		local lineName = playerTable.Name
 
 		classDuplicated[playerTable.Class] = (classDuplicated[playerTable.Class] or 0) + 1
 
@@ -334,46 +178,51 @@ function mythicDungeonCharts.ShowChart()
 		end
 
 		local combatTime = mythicDungeonCharts.ChartTable.ElapsedTime
-		local texture = "line"
 
-		--lowess smooth
-		--chartData = mythicDungeonCharts.LowessSmoothing (chartData, 75)
-		chartData = mythicDungeonCharts.Frame.ChartFrame:CalcLowessSmoothing(chartData, 75)
+		local opacity = 1
+		local smoothnessLevel = 50
+		local smoothnessLevel = 20
+		local smoothMethod = "loess"
+		local smoothMethod = "sma"
 
-		local maxValue = 0
-		for i = 1, #chartData do
-			if (chartData [i] > maxValue) then
-				maxValue = chartData[i]
-			end
+		local chartSize = #chartData
+
+		local shrinkBy = 1
+		if (chartSize >= 600) then
+			shrinkBy = math.max(2, math.floor(chartSize/400))
 		end
-		chartData.max_value = maxValue
 
-		mythicDungeonCharts.Frame.ChartFrame:AddLine(chartData, lineColor, lineName, combatTime, texture, "SMA")
+		local reducedData = chartFrame:ShrinkData(chartData, shrinkBy)
+
+		chartFrame:SetFillChart(true, 5)
+		chartFrame:AddData(reducedData, smoothMethod, smoothnessLevel, playerName, lineColor[1], lineColor[2], lineColor[3], opacity)
+		chartFrame:SetXAxisData(combatTime)
 		table.insert(mythicDungeonCharts.PlayerGraphIndex, playerName)
 	end
 
-	mythicDungeonCharts.Frame.ChartFrame:RefreshBossTimeline(mythicDungeonCharts.ChartTable.BossDefeated, mythicDungeonCharts.ChartTable.ElapsedTime)
+	mythicDungeonCharts.RefreshBossTimeline(dungeonChartFrame, mythicDungeonCharts.ChartTable.ElapsedTime)
 
 	--generate boss time table
 	local bossTimeTable = {}
 	for i, bossTable in ipairs(mythicDungeonCharts.ChartTable.BossDefeated) do
 		local combatTime = bossTable [3] or math.random(10, 30)
-
 		table.insert(bossTimeTable, bossTable[1])
 		table.insert(bossTimeTable, bossTable[1] - combatTime)
 	end
 
-	mythicDungeonCharts.Frame.ChartFrame:AddOverlay(bossTimeTable, {1, 1, 1, 0.05}, "Show Boss", "")
+	--chartFrame:AddOverlay(bossTimeTable, {1, 1, 1, 0.05}, "Show Boss", "")
 
 	--local phrase = " Average Dps (under development)\npress Escape to hide, Details! Alpha Build." .. _detalhes.build_counter .. "." .. _detalhes.realversion
 	local phrase = "Details!: Average Dps for "
 
-	mythicDungeonCharts.Frame.ChartFrame:SetTitle("")
-	detailsFramework:SetFontSize(mythicDungeonCharts.Frame.ChartFrame.chart_title, 14)
+	--chartFrame:SetTitle("")
+	--detailsFramework:SetFontSize(chartFrame.chart_title, 14)
 
-	mythicDungeonCharts.Frame.TitleText:SetText(mythicDungeonCharts.ChartTable.DungeonName and phrase .. mythicDungeonCharts.ChartTable.DungeonName or phrase)
+	dungeonChartFrame.TitleText:SetText(mythicDungeonCharts.ChartTable.DungeonName and phrase .. mythicDungeonCharts.ChartTable.DungeonName or phrase)
 
-	mythicDungeonCharts.Frame.ShowChartFrame()
+	dungeonChartFrame.ShowChartFrame()
+
+	chartFrame:Plot()
 
 	if (verbosemode) then
 		mythicDungeonCharts:Debug("mythicDungeonCharts.ShowChart() success")
@@ -421,124 +270,6 @@ local PixelFrameOnLeave = function(self)
 	timer.ShowID = showID
 end
 
-local TAXIROUTE_LINEFACTOR = 128 / 126 -- Multiplying factor for texture coordinates
-local TAXIROUTE_LINEFACTOR_2 = TAXIROUTE_LINEFACTOR / 2 -- Half of that
-
-function mythicDungeonCharts:CustomDrawLine (C, sx, sy, ex, ey, w, color, layer, linetexture, graphIndex)
-	local relPoint = "BOTTOMLEFT"
-
-	if sx == ex then
-		if sy == ey then
-			return
-		else
-			return self:DrawVLine(C, sx, sy, ey, w, color, layer)
-		end
-
-	elseif sy == ey then
-		return self:DrawHLine(C, sx, ex, sy, w, color, layer)
-	end
-
-	if not C.GraphLib_Lines then
-		C.GraphLib_Lines = {}
-		C.GraphLib_Lines_Used = {}
-	end
-
-	local T = tremove(C.GraphLib_Lines) or C:CreateTexture(nil, "ARTWORK")
-
-	if linetexture then --this data series texture
-		T:SetTexture(linetexture)
-
-	elseif C.CustomLine then --overall chart texture
-		T:SetTexture(C.CustomLine)
-
-	else --no texture assigned, use default
-		T:SetTexture(TextureDirectory.."line")
-	end
-
-	table.insert(C.GraphLib_Lines_Used, T)
-
-	T:SetDrawLayer(layer or "ARTWORK")
-
-	T:SetVertexColor(color[1], color[2], color[3], color[4])
-	-- Determine dimensions and center point of line
-	local dx, dy = ex - sx, ey - sy
-	local cx, cy = (sx + ex) / 2, (sy + ey) / 2
-
-	-- Normalize direction if necessary
-	if (dx < 0) then
-		dx, dy = -dx, -dy
-	end
-
-	-- Calculate actual length of line
-	local l = sqrt((dx * dx) + (dy * dy))
-
-	-- Sin and Cosine of rotation, and combination (for later)
-	local s, c = -dy / l, dx / l
-	local sc = s * c
-
-	-- Calculate bounding box size and texture coordinates
-	local Bwid, Bhgt, BLx, BLy, TLx, TLy, TRx, TRy, BRx, BRy
-	if (dy >= 0) then
-		Bwid = ((l * c) - (w * s)) * TAXIROUTE_LINEFACTOR_2
-		Bhgt = ((w * c) - (l * s)) * TAXIROUTE_LINEFACTOR_2
-		BLx, BLy, BRy = (w / l) * sc, s * s, (l / w) * sc
-		BRx, TLx, TLy, TRx = 1 - BLy, BLy, 1 - BRy, 1 - BLx
-		TRy = BRx
-	else
-		Bwid = ((l * c) + (w * s)) * TAXIROUTE_LINEFACTOR_2
-		Bhgt = ((w * c) + (l * s)) * TAXIROUTE_LINEFACTOR_2
-		BLx, BLy, BRx = s * s, -(l / w) * sc, 1 + (w / l) * sc
-		BRy, TLx, TLy, TRy = BLx, 1 - BRx, 1 - BLx, 1 - BLy
-		TRx = TLy
-	end
-
-	-- Thanks Blizzard for adding (-)10000 as a hard-cap and throwing errors!
-	-- The cap was added in 3.1.0 and I think it was upped in 3.1.1
-	-- (way less chance to get the error)
-	if TLx > 10000 then TLx = 10000 elseif TLx < -10000 then TLx = -10000 end
-	if TLy > 10000 then TLy = 10000 elseif TLy < -10000 then TLy = -10000 end
-	if BLx > 10000 then BLx = 10000 elseif BLx < -10000 then BLx = -10000 end
-	if BLy > 10000 then BLy = 10000 elseif BLy < -10000 then BLy = -10000 end
-	if TRx > 10000 then TRx = 10000 elseif TRx < -10000 then TRx = -10000 end
-	if TRy > 10000 then TRy = 10000 elseif TRy < -10000 then TRy = -10000 end
-	if BRx > 10000 then BRx = 10000 elseif BRx < -10000 then BRx = -10000 end
-	if BRy > 10000 then BRy = 10000 elseif BRy < -10000 then BRy = -10000 end
-
-	-- Set texture coordinates and anchors
-	T:ClearAllPoints()
-	T:SetTexCoord(TLx, TLy, BLx, BLy, TRx, TRy, BRx, BRy)
-	T:SetPoint("BOTTOMLEFT", C, relPoint, cx - Bwid, cy - Bhgt)
-	T:SetPoint("TOPRIGHT", C, relPoint, cx + Bwid, cy + Bhgt)
-	T:Show()
-
-	local playerName = mythicDungeonCharts.PlayerGraphIndex [graphIndex]
-	if (mythicDungeonCharts.Frame.ChartFrame.TextureID % 3 == 0 and playerName) then
-
-		local pixelFrame = tremove(mythicDungeonCharts.Frame.ChartFrame.FrameFree)
-		if (not pixelFrame) then
-			local newFrame = CreateFrame("frame", nil, mythicDungeonCharts.Frame.ChartFrame, "BackdropTemplate")
-			newFrame:SetSize(1, 1)
-
-			--newFrame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 2, tile = true})
-			--newFrame:SetBackdropColor(0, 0, 0, 1)
-			newFrame:SetScript("OnEnter", PixelFrameOnEnter)
-			newFrame:SetScript("OnLeave", PixelFrameOnLeave)
-
-			pixelFrame = newFrame
-		end
-
-		pixelFrame:SetPoint("BOTTOMLEFT", C, relPoint, cx - Bwid, cy - Bhgt)
-		pixelFrame:SetPoint("TOPRIGHT", C, relPoint, cx + Bwid, cy + Bhgt)
-
-		table.insert(mythicDungeonCharts.Frame.ChartFrame.FrameInUse, pixelFrame)
-		pixelFrame.PlayerName = playerName
-		pixelFrame.Height = ey
-
-	end
-
-	mythicDungeonCharts.Frame.ChartFrame.TextureID = mythicDungeonCharts.Frame.ChartFrame.TextureID + 1
-	return T
-end
 
 mythicDungeonCharts.ClassColors = {
 	["HUNTER1"] = { r = 0.67, g = 0.83, b = 0.45, colorStr = "ffabd473" },
@@ -596,4 +327,140 @@ mythicDungeonCharts.ClassColors = {
 
 if (Details222.Debug.MythicPlusChartWindowDebug) then
 	--C_Timer.After(1, mythicDungeonCharts.ShowChart)
+end
+
+function mythicDungeonCharts.RefreshBossTimeline(dungeonChartFrame, elapsedTime)
+	---@type df_chartmulti
+	local chartFrame = dungeonChartFrame.ChartFrame
+
+	for i, bossTable in ipairs(mythicDungeonCharts.ChartTable.BossDefeated) do
+		local bossWidget = dungeonChartFrame.BossWidgetsFrame.Widgets[i]
+
+		if (not bossWidget) then
+			local newBossWidget = CreateFrame("frame", "$parentBossWidget" .. i, dungeonChartFrame.BossWidgetsFrame, "BackdropTemplate")
+			newBossWidget:SetSize(64, 32)
+			newBossWidget:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			newBossWidget:SetBackdropColor(0, 0, 0, 0.1)
+			newBossWidget:SetBackdropBorderColor(0, 0, 0, 0)
+
+			local bossAvatar = detailsFramework:CreateImage(newBossWidget, "", 64, 32, "border")
+			bossAvatar:SetPoint("bottomleft", newBossWidget, "bottomleft", 0, 0)
+			bossAvatar:SetScale(1.0)
+			newBossWidget.AvatarTexture = bossAvatar
+
+			local verticalLine = detailsFramework:CreateImage(newBossWidget, "", 1, chartFrame:GetHeight() - 25, "overlay")
+			verticalLine:SetColorTexture(1, 1, 1, 0.3)
+			verticalLine:SetPoint("bottomleft", newBossWidget, "bottomright", 0, 0)
+
+			local timeText = detailsFramework:CreateLabel(newBossWidget)
+			timeText:SetPoint("bottomright", newBossWidget, "bottomright", 0, 0)
+			newBossWidget.TimeText = timeText
+
+			local timeBackground = detailsFramework:CreateImage(newBossWidget, "", 30, 12, "artwork")
+			timeBackground:SetColorTexture(0, 0, 0, 0.8)
+			timeBackground:SetPoint("topleft", timeText, "topleft", -2, 2)
+			timeBackground:SetPoint("bottomright", timeText, "bottomright", 2, 0)
+
+			dungeonChartFrame.BossWidgetsFrame.Widgets[i] = newBossWidget
+			bossWidget = newBossWidget
+		end
+
+		local chartLength = chartFrame:GetWidth()
+		local secondsPerPixel = chartLength / elapsedTime
+		local xPosition = bossTable[1] * secondsPerPixel
+
+		bossWidget:SetPoint("bottomright", chartFrame, "bottomleft", xPosition, 22)
+
+		bossWidget.TimeText:SetText(detailsFramework:IntegerToTimer(bossTable[1]))
+
+		if (bossTable[2].bossimage) then
+			bossWidget.AvatarTexture:SetTexture(bossTable[2].bossimage)
+		else
+			local bossAvatar = Details:GetBossPortrait(nil, nil, bossTable[2].name, bossTable[2].ej_instance_id)
+			bossWidget.AvatarTexture:SetTexture(bossAvatar)
+		end
+	end
+end
+
+function mythicDungeonCharts.CreateCloseMinimizeButtons(dungeonChartFrame)
+	local fMinimized = mythicDungeonCharts.FrameMinimized
+
+	local closeButton = CreateFrame("button", "$parentCloseButton", dungeonChartFrame, "UIPanelCloseButton")
+	closeButton:GetNormalTexture():SetDesaturated(true)
+	closeButton:SetWidth(24)
+	closeButton:SetHeight(24)
+	closeButton:SetPoint("topright", dungeonChartFrame, "topright", 0, -1)
+	closeButton:SetFrameLevel(dungeonChartFrame:GetFrameLevel()+16)
+
+	local minimizeButton = CreateFrame("button", "$parentCloseButton", dungeonChartFrame, "UIPanelCloseButton")
+	minimizeButton:GetNormalTexture():SetDesaturated(true)
+	minimizeButton:SetWidth(24)
+	minimizeButton:SetHeight(24)
+	minimizeButton:SetPoint("right", closeButton, "left", 2, 0)
+	minimizeButton:SetFrameLevel(dungeonChartFrame:GetFrameLevel()+16)
+	minimizeButton:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+	minimizeButton:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+	minimizeButton:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-MinimizeButton-Highlight]])
+
+	local closeButtonWhenMinimized = CreateFrame("button", "$parentCloseButton", fMinimized, "UIPanelCloseButton")
+	closeButtonWhenMinimized:GetNormalTexture():SetDesaturated(true)
+	closeButtonWhenMinimized:SetWidth(24)
+	closeButtonWhenMinimized:SetHeight(24)
+	closeButtonWhenMinimized:SetPoint("topright", fMinimized, "topright", 0, -1)
+	closeButtonWhenMinimized:SetFrameLevel(fMinimized:GetFrameLevel()+16)
+
+	local minimizeButtonWhenMinimized = CreateFrame("button", "$parentCloseButton", fMinimized, "UIPanelCloseButton")
+	minimizeButtonWhenMinimized:GetNormalTexture():SetDesaturated(true)
+	minimizeButtonWhenMinimized:SetWidth(24)
+	minimizeButtonWhenMinimized:SetHeight(24)
+	minimizeButtonWhenMinimized:SetPoint("right", closeButtonWhenMinimized, "left", 2, 0)
+	minimizeButtonWhenMinimized:SetFrameLevel(fMinimized:GetFrameLevel()+16)
+	minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+	minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+	minimizeButtonWhenMinimized:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-MinimizeButton-Highlight]])
+
+	closeButtonWhenMinimized:SetScript("OnClick", function()
+		dungeonChartFrame.IsMinimized = false
+		fMinimized:Hide()
+		minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+		minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+	end)
+
+	--replace the default click function
+	local minimize_func = function(self)
+		if (dungeonChartFrame.IsMinimized) then
+			dungeonChartFrame.IsMinimized = false
+			fMinimized:Hide()
+			dungeonChartFrame:Show()
+			minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+			minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+		else
+			dungeonChartFrame.IsMinimized = true
+			dungeonChartFrame:Hide()
+			fMinimized:Show()
+			minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-CollapseButton-Up]])
+			minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-CollapseButton-Up]])
+		end
+	end
+
+	minimizeButton:SetScript("OnClick", minimize_func)
+	minimizeButtonWhenMinimized:SetScript("OnClick", minimize_func)
+end
+
+function mythicDungeonCharts.CreateBossWidgets(dungeonChartFrame)
+	dungeonChartFrame.BossWidgetsFrame = CreateFrame("frame", "$parentBossFrames", dungeonChartFrame, "BackdropTemplate")
+	dungeonChartFrame.BossWidgetsFrame:SetFrameLevel(dungeonChartFrame:GetFrameLevel()+10)
+	dungeonChartFrame.BossWidgetsFrame.Widgets = {}
+
+	dungeonChartFrame.BossWidgetsFrame.GraphPin = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "overlay")
+	dungeonChartFrame.BossWidgetsFrame.GraphPin:SetTexture([[Interface\BUTTONS\UI-RadioButton]])
+	dungeonChartFrame.BossWidgetsFrame.GraphPin:SetTexCoord(17/64, 32/64, 0, 1)
+	dungeonChartFrame.BossWidgetsFrame.GraphPin:SetSize(16, 16)
+
+	dungeonChartFrame.BossWidgetsFrame.GraphPinGlow = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "artwork")
+	dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetTexture([[Interface\Calendar\EventNotificationGlow]])
+	dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetTexCoord(0, 1, 0, 1)
+	dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetSize(14, 14)
+	dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetBlendMode("ADD")
+	dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetPoint("center", dungeonChartFrame.BossWidgetsFrame.GraphPin, "center", 0, 0)
 end

@@ -2,53 +2,58 @@
 --documentation: see the header of the file charts.lua
 
 
---1º example: making a simple chart, just copy and paste this code into a lua file and run it
+--1º example: making a simple chart with two lines, just copy and paste this code into a lua file and run it
 do
-    local ChartFrameTest = ChartFrameExample1 or DetailsFramework:CreateGraphicLineFrame(UIParent, "ChartFrameExample1")
+    local ChartFrameTest = ChartFrameExample1 or DetailsFramework:CreateGraphicMultiLineFrame(UIParent, "ChartFrameExample1")
     ChartFrameTest:SetPoint("left", UIParent, "left", 10, 0) --set the position of the chart
     ChartFrameTest:SetSize(800, 600) --set the size of the chart
     DetailsFramework:ApplyStandardBackdrop(ChartFrameTest) --apply a backdrop to this example hence see the frame size
 
-    --set the data (required)
+    --add a line:
     local data = {1, 2, 30, 25, 6, 5, 4, 8, 7, 4, 1, 12, 15, 24, 18, 17, 14, 15, 8, 4, 14, 42, 22, 25, 30, 35, 39, 8, 7, 4, 1, 2, 5, 4, 8, 7, 4, 12, 12, 4}
-    local smoothnessLevel = 1 --(optional, default: 1)
-    ChartFrameTest:SetData(data, smoothnessLevel)
+    local smoothingMethod = "sma" --(optional, default: "sma")
+    local smoothnessLevel = 3 --(optional, default: 1)
+    local name = "Line 1" --(optional, default: none)
+    local red, green, blue, alpha = 1, 1, 1, 1 --(optional, default: 1, 1, 1, 1)
+
+    ChartFrameTest:AddData(data, smoothingMethod, smoothnessLevel, name, red, green, blue, alpha)
+
+    --add another line:
+    data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+    smoothingMethod = "loess" --using a different smoothing method
+    smoothnessLevel = 50
+    name = "Line 2"
+    local color = "red" --using a string with the color name
+    ChartFrameTest:AddData(data, smoothingMethod, smoothnessLevel, name, color)
+
     --draw the chart
     ChartFrameTest:Plot()
 end
 
---2º example: setting the color, thickness and scale of the line:
+--2º example: thickness and scale of the line:
 do
-    local ChartFrameTest = ChartFrameExample2 or DetailsFramework:CreateGraphicLineFrame(UIParent, "ChartFrameExample2")
+    local ChartFrameTest = ChartFrameExample2 or DetailsFramework:CreateGraphicMultiLineFrame(UIParent, "ChartFrameExample2")
     ChartFrameTest:SetPoint("left", UIParent, "left", 10, 0) --set the position of the chart
     ChartFrameTest:SetSize(800, 600) --set the size of the chart
     DetailsFramework:ApplyStandardBackdrop(ChartFrameTest) --apply a backdrop to this example hence see the frame size
+
+    --add the data (required)
+    local data = {1, 2, 30, 25, 6, 5, 4, 8, 7, 4, 1, 12, 15, 24 ,18, 17 ,14, 15, 8 , 4, 14, 42, 22, 25, 30, 35, 39, 8, 7, 4, 1, 2, 5, 4 ,8, 7 ,4, 12, 12 , 4}
+    ChartFrameTest:AddData(data)
 
     --set the line thickness (optional, default: 2)
     local lineThickness = 3
     ChartFrameTest:SetLineThickness(lineThickness)
 
-    --set the chart color (optional, default: "white")
-    local lineColor = {r = 1, g = 1, b = 0} --set it to "yellow"
-    ChartFrameTest:SetColor(lineColor) --using {r = 1, g = 1, b = 0}
-    ChartFrameTest:SetColor("yellow") --using the color name
-    ChartFrameTest:SetColor(1, 1, 0) --passing the rgb directly
-    ChartFrameTest:SetColor({1, 1, 0}) --using an index table
-
-    --set the data (required)
-    local data = {1, 2, 30, 25, 6, 5, 4, 8, 7, 4, 1, 12, 15, 24 ,18, 17 ,14, 15, 8 , 4, 14, 42, 22, 25, 30, 35, 39, 8, 7, 4, 1, 2, 5, 4 ,8, 7 ,4, 12, 12 , 4}
-    local smoothnessLevel = 1 --(optional, default: 1)
-    ChartFrameTest:SetData(data, smoothnessLevel)
-
     --height modifier, if for some reason need to scale the chart height
-    local heightScale = 1 --(optional, default: 1)
+    local heightScale = 1.2 --(optional, default: 1)
     --draw the chart
     ChartFrameTest:Plot(heightScale)
 end
 
 --3º example: setting the axes lines and labels
 do
-    local ChartFrameTest = ChartFrameExample3 or DetailsFramework:CreateGraphicLineFrame(UIParent, "ChartFrameExample3")
+    local ChartFrameTest = ChartFrameExample3 or DetailsFramework:CreateGraphicMultiLineFrame(UIParent, "ChartFrameExample3")
     ChartFrameTest:SetPoint("left", UIParent, "left", 10, 0)
     ChartFrameTest:SetSize(800, 600)
     DetailsFramework:ApplyStandardBackdrop(ChartFrameTest)
@@ -76,7 +81,7 @@ do
 
     --setting the data, doesn't matter if it is set at the top or right before Plot()
     local data = {1, 2, 30, 25, 6, 5, 4, 8, 7, 4, 1, 12, 15, 24 ,18, 17 ,14, 15, 8 , 4, 14, 42, 22, 25, 30, 35, 39, 8, 7, 4, 1, 2, 5, 4 ,8, 7 ,4, 12, 12 , 4}
-    ChartFrameTest:SetData(data) --smoothnessLevel is absent here, it'll use 1 as default
+    ChartFrameTest:AddData(data)
     ChartFrameTest:Plot()
 end
 
