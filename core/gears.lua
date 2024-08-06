@@ -732,10 +732,9 @@ Details.background_tasks_loop = Details:ScheduleRepeatingTimer("DoBackgroundTask
 ------
 local hasGroupMemberInCombat = function()
 	--iterate over party or raid members and check if any one of them are in combat, if any are return true
-	if (not IsInRaid()) then
-		--summing the player as the party unitId cache do include the player unitId and the GetNumGroupMembers() doesn't count the player
-		local amountOfPartyMembers = GetNumGroupMembers() + 1
-		for i, unitId in ipairs(Details222.UnitIdCache.Party) do
+	if (IsInRaid()) then
+		local amountOfPartyMembers = GetNumGroupMembers()
+		for i, unitId in ipairs(Details222.UnitIdCache.Raid) do
 			if (i <= amountOfPartyMembers) then
 				if (UnitAffectingCombat(unitId)) then
 					return true
@@ -745,8 +744,8 @@ local hasGroupMemberInCombat = function()
 			end
 		end
 	else
-		local amountOfPartyMembers = GetNumGroupMembers()
-		for i, unitId in ipairs(Details222.UnitIdCache.Raid) do
+		local amountOfPartyMembers = GetNumGroupMembers() + 1
+		for i, unitId in ipairs(Details222.UnitIdCache.Party) do
 			if (i <= amountOfPartyMembers) then
 				if (UnitAffectingCombat(unitId)) then
 					return true
@@ -761,17 +760,27 @@ local hasGroupMemberInCombat = function()
 end
 
 local checkForGroupCombat_Ticker = function()
+	local instanceName, isntanceType = GetInstanceInfo()
+	if (isntanceType ~= "none") then
+		if (Details222.parser_frame:GetScript("OnEvent") ~= Details222.Parser.OnParserEvent) then
+			Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
+		end
+		Details222.Parser.EventFrame.ticker:Cancel()
+		Details222.Parser.EventFrame.ticker = nil
+		return
+	end
+
 	if (hasGroupMemberInCombat()) then
 		Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
 	else
-		Details222.parser_frame:SetScript("OnEvent", nil)
+		Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 		Details222.Parser.EventFrame.ticker:Cancel()
 		Details222.Parser.EventFrame.ticker = nil
 	end
 end
 
 --~parser
-local bConsiderGroupMembers = false
+local bConsiderGroupMembers = true
 Details222.Parser.Handler = {}
 Details222.Parser.EventFrame = CreateFrame("frame")
 Details222.Parser.EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -779,18 +788,20 @@ Details222.Parser.EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 Details222.Parser.EventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 Details222.Parser.EventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
-	local bIsOpenWorld = select(2, GetInstanceInfo()) == "none"
+	local instanceName, isntanceType = GetInstanceInfo()
 
-	if (not bIsOpenWorld) then
-		Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
+	if (isntanceType ~= "none") then
+		if (Details222.parser_frame:GetScript("OnEvent") ~= Details222.Parser.OnParserEvent) then
+			Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
+		end
 		return
 	end
 
 	if (event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA") then
 		if (bConsiderGroupMembers) then
+			--check if any group member is in combat
 			if (hasGroupMemberInCombat()) then
 				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
-
 				--initiate a ticker to check if a unit in the group is still in combat
 				if (not Details222.Parser.EventFrame.ticker) then
 					Details222.Parser.EventFrame.ticker = C_Timer.NewTicker(1, checkForGroupCombat_Ticker)
@@ -799,7 +810,8 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 			end
 		else
-			if (UnitAffectingCombat("player")) then
+			--player is alone
+			if (InCombatLockdown()) then
 				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
 			else
 				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
@@ -811,9 +823,9 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 
 	elseif (event == "PLAYER_REGEN_ENABLED") then
 		if (bConsiderGroupMembers) then
+			--check if any group member is in combat
 			if (hasGroupMemberInCombat()) then
 				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
-
 				--initiate a ticker to check if a unit in the group is still in combat
 				if (not Details222.Parser.EventFrame.ticker) then
 					Details222.Parser.EventFrame.ticker = C_Timer.NewTicker(1, checkForGroupCombat_Ticker)
