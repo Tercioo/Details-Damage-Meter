@@ -1173,7 +1173,7 @@
 			desc = Loc ["STRING_CUSTOM_POT_DEFAULT_DESC"],
 			source = false,
 			target = false,
-			script_version = 8,
+			script_version = 9,
 			import_string = "1EvBVnkoq4FlxKwDWDjCn6Q0kfD7kL(YwruUMOLK7JaoGPX3rSrgZwLV4F73yJ5LMxjPDfBBzHXZZZmEMhg7p0FHVxoRGhH9x57HkeRzCFVhWcejn)x89YWWROIG8iojt47LYIqPYWFGslW9LHcwM(3cuk83i2MvibCdHMlq0iSm8lYqhhh5e5e9s0pydsS2jjLX4w6hAREnhlk4uzyVEYWbdYfCc9fNeghm2Q3NCgM0RVb2)qd3Vn8MBSvohwYN6P8GCIVxmopY3ZBn7vz4RRzkMid3cXNmKJiXYWICm8BKmmJjim4LXfkKGyynqomnIvqfyUJVNgLpG4UkW2pQljV6Fg2tIyu)Nh(N3(5H367rrBW(EZn8CjqCyRkdNMsIv7vce)fSqD3oCSKnZw9V4ifNIkYfSn3ZOWwkfZBXYstA4Qz9vrvzmI2OYiAJUPV5hfBhmaq3K22qYJalJemUcEds1omLKlMLSuqsjITJvwLR9xBIo6jSq)QPGXwp84IXUt9cgVyX3DVB5Ihd(BxV7TlXnMzGfYLzJKtsuOg03qGQGsTXtYqeEU1bWhs(GBMidlVgmGrt3cffPOTaX1l(foRiRXesIm0QfcJCZFszXC9sSST1KI2SGQltsy13G8yC1Uje9jO0C8(MV)tANP17)a3XRksacvKjiBWVjNFe4lxXsT911cAE0oMGnbpfc1wy1RCH9S33Z6mYb97rZfnHuv7hdCscdQrbFfHO)Qq3IcScEqghBSd2CZzQkxrEtfjrDF6ROTWFhECSmjaniTs)hK41jG6kWVn7(LEbZNTWD2ZbUpyFCC0PJwOC2Kq1LUFtZjZD)(jJNQR9kOe8c85xMMMqRTm8Vay6mjBiBMgSoqqmn(8gnyakoUzpvu1BB6ep763rDB0444)rPU2UvTVoqNCr88WKVl9MxAN5v2xEYUYRPNulJQJb34(vFFCo71k9WsT0PU3fmB(Jph89XUpemE6utVH3okQNPBuJZc0Q0YpvEYwrdNS7yTDJRV4IBd5kNr4lTzPdSBq(bogTr0D3PPJzGdA9ShFf(a6fZStPvOD7f7PRu(4eX4x1QdxDOTRcZ1fwDs05891)SLTUszmvoXU7EVtjJtA07rBSujQvz2zlnAnRz1Th(BHVHb6)t5tGPdlh3EuZC3hCCw942ibCkJvfc9rFemwQGKvpf9Bt87mt9XMGUEK33POENfX)5iA)HksFPIYVtr4par32H)ZWHW6xE8IYqmYixwf5U0e2f8jQNqQ0NUut1KpfYIwTbQJD474gfRSQ5NAEhZpMdY7yQUDsb8cwJjVSwC632boywTc)fLo4ou0)Po2engoDQOiFfcoy07rCPQ12x47))d",
 			script = [[
 				local combatObject, customContainer, instanceObject = ...
@@ -1247,7 +1247,7 @@
 						if (spellTable) then
 							local used = spellTable.activedamt
 							if (used and used > 0) then
-								local spellName, _, spellIcon = GetSpellInfo(spellId)
+								local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
 								GameCooltip:AddLine(spellName, used)
 								GameCooltip:AddIcon(spellIcon, 1, 1, iconSize, iconSize)
 								Details:AddTooltipBackgroundStatusbar()
@@ -1342,7 +1342,7 @@
 					local spellId = allHealingPotions[i]
 					local spellTable = spellContainer:GetSpell(spellId)
 					if (spellTable) then
-						local spellName, _, spellIcon = GetSpellInfo(spellId)
+						local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
 						GameCooltip:AddLine(spellName, Details:ToK(spellTable.total))
 						GameCooltip:AddIcon(spellIcon, 1, 1, iconSize, iconSize)
 						GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.75)
@@ -1351,7 +1351,7 @@
 			]],
 			percent_script = false,
 			total_script = false,
-			script_version = 18,
+			script_version = 19,
 		}
 
 --	/run _detalhes:AddDefaultCustomDisplays()
@@ -1512,7 +1512,7 @@
 			desc = "Show the crowd control amount for each player.",
 			source = false,
 			target = false,
-			script_version = 11,
+			script_version = 12,
 			script = [[
 				local combat, instance_container, instance = ...
 				local total, top, amount = 0, 0, 0
@@ -1543,7 +1543,7 @@
 				table.sort (spells, _detalhes.Sort2)
 
 				for index, spell in ipairs(spells) do
-				    local name, _, icon = GetSpellInfo(spell [1])
+				    local name, _, icon = Details.GetSpellInfo(spell [1])
 				    GameCooltip:AddLine(name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
@@ -1616,7 +1616,7 @@
 			desc = "Show the amount of crowd control received for each player.",
 			source = false,
 			target = false,
-			script_version = 3,
+			script_version = 4,
 			script = [[
 				local combat, instance_container, instance = ...
 				local total, top, amt = 0, 0, 0
@@ -1685,7 +1685,7 @@
 				table.sort (spells, _detalhes.Sort2)
 
 				for index, spell in ipairs(spells) do
-				    local name, _, icon = GetSpellInfo(spell [1])
+				    local name, _, icon = Details.GetSpellInfo(spell [1])
 				    GameCooltip:AddLine(name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
@@ -1750,7 +1750,7 @@
 			desc = Loc ["STRING_CUSTOM_MYSPELLS_DESC"],
 			source = false,
 			target = false,
-			script_version = 10,
+			script_version = 11,
 			script = [[
 				--get the parameters passed
 				local combat, instance_container, instance = ...
@@ -1843,7 +1843,7 @@
 				    debuff_uptime_total = floor(debuff_uptime / instance.showing:GetCombatTime() * 100)
 				end
 
-				local spellName = GetSpellInfo(spell.id)
+				local spellName = Details.GetSpellInfo(spell.id)
 				local amountOfCasts = combat:GetSpellCastAmount(Details.playername, spellName)
 
 				if (amountOfCasts == 0) then
