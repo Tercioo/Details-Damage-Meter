@@ -19,8 +19,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
 
-		Details.build_counter = 12829
-		Details.alpha_build_counter = 12829 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12830
+		Details.alpha_build_counter = 12830 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -1218,6 +1218,7 @@ do
 	_detalhes.empty_table = {}
 
 	--register textures and fonts for shared media
+		---@type table
 		local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 		--default bars
 		SharedMedia:Register("statusbar", "Details Hyanda", [[Interface\AddOns\Details\images\bar_hyanda]])

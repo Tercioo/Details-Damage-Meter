@@ -19,8 +19,11 @@ local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo or function(spellID) if not spellID then return nil end local si = C_Spell.GetSpellInfo(spellID) if si then return si.name, nil, si.iconID, si.castTime, si.minRange, si.maxRange, si.spellID, si.originalIconID end end
 local GetNumSpellTabs = GetNumSpellTabs or C_SpellBook.GetNumSpellBookSkillLines
 local GetSpellTabInfo = GetSpellTabInfo or function(tabLine) local skillLine = C_SpellBook.GetSpellBookSkillLineInfo(tabLine) if skillLine then return skillLine.name, skillLine.iconID, skillLine.itemIndexOffset, skillLine.numSpellBookItems, skillLine.isGuild, skillLine.offSpecID end end
+local SPELLBOOK_BANK_PLAYER = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
 local SpellBookItemTypeMap = Enum.SpellBookItemType and {[Enum.SpellBookItemType.Spell] = "SPELL", [Enum.SpellBookItemType.None] = "NONE", [Enum.SpellBookItemType.Flyout] = "FLYOUT", [Enum.SpellBookItemType.FutureSpell] = "FUTURESPELL", [Enum.SpellBookItemType.PetAction] = "PETACTION" } or {}
-local GetSpellBookItemInfo = GetSpellBookItemInfo or function(...) local si = C_SpellBook.GetSpellBookItemInfo(...) if si then return SpellBookItemTypeMap[si.itemType] or "NONE", si.spellID end end
+local GetSpellBookItemInfo = GetSpellBookItemInfo or function(...) local si = C_SpellBook.GetSpellBookItemInfo(...) if si then return SpellBookItemTypeMap[si.itemType] or "NONE", (si.itemType == Enum.SpellBookItemType.Flyout or si.itemType == Enum.SpellBookItemType.PetAction) and si.actionID or si.spellID or si.actionID, si end end
+local GetSpellBookItemTexture = GetSpellBookItemTexture or function(...) return C_SpellBook.GetSpellBookItemTexture(...) end
+local GetSpellTexture = GetSpellTexture or function(...) return C_Spell.GetSpellTexture(...) end
 
 local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
@@ -1710,9 +1713,12 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 		--fill with icons
 		local MACRO_ICON_FILENAMES = {}
 		local SPELLNAMES_CACHE = {}
+		local SPELLIDS_CACHE = {}
 
 		detailsFramework.IconPickFrame:SetScript("OnShow", function()
 			MACRO_ICON_FILENAMES[1] = "INV_MISC_QUESTIONMARK"
+			SPELLNAMES_CACHE[1] = "INV_MISC_QUESTIONMARK"
+			SPELLIDS_CACHE[1] = IS_WOW_PROJECT_MAINLINE and 74008 or 25675
 			local index = 2
 
 			for i = 1, GetNumSpellTabs() do
@@ -1722,10 +1728,11 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 
 				for j = offset, tabEnd - 1 do
 					--to get spell info by slot, you have to pass in a pet argument
-					local spellType, ID = GetSpellBookItemInfo(j, "player")
+					local spellType, ID, si = GetSpellBookItemInfo(j, SPELLBOOK_BANK_PLAYER)
 					if (spellType ~= "FLYOUT") then
-						MACRO_ICON_FILENAMES [index] = GetSpellBookItemTexture(j, "player") or 0
-						SPELLNAMES_CACHE [index] = GetSpellInfo(ID)
+						MACRO_ICON_FILENAMES [index] = si and si.iconID or GetSpellBookItemTexture(j, SPELLBOOK_BANK_PLAYER) or 0
+						SPELLNAMES_CACHE [index] = si and si.name or GetSpellInfo(ID)
+						SPELLIDS_CACHE [index] = si and (si.spellID or si.actionID) or ID
 						index = index + 1
 
 					elseif (spellType == "FLYOUT") then
@@ -1736,6 +1743,7 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 								if (isKnown) then
 									MACRO_ICON_FILENAMES [index] = GetSpellTexture(spellID) or 0
 									SPELLNAMES_CACHE [index] = GetSpellInfo(spellID)
+									SPELLIDS_CACHE [index] = spellID
 									index = index + 1
 								end
 							end
@@ -1808,9 +1816,19 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 							line.buttons[o].icon:SetTexture(texture)
 							line.buttons[o].texture = texture
 						else
-							line.buttons[o].icon:SetTexture(iconsInThisLine[o])
-							line.buttons[o].texture = iconsInThisLine[o]
+							local lineIcon = iconsInThisLine[o]
+							if type(lineIcon) == "string" and not string.find(lineIcon, "^[Ii]nterface") then
+								lineIcon = "Interface/ICONS/" .. lineIcon
+							end
+							DevTool:AddData(lineIcon, "lineIcon")
+							line.buttons[o].icon:SetTexture(lineIcon)
+							line.buttons[o].texture = lineIcon
 						end
+					end
+					
+					for o = #iconsInThisLine+1, 10 do -- cleanup unused
+						line.buttons[o].icon:SetTexture(nil)
+						line.buttons[o].texture = nil
 					end
 				end
 			end
@@ -1844,7 +1862,26 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 							currentTable = t
 						end
 
-						currentTable[index] = SPELLNAMES_CACHE[i]
+						currentTable[index] = SPELLIDS_CACHE[i] --SPELLNAMES_CACHE[i] --spellName won't work in 11.0, use IDs instead.
+
+						index = index + 1
+						if (index == 11) then
+							index = nil
+						end
+					end
+
+				end
+				
+				for i = 1, #MACRO_ICON_FILENAMES do
+					if (MACRO_ICON_FILENAMES[i] and type(MACRO_ICON_FILENAMES[i]) == "string" and MACRO_ICON_FILENAMES[i]:lower():find(filter)) then
+						if (not index) then
+							index = 1
+							local t = {}
+							iconList[#iconList+1] = t
+							currentTable = t
+						end
+
+						currentTable[index] = MACRO_ICON_FILENAMES[i]
 
 						index = index + 1
 						if (index == 11) then
@@ -1859,7 +1896,7 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 					iconList[#iconList+1] = t
 					for o = i, i+9 do
 						if (SPELLNAMES_CACHE[o]) then
-							t[#t+1] = SPELLNAMES_CACHE[o]
+							t[#t+1] = SPELLIDS_CACHE[o] --SPELLNAMES_CACHE[o] --spellName won't work in 11.0, use IDs instead.
 						end
 					end
 				end

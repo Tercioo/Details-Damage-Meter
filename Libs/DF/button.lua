@@ -892,7 +892,7 @@ end
 	---@field IsEnabled fun(self: df_button) : boolean returns true if the button is enabled
 	---@field SetIcon fun(self: df_button,texture: string|number, width: number|nil, height: number|nil, layout: string|nil, texcoord: table|nil, overlay: table|nil, textDistance: number|nil, leftPadding: number|nil, textHeight: number|nil, shortMethod: any|nil)
 	---@field GetIconTexture fun(self: df_button) : string returns the texture path of the button icon
-	---@field SetTexture fun(self: df_button, normalTexture: string, highlightTexture: string, pressedTexture: string, disabledTexture: string) set the regular button textures
+	---@field SetTexture fun(self: df_button, normalTexture: any, highlightTexture: any, pressedTexture: any, disabledTexture: any) set the regular button textures
 	---@field SetFontFace fun(self: df_button, font: string) set the button font
 	---@field SetFontSize fun(self: df_button, size: number) set the button font size
 	---@field SetTextColor fun(self: df_button, color: any) set the button text color

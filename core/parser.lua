@@ -5907,10 +5907,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	local keystoneLevels = {}
+	local playerRatings = {}
 	Details.KeystoneLevels = keystoneLevels
-	--save the keystone level for each of the 5 party members
+	Details.PlayerRatings = playerRatings
+	--save the keystone and rating level for each of the 5 party members
 
-	local saveGroupMembersKeystoneLevel = function()
+	local saveGroupMembersKeystoneAndRatingLevel = function()
 		wipe(keystoneLevels)
 		local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
 
@@ -5922,6 +5924,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					if (unitKeystoneInfo) then
 						local unitName = Details:GetFullName(unitId)
 						keystoneLevels[unitName] = unitKeystoneInfo.level
+						playerRatings[unitName] = unitKeystoneInfo.rating
 					end
 				end
 			end
@@ -5932,6 +5935,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (unitKeystoneInfo) then
 					local unitName = Details:GetFullName(unitId)
 					keystoneLevels[unitName] = unitKeystoneInfo.level
+					playerRatings[unitName] = unitKeystoneInfo.rating
 				end
 			end
 		end
@@ -5940,7 +5944,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function Details222.CacheKeystoneForAllGroupMembers()
 		local _, instanceType, difficultyID = GetInstanceInfo()
 		if (instanceType == "party") then
-			saveGroupMembersKeystoneLevel()
+			saveGroupMembersKeystoneAndRatingLevel()
 		end
 	end
 
@@ -5948,7 +5952,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.MythicPlus.WorldStateTimerEndAt = time()
 
 		--wait until the keystone is updated and send it to the party
-		saveGroupMembersKeystoneLevel()
+		saveGroupMembersKeystoneAndRatingLevel()
 
 		---@type number mapID
 		---@type number level
@@ -6605,8 +6609,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	--open world out of combat spell damage
+	local outofcombat_spell_damage = function(unused, token, time, whoGUID, whoName, whoFlags, targetGUID, targetName, targetFlags)
+		--identify if the attacker is a group member
+	end
+
 	local out_of_combat_interresting_events = {
 		["SPELL_SUMMON"] = parser.summon,
+		["SPELL_DAMAGE"] = outofcombat_spell_damage,
 	}
 
 	function Details222.Parser.OnParserEventOutOfCombat()
