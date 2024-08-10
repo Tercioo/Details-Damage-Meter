@@ -29,7 +29,7 @@ local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local mythicDungeonCharts = Details222.MythicPlus.Charts.Listener
 local mythicDungeonFrames = Details222.MythicPlus.Frames
 
-local CONST_DEBUG_MODE = true
+local CONST_DEBUG_MODE = false
 local LOOT_DEBUG_MODE = false
 
 --fallback if the class color isn't found
