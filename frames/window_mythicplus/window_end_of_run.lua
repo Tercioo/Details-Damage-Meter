@@ -190,6 +190,9 @@ function lootFrame.UpdateUnitLoot(playerBanner)
 
 	local timeNow = GetTime()
 	local lootCache = lootFrame.LootCache[unitName]
+	if (not lootCache) then
+		return
+	end
 
 	---@type details_loot_cache[]
 	local lootCandidates = {}

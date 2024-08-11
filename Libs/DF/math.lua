@@ -42,6 +42,7 @@ DF.Math = {}
 ---@field RandomFraction fun(minValue: number, maxValue: number) : number
 ---@field GetNinePoints fun(object: uiobject) : df_ninepoints
 ---@field GetClosestPoint fun(ninePoints: df_ninepoints, coordinate: df_coordinate) : anchorid
+---@field GetVectorLength fun(vectorX: number, vectorY: number, vectorZ: number?) : number return the magnitude of a vector
 
 ---@class df_coordinate : table
 ---@field x number
@@ -120,6 +121,13 @@ function DF.Math.GetNinePoints(object)
 	--]=]
 
 	return ninePoints
+end
+
+function DF.Math.GetVectorLength(vectorX, vectorY, vectorZ)
+	if (not vectorZ) then
+		return (vectorX * vectorX + vectorY * vectorY) ^ 0.5
+	end
+	return (vectorX * vectorX + vectorY * vectorY + vectorZ * vectorZ) ^ 0.5
 end
 
 ---return a random fraction between two values, example: RandomFraction(.2, .3) returns a number between .2 and .3, 0.25, 0.28, 0.21, etc
