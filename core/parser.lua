@@ -2345,6 +2345,7 @@
 		[115069] = true, -- Stance of the Sturdy Ox (Monk)
 		[20711] = true, -- Spirit of Redemption (Priest)
 		[184553]  = true, --Soul Capacitor
+		[357170]  = true, --Time Dilation
 	}
 
 	local ignored_overheal = { --during refresh, some shield does not replace the old value for the new one
