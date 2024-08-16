@@ -620,6 +620,43 @@ function Details222.StartUp.StartMeUp()
 			Details:Destroy(Details.npcid_pool or {})
 			Details:Destroy(Details.current_exp_raid_encounters or {})
 			Details.data_wipes_exp["11"] = true
+
+			Details.frame_background_color[1] = 0.0549
+			Details.frame_background_color[2] = 0.0549
+			Details.frame_background_color[3] = 0.0549
+			Details.frame_background_color[4] = 0.934
+
+			if (Details.breakdown_spell_tab.spellcontainer_headers.critpercent) then
+				Details.breakdown_spell_tab.spellcontainer_headers.critpercent.enabled = true
+			end
+
+			if (Details.breakdown_spell_tab.spellcontainer_headers.uptime) then
+				Details.breakdown_spell_tab.spellcontainer_headers.uptime.enabled = true
+			end
+
+			if (Details.breakdown_spell_tab.spellcontainer_headers.hits) then
+				Details.breakdown_spell_tab.spellcontainer_headers.hits.enabled = true
+			end
+
+			Details.breakdown_general.bar_texture = "You Are the Best!"
+
+			Details.tooltip.rounded_corner = false
+
+			local tooltipBarColor = Details.tooltip.bar_color
+			tooltipBarColor[1] = 0.129
+			tooltipBarColor[2] = 0.129
+			tooltipBarColor[3] = 0.129
+			tooltipBarColor[4] = 1
+
+			local tooltipBackgroundColor = Details.tooltip.background
+			tooltipBackgroundColor[1] = 0.054
+			tooltipBackgroundColor[2] = 0.054
+			tooltipBackgroundColor[3] = 0.054
+			tooltipBackgroundColor[4] = 0.8
+
+			Details.tooltip.fontshadow = true
+
+			
 		end
 	end
 

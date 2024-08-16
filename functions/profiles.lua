@@ -1109,7 +1109,8 @@ local default_profile = {
 			fontsize_title = 10,
 			fontcolor = {1, 1, 1, 1},
 			fontcolor_right = {1, 0.7, 0, 1}, --{1, 0.9254, 0.6078, 1}
-			fontshadow = false,
+			fontshadow = true,
+			fontcontour = {0, 0, 0, 1},
 			bar_color = {0.3960, 0.3960, 0.3960, 0.8700},
 			background = {0.0941, 0.0941, 0.0941, 0.8},
 			divisor_color = {1, 1, 1, 1},
@@ -1469,10 +1470,10 @@ local default_global_data = {
 		font_color = {0.9, 0.9, 0.9, 0.923},
 		font_outline = "NONE",
 		font_face = "DEFAULT",
-		bar_texture = "Skyline",
+		bar_texture = "You Are the Best!",
 	},
 
-	frame_background_color = {0.1215, 0.1176, 0.1294, 0.8},
+	frame_background_color = {0.0549, 0.0549, 0.0549, 0.934},
 
 --/run Details.breakdown_spell_tab.spellcontainer_height = 311 --352
 	--breakdown spell tab
