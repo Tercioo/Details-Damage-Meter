@@ -28,7 +28,7 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 27
+local version = 28
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -158,8 +158,11 @@ function DF:CreateCoolTip()
 		["SubMenuIsTooltip"] = true,
 		["LeftBorderSize"] = true, --offset between the left border and the left icon, default: 10 + offset
 		["RightBorderSize"] = true, --offset between the right border and the right icon, default: -10 + offset
+		["TopBorderSize"] = true, --offset between the top border and the top of the first line, default: -6 + offset
 		["HeighMod"] = true,
 		["HeighModSub"] = true,
+		["TooltipFrameHeightOffset"] = true,
+		["TooltipFrameHeightOffsetSub"] = true,
 		["IconBlendMode"] = true,
 		["IconBlendModeHover"] = true,
 		["SubFollowButton"] = true,
@@ -1867,7 +1870,8 @@ function DF:CreateCoolTip()
 		end
 
 		--normalize height of all rows
-		local heightValue = -6 + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
+		local heightValue = (gameCooltip.OptionsTable.TopBorderSize or -6) + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
+
 		for i = 1, #LeftTextTableSub do
 			local menuButton = frame2.Lines[i]
 
@@ -1896,7 +1900,7 @@ function DF:CreateCoolTip()
 
 			else
 				menuButton:SetHeight(frame2.hHeight + (gameCooltip.OptionsTable.ButtonHeightMod or 0))
-				menuButton:SetPoint("top", frame2, "top", 0, (((i-1) * frame2.hHeight) * -1) - 6 + (gameCooltip.OptionsTable.ButtonsYMod or 0) + spacing)
+				menuButton:SetPoint("top", frame2, "top", 0, (((i-1) * frame2.hHeight) * -1) + (gameCooltip.OptionsTable.TopBorderSize or -6) + (gameCooltip.OptionsTable.ButtonsYMod or 0) + spacing)
 			end
 
 			if (gameCooltip.OptionsTable.YSpacingMod and not gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
@@ -1931,17 +1935,22 @@ function DF:CreateCoolTip()
 			end
 		end
 
+		local heightMod = gameCooltip.OptionsTable.TooltipFrameHeightOffsetSub or 0
+
 		if (gameCooltip.OptionsTable.FixedHeight) then
 			PixelUtil.SetHeight(frame2, gameCooltip.OptionsTable.FixedHeight)
 		else
 			if (gameCooltip.OptionsTable.AlignAsBlizzTooltip) then
-				PixelUtil.SetHeight(frame2, ((heightValue - 10) * -1) + (gameCooltip.OptionsTable.AlignAsBlizzTooltipFrameHeightOffset or 0))
+				local newHeight = ((heightValue - 10) * -1) + (gameCooltip.OptionsTable.AlignAsBlizzTooltipFrameHeightOffset or 0)
+				PixelUtil.SetHeight(frame2, newHeight)
 
 			elseif (gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
-				PixelUtil.SetHeight(frame2, (heightValue + spacing) * -1)
+				local newHeight = (heightValue + spacing) * -1
+				PixelUtil.SetHeight(frame2, newHeight + heightMod)
 
 			else
-				PixelUtil.SetHeight(frame2, max((frame2.hHeight * gameCooltip.Indexes) + 8 + ((gameCooltip.OptionsTable.ButtonsYMod or 0) * -1), 22))
+				local newHeight = (frame2.hHeight * gameCooltip.Indexes) + 8 + ((gameCooltip.OptionsTable.ButtonsYMod or 0) * -1)
+				PixelUtil.SetHeight(frame2, max(newHeight + heightMod, 22))
 			end
 		end
 
@@ -2109,7 +2118,8 @@ function DF:CreateCoolTip()
 		end
 
 		--normalize height of all rows
-		local heightValue = -6 + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
+		local heightValue = (gameCooltip.OptionsTable.TopBorderSize or -6) + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
+
 		for i = 1, gameCooltip.Indexes do
 			local menuButton = frame1.Lines[i]
 
@@ -2135,10 +2145,9 @@ function DF:CreateCoolTip()
 				menuButton:SetHeight(height)
 				menuButton:SetPoint("top", frame1, "top", 0, heightValue)
 				heightValue = heightValue + (height * -1) + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
-
 			else
 				menuButton:SetHeight(frame1.hHeight + (gameCooltip.OptionsTable.ButtonHeightMod or 0))
-				menuButton:SetPoint("top", frame1, "top", 0, (((i-1) * frame1.hHeight) * -1) - 6 + (gameCooltip.OptionsTable.ButtonsYMod or 0) + spacing)
+				menuButton:SetPoint("top", frame1, "top", 0, (((i-1) * frame1.hHeight) * -1) + (gameCooltip.OptionsTable.TopBorderSize or -6) + (gameCooltip.OptionsTable.ButtonsYMod or 0) + spacing)
 			end
 
 			if (gameCooltip.OptionsTable.YSpacingMod and not gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
@@ -2173,6 +2182,8 @@ function DF:CreateCoolTip()
 			end
 		end
 
+		local heightMod = gameCooltip.OptionsTable.TooltipFrameHeightOffset or 0
+
 		if (gameCooltip.OptionsTable.FixedHeight) then
 			PixelUtil.SetHeight(frame1, gameCooltip.OptionsTable.FixedHeight)
 		else
@@ -2180,10 +2191,11 @@ function DF:CreateCoolTip()
 				PixelUtil.SetHeight(frame1, ((heightValue - 10) * -1) + (gameCooltip.OptionsTable.AlignAsBlizzTooltipFrameHeightOffset or 0))
 
 			elseif (gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
-				PixelUtil.SetHeight(frame1, (heightValue + spacing) * -1)
-
+				local newHeight = (heightValue + spacing) * -1
+				PixelUtil.SetHeight(frame1, newHeight + heightMod)
 			else
-				PixelUtil.SetHeight(frame1, max((frame1.hHeight * gameCooltip.Indexes) + 8 + ((gameCooltip.OptionsTable.ButtonsYMod or 0) * -1), 22))
+				local newHeight = (frame1.hHeight * gameCooltip.Indexes) + 8 + ((gameCooltip.OptionsTable.ButtonsYMod or 0) * -1)
+				PixelUtil.SetHeight(frame1, max(newHeight + heightMod, 22))
 			end
 		end
 
