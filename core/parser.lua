@@ -941,8 +941,7 @@
 					end
 				end
 
-				--local spellInfo = C_Spell.GetSpellInfo(spellId)
-				--print("1 spell:", spellId, spellInfo.name)
+				local spellInfo = C_Spell.GetSpellInfo(spellId)
 				Details222.StartCombat(sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
 			else
 				--entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atr�s
@@ -953,7 +952,6 @@
 
 					--can't start a combat with a dot with the latest combat finished less than 10 seconds ago
 					if (Details.last_combat_time + 10 < _tempo) then
-						--print("2 spell:", spellId)
 						Details222.StartCombat(sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
 					end
 				end
@@ -1186,22 +1184,25 @@
 			thisEvent[3] = amount --amount of damage or healing
 			thisEvent[4] = time --parser time
 
-			--current unit heal
+			--current unit healh
 			if (targetActor.arena_enemy) then
 				--this is an arena enemy, get the heal with the unit Id
 				local unitId = Details.arena_enemies[targetName]
 				if (not unitId) then
 					unitId = Details:GuessArenaEnemyUnitId(targetName)
 				end
+
 				if (unitId) then
-					thisEvent[5] = UnitHealth(unitId) / UnitHealthMax(unitId)
+					local health = UnitHealth(unitId)
+					local maxHealth = max(UnitHealthMax(unitId), SMALL_FLOAT)
+					thisEvent[5] = health / maxHealth
 				else
 					thisEvent[5] = cacheAnything.arenaHealth[targetName] or 100000
 				end
 
 				cacheAnything.arenaHealth[targetName] = thisEvent[5]
 			else
-				thisEvent[5] = UnitHealth(targetName) / UnitHealthMax(targetName)
+				thisEvent[5] = UnitHealth(targetName) / max(UnitHealthMax(targetName), SMALL_FLOAT)
 			end
 
 			thisEvent[6] = sourceName --source name
@@ -1302,7 +1303,7 @@
 				thisEvent[2] = spellId --spellid || false if this is a battle ress line
 				thisEvent[3] = amount --amount of damage or healing
 				thisEvent[4] = time --parser time
-				thisEvent[5] = UnitHealth(targetName) / UnitHealthMax(targetName) --current unit heal
+				thisEvent[5] = UnitHealth(targetName) / max(UnitHealthMax(targetName), SMALL_FLOAT) --current unit heal
 				thisEvent[6] = sourceName --source name
 				thisEvent[7] = absorbed
 				thisEvent[8] = spellType or school
@@ -2662,12 +2663,12 @@
 						unitId = Details:GuessArenaEnemyUnitId(targetName)
 					end
 					if (unitId) then
-						thisEvent[5] = UnitHealth(unitId) / UnitHealthMax(unitId)
+						thisEvent[5] = UnitHealth(unitId) / max(UnitHealthMax(unitId), SMALL_FLOAT)
 					else
 						thisEvent[5] = 0
 					end
 				else
-					thisEvent[5] = UnitHealth(targetName) / UnitHealthMax(targetName)
+					thisEvent[5] = UnitHealth(targetName) / max(UnitHealthMax(targetName), SMALL_FLOAT)
 				end
 
 				thisEvent[6] = sourceName
@@ -6599,7 +6600,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	local eraNamedSpellsToID = {}
 
 	-- ~parserstart ~startparser ~cleu ~parser
-
 	function Details222.Parser.OnParserEvent()
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 
@@ -6610,15 +6610,22 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	--open world out of combat spell damage
-	local outofcombat_spell_damage = function(unused, token, time, whoGUID, whoName, whoFlags, targetGUID, targetName, targetFlags)
+	local outofcombat_spell_damage = function(unused, token, time, whoGUID, whoName, whoFlags, targetGUID, targetName, targetFlags, targetFlags2, ...)
 		--identify if the attacker is a group member
+		local IS_GROUP_OBJECT 	= 	0x00000007
+		local bIsValidGroupMember = bitBand(whoFlags, IS_GROUP_OBJECT) ~= 0
+		if (bIsValidGroupMember) then
+			token_list[token](nil, token, time, whoGUID, whoName, whoFlags, targetGUID, targetName, targetFlags, targetFlags2, ...)
+		end
 	end
 
 	local out_of_combat_interresting_events = {
 		["SPELL_SUMMON"] = parser.summon,
+		["SWING_DAMAGE"] = outofcombat_spell_damage,
 		["SPELL_DAMAGE"] = outofcombat_spell_damage,
 	}
 
+	--OutOfCombat parser is only used in open world to avoid getting information from people that are outside of the group
 	function Details222.Parser.OnParserEventOutOfCombat()
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 		local func = out_of_combat_interresting_events[token]

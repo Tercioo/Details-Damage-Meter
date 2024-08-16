@@ -839,6 +839,16 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
+--create a details listener which registers the combat enter event, create the function to receive the registerted event ad call the Details222.Parser.EventFrame:OnEvent with player_regen_disable
+local detailsEnterInCombatListener = Details:CreateEventListener()
+detailsEnterInCombatListener:RegisterEvent("COMBAT_PLAYER_ENTER") --COMBAT_PLAYER_ENTER from events.lua, this event is triggered when Details! enter in combat
+function detailsEnterInCombatListener:OnEvent()
+	if (Details222.Parser.GetState() == "STATE_RESTRICTED") then
+		Details222.Parser.EventFrame:GetScript("OnEvent")(Details222.Parser.EventFrame, "PLAYER_REGEN_DISABLED")
+	end
+end
+
+
 function Details222.Parser.GetState()
 	local parserEngine = Details222.parser_frame:GetScript("OnEvent")
 	if (parserEngine == Details222.Parser.OnParserEvent) then
@@ -2175,7 +2185,7 @@ local MAX_INSPECT_AMOUNT = 1
 local MIN_ILEVEL_TO_STORE = 50
 local LOOP_TIME = 7
 
-function Details:IlvlFromNetwork(player, realm, core, serialNumber, itemLevel, talentsSelected, currentSpec)
+function Details:IlvlFromNetwork(unitName, realmName, coreVersion, unitGUID, itemLevel, talentsSelected, currentSpec)
 	if (Details.debug and false) then
 		local talents = "Invalid Talents"
 		if (type(talentsSelected) == "table") then
@@ -2184,44 +2194,44 @@ function Details:IlvlFromNetwork(player, realm, core, serialNumber, itemLevel, t
 				talents = talents .. talentsSelected [i] .. ","
 			end
 		end
-		Details222.DebugMsg("Received PlayerInfo Data: " ..(player or "Invalid Player Name") .. " | " ..(itemLevel or "Invalid Item Level") .. " | " ..(currentSpec or "Invalid Spec") .. " | " .. talents  .. " | " ..(serialNumber or "Invalid Serial"))
+		Details222.DebugMsg("Received PlayerInfo Data: " ..(unitName or "Invalid Player Name") .. " | " ..(itemLevel or "Invalid Item Level") .. " | " ..(currentSpec or "Invalid Spec") .. " | " .. talents  .. " | " ..(unitGUID or "Invalid Serial"))
 	end
 
-	if (not player) then
+	if (not unitName) then
 		return
 	end
 
 	--older versions of details wont send serial nor talents nor spec
-	if (not serialNumber or not itemLevel or not talentsSelected or not currentSpec) then
+	if (not unitGUID or not itemLevel or not talentsSelected or not currentSpec) then
 		--if any data is invalid, abort
 		return
 	end
 
 	--won't inspect this actor
-	Details.trusted_characters[serialNumber] = true
+	Details.trusted_characters[unitGUID] = true
 
-	if (type(serialNumber) ~= "string") then
+	if (type(unitGUID) ~= "string") then
 		return
 	end
 
 	--store the item level
 	if (type(itemLevel) == "number") then
-		Details.item_level_pool[serialNumber] = {name = player, ilvl = itemLevel, time = time()}
+		Details.item_level_pool[unitGUID] = {name = unitName, ilvl = itemLevel, time = time()}
 	end
 
 	--store talents
 	if (type(talentsSelected) == "table") then
 		if (talentsSelected[1]) then
-			Details.cached_talents[serialNumber] = talentsSelected
+			Details.cached_talents[unitGUID] = talentsSelected
 		end
 
 	elseif (type(talentsSelected) == "string" and talentsSelected ~= "") then
-		Details.cached_talents[serialNumber] = talentsSelected
+		Details.cached_talents[unitGUID] = talentsSelected
 	end
 
 	--store the spec the player is playing
 	if (type(currentSpec) == "number") then
-		Details.cached_specs[serialNumber] = currentSpec
+		Details.cached_specs[unitGUID] = currentSpec
 	end
 end
 
@@ -2574,9 +2584,7 @@ function ilvl_core:ZoneChanged(zone_type)
 end
 
 function ilvl_core:OnEnter()
-	if (IsInRaid()) then
-		Details:SendCharacterData()
-	end
+	Details:SendCharacterData()
 
 	if (can_start_loop()) then
 		ilvl_core:Reset()

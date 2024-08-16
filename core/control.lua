@@ -437,9 +437,11 @@
 	end
 
 	function Details:ScheduleSyncPlayerActorData()
+		--do not sync if in battleground or arena
 		if ((IsInGroup() or IsInRaid()) and (Details.zone_type == "party" or Details.zone_type == "raid")) then
-			--do not sync if in battleground or arena
-			Details:SendCharacterData()
+			--do a random delay
+			local delay = RandomFloatInRange(1, 4)
+			C_Timer.After(delay, Details.SendCharacterData)
 		end
 	end
 
@@ -1354,6 +1356,7 @@
 		GameCooltip:SetOption("TextColor", Details.tooltip.fontcolor)
 		GameCooltip:SetOption("TextColorRight", Details.tooltip.fontcolor_right)
 		GameCooltip:SetOption("TextShadow", Details.tooltip.fontshadow and "OUTLINE")
+		GameCooltip:SetOption("TextContour", Details.tooltip.fontcontour)
 
 		GameCooltip:SetOption("LeftBorderSize", -0) --offset between the left border and the left icon, default: 10 + offset
 		GameCooltip:SetOption("RightBorderSize", 0) --offset between the right border and the right icon, default: -10 + offset

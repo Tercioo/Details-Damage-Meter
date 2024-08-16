@@ -169,7 +169,7 @@
 		end
 
 		--vertical, horizonal tree
-		if (DetailsFramework.IsDragonflight()) then
+		if (DetailsFramework.IsDragonflightAndBeyond()) then
 			talentsAsString = detailsFramework:GetDragonlightTalentString()
 		end
 

@@ -3740,7 +3740,7 @@ do
                 end
             end
             
-            if (pluginObject.OpenOptionsPanel) then
+            if (rawget(pluginObject, "OpenOptionsPanel")) then
                 DF:NewButton(bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 18, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], nil, options_button_template)
                 bframe ["OptionsButton"..i]:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
                 bframe ["OptionsButton"..i]:SetTextColor(button_color_rgb)
@@ -4310,8 +4310,27 @@ do
                     Details.tooltip.fontshadow = value
                     afterUpdate()
                 end,
-                name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
+                name = Loc ["STRING_OPTIONS_TEXT_OUTLINE"],
                 desc = Loc ["STRING_OPTIONS_TOOLTIPS_FONTSHADOW_DESC"],
+            },
+
+			{--shadow color
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(Details.tooltip.fontcontour)
+                    return {r, g, b, a}
+                end,
+                set = function(self, r, g, b, a)
+                    local color = Details.tooltip.fontcontour
+                    color[1] = r
+                    color[2] = g
+                    color[3] = b
+                    color[4] = a
+                    afterUpdate()
+                end,
+                name = "Shadow Color",
+                desc = "Color of the text shadow",
+                hidden = true,
             },
 
             {--text size
