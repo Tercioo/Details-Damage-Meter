@@ -28,7 +28,7 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 26
+local version = 27
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -45,7 +45,7 @@ function DF:CreateCoolTip()
 
 	local defaultBackdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,
 	tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}}
-	local defaultBackdropColor = {0.1215, 0.1176, 0.1294, 0.8000}
+	local defaultBackdropColor = {0.1215, 0.1176, 0.1294, 0.9500}
 	local defaultBackdropBorderColor = {0.05, 0.05, 0.05, 1}
 	local defaultTexCoord = {0, 1, 0, 1}
 
@@ -144,7 +144,8 @@ function DF:CreateCoolTip()
 		["TextFont"] = true,
 		["TextColor"] = true,
 		["TextColorRight"] = true,
-		["TextShadow"] = true,
+		["TextShadow"] = true, --text shadow is doing the text outline
+		["TextActuallyShadow"] = true, --text shadow which is the actually text shadow
 		["LeftTextWidth"] = true,
 		["RightTextWidth"] = true,
 		["LeftTextHeight"] = true,
@@ -188,6 +189,10 @@ function DF:CreateCoolTip()
 
 		["FrameHeightSizeOffset"] = "HeighMod",
 		["FrameHeightSizeOffsetSub"] = "HeighModSub",
+
+		["TextOutline"] = "TextShadow",
+		["TextSilhouette"] = "TextActuallyShadow",
+		["TextContour"] = "TextActuallyShadow",
 
 		--space between the tooltip's left side and the start of the line
 		["LeftPadding"] = "LeftBorderSize",
@@ -1094,6 +1099,17 @@ function DF:CreateCoolTip()
 				menuButton.leftText:SetFont(gameCooltip.defaultFont, leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow)
 			end
 
+			--text shadow color
+			if (leftTextSettings[11]) then
+				local shadow_r, shadow_g, shadow_b, shadow_a = DF:ParseColors(leftTextSettings[11])
+				menuButton.leftText:SetShadowColor(shadow_r, shadow_g, shadow_b, shadow_a)
+			elseif (gameCooltip.OptionsTable.TextActuallyShadow) then
+				local shadow_r, shadow_g, shadow_b, shadow_a = DF:ParseColors(gameCooltip.OptionsTable.TextActuallyShadow)
+				menuButton.leftText:SetShadowColor(shadow_r, shadow_g, shadow_b, shadow_a)
+			else
+				menuButton.leftText:SetShadowColor(0, 0, 0, 1)
+			end
+
 			local heightMod = gameCooltip.OptionsTable.TextHeightMod or 0
 			menuButton.leftText:SetPoint("center", menuButton.leftIcon, "center", 0, 0 + heightMod)
 			menuButton.leftText:SetPoint("left", menuButton.leftIcon, "right", 3, 0 + heightMod)
@@ -1178,6 +1194,17 @@ function DF:CreateCoolTip()
 				end
 			else
 				menuButton.rightText:SetFont(gameCooltip.defaultFont, rightTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, rightTextSettings[8] or gameCooltip.OptionsTable.TextShadow)
+			end
+
+			--text shadow color
+			if (rightTextSettings[11]) then
+				local shadow_r, shadow_g, shadow_b, shadow_a = DF:ParseColors(rightTextSettings[11])
+				menuButton.rightText:SetShadowColor(shadow_r, shadow_g, shadow_b, shadow_a)
+			elseif (gameCooltip.OptionsTable.TextActuallyShadow) then
+				local shadow_r, shadow_g, shadow_b, shadow_a = DF:ParseColors(gameCooltip.OptionsTable.TextActuallyShadow)
+				menuButton.rightText:SetShadowColor(shadow_r, shadow_g, shadow_b, shadow_a)
+			else
+				menuButton.rightText:SetShadowColor(0, 0, 0, 1)
 			end
 		else
 			menuButton.rightText:SetText("")
@@ -2027,7 +2054,7 @@ function DF:CreateCoolTip()
 				--mana    range
 				--instant    cooldown
 
-				gameCooltip:ShowRoundedCorner()
+				--gameCooltip:ShowRoundedCorner()
 			end
 		end
 	end
@@ -3365,13 +3392,13 @@ function DF:CreateCoolTip()
 	--adds a line.
 	--only works with cooltip type1 and 2 (tooltip and tooltip with bars)
 	--parameters: left text, right text[, L color R, L color G, L color B, L color A[, R color R, R color G, R color B, R color A[, wrap]]] 
-	function gameCooltip:AddDoubleLine (leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight) --ãddline ~addline
-		return gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight)
+	function gameCooltip:AddDoubleLine (leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight, textContour) --ãddline ~addline
+		return gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight, textContour)
 	end
 
 	--adds a line for tooltips
 	--AddLine creates a new line on the tooltip
-	function gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight)
+	function gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight, textContour)
 		--check data integrity
 		local leftTextType = type(leftText)
 		if (leftTextType ~= "string") then
@@ -3392,7 +3419,7 @@ function DF:CreateCoolTip()
 		end
 
 		if (type(ColorR1) ~= "number") then
-			ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight = ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace
+			ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight, textContour = ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag
 			if (type(ColorR1) == "boolean" or not ColorR1) then
 				ColorR1, ColorG1, ColorB1, ColorA1 = 0, 0, 0, 0
 			else
@@ -3401,7 +3428,7 @@ function DF:CreateCoolTip()
 		end
 
 		if (type(ColorR2) ~= "number") then
-			fontSize, fontFace, fontFlag, textWidth, textHeight = ColorG2, ColorB2, ColorA2, fontSize, fontFace
+			fontSize, fontFace, fontFlag, textWidth, textHeight, textContour = ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag
 			if (type(ColorR2) == "boolean" or not ColorR2) then
 				ColorR2, ColorG2, ColorB2, ColorA2 = 0, 0, 0, 0
 			else
@@ -3502,6 +3529,7 @@ function DF:CreateCoolTip()
 		lineTable_Left[8] = fontFlag
 		lineTable_Left[9] = textWidth
 		lineTable_Left[10] = textHeight
+		lineTable_Left[11] = textContour
 
 		lineTable_Right[1] = rightText
 		lineTable_Right[2] = ColorR2
@@ -3513,6 +3541,7 @@ function DF:CreateCoolTip()
 		lineTable_Right[8] = fontFlag
 		lineTable_Right[9] = textWidth
 		lineTable_Right[10] = textHeight
+		lineTable_Right[11] = textContour
 	end
 
 	function gameCooltip:AddSpecial(widgetType, index, subIndex, ...)

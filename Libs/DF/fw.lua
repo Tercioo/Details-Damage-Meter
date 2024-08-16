@@ -1,6 +1,6 @@
 
 
-local dversion = 561
+local dversion = 562
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -3054,7 +3054,13 @@ DF.button_templates["STANDARD_GRAY"] = {
 	backdropcolor = {0.2, 0.2, 0.2, 0.502},
 	backdropbordercolor = {0, 0, 0, 0.5},
 	onentercolor = {0.4, 0.4, 0.4, 0.502},
+}
 
+DF.button_templates["OPAQUE_DARK"] = {
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Buttons\WHITE8X8]], tileSize = 8, tile = true},
+	backdropcolor = {0.2, 0.2, 0.2, 1},
+	backdropbordercolor = {0, 0, 0, 1},
+	onentercolor = {0.4, 0.4, 0.4, 1},
 }
 
 --sliders

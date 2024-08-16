@@ -63,7 +63,7 @@ detailsFramework.TooltipHandlerMixin = {
 		if (tooltipText and tooltipText ~= "") then
 			GameCooltip:Preset(2)
 			GameCooltip:AddLine(tooltipText)
-			GameCooltip:ShowRoundedCorner()
+			--GameCooltip:ShowRoundedCorner() --disabled rounded corners by default
 			GameCooltip:ShowCooltip(getFrame(self), "tooltip")
 		end
 	end,
