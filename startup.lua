@@ -23,8 +23,8 @@ function Details222.StartUp.StartMeUp()
 		return Details.AddOnStartTime or GetTime()
 	end
 
+	--load custom spells on login
 	C_Timer.After(3, function()
-		--load custom spells on login
 		Details:FillUserCustomSpells()
 	end)
 
@@ -143,7 +143,8 @@ function Details222.StartUp.StartMeUp()
 			return
 		end
 		Details.scheduled_window_update = nil
-		Details:RefreshMainWindow(-1, true)
+		local bForceRefresh = true
+		Details:RefreshMainWindow(-1, bForceRefresh)
 	end
 
 	function Details:ScheduleWindowUpdate(time, bIsForced)
@@ -154,7 +155,8 @@ function Details222.StartUp.StartMeUp()
 		Details.scheduled_window_update = Details.Schedules.NewTimer(time or 1, Details.ScheduledWindowUpdate, Details, bIsForced)
 	end
 
-	Details:RefreshMainWindow(-1, true)
+	local bForceRefresh = true
+	Details:RefreshMainWindow(-1, bForceRefresh)
 	Details:RefreshUpdater()
 
 	for instanceId = 1, Details:GetNumInstances() do
@@ -183,7 +185,7 @@ function Details222.StartUp.StartMeUp()
 		local refreshAllInstances = -1
 		local forceRefresh = true
 		Details:RefreshMainWindow(refreshAllInstances, forceRefresh)
-		local lowerInstance = Details:GetLowerInstanceNumber()
+		local lowerInstanceId = Details:GetLowerInstanceNumber()
 
 		for id = 1, Details:GetNumInstances() do
 			local instance = Details:GetInstance(id)
@@ -201,7 +203,7 @@ function Details222.StartUp.StartMeUp()
 				end
 
 				--refresh desaturated icons if is lower instance because plugins shall have installed their icons at this point
-				if (id == lowerInstance) then
+				if (id == lowerInstanceId) then
 					instance:DesaturateMenu()
 					instance:SetAutoHideMenu(nil, nil, true)
 				end
@@ -212,8 +214,8 @@ function Details222.StartUp.StartMeUp()
 		Details.ToolBar:ReorganizeIcons()
 
 		--refresh skin for other windows
-		if (lowerInstance) then
-			for instanceId = lowerInstance+1, Details:GetNumInstances() do
+		if (lowerInstanceId) then
+			for instanceId = lowerInstanceId+1, Details:GetNumInstances() do
 				local instance = Details:GetInstance(instanceId)
 				if (instance and instance.baseframe and instance.ativa) then
 					instance:ChangeSkin()
@@ -230,8 +232,8 @@ function Details222.StartUp.StartMeUp()
 				Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
 			end
 
-			for id = 1, Details.instances_amount do
-				local instance = Details:GetInstance(id)
+			for instanceId = 1, Details.instances_amount do
+				local instance = Details:GetInstance(instanceId)
 				if (instance and instance:IsEnabled()) then
 					if (not instance.wallpaper.enabled) then
 						instance:InstanceWallpaper(false)
@@ -312,17 +314,17 @@ function Details222.StartUp.StartMeUp()
 	--scan pets
 	Details:SchedulePetUpdate(1)
 
-	--send messages gathered on initialization
+	--send messages gathered on initialization, these messages contain warnings and errors
 	Details.Schedules.NewTimer(10, Details.ShowDelayMsg, Details)
 
-	--send instance open signal
+	--send instance open event for each instance opened
 	for id, instancia in Details:ListInstances() do
 		if (instancia.ativa) then
 			Details:SendEvent("DETAILS_INSTANCE_OPEN", nil, instancia)
 		end
 	end
 
-	--send details startup done signal
+	--send details startup done event, this signal that details is ready to work
 	function Details:AnnounceStartup()
 		Details:SendEvent("DETAILS_STARTED", "SEND_TO_ALL")
 
@@ -344,7 +346,7 @@ function Details222.StartUp.StartMeUp()
 		Details.failed_to_load = nil
 	end
 
-	--announce alpha version
+	--display the version right after the startup, this will fade out after a few seconds
 	function Details:AnnounceVersion()
 		for index, instancia in Details:ListInstances() do
 			if (instancia.ativa) then
@@ -356,7 +358,7 @@ function Details222.StartUp.StartMeUp()
 	--check version
 	Details:CheckVersion(true)
 
-	--restore cooltip anchor position, this is for the custom anchor in the screen
+	--restore cooltip anchor position, this is for the custom anchor in the screen set in the tooltip options
 	DetailsTooltipAnchor:Restore()
 
 	--check is this is the first run ever
@@ -421,6 +423,17 @@ function Details222.StartUp.StartMeUp()
 
 		Details:FillUserCustomSpells()
 		Details:AddDefaultCustomDisplays()
+	end
+
+	if (C_AddOns) then
+		hooksecurefunc(C_AddOns, "LoadAddOn", function(addOnName)
+			if (addOnName == "Blizzard_GarrisonUI") then
+				GarrisonMissionTutorialFrame:HookScript("OnShow", function(self)
+					GarrisonMissionTutorialFrame:Hide()
+				end)
+				GarrisonMissionTutorialFrame:Hide()
+			end
+		end)
 	end
 
 	local lowerInstanceId = Details:GetLowerInstanceNumber()
