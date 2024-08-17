@@ -6648,29 +6648,29 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details222.Parser.OnParserEventPVP()
-		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+		local time, token, hidding, sourceGUID, sourceName, sourceFlags, sourceFlags2, targetGUID, targetName, targetFlags, targetFlags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 		local func = token_list[token]
 
 		if (func) then
-			if (group_roster_name_cache[who_serial]) then
-				who_name = group_roster_name_cache[who_serial]
+			if (group_roster_name_cache[sourceGUID]) then
+				sourceName = group_roster_name_cache[sourceGUID]
 			else
-				if (who_serial:match("^Pl")) then
-					who_name = who_name:gsub("-%a+$", "")
-					group_roster_name_cache[who_serial] = who_name
+				if (sourceGUID:match("^Pl")) then
+					sourceName = sourceName:gsub("-%a+$", "")
+					group_roster_name_cache[sourceGUID] = sourceName
 				end
 			end
 
-			if (group_roster_name_cache[target_serial]) then
-				target_name = group_roster_name_cache[target_serial]
+			if (group_roster_name_cache[targetGUID]) then
+				targetName = group_roster_name_cache[targetGUID]
 			else
-				if (target_serial:match("^Pl")) then
-					target_name = target_name:gsub("-%a+$", "")
-					group_roster_name_cache[target_serial] = target_name
+				if (targetGUID:match("^Pl")) then
+					targetName = targetName:gsub("-%a+$", "")
+					group_roster_name_cache[targetGUID] = targetName
 				end
 			end
 
-			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+			return func(nil, token, time, sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetFlags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		end
 	end
 

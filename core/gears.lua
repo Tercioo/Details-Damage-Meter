@@ -790,15 +790,15 @@ Details222.Parser.EventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 	local instanceName, isntanceType = GetInstanceInfo()
 
+	if (isntanceType == "pvp" or isntanceType == "arena") then
+		Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventPVP)
+		return
+	end
+
 	if (isntanceType ~= "none") then
 		if (Details222.parser_frame:GetScript("OnEvent") ~= Details222.Parser.OnParserEvent) then
 			Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
 		end
-		return
-	end
-
-	if (isntanceType == "pvp" or isntanceType == "arena") then
-		Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventPVP)
 		return
 	end
 
