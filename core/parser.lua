@@ -6972,9 +6972,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				
 				if (Details.cached_specs[unitGUID] == 1473) then
 					if (unitGUID == playerGUID) then
-						table.insert(aug_members_cache, {unitGUID, unitName, "1297"})
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
 					else
-						table.insert(aug_members_cache, {unitGUID, unitName, "1298"})
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x512})
 					end
 				end
 			end
@@ -7002,9 +7002,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				
 				if (Details.cached_specs[unitGUID] == 1473) then
 					if (unitGUID == playerGUID) then
-						table.insert(aug_members_cache, {unitGUID, unitName, "1297"})
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
 					else
-						table.insert(aug_members_cache, {unitGUID, unitName, "1298"})
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x512})
 					end
 				end
 			end
@@ -7013,7 +7013,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			local unitIdExtra = unitIdCache[GetNumGroupMembers()]
 			local unitGUIDExtra = UnitGUID(unitIdExtra)
 			if (Details.cached_specs[unitGUIDExtra] == 1473) then
-				table.insert(aug_members_cache, {unitGUID, unitName, "1298"})
+				if (unitGUID == playerGUID) then
+					table.insert(aug_members_cache, {unitGUIDExtra, unitNameExtra, 0x511})
+				else
+					table.insert(aug_members_cache, {unitGUIDExtra, unitNameExtra, 0x512})
+				end
 			end
 
 			--player
@@ -7054,7 +7058,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 				
 			if (Details.cached_specs[playerGUID] == 1473) then
-				table.insert(aug_members_cache, {unitGUID, unitName, "1297"})
+				table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
 			end
 		end
 
