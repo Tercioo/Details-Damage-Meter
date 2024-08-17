@@ -668,8 +668,7 @@ function Details222.StartUp.StartMeUp()
 			tooltipBackgroundColor[4] = 0.8
 
 			Details.tooltip.fontshadow = true
-
-			
+			Details.tooltip.fontsize = 11
 		end
 	end
 

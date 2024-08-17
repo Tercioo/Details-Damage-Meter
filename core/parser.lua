@@ -945,7 +945,7 @@
 					end
 				end
 
-				local spellInfo = C_Spell.GetSpellInfo(spellId)
+				--local spellInfo = C_Spell.GetSpellInfo(spellId)
 				Details222.StartCombat(sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
 			else
 				--entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atr�s
@@ -6202,6 +6202,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	local update_persistant_unitname_cache = function()
+		Details.UpdatePersistantCacheTimer = nil
+
 		local unitIdCache
 
 		if (IsInRaid()) then
@@ -6230,7 +6232,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function Details.parser_functions:GROUP_ROSTER_UPDATE(...)
 		local bIsInGroup = IsInGroup() or IsInRaid()
 
-		update_persistant_unitname_cache()
+		if (not Details.UpdatePersistantCacheTimer) then
+			Details.UpdatePersistantCacheTimer = C_Timer.NewTimer(2, update_persistant_unitname_cache)
+		end
 
 		if (not Details.in_group) then
 			Details.in_group = bIsInGroup
@@ -6441,8 +6445,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	function Details.parser_functions:UNIT_NAME_UPDATE(...)
+	function Details.parser_functions:UNIT_NAME_UPDATE(unitId)
 		Details:SchedulePetUpdate(5)
+		local unitGUID = UnitGUID(unitId)
+		if (unitGUID) then
+			if (unitGUID:match("^Pl")) then
+				local unitFullName = Details:GetFullName(unitId)
+				if (unitFullName) then
+					group_roster_name_cache[unitGUID] = unitFullName
+				end
+			end
+		end
 	end
 
 	function Details.parser_functions:PLAYER_TARGET_CHANGED(...)
