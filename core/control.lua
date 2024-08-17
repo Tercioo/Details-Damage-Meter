@@ -1467,15 +1467,23 @@
 			if (not Details.GameCooltipFrame1Shadow) then
 				Details.GameCooltipFrame1Shadow = GameCooltipFrame1:CreateTexture(nil, "background")
 				Details.GameCooltipFrame1Shadow:SetTexture([[Interface\AddOns\Details\images\shadow_square.png]], nil, nil, "TRILINEAR")
-				local offset = 4
-				Details.GameCooltipFrame1Shadow:SetPoint("topleft", GameCooltipFrame1, "topleft", -offset, offset)
-				Details.GameCooltipFrame1Shadow:SetPoint("bottomright", GameCooltipFrame1, "bottomright", offset, -offset)
 				GameCooltipFrame1:HookScript("OnHide", function(self)
 					Details.GameCooltipFrame1Shadow:Hide()
 				end)
 			end
 
 			if (Details.tooltip.show_border_shadow) then
+				local offset = 1
+				if (GameCooltipFrame1:GetHeight() > 200) then
+					offset = 4
+				elseif (GameCooltipFrame1:GetHeight() > 150) then
+					offset = 3
+				elseif (GameCooltipFrame1:GetHeight() > 80) then
+					offset = 2
+				end
+
+				Details.GameCooltipFrame1Shadow:SetPoint("topleft", GameCooltipFrame1, "topleft", -offset, offset)
+				Details.GameCooltipFrame1Shadow:SetPoint("bottomright", GameCooltipFrame1, "bottomright", offset, -offset)
 				Details.GameCooltipFrame1Shadow:Show()
 			else
 				Details.GameCooltipFrame1Shadow:Hide()

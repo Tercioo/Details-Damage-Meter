@@ -115,6 +115,10 @@
 	--pets
 		local petCache = petContainer.Pets
 
+	--store the unit names from all group members
+		---@type table<guid, unitname>
+		local group_roster_name_cache = {}
+
 	--ignore deaths
 		local ignore_death_cache = {}
 	--cache
@@ -6206,9 +6210,39 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return Details.in_group
 	end
 
+	local update_persistant_unitname_cache = function()
+		local unitIdCache
+
+		if (IsInRaid()) then
+			unitIdCache = Details222.UnitIdCache.Raid
+		else
+			unitIdCache = Details222.UnitIdCache.Party
+		end
+
+		for i, unitId in ipairs(unitIdCache) do
+			if (UnitExists(unitId)) then
+				local unitGUID = UnitGUID(unitId)
+				if (unitGUID) then
+					if (not group_roster_name_cache[unitGUID]) then
+						local unitFullName = Details:GetFullName(unitId)
+						if (unitFullName) then
+							group_roster_name_cache[unitGUID] = unitFullName
+						end
+					end
+				end
+			else
+				break
+			end
+		end
+	end
+
 	function Details.parser_functions:GROUP_ROSTER_UPDATE(...)
+		local bIsInGroup = IsInGroup() or IsInRaid()
+
+		update_persistant_unitname_cache()
+
 		if (not Details.in_group) then
-			Details.in_group = IsInGroup() or IsInRaid()
+			Details.in_group = bIsInGroup
 
 			if (Details.in_group) then
 				--player entered in a group, cleanup and set the new enviromnent
@@ -6228,7 +6262,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 		else
-			Details.in_group = IsInGroup() or IsInRaid()
+			Details.in_group = bIsInGroup
 
 			if (not Details.in_group) then
 				--player left the group, run routines to cleanup the environment
@@ -6369,6 +6403,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		--load auto run code
 		Details222.AutoRunCode.StartAutoRun()
+
+		update_persistant_unitname_cache()
 
 		Details.isLoaded = true
 	end
@@ -6611,9 +6647,38 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	-- ~parserstart ~startparser ~cleu ~parser
 	function Details222.Parser.OnParserEvent()
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
-
 		local func = token_list[token]
+
 		if (func) then
+			who_name = group_roster_name_cache[who_serial] or who_name
+			target_name = group_roster_name_cache[target_serial] or target_name
+			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		end
+	end
+
+	function Details222.Parser.OnParserEventPVP()
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+		local func = token_list[token]
+
+		if (func) then
+			if (group_roster_name_cache[who_serial]) then
+				who_name = group_roster_name_cache[who_serial]
+			else
+				if (who_serial:match("^Pl")) then
+					who_name = who_name:gsub("-%a+$", "")
+					group_roster_name_cache[who_serial] = who_name
+				end
+			end
+
+			if (group_roster_name_cache[target_serial]) then
+				target_name = group_roster_name_cache[target_serial]
+			else
+				if (target_serial:match("^Pl")) then
+					target_name = target_name:gsub("-%a+$", "")
+					group_roster_name_cache[target_serial] = target_name
+				end
+			end
+
 			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		end
 	end
@@ -6639,6 +6704,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 		local func = out_of_combat_interresting_events[token]
 		if (func) then
+			who_name = group_roster_name_cache[who_serial] or who_name
+			target_name = group_roster_name_cache[target_serial] or target_name
 			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		end
 	end

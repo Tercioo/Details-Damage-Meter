@@ -797,6 +797,11 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 		return
 	end
 
+	if (isntanceType == "pvp" or isntanceType == "arena") then
+		Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventPVP)
+		return
+	end
+
 	if (event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA") then
 		if (bConsiderGroupMembers) then
 			--check if any group member is in combat
@@ -848,11 +853,12 @@ function detailsEnterInCombatListener:OnEvent()
 	end
 end
 
-
 function Details222.Parser.GetState()
 	local parserEngine = Details222.parser_frame:GetScript("OnEvent")
 	if (parserEngine == Details222.Parser.OnParserEvent) then
 		return "STATE_REGULAR"
+	elseif (parserEngine == Details222.Parser.OnParserEventPVP) then
+		return "STATE_PVP"
 	elseif (parserEngine == Details222.Parser.OnParserEventOutOfCombat) then
 		return "STATE_RESTRICTED"
 	end
