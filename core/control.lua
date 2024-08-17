@@ -1385,10 +1385,12 @@
 		if (frame.GetActor) then
 			local actor = frame:GetActor()
 			if (actor) then
-				local class = actor:Class()
-				local classColor = RAID_CLASS_COLORS[class]
-				GameCooltip:SetBackdrop(1, backdrop, classColor, borderColor)
-				GameCooltip:SetColor(1, 0, 0, 0, 0.7)
+				local class = actor.classe
+				if (class) then
+					local classColor = RAID_CLASS_COLORS[class]
+					GameCooltip:SetBackdrop(1, backdrop, classColor, borderColor)
+					GameCooltip:SetColor(1, 0, 0, 0, 0.7)
+				end
 			end
 		end
 

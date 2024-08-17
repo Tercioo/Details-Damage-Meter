@@ -130,7 +130,7 @@ local createOptionsPanel = function()
 
         {type = "blank"},
 
-        {type = "label", get = function() return "Spell Header Options" end, text_template = subSectionTitleTextTemplate},
+        {type = "label", get = function() return "What to Show" end, text_template = subSectionTitleTextTemplate},
             { --per second
                 type = "toggle",
                 get = function() return Details.breakdown_spell_tab.spellcontainer_headers["persecond"].enabled end,

@@ -740,6 +740,8 @@ local lazyChartUpdate = function(payload, iterationCount, maxIterations)
                 fillLine:SetEndPoint("bottomleft", endX, 0)
                 fillLine:SetDrawLayer("overlay", self.depth)
                 fillLine:SetColorTexture(r, g, b, 0.15 + (self.depth/10))
+
+                fillLine:Show()
             end
         end
     end
@@ -965,6 +967,12 @@ detailsFramework.ChartFrameMixin = {
             bFillChart = bFillChart,
             fillLineThickness = fillLineThickness,
         }
+
+        for i = #fillerLines_InUse, 1, -1 do
+            local line = table.remove(fillerLines_InUse, i)
+            fillerLines_InAvailable[#fillerLines_InAvailable+1] = line
+            line:Hide()
+        end
 
         detailsFramework.Schedules.LazyExecute(lazyChartUpdate, payload)
 

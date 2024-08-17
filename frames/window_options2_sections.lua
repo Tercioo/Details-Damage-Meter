@@ -7026,6 +7026,20 @@ do
                 name = Loc["STRING_OPTIONS_MPLUS_SHOWENDPANEL"],
                 desc = Loc["STRING_OPTIONS_MPLUS_SHOWENDPANEL"],
             },
+
+            {--time to auto hide
+                type = "range",
+                get = function() return Details.mythic_plus.autoclose_time end,
+                set = function(self, fixedparam, value)
+                    Details.mythic_plus.autoclose_time = value
+                    afterUpdate()
+                end,
+                min = 20,
+                max = 300,
+                step = 1,
+                name = Loc ["STRING_OPTIONS_MPLUS_AUTO_CLOSE_TIME"],
+                desc = Loc ["STRING_OPTIONS_MPLUS_AUTO_CLOSE_TIME_DESC"],
+            },
         }
 
         sectionFrame.sectionOptions = sectionOptions

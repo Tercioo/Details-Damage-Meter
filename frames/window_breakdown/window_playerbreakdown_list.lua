@@ -372,6 +372,9 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 		totalStatusBar:SetAlpha(0.5)
 		totalStatusBar:SetPoint("bottomleft", specIcon, "bottomright", 0, 0)
 
+		local gradientTexture = DetailsFramework:CreateTexture(OTTFrame, {gradient = "horizontal", fromColor = {.1, .1, .1, .634}, toColor = "transparent"}, 100, 1, "border", {0, 1, 0, 1}, "segmentsGradient")
+		gradientTexture:SetPoint("lefts")
+
 		line.specIcon = specIcon
 		line.roleIcon = roleIcon
 		line.playerName = playerName
@@ -558,8 +561,12 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 		line.segmentText = segmentText
 		line.segmentIcon = segmentIcon
 
+		--create a texture gradient in horizontal with the left side starting from black and the right side ending in transparent, the width is 40 and is placed at the left side of the line
+		local gradientTexture = DetailsFramework:CreateTexture(line, {gradient = "horizontal", fromColor = {.1, .1, .1, .634}, toColor = "transparent"}, 100, 1, "border", {0, 1, 0, 1}, "segmentsGradient")
+		gradientTexture:SetPoint("lefts")
+
 		segmentIcon:SetPoint("left", line, "left", 2, 0)
-		segmentText:SetPoint("left", segmentIcon.widget, "right", 3, 1)
+		segmentText:SetPoint("left", segmentIcon.widget, "right", 5, 0)
 
 		line.UpdateLine = updateSegmentLine
 
@@ -582,7 +589,8 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 	breakdownWindowFrame.segmentScrollBox = segmentsScroll
 
 	--remove the standard backdrop
-	segmentsScroll:SetBackdrop({})
+	segmentsScroll:SetBackdrop(nil)
+	segmentsScroll.__background:Hide()
 
 	--create the scrollbox lines
 	for i = 1, scrollbox_lines do

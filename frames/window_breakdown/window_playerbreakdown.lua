@@ -269,7 +269,7 @@ function Details222.BreakdownWindow.RefreshPlayerScroll()
 end
 
 Details.PlayerBreakdown.RoundedCornerPreset = {
-	roundness = 6,
+	roundness = 12,
 	color = {.1, .1, .1, 0.834},
 }
 
@@ -799,8 +799,12 @@ function Details:CreateBreakdownWindow()
 	breakdownWindowFrame.SummaryWindowWidgets:Hide()
 
 	local scaleBar = detailsFramework:CreateScaleBar(breakdownWindowFrame, Details.player_details_window)
-	scaleBar.label:AdjustPointsOffset(-6, 3)
+	scaleBar.label:AdjustPointsOffset(-3, 1)
+	scaleBar.label:SetTextColor{0.8902, 0.7294, 0.0157, 1}
+	scaleBar.label:SetIgnoreParentAlpha(true)
 	breakdownWindowFrame:SetScale(Details.player_details_window.scale)
+
+	--1, 0.8235, 0, 1 - text color of the label of the scale bar | plugins text color: 0.8902, 0.7294, 0.0157, 1 | 0.8902, 0.7294, 0.0157, 1
 
 	--class icon
 	breakdownWindowFrame.classIcon = breakdownWindowFrame:CreateTexture(nil, "overlay", nil, 1)
@@ -818,7 +822,7 @@ function Details:CreateBreakdownWindow()
 	--title
 	detailsFramework:NewLabel(breakdownWindowFrame, breakdownWindowFrame, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	breakdownWindowFrame.titleText:SetPoint("center", breakdownWindowFrame, "center")
-	breakdownWindowFrame.titleText:SetPoint("top", breakdownWindowFrame, "top", 0, -3)
+	breakdownWindowFrame.titleText:SetPoint("top", breakdownWindowFrame, "top", 0, -5)
 
 	--create the texts shown on the window
 	do
@@ -875,7 +879,7 @@ function Details:CreateBreakdownWindow()
 
 	function breakdownWindowFrame:SetStatusbarText(text, fontSize, fontColor)
 		if (not text) then
-			breakdownWindowFrame:SetStatusbarText("Details! Damage Meter | Click 'Options' button for settings.", 10, "gray")
+			breakdownWindowFrame:SetStatusbarText("An AddOn by Terciob | Part of Details! Damage Meter | Click 'Options' button for settings.", 10, "gray")
 			return
 		end
 		statusBar.Text.text = text
@@ -884,7 +888,7 @@ function Details:CreateBreakdownWindow()
 	end
 
 	local rightClickToCloseLabel = Details:CreateRightClickToCloseLabel(statusBar)
-	rightClickToCloseLabel:SetPoint("right", -332, 4)
+	rightClickToCloseLabel:SetPoint("right", -283, 3)
 
 	--set default text
 	breakdownWindowFrame:SetStatusbarText()

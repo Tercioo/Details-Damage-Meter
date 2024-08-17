@@ -560,7 +560,7 @@ function spellsTab.CreateTargetBar(self, index) --~create ~target ~createtarget 
 
 	---@type texture this is the statusbar texture
 	local statusBarTexture = statusBar:CreateTexture("$parentTexture", "artwork")
-	statusBarTexture:SetTexture(SharedMedia:Fetch("statusbar", "Details Hyanda"))
+	statusBarTexture:SetTexture(SharedMedia:Fetch("statusbar", Details.breakdown_general.bar_texture))
 	statusBar:SetStatusBarTexture(statusBarTexture)
 	statusBar:SetStatusBarColor(1, 1, 1, 1)
 

@@ -180,16 +180,16 @@ function mythicDungeonCharts.ShowChart()
 		local combatTime = mythicDungeonCharts.ChartTable.ElapsedTime
 
 		local opacity = 1
-		local smoothnessLevel = 50
+		--local smoothnessLevel = 50
+		--local smoothMethod = "loess"
 		local smoothnessLevel = 20
-		local smoothMethod = "loess"
 		local smoothMethod = "sma"
 
 		local chartSize = #chartData
 
 		local shrinkBy = 1
-		if (chartSize >= 600) then
-			shrinkBy = math.max(2, math.floor(chartSize/400))
+		if (chartSize >= 800) then
+			shrinkBy = math.max(2, math.floor(chartSize/800))
 		end
 
 		local reducedData = chartFrame:ShrinkData(chartData, shrinkBy)

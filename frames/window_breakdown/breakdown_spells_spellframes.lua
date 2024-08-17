@@ -117,19 +117,22 @@ local onEnterSpellTarget = function(targetFrame)
 	---@type number the top value of targets
 	local topValue = math.max(targets[1] and targets[1][2] or 0, 0.001)
 
-	local cooltip = GameCooltip
-	cooltip:Preset(2)
+	local gameCooltip = GameCooltip
+	--cooltip:Preset(2)
+	Details:FormatCooltipForSpells()
+	gameCooltip:SetOption("FixedWidth", 260)
+	gameCooltip:SetOption("YSpacingMod", -8)
 
 	for targetIndex, targetTable in ipairs(targets) do
 		local targetName = targetTable[1]
 		local value = targetTable[2]
-		cooltip:AddLine(targetIndex .. ". " .. targetName, Details:Format(value))
-		GameCooltip:AddIcon(CONST_TARGET_TEXTURE, 1, 1, 14, 14)
+		gameCooltip:AddLine(targetIndex .. ". " .. targetName, Details:Format(value))
+		gameCooltip:AddIcon(CONST_TARGET_TEXTURE, 1, 1, 20, 20)
 		Details:AddTooltipBackgroundStatusbar(false, value / topValue * 100)
 	end
 
-	cooltip:SetOwner(targetFrame)
-	cooltip:Show()
+	gameCooltip:SetOwner(targetFrame)
+	gameCooltip:Show()
 end
 
 local onLeaveSpellTarget = function(self)
@@ -1094,7 +1097,13 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			textIndex = textIndex + 1
 
 		elseif (header.name == "uptime") then --need to get the uptime of the spell with the biggest uptime
-			text:SetText(string.format("%.1f", uptime / combatTime * 100) .. "%")
+			local uptimePercent = uptime / combatTime * 100
+			if (uptimePercent > 0) then
+				text:SetText(string.format("%.1f", uptime / combatTime * 100) .. "%")
+			else
+				text:SetText("")
+			end
+
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 

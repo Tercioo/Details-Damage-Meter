@@ -32,6 +32,8 @@ local mythicDungeonFrames = Details222.MythicPlus.Frames
 local CONST_DEBUG_MODE = false
 local LOOT_DEBUG_MODE = false
 
+local readyFrameName = "DetailsMythicDungeonFinishedRunFrame"
+
 --fallback if the class color isn't found
 local defaultColor = {r = 0.9, g = 0.9, b = 0.9}
 
@@ -42,8 +44,10 @@ local playerBannerSettings = {
 	playername_background_height = 12,
 	playername_fontsize = 12,
 	playername_fontcolor = {1, 1, 1},
-	dungeon_texture_width = 32,
-	dungeon_texture_height = 32,
+	dungeon_texture_width = 45,
+	dungeon_texture_height = 45,
+	loot_square_width = 32,
+	loot_square_height = 32,
 	loot_square_amount = 2,
 	trans_anim_duration = 0.5, --time that the translation animation takes to move the banner from right to left
 }
@@ -245,8 +249,8 @@ function lootFrame.UpdateUnitLoot(playerBanner)
 		lootSquare.LootItemLevel:SetText(effectiveILvl or "0")
 
 		--update size
-		lootSquare.LootIcon:SetSize(playerBannerSettings.dungeon_texture_width, playerBannerSettings.dungeon_texture_height)
-		lootSquare.LootIconBorder:SetSize(playerBannerSettings.dungeon_texture_width, playerBannerSettings.dungeon_texture_height)
+		lootSquare.LootIcon:SetSize(playerBannerSettings.loot_square_width, playerBannerSettings.loot_square_height)
+		lootSquare.LootIconBorder:SetSize(playerBannerSettings.loot_square_width, playerBannerSettings.loot_square_height)
 
 		lootSquare:Show()
 
@@ -591,15 +595,15 @@ local createPlayerBanner = function(parent, name, index)
     local levelFontString = levelUpTextFrame:CreateFontString("$parentLVLText", "artwork", "GameFontNormal")
     levelFontString:SetPoint("bottom", keyStoneDungeonTexture, "bottom", 0, -4)
     levelFontString:SetTextColor(1, 1, 1)
-    detailsFramework:SetFontSize(levelFontString, 11)
+    detailsFramework:SetFontSize(levelFontString, 15)
 	levelFontString:SetText("")
 	playerBanner.LevelFontString = levelFontString
 
 	local levelFontStringBackgroundTexture = levelUpTextFrame:CreateTexture("$parentItemLevelBackgroundTexture", "artwork", nil, 6)
 	levelFontStringBackgroundTexture:SetTexture([[Interface\Cooldown\LoC-ShadowBG]])
-	levelFontStringBackgroundTexture:SetPoint("bottomleft", keyStoneDungeonTexture, "bottomleft", -7, -3)
-	levelFontStringBackgroundTexture:SetPoint("bottomright", keyStoneDungeonTexture, "bottomright", 7, -15)
-	levelFontStringBackgroundTexture:SetHeight(10)
+	levelFontStringBackgroundTexture:SetPoint("bottomleft", keyStoneDungeonTexture, "bottomleft", -10, -3)
+	levelFontStringBackgroundTexture:SetPoint("bottomright", keyStoneDungeonTexture, "bottomright", 10, -15)
+	levelFontStringBackgroundTexture:SetHeight(12)
 	levelUpTextFrame.LevelFontStringBackgroundTexture = levelFontStringBackgroundTexture
 
 	--> animations for levelFontString
@@ -773,20 +777,20 @@ local setOrientation = function(readyFrame, mythicDungeonInfo, overallMythicDung
 	local instanceInfo = Details:GetInstanceInfo(mythicDungeonInfo.MapID) or Details:GetInstanceInfo(Details:GetCurrentCombat().mapId)
 
 	if (orientation == "horizontal") then
-		readyFrame:SetSize(256, 430)
+		readyFrame:SetSize(256, 350)
 
 		if (growDirection == "left") then
 			--when the grow direction if to the left, the readyFrame is anchored to the right side of the ui parent
 			--header texture
 			readyFrame.HeaderTexture:ClearAllPoints()
-			readyFrame.HeaderTexture:SetPoint("topright", readyFrame, "topright", -7, -36)
+			readyFrame.HeaderTexture:SetPoint("topright", readyFrame, "topright", -7, 0)
 			readyFrame.HeaderTexture:SetTexCoord(257/512, 1, 234/512, 298/512)
 			readyFrame.HeaderTexture:SetSize(296, 64)
 
 			readyFrame.AutoCloseTimeBar:SetSize(readyFrame.HeaderTexture:GetWidth(), 25)
 			readyFrame.AutoCloseTimeBar:ClearAllPoints()
 			readyFrame.AutoCloseTimeBar:SetPoint("topright", readyFrame.HeaderTexture, "topright", 0, -22)
-			readyFrame.AutoCloseTimeBar:SetTimer(40, true)
+			readyFrame.AutoCloseTimeBar:SetTimer(Details.mythic_plus.autoclose_time, true)
 			readyFrame.AutoCloseTimeBar:SetColor(1, 0.7, 0.0, 0.9)
 			readyFrame.AutoCloseTimeBar:SetDirection("left")
 			readyFrame.AutoCloseTimeBar:SetFrameLevel(readyFrame:GetFrameLevel()+1)
@@ -809,7 +813,7 @@ local setOrientation = function(readyFrame, mythicDungeonInfo, overallMythicDung
 
 			readyFrame.SandTimeIcon:ClearAllPoints()
 			readyFrame.SandTimeIcon:SetSize(buttonSize, buttonSize) --original size is 32x60, need to adjust to the correct size
-			readyFrame.SandTimeIcon:SetPoint("left", readyFrame.OutOfCombatIcon, "right", 45, 0)
+			readyFrame.SandTimeIcon:SetPoint("left", readyFrame.OutOfCombatIcon, "right", 40, 0)
 
 			readyFrame.StrongArmIcon:ClearAllPoints()
 			readyFrame.StrongArmIcon:SetSize(buttonSize, buttonSize)
@@ -840,9 +844,9 @@ local setOrientation = function(readyFrame, mythicDungeonInfo, overallMythicDung
 
 				playerBanner:ClearAllPoints()
 				if (i == 1) then
-					playerBanner:SetPoint("topright", readyFrame, "topright", -5, -i*playerBanner:GetHeight())
+					playerBanner:SetPoint("topright", readyFrame, "topright", -5, -25)
 				else
-					playerBanner:SetPoint("topright", readyFrame.PlayerBanners[i-1], "bottomright", 0, -10)
+					playerBanner:SetPoint("topright", readyFrame.PlayerBanners[i-1], "bottomright", 0, -5)
 				end
 
 				if (instanceInfo) then
@@ -869,10 +873,10 @@ local setOrientation = function(readyFrame, mythicDungeonInfo, overallMythicDung
 				--loot squares
 				for j = 1, playerBannerSettings.loot_square_amount do
 					local lootSquare = playerBanner.LootSquares[j]
-					lootSquare:SetSize(playerBannerSettings.dungeon_texture_width, playerBannerSettings.dungeon_texture_height)
+					lootSquare:SetSize(playerBannerSettings.loot_square_width, playerBannerSettings.loot_square_height)
 					lootSquare:ClearAllPoints()
 					if (j == 1) then
-						lootSquare:SetPoint("right", playerBanner.KeyStoneDungeonTexture, "left", -2, 0)
+						lootSquare:SetPoint("right", playerBanner.KeyStoneDungeonTexture, "left", -7, 0)
 					else
 						lootSquare:SetPoint("right", playerBanner.LootSquares[j-1], "left", -2, 0)
 					end
@@ -880,7 +884,8 @@ local setOrientation = function(readyFrame, mythicDungeonInfo, overallMythicDung
 
 				--role icon
 				playerBanner.RoleIcon:ClearAllPoints()
-				playerBanner.RoleIcon:SetPoint("center", playerBanner, "left", 4, 0)
+				--playerBanner.RoleIcon:SetPoint("center", playerBanner, "bottom", 0, 16)
+				playerBanner.RoleIcon:SetPoint("center", playerBanner, "top", 0, -5)
 				playerBanner.RoleIcon:SetSize(18, 18)
 				playerBanner.RoleIcon:SetAlpha(0.834)
 			end
@@ -924,7 +929,7 @@ local updatPlayerBanner = function(unitId, bannerIndex)
 	end
 
 	if (UnitExists(unitId)) then
-		local readyFrame = DetailsMythicDungeonReadyFrame
+		local readyFrame = _G[readyFrameName]
 		local unitName = Details:GetFullName(unitId)
 		local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
 
@@ -995,7 +1000,7 @@ local updateKeysStoneLevel = function()
 	--update the player banners
 	local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
 	---@type details_mplus_endframe
-	local readyFrame = DetailsMythicDungeonReadyFrame
+	local readyFrame = _G[readyFrameName]
 
 	for bannerIndex = 1, #readyFrame.PlayerBanners do
 		local unitBanner = readyFrame.PlayerBanners[bannerIndex]
@@ -1079,14 +1084,20 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		local textSize = 11
 
 		---@type details_mplus_endframe
-		mythicDungeonFrames.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
+		mythicDungeonFrames.ReadyFrame = CreateFrame("frame", readyFrameName, UIParent, "BackdropTemplate")
 		local readyFrame = mythicDungeonFrames.ReadyFrame
 		readyFrame:SetSize(355, 390)
-		readyFrame:SetPoint("center", UIParent, "center", 350, 0)
+		readyFrame:SetPoint("right", UIParent, "right", 0, 0)
 		readyFrame:SetFrameStrata("LOW")
 		readyFrame:EnableMouse(true)
 		readyFrame:SetMovable(true)
 		readyFrame:Hide()
+
+		local backgroundGradient = readyFrame:CreateTexture("$parentBackgroundGradient", "background", nil, 0)
+		backgroundGradient:SetTexture([[Interface\AddOns\Details\images\gradient_black_transparent.png]], nil, nil, "TRILINEAR")
+		backgroundGradient:SetPoint("topleft", readyFrame, "topleft", 0, 0)
+		backgroundGradient:SetPoint("bottomright", readyFrame, "bottomright", 0, 0)
+		backgroundGradient:SetWidth(readyFrame:GetWidth())
 
 		---@type playerbanner[]
 		readyFrame.unitCacheByName = {}
@@ -1094,10 +1105,14 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		do
 			--register to libwindow
 			local LibWindow = LibStub("LibWindow-1.1")
-			LibWindow.RegisterConfig(readyFrame, Details.mythic_plus.finished_run_frame)
-			LibWindow.RestorePosition(readyFrame)
+			LibWindow.RegisterConfig(readyFrame, Details.mythic_plus.finished_run_panel3)
 			LibWindow.MakeDraggable(readyFrame)
-			LibWindow.SavePosition(readyFrame)
+
+			if (Details.mythic_plus.finished_run_panel3.point) then
+				LibWindow.RestorePosition(readyFrame)
+			else
+				LibWindow.SavePosition(readyFrame)
+			end
 
 			--set to use rounded corner
 			local roundedCornerTemplate = {
@@ -1465,7 +1480,8 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		if (not color) then
 			color = _G["HIGHLIGHT_FONT_COLOR"]
 		end
-		readyFrame.RantingLabel.text = _G["CHALLENGE_COMPLETE_DUNGEON_SCORE"]:format(color:WrapTextInColorCode(_G["CHALLENGE_COMPLETE_DUNGEON_SCORE_FORMAT_TEXT"]:format(Details222.MythicPlus.NewDungeonScore, gainedScore)))
+		local textToFormat = "%d"
+		readyFrame.RantingLabel.text = color:WrapTextInColorCode(textToFormat:format(Details222.MythicPlus.NewDungeonScore or 0)) --, gainedScore
 		readyFrame.RantingLabel.textcolor = "limegreen"
 	else
 		readyFrame.RantingLabel.text = "0000"
