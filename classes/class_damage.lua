@@ -808,7 +808,7 @@ end
 		local spellId = @SPELLID@
 		local spellName
 		if (spellId) then
-			spellName = select(1, GetSpellInfo(spellId))
+			spellName = select(1, Details.GetSpellInfo(spellId))
 		end
 
 		---@type actorcontainer
@@ -866,7 +866,7 @@ end
 					for playerName, friendlyFireTable in pairs(actorObject.friendlyfire) do
 						---@cast friendlyFireTable friendlyfiretable
 						for ffSpellId, damageAmount in pairs(friendlyFireTable.spells) do
-							local ffSpellName = select(1, GetSpellInfo(ffSpellId))
+							local ffSpellName = select(1, Details.GetSpellInfo(ffSpellId))
 							if (ffSpellName == spellName) then
 								---@type actordamage
 								local damageActor = damageContainer:GetActor(playerName)
@@ -941,7 +941,7 @@ end
 			if (not bIsCustomSpell) then
 				for thisSpellId, spellTable in pairs(actorObject.spells._ActorTable) do
 					if (thisSpellId ~= spellId) then --this is invalid
-						local spellname = select(1, GetSpellInfo(thisSpellId))
+						local spellname = select(1, Details.GetSpellInfo(thisSpellId))
 						if (spellname == spellName) then
 							for targetName, damageAmount in pairs(spellTable.targets) do
 								local got = false
