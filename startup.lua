@@ -433,6 +433,16 @@ function Details222.StartUp.StartMeUp()
 				end)
 				GarrisonMissionTutorialFrame:Hide()
 			end
+			if (addOnName == "Blizzard_VoidStorageUI") then
+				VoidStorageBorderFrameMouseBlockFrame:HookScript("OnShow", function(self)
+					VoidStorageBorderFrameMouseBlockFrame:Hide();
+					VoidStoragePurchaseFrame:Hide();
+					VoidStorageBorderFrame.Bg:Hide();
+				end)
+				VoidStorageBorderFrameMouseBlockFrame:Hide();
+				VoidStoragePurchaseFrame:Hide();
+				VoidStorageBorderFrame.Bg:Hide();
+			end
 		end)
 	end
 
