@@ -44,7 +44,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 137
+local CONST_LIB_VERSION = 138
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -585,10 +585,17 @@ end
         registeredUniqueTimers = {}
     }
 
+    local timersCanRunWithoutGroup = {
+        ["mainControl"] = {
+            ["updatePlayerData_Schedule"] = true
+        }
+    }
+
     --run a scheduled function with its payload
     local triggerScheduledTick = function(tickerObject)
         local payload = tickerObject.payload
         local callback = tickerObject.callback
+        local bCanRunWithoutGroup = tickerObject.bCanRunWithoutGroup
 
         if (tickerObject.isUnique) then
             local namespace = tickerObject.namespace
@@ -598,7 +605,9 @@ end
 
         --check if the player is still in group
         if (not openRaidLib.IsInGroup()) then
-            return
+            if (not bCanRunWithoutGroup) then
+                return
+            end
         end
 
         local result, errortext = xpcall(callback, geterrorhandler(), unpack(payload))
@@ -610,9 +619,10 @@ end
     end
 
     --create a new schedule
-    function openRaidLib.Schedules.NewTimer(time, callback, ...)
+    function openRaidLib.Schedules.NewTimer(time, callback, bCanRunWithoutGroup, ...)
         local payload = {...}
         local newTimer = C_Timer.NewTimer(time, triggerScheduledTick)
+        newTimer.bCanRunWithoutGroup = bCanRunWithoutGroup
         newTimer.payload = payload
         newTimer.callback = callback
         --newTimer.stack = debugstack()
@@ -632,7 +642,9 @@ end
             openRaidLib.Schedules.CancelUniqueTimer(namespace, scheduleName)
         end
 
-        local newTimer = openRaidLib.Schedules.NewTimer(time, callback, ...)
+        local bCanRunWithoutGroup = timersCanRunWithoutGroup[namespace] and timersCanRunWithoutGroup[namespace][scheduleName]
+
+        local newTimer = openRaidLib.Schedules.NewTimer(time, callback, bCanRunWithoutGroup, ...)
         newTimer.namespace = namespace
         newTimer.scheduleName = scheduleName
         --newTimer.stack = debugstack()
