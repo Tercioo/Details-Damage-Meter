@@ -362,6 +362,7 @@
 			[217956] = 5308, --warrior execute
 			[217957] = 5308, --warrior execute
 			[224253] = 5308, --warrior execute
+			[260798] = 5308, --warrior execute
 			[199850] = 199658, --warrior whirlwind
 			[190411] = 199658, --warrior whirlwind
 			[44949] = 199658, --warrior whirlwind
@@ -371,6 +372,15 @@
 			[411547] = 199658, --arms warrior whirlwind
 			[385228] = 199658, --arms warrior whirlwind
 			[105771] = 126664, --warrior charge
+			[385060] = 385062, --fury warrior odyn fury
+			[385061] = 385062, --fury warrior odyn fury offhand
+			[335097] = 335100, --fury warrior crushing blow	
+			[335098] = 335100, --fury warrior crushing blow offhand		
+			[458459] = 845, --arms warrior cleave	
+			[440884] = 440886, --arms warrior demolish	
+			[440888] = 440886, --arms warrior demolish			
+			[95738] = 50622, --fury warrior bladestorm offhand
+			[460670] = 435791, --fury warrior lightning strike
 
 			[222031] = 199547, --deamonhunter ChaosStrike
 			[200685] = 199552, --deamonhunter Blade Dance
