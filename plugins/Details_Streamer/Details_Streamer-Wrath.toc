@@ -5,8 +5,5 @@
 ## SavedVariables: Details_StreamerDB
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
 
 Details_Streamer.lua

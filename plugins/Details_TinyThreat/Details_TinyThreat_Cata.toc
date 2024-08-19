@@ -7,9 +7,6 @@
 
 ## X-Wago-ID: Rn6VJW6d
 
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
 
 enUS.lua
 ptBR.lua

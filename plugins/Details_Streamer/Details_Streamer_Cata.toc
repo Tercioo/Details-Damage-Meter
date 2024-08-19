@@ -7,8 +7,4 @@
 
 ## X-Wago-ID: VBNB9MGx
 
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
-
 Details_Streamer.lua

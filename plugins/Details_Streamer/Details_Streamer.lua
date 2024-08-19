@@ -3,8 +3,6 @@ local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 local LDB = LibStub ("LibDataBroker-1.1", true)
 local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 local LibWindow = LibStub ("LibWindow-1.1")
-local Details = _G.Details
-local GetSpellInfo = Details.GetSpellInfo
 local _
 
 ---need cleanup Loc ["STRING_MEMORY_ALERT_BUTTON"],
@@ -2279,23 +2277,23 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				dropdown_profile:Select (Details_StreamerDB.characters [pname])
 				
 			end
-			optionsFrame.NewProfileButton = Details.gump:CreateButton (optionsFrame, add_profile, 60, 18, "New Profiile", _, _, _, _, _, _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+			optionsFrame.NewProfileButton = Details.gump:CreateButton (optionsFrame, add_profile, 60, 18, "New Profile", _, _, _, _, _, _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
 			optionsFrame.NewProfileButton:SetPoint ("left", dropdown_profile, "right", 4, 0)
 		end
 		
 		--enable / disable plugin button
 		local toggle_OnOff = function()
-			local pluginStable = Details:GetPluginSavedTable("DETAILS_PLUGIN_STREAM_OVERLAY")
+			local pluginSavedTable = Details:GetPluginSavedTable("DETAILS_PLUGIN_STREAM_OVERLAY")
 			local pluginObject = Details:GetPlugin("DETAILS_PLUGIN_STREAM_OVERLAY")
 
-			if (pluginStable.enabled) then
-                pluginStable.enabled = false
+			if (pluginSavedTable.enabled) then
+                pluginSavedTable.enabled = false
                 pluginObject.__enabled = false
 				Details:SendEvent("PLUGIN_DISABLED", pluginObject)
 				optionsFrame.toggleButton.text = "Start Plugin"
 
 			else
-                pluginStable.enabled = true
+                pluginSavedTable.enabled = true
                 pluginObject.__enabled = true
 				Details:SendEvent("PLUGIN_ENABLED", pluginObject)
 				optionsFrame.toggleButton.text = "Disable Plugin"

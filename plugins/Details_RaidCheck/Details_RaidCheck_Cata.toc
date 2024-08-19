@@ -6,8 +6,4 @@
 
 ## X-Wago-ID: WL6Jk2Kv
 
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
-
 Details_RaidCheck.lua
