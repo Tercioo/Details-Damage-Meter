@@ -61,6 +61,17 @@ local iconSize = 16
 --default icon for an attack on a monster
 local defaultAttackIcon = [[Interface\CURSOR\UnableAttack]]
 
+local GetSpellInfo = GetSpellInfo
+
+if (C_Spell and C_Spell.GetSpellInfo) then
+	GetSpellInfo = function(spellId)
+		local spellInfo = C_Spell.GetSpellInfo(spellId)
+		if (spellInfo) then
+			return spellInfo.name, _, spellInfo.iconID
+		end
+	end
+end
+
 local function CreatePluginFrames()
 	--shortcut for details fade function
 	local fader = Details.FadeHandler.Fader
