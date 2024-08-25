@@ -1,5 +1,3 @@
-
-
 local Details = _G.Details
 local DF = _G.DetailsFramework
 local _, Details222 = ...
@@ -25,10 +23,10 @@ function Details:ScrollDamage()
 		local scroll_lines = 16
 		local scroll_line_height = 20
 
-		local backdrop_color = {.2, .2, .2, 0.2}
-		local backdrop_color_on_enter = {.8, .8, .8, 0.4}
-		local backdrop_color_is_critical = {.4, .4, .2, 0.2}
-		local backdrop_color_is_critical_on_enter = {1, 1, .8, 0.4}
+		local backdrop_color = { .2, .2, .2, 0.2 }
+		local backdrop_color_on_enter = { .8, .8, .8, 0.4 }
+		local backdrop_color_is_critical = { .4, .4, .2, 0.2 }
+		local backdrop_color_is_critical_on_enter = { 1, 1, .8, 0.4 }
 
 		local dropdownTemplate = DetailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWNDARK_TEMPLATE")
 
@@ -57,11 +55,11 @@ function Details:ScrollDamage()
 
 		--header
 		local headerTable = {
-			{text = "", width = 20},
-			{text = "Spell Name", width = 104},
-			{text = "Amount", width = 60},
-			{text = "Time", width = 45},
-			{text = "Spell ID", width = 80},
+			{ text = "",           width = 20 },
+			{ text = "Spell Name", width = 104 },
+			{ text = "Amount",     width = 60 },
+			{ text = "Time",       width = 45 },
+			{ text = "Spell ID",   width = 80 },
 		}
 		local headerOptions = {
 			padding = 2,
@@ -81,7 +79,8 @@ function Details:ScrollDamage()
 
 				if (spellTable) then
 					local line = self:GetLine(i)
-					local time, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical = unpack(spellTable)
+					local time, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical =
+					unpack(spellTable)
 
 					local spellName, _, spellIcon
 
@@ -149,11 +148,11 @@ function Details:ScrollDamage()
 		end
 
 		local createLineFunc = function(self, index)
-			local line = CreateFrame("button", "$parentLine" .. index, self,"BackdropTemplate")
-			line:SetPoint("topleft", self, "topleft", 1, -((index-1)*(scroll_line_height+1)) - 1)
+			local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
+			line:SetPoint("topleft", self, "topleft", 1, -((index - 1) * (scroll_line_height + 1)) - 1)
 			line:SetSize(scroll_width - 2, scroll_line_height)
 
-			line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			line:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true })
 			line:SetBackdropColor(unpack(backdrop_color))
 			-- ~createline --~line
 			DF:Mixin(line, DF.HeaderFunctions)
@@ -171,7 +170,8 @@ function Details:ScrollDamage()
 			iconFrame:SetScript("OnLeave", lineOnLeave)
 
 			--spellname
-			local spellNameText = DetailsFramework:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local spellNameText = DetailsFramework:CreateTextEntry(line, function() end,
+				DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
 
 			--damage
 			local damageText = DF:CreateLabel(line, "", fontSize, "white")
@@ -180,7 +180,8 @@ function Details:ScrollDamage()
 			local timeText = DF:CreateLabel(line, "", fontSize, "white")
 
 			--spell ID
-			local spellIDText = DetailsFramework:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(5), scroll_line_height, _, _, _, dropdownTemplate)
+			local spellIDText = DetailsFramework:CreateTextEntry(line, function() end,
+				DetailsScrollDamage.Header:GetColumnWidth(5), scroll_line_height, _, _, _, dropdownTemplate)
 
 			line:AddFrameToHeaderAlignment(icon)
 			line:AddFrameToHeaderAlignment(spellNameText)
@@ -200,7 +201,8 @@ function Details:ScrollDamage()
 			return line
 		end
 
-		local damageScroll = DF:CreateScrollBox(DetailsScrollDamage, "$parentSpellScroll", refreshFunc, DetailsScrollDamage.Data, scroll_width, scroll_height, scroll_lines, scroll_line_height)
+		local damageScroll = DF:CreateScrollBox(DetailsScrollDamage, "$parentSpellScroll", refreshFunc,
+			DetailsScrollDamage.Data, scroll_width, scroll_height, scroll_lines, scroll_line_height)
 		DF:ReskinSlider(damageScroll)
 		damageScroll:SetPoint("topleft", DetailsScrollDamage, "topleft", 5, scrollY)
 
@@ -208,14 +210,14 @@ function Details:ScrollDamage()
 			if (DetailsScrollDamage.searchText and DetailsScrollDamage.searchText ~= "") then
 				local newData = {}
 				for index, spellTable in ipairs(DetailsScrollDamage.Data) do
-					local time, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellId, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical = unpack(spellTable)
+					local time, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellId, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical =
+					unpack(spellTable)
 					spellName = spellName:lower()
 					if (spellName:find(DetailsScrollDamage.searchText)) then
-						newData[#newData+1] = spellTable
+						newData[#newData + 1] = spellTable
 					end
 				end
 				damageScroll:SetData(newData)
-
 			else
 				damageScroll:SetData(DetailsScrollDamage.Data)
 			end
@@ -232,20 +234,23 @@ function Details:ScrollDamage()
 		local playerSerial = UnitGUID("player")
 
 		combatLogReader:SetScript("OnEvent", function(self)
-			local timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical = CombatLogGetCurrentEventInfo()
+			local timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical =
+			CombatLogGetCurrentEventInfo()
 			if (sourceSerial == playerSerial) then
 				if (token == "SPELL_DAMAGE" or token == "SPELL_PERIODIC_DAMAGE" or token == "RANGE_DAMAGE" or token == "DAMAGE_SHIELD") then
 					if (not DetailsScrollDamage.Data.Started) then
 						DetailsScrollDamage.Data.Started = time()
 					end
-					table.insert(DetailsScrollDamage.Data, 1, {timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill or 0, school or 1, resisted or 0, blocked or 0, absorbed or 0, isCritical})
+					table.insert(DetailsScrollDamage.Data, 1,
+						{ timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial,
+							targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill or 0,
+							school or 1, resisted or 0, blocked or 0, absorbed or 0, isCritical })
 					Details:Destroy(DetailsScrollDamage.searchCache)
 					damageScroll:RefreshScroll()
-
 				elseif (token == "SWING_DAMAGE") then
-				--	amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand = spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical
-				--	tinsert(DetailsScrollDamage.Data, 1, {timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical})
-				--	damageScroll:RefreshScroll()
+					--	amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand = spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical
+					--	tinsert(DetailsScrollDamage.Data, 1, {timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical})
+					--	damageScroll:RefreshScroll()
 				end
 			end
 		end)
@@ -271,7 +276,9 @@ function Details:ScrollDamage()
 		local onToggleAutoOpen = function(_, _, state)
 			Details.damage_scroll_auto_open = state
 		end
-		local autoOpenCheckbox = DetailsFramework:CreateSwitch(statusBar, onToggleAutoOpen, Details.auto_open_news_window, _, _, _, _, "AutoOpenCheckbox", _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+		local autoOpenCheckbox = DetailsFramework:CreateSwitch(statusBar, onToggleAutoOpen, Details
+		.auto_open_news_window, _, _, _, _, "AutoOpenCheckbox", _, _, _, _, _,
+			DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 		autoOpenCheckbox:SetAsCheckBox()
 		autoOpenCheckbox:SetPoint("left", statusBar, "left", 5, 0)
 
@@ -279,7 +286,8 @@ function Details:ScrollDamage()
 		autoOpenText:SetPoint("left", autoOpenCheckbox, "right", 2, 0)
 
 		--search bar
-		local searchBox = DF:CreateTextEntry(statusBar, function()end, 150, 18, _, _, _, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+		local searchBox = DF:CreateTextEntry(statusBar, function() end, 150, 18, _, _, _,
+			DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 		searchBox:SetPoint("bottomright", statusBar, "bottomright", -2, 0)
 
 		local searchLabel = DF:CreateLabel(searchBox, "search")
@@ -300,23 +308,29 @@ end
 
 local targetDummieHandle = CreateFrame("frame")
 local targetDummiesIds = {
-    [31146] = true, --raider's training dummie
+	[31146] = true, --raider's training dummie
+	[225983] = true, -- Dungeoneer's training dummy - Dornogal
+	[225984] = true, -- Normal dummy - Dornogal
+	[225979] = true, -- Healing Dummy - Dornogal
+	[225982] = true, -- Cleave Dummy - Dornogal
+	[225977] = true, -- Dungeoneer's Tanking dummy - Dornogal
+	[225976] = true, -- Normal Tanking dummy - Dornogal
 }
 
 targetDummieHandle:SetScript("OnEvent", function(_, _, unit)
 	if (not Details.damage_scroll_auto_open) then
 		return
 	end
-    if (UnitExists("target")) then
-        local serial = UnitGUID("target")
-        if (serial) then
-            local npcId = DetailsFramework:GetNpcIdFromGuid(serial)
-            if (npcId) then
-                if (targetDummiesIds[npcId]) then
-                    Details:ScrollDamage()
-                end
-            end
-        end
-    end
+	if (UnitExists("target")) then
+		local serial = UnitGUID("target")
+		if (serial) then
+			local npcId = DetailsFramework:GetNpcIdFromGuid(serial)
+			if (npcId) then
+				if (targetDummiesIds[npcId]) then
+					Details:ScrollDamage()
+				end
+			end
+		end
+	end
 end)
 targetDummieHandle:RegisterEvent("PLAYER_TARGET_CHANGED")
