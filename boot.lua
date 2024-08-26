@@ -19,12 +19,12 @@
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
 
-		Details.build_counter = 12879
-		Details.alpha_build_counter = 12879 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12888
+		Details.alpha_build_counter = 12888 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 159 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 160 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.gametoc = tvs
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
@@ -42,7 +42,7 @@
 		Details.BFACORE = 131 --core version on BFA launch
 		Details.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 		Details.DRAGONFLIGHT = 147 --core version on Dragonflight launch
-		Details.V11CORE = 158 --core version on V11 launch
+		Details.V11CORE = 160 --core version on V11 launch
 
 		Details = Details
 

@@ -1,6 +1,6 @@
 
 
-local dversion = 563
+local dversion = 565
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1840,12 +1840,14 @@ function DF:GetAllTalents()
 						local borderTypes = Enum.TraitNodeEntryType
 						if (traitEntryInfo.type) then -- == borderTypes.SpendCircle
 							local definitionId = traitEntryInfo.definitionID
-							local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
-							local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
-							local spellName, _, spellTexture = GetSpellInfo(spellId)
-							if (spellName) then
-								local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false}
-								allTalents[#allTalents+1] = talentInfo
+							if definitionId then
+								local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+								local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+								local spellName, _, spellTexture = GetSpellInfo(spellId)
+								if (spellName) then
+									local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false}
+									allTalents[#allTalents+1] = talentInfo
+								end
 							end
 						end
 					end
@@ -4889,16 +4891,18 @@ function DF:GetCharacterTalents(bOnlySelected, bOnlySelectedHash)
 
 							if (traitEntryInfo.type) then -- == borderTypes.SpendCircle
 								local definitionId = traitEntryInfo.definitionID
-								local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
-								local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
-								local spellName, _, spellTexture = GetSpellInfo(spellId)
-								local bIsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false
-								if (spellName and bIsSelected) then
-									local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = true}
-									if (bOnlySelectedHash) then
-										talentList[spellId] = talentInfo
-									else
-										table.insert(talentList, talentInfo)
+								if definitionId then
+									local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+									local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+									local spellName, _, spellTexture = GetSpellInfo(spellId)
+									local bIsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false
+									if (spellName and bIsSelected) then
+										local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = true}
+										if (bOnlySelectedHash) then
+											talentList[spellId] = talentInfo
+										else
+											table.insert(talentList, talentInfo)
+										end
 									end
 								end
 							end

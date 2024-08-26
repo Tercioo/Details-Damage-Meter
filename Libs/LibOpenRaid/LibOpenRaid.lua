@@ -44,7 +44,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 138
+local CONST_LIB_VERSION = 139
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -109,6 +109,9 @@ end
 
     local CONST_COMM_KEYSTONE_DATA_PREFIX = "K"
     local CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX = "J"
+
+    local CONST_COMM_OPENNOTES_RECEIVED_PREFIX = "NR" --when a note is received
+    local CONST_COMM_OPENNOTES_REQUESTED_PREFIX = "NQ" --when received a request to send your note
 
     local CONST_COMM_SENDTO_PARTY = "0x1"
     local CONST_COMM_SENDTO_RAID = "0x2"
@@ -466,6 +469,8 @@ end
         [CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX] = {}, --pvp talents info
         [CONST_COMM_KEYSTONE_DATA_PREFIX] = {}, --received keystone data
         [CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX] = {}, --received a request to send keystone data
+        [CONST_COMM_OPENNOTES_RECEIVED_PREFIX] = {}, --received notes
+        [CONST_COMM_OPENNOTES_REQUESTED_PREFIX] = {}, --requested notes
     }
 
     function openRaidLib.commHandler.RegisterComm(prefix, func)
@@ -713,6 +718,7 @@ end
         "PvPTalentUpdate",
         "KeystoneUpdate",
         "KeystoneWipe",
+        "NoteUpdated",
     }
 
     --save build the table to avoid lose registered events on older versions
@@ -1825,6 +1831,214 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         diagnosticComm("SendGearFullData| " .. dataToSend) --debug
     end
 
+
+--------------------------------------------------------------------------------------------------------------------------------
+--~open ~notes ~opennotes
+
+---type and prototype for the note system, when adding or removeing fields, this is the only place to change
+
+---@class noteinfo : table
+---@field note string
+---@field version number
+
+---@type noteinfo
+local notePrototype = {
+    note = "",
+    version = 0,
+}
+
+openRaidLib.OpenNotesManager = {
+    --structure: [playerName] = {note = "note text", lastUpdate = 0}
+    ---@type table<string, noteinfo>
+    UnitData = {},
+}
+
+--the note context saves the context of when the note was last sent, this is to avoid the player sending a note used on other dungeon or group when the a note is request
+local noteContext = {
+    mapId = 0,
+    difficultyId = 0,
+    instanceType = "none",
+    ---@type table<string, boolean>
+    groupMembers = {},
+    time = 0,
+}
+
+local checkContext = function()
+    if (noteContext.time == 0) then
+        return false
+    end
+
+    local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
+
+    if (noteContext.mapId ~= instanceID or noteContext.difficultyId ~= difficultyID or noteContext.instanceType ~= instanceType) then
+        return false
+    end
+
+    --if the note context time is more than 25 minutes ago, ignore
+    if (time() - noteContext.time > 1500) then
+        return false
+    end
+
+    --check if the group members are the same
+    local groupMembers = openRaidLib.GetPlayersInTheGroup()
+    for unitName in pairs(noteContext.groupMembers) do
+        if (not groupMembers[unitName]) then
+            return false
+        end
+    end
+
+    return true
+end
+
+--API notes
+---return the table where the notes are stored, format: [playerName] = {note = "note text", lastUpdate = time()}
+---can return an empty table if no unit sent note yet
+---@return table<string, noteinfo>
+function openRaidLib.GetAllUnitsNotes()
+    return openRaidLib.OpenNotesManager.GetAllUnitsNotes()
+end
+
+---return information about a note for a unit, return value is a table of type noteinfo, see the type declaration to know the fields
+---always return values, if the note does not exist it'll return an empty string and 0
+---@param unitId string
+---@return noteinfo
+function openRaidLib.GetUnitNote(unitId)
+    ---@type string
+    local unitName = GetUnitName(unitId, true) or unitId
+    ---@type noteinfo
+    local noteInfo = openRaidLib.OpenNotesManager.GetUnitNote(unitName)
+    return noteInfo
+end
+
+---set a note for the player
+---@param note string
+function openRaidLib.SetPlayerNote(note)
+    assert(type(note) == "string", "OpenRaid: SetPlayerNote(#1) expect a string.")
+    assert(note:len() > 3000, "OpenRaid: SetPlayerNote(#1) too long.")
+    local version = time()
+    openRaidLib.OpenNotesManager.SetUnitNote(UnitName("player"), note, version)
+end
+
+---send the player note to the group
+function openRaidLib.SendPlayerNote()
+    openRaidLib.OpenNotesManager.SendNote()
+end
+
+
+
+--INTERNAL notes
+function openRaidLib.OpenNotesManager.GetAllUnitsNotes()
+    return openRaidLib.OpenNotesManager.UnitData
+end
+
+---get a unit note, if it does not exist, create a new one
+---@param unitName string
+---@return noteinfo
+function openRaidLib.OpenNotesManager.GetUnitNote(unitName)
+    local unitNote = openRaidLib.OpenNotesManager.UnitData[unitName]
+
+    if (not unitNote) then
+        local newNote = {}
+        openRaidLib.TCopy(newNote, notePrototype)
+        openRaidLib.OpenNotesManager.UnitData[unitName] = newNote
+    end
+
+    return unitNote
+end
+
+---set a note of a unit, this do not send the note yet, just store it
+---@param unitName string
+---@param note string
+---@param version number
+function openRaidLib.OpenNotesManager.SetUnitNote(unitName, note, version)
+    local unitNote = openRaidLib.OpenNotesManager.GetUnitNote(unitName)
+    unitNote.note = note
+    unitNote.version = version or time()
+end
+
+---clear all data stored
+function openRaidLib.OpenNotesManager.EraseData()
+    table.wipe(openRaidLib.OpenNotesManager.UnitData)
+
+    --create a note for the local player
+    local playerName = UnitName("player")
+    openRaidLib.OpenNotesManager.GetUnitNote(playerName)
+end
+
+---clear all data except the local player
+function openRaidLib.OpenNotesManager.EraseDataKeepPlayer()
+    local playerName = UnitName("player")
+    local localNote = openRaidLib.OpenNotesManager.UnitData[playerName]
+    table.wipe(openRaidLib.OpenNotesManager.UnitData)
+    openRaidLib.OpenNotesManager.UnitData[playerName] = localNote
+end
+
+function openRaidLib.OpenNotesManager.OnPlayerEnterWorld()
+    --call erase data hence create a note for the local player
+    openRaidLib.OpenNotesManager.EraseData()
+end
+openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.OpenNotesManager.OnPlayerEnterWorld)
+
+function openRaidLib.OpenNotesManager.OnReceiveNoteData(data, unitName)
+    ---@type string
+    local note = data[1]
+    ---@type number
+    local version = tonumber(data[2]) or 0
+
+    if (note and version and type(note) == "string" and type(version) == "number") then
+        openRaidLib.OpenNotesManager.SetUnitNote(unitName, note, version)
+        ---@type noteinfo
+        local unitNote = openRaidLib.OpenNotesManager.GetUnitNote(unitName)
+        --trigger public callback
+        openRaidLib.publicCallback.TriggerCallback("NoteUpdated", openRaidLib.GetUnitID(unitName), unitNote, openRaidLib.OpenNotesManager.GetAllUnitsNotes())
+    end
+end
+openRaidLib.commHandler.RegisterComm(CONST_COMM_OPENNOTES_RECEIVED_PREFIX, openRaidLib.OpenNotesManager.OnReceiveNoteData)
+
+function openRaidLib.OpenNotesManager.SendNote()
+    local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
+
+    --deny if not in group or if the player is in open world
+    if (instanceType == "none") then
+        return
+    elseif (not openRaidLib.IsInGroup()) then
+        return
+    end
+
+    ---@type noteinfo
+    local playerNote = openRaidLib.OpenNotesManager.GetUnitNote(UnitName("player"))
+    if (type(playerNote) == "table" and playerNote.note and playerNote.version) then
+        assert(type(playerNote.note) == "string", "OpenRaid: SendNote() invalid note.")
+        assert(playerNote.note:len() > 3000, "OpenRaid: SendNote() note too long.")
+        assert(playerNote.note:len() < 10, "OpenRaid: SendNote() note too short.")
+
+        local dataToSend = "" .. CONST_COMM_OPENNOTES_RECEIVED_PREFIX .. "," .. playerNote.note .. "," .. playerNote.version
+        --send the data
+        openRaidLib.commHandler.SendCommData(dataToSend)
+        diagnosticComm("SendAllNotesData| " .. dataToSend) --debug
+
+        noteContext.time = time()
+        noteContext.mapId = instanceID
+        noteContext.difficultyId = difficultyID
+        noteContext.instanceType = instanceType
+        noteContext.groupMembers = openRaidLib.GetPlayersInTheGroup()
+    end
+end
+
+function openRaidLib.OpenNotesManager.OnReceiveNoteRequest()
+    ---@type noteinfo
+    local playerNote = openRaidLib.OpenNotesManager.GetUnitNote(UnitName("player"))
+
+    --check if there is text in the note
+    if (playerNote and playerNote.note and playerNote.version and playerNote.note:len() > 10) then
+        --check if the context is the same
+        if (not checkContext()) then
+            return
+        end
+        openRaidLib.Schedules.NewUniqueTimer(2 + math.random(0, 2) + math.random(), openRaidLib.OpenNotesManager.SendNote, "OpenNotesManager", "sendNoteInfo_Schedule")
+    end
+end
+openRaidLib.commHandler.RegisterComm(CONST_COMM_OPENNOTES_REQUESTED_PREFIX, openRaidLib.OpenNotesManager.OnReceiveNoteRequest)
 
 --------------------------------------------------------------------------------------------------------------------------------
 --~cooldowns

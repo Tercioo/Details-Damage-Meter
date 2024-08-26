@@ -2581,8 +2581,8 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 	return Details:EndRefresh(instanceObject, total, combatObject, damageContainer) --retorna a tabela que precisa ganhar o refresh
 end
 
---[[exported]] function Details:AutoAlignInLineFontStrings()
-
+--self is instance
+function Details:AutoAlignInLineFontStrings()
 	--if this instance is using in line texts, check the min distance and the length of strings to make them more spread appart
 	if (self.use_multi_fontstrings and self.use_auto_align_multi_fontstrings) then
 		local maxStringLength_StringFour = 0
