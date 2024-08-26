@@ -1968,8 +1968,9 @@ end
 ---@param bImportAutoRunCode boolean
 ---@param bIsFromImportPrompt boolean
 ---@param overwriteExisting boolean
+---@param bImportAutomation boolean
 ---@return boolean
-function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCode, bIsFromImportPrompt, overwriteExisting)
+function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCode, bIsFromImportPrompt, overwriteExisting, bImportAutomation)
 	if (not newProfileName or type(newProfileName) ~= "string" or string.len(newProfileName) < 2) then
 		Details:Msg("invalid profile name or profile name is too short.") --localize-me
 		return false
@@ -2079,9 +2080,11 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 
 		Details:ApplyProfile (newProfileName)
 
-		--reset automation settings (due to user not knowing why some windows are disappearing)
-		for instanceId, instance in Details:ListInstances() do
-			DetailsFramework.table.copy(instance.hide_on_context, Details.instance_defaults.hide_on_context)
+		if not bImportAutomation then
+			--reset automation settings (due to user not knowing why some windows are disappearing)
+			for instanceId, instance in Details:ListInstances() do
+				DetailsFramework.table.copy(instance.hide_on_context, Details.instance_defaults.hide_on_context)
+			end
 		end
 
 		if(nameWasDuplicate) then
