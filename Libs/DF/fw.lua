@@ -5725,6 +5725,10 @@ function _G.__benchmark(bNotPrintResult)
 	end
 end
 
+function DF:DebugTexture(texture, left, right, top, bottom)
+	return DF:PreviewTexture(texture, left, right, top, bottom)
+end
+
 function DF:PreviewTexture(texture, left, right, top, bottom)
 	if (texture and type(texture) == "table" and texture.GetObjectType and texture:GetObjectType() == "Texture") then
 		DF:Msg("PreviewTexture: you have passed a texture object (uiobject) instead of the texture atlas, filename or id.")

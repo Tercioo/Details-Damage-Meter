@@ -86,7 +86,7 @@ function Details222.Pets.AkaarisSoulOwner(petGUID)
 		do
 			local ownerGUID = tooltipData.guid --tooltipData.guid seems to exists on all akari soul tooltips and point to the owner guid
 			if (ownerGUID) then
-				if (ownerGUID:find("^P")) then
+				if (ownerGUID:find("^Pl")) then
 					local playerGUID = ownerGUID
 					local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 					if (actorObject) then
@@ -108,7 +108,7 @@ function Details222.Pets.AkaarisSoulOwner(petGUID)
 					local lineData = tooltipData.lines[i]
 					if (lineData.unitToken) then --unit token seems to exists when the add belongs to the "player"
 						local ownerGUID = UnitGUID(lineData.unitToken)
-						if (ownerGUID and ownerGUID:find("^P")) then
+						if (ownerGUID and ownerGUID:find("^Pl")) then
 							local playerGUID = ownerGUID
 							local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 							if (actorObject) then
@@ -291,7 +291,7 @@ end
 					do
 						local ownerGUID = tooltipData.guid --tooltipData.guid points to the player attributed to this tooltip.
 						if (ownerGUID) then --If we have an owner GUID, then we should make sure it starts with a P for Player and then attempt to find the owner object from the caches.
-							if (ownerGUID:find("^P")) then
+							if (ownerGUID:find("^Pl")) then
 								local playerGUID = ownerGUID
 								local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 								if (actorObject) then
@@ -320,7 +320,7 @@ end
 								local lineData = tooltipData.lines[i]
 								if (lineData.unitToken) then --unit token seems to exists when the add belongs to the "player"
 									local ownerGUID = UnitGUID(lineData.unitToken)
-									if (ownerGUID and ownerGUID:find("^P")) then
+									if (ownerGUID and ownerGUID:find("^Pl")) then
 										local playerGUID = ownerGUID
 										local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 										if (actorObject) then
@@ -934,7 +934,7 @@ end
 				end
 			end
 
-		elseif (actorSerial:match("^P")) then
+		elseif (actorSerial:match("^Pl")) then
 			newActor.aID = actorSerial:gsub("Player%-", "")
 
 		else
