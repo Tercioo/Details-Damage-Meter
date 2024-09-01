@@ -126,11 +126,11 @@ function Details222.EJCache.CreateEncounterJournalDump()
 
     ---returns the number of valid encounter journal tier indices
     ---@type number
-    local tierAmount = EJ_GetNumTiers() --return 11 for dragonisles
+    local tierAmount = EJ_GetNumTiers() --return 11 for dragonisles, is returning 11 for wow11 as well
 
     ---returns the currently active encounter journal tier index
     ---could also be tierAmount - 1
-    ---bacause the tier is "current season"
+    ---because the tier is "current season"
     ---@type number
     local currentTierId = tierAmount --EJ_GetCurrentTier(), for some unknown reason, this function is returning 3 on retail
 
@@ -158,11 +158,13 @@ function Details222.EJCache.CreateEncounterJournalDump()
             --use current tier for dungeons, as the current tier shows the dungeons used for the current season of Mythic+
             local startIndex, endIndex
             if (bIsRaid) then
-
                 if (detailsFramework.IsCataWow()) then
-                    if currentTierId == 1 then break end --Cata has only one tier. Looking up tier 0 errors. ~CATA
+                    if (currentTierId == 1) then --Cata has only one tier. Looking up tier 0 errors. ~CATA
+                        break
+                    end
                 end
-                EJ_SelectTier(currentTierId - 1) --print("tier selected:", currentTierId - 1, "raids") --debug
+
+                EJ_SelectTier(currentTierId) --print("tier selected:", currentTierId - 1, "raids") --debug: was (currentTierId - 1), but was selecting wow10 content
                 startIndex = raidTierStartIndex
                 endIndex = 20
             else
