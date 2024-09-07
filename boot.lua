@@ -258,7 +258,46 @@ do
 
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
+--[=[
+Added /note command to create and share a note in mythic+ dungeons.
+Rogues do not exit combat when using vanish on combat dummies!!!
+New Mythic+ damage graphic.
+New Mythic+ Run Completion Panel, more complete and compact.
+Major improvements on buff tracking uptime.
+Added a buff filter to ignore weekly buffs.
+Major overhaul on statistics system, record defeated raid bosses while in guild.
+Major bug fixes and stability improvements by refactoring legacy code.
+Health for death log now uses health percent at the moment of the hit instead of percent based on the unit normalized max health.
+Added an option to limit the number of segments saved for wipes at the same boss.
+Added WoW 11 trinket data.
+Options panel won't trigger errors when opening in combat.
+Updated spells for spec detection for wow 11 (Flamanis).
+Add anonymization options to the event tracker (Flamanis).
+Fixed several issues with classic and pvp battlegrounds (Flamanis).
+Major fixes related to pet detection and pet data (Flamanis).
+Made Details! survive for another expansion (Details! Team).
+--]=]
+
 	local news = {
+		{"v11.0.2.13000.160", "September 07th, 2024"},
+		"Added /note command to create and share a note in mythic+ dungeons.",
+		"Rogues do not exit combat when using vanish on combat dummies!!!",
+		"New Mythic+ damage graphic.",
+		"New Mythic+ Run Completion Panel, more complete and compact.",
+		"Major improvements on buff tracking uptime.",
+		"Added a buff filter to ignore weekly buffs.",
+		"Major overhaul on statistics system, record defeated raid bosses while in guild.",
+		"Major bug fixes and stability improvements by refactoring legacy code.",
+		"Health for death log now uses health percent at the moment of the hit instead of percent based on the unit normalized max health.",
+		"Added an option to limit the number of segments saved for wipes at the same boss.",
+		"Added WoW 11 trinket data.",
+		"Options panel won't trigger errors when opening in combat.",
+		"Updated spells for spec detection for wow 11 (Flamanis).",
+		"Add anonymization options to the event tracker (Flamanis).",
+		"Fixed several issues with classic and pvp battlegrounds (Flamanis).",
+		"Major fixes related to pet detection and pet data (Flamanis).",
+		"Made Details! survive for another expansion (Details! Team).",
+
 		{"v10.2.7.12800.156", "June 06th, 2024"},
 		"Added transliteration for pet names in Cyrillic.",
 		"Fixed an error with extra power bars (alternate power) on cataclysm classic.",

@@ -2528,6 +2528,7 @@ local canAcceptNoteOn = {
 ---@class savednote : table
 ---@field name string
 ---@field note string
+---@field renamed boolean
 
 ---@class noteconfigs : table
 ---@field enabled boolean
@@ -2835,6 +2836,118 @@ noteEditor.OpenNoteOptionsPanel = function()
 	DetailsNoteOptionsFrame:Show()
 end
 
+---@param unitIds unit[]
+---@return unit[], unit[], unit[]
+function noteEditor.PrepareUnitRoleTables(unitIds)
+	local dpsList = {}
+	local healerList = {}
+	local tankList = {}
+
+	for unitIndex, unitId in ipairs(unitIds) do
+		if (UnitExists(unitId)) then
+			local unitRole = detailsFramework.UnitGroupRolesAssigned(unitId)
+			if (unitRole == "TANK") then
+				table.insert(tankList, unitId)
+			elseif (unitRole == "HEALER") then
+				table.insert(healerList, unitId)
+			else
+				table.insert(dpsList, unitId)
+			end
+		else
+			break
+		end
+	end
+
+	return tankList, healerList, dpsList
+end
+
+local replaceText = function(unitIdList, index, token, text, bNoColoring)
+	local bCanAddClassColor = not bNoColoring
+	local unitId = unitIdList[index]
+	local unitName = UnitName(unitId)
+	local unitClass = select(2, UnitClass(unitId))
+
+	local tokenId = token .. index
+
+	if (text:find(tokenId)) then
+		text = text:gsub(tokenId, bCanAddClassColor and detailsFramework:AddClassColorToText(unitName, unitClass) or unitName)
+	else
+		--remove the tokenId from the text
+		text = text:gsub(tokenId .. ",", "")
+		text = text:gsub(tokenId .. ";", "")
+		text = text:gsub(tokenId, "")
+	end
+	return text
+end
+
+function noteEditor.FindAndColorUnitNames(text)
+	local unitIds
+	if (IsInRaid()) then
+		unitIds = Details222.UnitIdCache.Raid
+	else
+		unitIds = Details222.UnitIdCache.Party
+	end
+
+	for i = 1, #unitIds do
+		local unitId = unitIds[i]
+		if (UnitExists(unitId)) then
+			local unitName = UnitName(unitId)
+			local unitClass = select(2, UnitClass(unitId))
+			--text = text:gsub(unitName .. "(?!%|r)", detailsFramework:AddClassColorToText(unitName, unitClass))
+
+			if (unitClass) then
+				local currentPosition = 1
+				local attempts = 10
+				while (attempts > 0) do
+					local startPos, endPos = string.find(text, unitName, currentPosition)
+
+					if (not startPos) then
+						break
+					end
+
+					if (string.sub(text, endPos+1, endPos+2) ~= "|r") then
+						text = string.sub(text, 1, startPos - 1) .. detailsFramework:AddClassColorToText(unitName, unitClass) .. string.sub(text, endPos + 1)
+						currentPosition = startPos + 12 + #unitName -- 12 accounts for "|c00000000" and "|r"
+					else
+						currentPosition = endPos + 1
+					end
+
+					attempts = attempts - 1
+					if (attempts == 0) then
+						break
+					end
+				end
+			end
+		end
+	end
+
+	return text
+end
+
+--this function get the text of the note and replace any special tags
+function noteEditor.ParseNoteText(text, bNoColoring)
+	local unitIds
+	if (IsInRaid()) then
+		unitIds = Details222.UnitIdCache.Raid
+	else
+		unitIds = Details222.UnitIdCache.Party
+	end
+
+	local tankList, healerList, dpsList = noteEditor.PrepareUnitRoleTables(unitIds)
+
+	for i = 1, #tankList do
+		text = replaceText(tankList, i, "tank", text, bNoColoring)
+	end
+	for i = 1, #healerList do
+		text = replaceText(healerList, i, "healer", text, bNoColoring)
+	end
+	for i = 1, #dpsList do
+		text = replaceText(dpsList, i, "dps", text, bNoColoring)
+	end
+
+	return text
+end
+
 noteEditor.OpenNoteEditor = function()
 	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 	if (openRaidLib) then
@@ -2847,6 +2960,7 @@ noteEditor.OpenNoteEditor = function()
 			local CONST_NOTEEDITOR_HEIGHT = CONST_WINDOW_HEIGHT - 155
 			local CONST_NOTEEDITOR_WIDTH = CONST_WINDOW_WIDTH - 230
 			local CONST_NOTE_MIN_CHARACTERS = 50
+			local CONST_NOTE_MAX_CHARACTERS = 1500
 
 			local editorAlpha = 0.1
 
@@ -2883,15 +2997,23 @@ noteEditor.OpenNoteEditor = function()
 					else
 						local noteName = mainFrame.GenerateNewNoteName()
 						if (noteIndex and type(noteIndex) == "number") then
-							savedNotes[noteIndex].name = noteName
+							if (not savedNotes[noteIndex].renamed) then
+								savedNotes[noteIndex].name = noteName
+							end
 							savedNotes[noteIndex].note = noteText
 						else
-							savedNotes[#savedNotes+1] = {name = noteName, note = ""}
+							savedNotes[#savedNotes+1] = {name = noteName, note = "", renamed = false}
 						end
 					end
 
 					mainFrame.NoteSelectionScrollFrame:Refresh()
 				end
+			end
+
+			function mainFrame.SetNoteName(noteIndex, newName)
+				savedNotes[noteIndex].name = newName
+				savedNotes[noteIndex].renamed = true
+				mainFrame.NoteSelectionScrollFrame:Refresh()
 			end
 
 			function mainFrame.SelectNote(noteIndex)
@@ -2902,7 +3024,7 @@ noteEditor.OpenNoteEditor = function()
 			end
 
 			function mainFrame.CreateEmptyNote()
-				savedNotes[#savedNotes+1] = {name = mainFrame.GenerateNewNoteName(), note = ""}
+				savedNotes[#savedNotes+1] = {name = mainFrame.GenerateNewNoteName(), note = "", renamed = false}
 				mainFrame.SelectNote(#savedNotes)
 				mainFrame.NoteSelectionScrollFrame:Refresh()
 			end
@@ -2977,14 +3099,236 @@ noteEditor.OpenNoteEditor = function()
 
 				DetailsNoteFrameNoteEditboxScrollBar:SetPoint("topleft", editboxNotes, "topright", -20, -19)
 				DetailsNoteFrameNoteEditboxScrollBar:SetPoint("bottomleft", editboxNotes, "bottomright", -20, 19)
+
+				--create three fontstrings which will show the minimum amount of characters (50), the current amount of characters and the maximum amount of characters (1500)
+				local maxChars = editboxNotes:CreateFontString(nil, "overlay", "GameFontNormal")
+				maxChars:SetPoint("bottomright", editboxNotes, "bottomright", -25, 5)
+				maxChars:SetText("/ 1500")
+				detailsFramework:SetFontColor(maxChars, "gray")
+
+				local currentChars = editboxNotes:CreateFontString(nil, "overlay", "GameFontNormal")
+				currentChars:SetPoint("bottomright", editboxNotes, "bottomright", -72, 5)
+				currentChars:SetText("0")
+				detailsFramework:SetFontColor(currentChars, "gray")
+
+				local minChars = editboxNotes:CreateFontString(nil, "overlay", "GameFontNormal")
+				minChars:SetPoint("bottomright", editboxNotes, "bottomright", -100, 5)
+				minChars:SetText("50 /")
+				detailsFramework:SetFontColor(minChars, "gray")
+
+				--when the user types into the editbox, update the current amount of characters
+				editboxNotes.editbox:HookScript("OnTextChanged", function(self)
+					local text = self:GetText()
+					local len = text:len()
+					currentChars:SetText(len)
+
+					if (len < CONST_NOTE_MIN_CHARACTERS) then
+						detailsFramework:SetFontColor(currentChars, "red")
+					else
+						detailsFramework:SetFontColor(currentChars, "gray")
+					end
+				end)
+			end
+
+			do
+				--floating frame above the bottom of the text editor
+				local bottomFrameFloating = CreateFrame("frame", "$parentFloatingFrame", mainFrame.EditboxNotes, "BackdropTemplate")
+				bottomFrameFloating:SetPoint("bottomleft", mainFrame.EditboxNotes, "bottomleft", 0, 0)
+				bottomFrameFloating:SetPoint("bottomright", mainFrame.EditboxNotes, "bottomright", 0, 0)
+				bottomFrameFloating:SetHeight(130)
+				detailsFramework:ApplyStandardBackdrop(bottomFrameFloating)
+				bottomFrameFloating:SetFrameLevel(mainFrame.EditboxNotes:GetFrameLevel() + 5)
+
+				--create a gradient texture from black to transparent from the top side of the framefloating
+				local topGradient = DetailsFramework:CreateTexture(bottomFrameFloating, {gradient = "vertical", fromColor = "transparent", toColor = {0, 0, 0, 0.25}}, 1, 60, "artwork", {0, 1, 0, 1}, "GradientTexture")
+				topGradient:SetPoint("tops")
+
+				--create a minimize button at the topleft of the framefloating
+				local minimizeButton = detailsFramework:CreateButton(bottomFrameFloating, function()
+					bottomFrameFloating:Hide()
+					bottomFrameFloating.MaximizeButton:Show()
+					bottomFrameFloating.MinimizeButton:Hide()
+				end, 16, 16, "minimize")
+				minimizeButton:SetPoint("topleft", bottomFrameFloating, "topleft", -1, -2)
+				minimizeButton:SetIcon("Interface\\BUTTONS\\UI-Panel-HideButton-Up", 16, 16, "overlay", {0.2, 0.8, 0.2, 0.8})
+				bottomFrameFloating.MinimizeButton = minimizeButton
+
+				--create a miximize button at the bottomleft of the editbox, this button is shown when the bottomFrameFloating is hidden (minimized)
+				local maximizeButton = detailsFramework:CreateButton(mainFrame.EditboxNotes, function()
+					bottomFrameFloating:Show()
+					bottomFrameFloating.MaximizeButton:Hide()
+					bottomFrameFloating.MinimizeButton:Show()
+				end, 16, 16, "miximize")
+				maximizeButton:SetPoint("bottomleft", mainFrame.EditboxNotes, "bottomleft", 0, 0)
+				maximizeButton:SetIcon("Interface\\BUTTONS\\UI-Panel-CollapseButton-Up", 16, 16, "overlay", {0.2, 0.8, 0.2, 0.8})
+				maximizeButton:SetFrameLevel(mainFrame.EditboxNotes:GetFrameLevel() + 5)
+				maximizeButton:Hide()
+				bottomFrameFloating.MaximizeButton = maximizeButton
+
+				local addPlayerToEditor = function(button)
+
+				end
+				local createNewPlayerSelectionButton = function()
+					local newButton = detailsFramework:CreateButton(bottomFrameFloating, function()end, 100, 22, "")
+					return newButton
+				end
+
+				local playerSelectionPool = detailsFramework:CreatePool(createNewPlayerSelectionButton)
+				playerSelectionPool.onReset = function(button)
+					button:Hide()
+				end
+				playerSelectionPool.onAcquire = function(button)
+					button:Show()
+				end
+
+				function mainFrame.RefreshPickPlayer()
+					local unitIds
+					if (IsInRaid()) then
+						unitIds = Details222.UnitIdCache.Raid
+					else
+						unitIds = Details222.UnitIdCache.Party
+					end
+
+					playerSelectionPool:ReleaseAll()
+
+					local column = 1
+					local row = 1
+					local maxColumns = 5
+					local maxRows = 5
+					local columnWidth = 80
+					local rowHeight = 22
+
+					local tankIndex = 1
+					local healerIndex = 1
+					local dpsIndex = 1
+
+					for unitIndex, unitId in ipairs(unitIds) do
+						if (UnitExists(unitId)) then
+							---@type df_button
+							local selectPlayerButton = playerSelectionPool:Acquire()
+
+							--calculate where this button should be placed, the coulumn increments when the row reaches the maxRows, then it jumps the columnWidth and start from row 1 again
+							selectPlayerButton:SetPoint("topleft", bottomFrameFloating, "topleft", 3 + ((column-1) * columnWidth), -((row-1) * rowHeight) - 20)
+
+							--increment the row
+							row = row + 1
+							if (row > maxRows) then
+								row = 1
+								column = column + 1
+							end
+
+							--if the column is bigger than the maxColumns, then stop creating buttons
+							if (column > maxColumns) then
+								break
+							end
+
+							local role = detailsFramework.UnitGroupRolesAssigned(unitId)
+							local roleTexture, left, right, top, bottom = detailsFramework:GetRoleIconAndCoords(role)
+							local unitName = UnitName(unitId)
+
+							selectPlayerButton:SetTextTruncated(unitName, columnWidth - 30)
+							selectPlayerButton:SetSize(columnWidth - 2, rowHeight - 2)
+							selectPlayerButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+							selectPlayerButton:SetIcon(roleTexture, 14, 14, "overlay", {left, right, top, bottom})
+							selectPlayerButton:SetAlpha(0.834)
+
+							selectPlayerButton:SetScript("OnClick", function()
+								local textToInsert = ""
+								if (role == "TANK") then
+									textToInsert = "tank" .. tankIndex
+									tankIndex = tankIndex + 1
+
+								elseif (role == "HEALER") then
+									textToInsert = "healer" .. healerIndex
+									healerIndex = healerIndex + 1
+								else
+									textToInsert = "dps" .. dpsIndex
+									dpsIndex = dpsIndex + 1
+								end
+
+								textToInsert = textToInsert .. " "
+								mainFrame.editboxNotes.editbox:Insert(textToInsert)
+							end)
+						else
+							break
+						end
+					end
+				end
+
+				bottomFrameFloating:RegisterEvent("GROUP_ROSTER_UPDATE")
+				bottomFrameFloating:SetScript("OnEvent", function(self, event)
+					if (bottomFrameFloating:IsShown()) then
+						mainFrame.RefreshPickPlayer()
+					end
+				end)
+
+				bottomFrameFloating:HookScript("OnShow", function(self)
+					mainFrame.RefreshPickPlayer()
+				end)
+
+				mainFrame.RefreshPickPlayer()
 			end
 
 			do --create the note selection scroll
-				local selectNoteOnClick = function(self)
-					local noteData = self.noteData
+				local lastClick = 0
+				local lastLineClicked = nil
+
+				local doSelectNote = function(line)
+					lastLineClicked = line
+					local noteData = line.noteData
 					if (noteData) then
-						mainFrame.SelectNote(self.index)
+						mainFrame.SelectNote(line.index)
 					end
+				end
+
+				local selectNoteOnClick = function(line)
+					local now = GetTime()
+					if (now - lastClick < 0.3) then
+						lastClick = 0
+						if (lastLineClicked == line) then
+							--start renaming the note
+							line.RenameTextEntry:Show()
+							line.RenameTextEntry:SetText(line.NoteName:GetText() or "")
+							line.RenameTextEntry:SetFocus(true)
+							line.RenameTextEntry:HighlightText(0)
+							line.NoteName:Hide()
+						else
+							doSelectNote(line)
+						end
+					else
+						lastClick = now
+						doSelectNote(line)
+					end
+				end
+
+				local onPressEnterToRenameNote = function(textentry, object, text)
+					local line = textentry:GetParent()
+					local noteData = line.noteData
+
+					if (noteData) then
+						mainFrame.SetNoteName(line.index, textentry:GetText() or "")
+					end
+
+					textentry:Hide()
+					textentry:SetFocus(false)
+					line.NoteName:Show()
+					mainFrame.NoteSelectionScrollFrame:Refresh()
+				end
+
+				local onEscapePressedRenameNote = function(self)
+					local line = self:GetParent()
+					self:Hide()
+					line.NoteName:Show()
+				end
+
+				local onEnterLine = function(self)
+					GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+					GameTooltip:SetText("double click to rename")
+					GameTooltip:Show()
+				end
+
+				local onLeaveLine = function(self)
+					GameTooltip:Hide()
 				end
 
 				local createdNoteSelectionLine = function(self, index)
@@ -2994,11 +3338,12 @@ noteEditor.OpenNoteEditor = function()
 					detailsFramework:ApplyStandardBackdrop(line, index % 2 == 0)
 
 					line:SetScript("OnClick", selectNoteOnClick)
+					line:SetScript("OnEnter", onEnterLine)
+					line:SetScript("OnLeave", onLeaveLine)
 
 					local selectedHighlightTexture = line:CreateTexture("$parentSelectedHighlight", "overlay")
 					selectedHighlightTexture:SetAllPoints()
 					selectedHighlightTexture:SetColorTexture(1, 1, 1, 0.2)
-					line.SelectedHighlightTexture = selectedHighlightTexture
 
 					local iconTexture = line:CreateTexture("$parentNoteIcon", "overlay")
 					iconTexture:SetSize(CONST_LINE_HEIGHT-2, CONST_LINE_HEIGHT-2)
@@ -3018,9 +3363,21 @@ noteEditor.OpenNoteEditor = function()
 					deleteButton:SetIcon("Interface\\BUTTONS\\UI-Panel-MinimizeButton-Disabled", 16, 16, "overlay", {0.2, 0.8, 0.2, 0.8})
 					deleteButton:SetSize(20, 20)
 
+					--create a textentry to rename the note
+					local renameTextEntry = detailsFramework:CreateTextEntry(line, function()end, 20, 20, _, _, _, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+					renameTextEntry:SetPoint("topleft", line, "topleft", 20, 0) --after the note icon
+					renameTextEntry:SetPoint("bottomright", line, "bottomright", -20, 0) --before the delete button
+					renameTextEntry:Hide()
+					--on lose focus
+					renameTextEntry:SetScript("OnEnterPressed", onPressEnterToRenameNote)
+					renameTextEntry:SetScript("OnEscapePressed", onEscapePressedRenameNote)
+					renameTextEntry:SetScript("OnEditFocusLost", onEscapePressedRenameNote)
+
+					line.SelectedHighlightTexture = selectedHighlightTexture
 					line.IconTexture = iconTexture
 					line.NoteName = noteName
 					line.DeleteButton = deleteButton
+					line.RenameTextEntry = renameTextEntry
 
 					return line
 				end
@@ -3042,6 +3399,11 @@ noteEditor.OpenNoteEditor = function()
 								if (index == mainFrame.currentNoteIndex) then
 									line.SelectedHighlightTexture:Show()
 								end
+
+								--cancel any rename in progress
+								line.RenameTextEntry:SetFocus(false)
+								line.RenameTextEntry:Hide()
+								line.NoteName:Show()
 							end
 						end
 					end
@@ -3085,12 +3447,18 @@ noteEditor.OpenNoteEditor = function()
 						mainFrame.SaveNote(mainFrame.currentNoteIndex)
 					end
 
+					if (not IsInRaid()) then
+						--need to replace the special keywords now, as the unitIds isn't the same on different clients, also passes the bNoColoring flag to avoid coloring the names
+						local bNoColoring = true
+						noteText = noteEditor.ParseNoteText(noteText, bNoColoring)
+					end
+
 					--set the player note in the open raid
 					openRaidLib.SetPlayerNote(noteText)
 
 					--open raid do not send the note to the local player, need to trigger the screen panel manually
 					local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-					if (not canAcceptNoteOn[difficultyID]) then --at the moment, players can only receive notes if inside a mythic dungeon
+					if (not canAcceptNoteOn[difficultyID] and not Details.debug) then --at the moment, players can only receive notes if inside a mythic dungeon
 						Details:Msg("At the moment, you can only send and receive notes inside a mythic dungeon.")
 						return
 					end
@@ -3298,7 +3666,17 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 			end
 
 			screenFrame.TitleText:SetText("By: " .. sender)
+
+			--find all unit names in the text and color them
+			text = noteEditor.FindAndColorUnitNames(text)
+
+			if (IsInRaid()) then
+				--no need to replace them on party as the token are already changed before the note is sent
+				text = noteEditor.ParseNoteText(text)
+			end
+
 			screenFrame.TextArea:SetText(text)
+
 			detailsFramework:SetFontSize(screenFrame.TextArea, config.fontsize)
 			screenFrame:Show()
 		end
@@ -3451,7 +3829,7 @@ function Details222.Notes.RegisterForOpenRaidNotes()
 				end
 
 				local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-				if (not canAcceptNoteOn[difficultyID]) then --at the moment, players can only receive notes if inside a mythic dungeon
+				if (not canAcceptNoteOn[difficultyID] and not Details.debug) then --at the moment, players can only receive notes if inside a mythic dungeon
 					return
 				end
 
@@ -3459,7 +3837,7 @@ function Details222.Notes.RegisterForOpenRaidNotes()
 					print("|cFFFFAA00 Note Sent by:", unitName, "|r")
 					print(unitNote.note)
 				else
-					noteEditor.OpenNoteScreenPanel(unitName, unitNote.note, unitNote.commId)
+					noteEditor.OpenNoteScreenPanel(unitName, unitNote.note, unitNote.commId, false)
 				end
 			end
 		}

@@ -336,6 +336,11 @@
 ---@field CreateTimeBar fun(self:table, parent:frame, texture:texturepath|textureid, width:number?, height:number?, value:number?, member:string?, name:string?) : df_timebar
 ---@field CreatePool fun(self:table, func:function, ...) : table
 ---@field CreateObjectPool fun(self:table, func:function, ...) : table alias of CreatePool
+---@field GetRoleIconAndCoords fun(self:table, role:string) : string, number, number, number, number return the texture path and texcoords for a role
+---@field AddRoleIconToText fun(self:table, text:string, role:string, size:number?) : string add a role icon to a text using escape codes
+---@field GetRoleTCoordsAndTexture fun(self:table, roleID:number) : number, number, number, number, string
+---@field AddColorToText fun(self:table, text:string, color:any) : string wrap text with a color
+---@field AddClassColorToText fun(self:table, text:string, className:string) : string wrap text with a class color
 
 
 --[=[
