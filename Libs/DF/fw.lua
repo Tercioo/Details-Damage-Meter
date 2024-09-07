@@ -1,6 +1,6 @@
 
 
-local dversion = 565
+local dversion = 568
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -4999,11 +4999,12 @@ end
 
 function DF:AddRoleIconToText(text, role, size)
 	if (role and type(role) == "string") then
-		local coords = GetTexCoordsForRole(role)
+		local coords = roleTexcoord2[role]
 		if (coords) then
 			if (type(text) == "string" and role ~= "NONE") then
 				size = size or 14
-				text = "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. size .. ":" .. size .. ":0:0:256:256:" .. roleTexcoord[role] .. "|t " .. text
+				local coordsToString = floor(coords[1]*256) .. ":" .. floor(coords[2]*256) .. ":" .. floor(coords[3]*256) .. ":" .. floor(coords[4]*256)
+				text = "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. size .. ":" .. size .. ":0:0:256:256:" .. coordsToString .. "|t " .. text
 				return text
 			end
 		end

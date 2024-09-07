@@ -95,6 +95,8 @@ function Details222.StartUp.StartMeUp()
 
 	Details222.AuraScan.FindAndIgnoreWorldAuras()
 
+	Details222.Notes.RegisterForOpenRaidNotes()
+
 	if (Details.ocd_tracker.show_options) then
 		Details:InitializeCDTrackerWindow()
 	else

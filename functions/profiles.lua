@@ -1707,6 +1707,10 @@ local default_global_data = {
 		exp90temp = {
 			delete_damage_TCOB = true, --delete damage on the concil of blood encounter
 		},
+
+	third_party = {
+		openraid_notecache = {},
+	},
 }
 
 Details.default_global_data = default_global_data

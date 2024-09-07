@@ -1323,9 +1323,11 @@ function Details:IsZoneIdFromCurrentExpansion(zoneId)
 	local _, bossInfoTable, raidInfoTable = Details:GetExpansionBossList()
 	for bossId, bossTable in pairs(bossInfoTable) do
 		---@cast bossTable details_bossinfo
-		currentExpZoneIds[bossTable.uiMapId] = true
-		currentExpZoneIds[bossTable.instanceId] = true
-		currentExpZoneIds[bossTable.journalInstanceId] = true
+		if (bossTable.uiMapId) then
+			currentExpZoneIds[bossTable.uiMapId] = true
+			currentExpZoneIds[bossTable.instanceId] = true
+			currentExpZoneIds[bossTable.journalInstanceId] = true
+		end
 	end
 
 	for raidInstanceID, raidTable in pairs(raidInfoTable) do

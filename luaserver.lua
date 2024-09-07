@@ -1805,7 +1805,7 @@ function strsplit(str, separator, limit) return "" end
 function floor(x) return 0 end
 
 ---@param table table
----@param index number
+---@param index number?
 ---@return any
 function tremove(table, index) return nil end
 

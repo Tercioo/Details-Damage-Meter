@@ -1820,7 +1820,6 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 							if type(lineIcon) == "string" and not string.find(lineIcon, "^[Ii]nterface") then
 								lineIcon = "Interface/ICONS/" .. lineIcon
 							end
-							DevTool:AddData(lineIcon, "lineIcon")
 							line.buttons[o].icon:SetTexture(lineIcon)
 							line.buttons[o].texture = lineIcon
 						end

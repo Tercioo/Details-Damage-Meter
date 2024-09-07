@@ -3,7 +3,7 @@
 
 Please refer to the docs.txt within this file folder for a guide on how to use this library.
 If you get lost on implementing the lib, be free to contact Tercio on Details! discord: https://discord.gg/AGSzAZX or email to terciob@gmail.com
-
+--PLAYER_AVG_ITEM_LEVEL_UPDATE
 UnitID:
     UnitID use: "player", "target", "raid18", "party3", etc...
     If passing the unit name, use GetUnitName(unitId, true) or Ambiguate(playerName, 'none')
@@ -44,7 +44,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 139
+local CONST_LIB_VERSION = 140
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -91,6 +91,7 @@ end
     local CONST_DIAGNOSTIC_COMM_RECEIVED = false
 
     local CONST_COMM_PREFIX = "LRS"
+    local CONST_COMM_PREFIX_LOGGED = "LRS_LOGGED"
     local CONST_COMM_FULLINFO_PREFIX = "F"
 
     local CONST_COMM_COOLDOWNUPDATE_PREFIX = "U"
@@ -110,8 +111,8 @@ end
     local CONST_COMM_KEYSTONE_DATA_PREFIX = "K"
     local CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX = "J"
 
-    local CONST_COMM_OPENNOTES_RECEIVED_PREFIX = "NR" --when a note is received
-    local CONST_COMM_OPENNOTES_REQUESTED_PREFIX = "NQ" --when received a request to send your note
+    local CONST_COMM_OPENNOTES_RECEIVED_PREFIX = "N" --when a note is received
+    local CONST_COMM_OPENNOTES_REQUESTED_PREFIX = "Q" --when received a request to send your note
 
     local CONST_COMM_SENDTO_PARTY = "0x1"
     local CONST_COMM_SENDTO_RAID = "0x2"
@@ -185,7 +186,7 @@ end
         end
     end
 
-    local diagnosticCommReceivedFilter = nil
+    local diagnosticCommReceivedFilter = false
     openRaidLib.diagnosticCommReceived = function(msg, ...)
         if (diagnosticCommReceivedFilter) then
             local lowerMessage = msg:lower()
@@ -379,11 +380,9 @@ end
 --------------------------------------------------------------------------------------------------------------------------------
 --~comms
     openRaidLib.commHandler = {}
-
     function openRaidLib.commHandler.OnReceiveComm(self, event, prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID)
         --check if the data belong to us
         if (prefix == CONST_COMM_PREFIX) then
-
             sender = Ambiguate(sender, "none")
 
             --don't receive comms from the player it self
@@ -392,10 +391,27 @@ end
                 return
             end
 
-            local data = text
-            local LibDeflate = LibStub:GetLibrary("LibDeflate")
-            local dataCompressed = LibDeflate:DecodeForWoWAddonChannel(data)
-            data = LibDeflate:DecompressDeflate(dataCompressed)
+            local commId = 0
+
+            --verify if this is a safe comm
+            local data = ""
+            local bIsSafe = event == "CHAT_MSG_ADDON_LOGGED"
+            if (bIsSafe) then
+                data = text:gsub("%%", "\n")
+                --replace the the first ";" found in the data string with a ",", only the first occurence
+                data = data:gsub(";", ",", 1)
+                --get the commId
+                commId = data:match("#([^#]+)$")
+                --remove the commId from the data
+                data = data:gsub("#([^#]+)$", "")
+                --add the commId to the end of the data after a comma
+                data = data .. "," .. commId
+            else
+                data = text
+                local LibDeflate = LibStub:GetLibrary("LibDeflate")
+                local dataCompressed = LibDeflate:DecodeForWoWAddonChannel(data)
+                data = LibDeflate:DecompressDeflate(dataCompressed)
+            end
 
             --some users are reporting errors where 'data is nil'. Making some sanitization
             if (not data) then
@@ -451,6 +467,7 @@ end
     C_ChatInfo.RegisterAddonMessagePrefix(CONST_COMM_PREFIX)
     openRaidLib.commHandler.eventFrame = CreateFrame("frame")
     openRaidLib.commHandler.eventFrame:RegisterEvent("CHAT_MSG_ADDON")
+    openRaidLib.commHandler.eventFrame:RegisterEvent("CHAT_MSG_ADDON_LOGGED")
     openRaidLib.commHandler.eventFrame:SetScript("OnEvent", openRaidLib.commHandler.OnReceiveComm)
 
     openRaidLib.commHandler.commCallback = {
@@ -478,29 +495,116 @@ end
         tinsert(openRaidLib.commHandler.commCallback[prefix], func)
     end
 
+    local charactesrPerMessage = 251
+    local receivingMsgInParts = {}
+
+    local debugCommReception = CreateFrame("frame")
+    debugCommReception:RegisterEvent("CHAT_MSG_ADDON_LOGGED")
+    debugCommReception:SetScript("OnEvent", function(self, event, prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID)
+        if (prefix == CONST_COMM_PREFIX_LOGGED) then
+            local chunkNumber, totalChunks, data = text:match("^%$(%d+)%$(%d+)(.*)")
+            local onlyData = text:match("^(.*)")
+
+            if (not chunkNumber and not totalChunks and onlyData) then
+                openRaidLib.commHandler.OnReceiveComm(self, "CHAT_MSG_ADDON_LOGGED", CONST_COMM_PREFIX, onlyData, channel, sender, target, zoneChannelID, localID, name, instanceID)
+
+            elseif (chunkNumber and totalChunks and data) then
+                chunkNumber = tonumber(chunkNumber)
+                totalChunks = tonumber(totalChunks)
+
+                if (chunkNumber and totalChunks) then
+                    if (chunkNumber <= totalChunks and chunkNumber >= 1) then
+                        if (not receivingMsgInParts[sender]) then
+                            local parts = {}
+                            for i = 1, totalChunks do
+                                parts[i] = false
+                            end
+                            receivingMsgInParts[sender] = {
+                                totalChunks = totalChunks,
+                                chunks = parts
+                            }
+                        end
+
+                        receivingMsgInParts[sender].chunks[chunkNumber] = data
+
+                        --verify if all parts were received
+                        local allPartsReceived = true
+                        for i = 1, totalChunks do
+                            if (not receivingMsgInParts[sender].chunks[i]) then
+                                allPartsReceived = false
+                                break
+                            end
+                        end
+
+                        if (allPartsReceived) then
+                            local fullData = ""
+                            --sew the parts together
+                            for i = 1, totalChunks do
+                                fullData = fullData .. receivingMsgInParts[sender].chunks[i]
+                            end
+
+                            receivingMsgInParts[sender] = nil
+                            openRaidLib.commHandler.OnReceiveComm(self, "CHAT_MSG_ADDON_LOGGED", CONST_COMM_PREFIX, fullData, channel, sender, target, zoneChannelID, localID, name, instanceID)
+                        end
+                    end
+                end
+            else
+                openRaidLib.DiagnosticError("Logged comm in parts missing information, sender:", sender, "chunkNumber:", chunkNumber, "totalChunks:", totalChunks, "data:", type(data))
+            end
+        end
+    end)
+
     --@flags
     --0x1: to party
     --0x2: to raid
     --0x4: to guild
-    local sendData = function(dataEncoded, channel)
+    local sendData = function(dataEncoded, channel, bIsSafe, plainText)
         local aceComm = LibStub:GetLibrary("AceComm-3.0", true)
         if (aceComm) then
-            aceComm:SendCommMessage(CONST_COMM_PREFIX, dataEncoded, channel, nil, "ALERT")
+            if (bIsSafe) then
+                plainText = plainText:gsub("\n", "%%")
+                plainText = plainText:gsub(",", ";")
+
+                local commId = tostring(GetServerTime() + GetTime())
+                plainText = plainText .. "#" .. commId
+
+                if (plainText:len() > 255) then
+                    local totalMessages = math.ceil(plainText:len() / charactesrPerMessage)
+                    for i = 1, totalMessages do
+                        local chunk = plainText:sub((i - 1) * charactesrPerMessage + 1, i * charactesrPerMessage)
+                        local chunkNumberAndTotalChuncks = "$" .. i .. "$" .. totalMessages
+                        local chunkMessage = chunkNumberAndTotalChuncks .. chunk
+                        ChatThrottleLib:SendAddonMessageLogged("NORMAL", CONST_COMM_PREFIX_LOGGED, chunkMessage, channel)
+                    end
+                else
+                    ChatThrottleLib:SendAddonMessageLogged("NORMAL", CONST_COMM_PREFIX_LOGGED, plainText, channel)
+                end
+            else
+                aceComm:SendCommMessage(CONST_COMM_PREFIX, dataEncoded, channel, nil, "ALERT")
+            end
         else
             C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, dataEncoded, channel)
         end
     end
 
+	if (C_ChatInfo) then
+		C_ChatInfo.RegisterAddonMessagePrefix(CONST_COMM_PREFIX_LOGGED)
+	else
+		RegisterAddonMessagePrefix(CONST_COMM_PREFIX_LOGGED)
+	end
+
     ---@class commdata : table
     ---@field data string
     ---@field channel string
+    ---@field bIsSafe boolean
+    ---@field plainText string
 
     ---@type {}[]
     local commScheduler = {};
 
     local commBurstBufferCount = CONST_COMM_BURST_BUFFER_COUNT;
     local commServerTimeLastThrottleUpdate = GetServerTime();
-    
+
     do
         --if there's an old version that already registered the comm ticker, cancel it
         if (LIB_OPEN_RAID_COMM_SCHEDULER) then
@@ -518,8 +622,9 @@ end
             -- while (anything in queue) and (throttle allows it)
             while(#commScheduler > 0 and commBurstBufferCount > 0) do
                 -- FIFO queue
+                ---@type commdata
                 local commData = table.remove(commScheduler, 1);
-                sendData(commData.data, commData.channel);
+                sendData(commData.data, commData.channel, commData.bIsSafe, commData.plainText);
                 commBurstBufferCount = commBurstBufferCount - 1;
             end
         end);
@@ -527,7 +632,7 @@ end
         LIB_OPEN_RAID_COMM_SCHEDULER = newTickerHandle
     end
 
-    function openRaidLib.commHandler.SendCommData(data, flags, bIgnoreQueue)
+    function openRaidLib.commHandler.SendCommData(data, flags, bIsSafe)
         local LibDeflate = LibStub:GetLibrary("LibDeflate")
         local dataCompressed = LibDeflate:CompressDeflate(data, {level = 9})
         local dataEncoded = LibDeflate:EncodeForWoWAddonChannel(dataCompressed)
@@ -536,14 +641,14 @@ end
             if (bit.band(flags, CONST_COMM_SENDTO_PARTY)) then --send to party
                 if (IsInGroup() and not IsInRaid()) then
                     ---@type commdata
-                    local commData = {data = dataEncoded, channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY"}
+                    local commData = {data = dataEncoded, channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY", bIsSafe = bIsSafe, plainText = data}
                     table.insert(commScheduler, commData)
                 end
             end
 
             if (bit.band(flags, CONST_COMM_SENDTO_RAID)) then --send to raid
                 if (IsInRaid()) then
-                    local commData = {data = dataEncoded, channel = IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID"}
+                    local commData = {data = dataEncoded, channel = IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID", bIsSafe = bIsSafe, plainText = data}
                     table.insert(commScheduler, commData)
                 end
             end
@@ -556,11 +661,11 @@ end
             end
         else
             if (IsInGroup() and not IsInRaid()) then --in party only
-                local commData = {data = dataEncoded, channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY"}
+                local commData = {data = dataEncoded, channel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY", bIsSafe = bIsSafe, plainText = data}
                 table.insert(commScheduler, commData)
 
             elseif (IsInRaid()) then
-                local commData = {data = dataEncoded, channel = IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID"}
+                local commData = {data = dataEncoded, channel = IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID", bIsSafe = bIsSafe, plainText = data}
                 table.insert(commScheduler, commData)
             end
         end
@@ -1839,12 +1944,12 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
 
 ---@class noteinfo : table
 ---@field note string
----@field version number
+---@field commId string
 
 ---@type noteinfo
 local notePrototype = {
     note = "",
-    version = 0,
+    commId = "",
 }
 
 openRaidLib.OpenNotesManager = {
@@ -1914,9 +2019,8 @@ end
 ---@param note string
 function openRaidLib.SetPlayerNote(note)
     assert(type(note) == "string", "OpenRaid: SetPlayerNote(#1) expect a string.")
-    assert(note:len() > 3000, "OpenRaid: SetPlayerNote(#1) too long.")
-    local version = time()
-    openRaidLib.OpenNotesManager.SetUnitNote(UnitName("player"), note, version)
+    assert(note:len() <= 1500, "OpenRaid: SetPlayerNote(#1) too long.")
+    openRaidLib.OpenNotesManager.SetUnitNote(UnitName("player"), note, "")
 end
 
 ---send the player note to the group
@@ -1941,6 +2045,7 @@ function openRaidLib.OpenNotesManager.GetUnitNote(unitName)
         local newNote = {}
         openRaidLib.TCopy(newNote, notePrototype)
         openRaidLib.OpenNotesManager.UnitData[unitName] = newNote
+        unitNote = newNote
     end
 
     return unitNote
@@ -1949,11 +2054,11 @@ end
 ---set a note of a unit, this do not send the note yet, just store it
 ---@param unitName string
 ---@param note string
----@param version number
-function openRaidLib.OpenNotesManager.SetUnitNote(unitName, note, version)
+---@param commId string
+function openRaidLib.OpenNotesManager.SetUnitNote(unitName, note, commId)
     local unitNote = openRaidLib.OpenNotesManager.GetUnitNote(unitName)
     unitNote.note = note
-    unitNote.version = version or time()
+    unitNote.commId = commId
 end
 
 ---clear all data stored
@@ -1982,11 +2087,10 @@ openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.OpenNo
 function openRaidLib.OpenNotesManager.OnReceiveNoteData(data, unitName)
     ---@type string
     local note = data[1]
-    ---@type number
-    local version = tonumber(data[2]) or 0
+    local commId = data[2]
 
-    if (note and version and type(note) == "string" and type(version) == "number") then
-        openRaidLib.OpenNotesManager.SetUnitNote(unitName, note, version)
+    if (note and type(note) == "string" and commId and type(commId) == "string") then
+        openRaidLib.OpenNotesManager.SetUnitNote(unitName, note, commId)
         ---@type noteinfo
         local unitNote = openRaidLib.OpenNotesManager.GetUnitNote(unitName)
         --trigger public callback
@@ -1995,27 +2099,40 @@ function openRaidLib.OpenNotesManager.OnReceiveNoteData(data, unitName)
 end
 openRaidLib.commHandler.RegisterComm(CONST_COMM_OPENNOTES_RECEIVED_PREFIX, openRaidLib.OpenNotesManager.OnReceiveNoteData)
 
+local timeOfLastNoteSent = 0
 function openRaidLib.OpenNotesManager.SendNote()
     local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
 
     --deny if not in group or if the player is in open world
     if (instanceType == "none") then
-        return
+        --return
     elseif (not openRaidLib.IsInGroup()) then
         return
     end
-
+--ACTIVE_DELVE_DATA_UPDATE
     ---@type noteinfo
     local playerNote = openRaidLib.OpenNotesManager.GetUnitNote(UnitName("player"))
-    if (type(playerNote) == "table" and playerNote.note and playerNote.version) then
+    if (type(playerNote) == "table" and playerNote.note) then
         assert(type(playerNote.note) == "string", "OpenRaid: SendNote() invalid note.")
-        assert(playerNote.note:len() > 3000, "OpenRaid: SendNote() note too long.")
-        assert(playerNote.note:len() < 10, "OpenRaid: SendNote() note too short.")
+        assert(playerNote.note:len() <= 1500, "OpenRaid: SendNote() note too long.")
+        assert(playerNote.note:len() >= 50, "OpenRaid: SendNote() note too short.")
 
-        local dataToSend = "" .. CONST_COMM_OPENNOTES_RECEIVED_PREFIX .. "," .. playerNote.note .. "," .. playerNote.version
-        --send the data
-        openRaidLib.commHandler.SendCommData(dataToSend)
-        diagnosticComm("SendAllNotesData| " .. dataToSend) --debug
+        local dataToSend = "" .. CONST_COMM_OPENNOTES_RECEIVED_PREFIX .. "," .. playerNote.note
+
+        local sendFunc = function()
+            local flags = nil
+            local bIsSafe = true
+            openRaidLib.commHandler.SendCommData(dataToSend, flags, bIsSafe)
+            diagnosticComm("SendAllNotesData| " .. dataToSend) --debug
+        end
+
+        if (timeOfLastNoteSent+5 > time()) then
+            openRaidLib.Schedules.NewUniqueTimer(2 + math.random(0, 2) + math.random(), sendFunc, "OpenNotesManager", "sendNoteInfo_Schedule")
+        else
+            openRaidLib.Schedules.NewUniqueTimer(0.1, sendFunc, "OpenNotesManager", "sendNoteInfo_Schedule")
+        end
+
+        timeOfLastNoteSent = time()
 
         noteContext.time = time()
         noteContext.mapId = instanceID
@@ -2030,7 +2147,7 @@ function openRaidLib.OpenNotesManager.OnReceiveNoteRequest()
     local playerNote = openRaidLib.OpenNotesManager.GetUnitNote(UnitName("player"))
 
     --check if there is text in the note
-    if (playerNote and playerNote.note and playerNote.version and playerNote.note:len() > 10) then
+    if (playerNote and playerNote.note and playerNote.note:len() >= 50) then
         --check if the context is the same
         if (not checkContext()) then
             return
@@ -2952,8 +3069,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
 
     function openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty()
         local dataToSend = getKeystoneInfoToComm()
-        local bIgnoreQueue = true
-        openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_PARTY, bIgnoreQueue)
+        openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_PARTY)
         diagnosticComm("SendPlayerKeystoneInfoToParty| " .. dataToSend) --debug
     end
 

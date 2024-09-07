@@ -391,7 +391,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 	--order buttons
 	local x = buttonAnchorX
 	local y = buttonAnchorY
-	local spaceBetweenButtons = 3
+	local spaceBetweenButtons = 2
 
 	local allocatedSpaceForButtons = parentFrameWidth - ((#tabList - 2) * spaceBetweenButtons) - buttonAnchorX + containerWidthOffset
 	local amountButtonsPerRow = math.floor(allocatedSpaceForButtons / buttonWidth)

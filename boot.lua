@@ -19,8 +19,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
 
-		Details.build_counter = 12888
-		Details.alpha_build_counter = 12888 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 13000
+		Details.alpha_build_counter = 13000 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -161,7 +161,7 @@
 			Charts = {},
 			Frames = {},
 		}
-
+		Details222.Notes = {}
 		Details222.MythicPlusBreakdown = {}
 		Details222.EJCache = {}
 		Details222.Segments = {}

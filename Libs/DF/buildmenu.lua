@@ -1081,6 +1081,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
     local currentYOffset = yOffset or 0
     local maxColumnWidth = 0 --biggest width of widget + text size on the current column loop pass
     local maxWidgetWidth = 0 --biggest widget width on the current column loop pass
+    local canvasFrame = parent
 
     --which is the next widget to get from the pool
     local widgetIndexes = {
@@ -1297,6 +1298,12 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
             end
         end
     end
+    
+    if (bUseScrollFrame) then
+        canvasFrame:GetParent().RefreshOptions = function()
+            parent:RefreshOptions()
+        end
+    end
 
     detailsFramework.RefreshUnsafeOptionsWidgets()
     onMenuBuilt(parent)
@@ -1341,6 +1348,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
     local currentYOffset = yOffset or 0
     local maxColumnWidth = 0 --biggest width of widget + text size on the current column loop pass
     local maxWidgetWidth = 0 --biggest widget width on the current column loop pass
+    local canvasFrame = parent
 
     bHighlightColorOne = true
 
@@ -1602,6 +1610,9 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
     if (bUseScrollFrame) then
         parent:SetHeight(biggestColumnHeight * -1)
+        canvasFrame:GetParent().RefreshOptions = function()
+            parent:RefreshOptions()
+        end
     end
 
     detailsFramework.RefreshUnsafeOptionsWidgets()
