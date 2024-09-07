@@ -1948,7 +1948,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 			end
 		end
 
-		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 		if (openRaidLib) then
 			if (not DetailsKeystoneInfoFrame) then
 				---@type detailsframework
@@ -2949,7 +2949,7 @@ function noteEditor.ParseNoteText(text, bNoColoring)
 end
 
 noteEditor.OpenNoteEditor = function()
-	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 	if (openRaidLib) then
 		if (not DetailsNoteFrame) then
 			local CONST_WINDOW_WIDTH = 614
@@ -3811,7 +3811,7 @@ function Details222.Notes.RegisterForOpenRaidNotes()
 		config["showresizebutton"] = true
 	end
 
-	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 	if (openRaidLib) then
 		--registering the callback:
 		local object = {
