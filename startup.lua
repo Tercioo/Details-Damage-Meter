@@ -704,13 +704,19 @@ function Details222.StartUp.StartMeUp()
 	if (DetailsFramework.IsWarWow()) then
 	C_Timer.After(1, function() if (SplashFrame) then SplashFrame:Hide() end end)
 	function HelpTip:SetHelpTipsEnabled(flag, enabled)
-		--HelpTip.supressHelpTips[flag] = false
+		if (Details.streamer_config.no_helptips) then
+			HelpTip.supressHelpTips[flag] = false
+		end
 	end
 	hooksecurefunc(HelpTipTemplateMixin, "OnShow", function(self)
-		--self:Hide()
+		if (Details.streamer_config.no_helptips) then
+			self:Hide()
+		end
 	end)
 	hooksecurefunc(HelpTipTemplateMixin, "OnUpdate", function(self)
-		--self:Hide()
+		if (Details.streamer_config.no_helptips) then
+			self:Hide()
+		end
 	end)
 
 	C_Timer.After(5, function()

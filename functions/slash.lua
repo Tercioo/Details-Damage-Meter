@@ -2465,18 +2465,35 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 end
 
 --ñote ~note ~notes ~notepad
+---@class notereplacement : table
+---@field addonObject table
+---@field memberName string
+---@field payload any[]
 
 --this table store addons which want to replace the note command
 --more than one addon can be registered and all of them will be called when the user type /note
 --is up to the user to decide which addon to use
-local noteCallbacks = {}
+local noteCallbacks = {
+	---@type notereplacement[]
+	["NOTE"] = {},
+	---@type notereplacement[]
+	["NOTES"] = {},
+	---@type notereplacement[]
+	["NOTEPAD"] = {},
+}
+
+---@alias notecommand
+---| "NOTE"
+---| "NOTES"
+---| "NOTEPAD"
 
 ---register an addon and a callback function to be called when the user type /keystone
----@param addonObject table
----@param memberName string
----@param ... any
----@return boolean true if the addon was registered, false if it was already registered and got unregistered
-function Details:ReplaceNoteCommand(addonObject, memberName, ...)
+---@param addonObject table a table containing the function to be called, example: {[memberName] = function()end}
+---@param memberName string a function name that exists inside the addonObject table
+---@param noteCommandToReplace notecommand which note command to replace
+---@param ... any any number of parameters to be passed to the callback function
+---@return boolean bGotRegistered true if the addon was registered, false if it was already registered and got unregistered
+function Details:ReplaceNoteCommand(addonObject, memberName, noteCommandToReplace, ...)
 	--check if the parameters passed are valid types
 	if (type(addonObject) ~= "table") then
 		error("Details:ReplaceNoteCommand: addonObject must be a table")
@@ -2486,14 +2503,19 @@ function Details:ReplaceNoteCommand(addonObject, memberName, ...)
 
 	elseif (type(addonObject[memberName]) ~= "function") then
 		error("Details:ReplaceNoteCommand: t[memberName] doesn't point to a function.")
+
+	elseif (noteCommandToReplace ~= "NOTE" and noteCommandToReplace ~= "NOTES" and noteCommandToReplace ~= "NOTEPAD") then
+		error("Details:ReplaceNoteCommand: noteCommandToReplace must be 'NOTE', 'NOTES' or 'NOTEPAD'")
 	end
 
+	local commandRegisteredCallbacks = noteCallbacks[noteCommandToReplace]
+
 	--check if the addonObject is already registered and remove it
-	for i = #noteCallbacks, 1, -1 do
-		if (noteCallbacks[i].addonObject == addonObject) then
+	for i = #commandRegisteredCallbacks, 1, -1 do
+		if (commandRegisteredCallbacks[i].addonObject == addonObject) then
 			--check if the memberName is the same
-			if (noteCallbacks[i].memberName == memberName) then
-				table.remove(noteCallbacks, i)
+			if (commandRegisteredCallbacks[i].memberName == memberName) then
+				table.remove(commandRegisteredCallbacks, i)
 				return false
 			end
 		end
@@ -2501,7 +2523,7 @@ function Details:ReplaceNoteCommand(addonObject, memberName, ...)
 
 	local payload = {...}
 
-	noteCallbacks[#noteCallbacks+1] = {
+	commandRegisteredCallbacks[#commandRegisteredCallbacks+1] = {
 		addonObject = addonObject,
 		memberName = memberName,
 		payload = payload
@@ -2511,12 +2533,13 @@ function Details:ReplaceNoteCommand(addonObject, memberName, ...)
 end
 
 SLASH_NOTE1 = "/note"
-SLASH_NOTE2 = "/notes"
-SLASH_NOTE3 = "/notepad"
+SLASH_NOTES1 = "/notes"
+SLASH_NOTEPAD1 = "/notepad"
 
 local noteEditor = {}
 local canAcceptNoteOn = {
 	[8] = true, --mythic dungeon difficulty
+	[23] = true, --mythic dungeon difficulty
 }
 
 ---@alias notename string
@@ -2556,6 +2579,7 @@ noteEditor.OpenNoteOptionsPanel = function()
 		detailsFramework:ApplyStandardBackdrop(mainFrame)
 		--dont allow the mainframe go off screen
 		mainFrame:SetClampedToScreen(true)
+		mainFrame:SetToplevel(true)
 
 		---@type noteconfigs
 		local config = Details.third_party.openraid_notecache
@@ -2628,6 +2652,7 @@ noteEditor.OpenNoteOptionsPanel = function()
 				end,
 				name = "Clear Notes",
 				desc = "Clear all notes",
+				icontexture = [[Interface\BUTTONS\UI-StopButton]],
 			},
 
 			{
@@ -2637,6 +2662,7 @@ noteEditor.OpenNoteOptionsPanel = function()
 				end,
 				name = "Clear Banlist",
 				desc = "Clear all banlist",
+				icontexture = [[Interface\BUTTONS\UI-StopButton]],
 			},
 
 			{
@@ -2656,6 +2682,7 @@ noteEditor.OpenNoteOptionsPanel = function()
 				end,
 				name = "Reset Positions",
 				desc = "Reset all positions",
+				icontexture = "UI-RefreshButton", --atlasname
 			},
 
 			{type = "blank"},
@@ -2724,6 +2751,7 @@ noteEditor.OpenNoteOptionsPanel = function()
 						mainFrame:RefreshOptions()
 					end
 				end,
+				icontexture = "UI-RefreshButton", --atlasname
 				name = "Reset Color",
 				desc = "Reset Color",
 			},
@@ -2821,6 +2849,11 @@ noteEditor.OpenNoteOptionsPanel = function()
 			},
 		}
 
+		--create a details framework label using with the text: options for the window where the note is shown
+		---@type df_label
+		local label = detailsFramework:CreateLabel(mainFrame, "Options for the window where the note is shown", "GameFontNormal")
+		label:SetPoint("topleft", mainFrame, "topleft", 3, -30)
+
 		local options_text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
 		options_text_template = detailsFramework.table.copy({}, options_text_template)
 		options_text_template.size = 11
@@ -2830,7 +2863,15 @@ noteEditor.OpenNoteOptionsPanel = function()
 		local options_slider_template = detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
 		local options_button_template = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
-		detailsFramework:BuildMenu(mainFrame, options, 3, -27, 580, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+		detailsFramework:BuildMenu(mainFrame, options, 3, -57, 580, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+	end
+
+	local screenFrame = DetailsNoteScreenFrame
+	if (not screenFrame or not screenFrame:IsShown()) then
+		local testText = "This currently text shown here is just a test text because you have opened the options panel for this feature. It is intended to changes made in the options panel to be immediately applied here."
+		local invalidCommId = ""
+		local bIsSimulateOnClient = true
+		noteEditor.OpenNoteScreenPanel(UnitName("player"), testText, invalidCommId, bIsSimulateOnClient)
 	end
 
 	DetailsNoteOptionsFrame:Show()
@@ -2968,6 +3009,7 @@ noteEditor.OpenNoteEditor = function()
 			mainFrame:SetPoint("center", UIParent, "center", -200, 0)
 			mainFrame:SetScript("OnMouseDown", nil) --disable framework native moving scripts
 			mainFrame:SetScript("OnMouseUp", nil) --disable framework native moving scripts
+			mainFrame:SetToplevel(true)
 
 			local config = Details.third_party.openraid_notecache
 			---@type table<notename, savednote>
@@ -3059,7 +3101,7 @@ noteEditor.OpenNoteEditor = function()
 				statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
 				statusBar.text:SetText("By Terciob | From Details! Damage Meter")
 				detailsFramework:SetFontSize(statusBar.text, 12)
-				detailsFramework:SetFontColor(statusBar.text, "gray")
+				detailsFramework:SetFontColor(statusBar.text, "silver")
 			end
 
 			do --create the note textarea
@@ -3100,21 +3142,10 @@ noteEditor.OpenNoteEditor = function()
 				DetailsNoteFrameNoteEditboxScrollBar:SetPoint("topleft", editboxNotes, "topright", -20, -19)
 				DetailsNoteFrameNoteEditboxScrollBar:SetPoint("bottomleft", editboxNotes, "bottomright", -20, 19)
 
-				--create three fontstrings which will show the minimum amount of characters (50), the current amount of characters and the maximum amount of characters (1500)
-				local maxChars = editboxNotes:CreateFontString(nil, "overlay", "GameFontNormal")
-				maxChars:SetPoint("bottomright", editboxNotes, "bottomright", -25, 5)
-				maxChars:SetText("/ 1500")
-				detailsFramework:SetFontColor(maxChars, "gray")
-
 				local currentChars = editboxNotes:CreateFontString(nil, "overlay", "GameFontNormal")
-				currentChars:SetPoint("bottomright", editboxNotes, "bottomright", -72, 5)
+				currentChars:SetPoint("topright", editboxNotes, "topright", -25, -5)
 				currentChars:SetText("0")
 				detailsFramework:SetFontColor(currentChars, "gray")
-
-				local minChars = editboxNotes:CreateFontString(nil, "overlay", "GameFontNormal")
-				minChars:SetPoint("bottomright", editboxNotes, "bottomright", -100, 5)
-				minChars:SetText("50 /")
-				detailsFramework:SetFontColor(minChars, "gray")
 
 				--when the user types into the editbox, update the current amount of characters
 				editboxNotes.editbox:HookScript("OnTextChanged", function(self)
@@ -3128,10 +3159,37 @@ noteEditor.OpenNoteEditor = function()
 						detailsFramework:SetFontColor(currentChars, "gray")
 					end
 				end)
+
+				--create a string with the text "Type your note here" and it attach center to center of the editbox
+				local typeYourNote = editboxNotes:CreateFontString(nil, "overlay", "GameFontNormal")
+				typeYourNote:SetPoint("center", editboxNotes, "center", 0, 0)
+				typeYourNote:SetText("CLICK TO START YOUR NOTE")
+				detailsFramework:SetFontColor(typeYourNote, "gray")
+				detailsFramework:SetFontSize(typeYourNote, 14)
+
+				--when the editbox is focused, hide the "type your note here" text
+				editboxNotes.editbox:HookScript("OnEditFocusGained", function(self)
+					typeYourNote:Hide()
+				end)
+
+				--when the editbox is unfocused and the text is empty, show the "type your note here" text
+				editboxNotes.editbox:HookScript("OnEditFocusLost", function(self)
+					if (self:GetText() == "") then
+						typeYourNote:Show()
+					end
+				end)
+
+				--when the editbox receives any character modification, hide the "type your note here" text
+				editboxNotes.editbox:HookScript("OnTextChanged", function(self)
+					if (self:GetText() == "" and not editboxNotes.editbox:HasFocus()) then
+						typeYourNote:Show()
+					else
+						typeYourNote:Hide()
+					end
+				end)
 			end
 
-			do
-				--floating frame above the bottom of the text editor
+			do --floating frame above the bottom of the text editor
 				local bottomFrameFloating = CreateFrame("frame", "$parentFloatingFrame", mainFrame.EditboxNotes, "BackdropTemplate")
 				bottomFrameFloating:SetPoint("bottomleft", mainFrame.EditboxNotes, "bottomleft", 0, 0)
 				bottomFrameFloating:SetPoint("bottomright", mainFrame.EditboxNotes, "bottomright", 0, 0)
@@ -3165,9 +3223,6 @@ noteEditor.OpenNoteEditor = function()
 				maximizeButton:Hide()
 				bottomFrameFloating.MaximizeButton = maximizeButton
 
-				local addPlayerToEditor = function(button)
-
-				end
 				local createNewPlayerSelectionButton = function()
 					local newButton = detailsFramework:CreateButton(bottomFrameFloating, function()end, 100, 22, "")
 					return newButton
@@ -3176,6 +3231,7 @@ noteEditor.OpenNoteEditor = function()
 				local playerSelectionPool = detailsFramework:CreatePool(createNewPlayerSelectionButton)
 				playerSelectionPool.onReset = function(button)
 					button:Hide()
+					button:ClearAllPoints()
 				end
 				playerSelectionPool.onAcquire = function(button)
 					button:Show()
@@ -3225,8 +3281,10 @@ noteEditor.OpenNoteEditor = function()
 							local role = detailsFramework.UnitGroupRolesAssigned(unitId)
 							local roleTexture, left, right, top, bottom = detailsFramework:GetRoleIconAndCoords(role)
 							local unitName = UnitName(unitId)
+							local unitClass = select(2, UnitClass(unitId))
 
 							selectPlayerButton:SetTextTruncated(unitName, columnWidth - 30)
+							selectPlayerButton:SetTextColor(unitClass)
 							selectPlayerButton:SetSize(columnWidth - 2, rowHeight - 2)
 							selectPlayerButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 							selectPlayerButton:SetIcon(roleTexture, 14, 14, "overlay", {left, right, top, bottom})
@@ -3345,6 +3403,8 @@ noteEditor.OpenNoteEditor = function()
 					selectedHighlightTexture:SetAllPoints()
 					selectedHighlightTexture:SetColorTexture(1, 1, 1, 0.2)
 
+					detailsFramework:CreateHighlightTexture(line)
+
 					local iconTexture = line:CreateTexture("$parentNoteIcon", "overlay")
 					iconTexture:SetSize(CONST_LINE_HEIGHT-2, CONST_LINE_HEIGHT-2)
 					iconTexture:SetPoint("left", line, "left", 2, 0)
@@ -3410,7 +3470,8 @@ noteEditor.OpenNoteEditor = function()
 				end
 
 				--scrollframe to select the note
-				local noteSelectionScrollFrame = detailsFramework:CreateScrollBox(mainFrame, "$parentNoteSelectionScrollBox", refreshNotes, savedNotes, CONST_NOTESELECTOR_WIDTH, mainFrame.EditboxNotes:GetHeight(), CONST_LINE_HEIGHT, CONST_LINE_AMOUNT)
+				local scrollHeight = CONST_LINE_AMOUNT + (CONST_LINE_AMOUNT * CONST_LINE_HEIGHT) --as each line has 1 pixel of spacing, the first CONST_LINE_AMOUNT is to compensate the spacing
+				local noteSelectionScrollFrame = detailsFramework:CreateScrollBox(mainFrame, "$parentNoteSelectionScrollBox", refreshNotes, savedNotes, CONST_NOTESELECTOR_WIDTH, scrollHeight, CONST_LINE_HEIGHT, CONST_LINE_AMOUNT)
 				noteSelectionScrollFrame:SetPoint("topleft", mainFrame.EditboxNotes, "topright", 2, 0)
 				detailsFramework:ReskinSlider(noteSelectionScrollFrame)
 				DetailsNoteFrameNoteSelectionScrollBoxScrollBar:SetPoint("topleft", noteSelectionScrollFrame, "topright", -20, -19)
@@ -3431,6 +3492,7 @@ noteEditor.OpenNoteEditor = function()
 				bottomFrame:SetPoint("topright", mainFrame.NoteSelectionScrollFrame, "bottomright", 0, -2)
 				bottomFrame:SetPoint("bottomleft", mainFrame, "bottomleft", 0, 22)
 				detailsFramework:ApplyStandardBackdrop(bottomFrame)
+				mainFrame.BottomFrame = bottomFrame
 
 				local sendButton = detailsFramework:CreateButton(bottomFrame, function()
 					local noteText = mainFrame.EditboxNotes.editbox:GetText()
@@ -3472,6 +3534,7 @@ noteEditor.OpenNoteEditor = function()
 				sendButton:SetPoint("topleft", bottomFrame, "topleft", 0, -2)
 				sendButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				sendButton:SetIcon("Interface\\BUTTONS\\JumpUpArrow", 18, 18, "overlay", {0, 1, 0, 1})
+				detailsFramework:CreateHighlightTexture(sendButton)
 
 				local saveNoteButton = detailsFramework:CreateButton(bottomFrame, function()
 					mainFrame.SaveNote(mainFrame.currentNoteIndex)
@@ -3480,6 +3543,7 @@ noteEditor.OpenNoteEditor = function()
 				saveNoteButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				saveNoteButton:SetIcon([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]], 16, 16, "overlay")
 				saveNoteButton:SetAlpha(1)
+				detailsFramework:CreateHighlightTexture(saveNoteButton)
 
 				local newNoteButton = detailsFramework:CreateButton(bottomFrame, function()
 					mainFrame.CreateEmptyNote()
@@ -3488,6 +3552,7 @@ noteEditor.OpenNoteEditor = function()
 				newNoteButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				newNoteButton:SetIcon([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]], 16, 16, "overlay")
 				newNoteButton:SetAlpha(1)
+				detailsFramework:CreateHighlightTexture(newNoteButton)
 
 				local optionsButton = detailsFramework:CreateButton(bottomFrame, function()
 					noteEditor.OpenNoteOptionsPanel()
@@ -3496,9 +3561,33 @@ noteEditor.OpenNoteEditor = function()
 				optionsButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				optionsButton:SetIcon([[Interface\Scenarios\ScenarioIcon-Interact]], 16, 16, "overlay")
 				optionsButton:SetAlpha(1)
+				detailsFramework:CreateHighlightTexture(optionsButton)
+
+				--create a texture of size 16 16 with the texture [[Interface\BUTTONS\UI-SliderBar-Button-Vertical]], the point is the same as the whats this text
+				local whatsThisIcon = bottomFrame:CreateTexture(nil, "overlay")
+				whatsThisIcon:SetTexture([[Interface\BUTTONS\UI-SliderBar-Button-Vertical]])
+				whatsThisIcon:SetSize(16, 16)
+				whatsThisIcon:SetPoint("bottomleft", bottomFrame, "bottomleft", 2, 25)
+				whatsThisIcon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
+
+				--make a fontstring with the text: "This panel allows you to create a note and share it with your group. Can contain route info, interrupt order, bloodlust timers, boss order, skips, rogue shroud, etc."
+				local whatsThisText = bottomFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+				whatsThisText:SetPoint("left", whatsThisIcon, "right", 5, 0)
+				whatsThisText:SetText("This panel allows you to create a note and share it with your group. Can contain route info, interrupt order, bloodlust timers, boss order, skips, rogue shroud, etc.")
+				whatsThisText:SetWidth(bottomFrame:GetWidth() - 10)
+				whatsThisText:SetJustifyH("left")
+				detailsFramework:SetFontSize(whatsThisText, 12)
+				detailsFramework:SetFontColor(whatsThisText, "orange")
+				whatsThisText:SetAlpha(0.7)
+
+				local warningTextIcon = bottomFrame:CreateTexture(nil, "overlay")
+				warningTextIcon:SetTexture([[Interface\BUTTONS\UI-SliderBar-Button-Vertical]])
+				warningTextIcon:SetSize(16, 16)
+				warningTextIcon:SetPoint("bottomleft", bottomFrame, "bottomleft", 2, 2)
+				warningTextIcon:SetTexCoord(0.25, 0.75, 0.25, 0.75)
 
 				local warningText = bottomFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-				warningText:SetPoint("bottomleft", bottomFrame, "bottomleft", 2, 2)
+				warningText:SetPoint("left", warningTextIcon, "right", 5, 0)
 				warningText:SetText("You may report any offensive notes you receive. The text is logged on the server.")
 				warningText:SetAlpha(0.7)
 
@@ -3506,6 +3595,22 @@ noteEditor.OpenNoteEditor = function()
 				versionText:SetPoint("bottomright", bottomFrame, "bottomright", -2, 2)
 				versionText:SetText("v1.0")
 				versionText:SetAlpha(0.7)
+			end
+
+			do --create a panel below the note selection scroll frame
+				local belowScrollFrame = CreateFrame("frame", "$parentBelowScrollFrame", mainFrame, "BackdropTemplate")
+				detailsFramework:ApplyStandardBackdrop(belowScrollFrame)
+				belowScrollFrame:SetPoint("topleft", mainFrame.NoteSelectionScrollFrame, "bottomleft", 0, -2)
+				belowScrollFrame:SetPoint("topright", mainFrame.NoteSelectionScrollFrame, "bottomright", 0, -2)
+				belowScrollFrame:SetPoint("bottomright", mainFrame.BottomFrame, "topright", 0, 2)
+
+				local reuseText = belowScrollFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+				reuseText:SetPoint("topleft", belowScrollFrame, "topleft", 4, -5)
+				reuseText:SetText("Use dps1 dps2 dps3 healer1 tank1 in order to reuse the note without typing player names.")
+				detailsFramework:SetFontSize(reuseText, 11)
+				detailsFramework:SetFontColor(reuseText, "silver")
+				reuseText:SetWidth(belowScrollFrame:GetWidth() - 6)
+				reuseText:SetJustifyH("left")
 			end
 
 			function mainFrame.RefreshData()
@@ -3555,6 +3660,34 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 				screenFrame:Hide()
 			end
 		end)
+
+		--create a texture to use in a flash animation, this texture is attached to the titleRoundedFrame
+		local flashTexture = screenFrame:CreateTexture(nil, "overlay")
+		flashTexture:SetTexture([[Interface\CHATFRAME\CHATFRAMEBACKGROUND]])
+		flashTexture:SetBlendMode("ADD")
+		flashTexture:SetTexCoord(44/512, 354/512, 50/256, 120/256)
+		flashTexture:SetHeight(40)
+		flashTexture:SetPoint("topleft", screenFrame, "topleft", 0, 0)
+		flashTexture:SetPoint("topright", screenFrame, "topright", 0, 0)
+		screenFrame.FlashTexture = flashTexture
+
+		--create the flash animation usin details framework animation hub
+		local animGroup = detailsFramework:CreateAnimationHub(flashTexture, function() flashTexture:Show() end, function() flashTexture:Hide() end)
+		local flashInAnim = detailsFramework:CreateAnimation(animGroup, "Alpha", 1, 0.1, 0.03, 0.03)
+		local flashOutAnim = detailsFramework:CreateAnimation(animGroup, "Alpha", 2, 0.1, 0.01, 0)
+		local transInAnim = detailsFramework:CreateAnimation(animGroup, "Translation", 1, 0.1, 0, -150)
+		local transOutAnim = detailsFramework:CreateAnimation(animGroup, "Translation", 2, 0.1, 0, -150)
+		animGroup.flashInAnim = flashInAnim
+		animGroup.transInAnim = transInAnim
+		animGroup.flashOutAnim = flashOutAnim
+		animGroup.transOutAnim = transOutAnim
+		flashTexture.FadeInAnimation = animGroup
+
+		local screenFrameFadeInAnimGroup = detailsFramework:CreateAnimationHub(screenFrame, function() flashTexture:Hide() end, function() --[[flashTexture.FadeInAnimation:Play()]] end)
+		local scaleInAnim1 = detailsFramework:CreateAnimation(screenFrameFadeInAnimGroup, "Scale", 1, 0.075, 0, 0, 1.1, 1.1, "center", 0, 0)
+		local scaleInAnim2 = detailsFramework:CreateAnimation(screenFrameFadeInAnimGroup, "Scale", 2, 0.05, 1, 1, 0.9, 0.9, "center", 0, 0)
+		local alphaInAnim = detailsFramework:CreateAnimation(screenFrameFadeInAnimGroup, "Alpha", 1, 0.075, 0, 1)
+		screenFrame.FadeInAnimation = screenFrameFadeInAnimGroup
 
 		local titleRoundedFrame = CreateFrame("frame", "DetailsNoteScreenTitleFrame", screenFrame, "BackdropTemplate")
 		titleRoundedFrame:SetPoint("bottomleft", screenFrame, "topleft", 5, -17)
@@ -3635,7 +3768,7 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 		local banSender = detailsFramework:CreateButton(screenFrame, function()
 			config.banlist[senderName] = true
 			screenFrame:Hide()
-		end, 100, 20, "Ban Sender")
+		end, 110, 20, "Ignore Sender")
 		--banSender:SetPoint("bottomleft", screenFrame, "bottomleft", 4, 4)
 		banSender:SetPoint("bottomright", screenFrame, "bottom", -1, 4)
 		banSender:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -3644,7 +3777,7 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 
 		local optionsButton = detailsFramework:CreateButton(screenFrame, function()
 			noteEditor.OpenNoteOptionsPanel()
-		end, 100, 20, "OPTIONS")
+		end, 110, 20, "OPTIONS")
 		--optionsButton:SetPoint("bottomleft", banSender, "bottomright", 4, 0)
 		optionsButton:SetPoint("bottomleft", screenFrame, "bottom", 1, 4)
 		optionsButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -3665,7 +3798,7 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 				sender = detailsFramework:AddRoleIconToText(sender, unitRole, size)
 			end
 
-			screenFrame.TitleText:SetText("By: " .. sender)
+			screenFrame.TitleText:SetText("From: " .. sender)
 
 			--find all unit names in the text and color them
 			text = noteEditor.FindAndColorUnitNames(text)
@@ -3761,9 +3894,26 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 		screenFrame.ReportButton:Hide()
 	end
 
+	if (not config["tutorial1"]) then --~helptip
+		local helpTipInfo = {
+			text = "You received a note from another player.\n\nThis note contains instructions for the content you are about to engage in.\n\nIf the note is offensive, you may report the player to Blizzard using the 'Report Player' button.",
+			buttonStyle = HelpTip.ButtonStyle.Close,
+			targetPoint = HelpTip.Point.RightEdgeCenter,
+			offsetX = 8,
+			onHideCallback = function() config["tutorial1"] = true end,
+		}
+		HelpTip:Show(screenFrame, helpTipInfo)
+	end
+
 	screenFrame.RefreshNoteTextSettings()
 	screenFrame.RefreshFrameSettings()
 	screenFrame.SetNote(senderName, noteText)
+
+	local screenFrameHeight = screenFrame:GetHeight()
+	screenFrame.FlashTexture.FadeInAnimation.transInAnim:SetOffset(0, -screenFrameHeight/2)
+	local endOffset = ((screenFrameHeight/2) - (screenFrameHeight/8)) * -1
+	screenFrame.FlashTexture.FadeInAnimation.transOutAnim:SetOffset(0, endOffset)
+	screenFrame.FadeInAnimation:Play()
 end
 
 function Details222.Notes.RegisterForOpenRaidNotes()
@@ -3779,6 +3929,10 @@ function Details222.Notes.RegisterForOpenRaidNotes()
 	if (not config["framecolor"]) then
 		local red, green, blue = detailsFramework:GetDefaultBackdropColor()
 		config["framecolor"] = {red, green, blue}
+	end
+
+	if (type(config["tutorial1"]) ~= "boolean") then
+		config["tutorial1"] = false
 	end
 	if (type(config["enabled"]) ~= "boolean") then
 		config["enabled"] = true
@@ -3845,8 +3999,56 @@ function Details222.Notes.RegisterForOpenRaidNotes()
 	end
 end
 
+local checkForRegisteredNoteCommandOverride = function(command)
+	local commandRegisteredCallbacks = noteCallbacks[command]
+
+	--if there is addons registered to use the keystone command, call them and do not show the default frame from details!
+	if (#commandRegisteredCallbacks > 0) then
+		--loop through all registered addons and call their callback function
+		local bCallbackSuccess = false
+		for i = 1, #commandRegisteredCallbacks do
+			local thisCallback = commandRegisteredCallbacks[i]
+
+			local addonObject = thisCallback.addonObject
+			local memberName = thisCallback.memberName
+			local payload = thisCallback.payload
+
+			if (type(addonObject[memberName]) == "function") then
+				local result = detailsFramework:Dispatch(addonObject[memberName], unpack(payload)) --uses xpcall
+				if (result ~= false) then
+					bCallbackSuccess = true
+				end
+			end
+		end
+
+		if (bCallbackSuccess) then
+			return true
+		end
+	end
+end
+
 function SlashCmdList.NOTE(msg, editbox)
-	noteEditor.OpenNoteEditor()
+	if (checkForRegisteredNoteCommandOverride("NOTE")) then
+		return
+	else
+		noteEditor.OpenNoteEditor()
+	end
+end
+
+function SlashCmdList.NOTES(msg, editbox)
+	if (checkForRegisteredNoteCommandOverride("NOTES")) then
+		return
+	else
+		noteEditor.OpenNoteEditor()
+	end
+end
+
+function SlashCmdList.NOTEPAD(msg, editbox)
+	if (checkForRegisteredNoteCommandOverride("NOTEPAD")) then
+		return
+	else
+		noteEditor.OpenNoteEditor()
+	end
 end
 
 --debugging

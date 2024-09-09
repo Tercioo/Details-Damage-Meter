@@ -1100,6 +1100,7 @@ local default_profile = {
 			quick_detection = false,
 			faster_updates = false,
 			use_animation_accel = true,
+			no_helptips = false,
 		},
 
 	--tooltip

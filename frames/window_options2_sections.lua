@@ -6380,6 +6380,18 @@ do
                 desc = "Clear Cache Regularly",
             },
 
+            {--hide helptips
+                type = "toggle",
+                get = function() return Details.streamer_config.no_helptips end,
+                set = function(self, fixedparam, value)
+                    Details.streamer_config.no_helptips = value
+                    afterUpdate()
+                end,
+                name = "Hide Yellow Helptips", --localize-me
+                desc = "Those yellow boxes with an arrow and a text showing a text with tips.",
+            },
+
+
         }
 
         sectionFrame.sectionOptions = sectionOptions

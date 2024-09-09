@@ -473,6 +473,7 @@ do
 			[218164] = {cooldown = 8,	duration = 0,	specs = {269,268},			talent = false,	charges = 1,	class = "MONK",	type = 7}, --Detox (DPS/Tank)
 			[325153] = {cooldown = 60,	duration = 3,	specs = {268},				talent = false,	charges = 1,	class = "MONK",	type = 2}, --Exploding Keg
 			[115078] = {cooldown = 45,	duration = 60,	specs = {268, 269, 270},	talent = false,	charges = 1,	class = "MONK",	type = 8}, --Paralysis
+			[443028] = {cooldown = 90,	duration = 4,	specs = {269, 270},			talent = false,	charges = 1,	class = "MONK",	type = 4}, --Celestial Conduit
 
 
 			--~hunter
@@ -669,6 +670,7 @@ do
 			[213634] = {cooldown = 8,	duration = 0,	specs = {258},				talent = false,	charges = 1,	class = "PRIEST",	type = 7}, --Purify Disease 
 			[108920] = {cooldown = 60,	duration = 20,	specs = {256, 257, 258},	talent = false,	charges = 1,	class = "PRIEST",	type = 8}, --Void Tendrils
 			[451235] = {cooldown = 120,	duration = 15,	specs = {256,258},			talent = false,	charges = 1,	class = "PRIEST",	type = 1}, --Voidwraith
+			[120644] = {cooldown = 60,	duration = 0,	specs = {256, 257, 258},		talent = false,	charges = 1,	class = "PRIEST",	type = 4}, --Halo
 
 			--~rogue
 			-- 259 - Assasination

@@ -586,6 +586,7 @@ local setColorProperties = function(parent, widget, widgetTable, currentXOffset,
 end
 
 local setExecuteProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset, template, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, textTemplate, latestInlineWidget)
+    ---@cast widget df_button
     widget._get = widgetTable.get
     widget.widget_type = "execute"
     widget:SetTemplate(template)
@@ -595,7 +596,7 @@ local setExecuteProperties = function(parent, widget, widgetTable, currentXOffse
 
     --button icon
     if (widgetTable.icontexture) then
-        widget:SetIcon(widgetTable.icontexture, nil, nil, nil, widgetTable.icontexcoords, nil, nil, 2)
+        widget:SetIcon(widgetTable.icontexture, widget:GetHeight()-2, widget:GetHeight()-2, nil, widgetTable.icontexcoords, nil, nil, 2)
     end
 
     textTemplate = widgetTable.text_template or textTemplate or detailsFramework.font_templates["ORANGE_FONT_TEMPLATE"]
