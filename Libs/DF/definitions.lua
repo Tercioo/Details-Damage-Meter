@@ -324,6 +324,7 @@
 ---@field GetAsianNumberSymbols fun(self:table) : string, string, string return the abbreviation for 1,000 10,000 and 100,000,000
 ---@field GetBestFontForLanguage fun(self:table, languageId:string?, western:string?, cyrillic:string?, china:string?, korean:string?, taiwan:string?) : string
 ---@field CreateGlowOverlay fun(self:table, parent:frame, antsColor:any, glowColor:any) : frame
+---@field CreateSimpleFrame fun(self:table, parent:frame, width:number?, height:number?, title:string?, frameName:string?, panelOptions:table?, savedVariableTable:table?) : simplepanel
 ---@field CreateAnts fun(self:table, parent:frame, antTable:df_anttable, leftOffset:number?, rightOffset:number?, topOffset:number?, bottomOffset:number?) : frame
 ---@field CreateBorder fun(self:table, parent:frame, alpha1:number?, alpha2:number?, alpha3:number?) : frame
 ---@field CreateMenuWithGridScrollBox fun(self:table, parent:frame, name:string?, refreshMeFunc:function, refreshButtonFunc:function, clickFunc:function, onCreateButton:function, gridScrollBoxOptions:df_gridscrollbox_options) : df_gridscrollbox create a scrollbox with a grid layout to be used as a menu

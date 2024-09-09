@@ -2575,7 +2575,6 @@ local canAcceptNoteOn = {
 noteEditor.OpenNoteOptionsPanel = function()
 	if (not DetailsNoteOptionsFrame) then
 		local mainFrame = detailsFramework:CreateSimplePanel(UIParent, 600, 400, "Notes (/note) Options", "DetailsNoteOptionsFrame")
-		mainFrame:SetPoint("center", UIParent, "center", -200, 0)
 		detailsFramework:ApplyStandardBackdrop(mainFrame)
 		--dont allow the mainframe go off screen
 		mainFrame:SetClampedToScreen(true)
@@ -2872,10 +2871,122 @@ noteEditor.OpenNoteOptionsPanel = function()
 		local invalidCommId = ""
 		local bIsSimulateOnClient = true
 		noteEditor.OpenNoteScreenPanel(UnitName("player"), testText, invalidCommId, bIsSimulateOnClient)
+		screenFrame = DetailsNoteScreenFrame
 	end
 
+	DetailsNoteOptionsFrame:ClearAllPoints()
+
+	DetailsNoteOptionsFrame:SetPoint("left", screenFrame, "right", 50, 0)
 	DetailsNoteOptionsFrame:Show()
 end
+
+--this is a function which open a frame with a text entry with text telling about the api of the note feature
+local openAPIFrame = function()
+	local CONST_WINDOW_WIDTH = 614
+	local CONST_WINDOW_HEIGHT = 720
+	local editorAlpha = 0.1
+
+	local mainFrame = detailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "Notes (/note) API", "DetailsNoteAPIFrame")
+	mainFrame:SetPoint("left", UIParent, "left", 50, 0)
+	mainFrame:SetToplevel(true)
+
+	--create a lua text entry to show the api text
+	local editboxNotes = detailsFramework:NewSpecialLuaEditorEntry(mainFrame, CONST_WINDOW_WIDTH - 10, CONST_WINDOW_HEIGHT - 30, "editboxNotes", "$parentAPIEditbox", true)
+	editboxNotes:SetPoint("topleft", mainFrame, "topleft", 2, -25)
+	editboxNotes:SetBackdrop(nil)
+	detailsFramework:ReskinSlider(editboxNotes.scroll)
+	mainFrame.EditboxNotes = editboxNotes
+
+	editboxNotes.scroll:ClearAllPoints()
+	editboxNotes.scroll:SetPoint("topleft", editboxNotes, "topleft", 1, -1)
+	editboxNotes.scroll:SetPoint("bottomright", editboxNotes, "bottomright", -1, 0)
+
+	local font, h, flags = editboxNotes.editbox:GetFont()
+	editboxNotes.editbox:SetFont(font, 12, flags)
+	editboxNotes.editbox:SetAllPoints()
+	editboxNotes.editbox:SetBackdrop(nil)
+	editboxNotes.editbox:SetTextInsets(4, 4, 4, 4)
+
+	local CONST_EDITBOX_COLOR = {.6, .6, .6, .5}
+	local rr, gg, bb = unpack(CONST_EDITBOX_COLOR)
+	local backgroundTexture1 = editboxNotes.scroll:CreateTexture(nil, "background", nil, -6)
+	backgroundTexture1:SetAllPoints()
+	backgroundTexture1:SetColorTexture(rr, gg, bb, editorAlpha)
+
+	local backgroundTexture2 = editboxNotes.editbox:CreateTexture(nil, "background", nil, -6)
+	backgroundTexture2:SetAllPoints()
+	backgroundTexture2:SetColorTexture(rr, gg, bb, editorAlpha)
+
+	local backgroundTexture3 = editboxNotes:CreateTexture(nil, "background", nil, -6)
+	backgroundTexture3:SetAllPoints()
+	backgroundTexture3:SetColorTexture(0, 0, 0, 1)
+
+	editboxNotes.backgroundTexture1 = backgroundTexture1
+	editboxNotes.backgroundTexture2 = backgroundTexture2
+	editboxNotes.backgroundTexture3 = backgroundTexture3
+
+	editboxNotes:SetText([[
+Open Raid API:
+
+- Notes sent using OpenRaid are logged on the server so players can be reported. Check the report code on details/functions/slash.lua
+- OpenRaid will error if the note has less than 50 characters or more than 1500 characters.
+
+---@alias playername string
+
+---@class unitnote : table
+---@field note string
+---@field commId string
+
+--register a callback to receive notes sent by other players:
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+if (openRaidLib) then
+    local anObject = {
+        ---@param unitId string who sent the note
+        ---@param unitNote unitnote the note object
+        ---@param allUnitsNote table<playername, unitnote> a table containing all notes sent by all players
+        OnNoteUpdate = function(unitId, unitNote, allUnitsNote)
+            --unitNote.note is the note
+            --unitNote.commId is the communication id used at the report player dialog
+
+            if (unitNote.commId:len() < 8) then
+                --there was a problem registering the note on the server, and the note should be discarded.
+                return
+            end
+        end
+    }
+    openRaidLib.RegisterCallback(anObject, "NoteUpdated", "OnNoteUpdate")
+end
+
+--send a note to other player in the group:
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+if (openRaidLib) then
+    local noteText = "Hello, I'm sending a note to the group!, how are you?"
+    --tell OpenRaid that the note of this player is noteText
+    openRaidLib.SetPlayerNote(noteText)
+    --tell OpenRaid to send the note set by the player to all other players in the group
+    openRaidLib.SendPlayerNote()
+end
+
+
+Details API:
+
+- Each once of the slashes /note /notes /notepad can be replaced by an addon to handle the note feature, use:
+
+---@alias notecommand
+---| "NOTE"
+---| "NOTES"
+---| "NOTEPAD"
+
+---@param addonObject table a table containing the function to be called, example: {[memberName] = function()end}
+---@param memberName string a function name that exists inside the addonObject table
+---@param noteCommandToReplace notecommand which note command to replace
+---@param ... any any number of parameters to be passed to the callback function
+---@return boolean bGotRegistered true if the addon was registered, false if it was already registered and got unregistered
+Details:ReplaceNoteCommand(addonObject, memberName, noteCommandToReplace, ...)
+
+]])
+end
+
 
 ---@param unitIds unit[]
 ---@return unit[], unit[], unit[]
@@ -2990,6 +3101,12 @@ function noteEditor.ParseNoteText(text, bNoColoring)
 end
 
 noteEditor.OpenNoteEditor = function()
+	--check if the client is running retail version
+	if (not detailsFramework.IsDragonflightAndBeyond()) then
+		Details:Msg("This feature is only available on retail version.")
+		return
+	end
+
 	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 	if (openRaidLib) then
 		if (not DetailsNoteFrame) then
@@ -3225,6 +3342,7 @@ noteEditor.OpenNoteEditor = function()
 
 				local createNewPlayerSelectionButton = function()
 					local newButton = detailsFramework:CreateButton(bottomFrameFloating, function()end, 100, 22, "")
+					detailsFramework:CreateHighlightTexture(newButton)
 					return newButton
 				end
 
@@ -3494,10 +3612,15 @@ noteEditor.OpenNoteEditor = function()
 				detailsFramework:ApplyStandardBackdrop(bottomFrame)
 				mainFrame.BottomFrame = bottomFrame
 
+				local buttonWidth = 136
+				local buttonHeight = 22
+
 				local sendButton = detailsFramework:CreateButton(bottomFrame, function()
 					local noteText = mainFrame.EditboxNotes.editbox:GetText()
 					if (noteText:len() < CONST_NOTE_MIN_CHARACTERS) then
-						Details:Msg("Note is too short, must have at least " .. CONST_NOTE_MIN_CHARACTERS .. " characters.")
+						local msg = "Note is too short, must have at least " .. CONST_NOTE_MIN_CHARACTERS .. " characters."
+						Details:Msg(msg)
+						mainFrame.ShowErrorMsg(msg)
 						return
 					end
 
@@ -3521,7 +3644,9 @@ noteEditor.OpenNoteEditor = function()
 					--open raid do not send the note to the local player, need to trigger the screen panel manually
 					local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 					if (not canAcceptNoteOn[difficultyID] and not Details.debug) then --at the moment, players can only receive notes if inside a mythic dungeon
-						Details:Msg("At the moment, you can only send and receive notes inside a mythic dungeon.")
+						local msg = "At the moment, you can only send and receive notes inside a mythic dungeon."
+						Details:Msg(msg)
+						mainFrame.ShowErrorMsg(msg)
 						return
 					end
 
@@ -3530,7 +3655,7 @@ noteEditor.OpenNoteEditor = function()
 					local bIsSimulateOnClient = true
 					noteEditor.OpenNoteScreenPanel(UnitName("player"), noteText, "", bIsSimulateOnClient)
 
-				end, 140, 22, "Send Note")
+				end, buttonWidth, buttonHeight, "Send Note")
 				sendButton:SetPoint("topleft", bottomFrame, "topleft", 0, -2)
 				sendButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				sendButton:SetIcon("Interface\\BUTTONS\\JumpUpArrow", 18, 18, "overlay", {0, 1, 0, 1})
@@ -3538,7 +3663,7 @@ noteEditor.OpenNoteEditor = function()
 
 				local saveNoteButton = detailsFramework:CreateButton(bottomFrame, function()
 					mainFrame.SaveNote(mainFrame.currentNoteIndex)
-				end, 140, 22, "Save Note")
+				end, buttonWidth, buttonHeight, "Save Note")
 				saveNoteButton:SetPoint("bottomleft", sendButton, "bottomright", 4, 0)
 				saveNoteButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				saveNoteButton:SetIcon([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]], 16, 16, "overlay")
@@ -3547,7 +3672,7 @@ noteEditor.OpenNoteEditor = function()
 
 				local newNoteButton = detailsFramework:CreateButton(bottomFrame, function()
 					mainFrame.CreateEmptyNote()
-				end, 140, 22, "New Empty Note")
+				end, buttonWidth, buttonHeight, "New Empty Note")
 				newNoteButton:SetPoint("bottomleft", saveNoteButton, "bottomright", 4, 0)
 				newNoteButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				newNoteButton:SetIcon([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]], 16, 16, "overlay")
@@ -3556,12 +3681,58 @@ noteEditor.OpenNoteEditor = function()
 
 				local optionsButton = detailsFramework:CreateButton(bottomFrame, function()
 					noteEditor.OpenNoteOptionsPanel()
-				end, 140, 22, "OPTIONS")
+				end, buttonWidth, buttonHeight, "OPTIONS")
 				optionsButton:SetPoint("bottomleft", newNoteButton, "bottomright", 4, 0)
 				optionsButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				optionsButton:SetIcon([[Interface\Scenarios\ScenarioIcon-Interact]], 16, 16, "overlay")
 				optionsButton:SetAlpha(1)
 				detailsFramework:CreateHighlightTexture(optionsButton)
+
+				local apiButton = detailsFramework:CreateButton(bottomFrame, function()
+					openAPIFrame()
+				end, 50, buttonHeight, "API")
+				apiButton:SetPoint("bottomleft", optionsButton, "bottomright", 4, 0)
+				apiButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+				apiButton:SetAlpha(1)
+				detailsFramework:CreateHighlightTexture(apiButton)
+
+				--error msg fontstring, this text is used to show errors to the user, its color is red, size 13 and it is placed centered and below the buttons above
+				--it also has an animation to fade out after 5 seconds, and a shake animation when it's shown
+				local errorMsg = bottomFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+				errorMsg:SetPoint("top", bottomFrame, "top", 0, (buttonHeight + 14) * -1)
+				errorMsg:SetWidth(bottomFrame:GetWidth() - 10)
+				errorMsg:SetJustifyH("center")
+				errorMsg:SetAlpha(0)
+				detailsFramework:SetFontColor(errorMsg, "orangered")
+				detailsFramework:SetFontSize(errorMsg, 13)
+				mainFrame.ErrorMsg = errorMsg
+
+				--fade out animation using details framework animation hub
+				local fadeOutAnimationHub = detailsFramework:CreateAnimationHub(errorMsg, function()end, function() errorMsg:SetAlpha(0) end)
+				detailsFramework:CreateAnimation(fadeOutAnimationHub, "Alpha", 1, 2, 1, 0)
+
+				--fade in animation using details framework animation hub
+				local fadeInAnimationHub = detailsFramework:CreateAnimationHub(errorMsg, function() errorMsg:SetAlpha(0) end, function() errorMsg:SetAlpha(1) end)
+				detailsFramework:CreateAnimation(fadeInAnimationHub, "Alpha", 1, 0.1, 0, 1)
+
+				--shake animation using details framework
+				local shake = detailsFramework:CreateFrameShake(errorMsg, 0.4, 6, 20, false, true, 0, 1, 0, 0.3)
+
+				function mainFrame.ShowErrorMsg(msg)
+					fadeInAnimationHub:Play()
+					mainFrame.ErrorMsg:SetText(msg)
+					mainFrame.ErrorMsg:PlayFrameShake(shake)
+
+					if (errorMsg.HideTimer) then
+						return
+					end
+
+					errorMsg.HideTimer = C_Timer.NewTimer(4, function()
+						fadeOutAnimationHub:Play()
+						errorMsg.HideTimer = nil
+					end)
+				end
+
 
 				--create a texture of size 16 16 with the texture [[Interface\BUTTONS\UI-SliderBar-Button-Vertical]], the point is the same as the whats this text
 				local whatsThisIcon = bottomFrame:CreateTexture(nil, "overlay")
@@ -3652,6 +3823,7 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 		detailsFramework:AddRoundedCornersToFrame(screenFrame, Details.PlayerBreakdown.RoundedCornerPreset)
 		local red, green, blue = detailsFramework:GetDefaultBackdropColor()
 		screenFrame:SetColor(red, green, blue, 0.98)
+		screenFrame:SetClampedToScreen(true)
 
 		local rightClickFrame = CreateFrame("button", "$parentRightClickFrame", screenFrame)
 		rightClickFrame:SetAllPoints()
@@ -4062,3 +4234,8 @@ C_Timer.After(0, function()
 		end
 	end
 end)
+
+
+
+
+
