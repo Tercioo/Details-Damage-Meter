@@ -216,22 +216,24 @@
         local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo or GetSpellInfo
         Details222.GetSpellInfo = GetSpellInfo
 
-		local UnitBuff = UnitBuff or C_UnitAuras.GetBuffDataByIndex
+		local UnitBuff = C_UnitAuras and C_UnitAuras.GetBuffDataByIndex or UnitBuff
 		Details222.UnitBuff = UnitBuff
 
-		local UnitDebuff = UnitDebuff or C_UnitAuras.GetDebuffDataByIndex
+		local UnitDebuff = C_UnitAuras and C_UnitAuras.GetDebuffDataByIndex or UnitDebuff
 		Details222.UnitDebuff = UnitDebuff
 
-        if (DetailsFramework.IsWarWow()) then
+        if (C_Spell and C_Spell.GetSpellInfo) then
             Details222.GetSpellInfo = function(...)
                 local result = GetSpellInfo(...)
                 if result then
                     return result.name, 1, result.iconID
                 end
             end
-
+        end
+        
+        if (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex) then
 			Details222.UnitBuff = function(unitToken, index, filter)
-				local auraData = C_UnitAuras.GetBuffDataByIndex(unitToken, index, filter)
+				local auraData = UnitBuff(unitToken, index, filter)
 				if (not auraData) then
 					return nil
 				end
@@ -239,7 +241,7 @@
 			end
 
 			Details222.UnitDebuff = function(unitToken, index, filter)
-				local auraData = C_UnitAuras.GetDebuffDataByIndex(unitToken, index, filter)
+				local auraData = UnitDebuff(unitToken, index, filter)
 				if (not auraData) then
 					return nil
 				end
