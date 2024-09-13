@@ -189,6 +189,9 @@ for i=1, #unitNameTitles do
     unitNameTitles[i] = unitNameTitles[i]:gsub('%%s', '(.*)')
 end
 
+--Add Demon to the list, attempt to localize it. There is no UNITNAME_TITLE_DEMON sadly, but I can try to swap out the word "Pet" for "Demon" using the localized names.
+unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYPE_DEMON)
+
 ---attempt to the owner of a pet using tooltip scan, if the owner isn't found, return nil
 ---@param petGUID string
 ---@param petName string
