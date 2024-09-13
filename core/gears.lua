@@ -788,6 +788,7 @@ Details222.Parser.EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 Details222.Parser.EventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 Details222.Parser.EventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
+	do return end
 	local instanceName, isntanceType = GetInstanceInfo()
 
 	if (isntanceType == "pvp" or isntanceType == "arena") then
