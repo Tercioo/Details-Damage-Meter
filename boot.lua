@@ -216,10 +216,10 @@
         local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo or GetSpellInfo
         Details222.GetSpellInfo = GetSpellInfo
 
-		local UnitBuff = UnitBuff or C_UnitAuras.GetBuffDataByIndex
+		local UnitBuff = C_UnitAuras and C_UnitAuras.GetBuffDataByIndex or UnitBuff
 		Details222.UnitBuff = UnitBuff
 
-		local UnitDebuff = UnitDebuff or C_UnitAuras.GetDebuffDataByIndex
+		local UnitDebuff = C_UnitAuras and C_UnitAuras.GetDebuffDataByIndex or UnitDebuff
 		Details222.UnitDebuff = UnitDebuff
 
         if (C_Spell and C_Spell.GetSpellInfo) then
