@@ -426,7 +426,7 @@ local setBossTryCounter = function(combatToBeAdded, segmentsTable, amountSegment
 					--increment the wipe counter
 					bossWipes[bossDifficultyId] = difficultyWipes + 1
 					combatToBeAdded.is_boss.try_number = bossWipes[bossDifficultyId]
-					Details:Msg("(testing) wipes on this boss with this guild in this difficulty:", bossWipes[bossDifficultyId])
+					--Details:Msg("(testing) wipes on this boss with this guild in this difficulty:", bossWipes[bossDifficultyId])
 				end
 			end
 		end
@@ -484,7 +484,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 		for i = 1, amountSegmentsInUse do
 			local thisCombatObject = segmentsTable[i]
 			if (thisCombatObject.__destroyed) then
-				Details:Msg("(debug) container_segments line: 329 (__destroyed combat in segments container)")
+				Details:Msg("(debug) container_segments line: 487 (__destroyed combat in segments container)")
 			end
 		end
 	end
@@ -589,7 +589,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 				--is the amount of segments in this boss bigger than the amount of segment wipe allowed?
 				--context: segment wipe is when the raid wipes on a boss and the combat is stored in the segments table
 				--Details.segments_amount_boss_wipes store the max amount of segment wipes allowed for a boss
-				if (amountOfSegmentsInThisBoss > Details.segments_amount_boss_wipes) then
+				if (amountOfSegmentsInThisBoss > Details.segments_amount_boss_wipes) then --(user setting)
 					---@type combat[]
 					local allWipeSegmentsInThisBoss = {}
 					for i = 1, amountSegmentsInUse do
@@ -634,7 +634,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 				Details:Msg("bRunOkay3 Error > ", errorText3)
 			else
 				if (segmentRemoveResult ~= "") then
-					Details:Msg("(testing)", segmentRemoveResult)
+					--Details:Msg("(testing)", segmentRemoveResult) --confirming that a segment got removed
 				end
 			end
 		end
@@ -648,7 +648,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 		for i = 1, amountSegmentsInUse do
 			local thisCombatObject = segmentsTable[i]
 			if (thisCombatObject.__destroyed) then
-				Details:Msg("(debug) container_segments line: 418 (__destroyed combat in segments container)")
+				Details:Msg("(debug) container_segments line: 651 (__destroyed combat in segments container)")
 			end
 		end
 	end
