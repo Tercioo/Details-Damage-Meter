@@ -789,6 +789,13 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 			else
 				--anything else that isn't a player or a pet
 				actorObject.displayName = actorName
+
+				local npcID = Details:GetNpcIdFromGuid(actorSerial)
+				if (npcID) then
+					if (npcID == 210759 or npcID == 216287) then
+						actorObject.grupo = true
+					end
+				end
 			end
 
 			--check if is hostile
