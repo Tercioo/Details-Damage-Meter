@@ -654,7 +654,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		if (UnitExists("target")) then
 			local serial = UnitGUID("target")
 			if (serial) then
-				local npcId = _G.detailsFramework:GetNpcIdFromGuid(serial)
+				local npcId = _G.DetailsFramework:GetNpcIdFromGuid(serial)
 				if (npcId) then
 
 					if (not Details.id_frame) then
@@ -4234,8 +4234,4 @@ C_Timer.After(0, function()
 		end
 	end
 end)
-
-
-
-
 
