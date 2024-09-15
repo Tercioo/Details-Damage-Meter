@@ -70,8 +70,8 @@ function Details222.StartUp.StartMeUp()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialize
 
-	--make an encounter journal cache
-	C_Timer.After(1, Details222.EJCache.CreateEncounterJournalDump)
+	--make an encounter journal cache. the cache will load before this if any function tries to get information from the cache
+	C_Timer.After(3, Details222.EJCache.CreateEncounterJournalDump)
 
 	--plugin container
 	Details:CreatePluginWindowContainer()

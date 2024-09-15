@@ -43,6 +43,10 @@ local ejTable = Details222.EncounterJournalDump
 
 ---@return details_encounterinfo?
 function Details:GetEncounterInfo(id)
+    if (not Details222.EJCache.CacheCreated) then
+        Details222.EJCache.CreateEncounterJournalDump()
+    end
+
     ---@type details_encounterinfo
     local encounterData = Details222.EJCache.CacheEncountersBy_EncounterId[id]
     if (encounterData) then
@@ -63,6 +67,10 @@ end
 ---@param id instanceid|instancename|mapid
 ---@return details_instanceinfo?
 function Details:GetInstanceInfo(id)
+    if (not Details222.EJCache.CacheCreated) then
+        Details222.EJCache.CreateEncounterJournalDump()
+    end
+
     if (id == 463) then --fall
         id = 1209
     end
@@ -99,6 +107,13 @@ function Details:GetInstanceEJID(...)
 end
 
 function Details222.EJCache.CreateEncounterJournalDump()
+    --if the cache has been already created, then return
+    if (Details222.EJCache.CacheCreated) then
+        return
+    else
+        Details222.EJCache.CacheCreated = true
+    end
+
     Details222.EJCache.CacheRaidData_ByInstanceId = {}
     Details222.EJCache.CacheRaidData_ByInstanceName = {} --this is localized name
     Details222.EJCache.CacheRaidData_ByMapId = {} --retrivied from GetInstanceInfo()
