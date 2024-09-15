@@ -6651,6 +6651,13 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 						--end of mythic+ segments
 
+					elseif (combatType == DETAILS_SEGMENTTYPE_DUNGEON_OVERALL) then
+						gameCooltip:AddLine(thisCombat:GetCombatName(), detailsFramework:IntegerToTimer(thisCombat:GetCombatTime()), 1, dungeonColor)
+						local combatIcon, categoryIcon = thisCombat:GetCombatIcon()
+						gameCooltip:AddIcon(combatIcon, "main", "left")
+						gameCooltip:AddStatusBar(100, 1, .5, .1, 0, 0.55, false, false, statusBarTexture)
+						local timeInCombat = thisCombat:GetCombatTime()
+
 					elseif (combatType == DETAILS_SEGMENTTYPE_DUNGEON_BOSS or combatType == DETAILS_SEGMENTTYPE_RAID_BOSS) then --if this is a boss encounter
 						--isn't anymore a sequence of mythic+ segments
 						mythicDungeonRunId = false
@@ -6968,7 +6975,11 @@ local buildSegmentTooltip = function(self, deltaTime)
 			end
 
 			if (not bSegmentInfoAdded) then
-				gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+				if (thisCombat.combat_type == DETAILS_SEGMENTTYPE_DUNGEON_OVERALL) then
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", thisCombat:GetCombatName(), 2, "white", "white")
+				else
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+				end
 
 				if (not thisCombat:GetEndTime()) then
 					if (Details.in_combat) then

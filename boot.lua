@@ -410,6 +410,7 @@
 								Details:EndCombat()
 
 								currentCombat.is_trash = false
+								currentCombat.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
 								currentCombat.is_dungeon_overall = true
 							end
 

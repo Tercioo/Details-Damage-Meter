@@ -731,13 +731,12 @@ local segmentTypeToString = {
 		local instanceType = self.instance_type
 
 		if (instanceType == "party") then
-			local bossInfo =  self:GetBossInfo()
-
 			if (self.is_dungeon_overall) then
 				self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
 				return DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
 			end
 
+			local bossInfo =  self:GetBossInfo()
 			if (bossInfo) then
 				if (bossInfo.mapid == 33 and bossInfo.diff_string == "Event" and bossInfo.id == 2879) then --Shadowfang Keep | The Crown Chemical Co.
 					self.combat_type = DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY
