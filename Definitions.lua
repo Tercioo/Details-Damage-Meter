@@ -263,6 +263,8 @@
 ---@field start_time gametime
 ---@field end_time gametime
 ---@field combat_counter number
+---@field is_dungeon_overall boolean
+---@field combat_type number
 ---@field is_trash boolean while in raid this is set to true if the combat isn't raid boss, in dungeon this is set to true if the combat isn't a boss or if the dungeon isn't a mythic+
 ---@field is_boss bossinfo
 ---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...

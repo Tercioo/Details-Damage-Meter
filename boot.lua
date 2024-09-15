@@ -408,6 +408,9 @@
 
 								--finish the new combat
 								Details:EndCombat()
+
+								currentCombat.is_trash = false
+								currentCombat.is_dungeon_overall = true
 							end
 
 							Details222.DebugMsg("overall segment has been created.")
