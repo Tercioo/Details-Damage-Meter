@@ -213,6 +213,257 @@
 		--aura scanner
 		Details222.AuraScan = {}
 
+		---@type instancedifficulty
+		Details222.InstanceDifficulty = {
+			["DungeonNormal"] = 1,
+			["DungeonHeroic"] = 2,
+			["DungeonMythic"] = 23,
+			["DungeonMythicPlus"] = 8,
+			["RaidLFR"] = 17,
+			["RaidNormal"] = 14,
+			["RaidHeroic"] = 15,
+			["RaidMythic"] = 16,
+		}
+
+		local emptyFunction = function()end
+		local emptyTable = {}
+
+		---context manager is a system that evaluates where the player is and create a set of extra rules that fit the content the player is doing
+		---@class contextmanager : table
+		---@field instanceType string
+		---@field instanceName string
+		---@field instanceId number
+		---@field instanceDifficulty number
+		---@field lastInstanceType string
+		---@field lastInstanceName string
+		---@field lastInstanceDifficulty number
+		---@field contextId string
+		---@field bContextStarted boolean
+		---@field bContextFinished boolean
+		---@field bHasContext boolean
+		---@field fHasLostInterest function
+		---@field fOnContextFinished function
+		---@field fOnCombatFinished function
+		---@field eventFrame frame
+		---@field DetailsEventListener table
+		---@field contextEventTable table
+		---@field StartContext function
+		---@field CheckContextInterest function
+		---@field FinishContext function
+		---@field GetContext function
+
+		--tells what is the activity the player is doing
+		Details222.ContextManager = {
+			instanceType = "INIT",
+			instanceName = "INIT",
+			instanceDifficulty = 0,
+			lastInstanceType = "INIT",
+			lastInstanceName = "INIT",
+			lastInstanceDifficulty = 0,
+			contextId = "INIT",
+			bContextStarted = false,
+			bContextFinished = false,
+			bHasContext = false,
+			fOnContextFinished = emptyFunction,
+			fHasLostInterest = emptyFunction,
+			fOnCombatFinished = emptyFunction,
+			contextEventTable = emptyTable,
+
+			eventFrame = CreateFrame("frame"),
+
+			---start a new context, this is called from the CheckContextInterest() function
+			---@param self contextmanager
+			---@param instanceId number
+			---@param instanceName string
+			---@param instanceType string
+			---@param difficultyId number
+			---@param contextEventTable table
+			---@param fOnCombatFinished function run when details! finishes a combat
+			---@param fOnContextFinished function run when the context is finished
+			---@param fHasLostInterest function run when CheckContextInterest() fails to find a context
+			StartContext = function(self, instanceId, instanceName, instanceType, difficultyId, contextEventTable, fOnCombatFinished, fOnContextFinished, fHasLostInterest)
+				self.instanceType = instanceType
+				self.instanceName = instanceName
+				self.instanceId = instanceId
+				self.instanceDifficulty = difficultyId
+				self.bContextStarted = true
+				self.bContextFinished = false
+				self.bHasContext = true
+				self.fOnContextFinished = fOnContextFinished
+				self.fHasLostInterest = fHasLostInterest
+				self.fOnCombatFinished = fOnCombatFinished
+				self.contextEventTable = contextEventTable
+
+				--create an event listener to grab the event when Details! finishes a combat
+				if (not self.DetailsEventListener) then
+					self.DetailsEventListener = Details:CreateEventListener()
+				end
+				self.DetailsEventListener:UnregisterEvent("COMBAT_PLAYER_LEAVE")
+				--register the onFinishCombat for the context
+				self.DetailsEventListener:RegisterEvent("COMBAT_PLAYER_LEAVE", fOnCombatFinished)
+
+				--unregister all events
+				self.eventFrame:UnregisterAllEvents()
+
+				--register the events that the context require
+				for i = 1, #contextEventTable.events do
+					self.eventFrame:RegisterEvent(contextEventTable.events[i])
+				end
+
+				--if the callback function returns true, the context is finished
+				self.eventFrame:SetScript("OnEvent", function(eventFrame, event, ...)
+					if (contextEventTable.callback(event, ...)) then
+						Details222.DebugMsg("context manager event", event)
+						--context completed
+						Details222.DebugMsg("Context Completed!")
+						C_Timer.After(1, fOnContextFinished)
+						C_Timer.After(1.1, function() self:FinishContext() end)
+					end
+				end)
+
+				Details222.DebugMsg("a new context has been set.")
+			end,
+
+			---check if the player is in a context of interest
+			---@param self contextmanager
+			---@param instanceId number
+			---@param instanceName string
+			---@param instanceType string
+			---@param difficultyId number
+			CheckContextInterest = function(self, instanceId, instanceName, instanceType, difficultyId)
+				Details222.DebugMsg("Checking for new context:", instanceId, instanceName, instanceType, difficultyId)
+				--normal, heroic and mythic0 dungeons on Retail
+				local diffTable = Details222.InstanceDifficulty
+				if (difficultyId == diffTable.DungeonNormal or difficultyId == diffTable.DungeonHeroic or difficultyId == diffTable.DungeonMythic) then
+					if (DetailsFramework.IsDragonflightAndBeyond()) then
+						--check if the player is in the same context
+						if (self.bHasContext and self.instanceId == instanceId and self.instanceType == instanceType and self.instanceName == instanceName and self.instanceDifficulty == difficultyId) then
+							return
+						end
+
+						--if a context is found, finishes it before a new one is created
+						if (self.bHasContext) then
+							--discard the context
+							Details222.DebugMsg("had an active context, finishing it.")
+							self:FinishContext()
+						end
+
+						--set a new context where at the end of the dungeon it creates an overall segment for the run
+						--function to verify if context is finished, in this case if all objectives of the dungeon has been completed by listening to the SCENARIO_COMPLETED event
+						local contextEventTable = {
+							events = {"SCENARIO_COMPLETED"},
+							callback = function(...)
+								--when a context return true, the context is finished and will trigger a call on the fOnContextFinished function
+								return true
+							end
+						}
+
+						--create a contextId to tag combats that are part of the same context
+						self.contextId = instanceName .. tostring(time())
+
+						--called when a combat finishes and this context is still active
+						local fOnCombatFinished = function()
+							local currentCombat = Details:GetCurrentCombat()
+							currentCombat.context = self.contextId
+						end
+
+						---this function evaluates if this context has lost its interest and should be discarded, return true if the context is no longer valid
+						local fHasLostInterest = function(instanceId, instanceName, instanceType, difficultyId)
+							--check if the player is still in the same context
+							if (self.instanceId ~= instanceId or self.instanceType ~= instanceType or self.instanceName ~= instanceName or self.instanceDifficulty ~= difficultyId) then
+								return true
+							end
+						end
+
+						--will ba called when the context finishes, in this case when the SCENARIO_COMPLETED event is triggered
+						local fOnContextFinished = function()
+							---@type combat[]
+							local interestCombats = {}
+							--get all segments
+							local segments = Details:GetCombatSegments()
+							for i = 1, #segments do
+								local segment = segments[i]
+								if (segment.context == self.contextId) then
+									interestCombats[#interestCombats+1] = segment
+								end
+							end
+
+							if (#interestCombats > 0) then
+								--start a new combat
+								Details222.StartCombat()
+
+								Details222.DebugMsg("merging", #interestCombats, "combats into a single combat.")
+
+								---@type combat
+								local currentCombat = Details:GetCurrentCombat()
+
+								--iterate over all interest combats
+								for i = 1, #interestCombats do
+									local interestCombat = interestCombats[i]
+									--add the combat to the new combat
+									currentCombat:AddCombat(interestCombat, i == 1, i == #interestCombats)
+								end
+
+								Details222.DebugMsg("combat time:", currentCombat:GetCombatTime())
+
+								--finish the new combat
+								Details:EndCombat()
+							end
+
+							Details222.DebugMsg("overall segment has been created.")
+						end
+
+						self:StartContext(instanceId, instanceName, instanceType, difficultyId, contextEventTable, fOnCombatFinished, fOnContextFinished, fHasLostInterest)
+
+						return
+					end
+				else
+					--if no context is found, check if there is a current context and check if it lost its interest
+					if (self.bHasContext) then
+						if (self.fHasLostInterest(self, instanceId, instanceName, instanceType, difficultyId)) then
+							Details222.DebugMsg("no context found, but context is active, finishing the current context.")
+							--discard the context
+							self:FinishContext()
+						end
+					end
+				end
+			end,
+
+			---finish the current context
+			---@param self contextmanager
+			FinishContext = function(self)
+				if (not self.bHasContext or not self.bContextStarted or self.bContextFinished) then
+					return
+				end
+
+				--mark this context as finished
+				self.bContextFinished = true
+
+				--reset context
+				self.instanceType = "INIT"
+				self.instanceName = "INIT"
+				self.contextId = "INIT"
+				self.instanceId = -1
+				self.instanceDifficulty = 0
+				self.bContextStarted = false
+				self.bHasContext = false
+				self.fOnContextFinished = emptyFunction
+				self.fHasLostInterest = emptyFunction
+				self.fOnCombatFinished = emptyFunction
+				self.contextEventTable = emptyTable
+			end,
+
+			---return the current contextIndex
+			---@param self contextmanager
+			---@return number|boolean, string?, string?, number?
+			GetContext = function(self)
+				if (self.bHasContext) then
+					return self.instanceId, self.instanceName, self.instanceType, self.instanceDifficulty
+				end
+				return false
+			end,
+		}
+
         local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo or GetSpellInfo
         Details222.GetSpellInfo = GetSpellInfo
 
@@ -623,6 +874,8 @@ Made Details! survive for another expansion (Details! Team).
 		_detalhes.debug_chr = false
 		_detalhes.opened_windows = 0
 		_detalhes.last_combat_time = 0
+		_detalhes.last_zone_type = "INIT"
+		_detalhes.last_zone_id = -1
 
 		--store functions to create options frame
 		Details.optionsSection = {}

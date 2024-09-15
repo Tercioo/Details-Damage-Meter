@@ -279,6 +279,10 @@ function Details222.StartUp.StartMeUp()
 		Details.listener:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 		Details.listener:RegisterEvent("PLAYER_ENTERING_WORLD")
 
+		if (C_EventUtils.IsEventValid("SCENARIO_COMPLETED")) then
+			Details.listener:RegisterEvent("SCENARIO_COMPLETED")
+		end
+
 		Details.listener:RegisterEvent("ENCOUNTER_START")
 		Details.listener:RegisterEvent("ENCOUNTER_END")
 
@@ -336,7 +340,6 @@ function Details222.StartUp.StartMeUp()
 			Details:SendEvent("GROUP_ONLEAVE")
 		end
 
-		Details.last_zone_type = "INIT"
 		Details.parser_functions:ZONE_CHANGED_NEW_AREA()
 		Details.AnnounceStartup = nil
 	end

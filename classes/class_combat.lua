@@ -959,6 +959,37 @@ local segmentTypeToString = {
 		end
 	end
 
+	---@param self combat
+	---@param givingCombat combat
+	---@param bSetStartDate boolean if true, the start date of the receiving combat will be set to the start date of the giving combat
+	---@param bSetEndDate boolean if true, the end date of the receiving combat will be set to the end date of the giving combat
+	---@return combat
+	function classCombat:AddCombat(givingCombat, bSetStartDate, bSetEndDate)
+		local receivingCombat = self
+
+		local timeInCombat = 0
+
+        receivingCombat:CopyDeathsFrom(givingCombat, false)
+        timeInCombat = timeInCombat + givingCombat:GetCombatTime()
+
+        receivingCombat = receivingCombat + givingCombat
+
+		local startDate, endDate = givingCombat:GetDate()
+		local startTime, endTime = givingCombat:GetStartTime(), givingCombat:GetEndTime()
+		if (bSetStartDate) then
+			receivingCombat:SetDate(startDate, endDate)
+			receivingCombat:SetStartTime(startTime)
+			receivingCombat:SetEndTime(endTime)
+		else
+			if (bSetEndDate) then
+				receivingCombat:SetDate(false, endDate)
+				receivingCombat:SetEndTime(endTime)
+			end
+		end
+
+		return receivingCombat
+	end
+
 	--return the total of a specific attribute
 	local power_table = {0, 1, 3, 6, 0, "alternatepower"}
 

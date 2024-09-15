@@ -789,10 +789,9 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 			else
 				--anything else that isn't a player or a pet
 				actorObject.displayName = actorName
-
 				local npcID = Details:GetNpcIdFromGuid(actorSerial)
 				if (npcID) then
-					if (npcID == 210759 or npcID == 216287) then
+					if (npcID == 210759 or npcID == 216287) then --210759 --flag 0x2111
 						actorObject.grupo = true
 					end
 				end
