@@ -709,21 +709,21 @@ local segmentTypeToString = {
 		end
 
 		if (self.training_dummy) then
-			self.combat_type = DETAILS_SEGMENTTYPE_TRAININGDUMMY
+			--self.combat_type = DETAILS_SEGMENTTYPE_TRAININGDUMMY
 			return DETAILS_SEGMENTTYPE_TRAININGDUMMY
 		end
 
 		--arena
 		local arenaInfo = self.is_arena
 		if (arenaInfo) then
-			self.combat_type = DETAILS_SEGMENTTYPE_PVP_ARENA
+			--self.combat_type = DETAILS_SEGMENTTYPE_PVP_ARENA
 			return DETAILS_SEGMENTTYPE_PVP_ARENA
 		end
 
 		--battleground
 		local battlegroundInfo = self.is_pvp
 		if (battlegroundInfo) then
-			self.combat_type = DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND
+			--self.combat_type = DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND
 			return DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND
 		end
 
@@ -732,42 +732,42 @@ local segmentTypeToString = {
 
 		if (instanceType == "party") then
 			if (self.is_dungeon_overall) then
-				self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
+				--self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
 				return DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
 			end
 
 			local bossInfo =  self:GetBossInfo()
 			if (bossInfo) then
 				if (bossInfo.mapid == 33 and bossInfo.diff_string == "Event" and bossInfo.id == 2879) then --Shadowfang Keep | The Crown Chemical Co.
-					self.combat_type = DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY
+					--self.combat_type = DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY
 					return DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY
 				else
-					self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_BOSS
+					--self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_BOSS
 					return DETAILS_SEGMENTTYPE_DUNGEON_BOSS
 				end
 			else
-				self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_TRASH
+				--self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_TRASH
 				return DETAILS_SEGMENTTYPE_DUNGEON_TRASH
 			end
 
 		elseif (instanceType == "raid") then
 			local bossEncounter =  self.is_boss
 			if (bossEncounter) then
-				self.combat_type = DETAILS_SEGMENTTYPE_RAID_BOSS
+				--self.combat_type = DETAILS_SEGMENTTYPE_RAID_BOSS
 				return DETAILS_SEGMENTTYPE_RAID_BOSS
 			else
-				self.combat_type = DETAILS_SEGMENTTYPE_RAID_TRASH
+				--self.combat_type = DETAILS_SEGMENTTYPE_RAID_TRASH
 				return DETAILS_SEGMENTTYPE_RAID_TRASH
 			end
 		end
 
 		--overall data
 		if (self == Details.tabela_overall) then
-			self.combat_type = DETAILS_SEGMENTTYPE_OVERALL
+			--self.combat_type = DETAILS_SEGMENTTYPE_OVERALL
 			return DETAILS_SEGMENTTYPE_OVERALL
 		end
 
-		self.combat_type = DETAILS_SEGMENTTYPE_GENERIC
+		--self.combat_type = DETAILS_SEGMENTTYPE_GENERIC
 		return DETAILS_SEGMENTTYPE_GENERIC
 	end
 

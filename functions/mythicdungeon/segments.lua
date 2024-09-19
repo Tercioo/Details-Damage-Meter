@@ -68,8 +68,11 @@ function Details222.MythicPlus.OnBossDefeated(encounterID, encounterName)
                     local combatType = pastCombat:GetCombatType()
                     if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH or combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSSWIPE) then
                         table.insert(segmentsToMerge, pastCombat)
+                    else
                     end
+                else
                 end
+            else
             end
         end
 

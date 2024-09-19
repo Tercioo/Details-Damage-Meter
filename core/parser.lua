@@ -5343,7 +5343,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details.zone_id = zoneMapID
 		Details.zone_name = zoneName
 
-		Details222.ContextManager:CheckContextInterest(zoneMapID, zoneName, zoneType, difficultyID)
+		--Details222.ContextManager:CheckContextInterest(zoneMapID, zoneName, zoneType, difficultyID)
 
 		_in_resting_zone = IsResting()
 
@@ -6017,9 +6017,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (Details.mythic_plus.show_damage_graphic) then
 			C_Timer.After(0, function()
-				if (ChallengeModeCompleteBanner) then
-					ChallengeModeCompleteBanner.timeToHold = 0.01
-				end
+				--if (ChallengeModeCompleteBanner) then
+				--	ChallengeModeCompleteBanner.timeToHold = 0.01
+				--end
 			end)
 		end
 
