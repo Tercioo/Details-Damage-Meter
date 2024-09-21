@@ -682,8 +682,8 @@ local createPlayerBanner = function(parent, name, index)
 	detailsFramework:CreateFlashAnimation(flashTexture)
 	--flashTexture:Flash(0.1, 0.5, 0.01)
 
-	local rantingLabel = detailsFramework:CreateLabel(playerBanner, "", 16, "green")
-	rantingLabel:SetPoint("right", playerBanner, "left", -154, 0)
+	local rantingLabel = detailsFramework:CreateLabel(playerBanner, "", 14, "green")
+	rantingLabel:SetPoint("right", playerBanner, "left", -144, 0)
 	playerBanner.RantingLabel = rantingLabel
 
 	local waitingForLootDotsAnimationLabel = detailsFramework:CreateLabel(playerBanner, "...", 20, "silver") --~dots
