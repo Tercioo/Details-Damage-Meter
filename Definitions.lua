@@ -181,8 +181,11 @@
 ---@field ListInstances fun(self: details) : instance[] return a table with all the instances
 ---@field UnpackMythicDungeonInfo fun(self: details, mythicDungeonInfo: mythicdungeoninfo) : boolean, segmentid, number, number, number, string, number, string, number, number, number unpack the mythic dungeon info and return the values
 ---@field CreateRightClickToCloseLabel fun(self: details, parent: frame) : df_label return a df_label with the text "Right click to close", need to set point
+---@field IsValidActor fun(self: details, actor: actor) : boolean return true if the actor is valid
 ---@field 
 ---@field 
+---@field 
+
 
 
 ---@class detailseventlistener : table

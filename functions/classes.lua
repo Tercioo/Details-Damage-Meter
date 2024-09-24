@@ -275,6 +275,10 @@ do
 		Details.GetFullName = Details.GetCLName
 	--end
 
+	function Details:IsValidActor(actor)
+		return actor and actor.classe and actor.nome and actor.flag_original and true
+	end
+
 	function Details:Class(actor)
 		return self.classe or actor and actor.classe
 	end

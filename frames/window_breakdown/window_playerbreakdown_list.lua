@@ -183,6 +183,16 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 
 	local updatePlayerLine = function(self, topResult, encounterId, difficultyId) --~update
 		local playerSelected = lastSelectedPlayerName
+		local playerInTheLine = self.playerObject
+
+		--checking if the playerObject is still valid, it could have been removed by the garbage collector
+		if (not Details:IsValidActor(playerInTheLine)) then
+			self:SetBackdropColor(unpack(scrollbox_line_backdrop_color))
+			self.specIcon:SetTexture([[Interface\Icons\INV_Misc_QuestionMark]])
+			self.playerName:SetText("")
+			return
+		end
+
 		if (playerSelected == self.playerObject:Name()) then
 			self:SetBackdropColor(unpack(scrollbox_line_backdrop_color_selected))
 			self.isSelected = true

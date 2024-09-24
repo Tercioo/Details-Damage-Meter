@@ -775,6 +775,7 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 
 			--does this actor has an owner? (a.k.a. is a pet)
 			elseif (ownerActorObject) then
+				local npcID = Details:GetNpcIdFromGuid(actorSerial)
 				actorObject.owner = ownerActorObject
 				actorObject.ownerName = ownerActorObject.nome
 
