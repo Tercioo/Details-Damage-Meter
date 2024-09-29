@@ -45,6 +45,12 @@ local _
 ---@field saved_encounters table
 ---@field totalkills table<string, table<encounterid, details_bosskillinfo>>
 
+---@alias details_raid_difficulties
+---| "normal"
+---| "heroic"
+---| "mythic"
+---| "raidfinder"
+
 ---@class details_storage_feature : table
 ---@field diffNames string[] {"normal", "heroic", "mythic", "raidfinder"}
 ---@field OpenRaidStorage fun():details_storage
@@ -452,34 +458,13 @@ local getBossIdsForCurrentExpansion = function() --need to check this!
 end
 
 function Details:IsBossIdFromCurrentExpansion(bossId)
-	local allowedBosses = getBossIdsForCurrentExpansion()
-	return allowedBosses[bossId]
+	local bIsCurrentExp = Details222.EJCache.IsCurrentContent(bossId)
+	return bIsCurrentExp
 end
 
-local currentExpZoneIds = nil
 function Details:IsZoneIdFromCurrentExpansion(zoneId)
-	if (currentExpZoneIds) then
-		return currentExpZoneIds[zoneId]
-	end
-
-	currentExpZoneIds = {}
-
-	local _, bossInfoTable, raidInfoTable = Details:GetExpansionBossList()
-	for bossId, bossTable in pairs(bossInfoTable) do
-		---@cast bossTable details_bossinfo
-		if (bossTable.uiMapId) then
-			currentExpZoneIds[bossTable.uiMapId] = true
-			currentExpZoneIds[bossTable.instanceId] = true
-			currentExpZoneIds[bossTable.journalInstanceId] = true
-		end
-	end
-
-	for raidInstanceID, raidTable in pairs(raidInfoTable) do
-		currentExpZoneIds[raidInstanceID] = true
-		currentExpZoneIds[raidTable.raidMapID] = true
-	end
-
-	return currentExpZoneIds[zoneId]
+	local bIsCurrentExp = Details222.EJCache.IsCurrentContent(zoneId)
+	return bIsCurrentExp
 end
 
 ---remote call RoS
@@ -631,7 +616,7 @@ function Details222.storage.BuildEncounterDataToGuildSync(encounterSyncIds)
 	end
 
 	--the resulting table is a table with subtables, each subtable has a maximum of 3 encounters on indexes 1, 2 and 3
-	--resulting in 
+	--resulting in
 	--{
 	--	{[raid_difficulty_eng_name_lowercase][encounterid] = {details_encounterkillinfo, details_encounterkillinfo, details_encounterkillinfo}},
 	--  {[raid_difficulty_eng_name_lowercase][encounterid] = {details_encounterkillinfo, details_encounterkillinfo, details_encounterkillinfo}}
@@ -1039,6 +1024,23 @@ function Details.Database.StoreEncounter(combat)
 		print("|cFFFFFF00Details! Storage|r: difficulty identified:", diffId, diffName)
 	end
 
+	if (not diffId or not diffName) then
+		return
+	end
+
+	if (diffName == "mythicdungeon") then
+		local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+		local mapChallengeModeID = C_ChallengeMode.GetCompletionInfo()
+		if (not mythicLevel and not mapChallengeModeID) then
+			return
+		end
+	end
+
+	if (diffName == "mythicdungeon") then
+		--not yet
+		return
+	end
+
 	--database
 	---@type details_storage?
 	local savedData = Details.Database.LoadDB()
@@ -1052,7 +1054,7 @@ function Details.Database.StoreEncounter(combat)
 	--[=[
 		savedData[mythic] = {
 			[encounterId] = { --indexed table
-				[1] = { 
+				[1] = {
 					DAMAGER = {
 						[actorname] = details_storage_unitresult
 					},
@@ -1142,7 +1144,7 @@ function Details.Database.StoreEncounter(combat)
 			bossData.dps_best_raid_when = time()
 		end
 	end
-	
+
 	--check for heroic and mythic
 	if (Details222.storage.IsDebug or Details222.storage.DiffNamesHash[diffName]) then
 		--check the guild name

@@ -134,6 +134,7 @@
 ---@field KeybindMixin df_keybindmixin
 ---@field ScriptHookMixin df_scripthookmixin
 ---@field EditorMixin df_editormixin
+---@field PoolMixin df_pool
 ---@field ScrollBoxFunctions df_scrollboxmixin
 ---@field ClassCache {ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[] only available after calling GetClassList()
 ---@field Math df_math
