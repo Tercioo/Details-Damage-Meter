@@ -278,6 +278,8 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 		if (instanceType == "party" or CONST_DEBUG_MODE) then
 			local effectiveILvl, nop, baseItemLevel = GetDetailedItemLevelInfo(itemLink)
 
+			local bIsAccountBound = C_Item.IsItemBindToAccountUntilEquip(itemLink)
+
 			local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
 			itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
 			expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
@@ -293,7 +295,7 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 				Details222.DebugMsg("Loot Received:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel, "itemType:", itemType, "itemSubType:", itemSubType, "itemEquipLoc:", itemEquipLoc)
 			end
 
-			if (effectiveILvl > 300 and baseItemLevel > 5) then --avoid showing loot that isn't items
+			if (effectiveILvl > 480 and baseItemLevel > 5 and not bIsAccountBound) then --avoid showing loot that isn't items
 				lootFrame.LootCache[unitName] = lootFrame.LootCache[unitName] or {}
 				---@type details_loot_cache
 				local lootCacheTable = {
@@ -321,7 +323,7 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 				end
 			else
 				if (LOOT_DEBUG_MODE) then
-					Details:Msg("Loot SKIPPED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel)
+					Details:Msg("Loot SKIPPED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel, bIsAccountBound)
 				end
 			end
 		end
