@@ -477,7 +477,7 @@ detailsFramework.TimeLine_LineMixin = {
 ---@field backdrop_color table
 ---@field backdrop_color_highlight table
 
----@class df_timeline : scrollframe, df_timeline_mixin, df_optionsmixin, df_framelayout
+---@class df_timeline : scrollframe, df_timeline_mixin, df_optionsmixin, df_framelayout, df_lineindicator
 ---@field body frame
 ---@field elapsedTimeFrame df_elapsedtime
 ---@field horizontalSlider slider
@@ -566,7 +566,7 @@ detailsFramework.TimeLineMixin = {
 
 		--calculate the total width
 		local pixelPerSecond = self.options.pixels_per_second
-		local totalLength = self.data.length or 1
+		local totalLength = self.data.length or 1 --total time
 		local currentScale = self.currentScale
 
 		self.scaleSlider:Enable()
@@ -618,6 +618,13 @@ detailsFramework.TimeLineMixin = {
 		self.elapsedTimeFrame:Reset()
 
 		self.elapsedTimeFrame:Refresh(self.data.length, self.currentScale)
+
+		--refresh the indicator lines
+		self:LineIndicatorSetXOffset(self.options.header_width)
+		self:LineIndicatorSetValueType("TIME")
+		self:LineIndicatorSetElapsedTime(self.data.length)
+		self:LineIndicatorRefresh()
+
 	end,
 
 	---@param self df_timeline
@@ -632,59 +639,395 @@ detailsFramework.TimeLineMixin = {
 	GetData = function(self)
 		return self.data
 	end,
-
 }
 
+---@class df_lineindicator_data : table
+---@field value number
+---@field valueType "PERCENT"|"TIME"|"PIXELS"
+---@field width number
+---@field color number[]
+---@field alpha number
+---@field onClick fun(self:df_lineindicator_line)
+---@field onEnter fun(self:df_lineindicator_line)
+---@field onLeave fun(self:df_lineindicator_line)
+
+---@class df_lineindicator_line : button
+---@field xOffset number
+---@field index number
+---@field data df_lineindicator_data
+---@field Texture texture
+
+local lineIndicator_GetValueForMoving = function(self, indicator)
+	local targetFrame = self:LineIndicatorGetTarget()
+	local data = indicator.data
+
+	if (data.valueType == "PERCENT") then
+		local effectiveWidth = targetFrame:GetWidth() - self.xOffset
+		local x = indicator:GetLeft() - self.xOffset
+		local percent = x / effectiveWidth
+		data.value = percent
+		return data.value
+
+	elseif (data.valueType == "TIME") then
+		local effectiveWidth = targetFrame:GetWidth() - self.xOffset
+		local x = indicator:GetLeft() - self.xOffset
+		local timePercent = x / effectiveWidth
+		data.value = timePercent * self.lineIndicatorTime
+		return data.value
+
+	elseif (data.valueType == "PIXELS") then
+		local x = indicator:GetLeft() - self.xOffset
+		data.value = x
+		return data.value
+	end
+end
+
+---@class df_lineindicator : table, frame
+---@field lineIndicatorTime number
+---@field xOffset number
+---@field lineIndicators df_pool
+---@field data table
+---@field valueType string
+---@field frameTarget frame
+---@field scale number
+---@field lineHeight number
+---@field lineWidth number
+---@field color any
+---@field ValueFontString fontstring
+---@field LineIndicatorConstructor fun(self:df_lineindicator)
+---@field LineIndicatorSetTarget fun(self:df_lineindicator, frameTarget:frame)
+---@field LineIndicatorsReset fun(self:df_lineindicator)
+---@field LineIndicatorCreateLine fun(self:df_lineindicator, index:number):df_lineindicator_line
+---@field LineIndicatorGetLine fun(self:df_lineindicator):df_lineindicator_line
+---@field LineIndicatorSetElapsedTime fun(self:df_lineindicator, totalTime:number)
+---@field LineIndicatorSetLinePosition fun(self:df_lineindicator, line:df_lineindicator_line, value:number, valueType:string)
+---@field LineIndicatorSetValueType fun(self:df_lineindicator, valueType:"PERCENT"|"TIME"|"PIXELS")
+---@field LineIndicatorAddData fun(self:df_lineindicator, data:df_lineindicator_data)
+---@field LineIndicatorSetData fun(self:df_lineindicator, data:df_lineindicator_data[])
+---@field LineIndicatorRemoveData fun(self:df_lineindicator, dataId:number|df_lineindicator_data)
+---@field LineIndicatorAddLine fun(self:df_lineindicator, value:number, valueType:string) : df_lineindicator_line
+---@field LineIndicatorSetXOffset fun(self:df_lineindicator, xOffset:number)
+---@field LineIndicatorSetScale fun(self:df_lineindicator, scale:number)
+---@field LineIndicatorRefresh fun(self:df_lineindicator)
+---@field LineIndicatorSetAllLinesWidth fun(self:df_lineindicator, width:number)
+---@field LineIndicatorSetAllLinesHeight fun(self:df_lineindicator, height:number) set the height of all lines
+---@field LineIndicatorSetAllLinesColor fun(self:df_lineindicator, color:any, g:number?, b:number?)
+---@field LineIndicatorSetLineWidth fun(self:df_lineindicator, dataId:number|df_lineindicator_data, newWidth:number)
+---@field LineIndicatorSetLineColor fun(self:df_lineindicator, dataId:number|df_lineindicator_data, color:any, g:number?, b:number?)
+---@field LineIndicatorSetLineAlpha fun(self:df_lineindicator, dataId:number|df_lineindicator_data, alpha:number)
 detailsFramework.LineIndicatorMixin = {
 	LineIndicatorConstructor = function(self)
-		self.nextLineIndicatorIndex = 1
-		self.lineIndicators = {}
+		self.lineIndicatorTime = 0
+		self.lineIndicators = detailsFramework:CreatePool(detailsFramework.LineIndicatorMixin.LineIndicatorCreateLine, self)
+		self.lineIndicators:SetOnReset(function(lineIndicator) lineIndicator:Hide() lineIndicator:ClearAllPoints() end)
+		self.frameTarget = nil
+		self.data = {}
+		self.valueType = "PIXELS"
+		self.xOffset = 0
+		self.scale = 1
+		self.lineHeight = 50
+		self.lineWidth = 3
+		self.color = {1, 1, 1}
+	end,
+
+	LineIndicatorSetTarget = function(self, frameTarget)
+		self.frameTarget = frameTarget
+	end,
+
+	LineIndicatorGetTarget = function(self)
+		return self.frameTarget or self
 	end,
 
 	--hide all indicators and clear their points
-	ResetLineIndicators = function(self)
-		self.nextLineIndicatorIndex = 1
-		for i = 1, #self.lineIndicators do
-			local thisIndicator = self.lineIndicators[i]
-			thisIndicator:Hide()
-			thisIndicator:ClearAllPoints()
-		end
+	---@param self df_lineindicator
+	LineIndicatorsReset = function(self)
+		self.lineIndicatorTime = 0
+		self.lineIndicators:Reset()
 	end,
 
-	CreateLineIndicator = function(self, index)
+	---@param pool df_pool
+	---@param self df_lineindicator
+	---@return df_lineindicator_line
+	LineIndicatorCreateLine = function(pool, self)
+		local index = pool:GetAmount() + 1
 		local parentName = self:GetName()
 		local indicatorName = parentName and parentName .. "LineIndicator" .. index
 
-		--self.body is the scrollChild
-		local indicator = CreateFrame("button", indicatorName, self.body, "BackdropTemplate")
-		indicator:SetSize(1, self:GetHeight())
+		local targetFrame = self:LineIndicatorGetTarget()
+
+		---@type df_lineindicator_line
+		local indicator = CreateFrame("button", indicatorName, targetFrame, "BackdropTemplate")
+		indicator:SetSize(3, targetFrame:GetParent():GetHeight())
+		indicator:SetFrameLevel(targetFrame:GetFrameLevel() + 10)
 
 		local texture = indicator:CreateTexture(nil, "background")
 		texture:SetColorTexture(1, 1, 1, 1)
 		texture:SetAllPoints()
+
+		indicator:SetMovable(true)
+		indicator:SetScript("OnMouseDown", function(_, button)
+			if (button == "LeftButton") then
+				if (not self.ValueFontString) then
+					self.ValueFontString = self:CreateFontString(nil, "overlay", "GameFontNormal")
+					self.ValueFontString.Background = self:CreateTexture(nil, "artwork")
+					self.ValueFontString.Background:SetColorTexture(0, 0, 0, 0.7)
+					self.ValueFontString.Background:SetPoint("topleft", self.ValueFontString, "topleft", -2, 2)
+					self.ValueFontString.Background:SetPoint("bottomright", self.ValueFontString, "bottomright", 2, -2)
+				end
+
+				local mouseX = GetCursorPosition()
+				local point1, point2, point3, point4, point5 = indicator:GetPoint(1)
+				self.ValueFontString:Show()
+				self.ValueFontString:ClearAllPoints()
+				self.ValueFontString:SetPoint("bottomleft", indicator, "bottomright", 2, 0)
+
+				indicator:SetScript("OnUpdate", function()
+					local offset = GetCursorPosition() - mouseX
+					indicator:SetPoint(point1, point2, point3, point4 + offset, point5)
+					local value = lineIndicator_GetValueForMoving(self, indicator)
+
+					if (indicator.data.valueType == "TIME") then
+						self.ValueFontString:SetText(detailsFramework:IntegerToTimer(value))
+
+					elseif (indicator.data.valueType == "PERCENT") then
+						self.ValueFontString:SetText(format("%.2f%%", value * 100))
+
+					elseif (indicator.data.valueType == "PIXELS") then
+						self.ValueFontString:SetText(value)
+					end
+				end)
+			end
+		end)
+
+		indicator:SetScript("OnMouseUp", function(_, button)
+			if (button == "LeftButton") then
+				indicator:StopMovingOrSizing()
+				indicator:SetScript("OnUpdate", nil)
+				local value = lineIndicator_GetValueForMoving(self, indicator)
+				self.ValueFontString:Hide()
+				self.ValueFontString.Background:Hide()
+				self:LineIndicatorRefresh()
+			end
+		end)
 
 		indicator.Texture = texture
 
 		return indicator
 	end,
 
-	GetLineIndicator = function(self)
-		assert(self.lineIndicators, "GetLineIndicator(): LineIndicatorConstructor() not called.")
-		local thisIndicator = self.lineIndicators[self.nextLineIndicatorIndex]
-
-		if (not thisIndicator) then
-			thisIndicator = self:CreateLineIndicator(self.nextLineIndicatorIndex)
-			self.lineIndicators[self.nextLineIndicatorIndex] = thisIndicator
-			self.nextLineIndicatorIndex = self.nextLineIndicatorIndex + 1
-		end
-
+	LineIndicatorGetLine = function(self)
+		assert(self.lineIndicators, "LineIndicatorGetLine(): LineIndicatorConstructor() not called.")
+		local thisIndicator = self.lineIndicators:Acquire()
 		return thisIndicator
 	end,
 
-	SetLineIndicatorPosition = function(self, x)
-		self:SetPoint("left", self:GetParent(), "left", x, 0)
+	LineIndicatorSetElapsedTime = function(self, totalTime)
+		self.lineIndicatorTime = totalTime
+	end,
+
+	LineIndicatorSetLinePosition = function(self, line, value, valueType)
+		local targetFrame = self:LineIndicatorGetTarget()
+
+		if (valueType) then
+			if (valueType == "PERCENT") then
+				local effectiveWidth = targetFrame:GetWidth() - self.xOffset
+				effectiveWidth = effectiveWidth * self.scale
+				local x = effectiveWidth * value
+				line:SetPoint("left", targetFrame, "left", self.xOffset + x, 0)
+				line.xOffset = x
+
+			elseif (valueType == "TIME") then
+				assert(self.lineIndicatorTime > 0, "LineIndicatorSetElapsedTime(self, totalTime) must be called before SetLineIndicatorPosition() with valueType TIME.")
+
+				local timePercent = value / self.lineIndicatorTime
+
+				local effectiveWidth = targetFrame:GetWidth() - self.xOffset
+				effectiveWidth = effectiveWidth * self.scale
+
+				local x = effectiveWidth * timePercent
+				line:SetPoint("left", targetFrame, "left", self.xOffset + x, 0)
+				line.xOffset = x
+
+			elseif (valueType == "PIXELS") then
+				value = value * self.scale
+				line:SetPoint("left", targetFrame, "left", self.xOffset + value, 0)
+				line.xOffset = x
+			end
+		end
+	end,
+
+	LineIndicatorRefresh = function(self)
+		--release all objects
+		self.lineIndicators:Reset()
+		--redraw all objects
+		for i = 1, #self.data do
+			local data = self.data[i]
+			if (not data.valueType) then
+				data.valueType = self.valueType
+			end
+
+			local line = self:LineIndicatorAddLine(data.value, data.valueType)
+
+			line.index = i
+			line.data = data
+			line:SetHeight(self.lineHeight)
+			line:SetWidth(data.width or self.lineWidth)
+			line:SetAlpha(data.alpha or 1)
+			line.Texture:SetVertexColor(unpack(self.color))
+			line:SetScript("OnClick", data.onClick)
+			line:SetScript("OnEnter", data.onEnter)
+			line:SetScript("OnLeave", data.onLeave)
+		end
+	end,
+
+	LineIndicatorSetValueType = function(self, valueType)
+		assert(valueType == "PERCENT" or valueType == "TIME" or valueType == "PIXELS", "SetLineIndicatorValueType(valueType): valueType must be PERCENT, TIME or PIXELS.")
+		self.valueType = valueType
+	end,
+
+	LineIndicatorAddLine = function(self, value, valueType)
+		local line = self:LineIndicatorGetLine()
+		self:LineIndicatorSetLinePosition(line, value, valueType or self.valueType)
+		line:Show()
+		return line
+	end,
+
+	LineIndicatorRemoveData = function(self, dataId)
+		assert(type(dataId) == "number" or type(dataId) == "table", "LineIndicatorRemoveData(dataId): dataId must be the data index or a data table.")
+
+		if (type(dataId) == "number") then
+			local index = dataId
+			table.remove(self.data, index)
+
+		elseif (type(dataId) == "table") then
+			local dataTable = dataId
+			for i = 1, #self.data do
+				if (self.data[i] == dataTable) then
+					table.remove(self.data, i)
+					break
+				end
+			end
+		end
+
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorAddData = function(self, data)
+		self.data[#self.data+1] = data
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorSetData = function(self, data)
+		self.data = data
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorSetXOffset = function(self, xOffset)
+		self.xOffset = xOffset
+	end,
+
+	LineIndicatorSetScale = function(self, scale)
+		self.scale = scale
+	end,
+
+	LineIndicatorSetAllLinesHeight = function(self, height)
+		assert(type(height) == "number", "LineIndicatorSetAllLinesHeight(height): height must be a number.")
+		self.lineHeight = height
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorSetAllLinesWidth = function(self, width)
+		assert(type(width) == "number", "LineIndicatorSetAllLinesWidth(width): width must be a number.")
+		self.lineWidth = width
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorSetLineWidth = function(self, dataId, newWidth)
+		assert(type(dataId) == "number" or type(dataId) == "table", "LineIndicatorSetLineWidth(dataId): dataId must be the data index or a data table.")
+
+		if (type(dataId) == "number") then
+			local index = dataId
+			local data = self.data[index]
+			if (data) then
+				data.width = newWidth
+			end
+
+		elseif (type(dataId) == "table") then
+			local dataTable = dataId
+			for i = 1, #self.data do
+				if (self.data[i] == dataTable) then
+					self.data[i].width = newWidth
+					break
+				end
+			end
+		end
+
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorSetAllLinesColor = function(self, color, g, b)
+		local r, g, b = detailsFramework:ParseColors(color, g, b)
+		self.color[1] = r
+		self.color[2] = g
+		self.color[3] = b
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorSetLineColor = function(self, dataId, color, g, b)
+		assert(type(dataId) == "number" or type(dataId) == "table", "LineIndicatorSetLineColor(dataId): dataId must be the data index or a data table.")
+
+		local r, g, b = detailsFramework:ParseColors(color, g, b)
+
+		if (type(dataId) == "number") then
+			local index = dataId
+			local data = self.data[index]
+			if (data) then
+				data.color[1] = r
+				data.color[2] = g
+				data.color[3] = b
+			end
+
+		elseif (type(dataId) == "table") then
+			local dataTable = dataId
+			for i = 1, #self.data do
+				if (self.data[i] == dataTable) then
+					self.data[i].color[1] = r
+					self.data[i].color[2] = g
+					self.data[i].color[3] = b
+					break
+				end
+			end
+		end
+
+		self:LineIndicatorRefresh()
+	end,
+
+	LineIndicatorSetLineAlpha = function(self, dataId, alpha)
+		assert(type(dataId) == "number" or type(dataId) == "table", "LineIndicatorSetLineAlpha(dataId): dataId must be the data index or a data table.")
+
+		if (type(dataId) == "number") then
+			local index = dataId
+			local data = self.data[index]
+			if (data) then
+				data.alpha = alpha
+			end
+
+		elseif (type(dataId) == "table") then
+			local dataTable = dataId
+			for i = 1, #self.data do
+				if (self.data[i] == dataTable) then
+					self.data[i].alpha = alpha
+					break
+				end
+			end
+		end
+
+		self:LineIndicatorRefresh()
 	end,
 }
+
+
+---@class df_timeline_body : frame, df_lineindicator
 
 ---creates a scrollable panel with vertical, horizontal and scale sliders to show a timeline
 ---also creates a frame for the elapsed timeline at the top, it shows the time in seconds
@@ -705,13 +1048,14 @@ function detailsFramework:CreateTimeLineFrame(parent, name, timelineOptions, ela
 	detailsFramework:Mixin(frameCanvas, detailsFramework.TimeLineMixin)
 	detailsFramework:Mixin(frameCanvas, detailsFramework.OptionsFunctions)
 	detailsFramework:Mixin(frameCanvas, detailsFramework.LayoutFrame)
+	detailsFramework:Mixin(frameCanvas, detailsFramework.LineIndicatorMixin)
+
+	frameCanvas:LineIndicatorConstructor()
+	frameCanvas:LineIndicatorSetValueType("TIME")
 
 	--this table is changed by SetData()
 	frameCanvas.data = {} --placeholder
 	frameCanvas.lines = {}
-
-	--store vertical lines created by CreateIndicator()
-	frameCanvas.lineIndicators = {}
 
 	frameCanvas.currentScale = 0.5
 	frameCanvas:SetSize(width, height)
@@ -720,11 +1064,13 @@ function detailsFramework:CreateTimeLineFrame(parent, name, timelineOptions, ela
 
 	local frameBody = CreateFrame("frame", nil, frameCanvas, "BackdropTemplate")
 	frameBody:SetSize(scrollWidth, scrollHeight)
+	frameCanvas:LineIndicatorSetTarget(frameBody)
 
 	frameCanvas:SetScrollChild(frameBody)
 	frameCanvas.body = frameBody
 
 	frameCanvas:BuildOptionsTable(timeline_options, timelineOptions)
+
 
 	--create elapsed time frame
 	frameCanvas.elapsedTimeFrame = detailsFramework:CreateElapsedTimeFrame(frameBody, frameCanvas:GetName() and frameCanvas:GetName() .. "ElapsedTimeFrame", elapsedtimeOptions)
@@ -862,7 +1208,7 @@ function detailsFramework:CreateTimeLineFrame(parent, name, timelineOptions, ela
 			local x = GetCursorPosition()
 			local deltaX = self.MouseX - x
 			local current = horizontalSlider:GetValue()
-			horizontalSlider:SetValue(current +(deltaX * 1.2) *((IsShiftKeyDown() and 2) or(IsAltKeyDown() and 0.5) or 1))
+			horizontalSlider:SetValue(current + (deltaX * 1.2) * ((IsShiftKeyDown() and 2) or (IsAltKeyDown() and 0.5) or 1))
 			self.MouseX = x
 		end)
 	end)
