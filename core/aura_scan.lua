@@ -53,6 +53,7 @@ function AuraScan.CheckForOneHourBuffs()
                     if (Details222.OneHourAuras[spellId]) then
                         --is this buff have 100% uptime?
                         if (spellTable.uptime == combatTime) then
+                            --remove the spell fro the container
                             utilityActor.buff_uptime = utilityActor.buff_uptime - spellTable.uptime
                             utilityActor.buff_uptime_spells._ActorTable[spellId] = nil
                         end
@@ -62,6 +63,9 @@ function AuraScan.CheckForOneHourBuffs()
         end
     end
 end
+
+------------------------------
+---------Aura Scan ~aura ~scan
 
 function AuraScan.RegisterCallback(callback)
     AuraScan.Callbacks[callback] = true
@@ -372,7 +376,7 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------------
 
-local scanFrame = CreateFrame("frame", "DetailsAuraScanFrame", UIParent)
+local scanFrame = CreateFrame("frame")
 
 function AuraScan.Start()
     AuraScan.Enabled = true
@@ -399,15 +403,15 @@ function AuraScan.Start()
 
     bIsInitialScan = false
 
-    DetailsAuraScanFrame:RegisterEvent("UNIT_AURA")
-    DetailsAuraScanFrame:SetScript("OnEvent", AuraScan.OnEvent)
+    scanFrame:RegisterEvent("UNIT_AURA")
+    scanFrame:SetScript("OnEvent", AuraScan.OnEvent)
 end
 
 function AuraScan.Stop()
     if (AuraScan.Enabled) then
         AuraScan.Enabled = false
-        DetailsAuraScanFrame:UnregisterEvent("UNIT_AURA")
-        DetailsAuraScanFrame:SetScript("OnEvent", nil)
+        scanFrame:UnregisterEvent("UNIT_AURA")
+        scanFrame:SetScript("OnEvent", nil)
 
         --close all opened auras (by running the remove function)
         for targetGUID, auras in pairs(AuraScan.UnitAurasStorage) do
