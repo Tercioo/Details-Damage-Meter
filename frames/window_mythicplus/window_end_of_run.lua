@@ -346,11 +346,20 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 			GameTooltip:SetHyperlink(lootSquare.itemLink)
 			GameTooltip:Show()
+
+			self:SetScript("OnUpdate", function()
+				if (IsShiftKeyDown()) then
+					GameTooltip_ShowCompareItem()
+				else
+					GameTooltip_HideShoppingTooltips(GameTooltip)
+				end
+			end)
 		end
 	end)
 
 	lootSquare:SetScript("OnLeave", function(self)
 		GameTooltip:Hide()
+		self:SetScript("OnUpdate", nil)
 	end)
 
 	local shadowTexture = playerBanner:CreateTexture("$parentShadowTexture", "artwork")
