@@ -382,6 +382,10 @@ function Details222.StartUp.StartMeUp()
 
 	--check is this is the first run of this version
 	if (Details.is_version_first_run) then
+		if (Details.build_counter == 13096) then
+			Details.mythic_plus.autoclose_time = 90
+		end
+
 		local lowerInstanceId = Details:GetLowerInstanceNumber()
 		if (lowerInstanceId) then
 			lowerInstanceId = Details:GetInstance(lowerInstanceId)

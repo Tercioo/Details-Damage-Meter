@@ -5462,8 +5462,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 				--if the current raid is current tier raid, pre-load the storage database
 				if (zoneType == "raid") then
-					if (Details:IsZoneIdFromCurrentExpansion(zoneMapID)) then
-						Details.ScheduleLoadStorage()
+					if (not Details222.EJCache.CacheCreated) then
+						--this is running right after the player login, wait a few seconds for the cache to be created
+						C_Timer.After(5, function()
+							if (Details:IsZoneIdFromCurrentExpansion(zoneMapID)) then
+								Details.ScheduleLoadStorage()
+							end
+						end)
+					else
+						if (Details:IsZoneIdFromCurrentExpansion(zoneMapID)) then
+							Details.ScheduleLoadStorage()
+						end
 					end
 				end
 
