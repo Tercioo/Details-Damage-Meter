@@ -1,6 +1,6 @@
 
 
-local dversion = 571
+local dversion = 572
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -40,6 +40,7 @@ local SPELLBOOK_BANK_PET = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.P
 local IsPassiveSpell = IsPassiveSpell or C_Spell.IsSpellPassive
 local GetOverrideSpell = C_SpellBook and C_SpellBook.GetOverrideSpell or C_Spell.GetOverrideSpell or GetOverrideSpell
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
+local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
 SMALL_NUMBER = 0.000001
 ALPHA_BLEND_AMOUNT = 0.8400251
@@ -929,8 +930,11 @@ end
 function DF.table.deploy(t1, t2)
 	for key, value in pairs(t2) do
 		if (type(value) == "table") then
-			t1[key] = t1[key] or {}
-			DF.table.deploy(t1[key], t2[key])
+			--check the t1 type as sometimes the key isn't the same type on both tables
+			if (t1[key] == nil or type(t1[key]) == "table") then
+				t1[key] = t1[key] or {}
+				DF.table.deploy(t1[key], t2[key])
+			end
 		elseif (t1[key] == nil) then
 			t1[key] = value
 		end
@@ -1865,7 +1869,7 @@ function DF:GetAvailableSpells()
     local completeListOfSpells = {}
 
     --this line might not be compatible with classic
-    --local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
+    local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
     --local classNameLoc, className, classId = UnitClass("player") --not in use
     local locPlayerRace, playerRace, playerRaceId = UnitRace("player")
 
@@ -1904,44 +1908,50 @@ function DF:GetAvailableSpells()
         end
     end
 
+	local spellBookPlayerEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
+
 	--get spells from the Spec spellbook
-	local amountOfTabs = GetNumSpellTabs()
-    for i = 2, amountOfTabs-1 do --starting at index 2 to ignore the general tab
+	for i = 1, GetNumSpellTabs() do --called "lines" in new v11 api
         local tabName, tabTexture, offset, numSpells, isGuild, offSpecId, shouldHide, specID = GetSpellTabInfo(i)
-		local bIsOffSpec = offSpecId ~= 0
-		offset = offset + 1
-		local tabEnd = offset + numSpells
-		for entryOffset = offset, tabEnd - 1 do
-			local spellType, spellId = GetSpellBookItemInfo(entryOffset, SPELLBOOK_BANK_PLAYER)
-			if (spellId) then
-				if (spellType == "SPELL") then
-					spellId = GetOverrideSpell(spellId)
-					local spellName = GetSpellInfo(spellId)
-					local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
-					if (spellName and not bIsPassive) then
-						completeListOfSpells[spellId] = bIsOffSpec == false
+		if (tabTexture == specIconTexture) then
+			offset = offset + 1
+			local tabEnd = offset + numSpells
+			--local bIsOffSpec = offSpecId ~= 0
+			for entryOffset = offset, tabEnd - 1 do
+				local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
+				if (spellId) then
+					if (spellType == "SPELL" or spellType == 1) then
+						spellId = GetOverrideSpell(spellId)
+						local spellName = GetSpellInfo(spellId)
+						local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
+						if (spellName and not bIsPassive) then
+							completeListOfSpells[spellId] = true --bIsOffSpec == false
+						end
 					end
 				end
 			end
 		end
     end
 
+	local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
+	local CONST_SPELLBOOK_GENERAL_TABID = 1
+
     --get class shared spells from the spell book
-	--[=[
-    local tabName, tabTexture, offset, numSpells, isGuild, offSpecId = GetSpellTabInfo(2)
-	local bIsOffSpec = offSpecId ~= 0
+	--[=
+    local tabName, tabTexture, offset, numSpells, isGuild, offSpecId = GetSpellTabInfo(CONST_SPELLBOOK_CLASSSPELLS_TABID)
     offset = offset + 1
     local tabEnd = offset + numSpells
+	--local bIsOffSpec = offSpecId ~= 0
     for entryOffset = offset, tabEnd - 1 do
-        local spellType, spellId = GetSpellBookItemInfo(entryOffset, "player")
+        local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
         if (spellId) then
-            if (spellType == "SPELL") then
+            if (spellType == "SPELL" or spellType == 1) then
                 spellId = GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
-                local bIsPassive = IsPassiveSpell(spellId, "player")
+                local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
 
 				if (spellName and not bIsPassive) then
-                    completeListOfSpells[spellId] = bIsOffSpec == false
+                    completeListOfSpells[spellId] = true --bIsOffSpec == false
                 end
             end
         end
@@ -1957,10 +1967,10 @@ function DF:GetAvailableSpells()
     local numPetSpells = getNumPetSpells()
     if (numPetSpells) then
         for i = 1, numPetSpells do
-            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, SPELLBOOK_BANK_PET)
+            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
             if (unmaskedSpellId) then
                 unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
-                local bIsPassive = IsPassiveSpell(unmaskedSpellId, SPELLBOOK_BANK_PET)
+                local bIsPassive = IsPassiveSpell(i, spellBookPetEnum)
                 if (spellName and not bIsPassive) then
                     completeListOfSpells[unmaskedSpellId] = true
                 end

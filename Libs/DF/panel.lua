@@ -1986,6 +1986,25 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+local on_drag_start = function(self)
+	if (not self.bIsDragging) then
+		self.bIsDragging = true
+		self:StartMoving()
+	end
+end
+
+local on_drag_stop = function(self)
+	self.bIsDragging = false
+	self:StopMovingOrSizing()
+end
+
+function detailsFramework:MakeDraggable(frame)
+	frame:SetMovable(true)
+	frame:EnableMouse(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", on_drag_start)
+	frame:SetScript("OnDragStop", on_drag_stop)
+end
 
 local simple_panel_mouse_down = function(self, button)
 	if (button == "RightButton") then

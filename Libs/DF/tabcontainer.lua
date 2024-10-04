@@ -20,11 +20,13 @@ local PixelUtil = PixelUtil
 ---@field AllFramesByName table<string, df_tabcontainerframe>
 ---@field AllButtonsByName table<string, df_tabcontainerbutton>
 ---@field hookList table
+---@field options df_tabcontaineroptions
 ---@field CurrentIndex number
 ---@field IsContainer boolean
 ---@field ButtonSelectedBorderColor table
 ---@field ButtonNotSelectedBorderColor table
 ---@field CanCloseWithRightClick boolean
+---@field CallOnEachTab fun(self: df_tabcontainer, callback: function, ...)
 ---@field SetIndex fun(self: df_tabcontainer, index: number)
 ---@field SelectTabByIndex fun(self: df_tabcontainer, menuIndex: number)
 ---@field SelectTabByName fun(self: df_tabcontainer, name: string)
@@ -54,6 +56,12 @@ local tabTemplate = detailsFramework.table.copy({}, detailsFramework:GetTemplate
 tabTemplate.backdropbordercolor = nil
 
 detailsFramework.TabContainerMixin = {
+    CallOnEachTab = function(self, callback, ...)
+        for _, tabFrame in ipairs(self.AllFrames) do
+            detailsFramework:Dispatch(callback, tabFrame, ...)
+        end
+    end,
+
     ---@param self df_tabcontainer
     ---@param tabIndex number
     ---@return df_tabcontainerframe
@@ -125,6 +133,10 @@ detailsFramework.TabContainerMixin = {
         ---@type df_tabcontainerframe
         local tabFrame = tabContainer.AllFrames[menuIndex]
 
+        if (not tabFrame) then
+            return
+        end
+
         --hide all tab frame and hide the selection glow from tab buttons
         for i = 1, #tabContainer.AllFrames do
             ---@type df_tabcontainerframe
@@ -191,31 +203,33 @@ detailsFramework.TabContainerFrameMixin = {
     ---@param self df_tabcontainerframe
     ---@param button string
     OnMouseDown = function(self, button)
-        --search for UIParent
-        ---@type frame
-        local highestParent = detailsFramework:FindHighestParent(self)
-        local tabContainer = self:GetParent()
-        ---@cast tabContainer df_tabcontainer
+        if (self:GetParent().options.can_move_parent) then
+            --search for UIParent
+            ---@type frame
+            local highestParent = detailsFramework:FindHighestParent(self)
+            local tabContainer = self:GetParent()
+            ---@cast tabContainer df_tabcontainer
 
-        if (button == "LeftButton") then
-            if (not highestParent.IsMoving and highestParent:IsMovable()) then
-                highestParent:StartMoving()
-                highestParent.IsMoving = true
-            end
+            if (button == "LeftButton") then
+                if (not highestParent.IsMoving and highestParent:IsMovable()) then
+                    highestParent:StartMoving()
+                    highestParent.IsMoving = true
+                end
 
-        elseif (button == "RightButton") then
-            if (not highestParent.IsMoving and tabContainer.IsContainer) then
-                if (self.bIsFrontPage) then
-                    if (tabContainer.CanCloseWithRightClick) then
-                        if (highestParent["CloseFunction"]) then
-                            highestParent["CloseFunction"](highestParent)
-                        else
-                            highestParent:Hide()
+            elseif (button == "RightButton") then
+                if (not highestParent.IsMoving and tabContainer.IsContainer) then
+                    if (self.bIsFrontPage) then
+                        if (tabContainer.CanCloseWithRightClick) then
+                            if (highestParent["CloseFunction"]) then
+                                highestParent["CloseFunction"](highestParent)
+                            else
+                                highestParent:Hide()
+                            end
                         end
+                    else
+                        --goes back to front page
+                        tabContainer:SelectTabByIndex(1)
                     end
-                else
-                    --goes back to front page
-                    tabContainer:SelectTabByIndex(1)
                 end
             end
         end
@@ -224,10 +238,12 @@ detailsFramework.TabContainerFrameMixin = {
     ---@param self df_tabcontainerframe
     ---@param button string
     OnMouseUp = function(self, button)
-        local frame = detailsFramework:FindHighestParent(self)
-        if (frame.IsMoving) then
-            frame:StopMovingOrSizing()
-            frame.IsMoving = false
+        if (self:GetParent().options.can_move_parent) then
+            local frame = detailsFramework:FindHighestParent(self)
+            if (frame.IsMoving) then
+                frame:StopMovingOrSizing()
+                frame.IsMoving = false
+            end
         end
     end,
 }
@@ -249,6 +265,7 @@ detailsFramework.TabContainerFrameMixin = {
 ---@field button_y number?
 ---@field button_text_size number?
 ---@field container_width_offset number?
+---@field can_move_parent boolean?
 
 ---creates a frame called tabContainer which is used as base for the tab container object
 ---the function receives a table called tabList which contains sub tables with two keys 'name' and 'text', name is the frame name and text is the text displayed on the button
@@ -274,6 +291,10 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 	local buttonTextSize = optionsTable.button_text_size or 10
 	local containerWidthOffset = optionsTable.container_width_offset or 0
 
+    if (optionsTable.can_move_parent == nil) then
+        optionsTable.can_move_parent = true
+    end
+
     local bFirstTabIsCreateOnDemand = false
 
     --create the base frame
@@ -281,6 +302,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 	local tabContainer = CreateFrame("frame", frameName, parent["widget"] or parent, "BackdropTemplate")
     tabContainer.hookList = hookList or {}
     tabContainer:SetSize(optionsTable.width or 750, optionsTable.height or 450)
+    tabContainer.options = optionsTable
 
 	detailsFramework:Mixin(tabContainer, detailsFramework.TabContainerMixin)
 
@@ -396,7 +418,10 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 	local allocatedSpaceForButtons = parentFrameWidth - ((#tabList - 2) * spaceBetweenButtons) - buttonAnchorX + containerWidthOffset
 	local amountButtonsPerRow = math.floor(allocatedSpaceForButtons / buttonWidth)
 
-	tabContainer.AllButtons[1]:SetPoint("topleft", mainTitle, "topleft", x, y)
+    if (tabContainer.AllButtons[1]) then
+	    tabContainer.AllButtons[1]:SetPoint("topleft", mainTitle, "topleft", x, y)
+    end
+
 	x = x + buttonWidth + 2
 
 	for i = 2, #tabContainer.AllButtons do

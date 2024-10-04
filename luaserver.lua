@@ -577,6 +577,7 @@ BackdropTemplateMixin = {}
 ---@field SetMouseClickEnabled fun(self: frame, enabled: boolean)
 ---@field StartMoving fun(self: frame)
 ---@field IsMovable fun(self: frame) : boolean
+---@field IsMouseEnabled fun(self: frame) : boolean
 ---@field StartSizing fun(self: frame, sizingpoint: sizingpoint?)
 ---@field StopMovingOrSizing fun(self: frame)
 ---@field GetAttribute fun(self: frame, name: string) : any
