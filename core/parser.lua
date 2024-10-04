@@ -429,7 +429,7 @@
 			[228649] = 100784, --monk blackout kick
 
 			[436304] = 439843, --frost dk reaper's mark
-			[439594] = 393843, --frost dk reaper's mark
+			[439594] = 439843, --frost dk reaper's mark
 			[66198] = 222024, --frost dk obliterate offhand
 			[66196] = 222026, --frost dk frost strike offhand
 			[383312] = 383313, --frost dk abom limb
