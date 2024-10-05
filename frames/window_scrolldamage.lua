@@ -300,7 +300,13 @@ end
 
 local targetDummieHandle = CreateFrame("frame")
 local targetDummiesIds = {
-    [31146] = true, --raider's training dummie
+    [31146] = true,  --raider's training dummie
+	[225983] = true, --Dungeoneer's training dummy - Dornogal
+	[225984] = true, --Normal dummy - Dornogal
+	[225979] = true, --Healing Dummy - Dornogal
+	[225982] = true, --Cleave Dummy - Dornogal
+	[225977] = true, --Dungeoneer's Tanking dummy - Dornogal
+	[225976] = true, --Normal Tanking dummy - Dornogal
 }
 
 targetDummieHandle:SetScript("OnEvent", function(_, _, unit)
