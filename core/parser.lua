@@ -957,7 +957,6 @@
 				if (countBuffedWithPrescience == 1) then
 					sourceSerial, sourceName, sourceFlags = unpack(currentlyBuffedWithPrescience[1])
 				elseif (countAugMember >= 2) then
-					Details:Msg("Stacked buff from: ", sourceName)
 					sourceName = Details.StackedBuffActorName
 					sourceFlags = 0x514
 					sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
@@ -2549,7 +2548,6 @@
 			if (countBuffedWithPrescience == 1) then
 				sourceSerial, sourceName, sourceFlags = unpack(currentlyBuffedWithPrescience[1])
 			elseif (countAugMember >= 2) then
-				Details:Msg("Stacked buff from: ", sourceName)
 				sourceName = Details.StackedBuffActorName
 				sourceFlags = 0x514
 				sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
