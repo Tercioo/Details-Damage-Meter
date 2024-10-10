@@ -260,9 +260,12 @@
 ---@field bossIcon texturepath|textureid
 ---@field bIsClosed boolean if true the combat is closed (passed by the EndCombat() function)
 ---@field __destroyedBy string
----@field amountCasts {[string]: table<string, number>}
+---@field amountCasts {[string]: table<string, number>} playername -> spellname -> amount
 ---@field instance_type instancetype "raid" or "party" or "pvp" or "arena" or "none" or "scenario"
----@field run_time number
+---@field run_time number mythic plus time without death penalties
+---@field elapsed_time number mythic plus total time
+---@field is_challenge boolean mythic plus challenge mode
+---@field total_segments_added number for a mythic+ overall segment, indicates how many segments were added
 ---@field start_time gametime
 ---@field end_time gametime
 ---@field combat_counter number

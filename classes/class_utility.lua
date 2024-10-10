@@ -556,10 +556,10 @@ function atributo_misc:ReportSingleBuffUptimeLine(misc_actor, instance)
 	local buffs = {}
 	local combat_time = floor(instance.showing:GetCombatTime())
 
-	for spellid, spell in pairs(misc_actor.buff_uptime_spells._ActorTable) do
-		if (spell.uptime > 0) then -- and percent < 99.5
-			local percent = spell.uptime / combat_time * 100
-			buffs [#buffs+1] = {spellid, {spell.uptime, percent}}
+	for spellid, spellTable in pairs(misc_actor.buff_uptime_spells._ActorTable) do
+		if (spellTable.uptime and spellTable.uptime > 0) then -- and percent < 99.5
+			local percent = spellTable.uptime / combat_time * 100
+			buffs [#buffs+1] = {spellid, {spellTable.uptime, percent}}
 		end
 	end
 
@@ -574,9 +574,11 @@ function atributo_misc:ReportSingleDebuffUptimeLine(misc_actor, instance)
 	local debuffs = {}
 	local combat_time = instance.showing:GetCombatTime()
 
-	for spellid, spell in pairs(misc_actor.debuff_uptime_spells._ActorTable) do
-		local percent = spell.uptime / combat_time * 100
-		debuffs [#debuffs+1] = {spellid, {spell.uptime, percent}}
+	for spellid, spellTable in pairs(misc_actor.debuff_uptime_spells._ActorTable) do
+		if (spellTable.uptime) then
+			local percent = spellTable.uptime / combat_time * 100
+			debuffs [#debuffs+1] = {spellid, {spellTable.uptime, percent}}
+		end
 	end
 
 	table.sort(debuffs, sort_buff_report)
@@ -591,10 +593,6 @@ end
 ---index[4] is the class of the player
 ---index[5] is the max health
 ---index[6] is the time of the fight as string
----@field death boolean
----@field last_cooldown table
----@field dead_at number --combat time when the player died
----@field spec number
 
 ---update a row in an instance(window) showing death logs
 ---@param deathTable table

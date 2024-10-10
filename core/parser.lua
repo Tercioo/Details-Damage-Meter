@@ -6009,6 +6009,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details222.MythicPlus.MapID = mapID
 		Details222.MythicPlus.Level = level --level of the key just finished
+		Details222.MythicPlus.ElapsedTime = time --total time of the mythic+ run
 		Details222.MythicPlus.OnTime = onTime
 		Details222.MythicPlus.KeystoneUpgradeLevels = keystoneUpgradeLevels
 		Details222.MythicPlus.PracticeRun = practiceRun
