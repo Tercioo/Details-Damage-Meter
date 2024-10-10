@@ -410,13 +410,6 @@
 
 			[32175] = 17364, -- shaman Stormstrike (from Turkar on github)
 			[32176] = 17364, -- shaman Stormstrike
-			[45284] = 188196, --shaman lightining bolt overloaded
-
-			[45297] = 188443, -- shaman chain lightning overload
-			[120588] = 117014, -- shaman elemental blast overload
-			[285466] = 285452, -- shaman lava burst overload
-			[298765] = 77478, -- shaman earthquake overload
-			[219271] = 210714, -- shaman icefury overload
 
 			[228361] = 228360, --shadow priest void erruption
 
