@@ -68,7 +68,12 @@ function breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject, button)
 		if (actorObject) then
 			local instanceObject = Details:GetInstance(1)
 			if (instanceObject) then
-				Details:OpenBreakdownWindow(instanceObject, actorObject)
+				local bFromAttributeChange = false
+				local bIsRefresh = false
+				local bIsShiftKeyDown = false
+				local bIsControlKeyDown = false
+				local bIgnoreOverrides = true
+				Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides)
 			end
 		end
 	end
@@ -340,7 +345,8 @@ end
 ---@param bIsRefresh boolean|nil
 ---@param bIsShiftKeyDown boolean|nil
 ---@param bIsControlKeyDown boolean|nil
-function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown)
+---@param bIgnoreOverrides boolean|nil
+function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides)
 	---@type number, number
 	local mainAttribute, subAttribute = instanceObject:GetDisplay()
 
@@ -353,17 +359,19 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 
 	Details:SetWindowColor(unpack(Details.frame_background_color))
 
-	if (not Details.row_singleclick_overwrite[mainAttribute] or not Details.row_singleclick_overwrite[mainAttribute][subAttribute]) then
-		Details:CloseBreakdownWindow()
-		return
-
-	elseif (type(Details.row_singleclick_overwrite[mainAttribute][subAttribute]) == "function") then
-		if (bFromAttributeChange) then
+	if (not bIgnoreOverrides) then
+		if (not Details.row_singleclick_overwrite[mainAttribute] or not Details.row_singleclick_overwrite[mainAttribute][subAttribute]) then
 			Details:CloseBreakdownWindow()
 			return
+
+		elseif (type(Details.row_singleclick_overwrite[mainAttribute][subAttribute]) == "function") then
+			if (bFromAttributeChange) then
+				Details:CloseBreakdownWindow()
+				return
+			end
+			Details.row_singleclick_overwrite[mainAttribute][subAttribute](_, actorObject, instanceObject, bIsShiftKeyDown, bIsControlKeyDown)
+			return
 		end
-		Details.row_singleclick_overwrite[mainAttribute][subAttribute](_, actorObject, instanceObject, bIsShiftKeyDown, bIsControlKeyDown)
-		return
 	end
 
 	if (instanceObject:GetMode() == DETAILS_MODE_RAID) then
