@@ -62,7 +62,7 @@ function DetailsMythicPlusFrame.BossDefeated(this_is_end_end, encounterID, encou
 end
 
 --this function is called 2 seconds after the event COMBAT_MYTHICDUNGEON_END
-function DetailsMythicPlusFrame.MythicDungeonFinished(fromZoneLeft)
+function DetailsMythicPlusFrame.MythicDungeonFinished(bFromZoneLeft)
     if (DetailsMythicPlusFrame.IsDoingMythicDungeon) then
         if (DetailsMythicPlusFrame.DevelopmentDebug) then
             print("Details!", "MythicDungeonFinished() > the dungeon was a Mythic+ and just ended.")
@@ -88,7 +88,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished(fromZoneLeft)
         Details222.MythicPlus.LogStep("MythicDungeonFinished() | merge_boss_trash = " .. (bCanMergeBossTrash and "true" or "false"))
 
         --check if there's trash after the last boss, if does, merge it with the trash of the last boss defeated
-        if (bCanMergeBossTrash and not Details.MythicPlus.IsRestoredState and not fromZoneLeft) then
+        if (bCanMergeBossTrash and not Details.MythicPlus.IsRestoredState) then -- and not bFromZoneLeft
             --is the current combat not a boss fight?
             --this mean a combat was opened after the last boss of the dungeon was killed
             if (not Details.tabela_vigente.is_boss and Details.tabela_vigente:GetCombatTime() > 5) then
@@ -100,7 +100,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished(fromZoneLeft)
         end
 
         --merge segments
-        if (Details.mythic_plus.make_overall_when_done and not Details.MythicPlus.IsRestoredState and not fromZoneLeft) then
+        if (Details.mythic_plus.make_overall_when_done and not Details.MythicPlus.IsRestoredState) then -- and not bFromZoneLeft
             if (DetailsMythicPlusFrame.DevelopmentDebug) then
                 print("Details!", "MythicDungeonFinished() > not in combat, creating overall segment now")
             end
@@ -111,10 +111,12 @@ function DetailsMythicPlusFrame.MythicDungeonFinished(fromZoneLeft)
 
 		--the run is valid, schedule to open the chart window
 		Details.mythic_plus.delay_to_show_graphic = 1
-		C_Timer.After(Details.mythic_plus.delay_to_show_graphic, mythicDungeonFrames.ShowEndOfMythicPlusPanel)
+        if (not bFromZoneLeft) then
+		    C_Timer.After(Details.mythic_plus.delay_to_show_graphic, mythicDungeonFrames.ShowEndOfMythicPlusPanel)
+        end
 
         --shutdown parser for a few seconds to avoid opening new segments after the run ends
-        if (not fromZoneLeft) then
+        if (not bFromZoneLeft) then
             Details:CaptureSet(false, "damage", false, 15)
             Details:CaptureSet(false, "energy", false, 15)
             Details:CaptureSet(false, "aura", false, 15)
