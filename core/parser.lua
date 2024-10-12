@@ -86,7 +86,6 @@
 	--heaing
 		local healing_cache = setmetatable({}, Details.weaktable)
 		local banned_healing_spells = {
-			[326514] = true, --remove on 10.0 - Forgeborne Reveries - necrolords ability
 		}
 	--energy
 		local energy_cache = setmetatable({}, Details.weaktable)
@@ -2325,13 +2324,17 @@
 			12/14 21:14:44.545  SPELL_SUMMON,Creature-0-4391-615-3107-15439-00001A8313,"Fire Elemental Totem",0x2112,0x0,Creature-0-4391-615-3107-15438-00001A8313,"Greater Fire Elemental",0x2112,0x0,32982,"Fire Elemental Totem",0x1
 			]]
 
+
 		if (isWOTLK or isCATA) then
 			if (npcId == 15439) then
 				petContainer.AddPet(petGuid:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags, summonSpellId)
 			elseif (npcId == 15438) then
 				return
 			end
-		end
+        -- Brann Bronzebeard in delves
+        elseif (npcId == 210759) then
+            return
+        end
 
 		--send the summonSpellId to spellcache in order to identify if the pet is from an item, for instance: a trinket
 		local newPetName = Details222.Pets.GetPetNameFromCustomSpells(petName, summonSpellId, npcId)
