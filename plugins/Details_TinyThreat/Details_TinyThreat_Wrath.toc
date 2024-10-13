@@ -5,10 +5,6 @@
 ## OptionalDeps: Ace3
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
-
 enUS.lua
 ptBR.lua
 

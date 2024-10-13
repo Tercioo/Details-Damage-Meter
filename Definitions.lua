@@ -181,8 +181,11 @@
 ---@field ListInstances fun(self: details) : instance[] return a table with all the instances
 ---@field UnpackMythicDungeonInfo fun(self: details, mythicDungeonInfo: mythicdungeoninfo) : boolean, segmentid, number, number, number, string, number, string, number, number, number unpack the mythic dungeon info and return the values
 ---@field CreateRightClickToCloseLabel fun(self: details, parent: frame) : df_label return a df_label with the text "Right click to close", need to set point
+---@field IsValidActor fun(self: details, actor: actor) : boolean return true if the actor is valid
 ---@field 
 ---@field 
+---@field 
+
 
 
 ---@class detailseventlistener : table
@@ -247,7 +250,7 @@
 ---@field training_dummy boolean if true, the combat is against a training dummy
 ---@field playerTalents table<actorname, string> [playerName] = "talent string"
 ---@field bossName string? the name of the boss, if the combat has no unitId "boss1", this value is nil
----@field 
+---@field context string? for the context manager
 ---@field 
 ---@field __call table
 ---@field __index table
@@ -257,12 +260,17 @@
 ---@field bossIcon texturepath|textureid
 ---@field bIsClosed boolean if true the combat is closed (passed by the EndCombat() function)
 ---@field __destroyedBy string
----@field amountCasts {[string]: table<string, number>}
+---@field amountCasts {[string]: table<string, number>} playername -> spellname -> amount
 ---@field instance_type instancetype "raid" or "party" or "pvp" or "arena" or "none" or "scenario"
----@field run_time number
+---@field run_time number mythic plus time without death penalties
+---@field elapsed_time number mythic plus total time
+---@field is_challenge boolean mythic plus challenge mode
+---@field total_segments_added number for a mythic+ overall segment, indicates how many segments were added
 ---@field start_time gametime
 ---@field end_time gametime
 ---@field combat_counter number
+---@field is_dungeon_overall boolean
+---@field combat_type number
 ---@field is_trash boolean while in raid this is set to true if the combat isn't raid boss, in dungeon this is set to true if the combat isn't a boss or if the dungeon isn't a mythic+
 ---@field is_boss bossinfo
 ---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
@@ -284,6 +292,7 @@
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
 ---@field LockActivityTime fun(self: combat)
+---@field AddCombat fun(self: combat, givingCombat: combat, bSetStartDate:boolean?, bSetEndDate:boolean?)
 ---@field CutDeathEventsByTime fun(self: combat, time: number?) remove death events by time, default 10 seconds
 ---@field GetTotal fun(self: combat, attribute: number, subAttribute: number?, onlyGroup: boolean?) : number return the total amount of the requested attribute
 ---@field GetCurrentPhase fun(self: combat) : number return the current phase of the combat or the phase where the combat ended
@@ -826,9 +835,22 @@
 ---@field StopTime fun(actor: actor) stop the time of the actor
 ---@field SetOrGetPauseState fun(actor: actor, bPause: boolean|nil) : boolean|nil set or get the pause state of the actor, if bPause is nil, then it will return the current pause state
 
+---@class instancedifficulty : table
+---@field DungeonNormal number
+---@field DungeonHeroic number
+---@field DungeonMythic number
+---@field DungeonMythicPlus number
+---@field RaidLFR number
+---@field RaidNormal number
+---@field RaidHeroic number
+---@field RaidMythic number
+
+
 ---@class details222 : table
 ---@field TimeMachine timemachine
 ---@field PetContainer petcontainer
+---@field InstanceDifficulty instancedifficulty
+---@field ContextManager contextmanager
 
 ---@class profile_breakdown_settings : table
 ---@field font_size number

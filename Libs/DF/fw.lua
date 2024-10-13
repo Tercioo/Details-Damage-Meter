@@ -1,6 +1,6 @@
 
 
-local dversion = 563
+local dversion = 572
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -40,6 +40,7 @@ local SPELLBOOK_BANK_PET = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.P
 local IsPassiveSpell = IsPassiveSpell or C_Spell.IsSpellPassive
 local GetOverrideSpell = C_SpellBook and C_SpellBook.GetOverrideSpell or C_Spell.GetOverrideSpell or GetOverrideSpell
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
+local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
 SMALL_NUMBER = 0.000001
 ALPHA_BLEND_AMOUNT = 0.8400251
@@ -929,8 +930,11 @@ end
 function DF.table.deploy(t1, t2)
 	for key, value in pairs(t2) do
 		if (type(value) == "table") then
-			t1[key] = t1[key] or {}
-			DF.table.deploy(t1[key], t2[key])
+			--check the t1 type as sometimes the key isn't the same type on both tables
+			if (t1[key] == nil or type(t1[key]) == "table") then
+				t1[key] = t1[key] or {}
+				DF.table.deploy(t1[key], t2[key])
+			end
 		elseif (t1[key] == nil) then
 			t1[key] = value
 		end
@@ -1840,12 +1844,14 @@ function DF:GetAllTalents()
 						local borderTypes = Enum.TraitNodeEntryType
 						if (traitEntryInfo.type) then -- == borderTypes.SpendCircle
 							local definitionId = traitEntryInfo.definitionID
-							local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
-							local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
-							local spellName, _, spellTexture = GetSpellInfo(spellId)
-							if (spellName) then
-								local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false}
-								allTalents[#allTalents+1] = talentInfo
+							if definitionId then
+								local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+								local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+								local spellName, _, spellTexture = GetSpellInfo(spellId)
+								if (spellName) then
+									local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false}
+									allTalents[#allTalents+1] = talentInfo
+								end
 							end
 						end
 					end
@@ -1863,7 +1869,7 @@ function DF:GetAvailableSpells()
     local completeListOfSpells = {}
 
     --this line might not be compatible with classic
-    --local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
+    local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
     --local classNameLoc, className, classId = UnitClass("player") --not in use
     local locPlayerRace, playerRace, playerRaceId = UnitRace("player")
 
@@ -1902,44 +1908,50 @@ function DF:GetAvailableSpells()
         end
     end
 
+	local spellBookPlayerEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
+
 	--get spells from the Spec spellbook
-	local amountOfTabs = GetNumSpellTabs()
-    for i = 2, amountOfTabs-1 do --starting at index 2 to ignore the general tab
+	for i = 1, GetNumSpellTabs() do --called "lines" in new v11 api
         local tabName, tabTexture, offset, numSpells, isGuild, offSpecId, shouldHide, specID = GetSpellTabInfo(i)
-		local bIsOffSpec = offSpecId ~= 0
-		offset = offset + 1
-		local tabEnd = offset + numSpells
-		for entryOffset = offset, tabEnd - 1 do
-			local spellType, spellId = GetSpellBookItemInfo(entryOffset, SPELLBOOK_BANK_PLAYER)
-			if (spellId) then
-				if (spellType == "SPELL") then
-					spellId = GetOverrideSpell(spellId)
-					local spellName = GetSpellInfo(spellId)
-					local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
-					if (spellName and not bIsPassive) then
-						completeListOfSpells[spellId] = bIsOffSpec == false
+		if (tabTexture == specIconTexture) then
+			offset = offset + 1
+			local tabEnd = offset + numSpells
+			--local bIsOffSpec = offSpecId ~= 0
+			for entryOffset = offset, tabEnd - 1 do
+				local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
+				if (spellId) then
+					if (spellType == "SPELL" or spellType == 1) then
+						spellId = GetOverrideSpell(spellId)
+						local spellName = GetSpellInfo(spellId)
+						local bIsPassive = IsPassiveSpell(entryOffset, spellBookPlayerEnum)
+						if (spellName and not bIsPassive) then
+							completeListOfSpells[spellId] = true --bIsOffSpec == false
+						end
 					end
 				end
 			end
 		end
     end
 
+	local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
+	local CONST_SPELLBOOK_GENERAL_TABID = 1
+
     --get class shared spells from the spell book
-	--[=[
-    local tabName, tabTexture, offset, numSpells, isGuild, offSpecId = GetSpellTabInfo(2)
-	local bIsOffSpec = offSpecId ~= 0
+	--[=
+    local tabName, tabTexture, offset, numSpells, isGuild, offSpecId = GetSpellTabInfo(CONST_SPELLBOOK_CLASSSPELLS_TABID)
     offset = offset + 1
     local tabEnd = offset + numSpells
+	--local bIsOffSpec = offSpecId ~= 0
     for entryOffset = offset, tabEnd - 1 do
-        local spellType, spellId = GetSpellBookItemInfo(entryOffset, "player")
+        local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
         if (spellId) then
-            if (spellType == "SPELL") then
+            if (spellType == "SPELL" or spellType == 1) then
                 spellId = GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
-                local bIsPassive = IsPassiveSpell(spellId, "player")
+                local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
 
 				if (spellName and not bIsPassive) then
-                    completeListOfSpells[spellId] = bIsOffSpec == false
+                    completeListOfSpells[spellId] = true --bIsOffSpec == false
                 end
             end
         end
@@ -1955,10 +1967,10 @@ function DF:GetAvailableSpells()
     local numPetSpells = getNumPetSpells()
     if (numPetSpells) then
         for i = 1, numPetSpells do
-            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, SPELLBOOK_BANK_PET)
+            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
             if (unmaskedSpellId) then
                 unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
-                local bIsPassive = IsPassiveSpell(unmaskedSpellId, SPELLBOOK_BANK_PET)
+                local bIsPassive = IsPassiveSpell(i, spellBookPetEnum)
                 if (spellName and not bIsPassive) then
                     completeListOfSpells[unmaskedSpellId] = true
                 end
@@ -4889,16 +4901,18 @@ function DF:GetCharacterTalents(bOnlySelected, bOnlySelectedHash)
 
 							if (traitEntryInfo.type) then -- == borderTypes.SpendCircle
 								local definitionId = traitEntryInfo.definitionID
-								local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
-								local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
-								local spellName, _, spellTexture = GetSpellInfo(spellId)
-								local bIsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false
-								if (spellName and bIsSelected) then
-									local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = true}
-									if (bOnlySelectedHash) then
-										talentList[spellId] = talentInfo
-									else
-										table.insert(talentList, talentInfo)
+								if definitionId then
+									local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+									local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+									local spellName, _, spellTexture = GetSpellInfo(spellId)
+									local bIsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false
+									if (spellName and bIsSelected) then
+										local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = true}
+										if (bOnlySelectedHash) then
+											talentList[spellId] = talentInfo
+										else
+											table.insert(talentList, talentInfo)
+										end
 									end
 								end
 							end
@@ -4995,11 +5009,12 @@ end
 
 function DF:AddRoleIconToText(text, role, size)
 	if (role and type(role) == "string") then
-		local coords = GetTexCoordsForRole(role)
+		local coords = roleTexcoord2[role]
 		if (coords) then
 			if (type(text) == "string" and role ~= "NONE") then
 				size = size or 14
-				text = "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. size .. ":" .. size .. ":0:0:256:256:" .. roleTexcoord[role] .. "|t " .. text
+				local coordsToString = floor(coords[1]*256) .. ":" .. floor(coords[2]*256) .. ":" .. floor(coords[3]*256) .. ":" .. floor(coords[4]*256)
+				text = "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. size .. ":" .. size .. ":0:0:256:256:" .. coordsToString .. "|t " .. text
 				return text
 			end
 		end
@@ -5451,6 +5466,7 @@ do
             --need to create the new object
             local newObject = self.newObjectFunc(self, unpack(self.payload))
             if (newObject) then
+				self.objectsCreated = self.objectsCreated + 0
 				table.insert(self.inUse, newObject)
 				if (self.onAcquire) then
 					DF:QuickDispatch(self.onAcquire, newObject)
@@ -5508,6 +5524,32 @@ do
 			return #self.notUse + #self.inUse, #self.notUse, #self.inUse
 		end
 
+	---@class df_pool : table
+	---@field objectsCreated number --amount of objects created
+	---@field inUse table[] --objects in use
+	---@field notUse table[] --objects not in use
+	---@field payload table --payload to be sent to the newObjectFunc
+	---@field onRelease fun(object:table) --function to be called when an object is released
+	---@field onReset fun(object:table) --function to be called when the pool is reset
+	---@field onAcquire fun(object:table) --function to be called when an object is acquired
+	---@field newObjectFunc fun(self:df_pool, ...):table --function to create a new object, it passes the pool and the payload
+	---@field PoolConstructor fun(self:df_pool, func:fun(object:table), ...:any) --constructor, in case to use an existing object to behave like a pool
+	---@field Get fun(self:df_pool):table --return an object from the pool
+	---@field Acquire fun(self:df_pool):table --alias for :Get()
+	---@field GetAllInUse fun(self:df_pool):table[] --return all objects in use
+	---@field Release fun(self:df_pool, object:table) --release a single object
+	---@field Reset fun(self:df_pool) --release all objects and calls OnReset function if any
+	---@field ReleaseAll fun(self:df_pool) --alias for :Reset()
+	---@field Hide fun(self:df_pool) --hide all objects in use by calling object:Hide()
+	---@field Show fun(self:df_pool) --show all objects in use by calling object:Show()
+	---@field GetAmount fun(self:df_pool):number, number, number --return the amount of objects in the pool in use + not in use, not in use, in use
+	---@field SetOnRelease fun(self:df_pool, func:fun(object:table)) --set a function to be called when an object is released
+	---@field SetCallbackOnRelease fun(self:df_pool, func:fun(object:table)) --set a function to be called when an object is released
+	---@field SetOnReset fun(self:df_pool, func:fun(object:table)) --set a function to be called when the pool is reset
+	---@field SetCallbackOnReleaseAll fun(self:df_pool, func:fun(object:table)) --alias for :SetOnReset()
+	---@field SetOnAcquire fun(self:df_pool, func:fun(object:table)) --set a function to be called when an object is acquired
+	---@field SetCallbackOnGet fun(self:df_pool, func:fun(object:table)) --alias for :SetOnAcquire()
+	---@field RunForInUse fun(self:df_pool, func:fun(object:table)) --run a function for each object in use
     local poolMixin = {
 		Get = get,
 		GetAllInUse = get_all_inuse,
@@ -5518,6 +5560,10 @@ do
 		Hide = hide,
 		Show = show,
 		GetAmount = getamount,
+
+		SetOnRelease = function(self, func)
+			self.onRelease = func
+		end,
 
 		SetCallbackOnRelease = function(self, func)
 			self.onRelease = func
@@ -5536,18 +5582,29 @@ do
 		SetCallbackOnGet = function(self, func)
 			self.onAcquire = func
 		end,
+
+		RunForInUse = function(self, func)
+			for i = 1, #self.inUse do
+				func(self.inUse[i])
+			end
+		end,
+
+		PoolConstructor = function(self, func, ...)
+			self.objectsCreated = 0
+			self.inUse = {}
+			self.notUse = {}
+			self.payload = {...}
+			self.newObjectFunc = func
+		end,
     }
 
+	DF.PoolMixin = poolMixin
+
     function DF:CreatePool(func, ...)
-        local t = {}
-        DetailsFramework:Mixin(t, poolMixin)
-
-        t.inUse = {}
-        t.notUse = {}
-        t.newObjectFunc = func
-        t.payload = {...}
-
-        return t
+        local newPool = {}
+        DetailsFramework:Mixin(newPool, poolMixin)
+		newPool:PoolConstructor(func, ...)
+        return newPool
 	end
 
 	--alias
@@ -5719,6 +5776,10 @@ function _G.__benchmark(bNotPrintResult)
 		print("Elapsed Time:", elapsed)
 		return elapsed
 	end
+end
+
+function DF:DebugTexture(texture, left, right, top, bottom)
+	return DF:PreviewTexture(texture, left, right, top, bottom)
 end
 
 function DF:PreviewTexture(texture, left, right, top, bottom)

@@ -1,4 +1,4 @@
-## Interface: 11503
+## Interface: 11504
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Незаменимый инструмент, чтобы произвести впечатление на цыпочку в вашем рейде.
@@ -70,6 +70,8 @@ functions\testbars.lua
 functions\warcraftlogs.lua
 functions\textures.lua
 functions\commentator.lua
+functions\chat_embed.lua
+functions\storage.lua
 
 core\aura_scan.lua
 core\timemachine.lua
@@ -122,6 +124,7 @@ frames\window_bookmark.lua
 frames\window_classcolor.lua
 frames\window_statistics.lua
 frames\window_debug.lua
+frames\window_pro_file.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua

@@ -586,6 +586,7 @@ local setColorProperties = function(parent, widget, widgetTable, currentXOffset,
 end
 
 local setExecuteProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset, template, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, textTemplate, latestInlineWidget)
+    ---@cast widget df_button
     widget._get = widgetTable.get
     widget.widget_type = "execute"
     widget:SetTemplate(template)
@@ -595,7 +596,7 @@ local setExecuteProperties = function(parent, widget, widgetTable, currentXOffse
 
     --button icon
     if (widgetTable.icontexture) then
-        widget:SetIcon(widgetTable.icontexture, nil, nil, nil, widgetTable.icontexcoords, nil, nil, 2)
+        widget:SetIcon(widgetTable.icontexture, widget:GetHeight()-2, widget:GetHeight()-2, nil, widgetTable.icontexcoords, nil, nil, 2)
     end
 
     textTemplate = widgetTable.text_template or textTemplate or detailsFramework.font_templates["ORANGE_FONT_TEMPLATE"]
@@ -1081,6 +1082,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
     local currentYOffset = yOffset or 0
     local maxColumnWidth = 0 --biggest width of widget + text size on the current column loop pass
     local maxWidgetWidth = 0 --biggest widget width on the current column loop pass
+    local canvasFrame = parent
 
     --which is the next widget to get from the pool
     local widgetIndexes = {
@@ -1297,6 +1299,12 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
             end
         end
     end
+    
+    if (bUseScrollFrame) then
+        canvasFrame:GetParent().RefreshOptions = function()
+            parent:RefreshOptions()
+        end
+    end
 
     detailsFramework.RefreshUnsafeOptionsWidgets()
     onMenuBuilt(parent)
@@ -1341,6 +1349,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
     local currentYOffset = yOffset or 0
     local maxColumnWidth = 0 --biggest width of widget + text size on the current column loop pass
     local maxWidgetWidth = 0 --biggest widget width on the current column loop pass
+    local canvasFrame = parent
 
     bHighlightColorOne = true
 
@@ -1602,6 +1611,9 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
     if (bUseScrollFrame) then
         parent:SetHeight(biggestColumnHeight * -1)
+        canvasFrame:GetParent().RefreshOptions = function()
+            parent:RefreshOptions()
+        end
     end
 
     detailsFramework.RefreshUnsafeOptionsWidgets()

@@ -86,7 +86,7 @@ function Details222.Pets.AkaarisSoulOwner(petGUID)
 		do
 			local ownerGUID = tooltipData.guid --tooltipData.guid seems to exists on all akari soul tooltips and point to the owner guid
 			if (ownerGUID) then
-				if (ownerGUID:find("^P")) then
+				if (ownerGUID:find("^Pl")) then
 					local playerGUID = ownerGUID
 					local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 					if (actorObject) then
@@ -108,7 +108,7 @@ function Details222.Pets.AkaarisSoulOwner(petGUID)
 					local lineData = tooltipData.lines[i]
 					if (lineData.unitToken) then --unit token seems to exists when the add belongs to the "player"
 						local ownerGUID = UnitGUID(lineData.unitToken)
-						if (ownerGUID and ownerGUID:find("^P")) then
+						if (ownerGUID and ownerGUID:find("^Pl")) then
 							local playerGUID = ownerGUID
 							local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 							if (actorObject) then
@@ -188,6 +188,9 @@ local unitNameTitles = {
 for i=1, #unitNameTitles do
     unitNameTitles[i] = unitNameTitles[i]:gsub('%%s', '(.*)')
 end
+
+--Add Demon to the list, attempt to localize it. There is no UNITNAME_TITLE_DEMON sadly, but I can try to swap out the word "Pet" for "Demon" using the localized names.
+unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYPE_DEMON)
 
 ---attempt to the owner of a pet using tooltip scan, if the owner isn't found, return nil
 ---@param petGUID string
@@ -291,7 +294,7 @@ end
 					do
 						local ownerGUID = tooltipData.guid --tooltipData.guid points to the player attributed to this tooltip.
 						if (ownerGUID) then --If we have an owner GUID, then we should make sure it starts with a P for Player and then attempt to find the owner object from the caches.
-							if (ownerGUID:find("^P")) then
+							if (ownerGUID:find("^Pl")) then
 								local playerGUID = ownerGUID
 								local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 								if (actorObject) then
@@ -320,7 +323,7 @@ end
 								local lineData = tooltipData.lines[i]
 								if (lineData.unitToken) then --unit token seems to exists when the add belongs to the "player"
 									local ownerGUID = UnitGUID(lineData.unitToken)
-									if (ownerGUID and ownerGUID:find("^P")) then
+									if (ownerGUID and ownerGUID:find("^Pl")) then
 										local playerGUID = ownerGUID
 										local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
 										if (actorObject) then
@@ -772,6 +775,7 @@ end
 
 			--does this actor has an owner? (a.k.a. is a pet)
 			elseif (ownerActorObject) then
+				local npcID = Details:GetNpcIdFromGuid(actorSerial)
 				actorObject.owner = ownerActorObject
 				actorObject.ownerName = ownerActorObject.nome
 
@@ -786,6 +790,12 @@ end
 			else
 				--anything else that isn't a player or a pet
 				actorObject.displayName = actorName
+				local npcID = Details:GetNpcIdFromGuid(actorSerial)
+				if (npcID) then
+					if (npcID == 210759 or npcID == 216287) then --210759 --flag 0x2111
+						actorObject.grupo = true
+					end
+				end
 			end
 
 			--check if is hostile
@@ -934,7 +944,7 @@ end
 				end
 			end
 
-		elseif (actorSerial:match("^P")) then
+		elseif (actorSerial:match("^Pl")) then
 			newActor.aID = actorSerial:gsub("Player%-", "")
 
 		else

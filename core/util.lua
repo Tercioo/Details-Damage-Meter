@@ -1288,7 +1288,7 @@ end
 
 		elseif (IsInGroup()) then
 			local unitIdCache = Details222.UnitIdCache.Party
-			for i = 1, GetNumGroupMembers()-1, 1 do
+			for i = 1, GetNumGroupMembers(), 1 do
 				if (UnitAffectingCombat(unitIdCache[i])) then
 					return true
 				end

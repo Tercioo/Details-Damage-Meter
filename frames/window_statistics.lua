@@ -10,6 +10,13 @@ local _
 --prefix used on sync statistics
 local CONST_GUILD_SYNC = "GS"
 
+local difficultyNames = {
+    ["normal"] = true,
+    ["heroic"] = true,
+    ["mythic"] = true,
+    ["raidfinder"] = true,
+}
+
 function Details:InitializeRaidHistoryWindow()
     local DetailsRaidHistoryWindow = CreateFrame("frame", "DetailsRaidHistoryWindow", UIParent,"BackdropTemplate")
     DetailsRaidHistoryWindow.Frame = DetailsRaidHistoryWindow
@@ -29,6 +36,13 @@ function Details:InitializeRaidHistoryWindow()
 end
 
 function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, playerRole, guildName, playerBase, playerName, historyType)
+    if (type(raidName) == "table") then
+        raidName = nil
+    end
+    if (guildName == "LeftButton") then
+        guildName = nil
+    end
+
     if (not DetailsRaidHistoryWindow or not DetailsRaidHistoryWindow.Initialized) then
 
         DetailsRaidHistoryWindow.Initialized = true
@@ -383,8 +397,8 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
 
         local buildRoleList = function()
             return {
-                {value = "damage", label = "Damager", icon = icon, onclick = onRoleSelect},
-                {value = "healing", label = "Healer", icon = icon, onclick = onRoleSelect}
+                {value = "DAMAGER", label = "Damager", icon = icon, onclick = onRoleSelect},
+                {value = "HEALER", label = "Healer", icon = icon, onclick = onRoleSelect}
             }
         end
 
@@ -453,6 +467,44 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
         local player2String = DF:CreateLabel(statisticsFrame, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] .. ":", _, _, "GameFontNormal", "select_player2_label")
         player2Dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
+        local fillDifficultyDropdown = function(difficulty)
+            --add the difficult to the dropdown
+            if (difficulty == "normal") then
+                local alreadyHave = false
+                for i, t in ipairs(difficultyList) do
+                    if (t.label == "Normal") then
+                        alreadyHave = true
+                    end
+                end
+                if (not alreadyHave) then
+                    table.insert(difficultyList, 1, {value = difficulty, label = "Normal", icon = icon, onclick = onDifficultySelect})
+                end
+
+            elseif (difficulty == "heroic") then
+                local alreadyHave = false
+                for i, t in ipairs(difficultyList) do
+                    if (t.label == "Heroic") then
+                        alreadyHave = true
+                    end
+                end
+                if (not alreadyHave) then
+                    table.insert(difficultyList, 1, {value = difficulty, label = "Heroic", icon = icon, onclick = onDifficultySelect})
+                end
+
+            elseif (difficulty == "mythic") then
+                local alreadyHave = false
+                for i, t in ipairs(difficultyList) do
+                    if (t.label == "Mythic") then
+                        alreadyHave = true
+                    end
+                end
+                if (not alreadyHave) then
+                    table.insert(difficultyList, {value = difficulty, label = "Mythic", icon = icon, onclick = onDifficultySelect})
+                end
+            end
+        end
+
+
         function statisticsFrame:UpdateDropdowns(bDoNotSelectRaid)
             local currentGuild = guildDropdown.value
 
@@ -472,54 +524,37 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
                 return
             end
 
-            --make a list of raids and bosses that belong to the current expansion
-            local bossIndexedTable, bossInfoTable, raidInfoTable = Details:GetExpansionBossList()
-            local allowedBosses = {}
-            for bossId, bossTable in pairs(bossInfoTable) do
-                allowedBosses[bossTable.dungeonEncounterID] = true --dungeonEncounterID is the id used in the encounter_start event
-            end
-
-            local allowedKeysForDifficulty = {
-                [14] = true, --normal
-                [15] = true, --heroic
-                [16] = true, --mythic
-                --[17] = true, --raid finder
-            }
+            ---@cast db details_storage
 
             local playerGuildName = GetGuildInfo("player")
-            --local playerGuildName = "Patifaria" --debug
 
             for difficulty, encounterIdTable in pairs(db) do
-                if (type(difficulty) == "number" and allowedKeysForDifficulty[difficulty]) then
-                    for dungeonEncounterID, encounterTable in pairs(encounterIdTable) do
-                        if (allowedBosses[dungeonEncounterID]) then
+                ---@cast difficulty details_raid_difficulties
+                if (difficultyNames[difficulty]) then
+                    ---@cast encounterIdTable table<encounterid, details_encounterkillinfo[]>
+                    for dungeonEncounterID, encounterKillsTable in pairs(encounterIdTable) do
+                        ---@cast encounterKillsTable details_encounterkillinfo[]
+                        if (Details222.EJCache.IsCurrentContent(dungeonEncounterID)) then
                             if (not bossRepeated[dungeonEncounterID]) then
-                                local encounter, instance = Details:GetBossEncounterDetailsFromEncounterId(nil, dungeonEncounterID) --deprecated
+                                ---@type details_encounterinfo
+                                local encounterInfo = Details:GetEncounterInfo(dungeonEncounterID)
+                                ---@type details_instanceinfo
+                                local instanceInfo = Details:GetInstanceInfo(encounterInfo and encounterInfo.instanceId)
 
-                                if (encounter) then
-                                    local instanceId = Details:GetInstanceIdFromEncounterId(dungeonEncounterID)
+                                if (encounterInfo and instanceInfo) then
+                                    local instanceId = instanceInfo.instanceId
                                     if (raidSelected == instanceId) then
-                                        table.insert(bossList, {value = dungeonEncounterID, label = encounter.boss, icon = icon, onclick = onSelectBoss})
+                                        table.insert(bossList, {value = dungeonEncounterID, label = encounterInfo.name, icon = encounterInfo.creatureIcon, onclick = onSelectBoss})
                                         bossRepeated[dungeonEncounterID] = true
                                     end
 
-                                    if (not raidRepeated[instance.name]) then
-                                        local raidData
-                                        for raidInstanceID, thisRaidData in pairs(raidInfoTable) do
-                                            if (thisRaidData.raidName == instance.name) then
-                                                raidData = thisRaidData
-                                                break
-                                            end
-                                        end
+                                    if (not raidRepeated[instanceInfo.name]) then
+                                        local instanceName = instanceInfo.name
+                                        local raidIcon = instanceInfo.icon
+                                        local raidIconCoords = instanceInfo.iconCoords
 
-                                        if (raidData) then
-                                            local instanceName = raidData.raidName
-                                            local raidIcon = raidData.raidIcon
-                                            local raidIconCoords = raidData.raidIconCoords
-
-                                            table.insert(raidList, {value = instance.id, label = instanceName, icon = raidIcon, texcoord = raidIconCoords, onclick = onRaidSelect})
-                                            raidRepeated[instance.name] = true
-                                        end
+                                        table.insert(raidList, {value = instanceInfo.instanceId, label = instanceName, icon = raidIcon, texcoord = raidIconCoords, onclick = onRaidSelect})
+                                        raidRepeated[instanceInfo.name] = true
                                     end
                                 end
                             end
@@ -531,7 +566,7 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
                                     guildRepeated[playerGuildName] = true
                                 end
                             else
-                                for index, encounter in ipairs(encounterTable) do
+                                for index, encounter in ipairs(encounterKillsTable) do
                                     local guild = encounter.guild
                                     if (not guildRepeated[guild]) then
                                         table.insert(guildList, {value = guild, label = guild, icon = icon, onclick = onGuildSelect})
@@ -541,39 +576,7 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
                             end
 
                             --add the difficult to the dropdown
-                            if (difficulty == 14) then
-                                local alreadyHave = false
-                                for i, t in ipairs(difficultyList) do
-                                    if (t.label == "Normal") then
-                                        alreadyHave = true
-                                    end
-                                end
-                                if (not alreadyHave) then
-                                    table.insert(difficultyList, 1, {value = difficulty, label = "Normal", icon = icon, onclick = onDifficultySelect})
-                                end
-
-                            elseif (difficulty == 15) then
-                                local alreadyHave = false
-                                for i, t in ipairs(difficultyList) do
-                                    if (t.label == "Heroic") then
-                                        alreadyHave = true
-                                    end
-                                end
-                                if (not alreadyHave) then
-                                    table.insert(difficultyList, 1, {value = difficulty, label = "Heroic", icon = icon, onclick = onDifficultySelect})
-                                end
-
-                            elseif (difficulty == 16) then
-                                local alreadyHave = false
-                                for i, t in ipairs(difficultyList) do
-                                    if (t.label == "Mythic") then
-                                        alreadyHave = true
-                                    end
-                                end
-                                if (not alreadyHave) then
-                                    table.insert(difficultyList, {value = difficulty, label = "Mythic", icon = icon, onclick = onDifficultySelect})
-                                end
-                            end
+                            fillDifficultyDropdown(difficulty)
                         end
                     end
                 end
@@ -583,6 +586,7 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
 
             difficultyDropdown:Refresh()
             guildDropdown:Refresh()
+
             if (not bDoNotSelectRaid) then
                 raidDropdown:Refresh()
             end
@@ -603,78 +607,36 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
 
                 bossDropdown:Select(1, true)
             end)
-        end
+        end --end of UpdateDropdowns()
 
         function statisticsFrame.UpdateBossDropdown()
-            local allowedKeysForDifficulty = {
-                [14] = true, --normal
-                [15] = true, --heroic
-                [16] = true, --mythic
-                --[17] = true, --raid finder
-            }
-
-            --make a list of raids and bosses that belong to the current expansion
-            local bossIndexedTable, bossInfoTable = Details:GetExpansionBossList()
-            local allowedBosses = {}
-            for bossId, bossTable in pairs(bossInfoTable) do
-                allowedBosses[bossTable.dungeonEncounterID] = true
-            end
-
             local raidSelected = DetailsRaidHistoryWindow.select_raid:GetValue()
             local bossRepeated = {}
             Details:Destroy(bossList)
             Details:Destroy(difficultyList)
 
             for difficulty, encounterIdTable in pairs(db) do
-                if (type(difficulty) == "number" and allowedKeysForDifficulty[difficulty]) then
-                    for dungeonEncounterID, encounterTable in pairs(encounterIdTable) do
-                        if (allowedBosses[dungeonEncounterID]) then
+                ---@cast difficulty details_raid_difficulties
+                if (difficultyNames[difficulty]) then
+                    ---@cast encounterIdTable table<encounterid, details_encounterkillinfo[]>
+                    for dungeonEncounterID, encounterKillsTable in pairs(encounterIdTable) do
+                        if (Details222.EJCache.IsCurrentContent(dungeonEncounterID)) then
                             if (not bossRepeated[dungeonEncounterID]) then
-                                local encounter, instance = Details:GetBossEncounterDetailsFromEncounterId(nil, dungeonEncounterID) --deprecated
+                                ---@type details_encounterinfo
+                                local encounterInfo = Details:GetEncounterInfo(dungeonEncounterID)
+                                ---@type details_instanceinfo
+                                local instanceInfo = Details:GetInstanceInfo(encounterInfo and encounterInfo.instanceId)
 
-                                if (encounter) then
-                                    local instanceId = Details:GetInstanceIdFromEncounterId(dungeonEncounterID)
-                                    if (raidSelected == instanceId) then
-                                        table.insert(bossList, {value = dungeonEncounterID, label = encounter.boss, icon = icon, onclick = onSelectBoss})
+                                if (encounterInfo and instanceInfo) then
+                                    if (raidSelected == instanceInfo.instanceId) then
+                                        table.insert(bossList, {value = dungeonEncounterID, label = encounterInfo.name, icon = encounterInfo.creatureIcon, onclick = onSelectBoss})
                                         bossRepeated[dungeonEncounterID] = true
                                     end
                                 end
                             end
 
                             --add the difficult to the dropdown
-                            if (difficulty == 14) then
-                                local alreadyHave = false
-                                for i, t in ipairs(difficultyList) do
-                                    if (t.label == "Normal") then
-                                        alreadyHave = true
-                                    end
-                                end
-                                if (not alreadyHave) then
-                                    table.insert(difficultyList, 1, {value = difficulty, label = "Normal", icon = icon, onclick = onDifficultySelect})
-                                end
-
-                            elseif (difficulty == 15) then
-                                local alreadyHave = false
-                                for i, t in ipairs(difficultyList) do
-                                    if (t.label == "Heroic") then
-                                        alreadyHave = true
-                                    end
-                                end
-                                if (not alreadyHave) then
-                                    table.insert(difficultyList, 1, {value = difficulty, label = "Heroic", icon = icon, onclick = onDifficultySelect})
-                                end
-
-                            elseif (difficulty == 16) then
-                                local alreadyHave = false
-                                for i, t in ipairs(difficultyList) do
-                                    if (t.label == "Mythic") then
-                                        alreadyHave = true
-                                    end
-                                end
-                                if (not alreadyHave) then
-                                    table.insert(difficultyList, {value = difficulty, label = "Mythic", icon = icon, onclick = onDifficultySelect})
-                                end
-                            end
+                            fillDifficultyDropdown(difficulty)
                         end
                     end
                 end
@@ -708,28 +670,34 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
         player2String:Hide()
         player2Dropdown:Hide()
 
-        --refresh the window:
+        ---@class details_stats_gframe_data
+        ---@field text string
+        ---@field value number
+        ---@field utext string
+        ---@field data details_storage_unitresult
+        ---@field fulldate string
+        ---@field elapsed number
 
-        function statisticsFrame:BuildPlayerTable(playerName)
+        function statisticsFrame:BuildPlayerTable(thisPlayerName)
+            local encounterTable, selectedGuildName, role = unpack(statisticsFrame.build_player2_data or {})
+            ---@cast encounterTable details_encounterkillinfo[]
 
-            local encounterTable, guild, role = unpack(statisticsFrame.build_player2_data or {})
+            ---@type details_stats_gframe_data[]
             local data = {}
 
-            if (type(playerName) == "string" and string.len(playerName) > 1) then
-                for encounterIndex, encounter in ipairs(encounterTable) do
-                    if (encounter.guild == guild) then
-                        local roleTable = encounter [role]
+            if (type(thisPlayerName) == "string" and string.len(thisPlayerName) > 1) then
+                for encounterIndex, encounterKillInfo in ipairs(encounterTable) do
+                    if (encounterKillInfo.guild == selectedGuildName) then
+                        ---@type table<string, details_storage_unitresult>
+                        local roleTable = encounterKillInfo[role]
 
-                        local date = encounter.date
+                        local date = encounterKillInfo.date
                         date = date:gsub(".*%s", "")
-                        date = date:sub (1, -4)
+                        date = date:sub(1, -4)
 
-                        local player = roleTable [playerName]
-
-                        if (player) then
-
-                            --tinsert(data, {text = date, value = player[1], data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
-                            table.insert(data, {text = date, value = player[1]/encounter.elapsed, utext = Details:ToK2 (player[1]/encounter.elapsed), data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
+                        local playerTable = roleTable[thisPlayerName]
+                        if (playerTable) then
+                            table.insert(data, {text = date, value = playerTable.total, utext = Details:ToK2(playerTable.total/encounterKillInfo.elapsed), data = playerTable, fulldate = encounterKillInfo.date, elapsed = encounterKillInfo.elapsed})
                         end
                     end
                 end
@@ -741,10 +709,13 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
                         GameCooltip:SetType("tooltip")
                         GameCooltip:Preset(2)
 
-                        GameCooltip:AddLine("Total Done:", Details:ToK2 (self.data.value), 1, "white")
-                        GameCooltip:AddLine("Dps:", Details:ToK2 (self.data.value / self.data.elapsed), 1, "white")
-                        GameCooltip:AddLine("Item Level:", floor(self.data.data [2]), 1, "white")
-                        GameCooltip:AddLine("Date:", self.data.fulldate:gsub(".*%s", ""), 1, "white")
+                        ---@type details_stats_gframe_data
+                        local thisData = self.data
+
+                        GameCooltip:AddLine("Total Done:", Details:ToK2(thisData.value), 1, "white")
+                        GameCooltip:AddLine("Dps:", Details:ToK2(thisData.value / thisData.elapsed), 1, "white")
+                        GameCooltip:AddLine("Item Level:", floor(thisData.data.itemLevel), 1, "white")
+                        GameCooltip:AddLine("Date:", thisData.fulldate:gsub(".*%s", ""), 1, "white")
 
                         GameCooltip:SetOwner(self.ball.tooltip_anchor)
                         GameCooltip:Show()
@@ -766,69 +737,91 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
         local fillpanel = DF:NewFillPanel(statisticsFrame, {}, "$parentFP", "fillpanel", 710, 501, false, false, true, nil)
         fillpanel:SetPoint("topleft", statisticsFrame, "topleft", 195, -65)
 
-        function statisticsFrame:BuildGuildRankTable(encounterTable, guild, role)
+        function statisticsFrame:BuildGuildRankTable(encounterKillsTable, selectedGuildName, role)
+            local header = {
+                {name = "Player Name", type = "text"},
+                {name = "Per Second", type = "text"},
+                {name = "Total", type = "text"},
+                {name = "Length", type = "text"},
+                {name = "Item Level", type = "text"},
+                {name = "Date", type = "text"}
+            }
 
-            local header = {{name = "Player Name", type = "text"}, {name = "Per Second", type = "text"}, {name = "Total", type = "text"}, {name = "Length", type = "text"}, {name = "Item Level", type = "text"}, {name = "Date", type = "text"}}
+            ---@cast encounterKillsTable details_encounterkillinfo[]
+
+            --print(encounterTable, guild, role)
+            --dumpt(encounterKillsTable) --encounterTable is empty at the first run when the panel is shown, coorect data after selecting a dropdown
+
             local players = {}
             local players_index = {}
 
+            ---@type table<unitname, details_stats_playerinfo>
             local playerScore = {}
 
+            ---@class details_stats_playerinfo
+            ---@field total number
+            ---@field ps number
+            ---@field ilvl number
+            ---@field date string
+            ---@field class number
+            ---@field length number
+
             --get the best of each player
-            for encounterIndex, encounter in ipairs(encounterTable) do
-                if (encounter.guild == guild) then
-                    local roleTable = encounter[role]
+            for encounterIndex, encounterKillInfo in ipairs(encounterKillsTable) do
+                if (encounterKillInfo.guild == selectedGuildName) then
+                    local roleTable = encounterKillInfo[role]
 
-                    local date = encounter.date
+                    local date = encounterKillInfo.date
                     date = date:gsub(".*%s", "")
-                    date = date:sub (1, -4)
+                    date = date:sub(1, -4)
 
-                    for playerName, playerTable in pairs(roleTable) do
-                        if (not playerScore[playerName]) then
-                            playerScore [playerName] = {
+                    ---@cast roleTable table<actorname, details_storage_unitresult>
+
+                    for thisPlayerName, playerTable in pairs(roleTable) do
+                        if (not playerScore[thisPlayerName]) then
+                            playerScore[thisPlayerName] = {
                                 total = 0,
                                 ps = 0,
                                 ilvl = 0,
-                                date = 0,
+                                date = "",
                                 class = 0,
                                 length = 0,
                             }
                         end
 
-                        local total = playerTable [1]
-                        local dps = total / encounter.elapsed
+                        local total = playerTable.total
+                        local dps = total / encounterKillInfo.elapsed
 
-                        --if (total > playerScore [playerName].total) then
-                        if (dps > playerScore[playerName].ps) then
-                            playerScore[playerName].total = total
-                            playerScore[playerName].ps = total / encounter.elapsed
-                            playerScore[playerName].ilvl = playerTable [2]
-                            playerScore[playerName].length = encounter.elapsed
-                            playerScore[playerName].date = date
-                            playerScore[playerName].class = playerTable [3]
+                        if (dps > playerScore[thisPlayerName].ps) then
+                            playerScore[thisPlayerName].total = total
+                            playerScore[thisPlayerName].ps = total / encounterKillInfo.elapsed
+                            playerScore[thisPlayerName].ilvl = playerTable.itemLevel
+                            playerScore[thisPlayerName].length = encounterKillInfo.elapsed
+                            playerScore[thisPlayerName].date = date
+                            playerScore[thisPlayerName].class = playerTable.classId
                         end
                     end
                 end
             end
 
             local sortTable = {}
-            for playerName, t in pairs(playerScore) do
-                local className = select(2, GetClassInfo(t.class or 0))
+            for thisPlayerName, playerInfo in pairs(playerScore) do
+                local className = select(2, GetClassInfo(playerInfo.class or 0))
                 local classColor = "FFFFFFFF"
                 if (className) then
                     classColor = RAID_CLASS_COLORS[className] and RAID_CLASS_COLORS[className].colorStr
                 end
 
-                local playerNameFormated = Details:GetOnlyName(playerName)
+                local playerNameFormated = Details:GetOnlyName(thisPlayerName)
                 table.insert(sortTable, {
                     "|c" .. classColor .. playerNameFormated .. "|r",
-                    Details:comma_value (t.ps),
-                    Details:ToK2 (t.total),
-                    DF:IntegerToTimer(t.length),
-                    floor(t.ilvl),
-                    t.date,
-                    t.total,
-                    t.ps,
+                    Details:ToK2(playerInfo.ps),
+                    Details:ToK2(playerInfo.total),
+                    DF:IntegerToTimer(playerInfo.length),
+                    floor(playerInfo.ilvl),
+                    playerInfo.date,
+                    playerInfo.total,
+                    playerInfo.ps,
                 })
             end
 
@@ -848,50 +841,56 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
             statisticsFrame.LatestResourceTable = sortTable
         end
 
-        function statisticsFrame:BuildRaidTable(encounterTable, guild, role)
+        ---@param encounterKillsTable details_encounterkillinfo[]
+        ---@param selectedGuildName string
+        ---@param role string
+        function statisticsFrame:BuildRaidTable(encounterKillsTable, selectedGuildName, role)
             if (statisticsFrame.Mode == 2) then
-                statisticsFrame:BuildGuildRankTable(encounterTable, guild, role)
+                statisticsFrame:BuildGuildRankTable(encounterKillsTable, selectedGuildName, role)
                 return
             end
 
             local header = {{name = "Player Name", type = "text"}} -- , width = 90
             local players = {}
-            local players_index = {}
-            local player_class = {}
-            local amt_encounters = 0
 
-            for encounterIndex, encounter in ipairs(encounterTable) do
-                if (encounter.guild == guild) then
-                    local roleTable = encounter [role]
+            ---@type table<unitname, number>
+            local playerIndex = {}
 
-                    local date = encounter.date
+            ---@type table<unitname, number>
+            local playerClassTable = {}
+
+            local encounterAmount = 0
+
+            for encounterIndex, encounterKillInfo in ipairs(encounterKillsTable) do
+                if (encounterKillInfo.guild == selectedGuildName) then
+                    ---@type table<actorname, details_storage_unitresult>
+                    local roleTable = encounterKillInfo[role]
+
+                    local date = encounterKillInfo.date
                     date = date:gsub(".*%s", "")
-                    date = date:sub (1, -4)
-                    amt_encounters = amt_encounters + 1
+                    date = date:sub(1, -4)
+                    encounterAmount = encounterAmount + 1
 
                     table.insert(header, {name = date, type = "text"})
 
-                    for playerName, playerTable in pairs(roleTable) do
-                        local index = players_index [playerName]
-                        local player
+                    for thisPlayerName, playerTable in pairs(roleTable) do
+                        local index = playerIndex[thisPlayerName]
 
                         if (not index) then
-                            player = {playerName}
-                            player_class [playerName] = playerTable [3]
-                            for i = 1, amt_encounters-1 do
-                                table.insert(player, "")
+                            local playerInfo = {thisPlayerName}
+                            playerClassTable[thisPlayerName] = playerTable.classId
+                            for i = 1, encounterAmount-1 do
+                                table.insert(playerInfo, "")
                             end
-                            table.insert(player, Details:ToK2 (playerTable [1] / encounter.elapsed))
-                            table.insert(players, player)
-                            players_index [playerName] = #players
-
-                            --print("not index", playerName, amt_encounters, date, 2, amt_encounters-1)
+                            table.insert(playerInfo, Details:ToK2(playerTable.total / encounterKillInfo.elapsed))
+                            table.insert(players, playerInfo)
+                            playerIndex[thisPlayerName] = #players
                         else
-                            player = players [index]
-                            for i = #player+1, amt_encounters-1 do
+                            local player = players[index]
+                            for i = #player+1, encounterAmount-1 do
                                 table.insert(player, "")
                             end
-                            table.insert(player, Details:ToK2 (playerTable [1] / encounter.elapsed))
+                            table.insert(player, Details:ToK2(playerTable.total / encounterKillInfo.elapsed))
                         end
 
                     end
@@ -899,62 +898,79 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
             end
 
             --sort alphabetical
-            table.sort (players, function(a, b) return a[1] < b[1] end)
+            table.sort(players, function(a, b) return a[1] < b[1] end)
 
             for index, playerTable in ipairs(players) do
-                for i = #playerTable, amt_encounters do
+                for i = #playerTable, encounterAmount do
                     table.insert(playerTable, "")
                 end
 
-                local className = select(2, GetClassInfo (player_class [playerTable [1]] or 0))
+                local className = select(2, GetClassInfo(playerClassTable[playerTable[1]] or 0))
                 if (className) then
                     local playerNameFormated = Details:GetOnlyName(playerTable[1])
-                    local classColor = RAID_CLASS_COLORS [className] and RAID_CLASS_COLORS [className].colorStr
+                    local classColor = RAID_CLASS_COLORS[className] and RAID_CLASS_COLORS[className].colorStr
                     playerTable [1] = "|c" .. classColor .. playerNameFormated .. "|r"
                 end
             end
 
-            fillpanel:SetFillFunction (function(index) return players [index] end)
-            fillpanel:SetTotalFunction (function() return #players end)
+            fillpanel:SetFillFunction(function(index) return players [index] end)
+            fillpanel:SetTotalFunction(function() return #players end)
 
-            fillpanel:UpdateRows (header)
+            fillpanel:UpdateRows(header)
 
             fillpanel:Refresh()
             fillpanel:SetPoint("topleft", statisticsFrame, "topleft", 200, -65)
         end
 
-        function statisticsFrame:Refresh (player_name)
+        function statisticsFrame:Refresh(player_name) --called when any dropdown is selected
             --build the main table
             local diff = difficultyDropdown.value
             local boss = bossDropdown.value
             local role = role_dropdown.value
-            local guild = guildDropdown.value
+            local selectedGuildName = guildDropdown.value
             local player = player_dropdown.value
 
-            local diffTable = db [diff]
+            ---@type table<number, details_encounterkillinfo[]>
+            local encounterIdTable = db[diff]
 
             statisticsFrame:SetBackgroundImage(boss)
 
-            if (diffTable) then
-                local encounters = diffTable[boss]
-                if (encounters) then
+--[=[                if (difficultyNames[difficulty]) then
+                    ---@cast encounterIdTable table<encounterid, details_encounterkillinfo[]>
+                    for dungeonEncounterID, encounterKillsTable in pairs(encounterIdTable) do
+                        if (Details222.EJCache.IsCurrentContent(dungeonEncounterID)) then
+                            if (not bossRepeated[dungeonEncounterID]) then
+                                ---@type details_encounterinfo
+                                local encounterInfo = Details:GetEncounterInfo(dungeonEncounterID)
+                                ---@type details_instanceinfo
+                                local instanceInfo = Details:GetInstanceInfo(encounterInfo and encounterInfo.instanceId)
+]=]
+
+
+            if (encounterIdTable) then
+                local encounterKillsTable = encounterIdTable[boss]
+                if (encounterKillsTable) then
                     if (player == 1) then --raid
                         fillpanel:Show()
+
                         if (statisticsFrame.gframe) then
                             statisticsFrame.gframe:Hide()
                         end
+
                         player2String:Hide()
                         player2Dropdown:Hide()
-                        statisticsFrame:BuildRaidTable(encounters, guild, role)
+                        statisticsFrame:BuildRaidTable(encounterKillsTable, selectedGuildName, role) --calling here
 
                     elseif (player == 2) then --only one player
                         fillpanel:Hide()
+
                         if (statisticsFrame.gframe) then
                             statisticsFrame.gframe:Show()
                         end
+
                         player2String:Show()
                         player2Dropdown:Show()
-                        statisticsFrame.build_player2_data = {encounters, guild, role}
+                        statisticsFrame.build_player2_data = {encounterKillsTable, selectedGuildName, role}
                         player2Dropdown:Refresh()
 
                         player_name = statisticsFrame.latest_player_selected or player_name
@@ -975,7 +991,7 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
                         end
                         player2String:Hide()
                         player2Dropdown:Hide()
-                        statisticsFrame:BuildRaidTable ({}, guild, role)
+                        statisticsFrame:BuildRaidTable({}, selectedGuildName, role)
 
                     elseif (player == 2) then --only one player
                         fillpanel:Hide()
@@ -984,7 +1000,7 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
                         end
                         player2String:Show()
                         player2Dropdown:Show()
-                        statisticsFrame.build_player2_data = {{}, guild, role}
+                        statisticsFrame.build_player2_data = {{}, selectedGuildName, role}
                         player2Dropdown:Refresh()
                         player2Dropdown:Select(1, true)
                         statisticsFrame:BuildPlayerTable (player2Dropdown.value)
@@ -1013,6 +1029,9 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
         end
 
     if (statsWindow.FirstRun) then
+        if (type(Details.rank_window.last_difficulty) == "number") then
+            Details.rank_window.last_difficulty = "normal"
+        end
         difficultyId = Details.rank_window.last_difficulty or difficultyId
 
         if (IsInGuild()) then
@@ -1048,6 +1067,14 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
             statsWindow.HistoryCheckBox:SetValue(false)
         end
     end
+
+    print("raidName", raidName)
+    print("bossEncounterId", bossEncounterId)
+    print("difficultyId", difficultyId)
+    print("playerRole", playerRole)
+    print("guildName", guildName)
+    print("playerBase", playerBase)
+    print("playerName", playerName)
 
     if (raidName) then
         statsWindow.select_raid:Select(raidName)
@@ -1086,7 +1113,7 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
     if (playerName) then
         statsWindow.select_player2:Refresh()
         statsWindow.select_player2:Select(playerName)
-        statsWindow:Refresh (playerName)
+        statsWindow:Refresh(playerName)
     end
 
     DetailsPluginContainerWindow.OpenPlugin(statsWindow)

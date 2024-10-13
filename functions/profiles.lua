@@ -1100,6 +1100,7 @@ local default_profile = {
 			quick_detection = false,
 			faster_updates = false,
 			use_animation_accel = true,
+			no_helptips = false,
 		},
 
 	--tooltip
@@ -1652,7 +1653,7 @@ local default_global_data = {
 				grow_direction = "left",
 			},
 
-			autoclose_time = 40,
+			autoclose_time = 90,
 
 			mythicrun_time_type = 1, --1: combat time (the amount of time the player is in combat) 2: run time (the amount of time it took to finish the mythic+ run)
 		}, --implementar esse time_type quando estiver dando refresh na janela
@@ -1707,6 +1708,10 @@ local default_global_data = {
 		exp90temp = {
 			delete_damage_TCOB = true, --delete damage on the concil of blood encounter
 		},
+
+	third_party = {
+		openraid_notecache = {},
+	},
 }
 
 Details.default_global_data = default_global_data

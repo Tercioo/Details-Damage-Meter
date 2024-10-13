@@ -477,7 +477,12 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             local event = events [i]
 
             local evType = event [1]
-            local hp = min (floor(event [5] / maxHP * 100), 100)
+
+            local healthPercent = floor(event[5] * 100)
+            if (healthPercent > 100) then
+                healthPercent = 100
+            end
+
             local spellName, _, spellIcon = Details.GetSpellInfo(event [2])
             local amount = event [3]
             local eventTime = event [4]
@@ -563,8 +568,8 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                         line.amount:SetText("-" .. floor(amount))
                     end
 
-                    line.lifePercent:SetText(hp .. "%")
-                    line.lifeStatusBar:SetWidth(line:GetWidth() * (hp/100))
+                    line.lifePercent:SetText(healthPercent .. "%")
+                    line.lifeStatusBar:SetWidth(line:GetWidth() * (healthPercent/100))
 
                     line.spellid = event [2]
 

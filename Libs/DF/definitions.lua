@@ -134,6 +134,7 @@
 ---@field KeybindMixin df_keybindmixin
 ---@field ScriptHookMixin df_scripthookmixin
 ---@field EditorMixin df_editormixin
+---@field PoolMixin df_pool
 ---@field ScrollBoxFunctions df_scrollboxmixin
 ---@field ClassCache {ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[] only available after calling GetClassList()
 ---@field Math df_math
@@ -324,6 +325,7 @@
 ---@field GetAsianNumberSymbols fun(self:table) : string, string, string return the abbreviation for 1,000 10,000 and 100,000,000
 ---@field GetBestFontForLanguage fun(self:table, languageId:string?, western:string?, cyrillic:string?, china:string?, korean:string?, taiwan:string?) : string
 ---@field CreateGlowOverlay fun(self:table, parent:frame, antsColor:any, glowColor:any) : frame
+---@field CreateSimpleFrame fun(self:table, parent:frame, width:number?, height:number?, title:string?, frameName:string?, panelOptions:table?, savedVariableTable:table?) : simplepanel
 ---@field CreateAnts fun(self:table, parent:frame, antTable:df_anttable, leftOffset:number?, rightOffset:number?, topOffset:number?, bottomOffset:number?) : frame
 ---@field CreateBorder fun(self:table, parent:frame, alpha1:number?, alpha2:number?, alpha3:number?) : frame
 ---@field CreateMenuWithGridScrollBox fun(self:table, parent:frame, name:string?, refreshMeFunc:function, refreshButtonFunc:function, clickFunc:function, onCreateButton:function, gridScrollBoxOptions:df_gridscrollbox_options) : df_gridscrollbox create a scrollbox with a grid layout to be used as a menu
@@ -336,6 +338,13 @@
 ---@field CreateTimeBar fun(self:table, parent:frame, texture:texturepath|textureid, width:number?, height:number?, value:number?, member:string?, name:string?) : df_timebar
 ---@field CreatePool fun(self:table, func:function, ...) : table
 ---@field CreateObjectPool fun(self:table, func:function, ...) : table alias of CreatePool
+---@field GetRoleIconAndCoords fun(self:table, role:string) : string, number, number, number, number return the texture path and texcoords for a role
+---@field AddRoleIconToText fun(self:table, text:string, role:string, size:number?) : string add a role icon to a text using escape codes
+---@field GetRoleTCoordsAndTexture fun(self:table, roleID:number) : number, number, number, number, string
+---@field AddColorToText fun(self:table, text:string, color:any) : string wrap text with a color
+---@field AddClassColorToText fun(self:table, text:string, className:string) : string wrap text with a class color
+---@field CreateSimplePanel fun(self:table, parent:frame, width:number?, height:number?, title:string?, frameName:string?, panelOptions:table?, savedVariableTable:table?) : simplepanel
+---@field MakeDraggable fun(self:table, frame:frame) : nil
 
 
 --[=[

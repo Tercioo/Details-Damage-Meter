@@ -310,6 +310,12 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 		self.button.text:SetText(text)
 	end
 
+	---set the text shown on the button and truncate it if it's too long
+	function ButtonMetaFunctions:SetTextTruncated(text, maxWidth)
+		self.button.text:SetText(text)
+		detailsFramework:TruncateText(self.button.text, maxWidth)
+	end
+
 	---set the color of the button text
 	---@param ... any
 	function ButtonMetaFunctions:SetTextColor(...)
@@ -897,6 +903,7 @@ end
 	---@field SetFontSize fun(self: df_button, size: number) set the button font size
 	---@field SetTextColor fun(self: df_button, color: any) set the button text color
 	---@field SetText fun(self: df_button, text: string) set the button text
+	---@field SetTextTruncated fun(self: df_button, text: string, maxWidth: number) set the button text and truncate it if it's too long
 	---@field SetClickFunction fun(self: df_button, func: function, param1: any, param2: any, clickType: "left"|"right"|nil)
 	---@field SetIconFilterMode fun(self: df_button, filterMode: any) set the filter mode for the icon, execute after SetIcon()
 

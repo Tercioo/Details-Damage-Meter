@@ -7,6 +7,8 @@ local Graphics = LibStub:GetLibrary("LibGraph-2.0")
 local ipairs = ipairs
 local _GetSpellInfo = Details.getspellinfo
 local unpack = unpack
+
+---@type detailsframework
 local detailsFramework = DetailsFramework
 local CreateFrame = CreateFrame
 local GameCooltip = GameCooltip
@@ -137,7 +139,7 @@ function encounterDetails:ShowChartFrame()
                 --check if this is a valid chart data
                 if (thisChartData and thisChartData.max_value and thisChartData.max_value > 0) then
                     local tryNumber = thisCombatObject.is_boss.try_number or i
-                    multiChartPanel:AddData(thisChartData, smoothnessLevel, "Try #" .. tryNumber, chartLineColors[chartIndex])
+                    multiChartPanel:AddData(thisChartData, nil, smoothnessLevel, "Try #" .. tryNumber, chartLineColors[chartIndex])
                     multiChartPanel:SetXAxisData(elapsedTime)
                     chartIndex = chartIndex + 1
                 end
@@ -154,7 +156,7 @@ function encounterDetails:ShowChartFrame()
 
     encounterDetails:UpdatePhaseIndicators(multiChartPanel, combatObject)
 
-    multiChartPanel:AddData(currentChartData, smoothnessLevel, "current", chartLineColors[1])
+    multiChartPanel:AddData(currentChartData, nil, smoothnessLevel, "current", chartLineColors[1])
     multiChartPanel:SetXAxisData(combatObject:GetCombatTime())
     multiChartPanel:Plot()
     multiChartPanel:Show()

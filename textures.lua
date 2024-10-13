@@ -221,6 +221,19 @@ Details.TextureAtlas = {
         nativeHeight = 16,
     },
 
+    ["segment-icon-dungeon-overall"] = {
+        file = [[Interface\QUESTFRAME\UI-Quest-BulletPoint]],
+        width = 16,
+        height = 16,
+        leftTexCoord = 0,
+        rightTexCoord = 1,
+        topTexCoord = 0,
+        bottomTexCoord = 1,
+        colorName = "MAGE",
+        nativeWidth = 16,
+        nativeHeight = 16,
+    },
+
     ["broom"] = {
         file = [[Interface\AddOns\Details\images\icons]],
         width = 44,

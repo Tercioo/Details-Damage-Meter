@@ -1100,6 +1100,7 @@ detailsFramework.KeybindMixin = {
 			if (self.options.show_spells) then
 				--the a list of all spells
 				local allPlayerSpells = detailsFramework:GetAvailableSpells()
+
 				--bIsAvailable is a boolean that tells if the spell is from the spec the player is currently using (spells grayed out on the spellbook would be false here)
 				for spellId, bIsAvailable in pairs(allPlayerSpells) do
 					local spellName, _, spellIcon = GetSpellInfo(spellId)

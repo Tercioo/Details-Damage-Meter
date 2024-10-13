@@ -808,7 +808,7 @@ end
 		local spellId = @SPELLID@
 		local spellName
 		if (spellId) then
-			spellName = select(1, GetSpellInfo(spellId))
+			spellName = select(1, Details.GetSpellInfo(spellId))
 		end
 
 		---@type actorcontainer
@@ -866,7 +866,7 @@ end
 					for playerName, friendlyFireTable in pairs(actorObject.friendlyfire) do
 						---@cast friendlyFireTable friendlyfiretable
 						for ffSpellId, damageAmount in pairs(friendlyFireTable.spells) do
-							local ffSpellName = select(1, GetSpellInfo(ffSpellId))
+							local ffSpellName = select(1, Details.GetSpellInfo(ffSpellId))
 							if (ffSpellName == spellName) then
 								---@type actordamage
 								local damageActor = damageContainer:GetActor(playerName)
@@ -941,7 +941,7 @@ end
 			if (not bIsCustomSpell) then
 				for thisSpellId, spellTable in pairs(actorObject.spells._ActorTable) do
 					if (thisSpellId ~= spellId) then --this is invalid
-						local spellname = select(1, GetSpellInfo(thisSpellId))
+						local spellname = select(1, Details.GetSpellInfo(thisSpellId))
 						if (spellname == spellName) then
 							for targetName, damageAmount in pairs(spellTable.targets) do
 								local got = false
@@ -2581,8 +2581,8 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 	return Details:EndRefresh(instanceObject, total, combatObject, damageContainer) --retorna a tabela que precisa ganhar o refresh
 end
 
---[[exported]] function Details:AutoAlignInLineFontStrings()
-
+--self is instance
+function Details:AutoAlignInLineFontStrings()
 	--if this instance is using in line texts, check the min distance and the length of strings to make them more spread appart
 	if (self.use_multi_fontstrings and self.use_auto_align_multi_fontstrings) then
 		local maxStringLength_StringFour = 0
@@ -3046,7 +3046,7 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 	return self:RefreshLineValue(thisLine, instanceObject, previousData, bForceRefresh, percentNumber, bUseAnimations, total, instanceObject.top)
 end
 
----show an extra statusbar on the line, after the main statusbar
+---show an extra statusbar on the line, after the main statusbar ~extra ~statusbar
 ---@param thisLine table
 ---@param amount valueamount
 ---@param extraAmount valueamount
@@ -3510,7 +3510,7 @@ function Details:RefreshBarra(thisLine, instance, fromResize) --[[exported]]
 	self:SetBarLeftText(thisLine, instance, enemy, arenaEnemy, arenaAlly, UsingCustomLeftText)
 end
 
----comment
+---~aug ~evoker
 ---@param self table extraStatusbar frame
 function damageClass.PredictedAugSpellsOnEnter(self)
 	if (Details.show_aug_predicted_spell_damage) then
@@ -3575,25 +3575,36 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		---@type table<spellid, table<spellid, number, actorname, actorname, class, boolean>>
 		local buffUptimeTable = {}
 
+		local iconSize = 22
+		local iconBorderInfo = Details.tooltip.icon_border_texcoord
+
 		local CONST_SPELLID_EBONMIGHT = 395152
 		local CONST_SPELLID_PRESCIENCE = 410089
 		local CONST_SPELLID_BLACKATTUNEMENT = 403264
 		local CONST_SPELLID_BLISTERING_SCALES = 360827
 
+		local ebonMightSpellName, _, ebonMightSpellIcon = Details.GetSpellInfo(CONST_SPELLID_EBONMIGHT)
+		local _, _, ebonMightOnSelfIcon = Details.GetSpellInfo(395296)
+
 		---@type actor[]
 		local augmentationEvokers = {}
 
+		local thisEvokerObject = utilityContainer:GetActor(actorName)
+
 		--prescience and ebon might updatime on each actor
-		for _, actorObject in utilityContainer:ListActors() do
+		for _, actorUtilityObject in utilityContainer:ListActors() do
 			---@type spellcontainer
-			local receivedBuffs = actorObject.received_buffs_spells
+			local receivedBuffs = actorUtilityObject.received_buffs_spells
 
 			--check if the actor is an augmentation evoker
-			if (actorObject.spec == 1473) then
-				augmentationEvokers[#augmentationEvokers+1] = actorObject
+			if (actorUtilityObject.spec == 1473) then
+				augmentationEvokers[#augmentationEvokers+1] = actorUtilityObject
+				if (actorUtilityObject:Name() == actorName) then
+					thisEvokerObject = actorUtilityObject
+				end
 			end
 
-			if (receivedBuffs and actorObject:IsPlayer() and actorObject:IsGroupPlayer()) then
+			if (receivedBuffs and actorUtilityObject:IsPlayer() and actorUtilityObject:IsGroupPlayer()) then
 				for sourceNameSpellId, spellTable in receivedBuffs:ListSpells() do
 					local sourceName, spellId = strsplit("@", sourceNameSpellId)
 					if (sourceName == actorName) then
@@ -3602,13 +3613,13 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 
 						if (spellName and spellId) then
 							sourceName = detailsFramework:RemoveRealmName(sourceName)
-							local targetName = actorObject:Name()
+							local targetName = actorUtilityObject:Name()
 							targetName = detailsFramework:RemoveRealmName(targetName)
 
 							local uptime = spellTable.uptime or 0
 							local bCanShowOnTooltip = true
 							buffUptimeTable[spellId] = buffUptimeTable[spellId] or {}
-							table.insert(buffUptimeTable[spellId], {spellId, uptime, sourceName, targetName, actorObject:Class(), bCanShowOnTooltip})
+							table.insert(buffUptimeTable[spellId], {spellId, uptime, sourceName, targetName, actorUtilityObject:Class(), bCanShowOnTooltip})
 						end
 					end
 				end
@@ -3627,9 +3638,6 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		Details:AddTooltipSpellHeaderText(Loc ["STRING_SPELLS"], headerColor, #buffUptimeTable, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
 		Details:AddTooltipHeaderStatusbar(.1, .1, .1, 0.834)
 
-		local iconSize = 22
-		local iconBorderInfo = Details.tooltip.icon_border_texcoord
-
 		--add the total combat time into the tooltip
 		local combatTimeMinutes, combatTimeSeconds = math.floor(combatTime / 60), math.floor(combatTime % 60)
 		GameCooltip:AddLine("Combat Time", combatTimeMinutes .. "m " .. combatTimeSeconds .. "s" .. " (" .. format("%.1f", 100) .. "%)")
@@ -3639,24 +3647,50 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		GameCooltip:AddLine("", "")
 		GameCooltip:AddIcon("", nil, nil, 1, 1)
 
-		local ebonMightTable = buffUptimeTable[CONST_SPELLID_EBONMIGHT][1]
-		if (ebonMightTable) then
-			local uptime = ebonMightTable[2]
-			local spellName, _, spellIcon = _GetSpellInfo(CONST_SPELLID_EBONMIGHT)
-			local uptimePercent = uptime / combatTime * 100
-			local sourceName = ebonMightTable[3]
+		--show the caster evoker ebonmight uptime on the tooltip
+		local thisEvokerEbonMightSpellTable = thisEvokerObject.buff_uptime_spells:GetSpell(395296)
+		local evokerEbonMightUptime = thisEvokerEbonMightSpellTable and thisEvokerEbonMightSpellTable.uptime
+		local ebonMightColor = "saddlebrown"
 
-			if (uptime <= combatTime) then
-				local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
-				if (minutes > 0) then
-					GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "darkgreen")
-				else
-					GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "darkgreen")
-				end
+		if (evokerEbonMightUptime) then
+			local minutes, seconds = math.floor(evokerEbonMightUptime / 60), math.floor(evokerEbonMightUptime % 60)
+			local percent = evokerEbonMightUptime / combatTime * 100
 
-				GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+			if (minutes > 0) then
+				GameCooltip:AddLine(ebonMightSpellName .. " (self)", minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", percent) .. "%)")
+				Details:AddTooltipBackgroundStatusbar(false, percent, true, ebonMightColor)
+			else
+				GameCooltip:AddLine(ebonMightSpellName .. " (self)", seconds .. "s" .. " (" .. format("%.1f", percent) .. "%)")
+				Details:AddTooltipBackgroundStatusbar(false, percent, true, ebonMightColor)
+			end
+
+			GameCooltip:AddIcon(ebonMightOnSelfIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+		end
+
+		local ebonMightTable = buffUptimeTable[CONST_SPELLID_EBONMIGHT]
+
+		--all ebon mights
+		for i = 1, #ebonMightTable do
+			local thisEbonMightTable = ebonMightTable[i]
+			local uptime = thisEbonMightTable[2]
+			local evokerName = thisEbonMightTable[3]
+			local targetName = thisEbonMightTable[4]
+			local targetClass = thisEbonMightTable[5]
+
+			local spellName = ebonMightSpellName
+
+			if (evokerName) then
+				targetName = detailsFramework:AddClassColorToText(targetName, targetClass)
+				targetName = detailsFramework:AddClassIconToText(targetName, targetName, targetClass)
+				spellName = spellName .. " [" .. targetName .. " ]"
+			end
+
+			local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
+			if (uptime > 0) then
+				local uptimePercent = uptime / combatTime * 100
+				GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+				GameCooltip:AddIcon(ebonMightSpellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+				Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, ebonMightColor)
 			end
 		end
 
@@ -3735,7 +3769,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 					if (sourceName) then
 						targetName = detailsFramework:AddClassColorToText(targetName, targetClass)
 						targetName = detailsFramework:AddClassIconToText(targetName, targetName, targetClass)
-						spellName = spellName .. " [" .. targetName .. "]"
+						spellName = spellName .. " [" .. targetName .. " ]"
 					end
 
 					if (uptime <= combatTime) then

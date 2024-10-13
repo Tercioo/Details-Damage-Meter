@@ -269,6 +269,13 @@ function LibStub:IterateLibraries()end
 ---| "INCLUDE_NAME_PLATE_ONLY"
 ---| "MAW"
 
+---@class backdrop : table
+---@field bgFile string?
+---@field edgeFile string?
+---@field tile boolean?
+---@field edgeSize number?
+---@field insets table?
+
 ---@class spellinfo : table
 ---@field name string
 ---@field iconID number
@@ -459,6 +466,7 @@ BackdropTemplateMixin = {}
 ---@field GetParent fun(self: uiobject) : any
 ---@field GetPoint fun(self: uiobject, index: number): string, frame, string, number, number
 ---@field GetCenter fun(self: uiobject): number, number
+---@field GetLeft fun(self: uiobject): number
 ---@field SetPoint fun(self: uiobject, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
 ---@field ClearAllPoints fun(self: uiobject)
 ---@field CreateAnimationGroup fun(self: uiobject, name: string|nil, templateName: string|nil) : animationgroup
@@ -566,8 +574,10 @@ BackdropTemplateMixin = {}
 ---@field SetToplevel fun(self: frame, toplevel: boolean)
 ---@field SetPropagateKeyboardInput fun(self: frame, propagate: boolean)
 ---@field SetPropagateGamepadInput fun(self: frame, propagate: boolean)
+---@field SetMouseClickEnabled fun(self: frame, enabled: boolean)
 ---@field StartMoving fun(self: frame)
 ---@field IsMovable fun(self: frame) : boolean
+---@field IsMouseEnabled fun(self: frame) : boolean
 ---@field StartSizing fun(self: frame, sizingpoint: sizingpoint?)
 ---@field StopMovingOrSizing fun(self: frame)
 ---@field GetAttribute fun(self: frame, name: string) : any
@@ -729,7 +739,7 @@ BackdropTemplateMixin = {}
 ---@field AddMaskTexture fun(self: texture, maskTexture: texture)
 ---@field SetDrawLayer fun(self: texture, layer: drawlayer, subLayer: number?)
 ---@field GetTexture fun(self: texture) : any
----@field SetTexture fun(self: texture, path: textureid|texturepath, horizontalWrap: texturewrap?, verticalWrap: texturewrap?, filter: texturefilter?)
+---@field SetTexture fun(self: texture, path: textureid|texturepath?, horizontalWrap: texturewrap?, verticalWrap: texturewrap?, filter: texturefilter?)
 ---@field SetAtlas fun(self: texture, atlas: string, useAtlasSize: boolean?, filterMode: texturefilter?, resetTexCoords: boolean?)
 ---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
 ---@field SetDesaturated fun(self: texture, desaturate: boolean)
@@ -1805,7 +1815,7 @@ function strsplit(str, separator, limit) return "" end
 function floor(x) return 0 end
 
 ---@param table table
----@param index number
+---@param index number?
 ---@return any
 function tremove(table, index) return nil end
 
@@ -5302,7 +5312,7 @@ GetSpellLink = function(spellID) return "" end
 ---@return string, string, number, number
 GetSpellTabInfo = function(tabIndex, isFlyout) return "", "", 0, 0 end
 
----@param spellName string
+---@param spellName string|number
 ---@return string
 GetSpellTexture = function(spellName) return "" end
 

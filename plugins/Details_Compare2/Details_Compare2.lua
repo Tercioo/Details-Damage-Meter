@@ -1,10 +1,15 @@
 
 do
+	local _
 	local Details = Details
+
 	if (not Details) then
 		print("Details! Not Found.")
 		return
 	end
+
+	---@type detailsframework
+	local detailsFramework = DetailsFramework
 
 	local CONST_COMPARETYPE_SPEC = 1
 	local CONST_COMPARETYPE_SEGMENT = 2
@@ -149,9 +154,6 @@ do
 
 	--> create a plugin object
 	local compareTwo = Details:NewPluginObject("Details_Compare2", _G.DETAILSPLUGIN_ALWAYSENABLED)
-
-	---@type detailsframework
-	local detailsFramework = DetailsFramework
 
 	--> set the description
 	compareTwo:SetPluginDescription("Replaces the default comparison window on the player breakdown.")
@@ -1932,11 +1934,14 @@ do
 				newComparisonFrame.titleIcon = detailsFramework:CreateTexture(newComparisonFrame)
 				newComparisonFrame.titleIcon:SetPoint("topleft", newComparisonFrame, "topleft", 0, comparisonFrameSettings.playerNameYOffset)
 
-				--player name shown above the scrolls
+				--player name or segment name shown above the scrolls
 				---@type df_label
 				newComparisonFrame.titleLabel = detailsFramework:CreateLabel(newComparisonFrame, "")
 				newComparisonFrame.titleLabel:SetPoint("left", newComparisonFrame.titleIcon, "right", 2, 0)
 				newComparisonFrame.titleLabel.fontsize = comparisonFrameSettings.playerNameSize
+
+				--combat selector dropdown
+				--todo: create a dropdown to select the combat
 
 				--grandient texture above the comparison frame
 				local gradientTitle = detailsFramework:CreateTexture(newComparisonFrame, {gradient = "vertical", fromColor = {0, 0, 0, 0.25}, toColor = "transparent"}, 1, 16, "artwork", {0, 1, 0, 1})

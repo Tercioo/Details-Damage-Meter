@@ -78,6 +78,39 @@ do
 		-- print("enchantId:", enchandId)
 		LIB_OPEN_RAID_ENCHANT_IDS = {
 			--empty as the lib now get the enchant id and compare with expansion enchantId number space
+			[7442] = true, --[Enchant Weapon - Stormrider's Fury |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7448] = true, --[Enchant Weapon - Oathsworn's Tenacity |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7460] = true, --[Enchant Weapon - Authority of the Depths |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7454] = true, --[Enchant Weapon - Authority of Fiery Resolve |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7451] = true, --[Enchant Weapon - Authority of Air |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7439] = true, --[Enchant Weapon - Council's Guile |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7445] = true, --[Enchant Weapon - Stonebound Artistry |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7457] = true, --[Enchant Weapon - Authority of Storms |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7463] = true, --[Enchant Weapon - Authority of Radiant Power |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7473] = true, --[Enchant Ring - Cursed Haste |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7476] = true, --[Enchant Ring - Cursed Versatility |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7470] = true, --[Enchant Ring - Cursed Critical Strike |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7479] = true, --[Enchant Ring - Cursed Mastery |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7346] = true, --[Enchant Ring - Radiant Mastery |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7334] = true, --[Enchant Ring - Radiant Critical Strike |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7352] = true, --[Enchant Ring - Radiant Versatility |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7340] = true, --[Enchant Ring - Radiant Haste |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7415] = true, --[Enchant Cloak - Chant of Burrowing Rapidity |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7403] = true, --[Enchant Cloak - Chant of Winged Grace |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7409] = true, --[Enchant Cloak - Chant of Leeching Fangs |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7391] = true, --[Enchant Bracer - Chant of Armored Leech |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7385] = true, --[Enchant Bracer - Chant of Armored Avoidance |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7397] = true, --[Enchant Bracer - Chant of Armored Speed |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7424] = true, --[Enchant Boots - Defender's March |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7418] = true, --[Enchant Boots - Scout's March |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7421] = true, --[Enchant Boots - Cavalry's March |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7355] = true, --[Enchant Chest - Stormrider's Agility |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7361] = true, --[Enchant Chest - Oathsworn's Strength |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7358] = true, --[Enchant Chest - Council's Intellect |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7534] = true, --[Sunset Spellthread |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7529] = true, --[Daybreak Spellthread |A:Professions-ChatIcon-Quality-Tier1:17:15::1|a]
+			[7601] = true, --[Stormbound Armor Kit |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[7595] = true, --[Defender's Armor Kit |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
 		}
 
 		LIB_OPEN_RAID_DEATHKNIGHT_RUNEFORGING_ENCHANT_IDS = {
@@ -111,22 +144,49 @@ do
 		--buff spellId, the value of the food is the tier level
 		--use /details auras
         -- TODO: Update for war within
-		LIB_OPEN_RAID_FOOD_BUFF = {}
+		LIB_OPEN_RAID_FOOD_BUFF = {
 
+		}
+
+		--buff spell ids
 		--use /details auras
-        -- TODO: Update for war within
-		LIB_OPEN_RAID_FLASK_BUFF = {}
+		LIB_OPEN_RAID_FLASK_BUFF = {
+			[431973] = true, --vers
+			[431972] = true, --haste
+			[431971] = true, --crit
+			[431974] = true, --mastery
+			[432021] = true, --chaos
+			[432473] = true, --healing
+		}
 
-        -- TODO: Update for war within
-		LIB_OPEN_RAID_ALL_POTIONS = {}
+        --on use spell ids
+		LIB_OPEN_RAID_ALL_POTIONS = {
+			[431419] = true, --Cavedweller's Delight
+			[431416] = true, --Healing Potion algari
+			[431914] = true, --Potion of Unwavering Focus
+			[431932] = true, --Tempered Potion
+			[453205] = true, --Potion Bomb of Power
+			[453162] = true, --Potion Bomb of Recovery
+			[453283] = true, --Potion Bomb of Speed
+			[431925] = true, --Frontline Potion
+			[431941] = true, --Potion of the Reborn Cheetah
+			[431418] = true, --Algari Mana Potion
+			[431422] = true, --Slumbering Soul Serum
+			[431432] = true, --Draught of Shocking Revelations
+			[431424] = true, --Draught of Silent Footfalls / Treading Lightly
+			[460074] = true, --Grotesque Vial
+		}
 
 		--spellId of healing from potions
-        -- TODO: Update for war within
-		LIB_OPEN_RAID_HEALING_POTIONS = {}
+		LIB_OPEN_RAID_HEALING_POTIONS = {
+			[431416] = true, --Healing Potion algari
+			[431419] = true, --Cavedweller's Delight
+		}
 
-        -- TODO: Update for war within
-		LIB_OPEN_RAID_MANA_POTIONS = {}
-
+		LIB_OPEN_RAID_MANA_POTIONS = {
+			[431418] = true, --Algari Mana Potion
+			[431422] = true, --Slumbering Soul Serum (10s meditation)
+		}
 
 		--end of per expansion content
 		--------------------------------------------------------------------------------------------
@@ -177,14 +237,15 @@ do
 
 			--defensive potions
 			[6262] = {cooldown = 60,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10}, --Healthstone
-			[370511] = {cooldown = 300,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10, shareid = 101}, --Refreshing Healing Potion
-			[415569] = {cooldown = 300, duration = 0, specs = {}, talent = false, charges = 1, class = "", type = 10, sharedid = 101}, -- Dreamwalker's Healing Potion
+			[431419] = {cooldown = 300,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10, shareid = 101},	--Refreshing Potion
+			[431416] = {cooldown = 300, duration = 0, specs = {}, talent = false, charges = 1, class = "", type = 10, sharedid = 102},	--Healing Potion algari
 
 			--attack potions
-			[371024] = {cooldown = 300,	duration = 30,	specs = {},	talent = false,	charges = 1, class = "", type = 11, shareid = 101}, --Elemental Potion of Power
+			[431914] = {cooldown = 300,	duration = 20,	specs = {},	talent = false,	charges = 1, class = "", type = 11, shareid = 101}, --[Potion of Unwavering Focus |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
+			[431932] = {cooldown = 300,	duration = 30,	specs = {},	talent = false,	charges = 1, class = "", type = 11, shareid = 101}, --[Tempered Potion |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]
 
 			--utility potions
-			[371124] = {cooldown = 300,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 12, shareid = 101}, --exp9 invisibility potion
+			[431424] = {cooldown = 300,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 12, shareid = 101}, --exp10 invisibility potion
 
 			--racials 
 			--maintanance: login into the new race and type /run Details.GenerateRacialSpellList()
@@ -412,6 +473,7 @@ do
 			[218164] = {cooldown = 8,	duration = 0,	specs = {269,268},			talent = false,	charges = 1,	class = "MONK",	type = 7}, --Detox (DPS/Tank)
 			[325153] = {cooldown = 60,	duration = 3,	specs = {268},				talent = false,	charges = 1,	class = "MONK",	type = 2}, --Exploding Keg
 			[115078] = {cooldown = 45,	duration = 60,	specs = {268, 269, 270},	talent = false,	charges = 1,	class = "MONK",	type = 8}, --Paralysis
+			[443028] = {cooldown = 90,	duration = 4,	specs = {269, 270},			talent = false,	charges = 1,	class = "MONK",	type = 4}, --Celestial Conduit
 
 
 			--~hunter
@@ -442,6 +504,9 @@ do
 			[272682] = {cooldown = 45,	duration = 4,	specs = {253, 254, 255},	talent = false,	charges = 1,	class = "HUNTER",	type = 7}, --Master's Call
 			[359844] = {cooldown = 120, duration = 20,  specs = {253}, 				talent = true, charges = 1, 	class = "HUNTER", 	type = 1}, -- Call of the Wild
 			[462031] = {cooldown = 60,    duration = 0,    specs = {},    talent = false,    charges = 1,    class = "HUNTER",    type = 8}, --Implosive Trap
+			[213691] = {cooldown = 30,    duration = 0,    specs = {},    talent = false,    charges = 1,    class = "HUNTER",    type = 8}, --Scatter Shot
+			[356719] = {cooldown = 60,    duration = 0,    specs = {},    talent = false,    charges = 1,    class = "HUNTER",    type = 8}, --Chimaeral Sting
+			[407028] = {cooldown = 45,    duration = 0,    specs = {},    talent = false,    charges = 1,    class = "HUNTER",    type = 8}, --Sticky Tar Bomb
 
 			--Boar nil 62305 Master's Call
 			--Boar Tiranaa 54216 Master's Call
@@ -608,6 +673,7 @@ do
 			[213634] = {cooldown = 8,	duration = 0,	specs = {258},				talent = false,	charges = 1,	class = "PRIEST",	type = 7}, --Purify Disease 
 			[108920] = {cooldown = 60,	duration = 20,	specs = {256, 257, 258},	talent = false,	charges = 1,	class = "PRIEST",	type = 8}, --Void Tendrils
 			[451235] = {cooldown = 120,	duration = 15,	specs = {256,258},			talent = false,	charges = 1,	class = "PRIEST",	type = 1}, --Voidwraith
+			[120644] = {cooldown = 60,	duration = 0,	specs = {256, 257, 258},		talent = false,	charges = 1,	class = "PRIEST",	type = 4}, --Halo
 
 			--~rogue
 			-- 259 - Assasination
@@ -670,6 +736,7 @@ do
 			[408233] = {cooldown = 60,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 5}, --Bestow Weyrnstone
 			[409311] = {cooldown = 12,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Prescience
 			--[412710] = {cooldown = 0,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 0}, --Timelessness
+			[443328] = {cooldown = 30,	duration = 0,	specs = {1468, 1467}, 		talent = false, charges = 2,    class = "EVOKER", 	type = 3}, --Engulf
 		}
 
 		--list of all crowd control spells
@@ -933,6 +1000,7 @@ do
 			[370564] = 370537, -- Evoker Stasis
 			--[414658] = 45438, -- Ice Block with the talent Ice Cold
 			--[414658] = 45438, -- Ice Block with the talent IceCold
+			[406971] = 372048, -- Oppressing Roar, when talented
 		}
 		LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS = {
 			[106898] = {106898,77764,77761},
@@ -993,6 +1061,61 @@ do
 			[1467] = 13,
 			[1468] = 13,
 			[1473] = 13,
+		}
+
+		LIB_OPEN_RAID_NPCID_TO_DISPLAYID = {
+			--City of Threads
+			[223181] = 119370, --Agile Pursuer
+			[220004] = 119377, --Ascended Aristocrat
+			[216326] = 115771, --Ascended Neophyte
+			[220199] = 120589, --Battle Scarab
+			[216329] = 114555, --Congealed Droplet
+			[223844] = 118106, --Covert Webmancer
+			[224732] = 118106, --Covert Webmancer
+			[221102] = 118827, --Elder Shadeweaver
+			[214840] = 117840, --Engorged Crawler
+			[220777] = 114268, --Executor Nizrek --? need more info
+			[220793] = 117374, --Favored Citizen
+			[227607] = 114421, --Fliq'ri
+			[220196] = 120905, --Herald of Ansurek
+			[220012] = 115734, --Hollows Merchant
+			[220003] = 119371, --Hollows Resident
+			[219983] = 114423, --Hollows Resident
+			[221103] = 118826, --Hulking Warshell
+			[216658] = 116701, --Izo, the Grand Splicer
+			[216341] = 120841, --Jabbing Flyer
+			[226060] = 119910, --Kobyss Puppet
+			[218324] = 117119, --Nakt
+			[216648] = 116699, --Nx
+			[216619] = 116692, --Orator Krix'vizk
+			[220401] = 121817, --Pale Priest
+			[223646] = 114026, --Pale Priest
+			[224331] = 117326, --Phylleus
+			[223254] = 118964, --Queen Ansurek
+			[216336] = 120876, --Ravenous Crawler
+			[220037] = 118106, --Reposing Knight
+			[220404] = 114418, --Royal Acolyte
+			[220197] = 120882, --Royal Swarmguard
+			[220730] = 120890, --Royal Venomshell
+			[224324] = 115750, --Silkswooner Waree
+			[216342] = 120891, --Skittering Assistant
+			[223357] = 120886, --Sureki Conscript
+			[220195] = 120872, --Sureki Silkbinder
+			[216339] = 120894, --Sureki Unnaturaler
+			[220193] = 120868, --Sureki Venomblade
+			[216320] = 117254, --The Coaglamation
+			[222646] = 116681, --Trained Flyer
+			[222559] = 116681, --Trained Flyer
+			[217470] = 115735, --Tulumun
+			[220353] = 116446, --Umbral Citizen
+			[220351] = 117374, --Umbral Citizen
+			[222700] = 118005, --Umbral Weave
+			[216328] = 116499, --Unstable Test Subject
+			[226058] = 118410, --Van'atka
+			[216649] = 116700, --Vx
+			[223182] = 119369, --Web Marauder
+			[224731] = 119369, --Web Marauder
+			[219984] = 119732, --Xeph'itik
 		}
 
 		LIB_OPEN_RAID_DATABASE_LOADED = true

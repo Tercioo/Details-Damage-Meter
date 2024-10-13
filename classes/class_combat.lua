@@ -20,6 +20,7 @@ local detailsFramework = DetailsFramework
 
 --[[global]] DETAILS_SEGMENTTYPE_DUNGEON_TRASH = 5
 --[[global]] DETAILS_SEGMENTTYPE_DUNGEON_BOSS = 6
+--[[global]] DETAILS_SEGMENTTYPE_DUNGEON_OVERALL = 9
 
 --[[global]] DETAILS_SEGMENTTYPE_RAID_TRASH = 7
 --[[global]] DETAILS_SEGMENTTYPE_RAID_BOSS = 8
@@ -45,6 +46,7 @@ local segmentTypeToString = {
 	[DETAILS_SEGMENTTYPE_OVERALL] = "Overall",
 	[DETAILS_SEGMENTTYPE_DUNGEON_TRASH] = "DungeonTrash",
 	[DETAILS_SEGMENTTYPE_DUNGEON_BOSS] = "DungeonBoss",
+	[DETAILS_SEGMENTTYPE_DUNGEON_OVERALL] = "DungeonOverall",
 	[DETAILS_SEGMENTTYPE_RAID_TRASH] = "RaidTrash",
 	[DETAILS_SEGMENTTYPE_RAID_BOSS] = "RaidBoss",
 	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON] = "Category MythicDungeon",
@@ -442,6 +444,9 @@ local segmentTypeToString = {
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_DUNGEON_BOSS) then
 			return textureAtlas["segment-icon-skull"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_DUNGEON_OVERALL) then
+			return textureAtlas["segment-icon-dungeon-overall"]
 		end
 
 		return textureAtlas["segment-icon-regular"]
@@ -527,6 +532,9 @@ local segmentTypeToString = {
 				local segmentId = self:GetSegmentSlotId()
 				return bossInfo.name .." (#" .. segmentId .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
 			end
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_DUNGEON_OVERALL) then
+			return self.zoneName .. " (overall)" --localize-me
 
 		elseif (combatType == DETAILS_SEGMENTTYPE_RAID_BOSS) then
 			local bossInfo = self:GetBossInfo()
@@ -672,6 +680,10 @@ local segmentTypeToString = {
 	end
 
 	function classCombat:GetCombatType()
+		if (self.combat_type) then
+			return self.combat_type
+		end
+
 		--mythic dungeon
 		local bIsMythicDungeon = self:IsMythicDungeon()
 		if (bIsMythicDungeon) then
@@ -697,18 +709,21 @@ local segmentTypeToString = {
 		end
 
 		if (self.training_dummy) then
+			--self.combat_type = DETAILS_SEGMENTTYPE_TRAININGDUMMY
 			return DETAILS_SEGMENTTYPE_TRAININGDUMMY
 		end
 
 		--arena
 		local arenaInfo = self.is_arena
 		if (arenaInfo) then
+			--self.combat_type = DETAILS_SEGMENTTYPE_PVP_ARENA
 			return DETAILS_SEGMENTTYPE_PVP_ARENA
 		end
 
 		--battleground
 		local battlegroundInfo = self.is_pvp
 		if (battlegroundInfo) then
+			--self.combat_type = DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND
 			return DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND
 		end
 
@@ -716,32 +731,43 @@ local segmentTypeToString = {
 		local instanceType = self.instance_type
 
 		if (instanceType == "party") then
-			local bossInfo =  self:GetBossInfo()
+			if (self.is_dungeon_overall) then
+				--self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
+				return DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
+			end
 
+			local bossInfo =  self:GetBossInfo()
 			if (bossInfo) then
 				if (bossInfo.mapid == 33 and bossInfo.diff_string == "Event" and bossInfo.id == 2879) then --Shadowfang Keep | The Crown Chemical Co.
+					--self.combat_type = DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY
 					return DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY
 				else
+					--self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_BOSS
 					return DETAILS_SEGMENTTYPE_DUNGEON_BOSS
 				end
 			else
+				--self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_TRASH
 				return DETAILS_SEGMENTTYPE_DUNGEON_TRASH
 			end
 
 		elseif (instanceType == "raid") then
 			local bossEncounter =  self.is_boss
 			if (bossEncounter) then
+				--self.combat_type = DETAILS_SEGMENTTYPE_RAID_BOSS
 				return DETAILS_SEGMENTTYPE_RAID_BOSS
 			else
+				--self.combat_type = DETAILS_SEGMENTTYPE_RAID_TRASH
 				return DETAILS_SEGMENTTYPE_RAID_TRASH
 			end
 		end
 
 		--overall data
 		if (self == Details.tabela_overall) then
+			--self.combat_type = DETAILS_SEGMENTTYPE_OVERALL
 			return DETAILS_SEGMENTTYPE_OVERALL
 		end
 
+		--self.combat_type = DETAILS_SEGMENTTYPE_GENERIC
 		return DETAILS_SEGMENTTYPE_GENERIC
 	end
 
@@ -957,6 +983,34 @@ local segmentTypeToString = {
 				end
 			end
 		end
+	end
+
+	---@param self combat
+	---@param givingCombat combat
+	---@param bSetStartDate boolean if true, the start date of the receiving combat will be set to the start date of the giving combat
+	---@param bSetEndDate boolean if true, the end date of the receiving combat will be set to the end date of the giving combat
+	---@return combat
+	function classCombat:AddCombat(givingCombat, bSetStartDate, bSetEndDate)
+		local receivingCombat = self
+
+        receivingCombat:CopyDeathsFrom(givingCombat, false)
+
+        local timeInCombat = receivingCombat:GetCombatTime() + givingCombat:GetCombatTime()
+		receivingCombat:SetStartTime(GetTime() - timeInCombat)
+		receivingCombat:SetEndTime(GetTime())
+
+        receivingCombat = receivingCombat + givingCombat
+
+		local startDate, endDate = givingCombat:GetDate()
+		if (bSetStartDate) then
+			receivingCombat:SetDate(startDate, endDate)
+		else
+			if (bSetEndDate) then
+				receivingCombat:SetDate(false, endDate) --passign false won't change the value
+			end
+		end
+
+		return receivingCombat
 	end
 
 	--return the total of a specific attribute

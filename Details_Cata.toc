@@ -75,6 +75,8 @@ functions\warcraftlogs.lua
 functions\textures.lua
 functions\journal.lua
 functions\commentator.lua
+functions\chat_embed.lua
+functions\storage.lua
 
 core\aura_scan.lua
 core\timemachine.lua
@@ -128,6 +130,7 @@ frames\window_classcolor.lua
 frames\window_statistics.lua
 frames\window_aura_tracker.lua
 frames\window_debug.lua
+frames\window_pro_file.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua

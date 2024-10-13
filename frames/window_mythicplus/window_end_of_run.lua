@@ -278,6 +278,8 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 		if (instanceType == "party" or CONST_DEBUG_MODE) then
 			local effectiveILvl, nop, baseItemLevel = GetDetailedItemLevelInfo(itemLink)
 
+			local bIsAccountBound = C_Item.IsItemBindToAccountUntilEquip(itemLink)
+
 			local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
 			itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
 			expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
@@ -293,7 +295,7 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 				Details222.DebugMsg("Loot Received:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel, "itemType:", itemType, "itemSubType:", itemSubType, "itemEquipLoc:", itemEquipLoc)
 			end
 
-			if (effectiveILvl > 300 and baseItemLevel > 5) then --avoid showing loot that isn't items
+			if (effectiveILvl > 480 and baseItemLevel > 5 and not bIsAccountBound) then --avoid showing loot that isn't items
 				lootFrame.LootCache[unitName] = lootFrame.LootCache[unitName] or {}
 				---@type details_loot_cache
 				local lootCacheTable = {
@@ -321,7 +323,7 @@ lootFrame:SetScript("OnEvent", function(self, event, ...)
 				end
 			else
 				if (LOOT_DEBUG_MODE) then
-					Details:Msg("Loot SKIPPED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel)
+					Details:Msg("Loot SKIPPED:", unitName, itemLink, effectiveILvl, itemQuality, baseItemLevel, bIsAccountBound)
 				end
 			end
 		end
@@ -344,11 +346,20 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 			GameTooltip:SetHyperlink(lootSquare.itemLink)
 			GameTooltip:Show()
+
+			self:SetScript("OnUpdate", function()
+				if (IsShiftKeyDown()) then
+					GameTooltip_ShowCompareItem()
+				else
+					GameTooltip_HideShoppingTooltips(GameTooltip)
+				end
+			end)
 		end
 	end)
 
 	lootSquare:SetScript("OnLeave", function(self)
 		GameTooltip:Hide()
+		self:SetScript("OnUpdate", nil)
 	end)
 
 	local shadowTexture = playerBanner:CreateTexture("$parentShadowTexture", "artwork")
@@ -682,8 +693,8 @@ local createPlayerBanner = function(parent, name, index)
 	detailsFramework:CreateFlashAnimation(flashTexture)
 	--flashTexture:Flash(0.1, 0.5, 0.01)
 
-	local rantingLabel = detailsFramework:CreateLabel(playerBanner, "", 16, "green")
-	rantingLabel:SetPoint("right", playerBanner, "left", -154, 0)
+	local rantingLabel = detailsFramework:CreateLabel(playerBanner, "", 14, "green")
+	rantingLabel:SetPoint("right", playerBanner, "left", -144, 0)
 	playerBanner.RantingLabel = rantingLabel
 
 	local waitingForLootDotsAnimationLabel = detailsFramework:CreateLabel(playerBanner, "...", 20, "silver") --~dots

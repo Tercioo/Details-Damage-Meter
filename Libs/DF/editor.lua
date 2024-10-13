@@ -654,6 +654,9 @@ detailsFramework.EditorMixin = {
                     moverFrame.MovingInfo.restingX = x
                     moverFrame.MovingInfo.restingY = y
                     moverFrame:SetScript("OnUpdate", onTickNotMoving)
+
+                    moverFrame:GetScript("OnMouseDown")(moverFrame)
+                    moverFrame:GetScript("OnMouseUp")(moverFrame)
                 end
 
                 self.ObjectBackgroundTexture:SetPoint("topleft", object, "topleft", 0, 0)

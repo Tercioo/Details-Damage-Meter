@@ -1777,7 +1777,10 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+40, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+
+        C_Timer.After(0.2, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+40, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -2164,24 +2167,26 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        C_Timer.After(0.15, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
-        local separatorOption = sectionFrame.widget_list[25]
-        local bracketOption = sectionFrame.widget_list[26]
-        local warningLabel = sectionFrame.widget_list[27]
-        Details222.OptionsPanel.textSeparatorOption = separatorOption
-        Details222.OptionsPanel.textbracketOption = bracketOption
+            local separatorOption = sectionFrame.widget_list[25]
+            local bracketOption = sectionFrame.widget_list[26]
+            local warningLabel = sectionFrame.widget_list[27]
+            Details222.OptionsPanel.textSeparatorOption = separatorOption
+            Details222.OptionsPanel.textbracketOption = bracketOption
 
-        sectionFrame:SetScript("OnShow", function()
-            if (currentInstance.use_multi_fontstrings) then
-                separatorOption:Disable()
-                bracketOption:Disable()
-                warningLabel:Show()
-            else
-                separatorOption:Enable()
-                bracketOption:Enable()
-                warningLabel:Hide()
-            end
+            sectionFrame:SetScript("OnShow", function()
+                if (currentInstance.use_multi_fontstrings) then
+                    separatorOption:Disable()
+                    bracketOption:Disable()
+                    warningLabel:Show()
+                else
+                    separatorOption:Enable()
+                    bracketOption:Enable()
+                    warningLabel:Hide()
+                end
+            end)
         end)
     end
 
@@ -2717,7 +2722,9 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        C_Timer.After(0.25, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -3142,7 +3149,9 @@ do
         }
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+20, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        C_Timer.After(0.05, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+20, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -3257,7 +3266,10 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+
+        C_Timer.After(0.3, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
 
         do --micro displays
             
@@ -3891,7 +3903,9 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        C_Timer.After(0.333, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -4148,7 +4162,9 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        C_Timer.After(0.366, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -4595,8 +4611,10 @@ do
         
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
-        refreshToggleAnchor()
+        C_Timer.After(0.275, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+            refreshToggleAnchor()
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -4744,7 +4762,10 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+
+        C_Timer.After(0.4, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -5164,7 +5185,10 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+
+        C_Timer.After(0.433, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
 
         sectionFrame:SetScript("OnShow", function()
             sectionFrame:UpdateWallpaperInfo()
@@ -6356,11 +6380,25 @@ do
                 desc = "Clear Cache Regularly",
             },
 
+            {--hide helptips
+                type = "toggle",
+                get = function() return Details.streamer_config.no_helptips end,
+                set = function(self, fixedparam, value)
+                    Details.streamer_config.no_helptips = value
+                    afterUpdate()
+                end,
+                name = "Hide Yellow Helptips", --localize-me
+                desc = "Those yellow boxes with an arrow and a text showing a text with tips.",
+            },
+
+
         }
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX + 350, startY - 20, heightSize + 300, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        C_Timer.After(0.1, function()
+            DF:BuildMenu(sectionFrame, sectionOptions, startX + 350, startY - 20, heightSize + 300, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        end)
     end
 
     tinsert(Details.optionsSection, buildSection)

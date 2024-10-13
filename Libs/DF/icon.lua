@@ -282,17 +282,19 @@ detailsFramework.IconMixin = {
 			--iconFrame.Border:SetColorTexture(0, 0, 0, 1)
 
 			if (startTime) then
-				CooldownFrame_Set(iconFrame.Cooldown, startTime, duration, true, true, modRate)
+				local now = GetTime()
+
+				iconFrame.timeRemaining = (startTime + duration - now) / (modRate or 1)
+				iconFrame.expirationTime = startTime + duration
+				
+				if iconFrame.timeRemaining > 0 then
+					CooldownFrame_Set(iconFrame.Cooldown, startTime, duration, true, true, modRate)
+				end
 
 				if (self.options.show_text) then
 					iconFrame.CountdownText:Show()
 
-					local now = GetTime()
-
-					iconFrame.timeRemaining = (startTime + duration - now) / modRate
-					iconFrame.expirationTime = startTime + duration
-
-					local formattedTime = (iconFrame.timeRemaining > 0) and self.options.decimal_timer and iconFrame.parentIconRow.FormatCooldownTimeDecimal(iconFrame.timeRemaining) or iconFrame.parentIconRow.FormatCooldownTime(iconFrame.timeRemaining) or ""
+					local formattedTime = (iconFrame.timeRemaining > 0) and (self.options.decimal_timer and iconFrame.parentIconRow.FormatCooldownTimeDecimal(iconFrame.timeRemaining) or iconFrame.parentIconRow.FormatCooldownTime(iconFrame.timeRemaining)) or ""
 					iconFrame.CountdownText:SetText(formattedTime)
 
 					iconFrame.CountdownText:SetPoint(self.options.text_anchor or "center", iconFrame, self.options.text_rel_anchor or "center", self.options.text_x_offset or 0, self.options.text_y_offset or 0)
