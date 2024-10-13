@@ -6980,7 +6980,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		elseif (IsInGroup()) then
 			local unitIdCache = Details222.UnitIdCache.Party
 			local playerGUID = UnitGUID("player")
-			for i = 1, GetNumGroupMembers()-1 do
+			for i = 1, GetNumGroupMembers() do
 				local unitId = unitIdCache[i]
 
 				local unitName = GetUnitName(unitId, true)
@@ -7004,17 +7004,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					else
 						table.insert(aug_members_cache, {unitGUID, unitName, 0x512})
 					end
-				end
-			end
-			
-			--iterate over the last group member, which is not necesarily the player, to add to aug_members_cache
-			local unitIdExtra = unitIdCache[GetNumGroupMembers()]
-			local unitGUIDExtra = UnitGUID(unitIdExtra)
-			if (Details.cached_specs[unitGUIDExtra] == 1473) then
-				if (unitGUID == playerGUID) then
-					table.insert(aug_members_cache, {unitGUIDExtra, unitNameExtra, 0x511})
-				else
-					table.insert(aug_members_cache, {unitGUIDExtra, unitNameExtra, 0x512})
 				end
 			end
 
