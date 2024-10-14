@@ -280,7 +280,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
 		DungeonTexture = Details222.MythicPlus.Texture,
 		DungeonBackgroundTexture = Details222.MythicPlus.BackgroundTexture,
         SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL,
-        SegmentName = Details.MythicPlus.DungeonName .. " +" .. Details222.MythicPlus.Level,
+        SegmentName = Details.MythicPlus.DungeonName .. " +" .. (Details222.MythicPlus.Level or 2),
     }
 
     --add all boss segments from this run to this new segment

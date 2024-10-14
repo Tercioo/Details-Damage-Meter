@@ -467,6 +467,9 @@ BackdropTemplateMixin = {}
 ---@field GetPoint fun(self: uiobject, index: number): string, frame, string, number, number
 ---@field GetCenter fun(self: uiobject): number, number
 ---@field GetLeft fun(self: uiobject): number
+---@field GetRight fun(self: uiobject): number
+---@field GetTop fun(self: uiobject): number
+---@field GetBottom fun(self: uiobject): number
 ---@field SetPoint fun(self: uiobject, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
 ---@field ClearAllPoints fun(self: uiobject)
 ---@field CreateAnimationGroup fun(self: uiobject, name: string|nil, templateName: string|nil) : animationgroup

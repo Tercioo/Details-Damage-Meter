@@ -5944,6 +5944,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details222.MythicPlus.WorldStateTimerStartAt = nil
 			Details222.MythicPlus.WorldStateTimerEndAt = nil
 			Details222.MythicPlus.LogStep("Event: CHALLENGE_MODE_START")
+
+			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+			Details222.MythicPlus.Level = activeKeystoneLevel or 2
 		end
 	end
 
