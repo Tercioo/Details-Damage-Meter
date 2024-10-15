@@ -529,7 +529,7 @@
 ---@field freezed boolean
 ---@field sub_atributo_last table
 ---@field row_info table
----@field
+---@field show_interrupt_casts boolean
 ---@field
 ---@field
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor

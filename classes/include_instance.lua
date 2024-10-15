@@ -122,6 +122,8 @@ _detalhes.instance_defaults = {
 		bg_g = 0.0941,
 		bg_b = 0.0941,
 		backdrop_texture = "Details Ground",
+	--show amount of interrupts the player casted
+		show_interrupt_casts = false,
 	--auto current
 		auto_current = true,
 	--show sidebars

@@ -956,6 +956,11 @@ function atributo_misc:RefreshLine(instancia, barras_container, whichRowLine, lu
 
 	local tabela_anterior = esta_barra.minha_tabela
 
+	---@cast instancia instance
+
+	---@type combat
+	local combatObject = instancia:GetCombat()
+
 	esta_barra.minha_tabela = self
 	esta_barra.colocacao = lugar
 
@@ -984,6 +989,32 @@ function atributo_misc:RefreshLine(instancia, barras_container, whichRowLine, lu
 		porcentagem = ""
 	else
 		porcentagem = porcentagem .. "%"
+	end
+
+	if (instancia.show_interrupt_casts) then
+		if (sub_atributo == DETAILS_SUBATTRIBUTE_INTERRUPT) then --interrupts
+			--get the interrupt spell for this actor class from libOpenRaid
+			if (LIB_OPEN_RAID_SPELL_INTERRUPT_BYCLASS) then
+				---@type table<spellname, table>
+				local classInterrupts = LIB_OPEN_RAID_SPELL_INTERRUPT_BYCLASS[self.classe]
+				if (classInterrupts) then
+					---@type table<spellname, number> number is the amount of casts
+					local spellCasts = combatObject.amountCasts[self.nome]
+					local amountOfInterruptsCasted = 0
+					--iterating between the spells that are interrupts for this class
+					for spellNameOrId in pairs(classInterrupts) do
+						--if the actor casted this spell
+						if (spellCasts[spellNameOrId]) then
+							amountOfInterruptsCasted = amountOfInterruptsCasted + spellCasts[spellNameOrId]
+						end
+					end
+
+					if (amountOfInterruptsCasted > 0) then
+						meu_total = meu_total .. " (" .. tostring(amountOfInterruptsCasted) .. ")"
+					end
+				end
+			end
+		end
 	end
 
 	local rightText = meu_total .. bars_brackets[1] .. porcentagem .. bars_brackets[2]

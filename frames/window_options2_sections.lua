@@ -2961,7 +2961,7 @@ do
                 usedecimals = true,
                 step = 0.5,
                 name = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"],
-                desc = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP_DESC"],
+                desc = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"],
                 thumbscale = 2.2,
             },
 
