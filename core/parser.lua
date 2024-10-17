@@ -6884,6 +6884,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
 		Details:Destroy(cacheAnything.chronowarden_thread_fate)
+		Details:Destroy(cacheAnything.scalecommander_bombardments)
 		Details:Destroy(cacheAnything.rampage_cast_amount)
 
 		if (not bIsFromCombatStart) then
