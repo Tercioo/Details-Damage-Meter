@@ -969,6 +969,7 @@ end
 ---@field SetSwitchFunction fun(self:df_button, newOnSwitchFunction: function)
 ---@field GetCapsule fun(self:df_button):df_button capsule only exists in the actual frame of the encapsulated widget
 ---@field SetCheckedTexture fun(self:df_button, texture:string)
+---@field SetChecked fun(self:df_button, value:boolean)
 
 
 function DF:CreateSwitch(parent, onSwitch, defaultValue, width, height, leftText, rightText, member, name, colorInverted, switchFunc, returnFunc, withLabel, switch_template, label_template)
