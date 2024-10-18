@@ -663,7 +663,10 @@ local getSpellListAsHashTableFromSpellBook = function()
     local numPetSpells = getNumPetSpells()
     if (numPetSpells) then
         for i = 1, numPetSpells do
-            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
+            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum) --Enum.SpellBookSpellBank.Pet = 1
+            local itemType, actionID, spellID = C_SpellBook.GetSpellBookItemType(i, spellBookPetEnum)
+            --print(i, spellName, _, unmaskedSpellId, itemType, actionID, spellID)
+            unmaskedSpellId = spellID
             if (unmaskedSpellId) then
                 unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
                 local bIsPassive = IsPassiveSpell(i, spellBookPetEnum)
@@ -1124,6 +1127,8 @@ function openRaidLib.Util.GetPlayerSpellList()
     if (numPetSpells) then
         for i = 1, numPetSpells do
             local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, spellBookPetEnum)
+            local itemType, actionID, spellID = C_SpellBook.GetSpellBookItemType(i, spellBookPetEnum)
+            unmaskedSpellId = spellID
             if (unmaskedSpellId) then
                 unmaskedSpellId = GetOverrideSpell(unmaskedSpellId)
                 local bIsPassive = IsPassiveSpell(i, spellBookPetEnum)

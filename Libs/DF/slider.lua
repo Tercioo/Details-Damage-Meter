@@ -1,4 +1,14 @@
 
+--[=[
+
+	When the value of the slider is changed, it'll call self.OnValueChanged if the value exists.
+	slider.OnValueChanged = function(self, FixedValue, value) end
+
+	All hooks set for "OnValueChanged" will also be called, example: slider:SetHook("OnValueChanged", function(self, FixedValue, value) end)
+
+--]=]
+
+---@type detailsframework
 local DF = _G["DetailsFramework"]
 if (not DF or not DetailsFrameworkCanLoad) then
 	return
@@ -225,6 +235,10 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 
 	function DFSliderMetaFunctions:GetFixedParameter()
 		return rawget(self, "FixedValue")
+	end
+
+	function DFSliderMetaFunctions:SetValueChangedFunction(newFunction)
+		self.OnValueChanged = newFunction
 	end
 
 	--set value
@@ -950,7 +964,7 @@ end
 ---@field Disable fun(self:df_button)
 ---@field Enable fun(self:df_button)
 ---@field SetAsCheckBox fun(self:df_button)
----@field SetTemplate fun(self:df_button, template: table)
+---@field SetTemplate fun(self:df_button, template: table|string)
 ---@field GetSwitchFunction fun(self:df_button):function
 ---@field SetSwitchFunction fun(self:df_button, newOnSwitchFunction: function)
 ---@field GetCapsule fun(self:df_button):df_button capsule only exists in the actual frame of the encapsulated widget
@@ -1181,6 +1195,7 @@ end
 ---@field SetValueNoCallback fun(value: number)
 ---@field SetThumbSize fun(width:number, height:number)
 ---@field ClearFocus fun()
+---@field SetValueChangedFunction fun(self:df_slider, func: function)
 
 ---@param parent frame
 ---@param width number? default 150

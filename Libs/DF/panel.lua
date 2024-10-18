@@ -3938,6 +3938,7 @@ end
 local rezieGripOptions = {
 	width = 32,
 	height = 32,
+	use_default_scripts = true,
 	should_mirror_left_texture = true,
 	normal_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]],
 	highlight_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]],
@@ -3955,6 +3956,9 @@ function detailsFramework:CreateResizeGrips(parent, options, leftResizerName, ri
 
 	local leftResizer = _G.CreateFrame("button", leftResizerName or (parentName and "$parentLeftResizer"), parent, "BackdropTemplate")
 	local rightResizer = _G.CreateFrame("button", rightResizerName or (parentName and "$parentRightResizer"), parent, "BackdropTemplate")
+
+	leftResizer:SetFrameLevel(parent:GetFrameLevel() + 20)
+	rightResizer:SetFrameLevel(parent:GetFrameLevel() + 20)
 
 	detailsFramework:Mixin(leftResizer, detailsFramework.OptionsFunctions)
 	detailsFramework:Mixin(rightResizer, detailsFramework.OptionsFunctions)
@@ -3978,6 +3982,22 @@ function detailsFramework:CreateResizeGrips(parent, options, leftResizerName, ri
 		leftResizer:GetNormalTexture():SetTexCoord(1, 0, 0, 1)
 		leftResizer:GetHighlightTexture():SetTexCoord(1, 0, 0, 1)
 		leftResizer:GetPushedTexture():SetTexCoord(1, 0, 0, 1)
+	end
+
+	if (leftResizer.options.use_default_scripts) then
+		leftResizer:SetScript("OnMouseDown", function(self)
+			parent:StartSizing("BOTTOMLEFT")
+		end)
+		leftResizer:SetScript("OnMouseUp", function(self)
+			parent:StopMovingOrSizing()
+		end)
+
+		rightResizer:SetScript("OnMouseDown", function(self)
+			parent:StartSizing("BOTTOMRIGHT")
+		end)
+		rightResizer:SetScript("OnMouseUp", function(self)
+			parent:StopMovingOrSizing()
+		end)
 	end
 
 	return leftResizer, rightResizer
@@ -4023,6 +4043,199 @@ function detailsFramework:ApplyStandardBackdrop(frame, bUseSolidColor, alphaScal
 
 	frame.__background:SetAlpha(alpha * alphaScale)
 end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---boss selector
+
+---@class df_bossscrollselector : df_scrollbox
+---@field options df_bossscrollselector_options
+---@field callback function
+---@field callback_args any[]
+---@field SetCallback fun(self:df_bossscrollselector, callback:function, ...)
+
+---@class df_bossscrollselector_options : table
+---@field width number
+---@field height number
+---@field line_height number
+---@field line_amount number
+---@field show_icon boolean
+---@field show_name boolean
+---@field name_size number
+---@field name_color any
+---@field icon_coords table
+---@field icon_size table
+
+---@class df_bossscrollselector_line : button
+---@field index number
+---@field bossId number
+---@field bossIcon texture
+---@field bossName fontstring
+---@field bossRaidName fontstring
+---@field selectedInidicator texture
+
+---@type df_bossscrollselector_options
+local bossSelectorDefaultOptions = {
+	width = 200,
+	height = 400,
+	line_height = 40,
+	line_amount = 10,
+	show_icon = true,
+	icon_coords = {0, 1, 0, 1},
+	icon_size = {70, 36},
+	show_name = false,
+	name_size = 10,
+	name_color = "wheat",
+}
+
+detailsFramework.BossScrollSelectorMixin = {
+	---@param self df_bossscrollselector
+	---@param index number
+	---@return frame
+	CreateLine = function(self, index)
+		---@type df_bossscrollselector_line
+		local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
+
+		line:SetPoint("topleft", self, "topleft", 1, -((index-1) * (self.options.line_height+1)) - 1)
+		line:SetSize(self.options.width - 2, self.options.line_height)
+		line:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+		detailsFramework:ApplyStandardBackdrop(line)
+
+		--line:SetScript("OnEnter", onEnterBossLine)
+		--line:SetScript("OnLeave", onLeaveBossLine)
+
+		line.index = index
+
+		local selectedInidicator = line:CreateTexture(nil, "border")
+		selectedInidicator:SetPoint("topleft", line, "topleft", 1, -1)
+		selectedInidicator:SetPoint("bottomright", line, "bottomright", -1, 1)
+		selectedInidicator:SetColorTexture(1, 1, 1, 0.4)
+		selectedInidicator:Hide()
+		line.selectedInidicator = selectedInidicator
+
+		--boss icon
+		local bossIcon = line:CreateTexture("$parentIcon", "overlay")
+		bossIcon:SetSize(self.options.line_height + 30, self.options.line_height-4)
+		bossIcon:SetPoint("left", line, "left", 2, 0)
+		line.bossIcon = bossIcon
+
+		local bossName = line:CreateFontString(nil, "overlay", "GameFontNormal")
+		local bossRaid = line:CreateFontString(nil, "overlay", "GameFontNormal")
+		bossName:SetPoint("left", bossIcon, "right", -8, 6)
+		bossRaid:SetPoint("topleft", bossName, "bottomleft", 0, -2)
+		detailsFramework:SetFontSize(bossName, 10)
+		detailsFramework:SetFontSize(bossRaid, 9)
+		detailsFramework:SetFontColor(bossRaid, "silver")
+
+		detailsFramework:CreateHighlightTexture(line)
+
+		line.bossName = bossName
+		line.bossRaidName = bossRaid
+
+		return line
+	end,
+
+	---@param self df_bossscrollselector
+	---@param data df_encounterinfo[]
+	---@param offset number
+	---@param totalLines number
+	Refresh = function(self, data, offset, totalLines)
+		--update boss scroll
+		for i = 1, totalLines do
+			local index = i + offset
+			local thisData = data[index]
+			if (thisData) then
+				---@type df_bossscrollselector_line
+				---@diagnostic disable-next-line: assign-type-mismatch
+				local line = self:GetLine(i)
+
+				local instanceId = thisData.instanceId
+				---@type df_instanceinfo
+				local instanceData = detailsFramework.Ejc.GetInstanceInfo(instanceId)
+
+				local bossName = thisData.name
+				local bossRaidName = instanceData.name
+				local bossIcon = thisData.creatureIcon
+				local bossIconCoords = thisData.creatureIconCoords
+				local bossId = thisData.journalEncounterId
+
+				--update the line
+				line.bossName:SetText(bossName)
+				line.bossName:SetPoint("left", line.bossIcon, "right", -8, 6)
+				detailsFramework:TruncateText(line.bossName, 130)
+				line.bossRaidName:SetText(bossRaidName)
+				detailsFramework:TruncateText(line.bossRaidName, 130)
+
+				line.bossIcon:SetTexture(bossIcon)
+				line.bossIcon:SetSize(unpack(self.options.icon_size))
+				line.bossIcon:SetTexCoord(unpack(bossIconCoords))
+
+				line.bossIcon:SetPoint("left", line, "left", 2, 0)
+				line.bossName:Show()
+				line.bossRaidName:Show()
+
+				line.bossId = bossId
+				line.index = index
+				line:Show()
+			end
+		end
+	end,
+
+	SetCallback = function(self, callback, ...)
+		self.callback_args = {...}
+		self.callback = callback
+
+		local function onClick(line)
+			callback(line.index, unpack(self.callback_args))
+		end
+
+		local allLines = self:GetLines()
+		for index, line in ipairs(allLines) do
+			line:SetScript("OnClick", onClick)
+		end
+	end
+}
+
+---create a scrollbox with a list of bosses from an instance
+---@param instanceId any accept instanceId, ejInstanceId or instanceName
+---@param parent uiobject
+---@param name string|nil
+---@param options df_bossscrollselector_options?
+---@param callback function? the function to call when a boss is clicked
+---@param ... any additional arguments to pass to the callback
+---@return df_bossscrollselector
+function detailsFramework:CreateBossScrollSelectorForInstance(instanceId, parent, name, options, callback, ...)
+	local refreshFunc = detailsFramework.BossScrollSelectorMixin.Refresh
+	local createLineFunc = detailsFramework.BossScrollSelectorMixin.CreateLine
+
+	---@type df_encounterinfo[]
+	local arrayOfBosses = detailsFramework.Ejc.GetAllEncountersFromInstance(instanceId)
+
+	options = options or {}
+	---@cast options df_bossscrollselector_options
+	detailsFramework.table.deploy(options, bossSelectorDefaultOptions)
+
+	---@type df_bossscrollselector
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local bossScrollFrame = detailsFramework:CreateScrollBox(parent, name, refreshFunc, arrayOfBosses, options.width, options.height, options.line_amount, options.line_amount)
+	bossScrollFrame.options = options
+	bossScrollFrame.SetCallback = detailsFramework.BossScrollSelectorMixin.SetCallback
+
+	--create the scrollbox lines
+	for i = 1, options.line_amount do
+		bossScrollFrame:CreateLine(createLineFunc)
+	end
+
+	if (callback) then
+		bossScrollFrame:SetCallback(callback, ...)
+	end
+
+	detailsFramework:ReskinSlider(bossScrollFrame)
+	detailsFramework:ApplyStandardBackdrop(bossScrollFrame)
+
+	bossScrollFrame:Refresh()
+	return bossScrollFrame
+end
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~title bar

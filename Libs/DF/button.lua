@@ -1,4 +1,11 @@
 
+--[=[
+	callback format:
+	function(button, clickType, param1, param2)
+	end
+
+--]=]
+
 local detailsFramework = _G["DetailsFramework"]
 
 if (not detailsFramework or not DetailsFrameworkCanLoad) then
@@ -304,6 +311,15 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 		end
 	end
 
+	function ButtonMetaFunctions:SetParameters(param1, param2)
+		if (param1 ~= nil) then
+			rawset(self, "param1", param1)
+		end
+		if (param2 ~= nil) then
+			rawset(self, "param2", param2)
+		end
+	end
+
 	---set the text shown on the button
 	---@param text string
 	function ButtonMetaFunctions:SetText(text)
@@ -493,7 +509,6 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	---enable the button making it clickable and not grayed out
 	---@return unknown
 	function ButtonMetaFunctions:Enable()
-
 		return self.button:Enable()
 	end
 
@@ -504,6 +519,15 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 			self.color_texture:SetVertexColor(0.14, 0.14, 0.14)
 		end
 		return self.button:Disable()
+	end
+
+	---@param enable boolean
+	function ButtonMetaFunctions:SetEnabled(enable)
+		if (enable) then
+			self:Enable()
+		else
+			self:Disable()
+		end
 	end
 
 	---simulate a click on the button
@@ -692,7 +716,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 				if (object.is_mouse_over) then
 					button.texture:SetTexCoord(unpack(button.texture.coords.Highlight))
 				else
-					button.texture:SetTexCoord(unpack(coords.Normal))
+					--button.texture:SetTexCoord(unpack(coords.Normal))
 				end
 			else
 				if (object.is_mouse_over) then
@@ -895,6 +919,7 @@ end
 	---@field Exec fun(self: df_button) execute the button function for the left button
 	---@field Disable fun(self: df_button) disable the button
 	---@field Enable fun(self: df_button) enable the button
+	---@field SetEnabled fun(self: df_button, enable: boolean) enable or disable the button
 	---@field IsEnabled fun(self: df_button) : boolean returns true if the button is enabled
 	---@field SetIcon fun(self: df_button,texture: string|number, width: number|nil, height: number|nil, layout: string|nil, texcoord: table|nil, overlay: table|nil, textDistance: number|nil, leftPadding: number|nil, textHeight: number|nil, shortMethod: any|nil)
 	---@field GetIconTexture fun(self: df_button) : string returns the texture path of the button icon
@@ -904,6 +929,7 @@ end
 	---@field SetTextColor fun(self: df_button, color: any) set the button text color
 	---@field SetText fun(self: df_button, text: string) set the button text
 	---@field SetTextTruncated fun(self: df_button, text: string, maxWidth: number) set the button text and truncate it if it's too long
+	---@field SetParameters fun(self: df_button, param1: any, param2: any) set the parameters for the button callback function
 	---@field SetClickFunction fun(self: df_button, func: function, param1: any, param2: any, clickType: "left"|"right"|nil)
 	---@field SetIconFilterMode fun(self: df_button, filterMode: any) set the filter mode for the icon, execute after SetIcon()
 
@@ -983,11 +1009,36 @@ end
 		buttonObject.text_overlay = _G[name .. "_Text"]
 		buttonObject.disabled_overlay = _G[name .. "_TextureDisabled"]
 
+		--check for atlas
 		texture = texture or ""
-		buttonObject.button:SetNormalTexture(texture)
-		buttonObject.button:SetPushedTexture(texture)
-		buttonObject.button:SetDisabledTexture(texture)
-		buttonObject.button:SetHighlightTexture(texture, "ADD")
+
+		local bSetTexture = false
+		if (type(texture) == "string") then
+			local isAtlas = C_Texture.GetAtlasInfo(texture)
+			if (isAtlas) then
+				buttonObject.button:SetNormalTexture("")
+				buttonObject.button:GetNormalTexture():SetAtlas(texture)
+				buttonObject.button:SetPushedTexture("")
+				buttonObject.button:GetPushedTexture():SetAtlas(texture)
+				buttonObject.button:SetDisabledTexture("")
+				buttonObject.button:GetDisabledTexture():SetAtlas(texture)
+				buttonObject.button:SetHighlightTexture("")
+				buttonObject.button:GetHighlightTexture():SetAtlas(texture)
+				bSetTexture = true
+
+			elseif (detailsFramework:IsHtmlColor(texture)) then
+				local r, g, b, a = detailsFramework:ParseColors(texture)
+				self.icon:SetColorTexture(r, g, b, a)
+				bSetTexture = true
+			end
+		end
+
+		if (not bSetTexture) then
+			buttonObject.button:SetNormalTexture(texture)
+			buttonObject.button:SetPushedTexture(texture)
+			buttonObject.button:SetDisabledTexture(texture)
+			buttonObject.button:SetHighlightTexture(texture, "ADD")
+		end
 
 		local locTable = text
 		detailsFramework.Language.SetTextWithLocTableWithDefault(buttonObject.button.text, locTable, text)

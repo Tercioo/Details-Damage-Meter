@@ -424,14 +424,14 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 		return ImageObject
 	end
 
-function detailsFramework:CreateHighlightTexture(parent, parentKey, alpha, name)
+function detailsFramework:CreateHighlightTexture(parent, parentKey, alpha, name, texture)
 	if (not name) then
 		name = "DetailsFrameworkPictureNumber" .. detailsFramework.PictureNameCounter
 		detailsFramework.PictureNameCounter = detailsFramework.PictureNameCounter + 1
 	end
 
 	local highlightTexture = parent:CreateTexture(name, "highlight")
-	highlightTexture:SetTexture([[Interface\Buttons\WHITE8X8]])
+	highlightTexture:SetTexture(texture or [[Interface\Buttons\WHITE8X8]])
 	highlightTexture:SetAlpha(alpha or 0.1)
 	highlightTexture:SetBlendMode("ADD")
 	highlightTexture:SetAllPoints()

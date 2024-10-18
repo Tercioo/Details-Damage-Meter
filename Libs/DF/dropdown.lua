@@ -1,4 +1,18 @@
 
+--[=[ 
+	On selecting an option it calls the 'onclick' function of the option with the parameters: dropdownObject, fixedValue, option.value
+	Example:
+
+	local onClickFunc = function(dropdownObject, fixedValue, value)
+		--fixedValue is the value set by dropdownObject:SetFixedParameter(any)
+		--the fixed value will be the same for any option selected in the dropdown
+		--do something
+	end
+
+]=]
+
+
+---@type detailsframework
 local DF = _G ["DetailsFramework"]
 if (not DF or not DetailsFrameworkCanLoad) then
 	return
@@ -364,10 +378,7 @@ local runCallbackFunctionForButton = function(button)
 	--exec function if any
 	if (button.table.onclick) then
 		--need: the the callback func, the object of the dropdown (capsule), the object (capsule) of the button to get FixedValue and the last need the value of the optionTable
-		local success, errorText = pcall(button.table.onclick, button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
-		if (not success) then
-			error("Details! Framework: dropdown " .. button:GetParent():GetParent():GetParent().MyObject:GetName() ..  " error: " .. errorText)
-		end
+		xpcall(button.table.onclick, geterrorhandler(), button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
 		button:GetParent():GetParent():GetParent().MyObject:RunHooksForWidget("OnOptionSelected", button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
 	end
 end
@@ -376,10 +387,7 @@ local canRunCallbackFunctionForOption = function(canRunCallback, optionTable, dr
 	if (canRunCallback) then
 		local fixedValue = rawget(dropdownObject, "FixedValue")
 		if (optionTable.onclick) then
-			local success, errorText = pcall(optionTable.onclick, dropdownObject, fixedValue, optionTable.value)
-			if (not success) then
-				error("Details! Framework: dropdown " .. dropdownObject:GetName() ..  " error: " .. errorText)
-			end
+			xpcall(optionTable.onclick, geterrorhandler(), dropdownObject, fixedValue, optionTable.value)
 			dropdownObject:RunHooksForWidget("OnOptionSelected", dropdownObject, fixedValue, optionTable.value)
 		end
 	end
@@ -1119,7 +1127,9 @@ end
 --object constructor
 
 ---@class df_dropdown : table, frame, df_widgets
+---@field func function
 ---@field SetTemplate fun(self:df_dropdown, template:table|string)
+---@field SetFixedParameter fun(self:df_dropdown, value:any) is sent as 2nd argument to the callback function, the value is the same no matter which option is selected
 ---@field BuildDropDownFontList fun(self:df_dropdown, onClick:function, icon:any, iconTexcoord:table?, iconSize:table?):table make a dropdown list with all fonts available, on select a font, call the function onClick
 ---@field SetFunction fun(self:df_dropdown, func:function)
 ---@field SetEmptyTextAndIcon fun(self:df_dropdown, text:string, icon:any)
@@ -1127,6 +1137,7 @@ end
 ---@field Open fun(self:df_dropdown)
 ---@field Close fun(self:df_dropdown)
 ---@field Refresh fun(self:df_dropdown)
+---@field GetValue fun(self:df_dropdown):any
 ---@field GetFunction fun(self:df_dropdown):function
 ---@field GetMenuSize fun(self:df_dropdown):number, number
 ---@field SetMenuSize fun(self:df_dropdown, width:number, height:number)
@@ -1212,6 +1223,56 @@ function DF:CreateAnchorPointListGenerator(callback)
 	return newGenerator
 end
 
+function DF:CreateRaidInstanceListGenerator(callback)
+	---@type df_instanceinfo[]
+	local allInstances = DF.Ejc.GetAllRaidInstances()
+
+	local newGenerator = function()
+		local dropdownOptions = {}
+
+		for i, instanceInfo in ipairs(allInstances) do
+			table.insert(dropdownOptions, {
+				label = instanceInfo.name,
+				icon = instanceInfo.icon,
+				texcoord = instanceInfo.iconCoords,
+				value = instanceInfo.journalInstanceId,
+				onclick = callback
+			})
+		end
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
+function DF:CreateBossListGenerator(callback, instanceId)
+	---@type df_encounterinfo[]
+	local allEncounters = DF.Ejc.GetAllEncountersFromInstance(instanceId)
+
+	if (not allEncounters) then
+		return function() return {} end
+	end
+
+	local newGenerator = function()
+		local dropdownOptions = {}
+
+		for i, encounterInfo in ipairs(allEncounters) do
+			table.insert(dropdownOptions, {
+				label = encounterInfo.name,
+				icon = encounterInfo.creatureIcon,
+				texcoord = encounterInfo.creatureIconCoords,
+				value = encounterInfo.journalEncounterId, --use with DetailsFramework.Ejc.GetEncounterInfo(value)
+				onclick = callback
+			})
+		end
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
 function DF:CreateAudioListGenerator(callback)
 	local newGenerator = function()
 		local dropdownOptions = {
@@ -1286,6 +1347,49 @@ function DF:CreateAudioDropDown(parent, callback, default, width, height, member
 	return dropDownObject
 end
 
+function DF:CreateRaidInstanceSelectorDroDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateRaidInstanceListGenerator(callback)
+
+	---@type df_instanceinfo[]
+	local allInstances = DF.Ejc.GetAllRaidInstances()
+
+	--if an index was passed, convert it to the journalInstanceId
+	if (default <= #allInstances) then
+		default = allInstances[default].journalInstanceId
+	end
+
+	--make sure the default value is valid, in a new content patch, some raids might have been reprecated from current content
+	if (not DF.Ejc.IsCurrentContent(default)) then
+		default = allInstances[1] and allInstances[1].journalInstanceId
+	end
+
+	return DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+end
+
+---@class df_dropdown_bossselector : df_dropdown
+---@field callbackFunc function
+---@field SetInstance fun(self:df_dropdown_bossselector, instanceId:any)
+
+---@param self df_dropdown_bossselector
+---@param instanceId number
+local setInstance = function(self, instanceId)
+	self:SetFixedParameter(instanceId)
+	self.func = DF:CreateBossListGenerator(self.callbackFunc, instanceId)
+	self:Refresh()
+end
+
+function DF:CreateBossSelectorDroDown(parent, callback, instanceId, default, width, height, member, name, template)
+	local func = DF:CreateBossListGenerator(callback, instanceId)
+	local dropdown = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	dropdown:SetFixedParameter(instanceId)
+
+	---@cast dropdown +df_dropdown_bossselector
+	dropdown.SetInstance = setInstance
+	dropdown.callbackFunc = callback
+
+	return dropdown
+end
+
 ---create a dropdown object
 ---@param parent frame
 ---@param func function
@@ -1300,13 +1404,24 @@ function DF:CreateDropDown(parent, func, default, width, height, member, name, t
 	return DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 end
 
+---create a dropdown object
+---@param parent frame
+---@param container frame
+---@param name string?
+---@param member string?
+---@param width number?
+---@param height number?
+---@param func function
+---@param default any
+---@param template table?
+---@return df_dropdown
 function DF:NewDropDown(parent, container, name, member, width, height, func, default, template)
 	if (not name) then
 		name = "DetailsFrameworkDropDownNumber" .. DF.DropDownCounter
 		DF.DropDownCounter = DF.DropDownCounter + 1
 
 	elseif (not parent) then
-		return error("Details! Framework: parent not found.", 2)
+		error("Details! Framework: parent not found.", 2)
 	end
 
 	if (not container) then

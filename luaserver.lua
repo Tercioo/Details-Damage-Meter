@@ -24,6 +24,8 @@ function LibStub:NewLibrary(major, minor)end
 function LibStub:GetLibrary(major, silent)end
 function LibStub:IterateLibraries()end
 
+CLASS_ICON_TCOORDS = {}
+
 --uiobject: is an object that represents a UI element, such as a frame, a texture, or a button. UIObjects are the base class for all UI elements in the WoW API.
 --3D World: is an object which is placed behind|below all UI elements, cannot be parent of any object, in the 3D World object is where the game world is rendered
 --size: corresponds to the height and height of an object, it is measure in pixels, must be bigger than zero.
@@ -5009,9 +5011,10 @@ GetRealNumRaidMembers = function() return 0 end
 ---@return string, string
 GetPartyAssignment = function(unit) return "", "" end
 
+---return name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole
 ---@param raidID number
----@return string, string
-GetRaidRosterInfo = function(raidID) return "", "" end
+---@return string, string, number, number, string, string, string, boolean, boolean, string, boolean, string
+GetRaidRosterInfo = function(raidID) return "", "", 0, 0, "", "", "", true, true, "", true, "" end
 
 ---@param unit string
 ---@return number

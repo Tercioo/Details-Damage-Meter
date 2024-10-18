@@ -1,5 +1,17 @@
 
 --[=[
+search keys:
+~internal
+~comms
+~timers
+~callbacks
+
+~unitinfo
+~equipment
+~opennotes
+~cooldowns
+~keystones
+
 
 Please refer to the docs.txt within this file folder for a guide on how to use this library.
 If you get lost on implementing the lib, be free to contact Tercio on Details! discord: https://discord.gg/AGSzAZX or email to terciob@gmail.com
@@ -44,7 +56,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 142
+local CONST_LIB_VERSION = 144
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -1375,7 +1387,7 @@ end
     end)
 
 --------------------------------------------------------------------------------------------------------------------------------
---~player general ~info ~unit
+--~player general ~info ~unit ~unitinfo
 
     --API calls
         --return a table containing all information of units
@@ -1591,6 +1603,8 @@ function openRaidLib.UnitInfoManager.SendTalentUpdate()
     openRaidLib.commHandler.SendCommData(dataToSend)
     diagnosticComm("SendTalentUpdateData| " .. dataToSend) --debug
 end
+
+--/dump LibStub:GetLibrary("LibOpenRaid-1.0", true).UnitInfoManager.GetUnitInfo(UnitName("player"))
 
 function openRaidLib.UnitInfoManager.OnPlayerTalentChanged()
     --this talent update could be a specialization change, so we need to pass the specId as well

@@ -213,11 +213,10 @@
 			[194384] = true, --atonement uptime
 			[378134] = true, --rallied to victory
 		}
+		Details.CreditBuffToTarget = buffs_on_target
 
 		---@type table<spellid, boolean>
 		local ignoredWorldAuras = Details222.IgnoredWorldAuras
-
-		Details.CreditBuffToTarget = buffs_on_target
 
 		--store all information about augmentation evokers ~roskash
 		local augmentation_cache = {
@@ -231,6 +230,11 @@
 			shield = {},
 			ss = {},
 			infernobless = {},
+		}
+
+		local bombardment_stuff = {
+			spellId = 434481,
+			only_on_scalecomander = false,
 		}
 
 		Details.augmentation_cache = augmentation_cache
