@@ -237,6 +237,7 @@
 			["RaidHeroic"] = 15,
 			["RaidMythic"] = 16,
 		}
+		Details222.DHook = hooksecurefunc
 
 		local emptyFunction = function()end
 		local emptyTable = {}
@@ -2168,6 +2169,10 @@ function Details:DestroyActor(actorObject, actorContainer, combatObject, callSta
 	end
 
 	Details222.TimeMachine.RemoveActor(actorObject)
+
+	if (not actorObject.Name) then
+		print("error: actorObject.Name is nil", actorObject.tipo, actorObject.serial, actorObject.nome)
+	end
 
 	local actorName = actorObject:Name()
 	combatObject:RemoveActorFromSpellCastTable(actorName)

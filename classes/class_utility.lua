@@ -403,7 +403,7 @@ local ReportSingleDeathFunc = function(IsCurrent, IsReverse, AmtLines)
 		t [#t+1] = table [1] .. table [4] .. table [2] .. table [3]
 	end
 
-	local title = tremove(t, 1)
+	local title = table.remove(t, 1)
 	t = Details.table.reverse(t)
 	tinsert(t, 1, title)
 

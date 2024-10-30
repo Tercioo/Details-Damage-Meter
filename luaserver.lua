@@ -359,6 +359,9 @@ CLASS_ICON_TCOORDS = {}
 ---@field tilesHorizontally boolean?
 ---@field tilesVertically boolean?
 
+---@alias spellid number integer each spell in the game has a unique spell id, this id can be used to identify a spell.
+---@alias unitname string name of a unit
+---@alias unitguid string unique id of a unit (GUID)
 
 ---@alias width number property that represents the horizontal size of a UI element, such as a frame or a texture. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'height' is used.
 ---@alias height number property that represents the vertical size of a UI element, such as a frame or a texture. Gotten from the first result of GetHeight() or from the second result of GetSize(). It is expected a GetHeight() or GetSize() when the type 'height' is used.
@@ -375,9 +378,6 @@ CLASS_ICON_TCOORDS = {}
 ---@alias encountername string encounter name received by the event ENCOUNTER_START and ENCOUNTER_END also used by the encounter journal
 ---@alias encounterdifficulty number difficulty of the encounter received by the event ENCOUNTER_START and ENCOUNTER_END
 ---@alias instancename string localized name of an instance (e.g. "The Nighthold")
----@alias spellid number each spell in the game has a unique spell id, this id can be used to identify a spell.
----@alias unitname string name of a unit
----@alias unitguid string unique id of a unit (GUID)
 ---@alias actorname string name of a unit
 ---@alias petname string refers to a pet's name
 ---@alias ownername string refers to the pet's owner name
@@ -601,6 +601,7 @@ BackdropTemplateMixin = {}
 ---@field SetResizable fun(self: frame, enable: boolean) enable resizing of the frame
 ---@field EnableMouseWheel fun(self: frame, enable: boolean) enable mouse wheel scrolling
 ---@field RegisterForDrag fun(self: frame, button: string) register the frame for drag events, allowing it to be dragged by the mouse
+---@field Raise fun() raise the frame to the top of its strata
 ---@field SetResizeBounds fun(self: frame, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number) set the minimum and maximum size of the frame
 ---@field RegisterEvent fun(self: frame, event: string) register for an event, trigers "OnEvent" script when the event is fired
 ---@field RegisterUnitEvent fun(self: frame, event: string, unitId: unit) register for an event, trigers "OnEvent" only if the event occurred for the registered unit
@@ -830,6 +831,16 @@ LE_PARTY_CATEGORY_INSTANCE = true
 
 --functions
 C_ChatInfo = true
+
+---@class classinfo : table
+---@field classID number
+---@field className string
+---@field classFile string
+
+C_CreatureInfo = {}
+---@param classId number
+---@return classinfo
+function C_CreatureInfo.GetClassInfo(classId) return {} end
 
 C_Item = {}
 function C_Item.PickupItem() end
@@ -1100,6 +1111,15 @@ function C_UnitAuras.IsAuraFilteredOutByInstanceID(unitToken, auraInstanceID, fi
 ---@return boolean
 function C_UnitAuras.WantsAlteredForm(unitToken) return true end
 
+---return true if the unit has assistant privileges in the raid group
+---@param unitToken unit
+---@return boolean
+UnitIsGroupAssistant = function(unitToken) return true end
+
+---return true if the unit is the leader of the group
+---@param unitToken unit
+---@return boolean
+UnitIsGroupLeader = function(unitToken) return true end
 
 
 ---linearly interpolates between two values. Example: Lerp(1, 2, 0.5) return 1.5
@@ -1822,7 +1842,7 @@ function floor(x) return 0 end
 ---@param table table
 ---@param index number?
 ---@return any
-function tremove(table, index) return nil end
+function table.remove(table, index) return nil end
 
 --loads a string and output a function in lua.
 ---@param code string The Lua code string to be executed.

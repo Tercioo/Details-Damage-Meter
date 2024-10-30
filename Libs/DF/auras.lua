@@ -19,7 +19,7 @@ local GetSpellTabInfo = GetSpellTabInfo or function(tabLine) local skillLine = C
 local unpack = unpack
 local CreateFrame = CreateFrame
 local GameTooltip = GameTooltip
-local tremove = tremove
+local tremove = table.remove
 
 local CONST_MAX_SPELLS = 500000
 

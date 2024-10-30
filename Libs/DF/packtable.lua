@@ -39,7 +39,7 @@ end
 ---merge multiple tables into a single one and pack it into a string separating values with commas where the first index tells the table length
 ---can pack strings and numbers, example:
 ---passed table: { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
----result string: "9,1,2,3,4,5,6,7,8,9" > 9 indicating the total size of the subtables following by the indexes of the subtables
+---result string: "9,1,2,3,4,5,6,7,8,9", 9 indicating the total size of the subtables following by the indexes of the subtables
 ---@param table table
 ---@return string
 function detailsFramework.table.packsubmerge(table)
@@ -57,6 +57,39 @@ function detailsFramework.table.packsubmerge(table)
         local subTable = table[i]
         for subIndex = 1, #subTable do
             newString = newString .. subTable[subIndex] .. ","
+        end
+    end
+
+    newString = newString:gsub(",$", "")
+    return newString
+end
+
+---merge a key-value table into a single string separating values with commas, where the first index is the key and the second index is the value
+---example: {key1 = value1, key2 = value2, key3 = value3}
+---returned string: "key1,value1,key2,value2,key3,value3"
+---use unpackhash to rebuild the table
+function detailsFramework.table.packhash(table)
+    local newString = ""
+    for key, value in pairs(table) do
+        newString = newString .. key .. "," .. value .. ","
+    end
+
+    newString = newString:gsub(",$", "")
+    return newString
+end
+
+---pack a hash table where the value of the key is a numerical table
+---example: {key1 = {1, 2, 3}, key2 = {4, 6}, key3 = {7}}
+---returned string: "key1,3,1,2,3,key2,2,4,6,key3,1,7"
+---use unpackhashsubtable to rebuild the table
+---@param table table
+---@return string
+function detailsFramework.table.packhashsubtable(table)
+    local newString = ""
+    for key, value in pairs(table) do
+        newString = newString .. key .. "," .. #value .. ","
+        for i = 1, #value do
+            newString = newString .. value[i] .. ","
         end
     end
 
@@ -131,6 +164,50 @@ function detailsFramework.table.unpacksub(data, startIndex)
         else
             startIndex = nextIndex
         end
+    end
+
+    return result
+end
+
+function detailsFramework.table.unpackhash(data)
+    local splittedTable = {}
+    for value in data:gmatch("[^,]+") do
+        splittedTable[#splittedTable+1] = value
+    end
+
+    local result = {}
+    for i = 1, #splittedTable, 2 do
+        result[splittedTable[i]] = splittedTable[i+1]
+    end
+
+    return result
+end
+
+---unpack a packhashsubtable string into a hash table where the value of the key is a numerical table
+---expected data: "key1,3,1,2,3,key2,2,4,6,key3,1,7"
+---returned table: {key1 = {1, 2, 3}, key2 = {4, 6}, key3 = {7}}
+function detailsFramework.table.unpackhashsubtable(data)
+    local splittedTable = {}
+    for value in data:gmatch("[^,]+") do
+        splittedTable[#splittedTable+1] = value
+    end
+
+    local result = {}
+    local currentIndex = 1
+    while (splittedTable[currentIndex]) do
+        local key = splittedTable[currentIndex]
+        local tableSize = tonumber(splittedTable[currentIndex+1])
+        if (not tableSize) then
+            error("Details! Framework: table.unpackhashsubtable: invalid table size.")
+        end
+
+        local subTable = {}
+        for i = 1, tableSize do
+            subTable[#subTable+1] = splittedTable[currentIndex+1+i]
+        end
+
+        result[key] = subTable
+        currentIndex = currentIndex + tableSize + 2
     end
 
     return result

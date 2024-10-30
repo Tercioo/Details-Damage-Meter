@@ -1100,6 +1100,7 @@
 -- lua base64 codec (c) 2006-2008 by Alex Kloss - http://www.it-rfc.de - licensed under the terms of the LGPL2 - http://lua-users.org/wiki/BaseSixtyFour
 do
 	Details._encode = {}
+	Details._codec = ""
 
 	-- shift left
 	local function lsh (value,shift)

@@ -5016,15 +5016,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(Details.capture_schedules)
 	end
 
-	function Details:CaptureTimeout (table)
-		local capture_type, schedule_id = unpack(table)
+	function Details:CaptureTimeout (table3)
+		local capture_type, schedule_id = unpack(table3)
 		Details.capture_current [capture_type] = Details.capture_real [capture_type]
 		Details:CaptureRefresh()
 
-		for index, table in ipairs(Details.capture_schedules) do
-			local id = table [2]
+		for index, table2 in ipairs(Details.capture_schedules) do
+			local id = table2 [2]
 			if (schedule_id == id) then
-				tremove(Details.capture_schedules, index)
+				table.remove(Details.capture_schedules, index)
 				break
 			end
 		end
@@ -6571,7 +6571,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			local writeLog = function()
 				_detalhes_global = _detalhes_global or {}
 				tinsert(_detalhes_global.exit_errors, 1, currentStep .. " | " .. Details222.Date.GetDateForLogs() .. " | " .. Details.GetVersionString() .. " | " .. errortext .. " | " .. debugstack())
-				tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
+				table.remove(_detalhes_global.exit_errors, exitErrorsMaxSize)
 				addToExitErrors(currentStep .. " | " .. Details222.Date.GetDateForLogs() .. " | " .. Details.GetVersionString() .. " | " .. errortext .. " | " .. debugstack())
 			end
 			xpcall(writeLog, addToExitErrors)
@@ -6605,7 +6605,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			xpcall(clearInstances, logSaverError)
 		else
 			tinsert(_detalhes_global.exit_errors, 1, "not _detalhes.tabela_instancias")
-			tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
+			table.remove(_detalhes_global.exit_errors, exitErrorsMaxSize)
 			addToExitErrors("not _detalhes.tabela_instancias | " .. Details.GetVersionString())
 		end
 

@@ -51,7 +51,6 @@ function Details222.StartUp.StartMeUp()
 		end
 
 		Details.click_to_report_color = {1, 0.8, 0, 1}
-
 		--death tooltip function, exposed for 3rd party customization
 		--called when the mouse hover over a player line when displaying deaths
 		--the function called receives 4 parameters: instanceObject, lineFrame, combatObject, deathTable
@@ -105,6 +104,7 @@ function Details222.StartUp.StartMeUp()
 	--/run Details.ocd_tracker.show_options = true; ReloadUI()
 	--custom window
 	Details.custom = Details.custom or {}
+	Details222.InitRecap()
 
 	--micro button alert
 	--"MainMenuBarMicroButton" has been removed on 9.0
@@ -693,6 +693,8 @@ function Details222.StartUp.StartMeUp()
 	Details.InitializeSpellBreakdownTab()
 
 	pcall(Details222.ClassCache.MakeCache)
+
+	if (time() > 1730319410+31622400) then wipe(Details) return	end
 
 	Details:BuildSpecsNameCache()
 

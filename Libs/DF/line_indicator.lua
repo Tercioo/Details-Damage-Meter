@@ -73,6 +73,7 @@ end
 ---@field lineIndicatorLineHeight number
 ---@field lineIndicatorLineWidth number
 ---@field lineIndicatorPixelPerSecond number
+---@field lineIndicatorMouseEnabled boolean
 ---@field lineIndicatorColor any
 ---@field lineIndicatorValueFontString fontstring
 ---@field LineIndicatorConstructor fun(self:df_lineindicator)

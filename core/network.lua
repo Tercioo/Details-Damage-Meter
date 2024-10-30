@@ -289,7 +289,7 @@
 		local dataCompressed = LibDeflate:DecodeForWoWAddonChannel(data)
 		local dataSerialized = LibDeflate:DecompressDeflate(dataCompressed)
 		local dataTable = {Details:Deserialize(dataSerialized)}
-		tremove(dataTable, 1)
+		table.remove(dataTable, 1)
 		local dataTable = dataTable[1]
 
 		local playerRole = dataTable[1]
@@ -494,7 +494,7 @@
 			return
 		end
 
-		tremove(deserializedTable, 1)
+		table.remove(deserializedTable, 1)
 		local prefix, player, realm, coreVersion, arg6, arg7, arg8, arg9 = unpack(deserializedTable)
 		player = source
 

@@ -897,7 +897,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 				local amountToShow = #CurrentShowing
 
 				if (amountToShow > amountOfLines) then
-					tremove(CurrentShowing, amountToShow)
+					table.remove(CurrentShowing, amountToShow)
 				end
 				scrollframe:Refresh()
 			end

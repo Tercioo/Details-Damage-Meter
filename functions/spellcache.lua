@@ -9,7 +9,7 @@ do
 	local setmetatable = setmetatable
 	local unpack = unpack
 	local tinsert = table.insert
-	local tremove = tremove
+	local tremove = table.remove
 	local C_Timer = C_Timer
 
 	--is this a timewalking exp?

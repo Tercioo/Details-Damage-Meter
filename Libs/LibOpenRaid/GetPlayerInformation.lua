@@ -476,7 +476,7 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
             numModifiers = numModifiers and tonumber(numModifiers) or 0
 
             for i = #linkTable, 14 + numModifiers + 1, -1 do
-                tremove(linkTable, i)
+                table.remove(linkTable, i)
             end
 
             local newItemLink = table.concat(linkTable, ":")

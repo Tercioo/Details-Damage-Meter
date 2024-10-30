@@ -3536,7 +3536,7 @@ function Details:monta_relatorio (este_relatorio, custom)
 
 		if (already_exists) then
 			--push it to  front
-			local t = tremove(Details.latest_report_table, already_exists)
+			local t = table.remove(Details.latest_report_table, already_exists)
 			t [4] = amt
 			table.insert(Details.latest_report_table, 1, t)
 		else
@@ -3548,7 +3548,7 @@ function Details:monta_relatorio (este_relatorio, custom)
 			end
 		end
 
-		tremove(Details.latest_report_table, 11)
+		table.remove(Details.latest_report_table, 11)
 	end
 
 	local barras = self.barras
@@ -3691,7 +3691,7 @@ function Details:monta_relatorio (este_relatorio, custom)
 			Details:FormatReportLines (report_lines, t, report_name_function, report_amount_function, report_build_line)
 		else
 			for i = #raw_data_to_report, amt+1, -1 do
-				tremove(raw_data_to_report, i)
+				table.remove(raw_data_to_report, i)
 			end
 			Details:FormatReportLines (report_lines, raw_data_to_report, report_name_function, report_amount_function, report_build_line)
 		end

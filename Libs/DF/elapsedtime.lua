@@ -86,6 +86,10 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 		end
 	end,
 
+	SetScrollChild = function(self, scrollChild)
+		self.scrollChild = scrollChild
+	end,
+
 	Refresh = function(self, elapsedTime, scale)
 		if (not elapsedTime) then
 			--invalid data passed
@@ -118,7 +122,7 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 			label:SetText(detailsFramework:IntegerToTimer(floor(secondsOfTime)))
 
 			if (label.line:IsShown()) then
-				label.line:SetHeight(parent:GetParent():GetHeight())
+				label.line:SetHeight(self.scrollChild:GetHeight())
 			end
 
 			label:Show()
@@ -128,6 +132,7 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 
 ---@class df_elapsedtime : frame, df_elapsedtime_mixin, df_optionsmixin
 ---@field labels table<number, df_elapsedtime_label>
+---@field scrollChild frame
 
 ---creates a frame to show the elapsed time in a row
 ---@param parent frame
@@ -135,6 +140,7 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 ---@param options df_elapsedtime_options?
 ---@return df_elapsedtime
 function detailsFramework:CreateElapsedTimeFrame(parent, name, options)
+	---@type df_elapsedtime
 	local elapsedTimeFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
 
 	detailsFramework:Mixin(elapsedTimeFrame, detailsFramework.OptionsFunctions)
@@ -145,6 +151,8 @@ function detailsFramework:CreateElapsedTimeFrame(parent, name, options)
 
 	elapsedTimeFrame:SetBackdrop(elapsedTimeFrame.options.backdrop)
 	elapsedTimeFrame:SetBackdropColor(unpack(elapsedTimeFrame.options.backdrop_color))
+
+	elapsedTimeFrame.scrollChild = parent
 
 	elapsedTimeFrame.labels = {}
 

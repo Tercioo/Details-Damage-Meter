@@ -9,7 +9,7 @@ local addonName, Details222 = ...
 --remove warnings in the code
 local ipairs = ipairs
 local tinsert = table.insert
-local tremove = tremove
+local tremove = table.remove
 local type = type
 local unpack = _G.unpack
 local PixelUtil = PixelUtil
