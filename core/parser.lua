@@ -415,11 +415,15 @@
 			[32176] = 17364, -- shaman Stormstrike
 			[45284] = 188196, --shaman lightining bolt overloaded
 
-			[45297] = 188443, -- shaman chain lightning overload
-			[120588] = 117014, -- shaman elemental blast overload
-			[285466] = 285452, -- shaman lava burst overload
-			[298765] = 77478, -- shaman earthquake overload
-			[219271] = 210714, -- shaman icefury overload
+			[45297] = 188443, --ele sham chain lightning overload
+			[77505] = 77478, --ele sham earthquake knockdown
+			[298765] = 77478, --ele sham earthquake overload
+			[463351] = 452201, --ele sham tempest overload
+			[285466] = 285452, --ele sham lava burst overload
+			[381725] = 8042, --ele sham earth shock overload
+			[45284] = 188196, --ele sham lightning bolt overload
+			[120588] = 117014, --ele sham ele blast overload
+			[219271] = 210714, --ele sham icefury overload
 
 			[228361] = 228360, --shadow priest void erruption
 
