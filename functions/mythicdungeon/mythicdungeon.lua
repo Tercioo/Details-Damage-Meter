@@ -398,7 +398,7 @@ end)
 
 ---@param combatObject combat
 function DetailsMythicPlusFrame.SaveMythicPlusStats(combatObject)
-    local mapChallengeModeID, mythicLevel, time, onTime, keystoneUpgradeLevels, practiceRun, oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord, PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetCompletionInfo()
+    local mapChallengeModeID, mythicLevel, time, onTime, keystoneUpgradeLevels, practiceRun, oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord, PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetChallengeCompletionInfo()
     if (mapChallengeModeID) then
         local statName = "mythicdungeoncompletedDF2"
 

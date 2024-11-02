@@ -1,6 +1,6 @@
 
 
-local dversion = 577
+local dversion = 578
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1384,6 +1384,10 @@ end
 ---@param className class
 ---@return string
 function DF:AddClassColorToText(text, className)
+	if (type(className) == "number") then
+		className = DF.ClassIndexToFileName[className]
+	end
+
 	if (type(className) ~= "string") then
 		return DF:RemoveRealName(text)
 
@@ -4993,11 +4997,21 @@ function DF:GetGroupTypes()
 	return DF.GroupTypes
 end
 
-DF.RoleTypes = {
+---@class roleinfo : table
+---@field Name string
+---@field ID string
+---@field Texture string
+
+---@type roleinfo[]
+local roles = {
 	{Name = _G.DAMAGER, ID = "DAMAGER", Texture = _G.INLINE_DAMAGER_ICON},
 	{Name = _G.HEALER, ID = "HEALER", Texture = _G.INLINE_HEALER_ICON},
 	{Name = _G.TANK, ID = "TANK", Texture = _G.INLINE_TANK_ICON},
+	{Name = _G.NONE, ID = "NONE", Texture = _G.INLINE_DAMAGER_ICON},
 }
+
+DF.RoleTypes = roles
+
 function DF:GetRoleTypes()
 	return DF.RoleTypes
 end

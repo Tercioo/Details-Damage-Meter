@@ -382,6 +382,7 @@ CLASS_ICON_TCOORDS = {}
 ---@alias petname string refers to a pet's name
 ---@alias ownername string refers to the pet's owner name
 ---@alias spellname string name of a spell
+---@alias classid number the ID of a class
 ---@alias spellschool number each spell in the game has a school, such as fire, frost, shadow and many others. This value can be used to identify the school of a spell.
 ---@alias actorid string unique id of a unit (GUID)
 ---@alias serial string unique id of a unit (GUID)
@@ -802,6 +803,7 @@ BackdropTemplateMixin = {}
 ---@field SetFont fun(self: editbox, font: string, size: number, flags: string)
 ---@field SetFontObject fun(self: editbox, fontString: fontstring)
 ---@field GetFont fun(self: editbox) : string, number, string
+---@field ClearFocus fun(self:editbox) clear the editing focus
 ---@field SetTextColor fun(self: editbox, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
 ---@field SetJustifyH fun(self:editbox, alignment:string)
 ---@field SetTextInsets fun(self:editbox, left:number, right:number, top:number, bottom:number)
@@ -1439,7 +1441,7 @@ function C_ChallengeMode.GetActiveKeystoneInfo() return 0, {}, true end
 ---@return number primaryAffix The primary affix id.
 ---@return boolean isEligibleForScore Whether the completion is eligible for a score.
 ---@return ChallengeModeCompletionMemberInfo[] members The members of the group.
-function C_ChallengeMode.GetCompletionInfo() return 0, 0, 0, true, 0, true, 0, 0, true, true, 0, true, {} end
+function C_ChallengeMode.GetChallengeCompletionInfo() return 0, 0, 0, true, 0, true, 0, 0, true, true, 0, true, {} end
 
 ---return the death count for the current challenge mode.
 ---@return number numDeaths The number of deaths.

@@ -702,6 +702,23 @@ function DetailsFrameworkDropDownOptionOnLeave(frame)
 	frame:GetParent().mouseover:Hide()
 end
 
+---@class dropdownoption : table
+---@field value any
+---@field label string text shown in the dropdown option
+---@field onclick fun(dropdownObject:table, fixedValue:any, value:any)? function to call when the option is selected
+---@field icon string|number? texture
+---@field color any any color format
+---@field font string?
+---@field texcoord number[]? left, right, top, bottom
+---@field iconcolor any any color format
+---@field iconsize number[]? width, height
+---@field languageId string?
+---@field rightbutton function? function to call on right click
+---@field statusbar string|number? statusbar texture
+---@field statusbarcolor any any color format
+---@field rightTexture string|number? texture
+---@field centerTexture string|number? texture
+
 --@button is the raw button frame, object is the button capsule
 --click on the main dropdown frame (not the menu options popup)
 function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
@@ -735,6 +752,8 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 
 			for tindex, thisOption in ipairs(optionsTable) do
 				local bIsOptionVisible = isOptionVisible(button, thisOption)
+
+				---@cast thisOption dropdownoption
 
 				if (bIsOptionVisible) then
 					local thisOptionFrame = object.menus[i]

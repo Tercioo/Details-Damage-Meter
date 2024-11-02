@@ -301,6 +301,8 @@ detailsFramework.TimeLine_LineMixin = {
 			block.info.customIcon = customIcon --nil set to nil if not exists
 			block.info.customName = customName
 
+			block.text:SetText(customName or "")
+
 			if (useIconOnBlock) then
 				local iconTexture = lineData.icon
 				if (customIcon) then
@@ -434,7 +436,7 @@ detailsFramework.TimeLine_LineMixin = {
 			local background = block:CreateTexture(nil, "background")
 			background:SetColorTexture(1, 1, 1, 1)
 			local icon = block:CreateTexture(nil, "artwork")
-			local text = block:CreateFontString(nil, "artwork")
+			local text = block:CreateFontString(nil, "artwork", "GameFontNormal")
 
 			detailsFramework.TimeLine_LineMixin.CreateAuraLength(block)
 
@@ -449,7 +451,8 @@ detailsFramework.TimeLine_LineMixin = {
 
 			background:SetAllPoints()
 			icon:SetPoint("left")
-			text:SetPoint("left", icon, "left", 2, 0)
+			text:SetPoint("left", icon, "right", 2, 0)
+			detailsFramework:SetFontOutline(text, "OUTLINE")
 
 			block.icon = icon
 			block.text = text
@@ -635,11 +638,22 @@ detailsFramework.TimeLineMixin = {
 				lineHeader = CreateFrame("frame", nil, self.headerBody, "BackdropTemplate")
 				lineHeader:SetSize(detachedHeaderFrame:GetWidth(), self.options.line_height)
 				lineHeader:SetPoint("topleft", self.headerBody, "topleft", 0, xPosition)
+				detailsFramework:CreateHighlightTexture(lineHeader, "HighlightTexture")
+				lineHeader.HighlightTexture:SetDrawLayer("overlay", 1)
+				lineHeader.HighlightTexture:Hide()
+				lineHeader:EnableMouse(true)
+				lineHeader:SetScript("OnEnter", function() self.options.on_enter(line) lineHeader.HighlightTexture:Show() end)
+				lineHeader:SetScript("OnLeave", function() self.options.on_leave(line) lineHeader.HighlightTexture:Hide() end)
+				line:SetScript("OnEnter", function() self.options.on_enter(line) lineHeader.HighlightTexture:Show() end)
+				line:SetScript("OnLeave", function() self.options.on_leave(line) lineHeader.HighlightTexture:Hide() end)
+
 				lineHeader.Line = line
 			else
 				lineHeader = CreateFrame("frame", nil, line, "BackdropTemplate")
 				lineHeader:SetPoint("topleft", line, "topleft", 0, 0)
 				lineHeader:SetPoint("bottomleft", line, "bottomleft", 0, 0)
+				line:SetScript("OnEnter", self.options.on_enter)
+				line:SetScript("OnLeave", self.options.on_leave)
 			end
 			--lineHeader:SetScript("OnEnter", self.options.header_on_enter)
 			--lineHeader:SetScript("OnLeave", self.options.header_on_leave)
@@ -649,8 +663,6 @@ detailsFramework.TimeLineMixin = {
 			--store the individual textures that shows the timeline information
 			line.blocks = {}
 
-			line:SetScript("OnEnter", self.options.on_enter)
-			line:SetScript("OnLeave", self.options.on_leave)
 			line:SetMouseClickEnabled(false)
 
 			line:SetBackdrop(self.options.backdrop)
@@ -804,6 +816,7 @@ detailsFramework.TimeLineMixin = {
 		local linePadding = self.options.line_padding
 
 		local bodyHeight = (lineHeight + linePadding) * #self.data.lines
+		bodyHeight = bodyHeight + 40
 		self.body:SetHeight(bodyHeight)
 		self.verticalSlider:SetMinMaxValues(0, max(bodyHeight - self:GetHeight(), 0))
 		self.verticalSlider:SetValue(0)

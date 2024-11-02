@@ -327,7 +327,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     if (type(Details222.MythicPlus.time) == "number") then
         newCombat.run_time = Details222.MythicPlus.time
         newCombat.elapsed_time = Details222.MythicPlus.ElapsedTime
-        Details222.MythicPlus.LogStep("GetCompletionInfo() Found, Time: " .. Details222.MythicPlus.time)
+        Details222.MythicPlus.LogStep("GetChallengeCompletionInfo() Found, Time: " .. Details222.MythicPlus.time)
 
     elseif (newCombat.is_mythic_dungeon.WorldStateTimerEnd and newCombat.is_mythic_dungeon.WorldStateTimerStart) then
         local runTime = newCombat.is_mythic_dungeon.WorldStateTimerEnd - newCombat.is_mythic_dungeon.WorldStateTimerStart
@@ -335,7 +335,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
         Details222.MythicPlus.LogStep("World State Timers is Available, Run Time: " .. runTime .. "| start:" .. newCombat.is_mythic_dungeon.WorldStateTimerStart .. "| end:" .. newCombat.is_mythic_dungeon.WorldStateTimerEnd)
     else
         newCombat.run_time = timeInCombat
-        Details222.MythicPlus.LogStep("GetCompletionInfo() and World State Timers not Found, Activity Time: " .. timeInCombat)
+        Details222.MythicPlus.LogStep("GetChallengeCompletionInfo() and World State Timers not Found, Activity Time: " .. timeInCombat)
     end
 
     newCombat:SetStartTime(GetTime() - timeInCombat)

@@ -140,6 +140,7 @@
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
 ---@field Schedules df_schedule
 ---@field HeaderFunctions df_headerfunctions
+---@field RoleTypes roleinfo[]
 ---@field Language df_language
 ---@field Ejc df_ejc
 ---@field KeybindMixin df_keybindmixin
@@ -160,6 +161,7 @@
 ---@field alias_text_colors table<string, number[]>
 ---@field ClassFileNameToIndex table<string, number> engClass -> classIndex
 ---@field ClientLanguage string
+---@field ClassIndexToFileName table<classid, class> classIndex -> engClass
 ---@field dropdown_templates table<df_templatename, df_template>
 ---@field switch_templates table<df_templatename, df_template>
 ---@field button_templates table<df_templatename, df_template>
@@ -367,7 +369,7 @@
 ---@field AddRoleIconToText fun(self:table, text:string, role:string, size:number?) : string add a role icon to a text using escape codes
 ---@field GetRoleTCoordsAndTexture fun(self:table, roleID:number) : number, number, number, number, string
 ---@field AddColorToText fun(self:table, text:string, color:any) : string wrap text with a color
----@field AddClassColorToText fun(self:table, text:string, className:class) : string wrap text with a class color
+---@field AddClassColorToText fun(self:table, text:string, className:class|number) : string wrap text with a class color
 ---@field MakeDraggable fun(self:table, frame:frame) : nil
 ---@field GetClassTCoordsAndTexture fun(self:table, class:string) : number, number, number, number, string return the class icon texture coordinates and texture file path
 ---@field GetClassColorByClassId fun(self:table, classId:number) : number, number, number return the class color by classId
