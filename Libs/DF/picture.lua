@@ -243,8 +243,9 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
-	---@class df_image : texture, df_widgets, df_setpoint
+	---@class df_image : df_setpoint, texture, df_widgets
 	---@field SetGradient fun(gradientType: "vertical"|"horizontal", fromColor: table, toColor: table)
+	---@field SetPoint fun(self: table, anchorName1: anchor_name, anchorObject: table?, anchorName2: string?, xOffset: number?, yOffset: number?)
 	---@field image texture
 
 	---@class df_gradienttable : table

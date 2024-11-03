@@ -1030,7 +1030,8 @@ function Details.Database.StoreEncounter(combat)
 
 	if (diffName == "mythicdungeon") then
 		local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
-		local mapChallengeModeID = C_ChallengeMode.GetChallengeCompletionInfo()
+		local mapChallengeModeID = C_ChallengeMode.GetActiveChallengeMapID()
+
 		if (not mythicLevel and not mapChallengeModeID) then
 			return
 		end

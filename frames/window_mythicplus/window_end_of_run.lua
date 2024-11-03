@@ -1528,24 +1528,3 @@ end
 Details222.MythicPlus.IsMythicPlus = function()
 	return C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() and true or false
 end
-
-
-		--[=[
-		Details222.MythicPlus.MapID = mapID
-		Details222.MythicPlus.Level = level --level of the key just finished
-		Details222.MythicPlus.OnTime = onTime
-		Details222.MythicPlus.KeystoneUpgradeLevels = keystoneUpgradeLevels
-		Details222.MythicPlus.PracticeRun = practiceRun
-		Details222.MythicPlus.OldDungeonScore = oldDungeonScore
-		Details222.MythicPlus.NewDungeonScore = newDungeonScore
-		Details222.MythicPlus.IsAffixRecord = isAffixRecord
-		Details222.MythicPlus.IsMapRecord = isMapRecord
-		Details222.MythicPlus.PrimaryAffix = primaryAffix
-		Details222.MythicPlus.IsEligibleForScore = isEligibleForScore
-		Details222.MythicPlus.UpgradeMembers = upgradeMembers
-		Details222.MythicPlus.DungeonName = dungeonName
-		Details222.MythicPlus.DungeonID = id
-		Details222.MythicPlus.TimeLimit = timeLimit
-		Details222.MythicPlus.Texture = texture
-		Details222.MythicPlus.BackgroundTexture = backgroundTexture
-		--]=]

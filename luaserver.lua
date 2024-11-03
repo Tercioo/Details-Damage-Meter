@@ -359,6 +359,25 @@ CLASS_ICON_TCOORDS = {}
 ---@field tilesHorizontally boolean?
 ---@field tilesVertically boolean?
 
+---@class challengecompletioninfo : table
+---@field mapChallengeModeID number
+---@field level number
+---@field time number
+---@field onTime boolean
+---@field keystoneUpgradeLevels number
+---@field practiceRun boolean
+---@field oldOverallDungeonScore number?
+---@field newOverallDungeonScore number?
+---@field isMapRecord boolean
+---@field isAffixRecord boolean
+---@field isEligibleForScore boolean
+---@field members table
+
+---@class challengemodecompletionmemberinfo : table
+---@field memberGUID guid
+---@field name string
+
+
 ---@alias spellid number integer each spell in the game has a unique spell id, this id can be used to identify a spell.
 ---@alias unitname string name of a unit
 ---@alias unitguid string unique id of a unit (GUID)
@@ -1427,21 +1446,8 @@ function C_ChallengeMode.GetActiveChallengeMapID() return 0 end
 ---@return boolean wasActive Whether the keystone was active.
 function C_ChallengeMode.GetActiveKeystoneInfo() return 0, {}, true end
 
----return the completion information for the current challenge mode.
----@return number mapChallengeModeID The map id of the challenge mode.
----@return number level The keystone level of the challenge mode.
----@return number time The time taken to complete the challenge mode.
----@return boolean onTime Whether the challenge mode was completed within the time limit.
----@return number keystoneUpgradeLevels The number of keystone upgrade levels.
----@return boolean practiceRun Whether the challenge mode was a practice run.
----@return number oldOverallDungeonScore The old overall dungeon score.
----@return number newOverallDungeonScore The new overall dungeon score.
----@return boolean isMapRecord Whether the completion is a map record.
----@return boolean isAffixRecord Whether the completion is an affix record.
----@return number primaryAffix The primary affix id.
----@return boolean isEligibleForScore Whether the completion is eligible for a score.
----@return ChallengeModeCompletionMemberInfo[] members The members of the group.
-function C_ChallengeMode.GetChallengeCompletionInfo() return 0, 0, 0, true, 0, true, 0, 0, true, true, 0, true, {} end
+---@return challengecompletioninfo
+function C_ChallengeMode.GetChallengeCompletionInfo() return {} end
 
 ---return the death count for the current challenge mode.
 ---@return number numDeaths The number of deaths.

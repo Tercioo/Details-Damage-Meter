@@ -192,6 +192,7 @@ local doublePoint = {
 
 ---@class df_setpoint : table
 ---@field SetPoint fun(self: table, anchorName1: anchor_name, anchorObject: table?, anchorName2: string?, xOffset: number?, yOffset: number?)
+---@field SetPoints fun(self: table, anchorName1: anchor_name, anchorObject: table?, anchorName2: string?, xOffset: number?, yOffset: number?)
 
 detailsFramework.SetPointMixin = {
 	SetPoint = function(object, anchorName1, anchorObject, anchorName2, xOffset, yOffset)
@@ -272,6 +273,8 @@ detailsFramework.SetPointMixin = {
 		end
 	end,
 }
+
+detailsFramework.SetPointMixin.SetPoints = detailsFramework.SetPointMixin.SetPoint
 
 ---mixin for options
 ---@class df_optionsmixin

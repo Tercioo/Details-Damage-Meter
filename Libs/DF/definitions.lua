@@ -265,6 +265,7 @@
 ---@field CreateNewAddOn fun(self:table, addonName:string, globalSavedVariablesName:string, savedVarsTemplate:table) : table
 ---@field CreateBossScrollSelectorForInstance fun(self:table, instanceId:any, parent:uiobject, name:string?, options:df_bossscrollselector_options?, callback:function?, ...) : df_bossscrollselector
 ---@field CreateTimeLineFrame fun(self:table, parent:frame, name:string, timelineOptions:df_timeline_options, elapsedtimeOptions:df_elapsedtime_options) : df_timeline
+---@field CreateTitleBar fun(self:table, parent:frame, titleText:string) : df_titlebar
 ---@field CreateElapsedTimeFrame fun(self:table, parent:frame, name:string?, options:df_elapsedtime_options?) : df_elapsedtime
 ---@field ConvertAnchorPointToInside fun(self:table, anchorPoint:anchorid) : anchorid
 ---@field ExpansionHasAugEvoker fun():boolean
@@ -277,6 +278,7 @@
 ---@field GetCurrentSpecId fun(self:table):number? return the specId of the current spec, retuns nil if the expansion the player is playing does not support specs
 ---@field GetClassSpecIds fun(self:table, engClass:string):number[]
 ---@field GetClassSpecIDs fun(self:table, engClass:string):number[]
+---@field GetTextWidth fun(self:table, text:string, fontSize:number?) : number return the width of a text string
 ---@field IsValidSpecId fun(self:table, specId:number):boolean check if the passed specId is valid for the player class, also return false for tutorial specs
 ---@field GetDragonlightTalentString fun(self:table):string return the talent config string
 ---@field GetClassList fun(self:table):{ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[]

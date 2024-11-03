@@ -1289,6 +1289,17 @@ end
 local dummyFontString = UIParent:CreateFontString(nil, "background", "GameFontNormal")
 local defaultFontFile = dummyFontString:GetFont()
 
+function DF:GetTextWidth(text, size)
+	if (size) then
+		DF:SetFontSize(dummyFontString, size)
+	else
+		DF:SetFontSize(dummyFontString, 12)
+	end
+
+	dummyFontString:SetText(text)
+	return dummyFontString:GetStringWidth()
+end
+
 ---get the UIObject of type 'FontString' and set the default game font into it
 ---@param self table
 ---@param fontString fontstring
