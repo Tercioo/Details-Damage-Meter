@@ -5933,6 +5933,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	local challengeModeMapId
+
 	function Details.parser_functions:CHALLENGE_MODE_START(...) --~challenge ~mythic+ ~m+
 		--send mythic dungeon start event
 		if (Details.debug) then
@@ -5951,6 +5953,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
 			Details222.MythicPlus.Level = activeKeystoneLevel or 2
+
+			challengeModeMapId = C_ChallengeMode.GetActiveChallengeMapID()
 		end
 	end
 
@@ -6005,7 +6009,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local completionInfo = C_ChallengeMode.GetChallengeCompletionInfo()
 
 		local primaryAffix = 0
-		local mapID = C_ChallengeMode.GetActiveChallengeMapID()
+		local mapID = challengeModeMapId or C_ChallengeMode.GetActiveChallengeMapID()
 		local upgradeMembers = completionInfo.members
 		local level = completionInfo.level
 		local time = completionInfo.time
