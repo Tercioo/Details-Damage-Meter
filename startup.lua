@@ -28,6 +28,8 @@ function Details222.StartUp.StartMeUp()
 		Details:FillUserCustomSpells()
 	end)
 
+	Details.challengeModeMapId = C_ChallengeMode.GetActiveChallengeMapID()
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --row single click, this determines what happen when the user click on a bar
 
