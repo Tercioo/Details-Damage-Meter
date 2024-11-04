@@ -6009,7 +6009,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local completionInfo = C_ChallengeMode.GetChallengeCompletionInfo()
 
 		local primaryAffix = 0
-		local mapID = Details.challengeModeMapId or C_ChallengeMode.GetActiveChallengeMapID()
+		local mapID = completionInfo.mapChallengeModeID or Details.challengeModeMapId or C_ChallengeMode.GetActiveChallengeMapID()
 		local upgradeMembers = completionInfo.members
 		local level = completionInfo.level
 		local time = completionInfo.time
