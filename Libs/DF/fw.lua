@@ -1,6 +1,6 @@
 
 
-local dversion = 578
+local dversion = 579
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -933,6 +933,16 @@ end
 function DF.table.append(t1, t2)
 	for i = 1, #t2 do
 		t1[#t1+1] = t2[i]
+	end
+	return t1
+end
+
+---receive a table and N arguments, add each argument to the table
+---@param t1 table
+---@vararg any
+function DF.table.inserts(t1, ...)
+	for i = 1, select("#", ...) do
+		t1[#t1+1] = select(i, ...)
 	end
 	return t1
 end
@@ -2099,6 +2109,27 @@ function DF:CreateFlashAnimation(frame, onFinishFunc, onLoopFunc)
 	frame.Stop = stopAnimation_Method
 
 	return flashAnimation
+end
+
+local onStartPunchAnimation = function(animationGroup)
+	local parent = animationGroup:GetParent()
+	animationGroup.parentWidth = parent:GetWidth()
+	animationGroup.parentHeight = parent:GetHeight()
+end
+
+local onStopPunchAnimation = function(animationGroup)
+	local parent = animationGroup:GetParent()
+	parent:SetWidth(animationGroup.parentWidth)
+	parent:SetHeight(animationGroup.parentHeight)
+end
+
+function DF:CreatePunchAnimation(frame, scale)
+	scale = scale or 1.1
+	scale = math.min(scale, 1.9)
+	local animationHub = DF:CreateAnimationHub(frame, onStartPunchAnimation, onStopPunchAnimation)
+	local scaleUp = DF:CreateAnimation(animationHub, "scale", 1, 0.05, 1, 1, scale, scale, "center", 0, 0)
+	local scaleDown = DF:CreateAnimation(animationHub, "scale", 2, 0.05, 1, 1, 1-(scale - 1), 1-(scale - 1), "center", 0, 0)
+	return animationHub
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

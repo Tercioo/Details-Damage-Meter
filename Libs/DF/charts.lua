@@ -1459,8 +1459,8 @@ detailsFramework.MultiChartFrameMixin = {
             biggestAverage[i] = {average = chartFrame.average, chartIndex = i}
         end
 
-        --sort the averages by the biggest average placing the biggest average in the first position
-        table.sort(biggestAverage, function(a, b) return a.average > b.average end)
+        -- sort the averages by the biggest average placing the biggest average in the first position
+        table.sort(biggestAverage, function(a, b) if not (a.average and b.average) then return a.average ~= nil end return a.average > b.average end)
 
         local minValue, multiChartMaxValue = multiChartFrame:GetMinMaxValues()
         local plotAreaWidth = multiChartFrame.plotFrame:GetWidth() --if there's no axis, the plotFrame has no width
