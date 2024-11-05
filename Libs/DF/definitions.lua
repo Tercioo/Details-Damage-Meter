@@ -24,6 +24,8 @@
 ---@field unpackhash fun(tbl:table) : table unpack a table packed with packhash()
 ---@field packhashsubtable fun(tbl:table) : string pack a hash table where the value of the key is a numerical table, example: {key1 = {1, 2, 3}, key2 = {4, 6}, key3 = {7}}, result: "key1,3,1,2,3,key2,2,4,6,key3,1,7"
 ---@field unpackhashsubtable fun(tbl:table) : table unpack a table packed with packhashsubtable()
+---@field inserts fun(tbl:table, ...) : table receives an indexed table and N arguments, add all arguments passed into the table
+
 
 ---@class df_language : table
 ---@field Register fun(addonId:any, languageId:string, gameLanguageOnly:boolean?) : table
@@ -241,6 +243,7 @@
 ---@field CreateFrameContainer fun(self:table, parent:frame, options:table?, frameName:string?) : df_framecontainer create a frame container, which is a frame that envelops another frame, and can be moved, resized, etc.
 ---@field CreateAnimationHub fun(self:table, parent:uiobject, onPlay:function?, onFinished:function?) : animationgroup
 ---@field CreateAnimation fun(self:table, animationGroup:animationgroup, animationType:animationtype, order:number, duration:number, arg1:any, arg2:any, arg3:any, arg4:any, arg5:any, arg6:any, arg7:any, arg8:any) : animation
+---@field CreatePunchAnimation fun(self:table, frame:uiobject, scale:number?):animationgroup
 ---@field CreateTexture fun(self:table, parent:frame, texture:atlasname|texturepath|textureid|nil, width:number?, height:number?, layer:drawlayer?, coords:table?, member:string?, name:string?) : df_image
 ---@field CreateImage fun(self:table, parent:frame, texture:atlasname|texturepath|textureid|nil, width:number?, height:number?, layer:drawlayer?, coords:table?, member:string?, name:string?) : df_image
 ---@field CreateFrameShake fun(self:table, parent:uiobject, duration:number?, amplitude:number?, frequency:number?, absoluteSineX:boolean?, absoluteSineY:boolean?, scaleX:number?, scaleY:number?, fadeInTime:number?, fadeOutTime:number?, anchorPoints:table?) : df_frameshake
