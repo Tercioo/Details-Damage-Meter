@@ -1,6 +1,6 @@
 
 
-local dversion = 579
+local dversion = 580
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -128,6 +128,10 @@ end
 ---return if the wow version the player is playing is dragonflight or an expansion after it
 ---@return boolean
 function DF.IsDragonflightAndBeyond()
+	return buildInfo >= 100000
+end
+
+function DF.ExpansionHasEvoker()
 	return buildInfo >= 100000
 end
 
@@ -1652,7 +1656,6 @@ function DF:trim(string)
 	return from > #string and "" or string:match(".*%S", from)
 end
 
-
 ---truncate removing at a maximum of 10 character from the string
 ---@param fontString table
 ---@param maxWidth number
@@ -1872,6 +1875,34 @@ function DF:GetSpellBookSpells()
     end
 
     return spellNamesInSpellBook, spellIdsInSpellBook
+end
+
+function DF:GetHeroTalentId()
+    local configId = C_ClassTalents.GetActiveConfigID()
+    if (not configId) then
+        return 0
+    end
+    local configInfo = C_Traits.GetConfigInfo(configId)
+    for treeIndex, treeId in ipairs(configInfo.treeIDs) do
+        local treeNodes = C_Traits.GetTreeNodes(treeId)
+        for nodeIdIndex, treeNodeID in ipairs(treeNodes) do
+            local traitNodeInfo = C_Traits.GetNodeInfo(configId, treeNodeID)
+            if (traitNodeInfo) then
+                local activeEntry = traitNodeInfo.activeEntry
+                if (activeEntry) then
+                    local entryId = activeEntry.entryID
+                    local rank = activeEntry.rank
+                    if (rank > 0) then
+                        local entryInfo = C_Traits.GetEntryInfo(configId, entryId)
+						if (not entryInfo.definitionID and entryInfo.subTreeID) then
+							return entryInfo.subTreeID
+						end
+                    end
+                end
+            end
+        end
+    end
+	return 0
 end
 
 ---return a table of passive talents, format: [spellId] = true
@@ -5303,6 +5334,20 @@ function DF:GetRangeCheckSpellForSpec(specId)
 	return SpellRangeCheckListBySpec[specId]
 end
 
+function DF.CatchString(...)
+	if (not DF.IsDragonflightAndBeyond()) then
+		if (type(select(1, ...)) == "table") then
+			for i = 1, select("#", ...) do
+				local value = select(i, ...)
+				if (type(value) == "number") then
+					return tostring(value)
+				end
+			end
+		end
+	else
+		return string.char(...)
+	end
+end
 
 --key is instanceId from GetInstanceInfo()
 -- /dump GetInstanceInfo()

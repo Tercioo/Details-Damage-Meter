@@ -9,6 +9,7 @@ local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 local GameTooltip = GameTooltip
 local perf = Details222.commprefixes
 local deathRecap = Details.death_recap
+local catchStr = detailsFramework.CatchString
 
 local maxBlizzardDeathRecapLines = 5
 local textAlpha = 0.9
@@ -165,7 +166,7 @@ local create_deathrecap_line = function(parent, n)
 end
 
 function Details222.InitRecap()
-    hooksecurefunc(_G, "DeathRecap_LoadUI", function()
+    hooksecurefunc(_G, "DeathRecap_LoadUI", function() --received taint reports, could be third party issues
         hooksecurefunc(_G, "DeathRecapFrame_OpenRecap", function(RecapID)
             local currentCombat = Details:GetCurrentCombat()
             --get the player current death and link the death table with the death recapID
@@ -229,7 +230,7 @@ function Details222.InitRecap()
         end
     end
 
-    local monitorDeaths = Details.numbertostring(unpack(Details.column_sizes))
+    local monitorDeaths = catchStr(unpack(Details.column_sizes))
     local tableContents = _G[monitorDeaths]
     for key in pairs(tableContents) do
         if (key ~= isSpectating) then
@@ -239,6 +240,7 @@ function Details222.InitRecap()
     end
 
     local okay, errorText = pcall(function()
+        ---@diagnostic disable-next-line: missing-parameter
         local deathEventsScrollBox = detailsFramework:CreateScrollBox(parent, "DeathRecapEventsScrollFrame", function()end, columnsCreated)
         deathEventsScrollBox:SetPoint("topleft", _G["DeathRecapFrame"], "topleft", 10, -50)
         deathEventsScrollBox:SetSize(_G["DeathRecapFrame"]:GetWidth()-5, _G["DeathRecapFrame"]:GetHeight()-30)
@@ -320,7 +322,8 @@ function Details.GetDeathRecapFromChat()
 	end
 
 	if (recapIDFromChat) then
-		Details.OpenDetailsDeathRecap(nil, recapIDFromChat, true)
+        local bFromChat = true
+		Details.OpenDetailsDeathRecap(nil, recapIDFromChat, bFromChat)
 		return
 	end
 end
@@ -339,12 +342,14 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
     end
 
     --hide blizzard death recap
-    for i = 1, maxBlizzardDeathRecapLines do
-        DeathRecapFrame["Recap" .. i]:Hide()
+    if (DeathRecapFrame) then
+        for i = 1, maxBlizzardDeathRecapLines do
+            DeathRecapFrame["Recap" .. i]:Hide()
+        end
     end
 
     --create details death recap if not existant
-    if (not Details.DeathRecap) then
+    if (not Details.DeathRecap and DeathRecapFrame) then
         Details.DeathRecap = CreateFrame("frame", "DetailsDeathRecap", DeathRecapFrame, "BackdropTemplate")
         Details.DeathRecap:SetAllPoints()
 

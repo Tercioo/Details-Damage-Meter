@@ -92,7 +92,7 @@ function Details222.StartUp.StartMeUp()
 
 	Details222.CreateAllDisplaysFrame()
 
-	Details222.LoadCommentatorFunctions()
+	--Details222.LoadCommentatorFunctions()
 
 	Details222.AuraScan.FindAndIgnoreWorldAuras()
 
@@ -123,7 +123,7 @@ function Details222.StartUp.StartMeUp()
 	Details:CreateCopyPasteWindow()
 	Details.CreateCopyPasteWindow = nil
 
-	--start instances
+	--guarantee one window is open after each reload
 	if (Details:GetNumInstancesAmount() == 0) then
 		Details:CreateInstance()
 	end
@@ -687,7 +687,7 @@ function Details222.StartUp.StartMeUp()
 
 	--to ignore this, use /run _G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Original or add to any script that run on login
 	--also the slash command "/details stopperfcheck" stop it as well
-	Details.check_stuttering = false
+	--Details.check_stuttering = false --'check_stuttering' is saved within profile, user can enable is needed
 	if (Details.check_stuttering) then
 		_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Custom
 	end

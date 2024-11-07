@@ -74,8 +74,8 @@
 	Details._spectator = spectator
 
 	local is_player_class = Details.player_class
-	local numbertostring = string.char
-	local koKRStart = numbertostring(234)
+	local numbertostring = detailsFramework.CatchString
+	local koKRStart = numbertostring(234) --rectangle
 	Details.tooltip_key_size_width = 24
 	Details.tooltip_key_size_height = 10
 
@@ -4061,7 +4061,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 						local spellName, _, spellIcon = _GetSpellInfo(spellId)
 
 						if (spellName) then
-							GameCooltip:AddLine(spellName, formatTooltipNumber(_, damageDone) .. "(" .. math.floor(damageDone / self.total * 100) .. "%)")
+							GameCooltip:AddLine(spellName, formatTooltipNumber(_, damageDone) .. " (" .. math.floor(damageDone / self.total * 100) .. "%)")
 							Details:AddTooltipBackgroundStatusbar(false, damageDone / self.total * 100)
 							GameCooltip:AddIcon(spellIcon, 1, 1, iconSize, iconSize, 0.1, 0.9, 0.1, 0.9)
 						end
@@ -4095,7 +4095,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 
 				for i = 1, math.min(max_targets, #ActorTargetsSortTable) do
 					local enemyTable = ActorTargetsSortTable[i]
-					GameCooltip:AddLine(enemyTable[1], formatTooltipNumber(_, enemyTable[2]) .."("..format("%.1f", enemyTable[2] / ActorDamageWithPet * 100).."%)")
+					GameCooltip:AddLine(enemyTable[1], formatTooltipNumber(_, enemyTable[2]) .." ("..format("%.1f", enemyTable[2] / ActorDamageWithPet * 100).."%)")
 
 					local portraitTexture-- = Details222.Textures.GetPortraitTextureForNpcID(enemyTable[3]) --disabled atm
 					if (portraitTexture) then
@@ -4198,9 +4198,9 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 				end
 
 				if (instancia.sub_atributo == 1) then
-					GameCooltip:AddLine(petName, formatTooltipNumber(_, petDamageDone) .. "(" .. math.floor(petDamageDone/self.total*100) .. "%)")
+					GameCooltip:AddLine(petName, formatTooltipNumber(_, petDamageDone) .. " (" .. math.floor(petDamageDone/self.total*100) .. "%)")
 				else
-					GameCooltip:AddLine(petName, formatTooltipNumber(_, math.floor(petDPS)) .. "(" .. math.floor(petDamageDone/self.total*100) .. "%)")
+					GameCooltip:AddLine(petName, formatTooltipNumber(_, math.floor(petDPS)) .. " (" .. math.floor(petDamageDone/self.total*100) .. "%)")
 				end
 
 				Details:AddTooltipBackgroundStatusbar(false, petDamageDone / topPetDamageDone * 100)
@@ -4221,7 +4221,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 				--small blank space
 				Details:AddTooltipSpellHeaderText("", headerColor, 1, false, 0.1, 0.9, 0.1, 0.9, true)
 
-				Details:AddTooltipSpellHeaderText("Damage by Encounter Phase", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64) --localize-me
+				Details:AddTooltipSpellHeaderText("Damage Per Phase", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64) --localize-me
 				Details:AddTooltipHeaderStatusbar(r, g, b, barAlha)
 
 				local playerPhases = {}
@@ -4251,7 +4251,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 
 				for i = 1, #playerPhases do
 					--[1] Phase Number [2] Amount Done [3] Rank [4] Percent
-					GameCooltip:AddLine("|cFFF0F0F0Phase|r " .. playerPhases [i][1], formatTooltipNumber(_, playerPhases [i][2]) .. "(|cFFFFFF00#" .. playerPhases [i][3] ..  "|r, " .. format("%.1f", playerPhases [i][4]) .. "%)")
+					GameCooltip:AddLine("|cFFF0F0F0Phase|r " .. playerPhases [i][1], formatTooltipNumber(_, playerPhases [i][2]) .. "  (|cFFFFFF00#" .. playerPhases [i][3] ..  "|r,  " .. format("%.1f", playerPhases [i][4]) .. "%)")
 					GameCooltip:AddIcon([[Interface\Garrison\orderhall-missions-mechanic9]], 1, 1, 14, 14, 11/64, 53/64, 11/64, 53/64)
 					Details:AddTooltipBackgroundStatusbar()
 				end

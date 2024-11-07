@@ -234,9 +234,18 @@
 			infernobless = {},
 		}
 
+		---@class bombardmentinfo : table
+		---@field only_one_scalecomander boolean
+		---@field spellId number
+		---@field evoker_name string
+		---@field serial string
+		
+		---@type bombardmentinfo
 		local bombardment_stuff = {
+			only_one_scalecomander = true,
 			spellId = 434481,
-			only_on_scalecomander = false,
+			evoker_name = "",
+			serial = "",
 		}
 
 		Details.augmentation_cache = augmentation_cache
@@ -849,6 +858,12 @@
 		--> if the parser are allowed to replace spellIDs
 			if (is_using_spellId_override) then
 				spellId = override_spellId[spellId] or spellId
+			end
+
+			if (spellId == bombardment_stuff.spellId) then
+				if (bombardment_stuff.only_one_scalecomander) then
+					sourceSerial, sourceName = bombardment_stuff.serial, bombardment_stuff.evoker_name
+				end
 			end
 
 		--> npcId check for ignored npcs
@@ -5718,6 +5733,76 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 			end
 		end)
+
+		if (detailsFramework.ExpansionHasEvoker()) then
+			if (IsInRaid()) then
+				--check if there is only one bombardment evoker in the group
+				local evokerCount = 0
+				local evokerName = ""
+				local evokerSerial = ""
+				--get the open raid lib
+				--local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+				for i = 1, #Details222.UnitIdCache.Raid do
+					local unitId = Details222.UnitIdCache.Raid[i]
+					if (UnitExists(unitId)) then
+						local unitName = GetUnitName(unitId, true)
+						--local unitInfo = openRaidLib.GetUnitInfo(unitId)
+						local unitClass = select(2, UnitClass(unitName))
+						if (unitClass == "EVOKER") then
+							evokerCount = evokerCount + 1
+							evokerName = unitName
+							evokerSerial = UnitGUID(unitId)
+						end
+					else
+						break
+					end
+				end
+
+				if (evokerCount == 1) then
+					--this combat can reatribute bombardments
+					bombardment_stuff.only_one_scalecomander = true
+					bombardment_stuff.evoker_name = evokerName
+					bombardment_stuff.serial = evokerSerial
+					print("only one evoker, yonk bombardments ok:", bombardment_stuff.evoker_name, bombardment_stuff.serial)
+				else
+					bombardment_stuff.only_one_scalecomander = false
+					bombardment_stuff.evoker_name = ""
+					bombardment_stuff.serial = ""
+				end
+
+			elseif (IsInGroup()) then
+				local evokerCount = 0
+				local evokerName = ""
+				local evokerSerial = ""
+				--get the open raid lib
+				--local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+				for i = 1, #Details222.UnitIdCache.Party do
+					local unitId = Details222.UnitIdCache.Party[i]
+					if (UnitExists(unitId)) then
+						local unitName = GetUnitName(unitId, true)
+						--local unitInfo = openRaidLib.GetUnitInfo(unitId)
+						local unitClass = select(2, UnitClass(unitName))
+						if (unitClass == "EVOKER") then
+							evokerCount = evokerCount + 1
+							evokerName = unitName
+							evokerSerial = UnitGUID(unitId)
+						end
+					end
+				end
+
+				if (evokerCount == 1) then
+					--this combat can reatribute bombardments
+					bombardment_stuff.only_one_scalecomander = true
+					bombardment_stuff.evoker_name = evokerName
+					bombardment_stuff.serial = evokerSerial
+					print("only one evoker, yonk bombardments ok:", bombardment_stuff.evoker_name, bombardment_stuff.serial)
+				else
+					bombardment_stuff.only_one_scalecomander = false
+					bombardment_stuff.evoker_name = ""
+					bombardment_stuff.serial = ""
+				end
+			end
+		end
 
 		if (Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, true)

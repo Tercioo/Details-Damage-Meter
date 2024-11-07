@@ -1927,7 +1927,7 @@ GetSpecializationInfo = function(specIndex, isInspect, isPet, sex, level) return
 ---@return string name
 ---@return string description
 ---@return string icon
----@return number role
+---@return string role
 ---@return ...
 GetSpecializationInfoByID = function(specID, isInspect, isPet, inspectTarget) return 0, "", "", "", 0, "" end
 
@@ -1938,7 +1938,7 @@ GetSpecializationInfoByID = function(specID, isInspect, isPet, inspectTarget) re
 ---@return string specName The name of the specialization.
 ---@return string specDescription The description of the specialization.
 ---@return string icon The icon of the specialization.
----@return number role The role of the specialization.
+---@return string role The role of the specialization.
 ---@return boolean recommended Whether the specialization is recommended.
 ---@return boolean allowedForBoost Whether the specialization is allowed for boost.
 ---@return number masterySpell1 The ID of the first mastery spell.
@@ -5868,8 +5868,8 @@ function UnitCanAttack(unit) return true end
 function UnitCanCooperate(unit) return true end
 
 ---@param unit string
----@return string, string
-function UnitClass(unit) return "", "" end
+---@return string, string, number
+function UnitClass(unit) return "", "", 0 end
 
 ---@param unit string
 ---@return string
