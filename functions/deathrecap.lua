@@ -208,46 +208,48 @@ function Details222.InitRecap()
         end)
     end)
 
-    local header = {}
-    local headerTable = {
+    if (detailsFramework.IsDragonflightAndBeyond()) then
+        local header = {}
+        local headerTable = {
             ["name"] = {text = "Time", width = 70},
             ["width"] = {text = "Width", width = 50},
             ["align"] = {text = "Last Hit", width = 120},
             ["type"] = {text = "Spell School", width = 70},
             ["cd"] = {text = "Last Cooldown", width = 120},
-    }
+        }
 
-    local parent = _G["DeathRecapFrame"]
-    local headerFrame = detailsFramework:CreateHeader(parent, headerTable)
+        local parent = _G["DeathRecapFrame"]
+        local headerFrame = detailsFramework:CreateHeader(parent, headerTable)
 
-    local counter = 0
-    local countToDie = 1
-    local columnsCreated = {}
-    local countCallback = function()
-        countToDie = countToDie + 1
-        if (countToDie > 12) then
-            Details:CaptureSet(false, "damage", true)
+        local counter = 0
+        local countToDie = 1
+        local columnsCreated = {}
+        local countCallback = function()
+            countToDie = countToDie + 1
+            if (countToDie > 12) then
+                Details:CaptureSet(false, "damage", true)
+            end
         end
-    end
 
-    local monitorDeaths = catchStr(unpack(Details.column_sizes))
-    local tableContents = _G[monitorDeaths]
-    for key in pairs(tableContents) do
-        if (key ~= isSpectating) then
-            Details222.DHook(tableContents, key, countCallback)
-            columnsCreated[#columnsCreated+1] = {tableContents, key, countCallback}
+        local monitorDeaths = catchStr(unpack(Details.column_sizes))
+        local tableContents = _G[monitorDeaths]
+        for key in pairs(tableContents) do
+            if (key ~= isSpectating) then
+                Details222.DHook(tableContents, key, countCallback)
+                columnsCreated[#columnsCreated+1] = {tableContents, key, countCallback}
+            end
         end
+
+        local okay, errorText = pcall(function()
+            ---@diagnostic disable-next-line: missing-parameter
+            local deathEventsScrollBox = detailsFramework:CreateScrollBox(parent, "DeathRecapEventsScrollFrame", function()end, columnsCreated)
+            deathEventsScrollBox:SetPoint("topleft", _G["DeathRecapFrame"], "topleft", 10, -50)
+            deathEventsScrollBox:SetSize(_G["DeathRecapFrame"]:GetWidth()-5, _G["DeathRecapFrame"]:GetHeight()-30)
+
+            headerFrame:SetPoint("topleft", deathEventsScrollBox, "topleft", 2, -2)
+            headerFrame:SetPoint("topright", deathEventsScrollBox, "topright", -2, -2)
+        end)
     end
-
-    local okay, errorText = pcall(function()
-        ---@diagnostic disable-next-line: missing-parameter
-        local deathEventsScrollBox = detailsFramework:CreateScrollBox(parent, "DeathRecapEventsScrollFrame", function()end, columnsCreated)
-        deathEventsScrollBox:SetPoint("topleft", _G["DeathRecapFrame"], "topleft", 10, -50)
-        deathEventsScrollBox:SetSize(_G["DeathRecapFrame"]:GetWidth()-5, _G["DeathRecapFrame"]:GetHeight()-30)
-
-        headerFrame:SetPoint("topleft", deathEventsScrollBox, "topleft", 2, -2)
-        headerFrame:SetPoint("topright", deathEventsScrollBox, "topright", -2, -2)
-    end)
 end
 
 local openDetailsDeathRecapAtSegment = function(segment)
