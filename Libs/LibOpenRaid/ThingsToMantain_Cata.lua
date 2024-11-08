@@ -512,6 +512,7 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[161353] = {cooldown = 0,	class = "MAGE"}, --Polymorph
 	[277787] = {cooldown = 0,	class = "MAGE"}, --Polymorph
 	[157981] = {cooldown = 30,	class = "MAGE"}, --Blast Wave
+	[44572] = {cooldown = 0,	class = "MAGE"}, --Deep Freeze
 	[82691] = {cooldown = 0,	class = "MAGE"}, --Ring of Frost
 	[118] = {cooldown = 0,		class = "MAGE"}, --Polymorph
 	[161354] = {cooldown = 0,	class = "MAGE"}, --Polymorph
