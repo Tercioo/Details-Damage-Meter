@@ -174,6 +174,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[116705] = {class = "MONK", specs = {268, 269}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Spear Hand Strike (brewmaster and windwalker)
 	[57994] = {class = "SHAMAN", specs = {262, 263, 264}, cooldown = 12, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Wind Shear
 	[47528] = {class = "DEATHKNIGHT", specs = {250, 251, 252}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Mind Freeze
+	[47476] = {class = "DEATHKNIGHT", specs = {250, 251, 252}, cooldown = 120, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Strangulate
 	[106839] = {class = "DRUID", specs = {103, 104}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Skull Bash (feral, guardian)
 	[78675] = {class = "DRUID", specs = {102}, cooldown = 60, silence = 8, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Solar Beam (balance)
 	[147362] = {class = "HUNTER", specs = {253, 254}, cooldown = 24, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Counter Shot (beast mastery, marksmanship)
@@ -469,6 +470,7 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[334693] = {cooldown = 0,	class = "DEAHTKNIGHT"}, --Absolute Zero
 	[221562] = {cooldown = 45,	class = "DEATHKNIGHT"}, --Asphyxiate
 	[47528] = {cooldown = 15,	class = "DEATHKNIGHT"}, --Mind Freeze
+	[47476] = {cooldown = 120,  class = "DEAHTKNIGHT"}, --Strangulate
 	[207167] = {cooldown = 60,	class = "DEATHKNIGHT"}, --Blinding Sleet
 	[91807] = {cooldown = 0,	class = "DEATHKNIGHT"}, --Shambling Rush
 	[108194] = {cooldown = 45,	class = "DEATHKNIGHT"}, --Asphyxiate
@@ -657,6 +659,7 @@ LIB_OPEN_RAID_SPELL_INTERRUPT = {
 	[57994] = LIB_OPEN_RAID_COOLDOWNS_INFO[57994], --Wind Shear
 
 	[47528] = LIB_OPEN_RAID_COOLDOWNS_INFO[47528], --Mind Freeze
+	[47476] = LIB_OPEN_RAID_COOLDOWNS_INFO[47476], --Strangulate
 
 	[106839] = LIB_OPEN_RAID_COOLDOWNS_INFO[106839], --Skull Bash (feral, guardian)
 	[78675] = LIB_OPEN_RAID_COOLDOWNS_INFO[78675], --Solar Beam (balance)
