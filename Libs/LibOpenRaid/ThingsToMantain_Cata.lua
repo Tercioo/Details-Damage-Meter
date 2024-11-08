@@ -572,7 +572,6 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[6789] = {cooldown = 45,	class = "WARLOCK"}, --Mortal Coil
 	[118699] = {cooldown = 0,	class = "WARLOCK"}, --Fear
 	[5782] = {cooldown = 0,	class = "WARLOCK"}, --Fear
-    [5484] = {cooldown = 0,	class = "WARLOCK"}, --Howl Of Terror
 	[710] = {cooldown = 0,		class = "WARLOCK"}, --Banish
 	[212619] = {cooldown = 60,	class = "WARLOCK"}, --Call Felhunter
 	[19647] = {cooldown = 24,	class = "WARLOCK"}, --Spell Lock
