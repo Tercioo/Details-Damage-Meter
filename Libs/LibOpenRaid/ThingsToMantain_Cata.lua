@@ -268,7 +268,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[192058] = 	{cooldown = 60, 	duration = false, 	specs = {262,263,264}, 	talent =false, charges = 1, class = "SHAMAN", type = 5}, --Capacitor Totem
 	[8143] = 	{cooldown = 60, 	duration = 10, 		specs = {262,263,264}, 	talent =false, charges = 1, class = "SHAMAN", type = 5}, --Tremor Totem
 	[192077] = 	{cooldown = 120, 	duration = 15, 		specs = {262,263,264}, 	talent =21966, charges = 1, class = "SHAMAN", type = 5}, --Wind Rush Totem (talent)
-	
+
 	--monk
 	-- 268 - Brewmaster
 	-- 269 - Windwalker
@@ -292,7 +292,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[197908] = 	{cooldown = 90, 	duration = 10, 		specs = {270}, 			talent =22166, charges = 1, class = "MONK", type = 5}, --Mana tea (talent)
 	[116844] = 	{cooldown = 45, 	duration = 5, 		specs = {268,269,270}, 	talent =19995, charges = 1, class = "MONK", type = 5}, --Ring of peace (talent)
 	[119381] = 	{cooldown = 50, 	duration = 3, 		specs = {268,269,270}, 	talent =false, charges = 1, class = "MONK", type = 5}, --Leg Sweep
-	
+
 	--hunter
 	-- 253 - Beast Mastery
 	-- 254 - Marksmenship
@@ -381,7 +381,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[207684] = 	{cooldown = 90, 	duration = 12, 		specs = {581}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Misery
 	[202137] = 	{cooldown = 60, 	duration = 8, 		specs = {581}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Silence
 	[202138] = 	{cooldown = 90, 	duration = 6, 		specs = {581}, 			talent =22511, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Chains (talent)
-	
+
 	--mage
 	-- 62 - Arcane
 	-- 63 - Fire
@@ -484,7 +484,7 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[93985] = {cooldown = 0,	class = "DRUID"}, --Skull Bash
 	[2637] = {cooldown = 0,		class = "DRUID"}, --Hibernate
 	[5211] = {cooldown = 60,	class = "DRUID"}, --Mighty Bash
-	[99] = {cooldown = 30,		class = "DRUID"}, --Incapacitating Roar
+	[22570] = {cooldown = 10,       class = "DRUID"}, --Maim
 	[127797] = {cooldown = 0,	class = "DRUID"}, --Ursol's Vortex
 	[203123] = {cooldown = 0,	class = "DRUID"}, --Maim
 	[45334] = {cooldown = 0,	class = "DRUID"}, --Immobilized
@@ -504,6 +504,8 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[117405] = {cooldown = 0,	class = "HUNTER"}, --Binding Shot
 	[19577] = {cooldown = 60,	class = "HUNTER"}, --Intimidation
 	[1513] = {cooldown = 0,		class = "HUNTER"}, --Scare Beast
+    [90337] = {cooldown = 60,	class = "HUNTER"}, --Bad Manner (Monkey Stun)
+    [19503] = {cooldown = 30,	class = "HUNTER"}, --Scatter Shot
 	[3355] = {cooldown = 30,	class = "HUNTER"}, --Freezing Trap
 	[203337] = {cooldown = 30,	class = "HUNTER"}, --Freezing trap with diamond ice talent
 	[31661] = {cooldown = 45,	class = "MAGE"}, --Dragon's Breath
