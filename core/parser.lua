@@ -5741,17 +5741,23 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				local evokerName = ""
 				local evokerSerial = ""
 				--get the open raid lib
-				--local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+				local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 				for i = 1, #Details222.UnitIdCache.Raid do
 					local unitId = Details222.UnitIdCache.Raid[i]
 					if (UnitExists(unitId)) then
 						local unitName = GetUnitName(unitId, true)
-						--local unitInfo = openRaidLib.GetUnitInfo(unitId)
+						local unitInfo = openRaidLib.GetUnitInfo(unitId)
 						local unitClass = select(2, UnitClass(unitName))
 						if (unitClass == "EVOKER") then
-							evokerCount = evokerCount + 1
-							evokerName = unitName
-							evokerSerial = UnitGUID(unitId)
+							if (unitInfo and unitInfo.specId and unitInfo.specId ~= 1468) then
+								evokerCount = evokerCount + 1
+								evokerName = unitName
+								evokerSerial = UnitGUID(unitId)
+							else
+								evokerCount = evokerCount + 1
+								evokerName = unitName
+								evokerSerial = UnitGUID(unitId)
+							end
 						end
 					else
 						break
@@ -5763,7 +5769,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					bombardment_stuff.only_one_scalecomander = true
 					bombardment_stuff.evoker_name = evokerName
 					bombardment_stuff.serial = evokerSerial
-					print("only one evoker, yonk bombardments ok:", bombardment_stuff.evoker_name, bombardment_stuff.serial)
+					print("only one scaler commander found, yoinking bombardments damage for:", bombardment_stuff.evoker_name)
 				else
 					bombardment_stuff.only_one_scalecomander = false
 					bombardment_stuff.evoker_name = ""
@@ -5775,17 +5781,23 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				local evokerName = ""
 				local evokerSerial = ""
 				--get the open raid lib
-				--local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+				local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 				for i = 1, #Details222.UnitIdCache.Party do
 					local unitId = Details222.UnitIdCache.Party[i]
 					if (UnitExists(unitId)) then
 						local unitName = GetUnitName(unitId, true)
-						--local unitInfo = openRaidLib.GetUnitInfo(unitId)
+						local unitInfo = openRaidLib.GetUnitInfo(unitId)
 						local unitClass = select(2, UnitClass(unitName))
 						if (unitClass == "EVOKER") then
-							evokerCount = evokerCount + 1
-							evokerName = unitName
-							evokerSerial = UnitGUID(unitId)
+							if (unitInfo and unitInfo.specId and unitInfo.specId ~= 1468) then
+								evokerCount = evokerCount + 1
+								evokerName = unitName
+								evokerSerial = UnitGUID(unitId)
+							else
+								evokerCount = evokerCount + 1
+								evokerName = unitName
+								evokerSerial = UnitGUID(unitId)
+							end
 						end
 					end
 				end
@@ -5795,7 +5807,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					bombardment_stuff.only_one_scalecomander = true
 					bombardment_stuff.evoker_name = evokerName
 					bombardment_stuff.serial = evokerSerial
-					print("only one evoker, yonk bombardments ok:", bombardment_stuff.evoker_name, bombardment_stuff.serial)
+					print("only one scaler commander found, yoinking bombardments damage for:", bombardment_stuff.evoker_name)
 				else
 					bombardment_stuff.only_one_scalecomander = false
 					bombardment_stuff.evoker_name = ""
