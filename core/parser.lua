@@ -5769,7 +5769,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					bombardment_stuff.only_one_scalecomander = true
 					bombardment_stuff.evoker_name = evokerName
 					bombardment_stuff.serial = evokerSerial
-					print("only one scaler commander found, yoinking bombardments damage for:", bombardment_stuff.evoker_name)
+					--print("only one scaler commander found, yoinking bombardments damage for:", bombardment_stuff.evoker_name)
 				else
 					bombardment_stuff.only_one_scalecomander = false
 					bombardment_stuff.evoker_name = ""
@@ -5807,7 +5807,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					bombardment_stuff.only_one_scalecomander = true
 					bombardment_stuff.evoker_name = evokerName
 					bombardment_stuff.serial = evokerSerial
-					print("only one scaler commander found, yoinking bombardments damage for:", bombardment_stuff.evoker_name)
+					--print("only one scaler commander found, yoinking bombardments damage for:", bombardment_stuff.evoker_name)
 				else
 					bombardment_stuff.only_one_scalecomander = false
 					bombardment_stuff.evoker_name = ""
