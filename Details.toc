@@ -32,7 +32,7 @@ Definitions.lua
 
 boot.lua
 indent.lua
-core\util.lua
+functions\util.lua
 functions\mixin.lua
 API.lua
 textures.lua
@@ -66,7 +66,6 @@ functions\pack.lua
 functions\immersion.lua
 functions\schedules.lua
 functions\autorun.lua
-functions\deathrecap.lua
 functions\plater.lua
 functions\deathmenu.lua
 functions\macros.lua
@@ -133,6 +132,7 @@ frames\window_aura_tracker.lua
 frames\window_debug.lua
 frames\window_pro_file.lua
 frames\window_nestspells.lua
+frames\window_deathrecap.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua
