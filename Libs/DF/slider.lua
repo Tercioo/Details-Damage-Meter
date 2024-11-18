@@ -1,10 +1,15 @@
 
 --[=[
 
+	SLIDER:
 	When the value of the slider is changed, it'll call self.OnValueChanged if the value exists.
 	slider.OnValueChanged = function(self, FixedValue, value) end
-
 	All hooks set for "OnValueChanged" will also be called, example: slider:SetHook("OnValueChanged", function(self, FixedValue, value) end)
+
+	SWITCH:
+	When the value of the switch is changed, it'll call self.OnSwitch if the key exists.
+	switch.OnSwitch = function(self, FixedValue, value) end
+	All hooks set for "OnSwitch" will also be called, example: switch:SetHook("OnSwitch", function(self, FixedValue, value) end)
 
 --]=]
 
@@ -837,12 +842,17 @@ local switch_get_value = function(self)
 	return self.value
 end
 
-local switch_set_value = function(self, value)
+local switch_set_value = function(self, value, forcedState)
 	if (self.switch_func) then
 		value = self:switch_func(value)
 	end
 
-	SwitchOnClick (self.widget, nil, true, value)
+	local bForceValue = true
+	if (forcedState == "RUN_CALLBACK") then
+		bForceValue = false
+	end
+
+	SwitchOnClick (self.widget, nil, bForceValue, value)
 end
 
 local switch_set_fixparameter = function(self, value)
@@ -955,9 +965,53 @@ local set_as_checkbok = function(self)
 	end
 end
 
+local createExtraSpaceToClick = function(self, label, widgetWidth, highlight)
+    --self = self.widget or self
+    label = label.widget or label
+	widgetWidth = widgetWidth or 140
+
+    local extraSpaceFrame = CreateFrame("button", nil, self.widget)
+    extraSpaceFrame:EnableMouse(true)
+    extraSpaceFrame:SetFrameLevel(self:GetFrameLevel()-1)
+
+    PixelUtil.SetSize(extraSpaceFrame, widgetWidth, self:GetHeight() + 1)
+    PixelUtil.SetPoint(extraSpaceFrame, "topleft", self.widget, "topleft", 0, 0)
+
+	local highlightTexture
+
+	if (highlight) then
+		highlightTexture = extraSpaceFrame:CreateTexture(nil, "highlight")
+		if (type(highlight) ~= "boolean") then
+			highlightTexture:SetTexture(highlight)
+		else
+			highlightTexture:SetColorTexture(1, 1, 1, 0.1)
+		end
+		PixelUtil.SetPoint(highlightTexture, "topleft", extraSpaceFrame, "topleft", 0, 0)
+		PixelUtil.SetPoint(highlightTexture, "bottomright", extraSpaceFrame, "bottomright", 0, 0)
+	end
+
+	extraSpaceFrame:SetScript("OnClick", function()
+		local bNewState = not self:GetValue()
+		self.OnSwitch(self, nil, bNewState)
+
+		if (bNewState) then
+			self:SetValue(true, "RUN_CALLBACK")
+		else
+			self:SetValue(false, "RUN_CALLBACK")
+		end
+
+		if (self._valueChangeHook) then
+			self._valueChangeHook()
+		end
+	end)
+
+	extraSpaceFrame.parent = self
+    return extraSpaceFrame, highlightTexture
+end
+
 ---@class df_checkbox : df_button, df_widgets
 ---@field OnSwitch fun(self:df_checkbox, fixedValue:any, value:boolean)
----@field SetValue fun(self:df_button, value:boolean)
+---@field SetValue fun(self:df_button, value:boolean, state:string?)
 ---@field GetValue fun(self:df_button):boolean
 ---@field SetFixedParameter fun(self:df_button, value:any)
 ---@field GetFixedParameter fun(self:df_button):any
@@ -970,6 +1024,7 @@ end
 ---@field GetCapsule fun(self:df_button):df_button capsule only exists in the actual frame of the encapsulated widget
 ---@field SetCheckedTexture fun(self:df_button, texture:string)
 ---@field SetChecked fun(self:df_button, value:boolean)
+---@field CreateExtraSpaceToClick fun(self:df_button, label:df_label, widgetWidth:number?, highlight:any?):button
 
 
 function DF:CreateSwitch(parent, onSwitch, defaultValue, width, height, leftText, rightText, member, name, colorInverted, switchFunc, returnFunc, withLabel, switch_template, label_template)
@@ -1021,6 +1076,7 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 	slider.SetTemplate = DFSliderMetaFunctions.SetTemplate
 	slider.SetSwitchFunction = set_switch_func
 	slider.GetSwitchFunction = get_switch_func
+	slider.CreateExtraSpaceToClick = createExtraSpaceToClick
 
 	if (member) then
 		parent[member] = slider

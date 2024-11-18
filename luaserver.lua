@@ -627,6 +627,55 @@ BackdropTemplateMixin = {}
 ---@field RegisterUnitEvent fun(self: frame, event: string, unitId: unit) register for an event, trigers "OnEvent" only if the event occurred for the registered unit
 ---@field UnregisterEvent fun(self: frame, event: string) unregister for an event
 ---@field HookScript fun(self: frame, event: string, handler: function) run a function after the frame's script has been executed, carrying the same arguments
+---@field CanChangeProtectedState fun(self: frame) : boolean
+---@field CollapsesLayout fun(self: frame) : boolean
+---@field EnableMouseMotion fun(self: frame, enable: boolean)
+---@field GetBottom fun(self: frame) : number
+---@field GetCenter fun(self: frame) : number, number
+---@field GetHeight fun(self: frame, ignoreRect: boolean?) : number
+---@field GetLeft fun(self: frame) : number
+---@field GetRect fun(self: frame) : number, number, number, number
+---@field GetRight fun(self: frame) : number
+---@field GetScaledRect fun(self: frame) : number, number, number, number
+---@field GetSize fun(self: frame, ignoreRect: boolean?) : number, number
+---@field GetSourceLocation fun(self: frame) : string
+---@field GetTop fun(self: frame) : number
+---@field GetWidth fun(self: frame, ignoreRect: boolean?) : number
+---@field Hide fun(self: frame)
+---@field IsCollapsed fun(self: frame) : boolean
+---@field SetCollapsesLayout fun(self: frame, collapsesLayout: boolean)
+---@field IsAnchoringRestricted fun(self: frame) : boolean
+---@field IsDragging fun(self: frame) : boolean
+---@field IsMouseClickEnabled fun(self: frame) : boolean
+---@field IsMouseMotionEnabled fun(self: frame) : boolean
+---@field IsMouseMotionFocus fun(self: frame) : boolean
+---@field IsMouseOver fun(self: frame, offsetTop: number?, offsetBottom: number?, offsetLeft: number?, offsetRight: number?) : boolean
+---@field IsMouseWheelEnabled fun(self: frame) : boolean
+---@field IsProtected fun(self: frame) : boolean, boolean
+---@field IsRectValid fun(self: frame) : boolean
+---@field IsShown fun(self: frame) : boolean
+---@field IsVisible fun(self: frame) : boolean
+---@field SetMouseMotionEnabled fun(self: frame, enabled: boolean)
+---@field SetParent fun(self: frame, parent: frame?)
+---@field SetPassThroughButtons fun(self: frame, button1: string?, ...)
+---@field SetPropagateMouseClicks fun(self: frame, propagate: boolean)
+---@field SetPropagateMouseMotion fun(self: frame, propagate: boolean)
+---@field SetShown fun(self: frame, show: boolean)
+---@field Show fun(self: frame)
+---@field AdjustPointsOffset fun(self: frame, x: number, y: number)
+---@field ClearAllPoints fun(self: frame)
+---@field ClearPoint fun(self: frame, point: string)
+---@field ClearPointsOffset fun(self: frame)
+---@field GetPoint fun(self: frame, anchorIndex: number?, resolveCollapsed: boolean?) : string, frame, string, number, number
+---@field GetPointByName fun(self: frame, point: string, resolveCollapsed: boolean?) : string, frame, string, number, number
+---@field SetAllPoints fun(self: frame, relativeTo: frame?, doResize: boolean?)
+---@field SetHeight fun(self: frame, height: number)
+---@field SetPoint fun(self: frame, point: string, relativeTo: frame?, relativePoint: string?, offsetX: number?, offsetY: number?)
+---@field SetSize fun(self: frame, x: number, y: number)
+---@field SetWidth fun(self: frame, width: number)
+---@field CreateAnimationGroup fun(self: frame, name: string?, templateName: string?) : animationgroup
+---@field GetAnimationGroups fun(self: frame) : animationgroup[]
+---@field StopAnimating fun(self: frame)
 
 ---@class cooldown : frame
 ---@field Clear fun(self: cooldown)
@@ -1780,7 +1829,7 @@ function GetServerTime() return 0 end
 
 C_Spell = {}
 
----@param spellID number
+---@param spellID number|string
 ---@return spellinfo
 function C_Spell.GetSpellInfo(spellID) return {} end
 

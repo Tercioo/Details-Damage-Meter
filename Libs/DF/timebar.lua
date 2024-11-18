@@ -366,7 +366,7 @@ local OnUpdateFunc = function(self, deltaTime)
         self.MyObject:StopTimer()
     end
 
-    self.MyObject:RunHooksForWidget("OnUpdate", self, self)
+    self.MyObject:RunHooksForWidget("OnUpdate", self, self, deltaTime)
 end
 
 ---start a timer on the timebar

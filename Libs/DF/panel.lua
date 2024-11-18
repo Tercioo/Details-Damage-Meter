@@ -4366,6 +4366,7 @@ local default_radiogroup_options = {
 ---@field FadeIn fun(self:df_checkboxgroup)
 ---@field FadeOut fun(self:df_checkboxgroup)
 ---@field GetAllCheckboxes fun(self:df_checkboxgroup):df_radiogroup_checkbox[]
+---@field ExecuteOnAllCheckboxes fun(self:df_checkboxgroup, func:function) fun(radioGroup, checkbox, param, optionId)
 ---@field GetCheckbox fun(self:df_checkboxgroup, checkboxId:number):df_radiogroup_checkbox
 ---@field CreateCheckbox fun(self:df_checkboxgroup):df_radiogroup_checkbox
 ---@field ResetAllCheckboxes fun(self:df_checkboxgroup)
@@ -4466,6 +4467,13 @@ detailsFramework.RadioGroupCoreFunctions = {
 		end
 
 		return checkbox
+	end,
+
+	ExecuteOnAllCheckboxes = function(self, func)
+		local checkBoxList = self:GetAllCheckboxes()
+		for _, checkbox in ipairs(checkBoxList) do
+			detailsFramework:QuickDispatch(func, self, checkbox, checkbox._param, checkbox._optionid)
+		end
 	end,
 
 	ResetAllCheckboxes = function(self)
@@ -4649,9 +4657,9 @@ detailsFramework.RadioGroupCoreFunctions = {
 }
 
 ---@class df_radiooptions : table
----@field name string|table can be a regular string or a locTable
----@field get fun():any?
----@field set fun(self:df_radiooptions, param, value)
+---@field name string|table? can be a regular string or a locTable
+---@field get fun()?
+---@field set fun(self:df_radiooptions, param, value)?
 ---@field param any?
 ---@field texture string?
 ---@field texcoord table?
@@ -4664,7 +4672,8 @@ detailsFramework.RadioGroupCoreFunctions = {
 ---@field backdrop_color table?
 ---@field backdrop_border_color table?
 ---@field checkbox_template string?
----@field on_click_option fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox, param:any, optionId:number)
+---@field on_click_option fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox, param:any, optionId:number)?
+---@field on_create_checkbox fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox)?
 
 --[=[
 	radionOptions: an index table with options for the radio group {name = "", set = func (self, param, value), param = value, get = func, texture = "", texcoord = {}}

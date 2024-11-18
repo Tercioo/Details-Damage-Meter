@@ -440,7 +440,8 @@ do
 			[305483] = {cooldown = 45,   duration = 5,   specs = {262, 263, 264},  	talent = false, charges = 1,    class = "SHAMAN",   type = 8}, --Lightning Lasso
 			[197214] = {cooldown = 40,   duration = 2,   specs = {262},  			talent = false, charges = 1,    class = "SHAMAN",   type = 8}, --Sundering
 			[108270] = {cooldown = 180,    duration = 15,specs = {262, 263, 264},   talent = false, charges = 1,    class = "SHAMAN",    type = 2}, --Stone Bulwark Totem
-
+			[384352] = {cooldown = 60,	duration = 0,specs = {263},		talent = false,	charges = 1,	class = "SHAMAN",	type = 1}, --Doom Winds
+			
 			--~monk
 			-- 268 - Brewmaster
 			-- 269 - Windwalker
@@ -697,7 +698,8 @@ do
 			[384631] = {cooldown = 90,	duration = 12,	specs = {261},				talent = false,	charges = 1,	class = "ROGUE",	type = 1}, --Flagellation
 			[277925] = {cooldown = 60,	duration = 4,	specs = {261},				talent = false,	charges = 1,	class = "ROGUE",	type = 1}, --Shuriken Tornado
 			[360194] = {cooldown = 120, duration = 16,  specs = {259}, 				talent = false, charges = 1, 	class = "ROGUE", 	type = 1}, -- Deathmark
-
+			[385627] = {cooldown = 60,	duration = 14,	specs = {259},				talent = false,	charges = 1,	class = "ROGUE",	type = 1}, -- Kingsbane
+			
 			--~evoker
 			-- 1467 - Devastation
 			-- 1468 - Preservation

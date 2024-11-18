@@ -1018,6 +1018,9 @@
 			Details:Msg("(debug) starting a new arena segment.")
 		end
 
+		--cleanup the first death of the arena
+		Details.first_arena_deathlog = nil
+
 		local _, timeSeconds = select(1, ...)
 
 		if (Details.start_arena) then

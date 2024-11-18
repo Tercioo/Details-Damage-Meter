@@ -1115,3 +1115,11 @@ function DetailsRaidCheck:OnEvent(_, event, ...)
 		end
 	end
 end
+
+
+--[=[
+7x Details/Libs/DF/fw.lua:874: bad argument #1 to 'pairs' (table expected, got string)
+[string "=[C]"]: in function `pairs'
+[string "@Details/Libs/DF/fw.lua"]:874: in function `copy'
+[string "@Details_RaidCheck/Details_RaidCheck.lua"]:692: in function <...rfaceDetails_RaidCheck/Details_RaidCheck.lua:653>
+]=]

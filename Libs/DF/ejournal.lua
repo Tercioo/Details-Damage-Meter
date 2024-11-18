@@ -50,6 +50,7 @@ local defaultCreatureIconCoords = {0, 1, 0, 0.95}
 ---@field CreateEncounterJournalDump fun()
 ---@field GetAllRaidInstances fun():df_instanceinfo[]
 ---@field GetAllDungeonInstances fun():df_instanceinfo[]
+---@field GetEncounterSpells fun(journalInstanceId:number, journalEncounterId:number, difficulty:number):df_ejspell[]
 ---@field CacheRaidData_OnlyRaidInstances table<number, df_instanceinfo[]>
 ---@field CacheRaidData_OnlyDungeonInstances table<number, df_instanceinfo[]>
 ---@field CacheRaidData_ByInstanceId table<number, df_instanceinfo>
@@ -167,6 +168,56 @@ function Ejc.GetAllDungeonInstances()
         Ejc.CreateEncounterJournalDump()
     end
     return Ejc.CacheRaidData_OnlyDungeonInstances
+end
+
+---@class df_ejspell : table
+---@field spellID number
+---@field title string header name in the encounter journal
+---@field abilityIcon number journal spell icon
+
+function Ejc.GetEncounterSpells(journalInstanceId, journalEncounterId, difficulty)
+    EJ_SetDifficulty(difficulty or 16)
+    EJ_SelectInstance(journalInstanceId)
+    EJ_SelectEncounter(journalEncounterId)
+
+    local encounterName, encounterDescription, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(journalEncounterId)
+    local sectionStack = {}
+    local currentSectionId = rootSectionID
+
+    local spells = {}
+
+    repeat
+        local sectionInfo = C_EncounterJournal.GetSectionInfo(currentSectionId)
+        if (not sectionInfo) then
+            break
+        end
+
+        if (sectionInfo.spellID) then
+            local spellInfo = C_Spell.GetSpellInfo(sectionInfo.spellID)
+            sectionInfo.spellName = spellInfo and spellInfo.name
+            sectionInfo.spellIcon = spellInfo and spellInfo.iconID
+
+            table.insert(spells, sectionInfo)
+
+            spells[sectionInfo.spellID] = sectionInfo
+            if (sectionInfo.spellName) then
+                spells[sectionInfo.spellName] = sectionInfo
+            end
+            if (sectionInfo.title) then
+                spells[sectionInfo.title] = sectionInfo
+            end
+        end
+
+        if (sectionInfo.siblingSectionID) then
+            table.insert(sectionStack, sectionInfo.siblingSectionID)
+        end
+
+        if (sectionInfo.firstChildSectionID) then
+            table.insert(sectionStack, sectionInfo.firstChildSectionID)
+        end
+
+        currentSectionId = table.remove(sectionStack)
+    until not currentSectionId
 end
 
 function Ejc.CreateEncounterJournalDump()
@@ -310,7 +361,7 @@ function Ejc.CreateEncounterJournalDump()
                     else
                         Ejc.CacheRaidData_OnlyDungeonInstances[#Ejc.CacheRaidData_OnlyDungeonInstances+1] = instanceData
                     end
-                    
+
                     --get information about the bosses in the raid
                     for encounterIndex = 1, maxRaidBosses do
                         local encounterName, encounterDescription, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfoByIndex(encounterIndex, journalInstanceID)

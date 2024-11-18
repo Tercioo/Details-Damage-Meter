@@ -14,7 +14,7 @@ local catchStr = detailsFramework.CatchString
 local maxBlizzardDeathRecapLines = 5
 local textAlpha = 0.9
 local segmentColor = "orange"
-local isSpectating = "IsSpectating"
+
 
 local on_deathrecap_line_enter = function(self)
 	if (self.spellid) then
@@ -221,25 +221,74 @@ function Details222.InitRecap()
         local parent = _G["DeathRecapFrame"]
         local headerFrame = detailsFramework:CreateHeader(parent, headerTable)
 
+        --Terciob: please never use spectator stuff to get the dampening percent when player dies
+        local forbidden = {IsSpectating = true, GetDampeningPercent = true}
+
         local counter = 0
-        local countToDie = 1
+        local countToKillDamage = 1
         local columnsCreated = {}
         local countCallback = function()
-            countToDie = countToDie + 1
-            if (countToDie > 12) then
-                Details:CaptureSet(false, "damage", true)
+            countToKillDamage = countToKillDamage + 1
+            --count 12 frames after
+            if (countToKillDamage > 30) then --use after 0.5 seconds
+                Details.CaptureSet(Details, false, "damage", true)
             end
         end
+
+        local getArenaDumpening = function()
+            --local dampening = C_Commentator.GetDampeningPercent() --do not use this
+            local dampening = 0 --find another way to get the dampening percent
+            return dampening
+        end
+
+        --[=[ deathtable is a table with the following structure:
+            eventTable [1] = type of the event
+            eventTable [2] = spellId --spellid or false if this is a battle ress event
+            eventTable [3] = amount --amount of damage or healing
+            eventTable [4] = time --unix time
+            eventTable [5] = player health when the event happened
+            eventTable [6] = name of the actor which caused this event
+            eventTable [7] = absorbed
+            eventTable [8] = spell school
+            eventTable [9] = friendly fire
+            eventTable [10] = amount of overkill damage
+    --]=]
+
+        local createSpecialLog = function()
+            if (Details.first_arena_deathlog and type(Details.first_arena_deathlog) == "table") then
+                local newDeathEvent = {
+                    6,
+                    -1, --spellId
+                    1000,
+                    false,
+                    getArenaDumpening(), --amount of damage or healing but in this case is 0
+                    time(), --when the event happened using unix time
+                    0, --player health when the event happened
+                    "death", --source name
+                }
+                table.insert(Details.first_arena_deathlog, newDeathEvent)
+            end
+        end
+
+        --Details.first_arena_deathlog = nil
+        Details:InstallHook("HOOK_DEATH", function(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
+            if (not Details.first_arena_deathlog) then
+                Details.first_arena_deathlog = {}
+                createSpecialLog()
+            end
+        end)
 
         local monitorDeaths = catchStr(unpack(Details.column_sizes))
         local tableContents = _G[monitorDeaths]
         for key in pairs(tableContents) do
-            if (key ~= isSpectating) then
+            if (not forbidden[key]) then
+                local dampening = getArenaDumpening()
                 Details222.DHook(tableContents, key, countCallback)
-                columnsCreated[#columnsCreated+1] = {tableContents, key, countCallback}
+                columnsCreated[#columnsCreated+1] = {tableContents, key, countCallback, dampening}
             end
         end
 
+    --create a deathrecap scroll the events before death
         local okay, errorText = pcall(function()
             ---@diagnostic disable-next-line: missing-parameter
             local deathEventsScrollBox = detailsFramework:CreateScrollBox(parent, "DeathRecapEventsScrollFrame", function()end, columnsCreated)
