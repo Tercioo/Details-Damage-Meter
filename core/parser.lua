@@ -214,6 +214,7 @@
 			[10060] = true, --power infusion
 			[194384] = true, --atonement uptime
 			[378134] = true, --rallied to victory
+			[436159] = true, --ring boon of binding buff
 		}
 		Details.CreditBuffToTarget = buffs_on_target
 
