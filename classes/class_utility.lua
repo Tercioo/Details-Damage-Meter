@@ -1829,7 +1829,9 @@ function atributo_misc:ToolTipDebuffUptime(instancia, numero, barra)
 	local _combat_time = instancia.showing:GetCombatTime()
 
 	for _spellid, _tabela in pairs(minha_tabela) do
-		debuffs_usados [#debuffs_usados+1] = {_spellid, _tabela.uptime}
+		if (_tabela.uptime and _tabela.uptime > 0) then
+			debuffs_usados [#debuffs_usados+1] = {_spellid, _tabela.uptime}
+		end
 	end
 	table.sort(debuffs_usados, Details.Sort2)
 
