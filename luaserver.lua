@@ -892,6 +892,12 @@ BackdropTemplateMixin = {}
 ---@field SetThumbTexture fun(self: slider, texture: textureid|texturepath)
 ---@field SetStepsPerPage fun(self: slider, steps: number)
 
+---get all frames under the cursor that has mouse focus
+---@return uiobject[]
+function GetMouseFoci()
+    return {}
+end
+
 ---@return number
 function debugprofilestop() return 0 end
 

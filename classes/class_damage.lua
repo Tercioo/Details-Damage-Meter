@@ -3647,28 +3647,30 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 
 		local ebonMightTable = buffUptimeTable[CONST_SPELLID_EBONMIGHT]
 
-		--all ebon mights
-		for i = 1, #ebonMightTable do
-			local thisEbonMightTable = ebonMightTable[i]
-			local uptime = thisEbonMightTable[2]
-			local evokerName = thisEbonMightTable[3]
-			local targetName = thisEbonMightTable[4]
-			local targetClass = thisEbonMightTable[5]
+		if (ebonMightTable) then
+			--all ebon mights
+			for i = 1, #ebonMightTable do
+				local thisEbonMightTable = ebonMightTable[i]
+				local uptime = thisEbonMightTable[2]
+				local evokerName = thisEbonMightTable[3]
+				local targetName = thisEbonMightTable[4]
+				local targetClass = thisEbonMightTable[5]
 
-			local spellName = ebonMightSpellName
+				local spellName = ebonMightSpellName
 
-			if (evokerName) then
-				targetName = detailsFramework:AddClassColorToText(targetName, targetClass)
-				targetName = detailsFramework:AddClassIconToText(targetName, targetName, targetClass)
-				spellName = spellName .. " [" .. targetName .. " ]"
-			end
+				if (evokerName) then
+					targetName = detailsFramework:AddClassColorToText(targetName, targetClass)
+					targetName = detailsFramework:AddClassIconToText(targetName, targetName, targetClass)
+					spellName = spellName .. " [" .. targetName .. " ]"
+				end
 
-			local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
-			if (uptime > 0) then
-				local uptimePercent = uptime / combatTime * 100
-				GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. "(" .. format("%.1f", uptimePercent) .. "%)")
-				GameCooltip:AddIcon(ebonMightSpellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
-				Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, ebonMightColor)
+				local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
+				if (uptime > 0) then
+					local uptimePercent = uptime / combatTime * 100
+					GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. "(" .. format("%.1f", uptimePercent) .. "%)")
+					GameCooltip:AddIcon(ebonMightSpellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, ebonMightColor)
+				end
 			end
 		end
 
