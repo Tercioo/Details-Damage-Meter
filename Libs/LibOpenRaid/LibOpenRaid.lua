@@ -56,7 +56,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 145
+local CONST_LIB_VERSION = 147
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -117,8 +117,6 @@ end
     local CONST_COMM_PLAYER_DEAD_PREFIX = "D"
     local CONST_COMM_PLAYER_ALIVE_PREFIX = "A"
     local CONST_COMM_PLAYERINFO_PREFIX = "P"
-    local CONST_COMM_PLAYERINFO_TALENTS_PREFIX = "T"
-    local CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX = "V"
 
     local CONST_COMM_KEYSTONE_DATA_PREFIX = "K"
     local CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX = "J"
@@ -471,6 +469,7 @@ end
 
             --trigger callbacks
             for i = 1, #callbackTable do
+                --dumpt(dataAsTable)
                 callbackTable[i](dataAsTable, sender)
             end
         end
@@ -494,8 +493,6 @@ end
         [CONST_COMM_PLAYER_DEAD_PREFIX] = {}, --player is dead
         [CONST_COMM_PLAYER_ALIVE_PREFIX] = {}, --player is alive
         [CONST_COMM_PLAYERINFO_PREFIX] = {}, --info about the player
-        [CONST_COMM_PLAYERINFO_TALENTS_PREFIX] = {}, --talents info
-        [CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX] = {}, --pvp talents info
         [CONST_COMM_KEYSTONE_DATA_PREFIX] = {}, --received keystone data
         [CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX] = {}, --received a request to send keystone data
         [CONST_COMM_OPENNOTES_RECEIVED_PREFIX] = {}, --received notes
@@ -733,9 +730,10 @@ end
         end
 
         local result, errortext = xpcall(callback, geterrorhandler(), unpack(payload))
-        --if (not result) then
-        --    sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack)
-        --end
+        --local result, errortext = pcall(callback, unpack(payload))
+        if (not result) then
+            sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack)
+        end
 
         return result
     end
@@ -831,8 +829,8 @@ end
         "GearDurabilityUpdate",
         "UnitInfoUpdate",
         "UnitInfoWipe",
-        "TalentUpdate",
-        "PvPTalentUpdate",
+        "TalentUpdate", --deprecated
+        "PvPTalentUpdate", --deprecated
         "KeystoneUpdate",
         "KeystoneWipe",
         "NoteUpdated",
@@ -1089,7 +1087,7 @@ end
             delayedTalentChange()
         end,
         ["TRAIT_TREE_CURRENCY_INFO_UPDATED"] = function(...)
-            delayedTalentChange()
+            --delayedTalentChange()
         end,
 
         --SPELLS_CHANGED
@@ -1236,9 +1234,9 @@ end
         local unitName = UnitName("player")
         --player data
             local playerFullInfo = openRaidLib.UnitInfoManager.GetPlayerFullInfo()
-            openRaidLib.UnitInfoManager.AddUnitInfo(unitName, unpack(playerFullInfo))
+            openRaidLib.UnitInfoManager.AddUnitInfo(unitName, unpack(playerFullInfo)) --unpack: specId, talentsString, pvpTalentsTableUnpacked
 
-            --gear info
+        --gear info
             --C_Timer.After(2, function()
                 local playerGearInfo = openRaidLib.GearManager.GetPlayerFullGearInfo()
                 openRaidLib.GearManager.AddUnitGearList(unitName, unpack(playerGearInfo))
@@ -1389,6 +1387,43 @@ end
 --------------------------------------------------------------------------------------------------------------------------------
 --~player general ~info ~unit ~unitinfo
 
+    ---@class unitinfomanager : table
+    ---@field Version number
+    ---@field UnitData table<string, unitinfodata>
+    ---@field GetAllUnitsInfo fun():table<string, unitinfodata>
+    ---@field GetUnitInfo fun(unitId:string, createNew:boolean?):unitinfodata
+    ---@field EraseData fun()
+    ---@field SetUnitInfo fun(unitName:string, unitInfo:unitinfodata, specId:number, talentsString:string, pvpTalentsTableUnpacked:table)
+    ---@field UpdateUnitInfo fun(unitName:string, specId:number?, talentsString:string?, pvpTalentsTableUnpacked:table?)
+    ---@field AddUnitInfo fun(unitName:string,                        specId:number, talentsString:string, pvpTalentsTableUnpacked:table)
+    ---@field OnReceiveUnitFullInfo fun(data:table, unitName:string)
+    ---@field SendAllPlayerInfo fun()
+    ---@field GetPlayerFullInfo fun():unitinfocomm
+    ---@field GetPlayerPvPTalents fun():table<number, number, number>
+    ---@field OnPlayerTalentChanged fun()
+    ---@field OnReceivePvPTalentsUpdate fun(data:table, unitName:string)
+    ---@field OnPlayerLeaveGroup fun()
+    ---@field SendPlayerInfoAfterCombat fun()
+    ---@field OnLeaveCombat fun()
+
+    ---@class unitinfodata : table
+    ---@field specId number
+    ---@field specName string
+    ---@field heroTalentId number
+    ---@field role string
+    ---@field talents string
+    ---@field pvpTalents table<number, number, number>
+    ---@field class string
+    ---@field classId number
+    ---@field className string
+    ---@field name string
+    ---@field nameFull string
+
+    ---@class unitinfocomm : table
+    ---@field [1] number specId
+    ---@field [2] string talents
+    ---@field [3] table<number, number, number> pvpTalents
+
     --API calls
         --return a table containing all information of units
         --format: [playerName-realm] = {information}
@@ -1403,21 +1438,22 @@ end
         end
 
     --manager constructor
-        openRaidLib.UnitInfoManager = {
-            --structure:
-            --[playerName] = {ilevel = 100, durability = 100, weaponEnchant = 0, noGems = {}, noEnchants = {}}
-            UnitData = {},
-        }
+        ---@type unitinfomanager
+        ---@diagnostic disable-next-line: missing-fields
+        local UnitInfoManager = {}
+        UnitInfoManager.UnitData = {}
+        UnitInfoManager.Version = 1
 
+        openRaidLib.UnitInfoManager = UnitInfoManager
+
+        ---@type unitinfodata
         local unitTablePrototype = {
             specId = 0,
             specName = "",
+            heroTalentId = 0,
             role = "",
-            renown = 1,
-            covenantId = 0,
-            talents = {},
-            conduits = {},
-            pvpTalents = {},
+            talents = "", --export string
+            pvpTalents = {}, --should be 3 spellIds
             class = "",
             classId = 0,
             className = "",
@@ -1425,31 +1461,45 @@ end
             nameFull = "",
         }
 
-    function openRaidLib.UnitInfoManager.GetAllUnitsInfo()
-        return openRaidLib.UnitInfoManager.UnitData
+    ---@return unitinfodata
+    local createNewUnitInfo = function()
+        ---@type unitinfodata
+        ---@diagnostic disable-next-line: missing-fields
+        local newUnitInfo = {}
+        openRaidLib.TCopy(newUnitInfo, unitTablePrototype)
+        return newUnitInfo
+    end
+
+    function UnitInfoManager.GetAllUnitsInfo()
+        return UnitInfoManager.UnitData
     end
 
     --get the unit table or create a new one if 'createNew' is true
-    function openRaidLib.UnitInfoManager.GetUnitInfo(unitName, createNew)
-        local unitInfo = openRaidLib.UnitInfoManager.UnitData[unitName]
+    function UnitInfoManager.GetUnitInfo(unitName, createNew)
+        ---@type unitinfodata
+        local unitInfo = UnitInfoManager.UnitData[unitName]
         if (not unitInfo and createNew) then
-            unitInfo = {}
-            openRaidLib.TCopy(unitInfo, unitTablePrototype)
-            openRaidLib.UnitInfoManager.UnitData[unitName] = unitInfo
+            unitInfo = createNewUnitInfo()
+            UnitInfoManager.UnitData[unitName] = unitInfo
         end
         return unitInfo
     end
 
-    function openRaidLib.UnitInfoManager.EraseData()
-        table.wipe(openRaidLib.UnitInfoManager.UnitData)
+    function UnitInfoManager.EraseData()
+        table.wipe(UnitInfoManager.UnitData)
     end
 
-    function openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
+    ---@param unitName string
+    ---@param unitInfo unitinfodata
+    ---@param specId number
+    ---@param talentsString string
+    ---@param pvpTalentsTableUnpacked table<number, number, number>
+    function UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, talentsString, pvpTalentsTableUnpacked)
         if (not GetSpecializationInfoByID) then --tbc hot fix
             return
         end
 
-        local specId, specName, specDescription, specIcon, role = GetSpecializationInfoByID(specId or 0)
+        local specId, specName, specDescription, specIcon, role, classFile, classLocName = GetSpecializationInfoByID(specId or 0)
         local className, classString, classId = UnitClass(unitName)
 
         --cold login bug where the player class info cannot be retrived by the player name, after a /reload it's all good
@@ -1460,13 +1510,13 @@ end
             end
         end
 
+        local talentString, heroTalent = openRaidLib.ParseTalentString(talentsString)
+
         unitInfo.specId = specId or unitInfo.specId
         unitInfo.specName = specName or unitInfo.specName
+        unitInfo.heroTalentId = heroTalent or unitInfo.heroTalentId
         unitInfo.role = role or "DAMAGER"
-        unitInfo.renown = renown or unitInfo.renown
-        unitInfo.covenantId = covenantId or unitInfo.covenantId
-        unitInfo.talents = talentsTableUnpacked or unitInfo.talents
-        unitInfo.conduits = conduitsTableUnpacked or unitInfo.conduits
+        unitInfo.talents = talentString or ""
         unitInfo.pvpTalents = pvpTalentsTableUnpacked or unitInfo.pvpTalents
         unitInfo.class = classString
         unitInfo.classId = classId
@@ -1475,68 +1525,52 @@ end
         unitInfo.nameFull = unitName
     end
 
-    function openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
-        local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(unitName, true)
-        openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
-        openRaidLib.publicCallback.TriggerCallback("UnitInfoUpdate", openRaidLib.GetUnitID(unitName), openRaidLib.UnitInfoManager.UnitData[unitName], openRaidLib.UnitInfoManager.GetAllUnitsInfo())
+    function UnitInfoManager.AddUnitInfo(unitName, specId, talentsString, pvpTalentsTableUnpacked)
+        local unitInfo = UnitInfoManager.GetUnitInfo(unitName, true) --returning nil
+        UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, talentsString, pvpTalentsTableUnpacked)
+        openRaidLib.publicCallback.TriggerCallback("UnitInfoUpdate", openRaidLib.GetUnitID(unitName), UnitInfoManager.UnitData[unitName], UnitInfoManager.GetAllUnitsInfo())
     end
 
-    --triggered when the lib receives a unit information from another player in the raid
-    --@data: table received from comm
-    --@unitName: player name
-    function openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo(data, unitName)
+    function UnitInfoManager.UpdateUnitInfo(playerName, specId, talentsString, pvpTalentsTableUnpacked)
+        local unitInfo = UnitInfoManager.GetUnitInfo(playerName, true)
+        UnitInfoManager.SetUnitInfo(playerName, unitInfo, specId or unitInfo.specId, talentsString or unitInfo.talents, pvpTalentsTableUnpacked or unitInfo.pvpTalents)
+        openRaidLib.publicCallback.TriggerCallback("UnitInfoUpdate", openRaidLib.GetUnitID(playerName), UnitInfoManager.UnitData[playerName], UnitInfoManager.GetAllUnitsInfo())
+    end
+
+    function UnitInfoManager.OnReceiveUnitFullInfo(data, unitName)
+        --triggered when the lib receives a unit information from another player in the raid
         local specId = tonumber(data[1])
+        local talentsString = data[2]
 
-        local playerInfo1 = tonumber(data[2])
-
-        local playerInfo2 = tonumber(data[3])
-        if (not playerInfo2 or playerInfo2 > 4) then --cleanup on 10.0
-            --invalid covanentId - different lib versions, it'll fix itself on dragonflight
+        local unitInfoVersion = data[7]
+        if (type(unitInfoVersion) ~= "string" or not unitInfoVersion:find("!")) then
+            openRaidLib.DiagnosticError("UnitInfoManager.OnReceiveUnitFullInfo: invalid version data", unitInfoVersion)
             return
         end
 
-        local talentsSize = tonumber(data[4])
-        if (not talentsSize) then
-            return
-        end
-
-        local borrowedTalentsTableIndex = tonumber((talentsSize + 1) + 3) + 1 -- +3 for spec, playerInfo1 and playerInfo2 data | talentSizeIndex + talentSize | +1 for talents size
-        local borrowedTalentsSize = data[borrowedTalentsTableIndex]
-
-        local pvpTalentsTableIndex = 3 + 3 + talentsSize + borrowedTalentsSize -- +3 for spec, playerInfo1 and playerInfo2 data | +3 for talents, conduit and pvptalents index for size
-        local pvpTalentsSize = data[pvpTalentsTableIndex]
-
-        --unpack the talents data as a ipairs table
-        local talentsTableUnpacked = openRaidLib.UnpackTable(data, 4, false, false, talentsSize)
-
-        --unpack the borrowed talents data as a ipairs table
-        local borrowedTalentsTableUnpacked = openRaidLib.UnpackTable(data, borrowedTalentsTableIndex, false, false, borrowedTalentsSize)
-
-        --back compatibility with versions without pvp talents
-        if (type(data[pvpTalentsTableIndex]) == "string" or not data[pvpTalentsTableIndex]) then
-            --add a dummy table as pvp talents
-            openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, {0, 0, 0})
+        local versionNumber = tonumber(unitInfoVersion:match("!(%d+)"))
+        if (not versionNumber or versionNumber < UnitInfoManager.Version) then
+            openRaidLib.DiagnosticError("UnitInfoManager.OnReceiveUnitFullInfo: invalid version number", versionNumber, UnitInfoManager.Version)
             return
         end
 
         --unpack the pvp talents data as a ipairs table
-        local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, pvpTalentsTableIndex, false, false, pvpTalentsSize)
+        local pvpTalentsIndex = 3
+        local pvpTalentsSize = 3
+        local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, pvpTalentsIndex, false, false, pvpTalentsSize)
 
         --add to the list of players information and also trigger a public callback
-        openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, pvpTalentsTableUnpacked)
+        UnitInfoManager.AddUnitInfo(unitName, specId, talentsString, pvpTalentsTableUnpacked)
     end
-    openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_PREFIX, openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo)
+    openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_PREFIX, UnitInfoManager.OnReceiveUnitFullInfo)
 
-function openRaidLib.UnitInfoManager.SendAllPlayerInfo()
-    local playerInfo = openRaidLib.UnitInfoManager.GetPlayerFullInfo()
 
+function UnitInfoManager.SendAllPlayerInfo()
+    local playerInfo = UnitInfoManager.GetPlayerFullInfo()
     local dataToSend = CONST_COMM_PLAYERINFO_PREFIX .. ","
     dataToSend = dataToSend .. playerInfo[1] .. "," --spec id
-    dataToSend = dataToSend .. playerInfo[2] .. "," --player info 1
-    dataToSend = dataToSend .. playerInfo[3] .. "," --player info 2
-    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[4]) .. "," --player talents class-spec
-    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[5]) .. "," --player talents borrowed
-    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[6]) .. "," --player talents pvp
+    dataToSend = dataToSend .. playerInfo[2] .. "," --talents string
+    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[3]) .. ",!1" --player talents pvp
 
     --send the data
     openRaidLib.commHandler.SendCommData(dataToSend)
@@ -1545,18 +1579,16 @@ end
 
 --player info format:
 --index 1: number: specId
---index 2: number: tbd, depends on expansion
---index 3: number: tbd, depends on expansion
---index 4: talents 1: player talents: length vary depends on talent system
---index 5: talents 2: borrowed power talents: length vary from expansions
---index 6: talents 3: pvp talents
-function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
+--index 2: talents as string
+--index 3: pvp talents as table
+---@return unitinfocomm
+function UnitInfoManager.GetPlayerFullInfo()
     local playerInfo = {}
 
     if (isTimewalkWoW()) then
         --indexes: specId, renown, covenant, talent, conduits, pvp talents
         --return a placeholder table
-        return {0, 0, 0, {0, 0, 0, 0, 0, 0, 0}, {0, 0}, 0}
+        return {0, "", {0, 0, 0}}
     end
 
     local specId = 0
@@ -1566,50 +1598,25 @@ function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
             specId = GetSpecializationInfo(selectedSpecialization) or 0
         end
     end
-    playerInfo[1] = specId
-
-    --player information 1 (this can be different for each expansion)
-    playerInfo[2] = openRaidLib.UnitInfoManager.GetPlayerInfo1()
-
-    --player information 2 (this can be different for each expansion)
-    playerInfo[3] = openRaidLib.UnitInfoManager.GetPlayerInfo2()
+    table.insert(playerInfo, specId)
 
     --player class-spec talents
-    local talents = openRaidLib.UnitInfoManager.GetPlayerTalents()
-    playerInfo[4] = talents
-
-    --borrowed talents (conduits talents on shadowlands)
-    local borrowedTalents = openRaidLib.UnitInfoManager.GetPlayerBorrowedTalents()
-    playerInfo[5] = borrowedTalents
+    local talentsAsString = openRaidLib.GetDragonFlightTalentsAsString()
+    table.insert(playerInfo, talentsAsString)
 
     --pvp talents
-    local pvpTalents = openRaidLib.UnitInfoManager.GetPlayerPvPTalents()
-    playerInfo[6] = pvpTalents
+    local pvpTalents = UnitInfoManager.GetPlayerPvPTalents()
+    table.insert(playerInfo, pvpTalents)
 
     return playerInfo
 end
 
---talent update (when the player changes a talent and the lib needs to notify other players in the group)
-function openRaidLib.UnitInfoManager.SendTalentUpdate()
-    --talents
-    local playerName = UnitName("player")
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
-    local talentsToSend = unitInfo.talents
-    local dataToSend = "" .. CONST_COMM_PLAYERINFO_TALENTS_PREFIX .. ","
-    local talentsString = openRaidLib.PackTable(talentsToSend)
-    dataToSend = dataToSend .. talentsString
-
-    --send the data
-    openRaidLib.commHandler.SendCommData(dataToSend)
-    diagnosticComm("SendTalentUpdateData| " .. dataToSend) --debug
-end
-
 --/dump LibStub:GetLibrary("LibOpenRaid-1.0", true).UnitInfoManager.GetUnitInfo(UnitName("player"))
 
-function openRaidLib.UnitInfoManager.OnPlayerTalentChanged()
+function UnitInfoManager.OnPlayerTalentChanged()
     --this talent update could be a specialization change, so we need to pass the specId as well
     local playerName = UnitName("player")
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
+    local unitInfo = UnitInfoManager.GetUnitInfo(playerName, true)
     local specId = 0
 
     if (getSpecializationVersion() == CONST_SPECIALIZATION_VERSION_MODERN) then
@@ -1619,92 +1626,39 @@ function openRaidLib.UnitInfoManager.OnPlayerTalentChanged()
         end
     end
 
-    openRaidLib.UnitInfoManager.SetUnitInfo(playerName, unitInfo, specId, nil, nil, openRaidLib.UnitInfoManager.GetPlayerTalents())
+    UnitInfoManager.SetUnitInfo(playerName, unitInfo, specId, openRaidLib.GetDragonFlightTalentsAsString(), UnitInfoManager.GetPlayerPvPTalents())
 
     --trigger public callback event
-    openRaidLib.publicCallback.TriggerCallback("TalentUpdate", "player", unitInfo.talents, unitInfo, openRaidLib.UnitInfoManager.GetAllUnitsInfo())
+    openRaidLib.publicCallback.TriggerCallback("TalentUpdate", "player", unitInfo.talents, unitInfo, UnitInfoManager.GetAllUnitsInfo())
 
     --schedule send to the group
-    openRaidLib.Schedules.NewUniqueTimer(1 + math.random(0, 1), openRaidLib.UnitInfoManager.SendTalentUpdate, "UnitInfoManager", "sendTalent_Schedule")
+    openRaidLib.Schedules.NewUniqueTimer(2 + math.random(0, 1), UnitInfoManager.SendAllPlayerInfo, "UnitInfoManager", "sendAllPlayerInfo_Schedule")
 end
-openRaidLib.internalCallback.RegisterCallback("talentUpdate", openRaidLib.UnitInfoManager.OnPlayerTalentChanged)
+openRaidLib.internalCallback.RegisterCallback("talentUpdate", UnitInfoManager.OnPlayerTalentChanged)
 
-function openRaidLib.UnitInfoManager.OnReceiveTalentsUpdate(data, unitName)
-    local talentsTableUnpacked = openRaidLib.UnpackTable(data, 1, false, false, 7) --this 7 should be a constant
-
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(unitName, true)
-    if (unitInfo) then
-        openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, nil, nil, nil, talentsTableUnpacked)
-        --trigger public callback event
-        openRaidLib.publicCallback.TriggerCallback("TalentUpdate", openRaidLib.GetUnitID(unitName), unitInfo.talents, unitInfo, openRaidLib.UnitInfoManager.GetAllUnitsInfo())
-    end
-end
-openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_TALENTS_PREFIX, openRaidLib.UnitInfoManager.OnReceiveTalentsUpdate)
-
---pvp talent update (when the player changes a pvp talent and the lib needs to notify other players in the group)
-function openRaidLib.UnitInfoManager.SendPvPTalentUpdate()
-    --pvp talents
-    local playerName = UnitName("player")
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
-    local pvpTalentsToSend = unitInfo.pvpTalents
-    local pvpTalentsString = openRaidLib.PackTable(pvpTalentsToSend)
-
-    local dataToSend = "" .. CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX .. ","
-    dataToSend = dataToSend .. pvpTalentsString
-
-    --send the data
-    openRaidLib.commHandler.SendCommData(dataToSend)
-    diagnosticComm("SendPvPTalentUpdateData| " .. dataToSend) --debug
-end
-
-function openRaidLib.UnitInfoManager.OnPlayerPvPTalentChanged()
-    --update the local player
-    local playerName = UnitName("player")
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
-    openRaidLib.UnitInfoManager.SetUnitInfo(playerName, unitInfo, nil, nil, nil, nil, nil, openRaidLib.UnitInfoManager.GetPlayerPvPTalents())
-
-    --schedule send to the group
-    openRaidLib.Schedules.NewUniqueTimer(1 + math.random(0, 1), openRaidLib.UnitInfoManager.SendPvPTalentUpdate, "UnitInfoManager", "sendPvPTalent_Schedule")
-
-    --trigger public callback event
-    openRaidLib.publicCallback.TriggerCallback("PvPTalentUpdate", "player", unitInfo.pvpTalents, unitInfo, openRaidLib.UnitInfoManager.GetAllUnitsInfo())
-end
-openRaidLib.internalCallback.RegisterCallback("pvpTalentUpdate", openRaidLib.UnitInfoManager.OnPlayerPvPTalentChanged)
-
-function openRaidLib.UnitInfoManager.OnReceivePvPTalentsUpdate(data, unitName)
-    local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, 1, false, false, 3) --this 3 should be a constant
-
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(unitName, true)
-    if (unitInfo) then
-        unitInfo.pvpTalents = pvpTalentsTableUnpacked
-        --trigger public callback event
-        openRaidLib.publicCallback.TriggerCallback("PvPTalentUpdate", openRaidLib.GetUnitID(unitName), unitInfo.pvpTalents, unitInfo, openRaidLib.UnitInfoManager.GetAllUnitsInfo())
-    end
-end
-openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX, openRaidLib.UnitInfoManager.OnReceivePvPTalentsUpdate)
-
-function openRaidLib.UnitInfoManager.OnPlayerLeaveGroup()
+function UnitInfoManager.OnPlayerLeaveGroup()
     local unitName = UnitName("player")
     --clear the data
-    openRaidLib.UnitInfoManager.EraseData()
+    UnitInfoManager.EraseData()
 
     --trigger a public callback
-    openRaidLib.publicCallback.TriggerCallback("UnitInfoWipe", openRaidLib.UnitInfoManager.UnitData)
+    openRaidLib.publicCallback.TriggerCallback("UnitInfoWipe", UnitInfoManager.UnitData)
 
     --need to build the player info again
-    local playerFullInfo = openRaidLib.UnitInfoManager.GetPlayerFullInfo()
-    openRaidLib.UnitInfoManager.AddUnitInfo(unitName, unpack(playerFullInfo))
+    local playerFullInfo = UnitInfoManager.GetPlayerFullInfo()
+    UnitInfoManager.AddUnitInfo(unitName, unpack(playerFullInfo))
 end
-openRaidLib.internalCallback.RegisterCallback("onLeaveGroup", openRaidLib.UnitInfoManager.OnPlayerLeaveGroup)
+openRaidLib.internalCallback.RegisterCallback("onLeaveGroup", UnitInfoManager.OnPlayerLeaveGroup)
 
 --send data when leaving combat
-function openRaidLib.UnitInfoManager.SendPlayerInfoAfterCombat()
-    openRaidLib.UnitInfoManager.SendAllPlayerInfo()
+function UnitInfoManager.SendPlayerInfoAfterCombat()
+    openRaidLib.Schedules.NewUniqueTimer(2 + math.random(0, 1), UnitInfoManager.SendAllPlayerInfo, "UnitInfoManager", "sendAllPlayerInfo_Schedule")
 end
-function openRaidLib.UnitInfoManager.OnLeaveCombat()
-    openRaidLib.Schedules.NewUniqueTimer(1 + math.random(1, 4), openRaidLib.UnitInfoManager.SendPlayerInfoAfterCombat, "UnitInfoManager", "leaveCombat_Schedule")
+
+function UnitInfoManager.OnLeaveCombat()
+    openRaidLib.Schedules.NewUniqueTimer(1 + math.random(1, 4), UnitInfoManager.SendPlayerInfoAfterCombat, "UnitInfoManager", "leaveCombat_Schedule")
 end
-openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitInfoManager.OnLeaveCombat)
+openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", UnitInfoManager.OnLeaveCombat)
 
 
 --------------------------------------------------------------------------------------------------------------------------------

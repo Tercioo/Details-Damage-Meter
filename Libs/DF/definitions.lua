@@ -61,6 +61,9 @@
 ---@field Color any?
 ---@field Texture any
 
+GameCooltipFrame1 = {}
+GameCooltipFrame2 = {}
+
 ---df version of an atlasinfo from the game API, it include color and desaturation information
 ---a df atlas can be created using DetailsFramework:CreateAtlas() and then used with DetailsFramework:SetAtlas()
 ---@class df_atlasinfo : atlasinfo
@@ -142,6 +145,9 @@
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
 ---@field Schedules df_schedule
 ---@field HeaderFunctions df_headerfunctions
+---@field TimeLine_LineMixin df_timeline_line_mixin
+---@field TimeLineMixin df_timeline_mixin
+---@field NameplateBorderMixin df_nameplate_border_mixin
 ---@field RoleTypes roleinfo[]
 ---@field Language df_language
 ---@field Ejc df_ejc
@@ -199,7 +205,7 @@
 ---@field IsDragonflightWow fun():boolean
 ---@field IsWarWow fun():boolean
 ---@field IsTWWWow fun():boolean
----@field CreateFullBorder fun(self:table, name:string, parent:frame) : frame
+---@field CreateFullBorder fun(self:table, name:string, parent:frame) : border_frame
 ---@field CreateButton fun(self:table, parent:frame, func:function, width:number, height:number, text:any, param1:any, param2:any, texture:atlasname|texturepath|textureid|nil, member:string?, name:string?, shortMethod:any, buttonTemplate:table?, textTemplate:table?) : df_button callback function(blizzButton, clickType, param1, param2) end
 ---@field CreateCloseButton fun(self:table, parent:frame, frameName:string?) : df_closebutton
 ---@field CreateTabButton fun(self:table, parent:frame, frameName:string?) : df_tabbutton
@@ -268,9 +274,10 @@
 ---@field CreateSimplePanel fun(self:table, parent:frame, width:number?, height:number?, title:string?, frameName:string?, panelOptions:table?, savedVariableTable:table?) : simplepanel
 ---@field CreateNewAddOn fun(self:table, addonName:string, globalSavedVariablesName:string, savedVarsTemplate:table) : table
 ---@field CreateBossScrollSelectorForInstance fun(self:table, instanceId:any, parent:uiobject, name:string?, options:df_bossscrollselector_options?, callback:function?, ...) : df_bossscrollselector
----@field CreateTimeLineFrame fun(self:table, parent:frame, name:string, timelineOptions:df_timeline_options, elapsedtimeOptions:df_elapsedtime_options) : df_timeline
+---@field CreateTimeLineFrame fun(self:table, parent:frame, name:string, timelineOptions:df_timeline_options, elapsedtimeOptions:df_elapsedtime_options) : df_timeline, df_timeline_header?, df_timeline_header_body? create a timeline frame, header and headerBody is nil if the timelineOptions has no header_detached set to true
 ---@field CreateTitleBar fun(self:table, parent:frame, titleText:string) : df_titlebar
 ---@field CreateElapsedTimeFrame fun(self:table, parent:frame, name:string?, options:df_elapsedtime_options?) : df_elapsedtime
+---@field CreateIconRow fun(self:table, parent:frame, name:string?, options:table?) : df_iconrow
 ---@field ConvertAnchorPointToInside fun(self:table, anchorPoint:anchorid) : anchorid
 ---@field ExpansionHasAugEvoker fun():boolean
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables

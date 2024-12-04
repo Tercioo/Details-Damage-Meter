@@ -1,6 +1,6 @@
 
 
-local dversion = 582
+local dversion = 585
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -4289,7 +4289,24 @@ function DF:CreateBorder(parent, alpha1, alpha2, alpha3)
 end
 
 --DFNamePlateBorder as copy from "NameplateFullBorderTemplate" -> DF:CreateFullBorder (name, parent)
-local DFNamePlateBorderTemplateMixin = {};
+---@class df_nameplate_border_mixin : table
+---@field SetVertexColor fun(self:border_frame, r:number, g:number, b:number, a:number)
+---@field GetVertexColor fun(self:border_frame):number, number, number r, g, b
+---@field SetBorderSizes fun(self:border_frame, borderSize:number, borderSizeMinPixels:number, upwardExtendHeightPixels:number, upwardExtendHeightMinPixels:number)
+---@field UpdateSizes fun(self:border_frame)
+---@field Left texture
+---@field Right texture
+---@field Bottom texture
+---@field Top texture
+---@field Textures texture[]
+---@field borderSize number
+---@field borderSizeMinPixels number
+---@field upwardExtendHeightPixels number
+---@field upwardExtendHeightMinPixels number
+
+local DFNamePlateBorderTemplateMixin = {}
+
+DF.NameplateBorderMixin = DFNamePlateBorderTemplateMixin
 
 function DFNamePlateBorderTemplateMixin:SetVertexColor(r, g, b, a)
 	for i, texture in ipairs(self.Textures) do
@@ -4336,7 +4353,9 @@ function DFNamePlateBorderTemplateMixin:UpdateSizes()
 	end
 end
 
-function DF:CreateFullBorder (name, parent)
+---@class border_frame : frame, df_nameplate_border_mixin
+
+function DF:CreateFullBorder(name, parent)
 	local border = CreateFrame("Frame", name, parent)
 	border:SetAllPoints()
 	border:SetIgnoreParentScale(true)
@@ -5559,8 +5578,10 @@ DF.DebugMixin = {
 	end,
 
 	CheckStack = function(self)
-		local stack = debugstack()
-		Details:Dump (stack)
+		if (Details) then
+			local stack = debugstack()
+			Details:Dump (stack)
+		end
 	end,
 
 }

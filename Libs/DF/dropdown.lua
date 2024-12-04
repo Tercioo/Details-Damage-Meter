@@ -11,6 +11,41 @@
 
 ]=]
 
+---@class df_dropdown : table, frame, df_widgets
+---@field func function
+---@field SetTemplate fun(self:df_dropdown, template:table|string)
+---@field SetFixedParameter fun(self:df_dropdown, value:any) is sent as 2nd argument to the callback function, the value is the same no matter which option is selected
+---@field BuildDropDownFontList fun(self:df_dropdown, onClick:function, icon:any, iconTexcoord:table?, iconSize:table?):table make a dropdown list with all fonts available, on select a font, call the function onClick
+---@field SetFunction fun(self:df_dropdown, func:function)
+---@field SetEmptyTextAndIcon fun(self:df_dropdown, text:string, icon:any)
+---@field Select fun(self:df_dropdown, optionName:string|number, byOptionNumber:boolean?, bOnlyShown:boolean?, runCallback:boolean?):boolean
+---@field SelectDelayed fun(self:df_dropdown, optionName:string|number, byOptionNumber:boolean?, bOnlyShown:boolean?, runCallback:boolean?) --call Select() after a random delay
+---@field Open fun(self:df_dropdown)
+---@field Close fun(self:df_dropdown)
+---@field Refresh fun(self:df_dropdown)
+---@field GetValue fun(self:df_dropdown):any
+---@field GetFunction fun(self:df_dropdown):function
+---@field GetMenuSize fun(self:df_dropdown):number, number
+---@field SetMenuSize fun(self:df_dropdown, width:number, height:number)
+---@field Disable fun(self:df_dropdown)
+---@field Enable fun(self:df_dropdown)
+
+---@class dropdownoption : table
+---@field value any
+---@field label string text shown in the dropdown option
+---@field onclick fun(dropdownObject:table, fixedValue:any, value:any)? function to call when the option is selected
+---@field icon string|number? texture
+---@field color any any color format
+---@field font string?
+---@field texcoord number[]? left, right, top, bottom
+---@field iconcolor any any color format
+---@field iconsize number[]? width, height
+---@field languageId string?
+---@field rightbutton function? function to call on right click
+---@field statusbar string|number? statusbar texture
+---@field statusbarcolor any any color format
+---@field rightTexture string|number? texture
+---@field centerTexture string|number? texture
 
 ---@type detailsframework
 local DF = _G ["DetailsFramework"]
@@ -393,6 +428,12 @@ local canRunCallbackFunctionForOption = function(canRunCallback, optionTable, dr
 	end
 end
 
+function DropDownMetaFunctions:SelectDelayed(optionName, byOptionNumber, bOnlyShown, runCallback)
+	DF.Schedules.After(DF.Math.RandomFraction(0.016, 0.3), function()
+		self:Select(optionName, byOptionNumber, bOnlyShown, runCallback)
+	end)
+end
+
 ---if bOnlyShown is true it'll first create a table with visible options that has .shown and then select in this table the index passed (if byOptionNumber)
 ---@param optionName string value or string shown in the name of the option
 ---@param byOptionNumber number the option name is considered a number and selects the index of the menu
@@ -522,10 +563,20 @@ function DropDownMetaFunctions:Selected(thisOption)
 		end
   	end
 
+	---@type fontstring
+	local thisLabel = self.label
+
+	local parentWidth = self:GetWidth()
+
 	if (addonId and phraseId) then
 		self.label:SetText(DF.Language.GetText(addonId, phraseId))
 	else
-		self.label:SetText(thisOption.label)
+		thisLabel:SetText(thisOption.label)
+		thisLabel:SetWordWrap(false)
+		thisLabel:SetIndentedWordWrap(false)
+		thisLabel:SetWidth(parentWidth + 30)
+		DF:TruncateText(thisLabel, parentWidth-30)
+		thisLabel:Show()
 	end
 
 	self.icon:SetTexture(thisOption.icon)
@@ -702,22 +753,6 @@ function DetailsFrameworkDropDownOptionOnLeave(frame)
 	frame:GetParent().mouseover:Hide()
 end
 
----@class dropdownoption : table
----@field value any
----@field label string text shown in the dropdown option
----@field onclick fun(dropdownObject:table, fixedValue:any, value:any)? function to call when the option is selected
----@field icon string|number? texture
----@field color any any color format
----@field font string?
----@field texcoord number[]? left, right, top, bottom
----@field iconcolor any any color format
----@field iconsize number[]? width, height
----@field languageId string?
----@field rightbutton function? function to call on right click
----@field statusbar string|number? statusbar texture
----@field statusbarcolor any any color format
----@field rightTexture string|number? texture
----@field centerTexture string|number? texture
 
 --@button is the raw button frame, object is the button capsule
 --click on the main dropdown frame (not the menu options popup)
@@ -1145,23 +1180,6 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
----@class df_dropdown : table, frame, df_widgets
----@field func function
----@field SetTemplate fun(self:df_dropdown, template:table|string)
----@field SetFixedParameter fun(self:df_dropdown, value:any) is sent as 2nd argument to the callback function, the value is the same no matter which option is selected
----@field BuildDropDownFontList fun(self:df_dropdown, onClick:function, icon:any, iconTexcoord:table?, iconSize:table?):table make a dropdown list with all fonts available, on select a font, call the function onClick
----@field SetFunction fun(self:df_dropdown, func:function)
----@field SetEmptyTextAndIcon fun(self:df_dropdown, text:string, icon:any)
----@field Select fun(self:df_dropdown, optionName:string|number, byOptionNumber:boolean?, bOnlyShown:boolean?, runCallback:boolean?):boolean
----@field Open fun(self:df_dropdown)
----@field Close fun(self:df_dropdown)
----@field Refresh fun(self:df_dropdown)
----@field GetValue fun(self:df_dropdown):any
----@field GetFunction fun(self:df_dropdown):function
----@field GetMenuSize fun(self:df_dropdown):number, number
----@field SetMenuSize fun(self:df_dropdown, width:number, height:number)
----@field Disable fun(self:df_dropdown)
----@field Enable fun(self:df_dropdown)
 
 ---return a function which when called returns a table filled with all fonts available and ready to be used on dropdowns
 ---@param callback function

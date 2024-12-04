@@ -28,7 +28,7 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 28
+local version = 29
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -1053,6 +1053,16 @@ function DF:CreateCoolTip()
 
 			if (gameCooltip.OptionsTable.TextSize and not leftTextSettings[6]) then
 				DF:SetFontSize(menuButton.leftText, gameCooltip.OptionsTable.TextSize)
+			elseif (leftTextSettings[6]) then
+				DF:SetFontSize(menuButton.leftText, leftTextSettings[6])
+			else
+				DF:SetFontSize(menuButton.leftText, 10)
+			end
+
+			if (leftTextSettings[8]) then
+				DF:SetFontOutline(menuButton.leftText, leftTextSettings[8])
+			else
+				DF:SetFontOutline(menuButton.leftText, "NONE")
 			end
 
 			if (gameCooltip.OptionsTable.LeftTextWidth) then
@@ -1158,6 +1168,20 @@ function DF:CreateCoolTip()
 
 			if (gameCooltip.OptionsTable.TextSize and not rightTextSettings[6]) then
 				DF:SetFontSize(menuButton.rightText, gameCooltip.OptionsTable.TextSize)
+			end
+
+			if (gameCooltip.OptionsTable.TextSize and not rightTextSettings[6]) then
+				DF:SetFontSize(menuButton.rightText, gameCooltip.OptionsTable.TextSize)
+			elseif (rightTextSettings[6]) then
+				DF:SetFontSize(menuButton.rightText, rightTextSettings[6])
+			else
+				DF:SetFontSize(menuButton.rightText, 10)
+			end
+
+			if (rightTextSettings[8]) then
+				DF:SetFontOutline(menuButton.rightText, rightTextSettings[8])
+			else
+				DF:SetFontOutline(menuButton.rightText, "NONE")
 			end
 
 			if (gameCooltip.OptionsTable.RightTextWidth) then

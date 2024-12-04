@@ -359,7 +359,7 @@ do
 			[184364] = {cooldown = 120,	duration = 8,	specs = {72},				talent = false,	charges = 1,	class = "WARRIOR",	type = 2}, --Enraged Regeneration
 			[5246] = {cooldown = 90,	duration = 8,	specs = {71, 72, 73},		talent = false,	charges = 1,	class = "WARRIOR",	type = 8}, --Intimidating Shout
 			[12975] = {cooldown = 180,	duration = 15,	specs = {73},				talent = false,	charges = 1,	class = "WARRIOR",	type = 2}, --Last Stand
-			[97462] = {cooldown = 180,	duration = 10,	specs = {71, 72, 73},		talent = false,	charges = 1,	class = "WARRIOR",	type = 4, cdtype = "DR"}, --Rallying Cry
+			[97462] = {cooldown = 180,	duration = 10,	specs = {71, 72, 73},		talent = false,	charges = 1,	class = "WARRIOR",	type = 4, cdtype = "DR", nostack = true}, --Rallying Cry. No Stack means that casting two rallying cries at the same time, won't duplicate the effect
 			[152277] = {cooldown = 60,	duration = 6,	specs = {71},				talent = false,	charges = 1,	class = "WARRIOR",	type = 1}, --Ravager
 			[228920] = {cooldown = 60,	duration = 6,	specs = {73},				talent = false,	charges = 1,	class = "WARRIOR",	type = 1}, --Ravager
 			[1719] = {cooldown = 90,	duration = 10,	specs = {72},				talent = false,	charges = 1,	class = "WARRIOR",	type = 1}, --Recklessness
@@ -539,7 +539,7 @@ do
 			[132469] = {cooldown = 30,	duration = 0,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Typhoon
 			[102793] = {cooldown = 60,	duration = 10,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Ursol's Vortex
 			[124974] = {cooldown = 90,	duration = 0,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 4}, --Nature's Vigil
-			[77761] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5, cdtype = "SPEED"}, --Stampeding Roar
+			[77761] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5, cdtype = "SPEED", nostack = true}, --Stampeding Roar
 			--[106898] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Stampeding Roar
 			--[77764] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Stampeding Roar
 			[5211] = {cooldown = 60,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Mighty Bash
@@ -732,7 +732,8 @@ do
 			--[403208] = {cooldown = 0,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 0}, --Draconic Attunements
 			--[403264] = {cooldown = 3,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 0}, --Black Attunement
 			--[403265] = {cooldown = 3,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 0}, --Bronze Attunement
-			[403631] = {cooldown = 120,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Breath of Eons
+			--[403631] = {cooldown = 120,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Breath of Eons
+			[442204] = {cooldown = 120,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Breath of Eons
 			[404977] = {cooldown = 180,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Time Skip
 			[406732] = {cooldown = 120,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 3}, --Spatial Paradox
 			[408233] = {cooldown = 60,	duration = 0,	specs = {1473},			talent = false,	charges = 1,	class = "EVOKER",	type = 5}, --Bestow Weyrnstone

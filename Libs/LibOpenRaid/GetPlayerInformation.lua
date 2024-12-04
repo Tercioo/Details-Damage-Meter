@@ -93,28 +93,34 @@ local IsShadowlands = function()
     end
 end
 
---information about the player character to send, each expansion has its own system and data can be different
---it's always a number
-function openRaidLib.UnitInfoManager.GetPlayerInfo1()
-    if (IsShadowlands()) then
-        --return the renown level within the player covenant
-        local renown = C_CovenantSanctumUI.GetRenownLevel() or 1
-        return renown
+function openRaidLib.GetHeroTalentId()
+    if (IsTWWExpansion()) then
+        local configId = C_ClassTalents.GetActiveConfigID()
+        if (not configId) then
+            return
+        end
+        local configInfo = C_Traits.GetConfigInfo(configId)
+        for treeIndex, treeId in ipairs(configInfo.treeIDs) do
+            local treeNodes = C_Traits.GetTreeNodes(treeId)
+            for nodeIdIndex, treeNodeID in ipairs(treeNodes) do
+                local traitNodeInfo = C_Traits.GetNodeInfo(configId, treeNodeID)
+                if (traitNodeInfo) then
+                    local activeEntry = traitNodeInfo.activeEntry
+                    if (activeEntry) then
+                        local entryId = activeEntry.entryID
+                        local rank = activeEntry.rank
+                        if (rank > 0) then
+                            local entryInfo = C_Traits.GetEntryInfo(configId, entryId)
+                            if (not entryInfo.definitionID and entryInfo.subTreeID) then
+                                return entryInfo.subTreeID
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
-
-    return 0
-end
-
---information about the player character to send, each expansion has its own system and data can be different
---it's always a number
-function openRaidLib.UnitInfoManager.GetPlayerInfo2()
-    if (IsShadowlands()) then
-        --return which covenant the player picked
-        local covenant = C_Covenants.GetActiveCovenantID() or 0
-        return covenant
-    end
-
-    return 0
+	return
 end
 
 --default player class-spec talent system
@@ -153,6 +159,15 @@ local getDragonflightTalentsExportedString = function()
 
 
     end
+end
+
+---@return string
+local getDragonlightTalentAsString = function()
+	local activeConfigID = C_ClassTalents.GetActiveConfigID()
+	if (activeConfigID and activeConfigID > 0) then
+		return C_Traits.GenerateImportString(activeConfigID)
+	end
+	return ""
 end
 
 local getDragonflightTalentsAsIndexTable = function()
@@ -196,6 +211,36 @@ local getDragonflightTalentsAsIndexTable = function()
     end
 
     return allTalents
+end
+
+function openRaidLib.GetDragonFlightTalentsAsString()
+    local talents = getDragonlightTalentAsString()
+
+    --if is tww
+    if (IsTWWExpansion()) then
+        local heroTalentId = openRaidLib.GetHeroTalentId()
+        if (heroTalentId) then
+            talents = talents .. "@HT" .. openRaidLib.GetHeroTalentId()
+        end
+    end
+
+    return talents
+end
+
+function openRaidLib.ParseTalentString(talentString)
+    local heroTalentId = talentString:match("@HT(%d+)")
+    if (heroTalentId) then
+        heroTalentId = tonumber(heroTalentId)
+        if (heroTalentId) then
+            --remove the hero talent from the string
+            talentString = talentString:gsub("@HT%d+", "")
+            return talentString, heroTalentId
+        else
+            return talentString
+        end
+    else
+        return talentString
+    end
 end
 
 --creates two tables, one with indexed talents and another with pairs values ([talentId] = true)
@@ -249,9 +294,9 @@ function openRaidLib.UnitInfoManager.GetPlayerTalents()
 end
 
 function openRaidLib.UnitInfoManager.GetPlayerPvPTalents()
-    if (IsDragonflight()) then
-        return {}
-    end
+    --if (IsDragonflight()) then
+    --    return {}
+    --end
 
     local talentsPvP = {0, 0, 0}
     local talentList = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
@@ -323,16 +368,6 @@ function openRaidLib.UnitInfoManager.GetPlayerConduits()
     end
 
     return conduits
-end
-
-function openRaidLib.UnitInfoManager.GetPlayerBorrowedTalents()
-    local borrowedTalentVersion = openRaidLib.GetBorrowedTalentVersion()
-
-    if (borrowedTalentVersion == CONST_BTALENT_VERSION_COVENANTS) then
-        return openRaidLib.UnitInfoManager.GetPlayerConduits()
-    end
-
-    return {}
 end
 
 
@@ -521,6 +556,9 @@ end
 
 local addCooldownToTable = function(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
     local timeLeft, charges, startTimeOffset, duration, auraDuration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(cooldownSpellId)
+
+    --local spellInfo = C_Spell.GetSpellInfo(cooldownSpellId)
+    --print(spellInfo.name, "charges:", charges)
 
     cooldowns[#cooldowns+1] = cooldownSpellId
     cooldowns[#cooldowns+1] = timeLeft

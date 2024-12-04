@@ -1,5 +1,5 @@
 ## Interface: 110005
-## Interface-Cata: 40400
+## Interface-Cata: 40401
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Незаменимый инструмент, чтобы произвести впечатление на цыпочку в вашем рейде.
@@ -10,7 +10,7 @@
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Curse-Project-ID: 61284
-## X-Wago-ID: 25NRDlK3
+## X-Wago-ID: qv63A7Gb
 
 #@no-lib-strip@
 Libs\libs.xml
