@@ -122,7 +122,8 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 			label:SetText(detailsFramework:IntegerToTimer(floor(secondsOfTime)))
 
 			if (label.line:IsShown()) then
-				label.line:SetHeight(self.scrollChild:GetHeight())
+				--label.line:SetHeight(self.scrollChild:GetHeight())
+				label.line:SetHeight(self:GetParent():GetParent():GetHeight())
 			end
 
 			label:Show()

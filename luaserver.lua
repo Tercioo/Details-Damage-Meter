@@ -615,7 +615,7 @@ BackdropTemplateMixin = {}
 ---@field GetChildren fun(self: frame) : frame[]
 ---@field GetRegions fun(self: frame) : region[]
 ---@field CreateTexture fun(self: frame, name: string?, layer: drawlayer, inherits: string?, subLayer: number?) : texture
----@field CreateMaskTexture fun(self: frame, name: string?, layer: drawlayer, inherits: string?, subLayer: number?) : texture
+---@field CreateMaskTexture fun(self: frame, name: string?, layer: drawlayer?, inherits: string?, subLayer: number?) : texture
 ---@field CreateFontString fun(self: frame, name: string?, layer: drawlayer, inherits: string?, subLayer: number?) : fontstring
 ---@field EnableMouse fun(self: frame, enable: boolean) enable mouse interaction
 ---@field SetResizable fun(self: frame, enable: boolean) enable resizing of the frame
@@ -5132,13 +5132,13 @@ SetAllowLowLevelRaid = function(enabled) end
 ---@param index number
 SetRaidRosterSelection = function(index) end
 
----@param unit string
----@param subgroup number
-SetRaidSubgroup = function(unit, subgroup) end
+---@param unitNumber number
+---@param subGroup number
+SetRaidSubgroup = function(unitNumber, subGroup) end
 
----@param unit1 string
----@param unit2 string
-SwapRaidSubgroup = function(unit1, unit2) end
+---@param unitNumber1 number
+---@param unitNumber2 number
+SwapRaidSubgroup = function(unitNumber1, unitNumber2) end
 
 ---@param unit string
 ---@param raidTargetIndex number

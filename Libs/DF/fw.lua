@@ -1,6 +1,6 @@
 
 
-local dversion = 585
+local dversion = 586
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1431,9 +1431,12 @@ function DF:AddClassColorToText(text, className)
 end
 
 ---returns the class icon texture coordinates and texture file path
----@param class string
+---@param class string|number
 ---@return number, number, number, number, string
 function DF:GetClassTCoordsAndTexture(class)
+	if (type(class) == "number") then
+		class = DF.ClassIndexToFileName[class]
+	end
 	local l, r, t, b = unpack(CLASS_ICON_TCOORDS[class])
 	return l, r, t, b, [[Interface\WORLDSTATEFRAME\Icons-Classes]]
 end
@@ -1799,6 +1802,12 @@ function DF:TruncateNumber(number, fractionDigits)
 	end
 
 	return truncatedNumber
+end
+
+function DF:GetCursorPosition()
+	local x, y = GetCursorPosition()
+	local scale = UIParent:GetEffectiveScale()
+	return x / scale, y / scale
 end
 
 ---attempt to get the ID of an npc from a GUID
@@ -4866,6 +4875,10 @@ DF.ClassFileNameToIndex = {
 	["EVOKER"] = 13,
 }
 DF.ClassCache = {}
+
+function DF:GetClassIdByFileName(fileName)
+	return DF.ClassFileNameToIndex[fileName]
+end
 
 function DF:GetClassList()
 	if (next (DF.ClassCache)) then

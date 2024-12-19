@@ -623,6 +623,7 @@ end
 ---@field param1 any
 ---@field param2 any
 ---@field ShouldOptimizeAutoComplete boolean?
+---@field AutoComplete_StopOnEnterPress boolean?
 ---@field SetTemplate fun(self:df_textentry, template:table|string)
 ---@field Disable fun(self:df_textentry)
 ---@field Enable fun(self:df_textentry)
@@ -949,6 +950,9 @@ local AutoComplete_OnEnterPressed = function(editboxWidget)
 	end
 	capsule.lastword = ""
 
+	if (capsule.AutoComplete_StopOnEnterPress) then
+		editboxWidget:ClearFocus()
+	end
 end
 
 local AutoComplete_OnEditFocusGained = function(editboxWidget)

@@ -1,4 +1,4 @@
-## Interface: 110005
+## Interface: 110007
 ## Interface-Cata: 40401
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
@@ -133,6 +133,7 @@ frames\window_debug.lua
 frames\window_pro_file.lua
 frames\window_nestspells.lua
 frames\window_deathrecap.lua
+frames\window_transcriptor.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua

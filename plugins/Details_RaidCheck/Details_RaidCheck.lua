@@ -689,7 +689,7 @@ local CreatePluginFrames = function()
 				local playersInfoData = openRaidLib.GetAllUnitsInfo()
 				local playerTalentsInfo = playersInfoData[GetUnitName(unitID, true)]
 				if (playerTalentsInfo) then
-					talentsTable = DF.table.copy({}, playerTalentsInfo.talents)
+					--talentsTable = DF.table.copy({}, playerTalentsInfo.talents)
 				end
 			end
 

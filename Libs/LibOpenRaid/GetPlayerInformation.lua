@@ -17,6 +17,8 @@ local CONST_TALENT_VERSION_DRAGONFLIGHT = 5
 
 local CONST_BTALENT_VERSION_COVENANTS = 9
 
+local CONST_GLOBALCOOLDOWN_SPELLID = 61304
+
 local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
 local CONST_SPELLBOOK_GENERAL_TABID = 1
 local CONST_ISITEM_BY_TYPEID = {
@@ -899,8 +901,13 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
                     return 0, 1, 0, 0, 0 --time left, charges, startTime
                 else
                     local timeLeft = start + duration - GetTime()
-                    local startTimeOffset = start - GetTime()
-                    return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                    local globalCooldownInfo = GetSpellCooldown(CONST_GLOBALCOOLDOWN_SPELLID)
+                    if (globalCooldownInfo.startTime ~= 0 and globalCooldownInfo.duration >= timeLeft) then
+                        return 0, 1, 0, 0, 0 --time left, charges, startTime
+                    else
+                        local startTimeOffset = start - GetTime()
+                        return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                    end
                 end
             else
                 local start, duration = GetSpellCooldown(spellId)
@@ -908,8 +915,13 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
                     return 0, 1, 0, 0, 0 --time left, charges, startTime
                 else
                     local timeLeft = start + duration - GetTime()
-                    local startTimeOffset = start - GetTime()
-                    return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                    local gcStart, gcDuration = GetSpellCooldown(CONST_GLOBALCOOLDOWN_SPELLID)
+                    if (gcStart ~= 0 and gcDuration >= timeLeft) then
+                        return 0, 1, 0, 0, 0 --time left, charges, startTime
+                    else
+                        local startTimeOffset = start - GetTime()
+                        return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                    end
                 end
             end
 

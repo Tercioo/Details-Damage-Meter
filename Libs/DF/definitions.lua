@@ -290,6 +290,8 @@ GameCooltipFrame2 = {}
 ---@field GetClassSpecIds fun(self:table, engClass:string):number[]
 ---@field GetClassSpecIDs fun(self:table, engClass:string):number[]
 ---@field GetTextWidth fun(self:table, text:string, fontSize:number?) : number return the width of a text string
+---@field GetCursorPosition fun(self:table) : number, number return the mouse position scaled by UIScale, use :SetPoint("bottomleft", UIParent, "bottomleft", DetailsFramework:GetMousePosition()) to anchor a frame to where the mouse is
+---@field GetClassIdByFileName fun(self:table, fileName:string) : number return the classId of a class by its file name
 ---@field IsValidSpecId fun(self:table, specId:number):boolean check if the passed specId is valid for the player class, also return false for tutorial specs
 ---@field GetDragonlightTalentString fun(self:table):string return the talent config string
 ---@field GetClassList fun(self:table):{ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[]
@@ -384,7 +386,7 @@ GameCooltipFrame2 = {}
 ---@field AddColorToText fun(self:table, text:string, color:any) : string wrap text with a color
 ---@field AddClassColorToText fun(self:table, text:string, className:class|number) : string wrap text with a class color
 ---@field MakeDraggable fun(self:table, frame:frame) : nil
----@field GetClassTCoordsAndTexture fun(self:table, class:string) : number, number, number, number, string return the class icon texture coordinates and texture file path
+---@field GetClassTCoordsAndTexture fun(self:table, class:string|number) : number, number, number, number, string return the class icon texture coordinates and texture file path
 ---@field GetClassColorByClassId fun(self:table, classId:number) : number, number, number return the class color by classId
 ---@field MakeStringFromSpellId fun(self:table, spellId:any) : string return a string with the spell icon and name using escape codes
 ---@field AddClassIconToText fun(self:table, text:string, playerName:string, englishClassName:string, useSpec:boolean?, iconSize:number?) : string wrap 'text' with the class icon of 'playerName' using |T|t scape codes
