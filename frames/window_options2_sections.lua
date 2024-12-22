@@ -7206,8 +7206,8 @@ do
                     afterUpdate()
                     Details:ClearParserCache()
                 end,
-                name = "Merge Primordial Stones 10.0.7",
-                desc = "Merge Primordial Stones 10.0.7",
+                name = "Merge Ring Gems 11.0.7",
+                desc = "Merge Ring Gems 11.0.7",
                 boxfirst = true,
             },
 
