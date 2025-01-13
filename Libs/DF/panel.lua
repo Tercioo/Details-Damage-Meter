@@ -1505,7 +1505,7 @@ if ((ColorPickerFrame and ColorPickerFrame.SetupColorPickerAndShow) or toc >= 10
 
 	local color_pick_func_cancel = function()
 		local r, g, b, a = ColorPickerFrame.previousValues.r, ColorPickerFrame.previousValues.g, ColorPickerFrame.previousValues.b, ColorPickerFrame.previousValues.a
-		ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b) --error here: attempt to index field 'Content' (a nil value)
+		ColorPickerFrame:SetColorRGB(r, g, b)
 		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
 	end
 
