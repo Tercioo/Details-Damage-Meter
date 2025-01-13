@@ -1013,6 +1013,7 @@ detailsFramework.TimeLineMixin = {
 
 	RefreshTimeLine = function(self, bDelayButtonRefresh, bFromScale) --~refresh
 		if (not self.data.lines) then
+			error("Timeline data for SetData() has no line data.")
 			return
 		end
 
