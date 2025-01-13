@@ -548,9 +548,12 @@ end
 				total = total + actorObject.last_dps
 
 				if (bOrderDpsByRealTime) then
-					local realTimeDPS = Details222.CurrentDPS.Cache[actorObject.serial] or 0
-					actorObject.last_dps_realtime = realTimeDPS
-					totalRealTime = totalRealTime + realTimeDPS
+					local realTimeDPS = Details222.CurrentDPS.Cache[actorObject.serial]
+					if (realTimeDPS) then
+						realTimeDPS = realTimeDPS.totalDamage / timeSample
+						actorObject.last_dps_realtime = realTimeDPS
+						totalRealTime = totalRealTime + realTimeDPS
+					end
 				end
 			end
 		end
