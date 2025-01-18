@@ -262,7 +262,7 @@ function Ejc.CreateEncounterJournalDump()
     ---could also be tierAmount - 1
     ---because the tier is "current season"
     ---@type number
-    local currentTierId = tierAmount --EJ_GetCurrentTier(), for some unknown reason, this function is returning 3 on retail
+    local currentTierId = tierAmount - 1 --EJ_GetCurrentTier(), for some unknown reason, this function is returning 3 on retail
 
     ---maximum amount of dungeons in the expansion
     ---@type number

@@ -207,7 +207,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 	for i, event in ipairs(events) do
 		--local currentHP = event[5] * 100
 		--local healthPercent = floor(currentHP / maxHP * 100)
-		local healthPercent = floor(event[5] * 100)
+		local healthPercent = floor((event[5] or 0) * 100)
 		if (healthPercent > 100) then
 			healthPercent = 100
 		end

@@ -1840,7 +1840,7 @@
 		this_event [2] = spellId --spellid || false if this is a battle ress line
 		this_event [3] = amount --amount of damage or healing
 		this_event [4] = time --parser time
-		this_event [5] = UnitHealth(sourceName) / UnitHealthMax(sourceName) --current unit heal
+		this_event [5] = UnitHealth(sourceName) / (max(UnitHealthMax(sourceName), 0.1)) --current unit heal
 		this_event [6] = sourceName --source name
 		this_event [7] = absorbed
 		this_event [8] = school
