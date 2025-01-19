@@ -927,6 +927,7 @@ Made Details! survive for another expansion (Details! Team).
 
 		--current instances of the exp (need to maintain) - deprecated july 2024 - should do this automatically
 			Details.InstancesToStoreData = { --mapId
+				[2769] = true, --Liberation of Undermine v11.1 T2
 				[2657] = true, --Nerub-ar Palace v11 T1
 				[2294] = true, --Nerub-ar Palace v11 T1
 			}
