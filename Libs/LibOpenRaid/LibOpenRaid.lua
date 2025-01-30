@@ -56,7 +56,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 148
+local CONST_LIB_VERSION = 149
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -469,7 +469,6 @@ end
 
             --trigger callbacks
             for i = 1, #callbackTable do
-                --dumpt(dataAsTable)
                 callbackTable[i](dataAsTable, sender)
             end
         end
@@ -2126,7 +2125,7 @@ end
 openRaidLib.commHandler.RegisterComm(CONST_COMM_OPENNOTES_REQUESTED_PREFIX, openRaidLib.OpenNotesManager.OnReceiveNoteRequest)
 
 --------------------------------------------------------------------------------------------------------------------------------
---~cooldowns
+--~cooldowns ~cooldown
 openRaidLib.CooldownManager = {
     UnitData = {}, --stores the list of cooldowns each player has sent
     UnitDataFilterCache = {}, --same as the table above but cooldowns are separated has offensive, defensive, etc. FilterCooldowns in functions.lua
@@ -2411,6 +2410,11 @@ end
                 for thisSpellId in pairs(spellsWithSharedCooldown) do
                     --don't run for the spell that triggered the shared cooldown
                     if (thisSpellId ~= spellId) then
+                        --before triggering the cooldown, check if the player has the spell
+                        if (not cooldownGetSpellInfo(playerName, thisSpellId)) then
+                            return
+                        end
+
                         openRaidLib.CooldownManager.CooldownSpellUpdate(playerName, thisSpellId, timeLeft, charges, startTimeOffset, duration, auraDuration)
 
                         local cooldownInfo = cooldownGetSpellInfo(playerName, thisSpellId)
@@ -2747,6 +2751,11 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNUPDATE_PREFIX, function(
         for thisSpellId in pairs(spellsWithSharedCooldown) do
             --don't run for the spell that triggered the shared cooldown
             if (thisSpellId ~= spellId) then
+                --before triggering the cooldown, check if the player has the spell
+                if (not cooldownGetSpellInfo(unitName, thisSpellId)) then
+                    return
+                end
+
                 openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, thisSpellId, cooldownTimer, charges, startTime, duration, auraDuration)
 
                 local cooldownInfo = cooldownGetSpellInfo(unitName, thisSpellId)

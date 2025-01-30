@@ -4374,7 +4374,8 @@ local default_radiogroup_options = {
 ---@field RefreshCheckbox fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox, optionTable:table, optionId:number)
 
 local radio_checkbox_onclick_extraspace = function(self)
-	self:GetParent():GetObject():OnSwitch() --as the parent of self is a Switch object from DetailsFramework, it need to run :GetObject() to get the capsule object
+	self:GetParent():GetObject():OnSwitch(self:GetParent():GetObject()._param, not self:GetParent():GetObject():GetValue()) --as the parent of self is a Switch object from DetailsFramework, it need to run :GetObject() to get the capsule object
+	self:GetParent():GetObject():GetParent():Refresh()
 end
 
 ---@type df_radiogroupmixin
@@ -4571,7 +4572,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 			end
 		end
 
-		checkbox.__width = width + (checkbox.Icon:IsShown() and (checkbox.Icon:GetWidth() + 2)) + (checkbox.Label:GetStringWidth()) + 2
+		checkbox.__width = width + (checkbox.Icon:IsShown() and (checkbox.Icon:GetWidth() + (self.AnchorOptions.icon_offset_x or 0))) + (checkbox.Label:GetUnboundedStringWidth()) + (self.options.text_padding or 2)
 		checkbox.widget.__width = checkbox.__width
 
 		checkbox.__height = height + (checkbox.Icon:IsShown() and (checkbox.Icon:GetHeight() + 2))
@@ -4595,7 +4596,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 			self:RefreshCheckbox(checkbox, optionsTable, optionId)
 			totalWidth = totalWidth + checkbox.__width
 
-			checkbox.extraSpaceToClick:SetWidth(checkbox.__width)
+			checkbox.extraSpaceToClick:SetWidth(checkbox.__width - checkbox:GetWidth()) -- total __width contains checkbox size which we don't need here
 
 			if (checkbox:GetHeight() > maxHeight) then
 				maxHeight = checkbox:GetHeight()

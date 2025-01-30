@@ -81,16 +81,48 @@ Shielding 535593 137
 --]=]
 
 local deprecatedAffixes = {
+	[1] = true, --Overflowing
 	[2] = true, --Skittish
+	[3] = true, --Volcanic
+	[4] = true, --Necrotic
 	[5] = true, --Teeming
+	[6] = true, --Raging
+	[7] = true, --Bolstering
+	[8] = true, --Sanguine
+	--[9] = true, --Tyrannical
+	--[10] = true, --Fortified
+	[11] = true, --Bursting
+	[12] = true, --Grievous
+	[13] = true, --Explosive
+	[14] = true, --Quaking
 	[16] = true, --Infested
 	[117] = true, --Reaping
 	[119] = true, --Beguiling
-	[13] = true, --Explosive
-	[14] = true, --Quaking
 	[120] = true, --Awakened
 	[121] = true, --Prideful
+	[122] = true, --Inspiring
+	[123] = true, --Spiteful
+	[124] = true, --Storming
+	[128] = true, --Tormented
+	[129] = true, --Infernal
 	[130] = true, --Encrypted
+	[131] = true, --Shrouded
+	[132] = true, --Thundering
+	[133] = true, --Focused
+	[134] = true, --Entangling
+	[135] = true, --Afflicted
+	[136] = true, --Incorporeal
+	[137] = true, --Shielding
+	[144] = true, --Thorned
+	[145] = true, --Reckless
+	[146] = true, --Attuned
+	--[147] = true, --Xal'atath's Guile
+	--[148] = true, --Xal'atath's Bargain: Ascendant
+	--[152] = true, --Challenger's Peril
+	--[153] = true, --Xal'atath's Bargain: Frenzied
+	--[158] = true, --Xal'atath's Bargain: Voidbound
+	--[159] = true, --Xal'atath's Bargain: Oblivion
+	--[160] = true, --Xal'atath's Bargain: Devour
 }
 
 local default_load_conditions_frame_options = {
@@ -384,7 +416,7 @@ function detailsFramework:OpenLoadConditionsPanel(optionsTable, callback, frameO
 	detailsFramework:UpdateLoadConditionsTable(optionsTable)
 
 	if (not loadConditionsFrame) then
-		loadConditionsFrame = detailsFramework:CreateSimplePanel(UIParent, 1024, 600, "Load Conditions", "loadConditionsFrame")
+		loadConditionsFrame = detailsFramework:CreateSimplePanel(UIParent, 1024, 620, "Load Conditions", "loadConditionsFrame")
 		loadConditionsFrame:SetBackdropColor(0, 0, 0, 1)
 		loadConditionsFrame.AllRadioGroups = {}
 		loadConditionsFrame.AllTextEntries = {}
@@ -729,8 +761,12 @@ function detailsFramework:OpenLoadConditionsPanel(optionsTable, callback, frameO
 		--create radio for character roles
 			local roleTypes = {}
 			for _, roleTable in ipairs(detailsFramework:GetRoleTypes()) do
+				local texture, l, r, t, b = detailsFramework:GetRoleIconAndCoords(roleTable.ID)
 				table.insert(roleTypes, {
 					name = (roleTable.Texture .. " " .. roleTable.Name),
+					name = roleTable.Name,
+					texture = texture,
+					texcoord = {l, r, t, b},
 					set = loadConditionsFrame.OnRadioCheckboxClick,
 					param = roleTable.ID,
 					get = function() return loadConditionsFrame.OptionsTable.role [roleTable.ID] or loadConditionsFrame.OptionsTable.role [roleTable.ID .. ""] end,
@@ -758,7 +794,7 @@ function detailsFramework:OpenLoadConditionsPanel(optionsTable, callback, frameO
 					end
 				end
 
-				local affixTypesGroup = detailsFramework:CreateCheckboxGroup(loadConditionsFrame, affixes, nil, {width = 200, height = 200, title = "M+ Affixes", backdrop_color = {0, 0, 0, 0}}, {offset_x = 125})
+				local affixTypesGroup = detailsFramework:CreateCheckboxGroup(loadConditionsFrame, affixes, nil, {width = 200, height = 200, title = "M+ Affixes", backdrop_color = {0, 0, 0, 0}}, {offset_x = 230, amount_per_line = 2})
 				affixTypesGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.affix [1], anchorPositions.affix [2])
 				affixTypesGroup.DBKey = "affix"
 				table.insert(loadConditionsFrame.AllRadioGroups, affixTypesGroup)

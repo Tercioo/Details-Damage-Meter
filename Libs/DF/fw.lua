@@ -1,6 +1,6 @@
 
 
-local dversion = 587
+local dversion = 588
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -5122,10 +5122,10 @@ function DF:GetRoleTypes()
 end
 
 local roleTexcoord = {
-	DAMAGER = "72:130:69:127",
-	HEALER = "72:130:2:60",
-	TANK = "5:63:69:127",
-	NONE = "139:196:69:127",
+	DAMAGER = "67:132:67:132",
+	HEALER = "67:132:0:66",
+	TANK = "0:66:67:132",
+	NONE = "134:199:67:132",
 }
 
 local roleTextures = {
@@ -5136,10 +5136,10 @@ local roleTextures = {
 }
 
 local roleTexcoord2 = {
-	DAMAGER = {72/256, 130/256, 69/256, 127/256},
-	HEALER = {72/256, 130/256, 2/256, 60/256},
-	TANK = {5/256, 63/256, 69/256, 127/256},
-	NONE = {139/256, 196/256, 69/256, 127/256},
+	DAMAGER = {67/256, 132/256, 67/256, 132/256},
+	HEALER = {67/256, 132/256, 0/256, 66/256},
+	TANK = {0/256, 66/256, 67/256, 132/256},
+	NONE = {134/256, 199/256, 67/256, 132/256},
 }
 
 function DF:GetRoleIconAndCoords(role)
