@@ -301,6 +301,41 @@
 		return resultTable
 	end
 
+	local aura_debugger_controlfile = function()
+		do return end
+
+		--is in a m+ dungeon?
+		Details222.MythicPlus.debug_auras = {}
+		local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() or 1
+		if (mythicLevel) then
+			if (Details222.MythicPlus.debug_auras) then
+				--iterate among all actors on the utility container and store the update of each buff
+				local utilityContainer = Details:GetCurrentCombat():GetContainer(DETAILS_ATTRIBUTE_MISC)
+				for _, actorObject in utilityContainer:ListActors() do
+					---@cast actorObject actorutility
+					local spellContainer = actorObject.buff_uptime_spells
+					if (spellContainer) then
+						if (actorObject:IsGroupPlayer()) then
+							for spellId, spellTable in spellContainer:ListSpells() do
+								if (spellTable.uptime) then
+									local auraInfo = C_Spell.GetSpellInfo(spellId)
+									if (auraInfo) then
+										local auraTableOnDebugTable = Details222.MythicPlus.debug_auras[spellId]
+										if (not auraTableOnDebugTable) then
+											Details222.MythicPlus.debug_auras[spellId] = {auraInfo.name}
+											auraTableOnDebugTable = Details222.MythicPlus.debug_auras[spellId]
+										end
+										table.insert(Details222.MythicPlus.debug_auras[spellId], spellTable.uptime)
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --internal functions
@@ -869,6 +904,8 @@
 		Details:CheckForTextTimeCounter()
 		Details.StoreSpells()
 		Details:RunScheduledEventsAfterCombat()
+
+		aura_debugger_controlfile()
 
 		--issue: invalidCombat will be just floating around in memory if not destroyed
 	end --end of leaving combat function

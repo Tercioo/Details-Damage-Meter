@@ -399,7 +399,7 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 	return lootSquare
 end
 
-local createPlayerBanner = function(parent, name, index)
+function mPlus.CreatePlayerPortrait(parent, name)
 	if (not C_AddOns.IsAddOnLoaded("Blizzard_ChallengesUI")) then
 		C_AddOns.LoadAddOn("Blizzard_ChallengesUI")
 	end
@@ -407,12 +407,19 @@ local createPlayerBanner = function(parent, name, index)
 	--this template is from Blizzard_ChallengesUI.xml
     local template = "ChallengeModeBannerPartyMemberTemplate"
 
-	---@type playerbanner
-    local playerBanner = CreateFrame("frame", name, parent, template)
-	playerBanner.index = index
+	local playerBanner = CreateFrame("frame", name, parent, template)
+
 	playerBanner:SetAlpha(1)
 	playerBanner:EnableMouse(true)
 	playerBanner:SetFrameLevel(parent:GetFrameLevel()+2)
+
+	return playerBanner
+end
+
+local createPlayerBanner = function(parent, name, index)
+	---@type playerbanner
+    local playerBanner = mPlus.CreatePlayerPortrait(parent, name)
+	playerBanner.index = index
 	--size is set on the template
 
 	--make an fade in animation

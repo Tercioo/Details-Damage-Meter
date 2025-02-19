@@ -99,6 +99,7 @@ frames\window_breakdown\breakdown_spells_phaseframes.lua
 frames\window_mythicplus\window_mythic_breakdown.lua
 frames\window_mythicplus\window_end_of_run.lua
 frames\window_mythicplus\window_chart.lua
+frames\window_mythicplus\window_breakdown.lua
 frames\window_report.lua
 frames\window_main.lua
 frames\window_custom.lua

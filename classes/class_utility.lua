@@ -1751,6 +1751,8 @@ function Details:CatchRaidBuffUptime(sOperationType) -- ~scan
 		local pot_usage = {}
 		local focus_augmentation = {}
 
+		--print("Combat Ended - details - classutility, OPMODE:", sOperationType)
+
 		for buffIndex = 1, 41 do
 			---@type aurainfo
 			local auraInfo = C_UnitAuras.GetAuraDataByIndex("player", buffIndex, "HELPFUL")
@@ -1772,6 +1774,7 @@ function Details:CatchRaidBuffUptime(sOperationType) -- ~scan
 							end
 						end
 
+						--add the uptime, closing the aura time if passing 'BUFF_UPTIME_OUT' on sOperationType
 						Details.parser:add_buff_uptime(nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellId, auraName, sOperationType)
 					end
 				end

@@ -5481,3 +5481,90 @@ end
 
 --]=]
 
+--[=[
+
+--show data panel
+function detailsFramework:ShowData(data)
+	if (not DetailsFrameworkDataPanel) then
+		local mainFrame = detailsFramework:CreateSimplePanel(UIParent, 800, 600, "Show Data", "DetailsFrameworkShowDataPanel")
+		mainFrame:SetPoint("center", UIParent, "center", 0, 0)
+
+		--header
+		local headerTable = {
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+		}
+		local headerOptions = {
+			padding = 2,
+		}
+
+		mainFrame.Header = DF:CreateHeader(mainFrame, headerTable, headerOptions)
+		mainFrame.Header:SetPoint("topleft", mainFrame, "topleft", 5, headerY)
+
+		local refreshFunc = function(self, data, offset, totalLines) --~refresh
+			local ToK = Details:GetCurrentToKFunction()
+
+			for i = 1, totalLines do
+				local index = i + offset
+				local thisData = data[index]
+				if (thisData) then
+					local line = self:GetLine(i)
+				end
+			end
+		end
+
+		local createLineFunc = function(self, index)
+			local line = CreateFrame("button", "$parentLine" .. index, self,"BackdropTemplate")
+			line:SetPoint("topleft", self, "topleft", 1, -((index-1)*(scroll_line_height+1)) - 1)
+			line:SetSize(scroll_width - 2, scroll_line_height)
+
+			line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			line:SetBackdropColor(unpack(backdrop_color))
+			-- ~createline --~line
+			DF:Mixin(line, DF.HeaderFunctions)
+
+			--columns
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+
+			line:AddFrameToHeaderAlignment(icon)
+			line:AddFrameToHeaderAlignment(spellNameText)
+			line:AddFrameToHeaderAlignment(damageText)
+			line:AddFrameToHeaderAlignment(timeText)
+			line:AddFrameToHeaderAlignment(spellIDText)
+
+			line:AlignWithHeader(DetailsScrollDamage.Header, "left")
+
+			line.Icon = icon
+			line.IconFrame = iconFrame
+			line.DamageText = damageText
+			line.TimeText = timeText
+			line.SpellIDText = spellIDText
+			line.SpellNameText = spellNameText
+
+			return line
+		end
+	end
+
+	local dataPanel = DetailsFrameworkDataPanel
+	local scrollBox = dataPanel.ScrollBox
+	scrollBox:SetData(data)
+	scrollBox:Refresh()
+
+end
+
+--]=]
