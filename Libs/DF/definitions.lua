@@ -189,6 +189,7 @@ GameCooltipFrame2 = {}
 ---@field TalentExporter table
 ---@field FormatNumber fun(number:number) : string abbreviate a number, e.g. 1000 -> 1k 1000 -> 1천, depending on the client language
 ---@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean?, specId: specializationid?) : string there's no self here
+---@field ConvertRole fun(self:table, value:string|number, valueType:string?) : string|number if passed a role name return a number, if passed a number return the role name, if value type is passed it forces the return to be a number or a string
 ---@field IsDragonflight fun():boolean
 ---@field IsDragonflightAndBeyond fun():boolean
 ---@field IsDragonflightOrBelow fun():boolean

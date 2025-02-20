@@ -333,6 +333,43 @@ function DF:GetRoleByClassicTalentTree()
 	return "DAMAGER"
 end
 
+local roleStringToNumber = {
+	["NONE"] = 0,
+	["TANK"] = 1,
+	["HEALER"] = 2,
+	["DAMAGER"] = 3,
+	["SUPPORT"] = 4,
+}
+
+local roleNumberToString = {
+	[0] = "NONE",
+	[1] = "TANK",
+	[2] = "HEALER",
+	[3] = "DAMAGER",
+	[4] = "SUPPORT",
+}
+
+function DF:ConvertRole(value, valueType)
+	if (valueType) then
+		if (type(valueType) == "string") then
+			valueType = roleNumberToString[valueType] or valueType
+		end
+
+		if (type(valueType) == "number") then
+			valueType = roleStringToNumber[valueType] or valueType
+		end
+	end
+
+	if (type(value) == "string") then
+		return roleStringToNumber[value] or 0
+
+	elseif (type(value) == "number") then
+		return roleNumberToString[value] or "NONE"
+	end
+
+	return value
+end
+
 ---return the role of the unit, this is safe to use for all versions of wow
 ---@param unitId string
 ---@param bUseSupport boolean?
