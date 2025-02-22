@@ -399,7 +399,7 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 	return lootSquare
 end
 
-function mPlus.CreatePlayerPortrait(parent, name)
+function Details:CreatePlayerPortrait(parent, name)
 	if (not C_AddOns.IsAddOnLoaded("Blizzard_ChallengesUI")) then
 		C_AddOns.LoadAddOn("Blizzard_ChallengesUI")
 	end
@@ -418,7 +418,7 @@ end
 
 local createPlayerBanner = function(parent, name, index)
 	---@type playerbanner
-    local playerBanner = mPlus.CreatePlayerPortrait(parent, name)
+    local playerBanner = Details:CreatePlayerPortrait(parent, name)
 	playerBanner.index = index
 	--size is set on the template
 

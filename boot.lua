@@ -1569,6 +1569,9 @@ for i = 1, 4 do
 	table.insert(Details222.UnitIdCache.PartyPet, "partypet" .. i)
 end
 
+Details.PartyUnits = Details222.UnitIdCache.Party
+Details.PartyPetUnits = Details222.UnitIdCache.PartyPet
+
 Details222.UnitIdCache.Raid = {}
 Details222.UnitIdCache.RaidPet = {}
 Details222.UnitIdCache.RaidTargets = {}
@@ -1578,20 +1581,30 @@ for i = 1, 40 do
 	Details222.UnitIdCache.RaidTargets[i] = "raidtarget" .. i
 end
 
+Details.RaidUnits = Details222.UnitIdCache.Raid
+Details.RaidPetUnits = Details222.UnitIdCache.RaidPet
+Details.RaidTargetUnits = Details222.UnitIdCache.RaidTargets
+
 Details222.UnitIdCache.Boss = {}
 for i = 1, 9 do
 	Details222.UnitIdCache.Boss[i] = "boss" .. i
 end
+
+Details.BossUnits = Details222.UnitIdCache.Boss
 
 Details222.UnitIdCache.Nameplate = {}
 for i = 1, 40 do
 	Details222.UnitIdCache.Nameplate[i] = "nameplate" .. i
 end
 
+Details.NameplateUnits = Details222.UnitIdCache.Nameplate
+
 Details222.UnitIdCache.Arena = {}
 for i = 1, 5 do
 	Details222.UnitIdCache.Arena[i] = "arena" .. i
 end
+
+Details.ArenaUnits = Details222.UnitIdCache.Arena
 
 
 function Details222.Tables.MakeWeakTable(mode)

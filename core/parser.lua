@@ -6161,6 +6161,30 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.MythicPlus.Texture = texture
 		Details222.MythicPlus.BackgroundTexture = backgroundTexture
 
+		--store the data of the mythic+ run that just finished, this table always exists when COMBAT_MYTHICDUNGEON_END is triggered
+		Details.LastMythicPlusData = {
+			MapID = mapID,
+			Level = level,
+			ElapsedTime = time or 0.1,
+			TimeWithoutDeaths = time or 0.1,
+			OnTime = onTime,
+			KeystoneUpgradeLevels = keystoneUpgradeLevels,
+			PracticeRun = practiceRun,
+			IsAffixRecord = isAffixRecord,
+			IsMapRecord = isMapRecord,
+			PrimaryAffix = primaryAffix,
+			IsEligibleForScore = isEligibleForScore,
+			UpgradeMembers = upgradeMembers,
+			OldDungeonScore = oldDungeonScore,
+			NewDungeonScore = newDungeonScore,
+			DungeonName = dungeonName,
+			DungeonId = id,
+			TimeLimit = timeLimit,
+			Texture = texture,
+			BackgroundTexture = backgroundTexture,
+			time = time or 0.1,
+		}
+
 		if (time) then
             --Subtract death time from time of run to get the true time
             local deaths = C_ChallengeMode.GetDeathCount()
@@ -6174,6 +6198,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
             end
 
         	Details222.MythicPlus.time = math.floor(time / 1000)
+			Details.LastMythicPlusData.TimeWithoutDeaths = Details222.MythicPlus.time
 			Details:Msg("run elapsed time:", DetailsFramework:IntegerToTimer(time / 1000))
 		else
 			Details222.MythicPlus.time = 0.1
