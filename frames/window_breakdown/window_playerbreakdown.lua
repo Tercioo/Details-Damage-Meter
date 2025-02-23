@@ -346,9 +346,21 @@ end
 ---@param bIsShiftKeyDown boolean|nil
 ---@param bIsControlKeyDown boolean|nil
 ---@param bIgnoreOverrides boolean|nil
-function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides)
+---@param mainAttributeOverride number|nil
+---@param subAttributeOverride number|nil
+function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides, mainAttributeOverride, subAttributeOverride)
 	---@type number, number
 	local mainAttribute, subAttribute = instanceObject:GetDisplay()
+
+	if (not bIgnoreOverrides) then
+		if (mainAttributeOverride) then
+			mainAttribute = mainAttributeOverride
+			actorObject = instanceObject:GetCombat():GetActor(mainAttributeOverride, actorObject.nome)
+		end
+		if (subAttributeOverride) then
+			subAttribute = subAttributeOverride
+		end
+	end
 
 	if (not breakdownWindowFrame.__rcorners) then
 		breakdownWindowFrame:SetBackdropColor(.1, .1, .1, 0)
