@@ -337,6 +337,17 @@ function Details:SetWindowColor(r, g, b, a)
 	end
 end
 
+---@param self details
+---@param combatObject combat
+---@param actorName string
+---@param mainAttribute number
+---@param subAttribute number
+function Details:OpenSpecificBreakdownWindow(combatObject, actorName, mainAttribute, subAttribute)
+	local newActor = combatObject:GetActor(mainAttribute, actorName)
+	local instance = Details:GetInstance(1)
+	Details:OpenBreakdownWindow(instance, newActor, false, false, false, false, false, mainAttribute, subAttribute)
+end
+
 ---open the breakdown window
 ---@param self details
 ---@param instanceObject instance
