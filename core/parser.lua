@@ -122,9 +122,17 @@
 		local cacheAnything = {
 			arenaHealth = {},
 			paladin_vivaldi_blessings = {},
+			chronowarden_thread_fate = {},
+			scalecommander_bombardments = {},
 			track_hunter_frenzy = false,
 			rampage_cast_amount = {},
 		}
+		
+	--store the number of aug evokerSerial
+		local aug_members_cache = {}
+		
+	--store the number of dev and evokerSerial
+		local scalecommander_members_cache = {}
 
 	--store the gear of each player
 		local gearCache = {}
@@ -559,11 +567,28 @@
 		[196917] = true, --light of the martyr
 		[388009] = true, --blessing of spring
 		[388012] = true, --blessing of summer
+		[410265] = true, --inferno's blessing
+		[404908] = true, --fate mirror
+		[360828] = true, --blistering scales
+		[409632] = true, --breath of eons
+		[432895] = true, --thread of fate
+		[434481] = true, --bombardments
 		[384601] = true, --Anti Magic Bomb
 		[392171] = true, --Rose of the Vale
 		[392166] = true, --Azure Stone of Might
 		[379020] = true, --Wand of Negation
 		[372824] = true, --Burning Chains
+	}
+	
+	--damage spells that need reattribution
+	local external_damage_spells = {
+		[388009] = true, --blessing of summer
+		[410265] = true, --inferno's blessing
+		[404908] = true, --fate mirror
+		[360828] = true, --blistering scales
+		[409632] = true, --breath of eons
+		[432895] = true, --thread of fate
+		[434481] = true, --bombardments
 	}
 
 	--damage spells to ignore
@@ -635,6 +660,9 @@
 		Details.NeltharusWeaponActorName = "Neltharus Weapons"
 		Details.NeltharusWeaponActorSpellId = 377176 --for the icon: Blazing Aegis
 
+		Details.StackedBuffActorName = "Unknown Buffer"
+		Details.StackedBuffActorSpellId = 395152 --for the icon: Ebon Might
+
 		--sanguine affix for m+
 		Details.SanguineHealActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
 
@@ -650,6 +678,9 @@
 
 			--add Neltharus weapons
 			Details.SpecialSpellActorsName[Details.NeltharusWeaponActorName] = Details.NeltharusWeaponActorSpellId
+			
+			--add stacked buff bar
+			Details.SpecialSpellActorsName[Details.StackedBuffActorName] = Details.StackedBuffActorSpellId
 		end
 
 		--Damage spells that trigger outside of combat, which we don't want to have start a combat.
@@ -910,10 +941,12 @@
 				end
 			end
 		end
+		
 
 		--check if the spellId has an especial treatment
 		if (special_damage_spells[spellId]) then
 			--stagger
+
 			if (spellId == 124255) then
 				return parser:MonkStagger_damage(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 
@@ -932,16 +965,11 @@
 						sourceFlags = ownerFlags
 					end
 				end
-
+			elseif (external_damage_spells[spellId]) then
+				sourceSerial, sourceName, sourceFlags = parser:external_damage(spellId, sourceSerial, sourceName, sourceFlags, targetSerial, time)
 			--Light of the Martyr - paladin spell which causes damage to the caster it self
 			elseif (spellId == 196917) then -- or spellid == 183998 < healing part
 				return parser:LOTM_damage(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-
-			elseif (spellId == 388009 or spellId == 388012) then --damage from the paladin blessings of the seasons
-				local blessingSource = cacheAnything.paladin_vivaldi_blessings[sourceSerial]
-				if (blessingSource) then
-					sourceSerial, sourceName, sourceFlags = unpack(blessingSource)
-				end
 
 			elseif (Details.NeltharusWeaponSpellIds[spellId]) then
 				sourceName = Details.NeltharusWeaponActorName
@@ -1489,161 +1517,6 @@
 			end
 		end
 
-		if (spellId == 360828 and augmentation_cache.shield[sourceSerial]) then --shield
-			---actor buffed with the shield -> list of evokers whose buffed
-			---@type table<serial, evokerinfo[]>
-			local currentlyBuffedWithShield = augmentation_cache.shield[sourceSerial]
-
-			for i, evokerInfo in ipairs(currentlyBuffedWithShield) do
-				---@cast evokerInfo evokerinfo
-				---@type serial, actorname, controlflags
-				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
-
-				if (evokerSourceSerial ~= sourceSerial) then
-					---@type actor
-					local evokerActor = damage_cache[evokerSourceSerial]
-					if (not evokerActor) then
-						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-					end
-
-					if (evokerActor) then
-						local extraSpellId = 360828
-						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-						if (not augmentedSpell) then
-							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
-						end
-
-						local damageSplitted = amount / #currentlyBuffedWithShield
-						evokerActor.total_extra = evokerActor.total_extra + damageSplitted
-
-						augmentedSpell.total = augmentedSpell.total + damageSplitted
-						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + damageSplitted
-
-						if (Details.debug) then
-							--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 3)
-						end
-					end
-				end
-			end
-		end
-
-		if (spellId == 404908 and augmentation_cache.prescience[sourceSerial]) then --fate mirror
-			---actor buffed with prescience -> list of evokers whose buffed
-			---@type table<serial, evokerinfo[]>
-			local currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
-
-			for i, evokerInfo in ipairs(currentlyBuffedWithPrescience) do
-				---@cast evokerInfo evokerinfo
-				---@type serial, actorname, controlflags
-				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
-				if (evokerSourceSerial ~= sourceSerial) then
-					---@type actor
-					local evokerActor = damage_cache[evokerSourceSerial]
-					if (not evokerActor) then
-						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-					end
-
-					if (evokerActor) then
-						local extraSpellId = 404908
-						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-						if (not augmentedSpell) then
-							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
-						end
-
-						local fateMirror_plus_Prescience = amount + amount * 0.58782001
-
-						evokerActor.total_extra = evokerActor.total_extra + fateMirror_plus_Prescience
-
-						augmentedSpell.total = augmentedSpell.total + fateMirror_plus_Prescience
-						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + fateMirror_plus_Prescience
-
-						if (Details.debug) then
-							--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 4)
-						end
-					end
-				end
-			end
-		end
-
-		if (spellId == 410265 and augmentation_cache.infernobless[sourceSerial]) then
-			---@type table<serial, evokerinfo[]>
-			local currentlyBuffedWithInfernoBless = augmentation_cache.infernobless[sourceSerial]
-
-			for i, evokerInfo in ipairs(currentlyBuffedWithInfernoBless) do
-				---@cast evokerInfo evokerinfo
-				---@type serial, actorname, controlflags
-				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
-
-				if (evokerSourceSerial ~= sourceSerial) then
-					---@type actor
-					local evokerActor = damage_cache[evokerSourceSerial]
-					if (not evokerActor) then
-						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-					end
-
-					if (evokerActor) then
-						local extraSpellId = 410265
-						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-						if (not augmentedSpell) then
-							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
-						end
-
-						evokerActor.total_extra = evokerActor.total_extra + amount
-
-						augmentedSpell.total = augmentedSpell.total + amount
-						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + amount
-
-						if (Details.debug) then
-							--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 5)
-						end
-					end
-				end
-			end
-		end
-
-		if (spellId == 409632) then
-			local breathTargets = augmentation_cache.breath_targets
-			---@type evokereonsbreathinfo[]
-			local evokerWithEonsApplications = breathTargets[targetSerial]
-
-			if (evokerWithEonsApplications) then
-				--this table consists in a list of evokers who applied eon's breath on the target
-				for i = 1, #evokerWithEonsApplications do
-					---@type evokereonsbreathinfo
-					local evokerInfo = evokerWithEonsApplications[i]
-					---@type guid,         actorname,  controlflags, unit,           unixtime,    auraduration, gametime
-					local    evokerSerial, evokerName, evokerFlags,  unitIDAffected, appliedTime, duration,     expirationTime = unpack(evokerInfo)
-
-					if (evokerSerial ~= sourceSerial) then
-						if (detailsFramework:IsNearlyEqual(time, appliedTime + duration, 0.12)) then
-							---@type actor
-							local evokerActor = damage_cache[evokerSerial]
-							if (not evokerActor) then
-								evokerActor = _current_damage_container:GetOrCreateActor(evokerSerial, evokerName, evokerFlags, true)
-							end
-
-							if (evokerActor) then
-								local extraSpellId = 409632
-								evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-								local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-								if (not augmentedSpell) then
-									augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
-								end
-
-								evokerActor.total_extra = evokerActor.total_extra + amount
-
-								augmentedSpell.total = augmentedSpell.total + amount
-								augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + amount
-							end
-						end
-					end
-				end
-			end
-		end
-
 		--actor owner (if any)
 		if (ownerActor) then --se for dano de um Pet
 			ownerActor.total = ownerActor.total + amount --e adiciona o dano ao pet
@@ -2071,6 +1944,151 @@
 		end
 	end
 
+	--returns the serial, name, and flags that the damage should be attributed to
+	--separate function due to main function becoming oversized
+	function parser:external_damage(spellId, sourceSerial, sourceName, sourceFlags, targetSerial, time)
+		local newSerial = sourceSerial
+		local newName = sourceName
+		local newFlags = sourceFlags
+		if (spellId == 388009) then --damage from the paladin blessings of the seasons
+			local blessingSource = cacheAnything.paladin_vivaldi_blessings[sourceSerial]
+			if (blessingSource) then
+				newSerial, newName, newFlags = unpack(blessingSource)
+			end
+			
+		elseif (spellId == 410265) then --damage from inferno's blessing
+			local currentlyBuffedWithInfernoBless = nil
+			local countBuffedWithInfernoBless = 0
+			local countAugMember = 0
+			if (augmentation_cache.infernobless[sourceSerial]) then
+				currentlyBuffedWithInfernoBless = augmentation_cache.infernobless[sourceSerial]
+				countBuffedWithInfernoBless = #currentlyBuffedWithInfernoBless
+			end
+			if (aug_members_cache) then
+				countAugMember = #aug_members_cache
+			end
+			if (countBuffedWithInfernoBless == 1) then
+				newSerial, newName, newFlags = unpack(currentlyBuffedWithInfernoBless[1])
+			elseif (countAugMember >= 2) then
+				newName = Details.StackedBuffActorName
+				newFlags = 0x514
+				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			elseif (countAugMember == 1) then
+				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+			end
+			
+		elseif (spellId == 404908) then --damage from fate mirror
+			local currentlyBuffedWithPrescience = nil
+			local countBuffedWithPrescience = 0
+			local countAugMember = 0
+			if (augmentation_cache.prescience[sourceSerial]) then
+				currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
+				countBuffedWithPrescience = #currentlyBuffedWithPrescience
+			end
+			if (aug_members_cache) then
+				countAugMember = #aug_members_cache
+			end
+			if (countBuffedWithPrescience == 1) then
+				newSerial, newName, newFlags = unpack(currentlyBuffedWithPrescience[1])
+			elseif (countAugMember >= 2) then
+				newName = Details.StackedBuffActorName
+				newFlags = 0x514
+				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			elseif (countAugMember == 1) then
+				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+			end
+			
+		elseif (spellId == 360828) then --damage from blistering scales
+			local currentlyBuffedWithBlistering = nil
+			local countBuffedWithBlistering = 0
+			local countAugMember = 0
+			if (augmentation_cache.shield[sourceSerial]) then
+				currentlyBuffedWithBlistering = augmentation_cache.shield[sourceSerial]
+				countBuffedWithBlistering = #currentlyBuffedWithBlistering
+			end
+			if (aug_members_cache) then
+				countAugMember = #aug_members_cache
+			end
+			if (countBuffedWithBlistering == 1) then
+				newSerial, newName, newFlags = unpack(currentlyBuffedWithBlistering[1])
+			elseif (countAugMember >= 2) then
+				newName = Details.StackedBuffActorName
+				newFlags = 0x514
+				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			elseif (countAugMember == 1) then
+				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+			end
+			
+		elseif (spellId == 409632) then
+			local breathTargets = augmentation_cache.breath_targets
+			local evokerWithEonsApplications = breathTargets[targetSerial]
+			local eonsSourcesFound = 0
+			local lastEvokerSerial = nil
+			local lastEvokerName = nil
+			local lastEvokerFlags = nil
+			local countAugMember = 0
+			if (evokerWithEonsApplications) then
+				--this table consists in a list of evokers who applied eon's breath on the target
+				for i = 1, #evokerWithEonsApplications do
+					---@type evokereonsbreathinfo
+					local evokerInfo = evokerWithEonsApplications[i]
+					---@type guid,         actorname,  controlflags, unit,           unixtime,    auraduration, gametime
+					local    evokerSerial, evokerName, evokerFlags,  unitIDAffected, appliedTime, duration,     expirationTime = unpack(evokerInfo)
+					if (detailsFramework:IsNearlyEqual(time, appliedTime + duration, 0.12)) then
+						eonsSourcesFound = eonsSourcesFound + 1
+						lastEvokerSerial = evokerSerial
+						lastEvokerName = evokerName
+						lastEvokerFlags = evokerFlags
+					end
+				end
+			end
+			if (aug_members_cache) then
+				countAugMember = #aug_members_cache
+			end
+			if (eonsSourcesFound == 1) then
+				newSerial = lastEvokerSerial
+				newName = lastEvokerName
+				newFlags = lastEvokerFlags
+			elseif (countAugMember >= 2) then
+				newName = Details.StackedBuffActorName
+				newFlags = 0x514
+				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			elseif (countAugMember == 1) then
+				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+			end
+		elseif (spellId == 432895) then --damage from thread of fate
+			local chronoThreadSource = cacheAnything.chronowarden_thread_fate[sourceSerial]
+			if (cacheAnything.chronowarden_thread_fate[sourceSerial]) then
+				newSerial, newName, newFlags = unpack(chronoThreadSource)
+			end
+		elseif (spellId == 434481) then
+			local countScalecommanderMember = 0
+			local countBombardmentsCasters = 0
+			if (scalecommander_members_cache) then
+				countScalecommanderMember = #scalecommander_members_cache
+			end
+			if (cacheAnything.scalecommander_bombardments) then
+				--countBombardmentsCasters = #cacheAnything.scalecommander_bombardments
+				--for some reason, above returns 0. using below instead.
+				for k, v in pairs(cacheAnything.scalecommander_bombardments) do
+					countBombardmentsCasters = countBombardmentsCasters + 1
+				end
+			else
+			end
+			if (countBombardmentsCasters == 1) then
+				for k, v in pairs(cacheAnything.scalecommander_bombardments) do
+					newSerial, newName, newFlags = k, unpack(v)
+				end
+			elseif (countScalecommanderMember >= 2 and countBombardmentsCasters >= 2) then
+				newName = Details.StackedBuffActorName
+				newFlags = 0x514
+				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			elseif (countScalecommanderMember == 1) then
+				newSerial, newName, newFlags = unpack(scalecommander_members_cache[1])
+			end
+		end
+		return newSerial, newName, newFlags
+	end
 	--extra attacks - disabled
 	function parser:spell_dmg_extra_attacks(token, time, who_serial, who_name, who_flags, _, _, _, _, spellid, spellName, spelltype, arg1)
 		--print("this is even exists on ingame cleu?")
@@ -2346,7 +2364,6 @@
 			12/14 21:14:44.545  SPELL_SUMMON,Creature-0-4391-615-3107-15439-00001A8313,"Fire Elemental Totem",0x2112,0x0,Creature-0-4391-615-3107-15438-00001A8313,"Greater Fire Elemental",0x2112,0x0,32982,"Fire Elemental Totem",0x1
 			]]
 
-
 		if (isWOTLK or isCATA) then
 			if (npcId == 15439) then
 				petContainer.AddPet(petGuid:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags, summonSpellId)
@@ -2357,7 +2374,6 @@
         elseif (npcId == 210759) then
             return
         end
-
 		--send the summonSpellId to spellcache in order to identify if the pet is from an item, for instance: a trinket
 		local newPetName = Details222.Pets.GetPetNameFromCustomSpells(petName, summonSpellId, npcId)
 		if (newPetName ~= petName) then
@@ -2610,7 +2626,39 @@
 		end
 
 		_current_heal_container.need_refresh = true
+		
+		if (spellId == 413786) then --heal from fate mirror
+			local currentlyBuffedWithPrescience = nil
+			local countBuffedWithPrescience = 0
+			local countAugMember = 0
+			if (augmentation_cache.prescience[sourceSerial]) then
+				currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
+				countBuffedWithPrescience = #currentlyBuffedWithPrescience
+			end
+			if (aug_members_cache) then
+				countAugMember = #aug_members_cache
+			end
+			if (countBuffedWithPrescience == 1) then
+				sourceSerial, sourceName, sourceFlags = unpack(currentlyBuffedWithPrescience[1])
+			elseif (countAugMember >= 2) then
+				sourceName = Details.StackedBuffActorName
+				sourceFlags = 0x514
+				sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			elseif (countAugMember == 1) then
+				sourceSerial, sourceName, sourceFlags = unpack(aug_members_cache[1])
+			end
 
+		elseif (spellId == 432896) then --heal from thread of fate
+			local chronoThreadSource = cacheAnything.chronowarden_thread_fate[sourceSerial]
+			if (chronoThreadSource) then
+				sourceSerial, sourceName, sourceFlags = unpack(chronoThreadSource)
+			end
+		elseif (spellId == 448227) then --blessing of summer healing
+			local blessingSource = cacheAnything.paladin_vivaldi_blessings[sourceSerial]
+			if (blessingSource) then
+				sourceSerial, sourceName, sourceFlags = unpack(blessingSource)
+			end
+		end
 	------------------------------------------------------------------------------------------------
 	--get actors
 
@@ -2980,9 +3028,12 @@
 					end
 				end
 
-			elseif (spellId == 388007 or spellId == 388011) then --buff: bleesing of the summer and winter
+			elseif (spellId == 388007) then --buff: bleesing of the summer and winter
 				cacheAnything.paladin_vivaldi_blessings[targetSerial] = {sourceSerial, sourceName, sourceFlags}
 
+			elseif (spellId == 431716) then --buff: thread of fate
+				cacheAnything.chronowarden_thread_fate[targetSerial] = {sourceSerial, sourceName, sourceFlags}
+				
 			elseif (spellId == 27827) then --spirit of redemption (holy ~priest) ~spirit
 				local deathLog = last_events_cache[targetName]
 				if (not deathLog) then
@@ -3126,6 +3177,15 @@
 					parser:add_bad_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, "DEBUFF_UPTIME_IN")
 				end
 			end
+			
+			
+			if (spellId == 434473) then --scalecommander bombardments
+				if (cacheAnything.scalecommander_bombardments[sourceSerial]) then
+					cacheAnything.scalecommander_bombardments[sourceSerial][3] = cacheAnything.scalecommander_bombardments[sourceSerial][3] + 1
+				else
+					cacheAnything.scalecommander_bombardments[sourceSerial] = {sourceName, sourceFlags, 1}
+				end
+			end
 		end
 	end
 
@@ -3144,6 +3204,10 @@
 			sourceFlags = 0xa48
 			sourceSerial = ""
 		end
+		
+		if (spellId == 431716) then --buff: thread of fate
+			cacheAnything.chronowarden_thread_fate[targetSerial] = {sourceSerial, sourceName, sourceFlags}
+		end				
 
 		if (augmentation_aura_list[spellId]) then
 			Details222.SpecHelpers[1473].BuffRefresh(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, tipo, amount)
@@ -3277,8 +3341,11 @@
 					parser:heal(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellSchool, damage_prevented, ceil (amount or 0), 0, 0, true)
 				end
 
-			elseif (spellId == 388007 or spellId == 388011) then --buff: bleesing of the summer
+			elseif (spellId == 388007) then --buff: bleesing of the summer
 				cacheAnything.paladin_vivaldi_blessings[targetSerial] = nil
+				
+			elseif (spellId == 431716) then --buff: thread of fate
+				cacheAnything.chronowarden_thread_fate[targetSerial] = nil
 			end
 
 			------------------------------------------------------------------------------------------------
@@ -3356,6 +3423,15 @@
 
 				if ((bitfield_debuffs[spellName] or bitfield_debuffs[spellId]) and targetSerial) then
 					bitfield_swap_cache[targetSerial] = nil
+				end
+			end
+			
+			if (spellId == 434473) then --scalecommander bombardments
+				if (cacheAnything.scalecommander_bombardments[sourceSerial]) then
+					cacheAnything.scalecommander_bombardments[sourceSerial][3] = math.max(cacheAnything.scalecommander_bombardments[sourceSerial][3] - 1, 0)
+					if (cacheAnything.scalecommander_bombardments[sourceSerial][3] == 0) then
+						cacheAnything.scalecommander_bombardments[sourceSerial] = nil
+					end
 				end
 			end
 		end
@@ -6961,6 +7037,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(dk_pets_cache.apoc)
 
 		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
+		Details:Destroy(cacheAnything.chronowarden_thread_fate)
+		Details:Destroy(cacheAnything.scalecommander_bombardments)
 		Details:Destroy(cacheAnything.rampage_cast_amount)
 
 		if (not bIsFromCombatStart) then
@@ -7138,6 +7216,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(auto_regen_cache)
 		Details:Destroy(bitfield_swap_cache)
 		Details:Destroy(empower_cache)
+		Details:Destroy(aug_members_cache)
+		Details:Destroy(scalecommander_members_cache)
 
 		local currentCombat = Details:GetCurrentCombat()
 
@@ -7145,6 +7225,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (IsInRaid()) then
 			local unitIdCache = Details222.UnitIdCache.Raid
+			local playerGUID = UnitGUID("player")
 
 			for i = 1, GetNumGroupMembers() do
 				local unitId = unitIdCache[i]
@@ -7166,10 +7247,27 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (auto_regen_power_specs[Details.cached_specs[unitGUID]]) then
 					auto_regen_cache[unitName] = auto_regen_power_specs[Details.cached_specs[unitGUID]]
 				end
+				
+				if (Details.cached_specs[unitGUID] == 1473) then
+					if (unitGUID == playerGUID) then
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+					else
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+					end
+				elseif (Details.cached_specs[unitGUID] == 1467) then
+					if (unitGUID == playerGUID) then
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+					else
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+					end
+				end
 			end
 
 		elseif (IsInGroup()) then
 			local unitIdCache = Details222.UnitIdCache.Party
+			local playerGUID = UnitGUID("player")
 			for i = 1, GetNumGroupMembers() do
 				local unitId = unitIdCache[i]
 
@@ -7187,23 +7285,25 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (auto_regen_power_specs[Details.cached_specs[unitGUID]]) then
 					auto_regen_cache[unitName] = auto_regen_power_specs[Details.cached_specs[unitGUID]]
 				end
+				
+				if (Details.cached_specs[unitGUID] == 1473) then
+					if (unitGUID == playerGUID) then
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+					else
+						table.insert(aug_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+					end
+				elseif (Details.cached_specs[unitGUID] == 1467) then
+					if (unitGUID == playerGUID) then
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+					else
+						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+					end
+				end
 			end
-
-			--player
 			local playerName = Details.playername
-			local playerGUID = UnitGUID("player")
-
-			raid_members_cache[playerGUID] = playerName
-			groupRoster[playerName] = playerGUID
-
 			local role = _UnitGroupRolesAssigned(playerName)
-			if (role == "TANK") then
-				tanks_members_cache[playerGUID] = true
-			end
-
-			if (auto_regen_power_specs[Details.cached_specs[playerGUID]]) then
-				auto_regen_cache[playerName] = auto_regen_power_specs[Details.cached_specs[playerGUID]]
-			end
 		else
 			local playerName = Details.playername
 			local playerGUID = UnitGUID("player")
@@ -7225,6 +7325,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 			if (auto_regen_power_specs[Details.cached_specs[playerGUID]]) then
 				auto_regen_cache[playerName] = auto_regen_power_specs[Details.cached_specs[playerGUID]]
+			end
+				
+			if (Details.cached_specs[playerGUID] == 1473) then
+				table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
+				table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+			elseif (Details.cached_specs[playerGUID] == 1467) then
+				table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
 			end
 		end
 
