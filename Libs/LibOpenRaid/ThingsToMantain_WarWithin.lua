@@ -580,7 +580,7 @@ do
 			[219809] = {cooldown = 60,	duration = 8,	specs = {250},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Tombstone
 			[207289] = {cooldown = 78,	duration = 12,	specs = {252},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 1}, --Unholy Assault
 			[55233] = {cooldown = 90,	duration = 10,	specs = {250},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Vampiric Blood
-			[212552] = {cooldown = 60,	duration = 4,	specs = {250, 251, 252},	talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Wraith Walk
+			[212552] = {cooldown = 60,	duration = 4,	specs = {250, 251, 252},	talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 5}, --Wraith Walk
 			[49576] = {cooldown = 25,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 8}, --Death Grip
 			[49039] = {cooldown = 120,	duration = 10,	specs = {250, 251, 252},	talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Lichborne
 			[194679] = {cooldown = 25,	duration = 4,	specs = {252},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Rune Tap
@@ -648,7 +648,7 @@ do
 			-- 256 - Discipline
 			-- 257 - Holy
 			-- 258 - Shadow
-			[200183] = {cooldown = 120,	duration = 20,	specs = {257},				talent = false,	charges = 1,	class = "PRIEST",	type = 2}, --Apotheosis
+			[200183] = {cooldown = 120,	duration = 20,	specs = {257},				talent = false,	charges = 1,	class = "PRIEST",	type = 4}, --Apotheosis
 			[19236] = {cooldown = 90,	duration = 10,	specs = {256, 257, 258},	talent = false,	charges = 1,	class = "PRIEST",	type = 2}, --Desperate Prayer
 			[47585] = {cooldown = 120,	duration = 6,	specs = {258},				talent = false,	charges = 1,	class = "PRIEST",	type = 2}, --Dispersion
 			[64843] = {cooldown = 180,	duration = 8,	specs = {257},				talent = false,	charges = 1,	class = "PRIEST",	type = 4, cdtype = "HEAL"}, --Divine Hymn
@@ -717,7 +717,7 @@ do
 			[357210] = {cooldown = 120,	duration = 0,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Deep Breath
 			[375087] = {cooldown = 120,	duration = 0,	specs = {1467},					talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Dragonrage
 			[359816] = {cooldown = 120,	duration = 15,	specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 4, cdtype = "HEAL"}, --Dream Flight
-			[370960] = {cooldown = 180,	duration = 4.4,	specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 2}, --Emerald Communion
+			[370960] = {cooldown = 180,	duration = 4.4,	specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 4}, --Emerald Communion
 
 			[358385] = {cooldown = 90,	duration = 0,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 8}, --Landslide
 			[372048] = {cooldown = 120,	duration = 10,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 8}, --Oppressing Roar

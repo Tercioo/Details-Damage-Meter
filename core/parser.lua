@@ -5641,7 +5641,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = select(1, ...)
 
 		if (not Details.encounter_table.start) then
-			Details:Msg("encounter table without start time.")
+			--Details:Msg("encounter table without start time.")
 			return
 		end
 

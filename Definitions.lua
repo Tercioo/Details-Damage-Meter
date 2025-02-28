@@ -151,7 +151,7 @@
 ---@field Msg fun(self: details, msg: string) print a message to the chat frame
 ---@field RemoveSegmentByCombatObject fun(self: details, combatObject: combat) : boolean, combat|nil remove the passed combatObject from the segments list
 ---@field RemoveSegment fun(self: details, segmentIndex: number) : boolean, combat
----@field GetCombatByUID fun(self: details, uniqueCombatId: uniquecombatid) : combat|boolean get a unique combat id and return the combat object
+---@field GetCombatByUID fun(self: details, uniqueCombatId: uniquecombatid) : combat? get a unique combat id and return the combat object
 ---@field DoesCombatWithUIDExists fun(self: details, uniqueCombatId: uniquecombatid) : boolean
 ---@field GetOverallCombat fun(self: details) : combat return the overall combat
 ---@field SetCurrentCombat fun(self: details, combatObject: combat) set the current active combat
