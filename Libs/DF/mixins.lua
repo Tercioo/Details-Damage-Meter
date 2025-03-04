@@ -188,6 +188,12 @@ local doublePoint = {
 	["left-right"] = true,
 }
 
+---@alias anchor_name "lefts" | "rights" | "tops" | "bottoms" | "left-left" | "right-right" | "top-top" | "bottom-bottom" | "bottom-top" | "top-bottom" | "right-left" | "left-right" | "topleft" | "topright" | "bottomleft" | "bottomright" | "left" | "right" | "top" | "bottom" | "center"
+
+---@class df_setpoint : table
+---@field SetPoint fun(self: table, anchorName1: anchor_name, anchorObject: table?, anchorName2: string?, xOffset: number?, yOffset: number?)
+---@field SetPoints fun(self: table, anchorName1: anchor_name, anchorObject: table?, anchorName2: string?, xOffset: number?, yOffset: number?)
+
 detailsFramework.SetPointMixin = {
 	SetPoint = function(object, anchorName1, anchorObject, anchorName2, xOffset, yOffset)
 		if (doublePoint[anchorName1]) then
@@ -267,6 +273,8 @@ detailsFramework.SetPointMixin = {
 		end
 	end,
 }
+
+detailsFramework.SetPointMixin.SetPoints = detailsFramework.SetPointMixin.SetPoint
 
 ---mixin for options
 ---@class df_optionsmixin

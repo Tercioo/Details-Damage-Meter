@@ -1467,7 +1467,7 @@ function DF:GetSpellsForEncounterFromJournal (instanceEJID, encounterEJID)
 	
 	while (nextID [1]) do
 		--get the deepest section in the hierarchy
-		local ID = tremove(nextID)
+		local ID = table.remove(nextID)
 		local sectionInfo = C_EncounterJournal.GetSectionInfo (ID)
 		
 		if (sectionInfo) then

@@ -1448,6 +1448,11 @@ local default_global_data = {
 			font_size = 10,
 		},
 
+	--information about the transcriptor frame
+		transcriptor_frame = {
+			scale = 1,
+		},
+
 	--keystone window
 		keystone_frame = {
 			scale = 1,

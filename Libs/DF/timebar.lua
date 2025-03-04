@@ -31,9 +31,10 @@ local GetTime = GetTime
 ---@field SetColor fun(self:df_timebar, color:any, green:number|nil, blue:number|nil, alpha:number|nil)
 ---@field SetLeftText fun(self:df_timebar, text:string)
 ---@field SetRightText fun(self:df_timebar, text:string)
----@field SetFont fun(self:df_timebar, font:string|nil, size:number|nil, color:any, shadow:boolean|nil)
+---@field SetFont fun(self:df_timebar, font:string|nil, size:number|nil, color:any, outline:string|boolean|nil, shadowColor:any, shadowX:number?, shadowY:number?)
 ---@field SetThrottle fun(self:df_timebar, seconds:number)
 ---@field SetDirection fun(self:df_timebar, direction:string)
+---@field SetBackgroundColor fun(self:df_timebar, color:any, green:number|nil, blue:number|nil, alpha:number|nil)
 
 ---@class df_timebar_statusbar : statusbar
 ---@field MyObject df_timebar
@@ -184,6 +185,7 @@ end
 function TimeBarMetaFunctions:SetIcon(texture, L, R, T, B)
     if (texture) then
         self.statusBar.icon:Show()
+        self.statusBar.icon:ClearAllPoints()
         self.statusBar.icon:SetPoint("left", self.statusBar, "left", 2, 0)
         self.statusBar.icon:SetSize(self.statusBar:GetHeight()-2, self.statusBar:GetHeight()-2)
         self.statusBar.leftText:ClearAllPoints()
@@ -220,22 +222,42 @@ function TimeBarMetaFunctions:SetRightText(text)
     self.statusBar.rightText:SetText(text)
 end
 
-function TimeBarMetaFunctions:SetFont(font, size, color, shadow)
+function TimeBarMetaFunctions:SetFont(font, size, color, outline, shadowColor, shadowX, shadowY)
     if (font) then
         detailsFramework:SetFontFace(self.statusBar.leftText, font)
+        detailsFramework:SetFontFace(self.statusBar.rightText, font)
     end
 
     if (size) then
         detailsFramework:SetFontSize(self.statusBar.leftText, size)
+        detailsFramework:SetFontSize(self.statusBar.rightText, size)
     end
 
     if (color) then
         detailsFramework:SetFontColor(self.statusBar.leftText, color)
+        detailsFramework:SetFontColor(self.statusBar.rightText, color)
     end
 
-    if (shadow) then
-        detailsFramework:SetFontOutline(self.statusBar.leftText, shadow)
+    if (outline) then
+        detailsFramework:SetFontOutline(self.statusBar.leftText, outline)
+        detailsFramework:SetFontOutline(self.statusBar.rightText, outline)
     end
+
+    if (shadowColor) then
+        self.statusBar.leftText:SetShadowColor(detailsFramework:ParseColors(shadowColor))
+        self.statusBar.rightText:SetShadowColor(detailsFramework:ParseColors(shadowColor))
+    end
+
+    if (shadowX and shadowY) then
+        self.statusBar.leftText:SetShadowOffset(shadowX, shadowY)
+        self.statusBar.rightText:SetShadowOffset(shadowX, shadowY)
+    end
+end
+
+--set background texture color
+function TimeBarMetaFunctions:SetBackgroundColor(color, green, blue, alpha)
+    local r, g, b, a = detailsFramework:ParseColors(color, green, blue, alpha)
+    self.statusBar.backgroundTexture:SetVertexColor(r, g, b, a)
 end
 
 ---set a throttle for the timer bar, the timer will only update every X seconds
@@ -334,22 +356,26 @@ local OnUpdateFunc = function(self, deltaTime)
     local startTime, endTime = self:GetMinMaxValues()
 
     if (not self.dontShowSpark) then
-        if (self.direction == "right") then
-            if (endTime - startTime > 0) then
-                local pct = abs((timeNow - endTime) / (endTime - startTime))
+        if (endTime - startTime > 0) then
+            local pct = abs((timeNow - endTime) / (endTime - startTime))
+            pct = abs(1 - pct)
+            local sparkOffset = -16
+
+            if (self.direction ~= "right") then
+                --moving from right to left, so invert the pct
                 pct = abs(1 - pct)
-                spark:SetPoint("left", self, "left", (self:GetWidth() * pct) - 16, 0)
-                spark:Show()
-            else
-                spark:Hide()
+                sparkOffset = -14
             end
+
+            spark:SetPoint("left", self, "left", (self:GetWidth() * pct) + sparkOffset, 0)
+            spark:Show()
         else
-            spark:SetPoint("right", self, "right", self:GetWidth() * (timeNow/self.endTime), 0)
+            spark:Hide()
         end
     end
 
     if (self.showTimer) then
-        local timeLeft = floor(endTime - timeNow)
+        local timeLeft = floor(endTime - timeNow) + 1
         local formatedTimeLeft = detailsFramework:IntegerToTimer(timeLeft)
         self.rightText:SetText(formatedTimeLeft)
     end
@@ -358,6 +384,8 @@ local OnUpdateFunc = function(self, deltaTime)
     if (timeNow >= self.endTime) then
         self.MyObject:StopTimer()
     end
+
+    self.MyObject:RunHooksForWidget("OnUpdate", self, self, deltaTime)
 end
 
 ---start a timer on the timebar
@@ -404,7 +432,7 @@ function TimeBarMetaFunctions:SetTimer(currentTime, startTime, endTime)
         self.statusBar.spark:Hide()
     else
         self.statusBar.spark:Show()
-        self.statusBar.spark:SetHeight(self.statusBar:GetHeight()+20)
+        self.statusBar.spark:SetHeight(self.statusBar:GetHeight()+26)
 
         if (self.statusBar.sparkAlpha) then
             self.statusBar.spark:SetAlpha(self.statusBar.sparkAlpha)
@@ -504,7 +532,8 @@ function detailsFramework:CreateTimeBar(parent, texture, width, height, value, m
 		timeBar.statusBar:EnableMouse(false)
 
         timeBar.statusBar.backgroundTexture = timeBar.statusBar:CreateTexture(nil, "border")
-        timeBar.statusBar.backgroundTexture:SetColorTexture(.1, .1, .1, .6)
+        timeBar.statusBar.backgroundTexture:SetColorTexture(.9, .9, .9, 1)
+        timeBar.statusBar.backgroundTexture:SetVertexColor(.1, .1, .1, .6)
         timeBar.statusBar.backgroundTexture:SetAllPoints()
 
         timeBar.statusBar.barTexture = timeBar.statusBar:CreateTexture(nil, "artwork")
@@ -532,6 +561,7 @@ function detailsFramework:CreateTimeBar(parent, texture, width, height, value, m
 			OnLeave = {},
 			OnHide = {},
 			OnShow = {},
+            OnUpdate = {},
 			OnMouseDown = {},
             OnMouseUp = {},
             OnTimerStart = {},

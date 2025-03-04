@@ -749,7 +749,7 @@ local function CreatePluginFrames (data)
 				end
 
 				tinsert(Vanguard.TankIncDamage, 1, taken)
-				tremove(Vanguard.TankIncDamage, 41)
+				table.remove(Vanguard.TankIncDamage, 41)
 
 				--taken = taken / 3.5
 			end

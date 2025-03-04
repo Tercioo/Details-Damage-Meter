@@ -2961,7 +2961,7 @@ do
                 usedecimals = true,
                 step = 0.5,
                 name = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"],
-                desc = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP_DESC"],
+                desc = Loc ["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"],
                 thumbscale = 2.2,
             },
 
@@ -7206,8 +7206,8 @@ do
                     afterUpdate()
                     Details:ClearParserCache()
                 end,
-                name = "Merge Primordial Stones 10.0.7",
-                desc = "Merge Primordial Stones 10.0.7",
+                name = "Merge Ring Gems 11.0.7",
+                desc = "Merge Ring Gems 11.0.7",
                 boxfirst = true,
             },
 

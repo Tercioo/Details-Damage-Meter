@@ -9,7 +9,7 @@ do
 	local setmetatable = setmetatable
 	local unpack = unpack
 	local tinsert = table.insert
-	local tremove = tremove
+	local tremove = table.remove
 	local C_Timer = C_Timer
 
 	--is this a timewalking exp?
@@ -411,6 +411,103 @@ do
 		customItemList[429272] = {itemId = 110009, onUse = true, castId = 429271, nameExtra = "(*vers*)", defaultName = GetSpellInfo(429271)} --trinket: Leaf of the Ancient Protectors
 		customItemList[433522] = {itemId = 212684, isPassive = true} -- trinket: Umbrelskul's Fractured Heart dot
 		customItemList[433549] = {itemId = 212684, isPassive = true} -- trinket: Umbrelskul's Fractured Heart execute
+
+		--11.1
+		customItemList[1213434] = {itemId = 234217, onUse = true, castId = 1213432, defaultName = GetSpellInfo(1213434)} -- trinket: Funhouse Lens
+		customItemList[1213436] = {itemId = 234218, onUse = true, castId = 1213437, defaultName = GetSpellInfo(1213436)} -- trinket: Goo-blin Grenade
+		customItemList[1215195] = {itemId = 234717, onUse = true, castId = 1214941, defaultName = GetSpellInfo(1215195)} -- trinket: Blastmaster3000
+		customItemList[1221151] = {itemId = 232543, onUse = true, castId = 1219102, defaultName = GetSpellInfo(1221151)} -- trinket: [Ringing Ritual Mud] damage
+		customItemList[1219102] = {itemId = 232543, onUse = true, castId = 1219102, defaultName = GetSpellInfo(1219102)} -- trinket: [Ringing Ritual Mud] aura
+		customItemList[1219104] = {itemId = 232542, onUse = true, castId = 1220488, defaultName = GetSpellInfo(1219104)} -- trinket: [Darkfuse Medichopper] aura
+		customItemList[471383] = {itemId = 228844, onUse = true, castId = 471383, defaultName = GetSpellInfo(471383)} -- cloak: Test Pilot's Go-Pack
+		customItemList[1219299] = {itemId = 235984, onUse = true, castId = 1219294, defaultName = GetSpellInfo(1219299)} -- trinket: Garbagemancer's Last Resort
+		customItemList[1219158] = {itemId = 230027, onUse = true, castId = 466681, defaultName = GetSpellInfo(1219158)} -- trinket: [House of Cards]
+		customItemList[466681] = {itemId = 230027, onUse = true, castId = 466681, defaultName = GetSpellInfo(466681)} -- trinket: [House of Cards]
+		customItemList[472030] = {itemId = 230197, onUse = true, castId = 471059, defaultName = GetSpellInfo(472030)} -- trinket: [Geargrinder's Spare Keys]
+		customItemList[300612] = {itemId = 168973, onUse = true, castId = 300612, defaultName = GetSpellInfo(300612)} -- trinket: Enhance Synapses
+		customItemList[473147] = {itemId = 230191, onUse = true, castId = 471142, defaultName = GetSpellInfo(473147)} -- trinket: Flarendo's Pilot Light buff
+		customItemList[473219] = {itemId = 230191, onUse = true, castId = 471142, defaultName = GetSpellInfo(473219)} -- trinket: Flarendo's Pilot Light damage
+		customItemList[443531] = {itemId = 219308, onUse = true, castId = 443531, defaultName = GetSpellInfo(443531)} -- trinket: [Signet of the Priory]
+		customItemList[345804] = {itemId = 178809, onUse = true, castId = 345801, defaultName = GetSpellInfo(345804)} -- trinket: [Soulletting Ruby] heal
+		customItemList[345805] = {itemId = 178809, onUse = true, castId = 345801, defaultName = GetSpellInfo(345805), nameExtra = "(*crit*)",} -- trinket: [Soulletting Ruby] crit
+		customItemList[470675] = {itemId = 232486, onUse = true, castId = 470675, defaultName = GetSpellInfo(470675)} -- trinket: [Noggenfogger Ultimate Deluxe]
+		customItemList[1216606] = {itemId = 235359, onUse = true, castId = 1216605, defaultName = GetSpellInfo(1216606)} -- trinket: [Ratfang Toxin]
+		customItemList[448892] = {itemId = 219294, onUse = true, castId = 443337, defaultName = GetSpellInfo(448892)} -- trinket: [Charged Stormrook Plume]
+		customItemList[448909] = {itemId = 219298, onUse = true, castId = 448904, defaultName = GetSpellInfo(448909)} -- trinket: [Ravenous Honey Buzzer]
+		customItemList[345739] = {itemId = 178811, onUse = true, castId = 345739, defaultName = GetSpellInfo(345739)} -- trinket: [Grim Codex]
+		customItemList[1219662] = {itemId = 230189, onUse = true, castId = 471212, defaultName = GetSpellInfo(1219662)} -- trinket: [Junkmaestro's Mega Magnet] 
+		customItemList[1213760] = {itemId = 234326, onUse = true, castId = 1213760, defaultName = GetSpellInfo(1213760)} -- trinket: [Core Recycling Unit] big heal
+		customItemList[1214741] = {itemId = 234326, onUse = true, castId = 1213760, defaultName = GetSpellInfo(1214741)} -- trinket: [Core Recycling Unit] periodic heal
+		customItemList[299869] = {itemId = 168965, onUse = true, castId = 299869, defaultName = GetSpellInfo(299869)} -- trinket:[Modular Platinum Plating]
+		customItemList[271376] = {itemId = 159611, onUse = true, castId = 271374, defaultName = GetSpellInfo(271376)} -- trinket: [Razdunk's Big Red Button] 
+		customItemList[1213865] = {itemId = 230019, onUse = true, castId = 466652, defaultName = GetSpellInfo(1213865)} -- trinket: [Vexie's Pit Whistle] 
+		customItemList[450721] = {itemId = 219309, onUse = true, castId = 443535, defaultName = GetSpellInfo(450721)} -- trinket: [Tome of Light's Devotion]
+		customItemList[1217184] = {itemId = 230029, onUse = true, castId = 466810, defaultName = GetSpellInfo(1217184)} -- trinket: [Chromebustible Bomb Suit] damage
+		customItemList[466810] = {itemId = 230029, onUse = true, castId = 466810, defaultName = GetSpellInfo(466810)} -- trinket: [Chromebustible Bomb Suit] heal
+		customItemList[472784] = {itemId = 230190, onUse = true, castId = 470286, defaultName = GetSpellInfo(472784)} -- trinket: [Torq's Big Red Button] damage
+		customItemList[470286] = {itemId = 230190, onUse = true, castId = 470286, defaultName = GetSpellInfo(470286)} -- trinket: [Torq's Big Red Button] str buff
+		customItemList[300612] = {itemId = 168973, onUse = true, castId = 300612, defaultName = GetSpellInfo(300612)} -- trinket: [Neural Synapse Enhancer] 
+		customItemList[1216772] = {itemId = 235373, onUse = true, castId = 1216712, defaultName = GetSpellInfo(1216772)} -- trinket: [Abyssal Volt]
+		customItemList[1216770] = {itemId = 235373, onUse = true, castId = 1216712, defaultName = GetSpellInfo(1216770)} -- trinket: [Abyssal Volt]
+		customItemList[450926] = {itemId = 219310, onUse = true, castId = 443536, defaultName = GetSpellInfo(450926)} -- trinket: [Bursting Lightshard]
+
+		--customItemList[] = {itemId = , onUse = true, castId = , defaultName = GetSpellInfo()} -- trinket: 
+		--customItemList[] = {itemId = , onUse = true, castId = , defaultName = GetSpellInfo()} -- trinket: 
+
+		customItemList[1216424] = {itemId = 235283, isPassive = true} -- trinket: [Bashful Book]
+		customItemList[1220419] = {itemId = 232545, isPassive = true} -- trinket: [Gigazap's Zap-Cap]
+		customItemList[472184] = {itemId = 232891, isPassive = true, nameExtra = "*haste*"} -- trinket: [Amorphous Relic] miniature
+		customItemList[472185] = {itemId = 232891, isPassive = true, nameExtra = "*int*"} -- trinket: [Amorphous Relic] miniature
+		customItemList[1216212] = {itemId = 230194, isPassive = true} -- trinket: [Reverb Radio]
+		customItemList[474285] = {itemId = 230192, isPassive = true} -- trinket: [Mug's Moxie Jug]
+		customItemList[469889] = {itemId = 230198, isPassive = true} -- trinket: [Eye of Kezan]
+		customItemList[1216593] = {itemId = 230198, isPassive = true} -- trinket: [Eye of Kezan]
+		customItemList[1215690] = {itemId = 230193, isPassive = true} -- trinket: [Mister Lock-N-Stalk] small damage
+		customItemList[1215733] = {itemId = 230193, isPassive = true} -- trinket: [Mister Lock-N-Stalk] mass destruction
+		customItemList[451369] = {itemId = 219307, isPassive = true} -- trinket: [Remnant of Darkness] intellect
+		customItemList[451367] = {itemId = 219305, isPassive = true} -- trinket: [Carved Blazikon Wax]
+		customItemList[449386] = {itemId = 219299, isPassive = true} -- trinket: [Synergistic Brewterializer] barril blow
+		customItemList[1216650] = {itemId = 235363, isPassive = true} -- trinket: [Suspicious Energy Drink]
+		customItemList[472127] = {itemId = 232883, isPassive = true} -- trinket: [Turbo-Drain 5000]
+		customItemList[449254] = {itemId = 219296, isPassive = true} -- trinket: [Entropic Skardyn Core]
+		customItemList[455910] = {itemId = 221032, isPassive = true} -- trinket: [Voltaic Stormcaller] damage
+		customItemList[456652] = {itemId = 221032, isPassive = true} -- trinket: [Voltaic Stormcaller] haste
+		customItemList[473602] = {itemId = 228893, isPassive = true} -- trinket: ["Tiny Pal"] 
+		customItemList[1214807] = {itemId = 232485, isPassive = true, nameExtra = "*major*"} -- trinket: [Mechano-Core Amplifier] 
+		customItemList[1214808] = {itemId = 232485, isPassive = true, nameExtra = "*minor*"} -- trinket: [Mechano-Core Amplifier]
+		customItemList[450429] = {itemId = 219304, isPassive = true} -- trinket: [Conductor's Wax Whistle]
+		customItemList[1215321] = {itemId = 234821, isPassive = true} -- trinket: [Papa's Prized Putter] 
+		customItemList[268439] = {itemId = 159612, isPassive = true} -- trinket: [Azerokk's Resonating Heart] 
+		customItemList[442268] = {itemId = 218126, isPassive = true} -- trinket: [Befouler's Syringe] 
+		customItemList[1218713] = {itemId = 232541, isPassive = true} -- trinket: [Improvised Seaforium Pacemaker] 
+		customItemList[1218469] = {itemId = 235813, isPassive = true} -- weapon: [Machine Gob's Iron Grin]
+		customItemList[1218471] = {itemId = 235813, isPassive = true} -- weapon: [Machine Gob's Iron Grin]
+		customItemList[1218463] = {itemId = 235813, isPassive = true} -- weapon: [Machine Gob's Iron Grin]
+		customItemList[345698] = {itemId = 178808, isPassive = true} -- trinket: [Viscera of Coalesced Hatred] damage
+		customItemList[455471] = {itemId = 225653, isPassive = true} -- trinket: [Siphoning Lightbrand] damage
+		customItemList[455468] = {itemId = 225653, isPassive = true} -- trinket: [Siphoning Lightbrand] heal
+		customItemList[473626] = {itemId = 232804, isPassive = true} -- trinket: [Capo's Molten Knuckles] 
+		customItemList[473602] = {itemId = 228889, isPassive = true} -- trinket: [Titan of Industry]
+		customItemList[472167] = {itemId = 230026, isPassive = true} -- trinket: [Scrapfield 9001] Scrapfield 9001 Overload
+		customItemList[472172] = {itemId = 230026, isPassive = true} -- trinket: [Scrapfield 9001] Scrapfield 9001 Imminent Overload
+		customItemList[473492] = {itemId = 232526, isPassive = true} -- trinket: [Best-in-Slots]
+		customItemList[451924] = {itemId = 219306, isPassive = true} -- trinket: [Burin of the Candle King] is on use but no castId
+		customItemList[345701] = {itemId = 178810, isPassive = true} -- trinket: [Vial of Spectral Essence] is on use but is passive heal
+		customItemList[455486] = {itemId = 225656, isPassive = true} -- trinket: [Goldenglow Censer] is on use but is passive heal
+		customItemList[1216884] = {itemId = 230188, isPassive = true} -- trinket: [Gallagio Bottle Service] is on use but is passive heal
+		customItemList[1213424] = {itemId = 234185, isPassive = true} -- trinket: [Dr. Scrapheal] 
+		customItemList[1213764] = {itemId = 234185, isPassive = true, nameExtra = "*35%*"} -- trinket: [Dr. Scrapheal] emergency heal bot
+		customItemList[474463] = {itemId = 230186, isPassive = true} -- trinket: [Mister Pick-Me-Up] heal
+		customItemList[467251] = {itemId = 230186, isPassive = true} -- trinket: [Mister Pick-Me-Up] buff
+
+		--customItemList[] = {itemId = , isPassive = true} -- trinket: 
+
+
+
+--[=[
+		customItemList[] = {itemId = , isPassive = true} -- trinket: 
+		customItemList[] = {itemId = , onUse = true, castId = , defaultName = GetSpellInfo()} -- trinket:
+--]=]
 	end
 
 	---@param petName petname

@@ -254,7 +254,7 @@ local common_events = {
 			return
 		end
 
-		local okay, errortext = pcall(func, event, ...)
+		local okay, errortext = xpcall(func, geterrorhandler(), event, ...)
 
 		if (not okay) then
 			--trigger an error msg
@@ -278,7 +278,7 @@ local common_events = {
 			return
 		end
 
-		local okay, errortext = pcall(func, context, event, ...)
+		local okay, errortext = xpcall(func, geterrorhandler(), context, event, ...)
 
 		if (not okay) then
 			--attempt to get the context name

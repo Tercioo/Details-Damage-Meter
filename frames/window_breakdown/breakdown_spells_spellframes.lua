@@ -184,7 +184,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 	local combatObject = spellsTab.GetCombat()
 
 	---@type number, number
-	local mainAttribute, subAttribute = instance:GetDisplay()
+	local mainAttribute, subAttribute = Details:GetDisplayTypeFromBreakdownWindow()
 
 	---@type breakdownspellblockframe
 	local spellBlockContainer = spellsTab.GetSpellBlockFrame()
@@ -1433,7 +1433,8 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 		---@type combat
 		local combatObject = spellsTab.GetCombat()
 		---@type number, number
-		local mainAttribute, subAttribute = spellsTab.GetInstance():GetDisplay()
+		--local mainAttribute, subAttribute = spellsTab.GetInstance():GetDisplay()
+		--local mainAttribute, subAttribute = Details:GetDisplayTypeFromBreakdownWindow()
 
 		--filling necessary information to sort the data by the selected header column
 		for i = 1, #data do

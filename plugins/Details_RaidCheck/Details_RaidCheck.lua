@@ -455,6 +455,7 @@ local CreatePluginFrames = function()
 
 					line.TalentsRow:ClearIcons()
 
+					--[=[ disabled this part as the talent system is not version 2 (7 rows with 3 columns)
 					if (playerTable.Talents and type(playerTable.Talents) == "table") then
 						for i = 1, #playerTable.Talents do
 							local talent = playerTable.Talents[i]
@@ -462,6 +463,7 @@ local CreatePluginFrames = function()
 							line.TalentsRow:SetIcon(false, false, false, false, texture)
 						end
 					end
+					--]=]
 
 					local classColor = Details.class_colors[playerTable.Class]
 					if (classColor) then
@@ -687,7 +689,7 @@ local CreatePluginFrames = function()
 				local playersInfoData = openRaidLib.GetAllUnitsInfo()
 				local playerTalentsInfo = playersInfoData[GetUnitName(unitID, true)]
 				if (playerTalentsInfo) then
-					talentsTable = DF.table.copy({}, playerTalentsInfo.talents)
+					--talentsTable = DF.table.copy({}, playerTalentsInfo.talents)
 				end
 			end
 
@@ -1113,3 +1115,11 @@ function DetailsRaidCheck:OnEvent(_, event, ...)
 		end
 	end
 end
+
+
+--[=[
+7x Details/Libs/DF/fw.lua:874: bad argument #1 to 'pairs' (table expected, got string)
+[string "=[C]"]: in function `pairs'
+[string "@Details/Libs/DF/fw.lua"]:874: in function `copy'
+[string "@Details_RaidCheck/Details_RaidCheck.lua"]:692: in function <...rfaceDetails_RaidCheck/Details_RaidCheck.lua:653>
+]=]

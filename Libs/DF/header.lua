@@ -655,7 +655,7 @@ local default_header_options = {
 function detailsFramework:CreateHeader(parent, headerTable, options, frameName)
 	---create the header frame which is returned by this function
 	---@type df_headerframe
-	local newHeader = CreateFrame("frame", frameName or "$parentHeaderLine", parent, "BackdropTemplate")
+	local newHeader = CreateFrame("frame", frameName or ("$parentHeaderLine" .. math.random(100000000)), parent, "BackdropTemplate")
 
 	detailsFramework:Mixin(newHeader, detailsFramework.OptionsFunctions)
 	detailsFramework:Mixin(newHeader, detailsFramework.HeaderMixin)

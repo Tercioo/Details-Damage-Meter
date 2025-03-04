@@ -44,6 +44,7 @@ DF.Math = {}
 ---@field GetNinePoints fun(object: uiobject) : df_ninepoints
 ---@field GetClosestPoint fun(ninePoints: df_ninepoints, coordinate: df_coordinate) : anchorid
 ---@field GetVectorLength fun(vectorX: number, vectorY: number, vectorZ: number?) : number return the magnitude of a vector
+---@field GetSortFractionFromString fun(str: string) : number return a fraction based on the string first two leters, useful for sorting cases where the number repeats
 
 ---@class df_coordinate : table
 ---@field x number
@@ -122,6 +123,12 @@ function DF.Math.GetNinePoints(object)
 	--]=]
 
 	return ninePoints
+end
+
+function DF.Math.GetSortFractionFromString(str)
+	local name = string.upper(str) .. "ZZ"
+	local byte1 = abs(string.byte(name, 2)-91) / 1000000
+	return byte1 + abs(string.byte(name, 1)-91) / 10000
 end
 
 function DF.Math.GetVectorLength(vectorX, vectorY, vectorZ)

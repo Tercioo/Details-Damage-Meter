@@ -1,6 +1,7 @@
 
 
 local Details = _G.Details
+---@type detailsframework
 local DF = _G.DetailsFramework
 local _, Details222 = ...
 _ = nil
@@ -8,7 +9,7 @@ local _GetSpellInfo = Details.GetSpellInfo
 
 function Details:ScrollDamage()
 	if (not DetailsScrollDamage) then
-		DetailsScrollDamage = DetailsFramework:CreateSimplePanel(UIParent)
+		DetailsScrollDamage = DF:CreateSimplePanel(UIParent)
 		DetailsScrollDamage:SetSize(427 - 40 - 20 - 20, 505 - 150 + 20 + 40)
 		DetailsScrollDamage:SetTitle("/details scroll")
 		DetailsScrollDamage.Data = {}
@@ -18,7 +19,7 @@ function Details:ScrollDamage()
 
 		DetailsScrollDamage.Title:SetPoint("center", DetailsScrollDamage.TitleBar, "center", 108, 0)
 
-		DetailsFramework:ApplyStandardBackdrop(DetailsScrollDamage)
+		DF:ApplyStandardBackdrop(DetailsScrollDamage)
 
 		local scroll_width = 395 - 40 - 20 - 20
 		local scroll_height = 340
@@ -30,7 +31,7 @@ function Details:ScrollDamage()
 		local backdrop_color_is_critical = {.4, .4, .2, 0.2}
 		local backdrop_color_is_critical_on_enter = {1, 1, .8, 0.4}
 
-		local dropdownTemplate = DetailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWNDARK_TEMPLATE")
+		local dropdownTemplate = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWNDARK_TEMPLATE")
 
 		local y = -15
 		local headerY = y - 15
@@ -52,7 +53,7 @@ function Details:ScrollDamage()
 		LibWindow.MakeDraggable(DetailsScrollDamage)
 		LibWindow.RestorePosition(DetailsScrollDamage)
 
-		local scaleBar = DetailsFramework:CreateScaleBar(DetailsScrollDamage, Details.damage_scroll_position)
+		local scaleBar = DF:CreateScaleBar(DetailsScrollDamage, Details.damage_scroll_position)
 		DetailsScrollDamage:SetScale(Details.damage_scroll_position.scale)
 
 		--header
@@ -67,7 +68,7 @@ function Details:ScrollDamage()
 			padding = 2,
 		}
 
-		DetailsScrollDamage.Header = DetailsFramework:CreateHeader(DetailsScrollDamage, headerTable, headerOptions)
+		DetailsScrollDamage.Header = DF:CreateHeader(DetailsScrollDamage, headerTable, headerOptions)
 		DetailsScrollDamage.Header:SetPoint("topleft", DetailsScrollDamage, "topleft", 5, headerY)
 		DetailsScrollDamage.searchText = ""
 		DetailsScrollDamage.searchCache = {}
@@ -171,7 +172,7 @@ function Details:ScrollDamage()
 			iconFrame:SetScript("OnLeave", lineOnLeave)
 
 			--spellname
-			local spellNameText = DetailsFramework:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local spellNameText = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
 
 			--damage
 			local damageText = DF:CreateLabel(line, "", fontSize, "white")
@@ -180,7 +181,7 @@ function Details:ScrollDamage()
 			local timeText = DF:CreateLabel(line, "", fontSize, "white")
 
 			--spell ID
-			local spellIDText = DetailsFramework:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(5), scroll_line_height, _, _, _, dropdownTemplate)
+			local spellIDText = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(5), scroll_line_height, _, _, _, dropdownTemplate)
 
 			line:AddFrameToHeaderAlignment(icon)
 			line:AddFrameToHeaderAlignment(spellNameText)
@@ -271,11 +272,11 @@ function Details:ScrollDamage()
 		local onToggleAutoOpen = function(_, _, state)
 			Details.damage_scroll_auto_open = state
 		end
-		local autoOpenCheckbox = DetailsFramework:CreateSwitch(statusBar, onToggleAutoOpen, Details.auto_open_news_window, _, _, _, _, "AutoOpenCheckbox", _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+		local autoOpenCheckbox = DF:CreateSwitch(statusBar, onToggleAutoOpen, Details.auto_open_news_window, _, _, _, _, "AutoOpenCheckbox", _, _, _, _, _, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 		autoOpenCheckbox:SetAsCheckBox()
 		autoOpenCheckbox:SetPoint("left", statusBar, "left", 5, 0)
 
-		local autoOpenText = DetailsFramework:CreateLabel(statusBar, "Auto Open on Training Dummy", 10)
+		local autoOpenText = DF:CreateLabel(statusBar, "Auto Open on Training Dummy", 10)
 		autoOpenText:SetPoint("left", autoOpenCheckbox, "right", 2, 0)
 
 		--search bar
@@ -316,7 +317,7 @@ targetDummieHandle:SetScript("OnEvent", function(_, _, unit)
     if (UnitExists("target")) then
         local serial = UnitGUID("target")
         if (serial) then
-            local npcId = DetailsFramework:GetNpcIdFromGuid(serial)
+            local npcId = DF:GetNpcIdFromGuid(serial)
             if (npcId) then
                 if (targetDummiesIds[npcId]) then
                     Details:ScrollDamage()

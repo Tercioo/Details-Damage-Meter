@@ -11,7 +11,6 @@ local tonumber = _G.tonumber
 local select = _G.select
 local strsplit = _G.strsplit
 local floor = _G.floor
-local tremove = _G.tremove
 local UnitName = _G.UnitName
 local tinsert = tinsert
 local IsInRaid = _G.IsInRaid

@@ -43,12 +43,12 @@ plater_integration_frame.OnTickFrameFunc = function(self, deltaTime)
 			table.insert(damageTable.RealTimeBufferFromPlayer, 1, damageOnThisUpdateFromPlayer)
 			
 			--remove the damage from the buffer
-			local damageRemoved = tremove(damageTable.RealTimeBuffer, CONST_BUFFER_SIZE + 1)
+			local damageRemoved = table.remove(damageTable.RealTimeBuffer, CONST_BUFFER_SIZE + 1)
 			if (damageRemoved) then
 				damageTable.CurrentDamage = max(damageTable.CurrentDamage - damageRemoved, 0)
 			end
 			
-			local damageRemovedFromPlayer = tremove(damageTable.RealTimeBufferFromPlayer, CONST_BUFFER_SIZE + 1)
+			local damageRemovedFromPlayer = table.remove(damageTable.RealTimeBufferFromPlayer, CONST_BUFFER_SIZE + 1)
 			if (damageRemovedFromPlayer) then
 				damageTable.CurrentDamageFromPlayer = max(damageTable.CurrentDamageFromPlayer - damageRemovedFromPlayer, 0)
 			end

@@ -8,7 +8,7 @@ local time = time
 local C_Timer = _G.C_Timer
 local unpack = _G.unpack
 local GetTime = _G.GetTime
-local tremove = _G.tremove
+
 local GetInstanceInfo = _G.GetInstanceInfo
 
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
@@ -398,7 +398,21 @@ end)
 
 ---@param combatObject combat
 function DetailsMythicPlusFrame.SaveMythicPlusStats(combatObject)
-    local mapChallengeModeID, mythicLevel, time, onTime, keystoneUpgradeLevels, practiceRun, oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord, PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetCompletionInfo()
+    local completionInfo = C_ChallengeMode.GetChallengeCompletionInfo()
+    local mapChallengeModeID = C_ChallengeMode.GetActiveChallengeMapID()
+    local PrimaryAffix = 0
+    local upgradeMembers = completionInfo.members
+    local mythicLevel = completionInfo.level
+    local time = completionInfo.time
+    local onTime = completionInfo.onTime
+    local keystoneUpgradeLevels = completionInfo.keystoneUpgradeLevels
+    local practiceRun = completionInfo.practiceRun
+    local isAffixRecord = completionInfo.isAffixRecord
+    local isMapRecord = completionInfo.isMapRecord
+    local isEligibleForScore = completionInfo.isEligibleForScore
+    local oldDungeonScore = completionInfo.oldOverallDungeonScore
+    local newDungeonScore = completionInfo.newOverallDungeonScore
+
     if (mapChallengeModeID) then
         local statName = "mythicdungeoncompletedDF2"
 

@@ -826,10 +826,10 @@ local align_rows = function(self)
 			if (rowType == "text") then
 				for i = 1, #self.scrollframe.lines do
 					local line = self.scrollframe.lines [i]
-					local text = tremove(line.text_available)
+					local text = table.remove(line.text_available)
 					if (not text) then
 						self:CreateRowText (line)
-						text = tremove(line.text_available)
+						text = table.remove(line.text_available)
 					end
 					table.insert(line.text_inuse, text)
 					text:SetPoint("left", line, "left", self._anchors [#self._anchors], 0)
@@ -841,10 +841,10 @@ local align_rows = function(self)
 			elseif (rowType == "entry") then
 				for i = 1, #self.scrollframe.lines do
 					local line = self.scrollframe.lines [i]
-					local entry = tremove(line.entry_available)
+					local entry = table.remove(line.entry_available)
 					if (not entry) then
 						self:CreateRowEntry (line)
-						entry = tremove(line.entry_available)
+						entry = table.remove(line.entry_available)
 					end
 					table.insert(line.entry_inuse, entry)
 					entry:SetPoint("left", line, "left", self._anchors [#self._anchors], 0)
@@ -869,10 +869,10 @@ local align_rows = function(self)
 			elseif (rowType == "checkbox") then
 				for i = 1, #self.scrollframe.lines do
 					local line = self.scrollframe.lines [i]
-					local checkbox = tremove(line.checkbox_available)
+					local checkbox = table.remove(line.checkbox_available)
 					if (not checkbox) then
 						self:CreateCheckbox (line)
-						checkbox = tremove(line.checkbox_available)
+						checkbox = table.remove(line.checkbox_available)
 					end
 
 					table.insert(line.checkbox_inuse, checkbox)
@@ -892,10 +892,10 @@ local align_rows = function(self)
 			elseif (rowType == "button") then
 				for i = 1, #self.scrollframe.lines do
 					local line = self.scrollframe.lines [i]
-					local button = tremove(line.button_available)
+					local button = table.remove(line.button_available)
 					if (not button) then
 						self:CreateRowButton (line)
-						button = tremove(line.button_available)
+						button = table.remove(line.button_available)
 					end
 					table.insert(line.button_inuse, button)
 					button:SetPoint("left", line, "left", self._anchors [#self._anchors], 0)
@@ -938,10 +938,10 @@ local align_rows = function(self)
 			elseif (rowType == "icon") then
 				for i = 1, #self.scrollframe.lines do
 					local line = self.scrollframe.lines [i]
-					local icon = tremove(line.icon_available)
+					local icon = table.remove(line.icon_available)
 					if (not icon) then
 						self:CreateRowIcon (line)
-						icon = tremove(line.icon_available)
+						icon = table.remove(line.icon_available)
 					end
 					table.insert(line.icon_inuse, icon)
 					icon:SetPoint("left", line, "left", self._anchors [#self._anchors] + ( ((row.width or 22) - 22) / 2), 0)
@@ -951,10 +951,10 @@ local align_rows = function(self)
 			elseif (rowType == "texture") then
 				for i = 1, #self.scrollframe.lines do
 					local line = self.scrollframe.lines [i]
-					local texture = tremove(line.texture_available)
+					local texture = table.remove(line.texture_available)
 					if (not texture) then
 						self:CreateRowTexture (line)
-						texture = tremove(line.texture_available)
+						texture = table.remove(line.texture_available)
 					end
 					table.insert(line.texture_inuse, texture)
 					texture:SetPoint("left", line, "left", self._anchors [#self._anchors] + ( ((row.width or 22) - 22) / 2), 0)
@@ -1019,42 +1019,42 @@ local update_rows = function(self, updated_rows)
 
 	for index, row in ipairs(self.scrollframe.lines) do
 		for i = #row.text_inuse, 1, -1 do
-			table.insert(row.text_available, tremove(row.text_inuse, i))
+			table.insert(row.text_available, table.remove(row.text_inuse, i))
 		end
 		for i = 1, #row.text_available do
 			row.text_available[i]:Hide()
 		end
 
 		for i = #row.entry_inuse, 1, -1 do
-			table.insert(row.entry_available, tremove(row.entry_inuse, i))
+			table.insert(row.entry_available, table.remove(row.entry_inuse, i))
 		end
 		for i = 1, #row.entry_available do
 			row.entry_available[i]:Hide()
 		end
 
 		for i = #row.button_inuse, 1, -1 do
-			table.insert(row.button_available, tremove(row.button_inuse, i))
+			table.insert(row.button_available, table.remove(row.button_inuse, i))
 		end
 		for i = 1, #row.button_available do
 			row.button_available[i]:Hide()
 		end
 
 		for i = #row.checkbox_inuse, 1, -1 do
-			table.insert(row.checkbox_available, tremove(row.checkbox_inuse, i))
+			table.insert(row.checkbox_available, table.remove(row.checkbox_inuse, i))
 		end
 		for i = 1, #row.checkbox_available do
 			row.checkbox_available[i]:Hide()
 		end
 
 		for i = #row.icon_inuse, 1, -1 do
-			table.insert(row.icon_available, tremove(row.icon_inuse, i))
+			table.insert(row.icon_available, table.remove(row.icon_inuse, i))
 		end
 		for i = 1, #row.icon_available do
 			row.icon_available[i]:Hide()
 		end
 
 		for i = #row.texture_inuse, 1, -1 do
-			table.insert(row.texture_available, tremove(row.texture_inuse, i))
+			table.insert(row.texture_available, table.remove(row.texture_inuse, i))
 		end
 		for i = 1, #row.texture_available do
 			row.texture_available[i]:Hide()
@@ -1505,7 +1505,7 @@ if ((ColorPickerFrame and ColorPickerFrame.SetupColorPickerAndShow) or toc >= 10
 
 	local color_pick_func_cancel = function()
 		local r, g, b, a = ColorPickerFrame.previousValues.r, ColorPickerFrame.previousValues.g, ColorPickerFrame.previousValues.b, ColorPickerFrame.previousValues.a
-		ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b) --error here: attempt to index field 'Content' (a nil value)
+		ColorPickerFrame:SetColorRGB(r, g, b)
 		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
 	end
 
@@ -3098,7 +3098,7 @@ end
 
 local do_SMA = function(value, max_value)
 	if (#SMA_table == 10) then
-		tremove(SMA_table, 1)
+		table.remove(SMA_table, 1)
 	end
 
 	SMA_table [#SMA_table + 1] = value
@@ -3210,10 +3210,10 @@ local chart_panel_add_data = function(self, graphicData, color, name, elapsedTim
 		end
 	end
 
-	tremove(content, 1)
-	tremove(content, 1)
-	tremove(content, #graphicData)
-	tremove(content, #graphicData)
+	table.remove(content, 1)
+	table.remove(content, 1)
+	table.remove(content, #graphicData)
+	table.remove(content, #graphicData)
 
 	if (maxValue > LibGraphChartFrame.max_value) then
 		--normalize previous data
@@ -3539,7 +3539,7 @@ local gframe_reset = function(self)
 	end
 	if (self.GraphLib_Lines_Used) then
 		for i = #self.GraphLib_Lines_Used, 1, -1 do
-			local line = tremove(self.GraphLib_Lines_Used)
+			local line = table.remove(self.GraphLib_Lines_Used)
 			table.insert(self.GraphLib_Lines, line)
 			line:Hide()
 		end
@@ -3882,7 +3882,7 @@ end
 ---@field GetData fun(self:df_scrollbox): table
 ---@field OnSetData fun(self:df_scrollbox, data:table)? if exists, this function is called after the SetData with the same parameters
 ---@field ScrollBar statusbar
----@field
+---@field RefreshMe fun(...:any) virtual, implement if the data need to be manipulated, must call :SetData() and :Refresh()
 
 ---create a scrollbox with the methods :Refresh() :SetData() :CreateLine()
 ---@param parent table
@@ -3935,26 +3935,44 @@ end
 -- ~resizers
 
 --these options are copied to the object with object:BuildOptionsTable()
+---@class df_resizergrip_options
+---@field width number?
+---@field height number?
+---@field use_default_scripts boolean?
+---@field should_mirror_left_texture boolean?
+---@field normal_texture string|number?
+---@field highlight_texture string|number?
+---@field pushed_texture string|number?
+
 local rezieGripOptions = {
 	width = 32,
 	height = 32,
+	use_default_scripts = true,
 	should_mirror_left_texture = true,
 	normal_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]],
 	highlight_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]],
 	pushed_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]],
 }
 
+---@class df_resizergrip : button, df_optionsmixin
+---@field options df_resizergrip_options
+
 ---create the two resize grips for a frame, one in the bottom left and another in the bottom right
 ---@param parent frame
----@param options table|nil
+---@param options df_resizergrip_options?
 ---@param leftResizerName string|nil
 ---@param rightResizerName string|nil
 ---@return frame, frame
 function detailsFramework:CreateResizeGrips(parent, options, leftResizerName, rightResizerName)
 	local parentName = parent:GetName()
 
+	---@type df_resizergrip
 	local leftResizer = _G.CreateFrame("button", leftResizerName or (parentName and "$parentLeftResizer"), parent, "BackdropTemplate")
+	---@type df_resizergrip
 	local rightResizer = _G.CreateFrame("button", rightResizerName or (parentName and "$parentRightResizer"), parent, "BackdropTemplate")
+
+	leftResizer:SetFrameLevel(parent:GetFrameLevel() + 20)
+	rightResizer:SetFrameLevel(parent:GetFrameLevel() + 20)
 
 	detailsFramework:Mixin(leftResizer, detailsFramework.OptionsFunctions)
 	detailsFramework:Mixin(rightResizer, detailsFramework.OptionsFunctions)
@@ -3978,6 +3996,22 @@ function detailsFramework:CreateResizeGrips(parent, options, leftResizerName, ri
 		leftResizer:GetNormalTexture():SetTexCoord(1, 0, 0, 1)
 		leftResizer:GetHighlightTexture():SetTexCoord(1, 0, 0, 1)
 		leftResizer:GetPushedTexture():SetTexCoord(1, 0, 0, 1)
+	end
+
+	if (leftResizer.options.use_default_scripts) then
+		leftResizer:SetScript("OnMouseDown", function(self)
+			parent:StartSizing("BOTTOMLEFT")
+		end)
+		leftResizer:SetScript("OnMouseUp", function(self)
+			parent:StopMovingOrSizing()
+		end)
+
+		rightResizer:SetScript("OnMouseDown", function(self)
+			parent:StartSizing("BOTTOMRIGHT")
+		end)
+		rightResizer:SetScript("OnMouseUp", function(self)
+			parent:StopMovingOrSizing()
+		end)
 	end
 
 	return leftResizer, rightResizer
@@ -4023,6 +4057,199 @@ function detailsFramework:ApplyStandardBackdrop(frame, bUseSolidColor, alphaScal
 
 	frame.__background:SetAlpha(alpha * alphaScale)
 end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---boss selector
+
+---@class df_bossscrollselector : df_scrollbox
+---@field options df_bossscrollselector_options
+---@field callback function
+---@field callback_args any[]
+---@field SetCallback fun(self:df_bossscrollselector, callback:function, ...)
+
+---@class df_bossscrollselector_options : table
+---@field width number
+---@field height number
+---@field line_height number
+---@field line_amount number
+---@field show_icon boolean
+---@field show_name boolean
+---@field name_size number
+---@field name_color any
+---@field icon_coords table
+---@field icon_size table
+
+---@class df_bossscrollselector_line : button
+---@field index number
+---@field bossId number
+---@field bossIcon texture
+---@field bossName fontstring
+---@field bossRaidName fontstring
+---@field selectedInidicator texture
+
+---@type df_bossscrollselector_options
+local bossSelectorDefaultOptions = {
+	width = 200,
+	height = 400,
+	line_height = 40,
+	line_amount = 10,
+	show_icon = true,
+	icon_coords = {0, 1, 0, 1},
+	icon_size = {70, 36},
+	show_name = false,
+	name_size = 10,
+	name_color = "wheat",
+}
+
+detailsFramework.BossScrollSelectorMixin = {
+	---@param self df_bossscrollselector
+	---@param index number
+	---@return frame
+	CreateLine = function(self, index)
+		---@type df_bossscrollselector_line
+		local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
+
+		line:SetPoint("topleft", self, "topleft", 1, -((index-1) * (self.options.line_height+1)) - 1)
+		line:SetSize(self.options.width - 2, self.options.line_height)
+		line:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+		detailsFramework:ApplyStandardBackdrop(line)
+
+		--line:SetScript("OnEnter", onEnterBossLine)
+		--line:SetScript("OnLeave", onLeaveBossLine)
+
+		line.index = index
+
+		local selectedInidicator = line:CreateTexture(nil, "border")
+		selectedInidicator:SetPoint("topleft", line, "topleft", 1, -1)
+		selectedInidicator:SetPoint("bottomright", line, "bottomright", -1, 1)
+		selectedInidicator:SetColorTexture(1, 1, 1, 0.4)
+		selectedInidicator:Hide()
+		line.selectedInidicator = selectedInidicator
+
+		--boss icon
+		local bossIcon = line:CreateTexture("$parentIcon", "overlay")
+		bossIcon:SetSize(self.options.line_height + 30, self.options.line_height-4)
+		bossIcon:SetPoint("left", line, "left", 2, 0)
+		line.bossIcon = bossIcon
+
+		local bossName = line:CreateFontString(nil, "overlay", "GameFontNormal")
+		local bossRaid = line:CreateFontString(nil, "overlay", "GameFontNormal")
+		bossName:SetPoint("left", bossIcon, "right", -8, 6)
+		bossRaid:SetPoint("topleft", bossName, "bottomleft", 0, -2)
+		detailsFramework:SetFontSize(bossName, 10)
+		detailsFramework:SetFontSize(bossRaid, 9)
+		detailsFramework:SetFontColor(bossRaid, "silver")
+
+		detailsFramework:CreateHighlightTexture(line)
+
+		line.bossName = bossName
+		line.bossRaidName = bossRaid
+
+		return line
+	end,
+
+	---@param self df_bossscrollselector
+	---@param data df_encounterinfo[]
+	---@param offset number
+	---@param totalLines number
+	Refresh = function(self, data, offset, totalLines)
+		--update boss scroll
+		for i = 1, totalLines do
+			local index = i + offset
+			local thisData = data[index]
+			if (thisData) then
+				---@type df_bossscrollselector_line
+				---@diagnostic disable-next-line: assign-type-mismatch
+				local line = self:GetLine(i)
+
+				local instanceId = thisData.instanceId
+				---@type df_instanceinfo
+				local instanceData = detailsFramework.Ejc.GetInstanceInfo(instanceId)
+
+				local bossName = thisData.name
+				local bossRaidName = instanceData.name
+				local bossIcon = thisData.creatureIcon
+				local bossIconCoords = thisData.creatureIconCoords
+				local bossId = thisData.journalEncounterId
+
+				--update the line
+				line.bossName:SetText(bossName)
+				line.bossName:SetPoint("left", line.bossIcon, "right", -8, 6)
+				detailsFramework:TruncateText(line.bossName, 130)
+				line.bossRaidName:SetText(bossRaidName)
+				detailsFramework:TruncateText(line.bossRaidName, 130)
+
+				line.bossIcon:SetTexture(bossIcon)
+				line.bossIcon:SetSize(unpack(self.options.icon_size))
+				line.bossIcon:SetTexCoord(unpack(bossIconCoords))
+
+				line.bossIcon:SetPoint("left", line, "left", 2, 0)
+				line.bossName:Show()
+				line.bossRaidName:Show()
+
+				line.bossId = bossId
+				line.index = index
+				line:Show()
+			end
+		end
+	end,
+
+	SetCallback = function(self, callback, ...)
+		self.callback_args = {...}
+		self.callback = callback
+
+		local function onClick(line)
+			callback(line.index, unpack(self.callback_args))
+		end
+
+		local allLines = self:GetLines()
+		for index, line in ipairs(allLines) do
+			line:SetScript("OnClick", onClick)
+		end
+	end
+}
+
+---create a scrollbox with a list of bosses from an instance
+---@param instanceId any accept instanceId, ejInstanceId or instanceName
+---@param parent uiobject
+---@param name string|nil
+---@param options df_bossscrollselector_options?
+---@param callback function? the function to call when a boss is clicked
+---@param ... any additional arguments to pass to the callback
+---@return df_bossscrollselector
+function detailsFramework:CreateBossScrollSelectorForInstance(instanceId, parent, name, options, callback, ...)
+	local refreshFunc = detailsFramework.BossScrollSelectorMixin.Refresh
+	local createLineFunc = detailsFramework.BossScrollSelectorMixin.CreateLine
+
+	---@type df_encounterinfo[]
+	local arrayOfBosses = detailsFramework.Ejc.GetAllEncountersFromInstance(instanceId)
+
+	options = options or {}
+	---@cast options df_bossscrollselector_options
+	detailsFramework.table.deploy(options, bossSelectorDefaultOptions)
+
+	---@type df_bossscrollselector
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local bossScrollFrame = detailsFramework:CreateScrollBox(parent, name, refreshFunc, arrayOfBosses, options.width, options.height, options.line_amount, options.line_amount)
+	bossScrollFrame.options = options
+	bossScrollFrame.SetCallback = detailsFramework.BossScrollSelectorMixin.SetCallback
+
+	--create the scrollbox lines
+	for i = 1, options.line_amount do
+		bossScrollFrame:CreateLine(createLineFunc)
+	end
+
+	if (callback) then
+		bossScrollFrame:SetCallback(callback, ...)
+	end
+
+	detailsFramework:ReskinSlider(bossScrollFrame)
+	detailsFramework:ApplyStandardBackdrop(bossScrollFrame)
+
+	bossScrollFrame:Refresh()
+	return bossScrollFrame
+end
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~title bar
@@ -4139,6 +4366,7 @@ local default_radiogroup_options = {
 ---@field FadeIn fun(self:df_checkboxgroup)
 ---@field FadeOut fun(self:df_checkboxgroup)
 ---@field GetAllCheckboxes fun(self:df_checkboxgroup):df_radiogroup_checkbox[]
+---@field ExecuteOnAllCheckboxes fun(self:df_checkboxgroup, func:function) fun(radioGroup, checkbox, param, optionId)
 ---@field GetCheckbox fun(self:df_checkboxgroup, checkboxId:number):df_radiogroup_checkbox
 ---@field CreateCheckbox fun(self:df_checkboxgroup):df_radiogroup_checkbox
 ---@field ResetAllCheckboxes fun(self:df_checkboxgroup)
@@ -4146,7 +4374,8 @@ local default_radiogroup_options = {
 ---@field RefreshCheckbox fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox, optionTable:table, optionId:number)
 
 local radio_checkbox_onclick_extraspace = function(self)
-	self:GetParent():GetObject():OnSwitch() --as the parent of self is a Switch object from DetailsFramework, it need to run :GetObject() to get the capsule object
+	self:GetParent():GetObject():OnSwitch(self:GetParent():GetObject()._param, not self:GetParent():GetObject():GetValue()) --as the parent of self is a Switch object from DetailsFramework, it need to run :GetObject() to get the capsule object
+	self:GetParent():GetObject():GetParent():Refresh()
 end
 
 ---@type df_radiogroupmixin
@@ -4239,6 +4468,13 @@ detailsFramework.RadioGroupCoreFunctions = {
 		end
 
 		return checkbox
+	end,
+
+	ExecuteOnAllCheckboxes = function(self, func)
+		local checkBoxList = self:GetAllCheckboxes()
+		for _, checkbox in ipairs(checkBoxList) do
+			detailsFramework:QuickDispatch(func, self, checkbox, checkbox._param, checkbox._optionid)
+		end
 	end,
 
 	ResetAllCheckboxes = function(self)
@@ -4336,7 +4572,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 			end
 		end
 
-		checkbox.__width = width + (checkbox.Icon:IsShown() and (checkbox.Icon:GetWidth() + 2)) + (checkbox.Label:GetStringWidth()) + 2
+		checkbox.__width = width + (checkbox.Icon:IsShown() and (checkbox.Icon:GetWidth() + (self.AnchorOptions.icon_offset_x or 0))) + (checkbox.Label:GetUnboundedStringWidth()) + (self.options.text_padding or 2)
 		checkbox.widget.__width = checkbox.__width
 
 		checkbox.__height = height + (checkbox.Icon:IsShown() and (checkbox.Icon:GetHeight() + 2))
@@ -4360,7 +4596,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 			self:RefreshCheckbox(checkbox, optionsTable, optionId)
 			totalWidth = totalWidth + checkbox.__width
 
-			checkbox.extraSpaceToClick:SetWidth(checkbox.__width)
+			checkbox.extraSpaceToClick:SetWidth(checkbox.__width - checkbox:GetWidth()) -- total __width contains checkbox size which we don't need here
 
 			if (checkbox:GetHeight() > maxHeight) then
 				maxHeight = checkbox:GetHeight()
@@ -4422,9 +4658,9 @@ detailsFramework.RadioGroupCoreFunctions = {
 }
 
 ---@class df_radiooptions : table
----@field name string|table can be a regular string or a locTable
----@field get fun():any?
----@field set fun(self:df_radiooptions, param, value)
+---@field name string|table? can be a regular string or a locTable
+---@field get fun()?
+---@field set fun(self:df_radiooptions, param, value)?
 ---@field param any?
 ---@field texture string?
 ---@field texcoord table?
@@ -4437,7 +4673,8 @@ detailsFramework.RadioGroupCoreFunctions = {
 ---@field backdrop_color table?
 ---@field backdrop_border_color table?
 ---@field checkbox_template string?
----@field on_click_option fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox, param:any, optionId:number)
+---@field on_click_option fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox, param:any, optionId:number)?
+---@field on_create_checkbox fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox)?
 
 --[=[
 	radionOptions: an index table with options for the radio group {name = "", set = func (self, param, value), param = value, get = func, texture = "", texcoord = {}}
@@ -5051,7 +5288,7 @@ detailsFramework.ListboxFunctions = {
 	end,
 
 	deleteEntry = function(self, button, data, index)
-		tremove(data, index)
+		table.remove(data, index)
 		--get the line, get the scrollframe
 		self:GetParent():GetParent():Refresh()
 	end,
@@ -5244,3 +5481,90 @@ end
 
 --]=]
 
+--[=[
+
+--show data panel
+function detailsFramework:ShowData(data)
+	if (not DetailsFrameworkDataPanel) then
+		local mainFrame = detailsFramework:CreateSimplePanel(UIParent, 800, 600, "Show Data", "DetailsFrameworkShowDataPanel")
+		mainFrame:SetPoint("center", UIParent, "center", 0, 0)
+
+		--header
+		local headerTable = {
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+			{text = "", width = 75},
+		}
+		local headerOptions = {
+			padding = 2,
+		}
+
+		mainFrame.Header = DF:CreateHeader(mainFrame, headerTable, headerOptions)
+		mainFrame.Header:SetPoint("topleft", mainFrame, "topleft", 5, headerY)
+
+		local refreshFunc = function(self, data, offset, totalLines) --~refresh
+			local ToK = Details:GetCurrentToKFunction()
+
+			for i = 1, totalLines do
+				local index = i + offset
+				local thisData = data[index]
+				if (thisData) then
+					local line = self:GetLine(i)
+				end
+			end
+		end
+
+		local createLineFunc = function(self, index)
+			local line = CreateFrame("button", "$parentLine" .. index, self,"BackdropTemplate")
+			line:SetPoint("topleft", self, "topleft", 1, -((index-1)*(scroll_line_height+1)) - 1)
+			line:SetSize(scroll_width - 2, scroll_line_height)
+
+			line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			line:SetBackdropColor(unpack(backdrop_color))
+			-- ~createline --~line
+			DF:Mixin(line, DF.HeaderFunctions)
+
+			--columns
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+			local column1 = DF:CreateTextEntry(line, function()end, DetailsScrollDamage.Header:GetColumnWidth(2), scroll_line_height, _, _, _, dropdownTemplate)
+
+			line:AddFrameToHeaderAlignment(icon)
+			line:AddFrameToHeaderAlignment(spellNameText)
+			line:AddFrameToHeaderAlignment(damageText)
+			line:AddFrameToHeaderAlignment(timeText)
+			line:AddFrameToHeaderAlignment(spellIDText)
+
+			line:AlignWithHeader(DetailsScrollDamage.Header, "left")
+
+			line.Icon = icon
+			line.IconFrame = iconFrame
+			line.DamageText = damageText
+			line.TimeText = timeText
+			line.SpellIDText = spellIDText
+			line.SpellNameText = spellNameText
+
+			return line
+		end
+	end
+
+	local dataPanel = DetailsFrameworkDataPanel
+	local scrollBox = dataPanel.ScrollBox
+	scrollBox:SetData(data)
+	scrollBox:Refresh()
+
+end
+
+--]=]

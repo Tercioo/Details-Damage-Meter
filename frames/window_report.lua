@@ -717,7 +717,7 @@ local createDropdown = function(thisFrame)
 				local instance_id, atributo, sub_atributo, amt, where, custom_name = unpack(report)
 				if (atributo == 5) then
 					if (not custom_name) then
-						tremove(lastReports, index)
+						table.remove(lastReports, index)
 					else
 						local found
 						for _, custom in ipairs(Details.custom) do
@@ -727,7 +727,7 @@ local createDropdown = function(thisFrame)
 							end
 						end
 						if (not found) then
-							tremove(lastReports, index)
+							table.remove(lastReports, index)
 						end
 					end
 				end

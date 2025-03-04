@@ -15,12 +15,10 @@
 		if (__details_debug.prescience_timeline) then
 			wipe(__details_debug.prescience_timeline)
 		end
-
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-
-		Details.build_counter = 13111
-		Details.alpha_build_counter = 13111 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 13407
+		Details.alpha_build_counter = 13407 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -237,6 +235,7 @@
 			["RaidHeroic"] = 15,
 			["RaidMythic"] = 16,
 		}
+		Details222.DHook = hooksecurefunc
 
 		local emptyFunction = function()end
 		local emptyTable = {}
@@ -538,336 +537,9 @@ do
 
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
---[=[
-Added /note command to create and share a note in mythic+ dungeons.
-Rogues do not exit combat when using vanish on combat dummies!!!
-New Mythic+ damage graphic.
-New Mythic+ Run Completion Panel, more complete and compact.
-Major improvements on buff tracking uptime.
-Added a buff filter to ignore weekly buffs.
-Major overhaul on statistics system, record defeated raid bosses while in guild.
-Major bug fixes and stability improvements by refactoring legacy code.
-Health for death log now uses health percent at the moment of the hit instead of percent based on the unit normalized max health.
-Added an option to limit the number of segments saved for wipes at the same boss.
-Added WoW 11 trinket data.
-Options panel won't trigger errors when opening in combat.
-Updated spells for spec detection for wow 11 (Flamanis).
-Add anonymization options to the event tracker (Flamanis).
-Fixed several issues with classic and pvp battlegrounds (Flamanis).
-Major fixes related to pet detection and pet data (Flamanis).
-Made Details! survive for another expansion (Details! Team).
---]=]
-
 	local news = {
-		{"v11.0.2.13000.160", "September 07th, 2024"},
-		"Added /note command to create and share a note in mythic+ dungeons.",
-		"Rogues do not exit combat when using vanish on combat dummies!!!",
-		"New Mythic+ damage graphic.",
-		"New Mythic+ Run Completion Panel, more complete and compact.",
-		"Major improvements on buff tracking uptime.",
-		"Added a buff filter to ignore weekly buffs.",
-		"Major overhaul on statistics system, record defeated raid bosses while in guild.",
-		"Major bug fixes and stability improvements by refactoring legacy code.",
-		"Health for death log now uses health percent at the moment of the hit instead of percent based on the unit normalized max health.",
-		"Added an option to limit the number of segments saved for wipes at the same boss.",
-		"Added WoW 11 trinket data.",
-		"Options panel won't trigger errors when opening in combat.",
-		"Updated spells for spec detection for wow 11 (Flamanis).",
-		"Add anonymization options to the event tracker (Flamanis).",
-		"Fixed several issues with classic and pvp battlegrounds (Flamanis).",
-		"Major fixes related to pet detection and pet data (Flamanis).",
-		"Made Details! survive for another expansion (Details! Team).",
-
-		{"v10.2.7.12800.156", "June 06th, 2024"},
-		"Added transliteration for pet names in Cyrillic.",
-		"Fixed an error with extra power bars (alternate power) on cataclysm classic.",
-		"Fixed a rare error shown as 'combat already deleted' when trying to reset data.",
-		"Fixed an issue which was preventing to open the death recap window.",
-		"Fixed cataclysm classic attempting to calculate Evoker buffs.",
-		"Fixed battleground problems with cataclysm classic. (Flamanis)",
-		"Fixed an issue with player nicknames not showing properly when the player isn't inside a guild. (Flamanis)",
-
-		{"v10.2.7.12755.156", "May 19th, 2024"},
-		"Pet names on tooltips are now transliterate from Cyrillic.",
-		"Default segments amount are now 25 and save 15, users with different amount set won't have their settings changed.",
-		"Fixed an error when the user opens the death recap.",
-		"Merging the effects of All-Totem of the Mastr (Flamanis).",
-		"Added a season setting to stop right click for bookmark: '/run Details.no_bookmark = true' stop the right click for bookmark in combat or not.\n/run Details.no_bookmark_on_combat = true stop the right click for bookmark only in combat.\nYou need to run this command every time you log in or add it into the Auto Run Code.",
-		"A few changes has been done in an attempt to fix the loot squares not showing properly in the mythic+ end screen.",
-		"The options panel now cannot be dragged outside the screen, this will stop users with two monitors to acciently moving the window out of screen.",
-		"Tooltip bar colors are now fixed and won't lost its setting on reload.",
-		"The buff Rallied to Victory should now be shown in the player breakdown window Auras tab.",
-
-		{"v10.2.6.12699.156", "May 03th, 2024"},
-		"Framework and Backend upgrades.",
-		"Added Toc data for Cata classic.",
-		"Warrior Arms Whirlwind has been merged into one spell (WillowGryph).",
-		"Added an option to control the horizontal gap between two groupped windows (Elitesparkle).",
-		"Fixed an issue where looting two itens at the end of a mythic+ would result in the icon of one item and the tooltip of another.",
-		"Fixed the preview of the Wallpaper option where it was too high positioned reaching the title bar.",
-
-		{"v10.2.6.12650.156", "April 23th, 2024"},
-		"Framework and Backend upgrades.",
-		"Added prist's void tendrils to crowd control list.",
-		"Fixes for asian clients where the spell names were not showing properly when the spell name is too long.",
-		"Cataclysm Clasic and MOP Remix are now working.",
-
-		{"v10.2.6.12578.156", "March 25th, 2024"},
-		"Added phase and elapsed time for boss wipes on the segment selection menu.",
-		"Added an option to toggle between rounded and squared tooltips.",
-		"Fixed an issue with icons not showing on classic versions of the game.",
-		"Changed Augmentation tooltip color to darkgreen.",
-		"When leaving a m+ dungeon, Details! will wait for the player to re-enter the dungeon before finishing and creating the overall m+ segment.",
-		"Added a function for artists add custom icon sets for class or specs: Details:AddCustomIconSet(path, dropdownOptionName[[[[[, isSpecIcons], icon], texCoords], iconSize], iconColor]) (Flamanis).",
-
-		{"v10.2.5.12550.156", "March 13th, 2024"},
-		"Added a combat selection option into the breakdown window, providing convenience when browsing damage or healing data in that window.",
-		"Added a report button to the breakdown window, allowing you to report spell damage, targets, and phases directly from that window.",
-		"Added combat comparison (Compare tab), allowing you to compare yourself between different combats. This is especially useful for training dummies.",
-		"Added the option to show or hide the Augmentation Evoker extra bar.",
-		"Added bar texture option 'Skyline Compact' and alert sounds 'Details Truck' and 'Details Bass Drop'.",
-		"The menu for combat selection has received a visual update.",
-		"Breakdown options received text settings, these settings also change the text in the display selection (right click at window title bar).",
-		"Applied a visual patch for windows other than the main ones, making them with rounded corners.",
-
-		{"v10.2.5.12329.155", "February 18th, 2024"},
-		"Frame for 'Ask to Erase Data' can now be moved.",
-		"Small bug fixes and continued development on End of Mythic+ Panel.",
-
-		{"v10.2.5.12307.155", "February 13th, 2024"},
-		"Fixed the deaths display, where the windows wasn't usig custom text scripts.",
-		"Fixed an issue with custom displays, where it was unable to use class colors in their texts.",
-		"More development and bug fixes on the new Mythic+ Run Completion panel.",
-		"Framework Update.",
-
-		{"v10.2.5.12294.155", "February 08th, 2024"},
-		"General fixes applied to the Mythic+ Panel.",
-		"The Mythic+ section in the options panel can now be translated.",
-		"More fixes for text color.",
-
-		{"v10.2.5.12281.155", "February 07th, 2024"},
-		"Released the new panel for the Mythic+ Run Completion.",
-		"The list of Crowd Control spells is now sourced from the Lib Open Raid.",
-		"Fixed an issue where the Player Color feature wouldn't work properly if not using class colors.",
-		"Fixed an error with Vanilla, where it was trying to access talent data from Retail.",
-
-		{"v10.2.5.12255.155", "February 04th, 2024"},
-		"Dungeon followers now correctly show into the damage done section.",
-		"Fixed an error while statusbar plugin options.",
-		"Backend code maintenance.",
-
-		{"v10.2.5.12236.155", "January 20th, 2024"},
-		"Added Blistering Scales and Mana Restored to the Evoker Predicted Damage bar.",
-		"Fixed an issue which was making the Evoker Predicted Damage bar to show beyond the window width.",
-		"Fixed the key level up animation at the new End of Mythic+ Run panel.",
-		"Lib Open Raid updated to use Burst communications (Grim). The command /keys should give all Keys of the party almost instantly now.",
-		"Framework updated and other minor fixes.",
-
-		{"v10.2.0.12220.155", "January 14th, 2024"},
-		"Ignoring the heal of Smoldering Seedling trinket (Flamanis).",
-		"Attribute Judgement of Light to the healed on Wrath (Flamanis).",
-		"Fixed an error while scrolling down target npcs in the breakdown window.",
-		"Fixed an error when clicking to open the Death Recap by Details!.",
-		"End of Mythic Run panel got updates.",
-		"Many tooltips in Details! are now rouded!",
-		"Evoker extra bar tooltip's, now also show the uptime of Black Attunement and Prescience applications.",
-		"Breakdown Window now show Plater Npc Colors in the target box.",
-		"Added event: 'COMBAT_MYTHICPLUS_OVERALL_READY', trigger when the overall segment for the mythic+ is ready.",
-		"Added event: 'COMBAT_PLAYER_LEAVING', trigger at the beginning of the leave combat process.",
-		"Added: Details:IsInMythicPlus() return true if the player is on a mythic dungeon run.",
-		"CombatObjects now have the key 'is_challenge' if the combat is a part of a challenge mode or mythic+ run.",
-		"Lib Open Raid updated.",
-
-		{"v10.2.0.12188.155", "December 28th, 2023"},
-		"Dreamwalker's Healing Potion now shows in the Healing Potion & Stone custom display.",
-		"Added the 'Remove Battleground Segments' option to the menu that opens when hovering over the erase button.",
-		"Attempt to fix Battleground faction icons, shown on enemy players damage bars.",
-		"API: Actor:GetSpellContainer(containerName) now also accepts dispelwhat, interrupt, interruptwhat, interrupttargets.",
-		"Fixed custom scripts showing the damage text too close to the dps text.",
-		"Fixed Dynamic Overall Data, showing overlapped texts for damage and dps.",
-		"Fixed an error when hovering over some spells in the Auras panel on the Player Breakdown window.",
-		"Fixed the character item level, which was not showing for players that left the party group on the Player Breakdown window.",
-		"Fixed boss images not showing at the segments selection menu.",
-		"Other updates related to encounter journal and mythic+, both under development.",
-		"Update Details! Framework for bug fixes.",
-		"Update lib Open Raid (more cooldowns added).",
-
-		{"v10.2.0.12109.155", "December 14th, 2023"},
-		"Classic now uses the same combat log reader as retail (Flamanis).",
-		"Merged Rage of Fyr'alath spells (equara)",
-		"Added Rogue Ambushes to merged spells (WillowGryph).",
-		"The Remove Common Segments option now also removes segments trash between raid bosses.",
-		"Fixed an issue where auras applied before combat start, such as Power Infusion and Prescience, which are counted towards the target, were not being accounted for.",
-		"Added to Combat Class: classCombat:GetRunTimeNoDefault(). This returns the run time of the Mythic+ if available, nil otherwise.",
-
-		{"v10.2.0.12096.155", "December 1st, 2023"},
-		"Added Mythic+ Overall DPS calculation options: 'Use Total Combat Time' and 'Use Run Time'. These options are available in the Mythic Dungeon section of the options panel. The option 'Use Run Time', takes the player's damage and divide by the total elapsed time of the run.",
-		"Added reset options: 'Remove Common Segments' and 'Reset, but keep Mythic+ Overall Segments'.",
-		"Added trinket 'Corrupted Starlight' and 'Dreambinder, Loom of the Great Cycle' extra information.",
-		"Fixes for the API change of distance checks.",
-		"Fixed some panels in the options panel, not closing at pressing the X button.",
-		"Fixed the Pet of a Pet detection non ending loop (Flamanis).",
-		"Fixed the issue of combats having only 1 second of duration.",
-		"Fixed the Damage Graphic not showing after a Mythic+ run.",
-		"Fixed an issue while renaming a spell, the change wouldn't stick and the spell would be renamed back to the original name.",
-		"Fixed death logs now showing the green healing bar.",
-		"Fixed Augmentation Evoker not showing the extra predicted damage bar.",
-		"Fixed an issue where users were unable to see interrupts and cooldowns.",
-		"Added to Combat Class: combat:GetRunTime(). This returns the run time if available or combat:GetCombatTime() if not.",
-
-		{"v10.2.0.12023.155", "November 08th, 2023"},
-		"Several fixes to make the addon work with the combat log changes done on patch 10.2.0.",
-		"Added trinket data for patch 10.2.0.",
-		"Fixed an issue with death tooltips going off-screen when the window is too close to a screen border.",
-		"Fixed a spam of errors during battlegrounds when an enemy player heal with a dot spell.",
-
-		{"v10.1.7.12012.155", "October 27th, 2023"},
-		"Implemented [Pip's Emerald Friendship Badge] trinket buffs.",
-		"Implemented the amount of times 'On Use' trinkets are used.",
-		"10.2 trinket damage spells renamed to the item name.",
-		"Framework Upgrade",
-		"Lib OpenRaid Upgrade.",
-		"Fixed the issue 'Segment Not Found' while resetting data.",
-		"Fixed Rogue icon",
-		"Fixed an issue with the healing merge amount on death tooltips (Flamanis).",
-		"Fixed 'extraStatusbar' showing in wrong views (non-player-dmg) (Continuity).",
-		"Removed LibCompress (Flamanis).",
-
-		{"v10.1.7.11914.155", "September 13th, 2023"},
-		"Added an extra bar within the evoker damage bar, this new bar when hovered over shows the buff uptime of Ebon Might and Prescience on all players.",
-		"ToC Files of all plugins got updated.",
-		"Fixed the error 'Attempt to compare string with number' on vanilla (Flamanis).",
-		"Fixed the error 'object:ToolTip() is invalid'.",
-
-		{"v10.1.7.11901.155", "September 09th, 2023"},
-		"Evoker Predicted Damage improvements.",
-		"Improved spellId check for first hit when entering a combat (Flamanis).",
-		"Replaced Classic Era deprecated functions (Flamanis).",
-		"Change DF/pictureedit frame heirarchy to allow for close button and Done button to work right (Flamanis).",
-		"Unlocked Retail Streamer plugin for Classic Era (Flamanis).",
-		"Attempt to fix death log healing spam where a spell has multiple heals in the same millisecond.",
-		"Fixed an error with the old comparison window.",
-
-		{"v10.1.7.11856.155", "August 13th, 2023"},
-		"Fixed an issue with importing a profile with a corrupted time type.",
-		"Added Elemental Shaman overload spells (WillowGryph).",
-
-		{"v10.1.5.11855.155", "August 12th, 2023"},
-		"Forcing update interval to 0.1 on arenas matches using the real-time dps feature.",
-		"More parser cleanups and code improvements.",
-		"Auras tab now ignores regular 'world auras' (those weekly buffs of reputation, etc)",
-		"Fixed the player info tooltip (hovering the spec icon) height not being updated for Evoker Predicted damage.",
-		"Framework Update.",
-		"Lib Open Raid Update.",
-		"Code cleanup and refactoring.",
-
-		{"v10.1.5.11773.151", "July 30th, 2023"},
-		"Add animIn/animOut checks for the welcome window (Flamanis)",
-		"Fixed an issue with players with the time measurement 'real time' (Flamanis).",
-
-		{"v10.1.5.11770.151", "July 29th, 2023"},
-		"Removed 'Real Time DPS' from the time measure dropdown.",
-		"Added 'Show 'Real Time' DPS' toggle to show real time dps while in combat.",
-		"Added 'Order Bars By Real Time DPS' toggle to order bars by the amount of real time dps.",
-		"Added 'Always Use Real Time in Arenas' toggle to always use real time dps in Arenas.",
-		"Added .last_dps_realtime to player actors, caches the latest real time dps calculated.",
-		"Fixed breakdown window not opening when there's player data available at the window.",
-		"Fixed Augmented Evoker buffs placed before the combat start not being counted.",
-		"Cyclical pet ownership fix (Flamanis).",
-		"Added: Details:FindBuffCastedBy(unitId, buffSpellId, casterName), return up to 19 parameters",
-		"Framework and OpenRaid upgrades.",
-
-		{"v10.1.5.11718.151", "July 20th, 2023"},
-		"Renamed damageActor.extra_bar to damageActor.total_extra",
-		"Added: Details:ShowExtraStatusbar(barLineObject, amount, amountPercent, extraAmount)",
-		"Add the evoker predicted damage to overall data.",
-		"If any damage actor has 'total_extra' bigger than 0, the extra bar is shown.",
-		"List of spec names for spec tooltip detection now load at Startup not at lua compiling.",
-		"Renamed InstaciaCallFunction to InstanceCallDetailsFunc.",
-		"Fixed things about the Real Time DPS; Open Raid Lib Update.",
-		"Fixed Details:FindDebuffDuration(unitId, spellId, casterName) which wasn't taking the casterName in consideration.",
-		"Fixes on Encounter Details plugin.",
-		"Fixed an issue of clicking in a plugin icon in the title bar of Details! but the plugin wouldn't open.",
-
-		{"v10.1.5.11718.151", "July 13th, 2023"},
-		"Added: Hovering over the Augmented Evoker icon shows the Evoker's damage, along with an estimated damage done by its buffs.",
-		"Auras tab at the Breakdown Window, now shows damage buffs received from other players (Ebon Might, Precience and Power Infusion).",
-		"Auras tab now ignores regular 'world auras' (those weekly buffs of reputation, etc).",
-		"Added individual bar for Neltharus Weapons. Weapons on final boss and the Burning Chain (Flamanis).",
-		"Update interval is set to 0.1 on arenas matches using the real-time dps feature.",
-		"Evoker's predicted damage done is now also shown in the overall data.",
-		"Removed 'Real Time DPS' from the time measure dropdown.",
-		"Added 'Show Real Time DPS' toggle to show real time dps while in combat.",
-		"Added 'Order Bars By Real Time DPS' toggle to order bars by the amount of real time dps.",
-		"Added 'Always Use Real Time in Arenas' toggle to always use real time dps in Arenas.",
-		"Fixed an issue where the Breakdown Window was not refreshing when the data was reset.",
-		"Fixed an issue where clicking on a plugin icon in the Details! title bar would not open the plugin.",
-		"Fixed bugs reported for the Encounter Details plugin.",
-		"Fixed bugs reported for the Real Time DPS.",
-		"Fixed Welcome Window sometimes not opening for new instalations (Flamanis).",
-		"*Combat start code verification cleanup (Flamanis).",
-		"*Added .last_dps_realtime to player actors, caches the latest real time dps calculated.",
-		"*Added: actordamage.total_extra for cases where there's a secondary bar for a damage actor.",
-		"*If any damage actor has 'total_extra' bigger than 0, the extra bar is shown.",
-		"*Added: Details:ShowExtraStatusbar(lineFrame, amount, extraAmount, totalAmount, topAmount, instanceObject, onEnterFunc, onLeaveFunc)",
-		"*Renamed 'InstaciaCallFunction' to 'InstanceCallDetailsFunc'.",
-		"*Renamed 'PegaHabilidade' to GetOrCreateSpell.",
-		"*Renamed 'PegarCombatente' to 'GetOrCreateActor'.",
-		"*List of spec names for spec tooltip detection now load at Startup not at lua compiling stage.",
-		"*Fixed custom displays ignoring actor.customColor.",
-		"*Details! Framework and LibOpenRaid upgrades.",
-
-		{"v10.1.0.11700.151", "July 11th, 2023"},
-		"Effective time is used when displaying tooltips information.",
-		"Wrap the specid name locatlization cache in a Details Framework check.",
-		"More fixes for real time dps.",
-		"Don't populate overall segment on load and force refresh window on segment swap.",
-		"Added: spec detection from the specialization name shown on tooltip.",
-		"Improvements to class detection by using GetPlayerInfoByGUID()",
-		"Removed Breath of Eons from spec detection for augmentation evokers.",
-		"When DBM/BW send a callback, check if the current combat in details is valid.",
-		"When the actor is considered a ungroupped player, check if that player has a spec and show the spec icon instead.",
-		"Segments locked don't swap windows to overall.",
-		"Use the new API 'SetSegment' over 'TrocaTabela' for the segment selector.",
-		"Sort damage taken tooltip on damage amount.",
-		"Added: Details:GetBossEncounterTexture(encounterName); Added combat.bossIcon; Added combat.bossTimers.",
-		"Added: Details:DoesCombatWithUIDExists(uniqueCombatId); Details:GetCombatByUID(uniqueCombatId); combat:GetCombatUID().",
-		"Added: Details:RemoveSegmentByCombatObject(combatObject).",
-		"Details:UnpackDeathTable(deathTable) now return the spec of the character as the last parameter returned.",
-		"classCombat:GetTimeData(chartName) now check if the combat has a TimeData table or return an empty table; Added classCombat:EraseTimeData(chartName).",
-		"Code for Dispel has been modernized, deathTable now includes the key .spec.",
-		"Added: key .unixtime into is_boss to know when the boss was killed.",
-		"Fixed an issue with auto run code not saving properly.",
-		"Ignore vessel periodic damage when out of combat.",
-		"More fixes for Augmentation Evoker on 10.1.5.",
-		"Another wave of code changes, modernizations and refactoring.",
-		"Combat Objects which has been discarded due to any reason will have the boolean member: __destroyed set to true. With this change, 3rd party code can see if the data cached is up to date or obsolete.",
-		"Removed several deprecated code from March 2023 and earlier.",
-		"Large amount of code cleanup and refactoring, some functions got renamed, they are listed below:",
-		"- 'TravarTempos' renamed to 'LockActivityTime'.",
-		"- 'ClearTempTables' renamed to 'ClearCacheTables'.",
-		"- 'SpellIsDot' renamed to 'SetAsDotSpell'.",
-		"- 'FlagCurrentCombat' remamed to 'FlagNewCombat_PVPState'.",
-		"- 'segmentClass:AddCombat(combatObject)' renamed to 'Details222.Combat.AddCombat(combatToBeAdded)'.",
-		"- 'CurrentCombat.verifica_combate' timer is now obsolete.",
-		"- 'Details.last_closed_combat' is now obsolete.",
-		"- 'Details.EstaEmCombate' is now obsolete.",
-		"- 'Details.options' is now obsolete.",
-		"- Spec Guess Timers are now stored within Details222.GuessSpecSchedules.Schedules, all timers are killed at the end of the combat or at a data reset.",
-		"- Initial time delay to send the startup signal (event sent when details has started) reduced from 5 to 4 seconds.",
-		"- Fixed some division by zero on ptr 10.1.5.",
-		"- Fixed DETAILS_STARTED event not triggering in some cases due to 'event not registered'.",
-		"Fixed Auto Run Code window not closing by click on the close button.",
-		"Set up statusbar options instead of using metatable.",
-		"More code cleanup and framework updates.",
-		"TimeData code modernizations.",
-		"Implementations to show plugins in the breakdown window.",
-		"Damage Taken by Spell overhaul, now it uses modern Details API.",
-		"Time Machine overhaul.",
-		"Splitted the window_playerbreakdown_spells.lua into three more files.",
-		"Added IconTexture directive to the TOC files.",
-		"Disabled time captures for spellTables, this should be done by a plugin.",
-		"Replacing table.wipe with Details:Destroy().",
+		{"v11.0.7.13388.161", "January 19th, 2025"},
+		"Check Details! Damage Meter github page for update notes.",
 	}
 
 	local newsString = "|cFFF1F1F1"
@@ -928,6 +600,7 @@ Made Details! survive for another expansion (Details! Team).
 
 		--current instances of the exp (need to maintain) - deprecated july 2024 - should do this automatically
 			Details.InstancesToStoreData = { --mapId
+				[2769] = true, --Liberation of Undermine v11.1 T2
 				[2657] = true, --Nerub-ar Palace v11 T1
 				[2294] = true, --Nerub-ar Palace v11 T1
 			}
@@ -1896,6 +1569,9 @@ for i = 1, 4 do
 	table.insert(Details222.UnitIdCache.PartyPet, "partypet" .. i)
 end
 
+Details.PartyUnits = Details222.UnitIdCache.Party
+Details.PartyPetUnits = Details222.UnitIdCache.PartyPet
+
 Details222.UnitIdCache.Raid = {}
 Details222.UnitIdCache.RaidPet = {}
 Details222.UnitIdCache.RaidTargets = {}
@@ -1905,20 +1581,30 @@ for i = 1, 40 do
 	Details222.UnitIdCache.RaidTargets[i] = "raidtarget" .. i
 end
 
+Details.RaidUnits = Details222.UnitIdCache.Raid
+Details.RaidPetUnits = Details222.UnitIdCache.RaidPet
+Details.RaidTargetUnits = Details222.UnitIdCache.RaidTargets
+
 Details222.UnitIdCache.Boss = {}
 for i = 1, 9 do
 	Details222.UnitIdCache.Boss[i] = "boss" .. i
 end
+
+Details.BossUnits = Details222.UnitIdCache.Boss
 
 Details222.UnitIdCache.Nameplate = {}
 for i = 1, 40 do
 	Details222.UnitIdCache.Nameplate[i] = "nameplate" .. i
 end
 
+Details.NameplateUnits = Details222.UnitIdCache.Nameplate
+
 Details222.UnitIdCache.Arena = {}
 for i = 1, 5 do
 	Details222.UnitIdCache.Arena[i] = "arena" .. i
 end
+
+Details.ArenaUnits = Details222.UnitIdCache.Arena
 
 
 function Details222.Tables.MakeWeakTable(mode)
@@ -2168,6 +1854,10 @@ function Details:DestroyActor(actorObject, actorContainer, combatObject, callSta
 	end
 
 	Details222.TimeMachine.RemoveActor(actorObject)
+
+	if (not actorObject.Name) then
+		print("error: actorObject.Name is nil", actorObject.tipo, actorObject.serial, actorObject.nome)
+	end
 
 	local actorName = actorObject:Name()
 	combatObject:RemoveActorFromSpellCastTable(actorName)

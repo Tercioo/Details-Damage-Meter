@@ -1637,7 +1637,7 @@ function Details.GenerateSpecSpellList()
 	local sharedSpellsBetweenSpecs = {}
 	local specNames = {}
 
-	local amountSpecs = GetNumSpecializationsForClassID(classId)
+	local amountSpecs = C_SpecializationInfo.GetNumSpecializationsForClassID(classId)
 
 	local totalTimeToWait = 0
 	DetailsFramework.Schedules.NewTimer(0, function() SetSpecialization(1) end)

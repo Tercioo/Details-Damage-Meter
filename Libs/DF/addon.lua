@@ -49,7 +49,7 @@ local addonLoaded = function(addonFrame, event, addonName)
 	addonObject.profile = profileTable
 
 	if (addonObject.OnLoad) then
-		detailsFramework:Dispatch(addonObject.OnLoad, addonObject, addonObject.profile)
+		detailsFramework:Dispatch(addonObject.OnLoad, addonObject, addonObject.profile, true)
 	end
 end
 
@@ -65,7 +65,13 @@ end
 --when the player logout or reloadUI
 local addonUnload = function(addonFrame)
 	local addonObject = addonFrame.__addonObject
-	detailsFramework.SavedVars.SaveProfile(addonObject)
+	local bOkay, errortext = pcall(detailsFramework.SavedVars.SaveProfile, addonObject)
+	if (not bOkay) then
+		if (addonFrame.logoutLogs) then
+			table.insert(addonFrame.logoutLogs, 1, date("%a %b %d %H:%M:%S %Y") .. "|LOGOUT error:" .. errortext)
+			table.remove(addonFrame.logoutLogs, 3)
+		end
+	end
 end
 
 local addonEvents = {
@@ -89,6 +95,11 @@ end
 detailsFramework.AddonMixin = {
 
 }
+
+--log erros during the save data
+local setLogoutLogTable = function(addonObject, logTable)
+	addonObject.__frame.logoutLogs = logTable
+end
 
 ---create an addon object
 ---@param addonName addonname
@@ -114,6 +125,8 @@ function detailsFramework:CreateNewAddOn(addonName, globalSavedVariablesName, sa
 	addonFrame:RegisterEvent("PLAYER_LOGIN")
 	addonFrame:RegisterEvent("PLAYER_LOGOUT")
 	addonFrame:SetScript("OnEvent", addonOnEvent)
+
+	newAddonObject.SetLogoutLogTable = setLogoutLogTable
 
 	return newAddonObject
 end

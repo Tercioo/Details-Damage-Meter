@@ -1,5 +1,5 @@
-## Interface: 110002
-## Interface-Cata: 40400
+## Interface: 110100
+## Interface-Cata: 40401
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Незаменимый инструмент, чтобы произвести впечатление на цыпочку в вашем рейде.
@@ -10,7 +10,7 @@
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Curse-Project-ID: 61284
-## X-Wago-ID: 25NRDlK3
+## X-Wago-ID: qv63A7Gb
 
 #@no-lib-strip@
 Libs\libs.xml
@@ -32,7 +32,7 @@ Definitions.lua
 
 boot.lua
 indent.lua
-core\util.lua
+functions\util.lua
 functions\mixin.lua
 API.lua
 textures.lua
@@ -66,7 +66,6 @@ functions\pack.lua
 functions\immersion.lua
 functions\schedules.lua
 functions\autorun.lua
-functions\deathrecap.lua
 functions\plater.lua
 functions\deathmenu.lua
 functions\macros.lua
@@ -106,6 +105,7 @@ frames\window_breakdown\breakdown_spells_phaseframes.lua
 frames\window_mythicplus\window_mythic_breakdown.lua
 frames\window_mythicplus\window_end_of_run.lua
 frames\window_mythicplus\window_chart.lua
+frames\window_mythicplus\window_breakdown.lua
 frames\window_report.lua
 frames\window_main.lua
 frames\window_custom.lua
@@ -132,6 +132,9 @@ frames\window_statistics.lua
 frames\window_aura_tracker.lua
 frames\window_debug.lua
 frames\window_pro_file.lua
+frames\window_nestspells.lua
+frames\window_deathrecap.lua
+frames\window_transcriptor.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua

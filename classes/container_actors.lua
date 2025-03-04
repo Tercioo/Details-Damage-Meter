@@ -703,6 +703,19 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 						end
 					end
 
+					if (Details.zone_type == "party" and actorObject.tipo == DETAILS_ATTRIBUTE_DAMAGE) then
+						local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned(actorName) or "DAMAGER"
+						if (role == "NONE") then
+							role = "DAMAGER"
+						end
+						actorObject.role = role
+
+						if (C_PlayerInfo and C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
+							local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName) or {}
+							actorObject.mrating = dungeonPlayerInfo.currentSeasonScore or 0
+						end
+					end
+
 					if (zoneType == "arena") then
 						--local my_team_color = GetBattlefieldArenaFaction and GetBattlefieldArenaFaction() or 0
 
