@@ -8,6 +8,8 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 
+	Details.challengeModeMapId = nil
+
 	local UnitAffectingCombat = UnitAffectingCombat
 	local UnitHealth = UnitHealth
 	local UnitHealthMax = UnitHealthMax
@@ -220,12 +222,12 @@
 			[10060] = true, --power infusion
 			[194384] = true, --atonement uptime
 			[378134] = true, --rallied to victory
+			[436159] = true, --ring boon of binding buff
 		}
+		Details.CreditBuffToTarget = buffs_on_target
 
 		---@type table<spellid, boolean>
 		local ignoredWorldAuras = Details222.IgnoredWorldAuras
-
-		Details.CreditBuffToTarget = buffs_on_target
 
 		--store all information about augmentation evokers ~roskash
 		local augmentation_cache = {
@@ -1691,7 +1693,7 @@
 		this_event [2] = spellId --spellid || false if this is a battle ress line
 		this_event [3] = amount --amount of damage or healing
 		this_event [4] = time --parser time
-		this_event [5] = UnitHealth(sourceName) / UnitHealthMax(sourceName) --current unit heal
+		this_event [5] = UnitHealth(sourceName) / (max(UnitHealthMax(sourceName), 0.1)) --current unit heal
 		this_event [6] = sourceName --source name
 		this_event [7] = absorbed
 		this_event [8] = school
@@ -2930,6 +2932,17 @@
 	--BUFFS & DEBUFFS 	search key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
+	--aura ddebugger
+	local function aura_debugger_parserfile(type, spellName, sourceName, targetName)
+		do return end --don't enable on releases
+
+		if (Details.zone_type == "party" or true) then
+			if (sourceName == UnitName("player")) then
+				--print("buff", type, spellName, sourceName, "on", targetName)
+			end
+		end
+	end
+
 	function parser:buff(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, auraType, amount, arg1, arg2, arg3)
 		if (ignoredWorldAuras[spellId]) then
 			return
@@ -2970,6 +2983,8 @@
 		end
 
 		if (auraType == "BUFF") then
+			aura_debugger_parserfile("IN", spellName, sourceName, targetName)
+
 			if (LIB_OPEN_RAID_BLOODLUST[spellId]) then --~bloodlust
 				if (Details.playername == targetName) then
 					_current_combat.bloodlust = _current_combat.bloodlust or {}
@@ -3179,6 +3194,8 @@
 		end
 
 		if (tipo == "BUFF") then
+			aura_debugger_parserfile("RE", spellName, sourceName, targetName)
+
 			if (spellId == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy spellid
 				local miscActorObject = misc_cache[sourceName]
 				if (miscActorObject) then
@@ -3272,6 +3289,8 @@
 		end
 
 		if (tipo == "BUFF") then
+			aura_debugger_parserfile("OUT", spellName, sourceName, targetName)
+
 			if (spellId == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy spellid
 				if (not pet_frenzy_cache[sourceName]) then
 					return
@@ -5088,15 +5107,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(Details.capture_schedules)
 	end
 
-	function Details:CaptureTimeout (table)
-		local capture_type, schedule_id = unpack(table)
+	function Details:CaptureTimeout (table3)
+		local capture_type, schedule_id = unpack(table3)
 		Details.capture_current [capture_type] = Details.capture_real [capture_type]
 		Details:CaptureRefresh()
 
-		for index, table in ipairs(Details.capture_schedules) do
-			local id = table [2]
+		for index, table2 in ipairs(Details.capture_schedules) do
+			local id = table2 [2]
 			if (schedule_id == id) then
-				tremove(Details.capture_schedules, index)
+				table.remove(Details.capture_schedules, index)
 				break
 			end
 		end
@@ -5678,7 +5697,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = select(1, ...)
 
 		if (not Details.encounter_table.start) then
-			Details:Msg("encounter table without start time.")
+			--Details:Msg("encounter table without start time.")
 			return
 		end
 
@@ -6020,6 +6039,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details222.MythicPlus.WorldStateTimerStartAt = nil
 			Details222.MythicPlus.WorldStateTimerEndAt = nil
 			Details222.MythicPlus.LogStep("Event: CHALLENGE_MODE_START")
+
+			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+			Details222.MythicPlus.Level = activeKeystoneLevel or 2
+
+			Details.challengeModeMapId = C_ChallengeMode.GetActiveChallengeMapID()
+
+			Details222.MythicPlus.debug_auras = {}
 		end
 	end
 
@@ -6071,20 +6097,21 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--wait until the keystone is updated and send it to the party
 		saveGroupMembersKeystoneAndRatingLevel()
 
-		---@type number mapID
-		---@type number level
-		---@type number time
-		---@type boolean onTime
-		---@type number keystoneUpgradeLevels
-		---@type boolean practiceRun
-		---@type number oldDungeonScore
-		---@type number newDungeonScore
-		---@type boolean isMapRecord
-		---@type boolean isAffixRecord
-		---@type number primaryAffix
-		---@type boolean isEligibleForScore
-		---@type table upgradeMembers
-		local mapID, level, time, onTime, keystoneUpgradeLevels, practiceRun, oldDungeonScore, newDungeonScore, isAffixRecord, isMapRecord, primaryAffix, isEligibleForScore, upgradeMembers = C_ChallengeMode.GetCompletionInfo()
+		local completionInfo = C_ChallengeMode.GetChallengeCompletionInfo()
+
+		local primaryAffix = 0
+		local mapID = completionInfo.mapChallengeModeID or Details.challengeModeMapId or C_ChallengeMode.GetActiveChallengeMapID()
+		local upgradeMembers = completionInfo.members
+		local level = completionInfo.level
+		local time = completionInfo.time
+		local onTime = completionInfo.onTime
+		local keystoneUpgradeLevels = completionInfo.keystoneUpgradeLevels
+		local practiceRun = completionInfo.practiceRun
+		local isAffixRecord = completionInfo.isAffixRecord
+		local isMapRecord = completionInfo.isMapRecord
+		local isEligibleForScore = completionInfo.isEligibleForScore
+		local oldDungeonScore = completionInfo.oldOverallDungeonScore
+		local newDungeonScore = completionInfo.newOverallDungeonScore
 
 		Details222.MythicPlus.MapID = mapID
 		Details222.MythicPlus.Level = level --level of the key just finished
@@ -6108,6 +6135,30 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.MythicPlus.Texture = texture
 		Details222.MythicPlus.BackgroundTexture = backgroundTexture
 
+		--store the data of the mythic+ run that just finished, this table always exists when COMBAT_MYTHICDUNGEON_END is triggered
+		Details.LastMythicPlusData = {
+			MapID = mapID,
+			Level = level,
+			ElapsedTime = time or 0.1,
+			TimeWithoutDeaths = time or 0.1,
+			OnTime = onTime,
+			KeystoneUpgradeLevels = keystoneUpgradeLevels,
+			PracticeRun = practiceRun,
+			IsAffixRecord = isAffixRecord,
+			IsMapRecord = isMapRecord,
+			PrimaryAffix = primaryAffix,
+			IsEligibleForScore = isEligibleForScore,
+			UpgradeMembers = upgradeMembers,
+			OldDungeonScore = oldDungeonScore,
+			NewDungeonScore = newDungeonScore,
+			DungeonName = dungeonName,
+			DungeonId = id,
+			TimeLimit = timeLimit,
+			Texture = texture,
+			BackgroundTexture = backgroundTexture,
+			time = time or 0.1,
+		}
+
 		if (time) then
             --Subtract death time from time of run to get the true time
             local deaths = C_ChallengeMode.GetDeathCount()
@@ -6121,6 +6172,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
             end
 
         	Details222.MythicPlus.time = math.floor(time / 1000)
+			Details.LastMythicPlusData.TimeWithoutDeaths = Details222.MythicPlus.time
 			Details:Msg("run elapsed time:", DetailsFramework:IntegerToTimer(time / 1000))
 		else
 			Details222.MythicPlus.time = 0.1
@@ -6640,7 +6692,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			local writeLog = function()
 				_detalhes_global = _detalhes_global or {}
 				tinsert(_detalhes_global.exit_errors, 1, currentStep .. " | " .. Details222.Date.GetDateForLogs() .. " | " .. Details.GetVersionString() .. " | " .. errortext .. " | " .. debugstack())
-				tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
+				table.remove(_detalhes_global.exit_errors, exitErrorsMaxSize)
 				addToExitErrors(currentStep .. " | " .. Details222.Date.GetDateForLogs() .. " | " .. Details.GetVersionString() .. " | " .. errortext .. " | " .. debugstack())
 			end
 			xpcall(writeLog, addToExitErrors)
@@ -6674,7 +6726,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			xpcall(clearInstances, logSaverError)
 		else
 			tinsert(_detalhes_global.exit_errors, 1, "not _detalhes.tabela_instancias")
-			tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
+			table.remove(_detalhes_global.exit_errors, exitErrorsMaxSize)
 			addToExitErrors("not _detalhes.tabela_instancias | " .. Details.GetVersionString())
 		end
 
@@ -6903,7 +6955,36 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 
 		if (Details.combat_log.merge_gemstones_1007) then
-			--ring powers merged, https://gist.github.com/ljosberinn/65abe150133ff3a08cd70f840f7dd019 (by Gerrit Alex - WCL)
+			--11.0.7 | 468666 = "Cyrce's Circlet"
+			override_spellId[462526] = 468666 --Roaring War-Queen's Citrine
+			override_spellId[462527] = 468666 --Seabed Leviathan's Citrine
+			override_spellId[462528] = 468666 --Legendary Skipper's Citrine
+			override_spellId[462530] = 468666 --Mariner's Hallowed Citrine
+			override_spellId[462531] = 468666 --Old Salt's Bardic Citrine
+			override_spellId[462532] = 468666 --Storm Sewer's Citrine
+			override_spellId[462534] = 468666 --Windsinger's Runed Citrine
+			override_spellId[462535] = 468666 --Fathomdweller's Runed Citrine
+			override_spellId[462536] = 468666 --Stormbringer's Runed Citrine
+			override_spellId[462538] = 468666 --Undersea Overseer's Citrine
+			override_spellId[462539] = 468666 --Squall Sailor's Citrine
+			override_spellId[462540] = 468666 --Thunderlord's Crackling Citrine
+			override_spellId[462951] = 468666 --Thunderlord's Crackling Citrine
+			override_spellId[462952] = 468666 --Squall Sailor's Citrine
+			override_spellId[462953] = 468666 --Undersea Overseer's Citrine
+			override_spellId[462958] = 468666 --Storm Sewer's Citrine
+			override_spellId[462959] = 468666 --Old Salt's Bardic Citrine
+			override_spellId[462960] = 468666 --Mariner's Hallowed Citrine
+			override_spellId[462962] = 468666 --Legendary Skipper's Citrine
+			override_spellId[462963] = 468666 --Seabed Leviathan's Citrine
+			override_spellId[462964] = 468666 --Roaring War-Queen's Citrine
+			override_spellId[465961] = 468666 --Stormbringer's Runed Citrine
+			override_spellId[465962] = 468666 --Fathomdweller's Runed Citrine
+			override_spellId[465963] = 468666 --Windsinger's Runed Citrine
+			override_spellId[468422] = 468666 --Storm Sewer's Citrine
+			override_spellId[468990] = 468666 --Seabed Leviathan's Citrine
+			override_spellId[469397] = 468666 --Roaring War-Queen's Citrine
+			override_spellId[470821] = 468666 --Pluck Out Singing Citrine
+			--10.0.7 ring powers merged, https://gist.github.com/ljosberinn/65abe150133ff3a08cd70f840f7dd019 (by Gerrit Alex - WCL)
 			override_spellId[403225] = 404884 --Flame Licked Stone
 			override_spellId[404974] = 404884 --Shining Obsidian Stone
 			override_spellId[405220] = 404884 --Pestilent Plague Stone
@@ -6925,6 +7006,36 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			override_spellId[403253] = 404884 --Raging Magma Stone
 			override_spellId[403257] = 404884 --Searing Smokey Stone
 		else
+			--11.0.7
+			override_spellId[462526] = nil --Roaring War-Queen's Citrine
+			override_spellId[462527] = nil --Seabed Leviathan's Citrine
+			override_spellId[462528] = nil --Legendary Skipper's Citrine
+			override_spellId[462530] = nil --Mariner's Hallowed Citrine
+			override_spellId[462531] = nil --Old Salt's Bardic Citrine
+			override_spellId[462532] = nil --Storm Sewer's Citrine
+			override_spellId[462534] = nil --Windsinger's Runed Citrine
+			override_spellId[462535] = nil --Fathomdweller's Runed Citrine
+			override_spellId[462536] = nil --Stormbringer's Runed Citrine
+			override_spellId[462538] = nil --Undersea Overseer's Citrine
+			override_spellId[462539] = nil --Squall Sailor's Citrine
+			override_spellId[462540] = nil --Thunderlord's Crackling Citrine
+			override_spellId[462951] = nil --Thunderlord's Crackling Citrine
+			override_spellId[462952] = nil --Squall Sailor's Citrine
+			override_spellId[462953] = nil --Undersea Overseer's Citrine
+			override_spellId[462958] = nil --Storm Sewer's Citrine
+			override_spellId[462959] = nil --Old Salt's Bardic Citrine
+			override_spellId[462960] = nil --Mariner's Hallowed Citrine
+			override_spellId[462962] = nil --Legendary Skipper's Citrine
+			override_spellId[462963] = nil --Seabed Leviathan's Citrine
+			override_spellId[462964] = nil --Roaring War-Queen's Citrine
+			override_spellId[465961] = nil --Stormbringer's Runed Citrine
+			override_spellId[465962] = nil --Fathomdweller's Runed Citrine
+			override_spellId[465963] = nil --Windsinger's Runed Citrine
+			override_spellId[468422] = nil --Storm Sewer's Citrine
+			override_spellId[468990] = nil --Seabed Leviathan's Citrine
+			override_spellId[469397] = nil --Roaring War-Queen's Citrine
+			override_spellId[470821] = nil --Pluck Out Singing Citrine
+			--10.0.7
 			override_spellId[403225] = nil --Flame Licked Stone
 			override_spellId[404974] = nil --Shining Obsidian Stone
 			override_spellId[405220] = nil --Pestilent Plague Stone

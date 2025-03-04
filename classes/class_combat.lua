@@ -289,6 +289,40 @@ local segmentTypeToString = {
 		return self.amountCasts[actorName] and self.amountCasts[actorName][spellName] or 0
 	end
 
+	function classCombat:GetInterruptCastAmount(actorName)
+		local interruptSpellNames = Details.InterruptSpellNamesCache
+		local playerCasts = self.amountCasts[actorName]
+		if (not playerCasts) then
+			return 0
+		end
+
+		local totalInterruptCasts = 0
+		for spellName, amount in pairs(playerCasts) do
+			if (interruptSpellNames[spellName]) then
+				totalInterruptCasts = totalInterruptCasts + amount
+			end
+		end
+
+		return totalInterruptCasts
+	end
+
+	function classCombat:GetCCCastAmount(actorName)
+		local ccSpellNames = Details.CrowdControlSpellNamesCache
+		local playerCasts = self.amountCasts[actorName]
+		if (not playerCasts) then
+			return 0
+		end
+
+		local totalCC = 0
+		for spellName, amount in pairs(playerCasts) do
+			if (ccSpellNames[spellName]) then
+				totalCC = totalCC + amount
+			end
+		end
+
+		return totalCC
+	end
+
 	---return the cast amount table
 	---@param self combat
 	---@param actorName string|nil

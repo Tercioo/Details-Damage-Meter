@@ -15,7 +15,7 @@
     }
 
     local getTextureForPortraitPool = function()
-        local texture = tremove(portraitPool.available, 1)
+        local texture = table.remove(portraitPool.available, 1)
         if (not texture) then
             texture = frame33:CreateTexture(nil, "overlay")
         end

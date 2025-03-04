@@ -28,7 +28,7 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 28
+local version = 30
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -1053,6 +1053,16 @@ function DF:CreateCoolTip()
 
 			if (gameCooltip.OptionsTable.TextSize and not leftTextSettings[6]) then
 				DF:SetFontSize(menuButton.leftText, gameCooltip.OptionsTable.TextSize)
+			elseif (leftTextSettings[6]) then
+				DF:SetFontSize(menuButton.leftText, leftTextSettings[6])
+			else
+				DF:SetFontSize(menuButton.leftText, 10)
+			end
+
+			if (leftTextSettings[8]) then
+				DF:SetFontOutline(menuButton.leftText, leftTextSettings[8])
+			else
+				DF:SetFontOutline(menuButton.leftText, "NONE")
 			end
 
 			if (gameCooltip.OptionsTable.LeftTextWidth) then
@@ -1158,6 +1168,20 @@ function DF:CreateCoolTip()
 
 			if (gameCooltip.OptionsTable.TextSize and not rightTextSettings[6]) then
 				DF:SetFontSize(menuButton.rightText, gameCooltip.OptionsTable.TextSize)
+			end
+
+			if (gameCooltip.OptionsTable.TextSize and not rightTextSettings[6]) then
+				DF:SetFontSize(menuButton.rightText, gameCooltip.OptionsTable.TextSize)
+			elseif (rightTextSettings[6]) then
+				DF:SetFontSize(menuButton.rightText, rightTextSettings[6])
+			else
+				DF:SetFontSize(menuButton.rightText, 10)
+			end
+
+			if (rightTextSettings[8]) then
+				DF:SetFontOutline(menuButton.rightText, rightTextSettings[8])
+			else
+				DF:SetFontOutline(menuButton.rightText, "NONE")
 			end
 
 			if (gameCooltip.OptionsTable.RightTextWidth) then
@@ -2424,6 +2448,11 @@ function DF:CreateCoolTip()
 	end
 
 	function gameCooltip:SetMyPoint(host, xOffset, yOffset)
+		if (host and xOffset == "cursor") then
+			frame1.attachToCursor = true
+			return
+		end
+
 		local moveX = xOffset or 0
 		local moveY = yOffset or 0
 		local anchor = gameCooltip.OptionsTable.Anchor or gameCooltip.Host
@@ -2592,7 +2621,11 @@ function DF:CreateCoolTip()
 		end
 
 		gameCooltip.Host = frame
-		gameCooltip.frame1:SetFrameLevel(frame:GetFrameLevel() + 1)
+		if (not frame.GetFrameLevel) then
+			gameCooltip.frame1:SetFrameLevel(frame:GetParent():GetFrameLevel() + 1)
+		else
+			gameCooltip.frame1:SetFrameLevel(frame:GetFrameLevel() + 1)
+		end
 
 		--defaults
 		myPoint = myPoint or gameCooltip.OptionsTable.MyAnchor or "bottom"
@@ -2765,6 +2798,8 @@ function DF:CreateCoolTip()
 
 		gameCooltip:HideSelectedTexture(frame1)
 		gameCooltip:HideSelectedTexture(frame2)
+
+		frame1.attachToCursor = false
 
 		gameCooltip:HideRoundedCorner()
 		GameCooltip.frame1:SetBorderCornerColor(unpack(gameCooltip.RoundedFramePreset.border_color))
@@ -3677,10 +3712,19 @@ function DF:CreateCoolTip()
 		end
 
 		if (gameCooltip.Type == 1 or gameCooltip.Type == 2) then
-			return gameCooltip:BuildTooltip()
+			gameCooltip:BuildTooltip()
 
 		elseif (gameCooltip.Type == 3) then
-			return gameCooltip:BuildCooltip()
+			gameCooltip:BuildCooltip()
+		end
+
+		if (frame1.attachToCursor) then
+			frame1:SetScript("OnUpdate", function()
+				frame1:ClearAllPoints()
+				frame1:SetPoint("bottom", UIParent, "bottomleft", DF:GetCursorPosition())
+			end)
+			frame1:ClearAllPoints()
+			frame1:SetPoint("bottom", UIParent, "bottomleft", DF:GetCursorPosition())
 		end
 	end
 
@@ -3693,6 +3737,8 @@ function DF:CreateCoolTip()
 		gameCooltip.Host = nil
 		DF:FadeFrame(frame1, 1)
 		DF:FadeFrame(frame2, 1)
+
+		frame1:SetScript("OnUpdate", nil)
 
 		--release custom icon texture objects, these are TextureObject passed with AddIcon() instead of a texture path or textureId
 		for i = 1, #frame1.Lines do

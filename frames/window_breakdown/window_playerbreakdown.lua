@@ -9,7 +9,7 @@ local addonName, Details222 = ...
 --remove warnings in the code
 local ipairs = ipairs
 local tinsert = table.insert
-local tremove = tremove
+local tremove = table.remove
 local type = type
 local unpack = _G.unpack
 local PixelUtil = PixelUtil
@@ -337,6 +337,17 @@ function Details:SetWindowColor(r, g, b, a)
 	end
 end
 
+---@param self details
+---@param combatObject combat
+---@param actorName string
+---@param mainAttribute number
+---@param subAttribute number
+function Details:OpenSpecificBreakdownWindow(combatObject, actorName, mainAttribute, subAttribute)
+	local newActor = combatObject:GetActor(mainAttribute, actorName)
+	local instance = Details:GetInstance(1)
+	Details:OpenBreakdownWindow(instance, newActor, false, false, false, false, false, mainAttribute, subAttribute)
+end
+
 ---open the breakdown window
 ---@param self details
 ---@param instanceObject instance
@@ -346,9 +357,21 @@ end
 ---@param bIsShiftKeyDown boolean|nil
 ---@param bIsControlKeyDown boolean|nil
 ---@param bIgnoreOverrides boolean|nil
-function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides)
+---@param mainAttributeOverride number|nil
+---@param subAttributeOverride number|nil
+function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides, mainAttributeOverride, subAttributeOverride)
 	---@type number, number
 	local mainAttribute, subAttribute = instanceObject:GetDisplay()
+
+	if (not bIgnoreOverrides) then
+		if (mainAttributeOverride) then
+			mainAttribute = mainAttributeOverride
+			actorObject = instanceObject:GetCombat():GetActor(mainAttributeOverride, actorObject.nome)
+		end
+		if (subAttributeOverride) then
+			subAttribute = subAttributeOverride
+		end
+	end
 
 	if (not breakdownWindowFrame.__rcorners) then
 		breakdownWindowFrame:SetBackdropColor(.1, .1, .1, 0)

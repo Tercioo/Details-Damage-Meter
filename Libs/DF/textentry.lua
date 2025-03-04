@@ -1,4 +1,17 @@
 
+--[=[
+	When enter is pressed a callback function is called in this format:
+
+	local onEnterPressed = function(parameter1, parameter2, text, self, byScript)
+		--parameter1 and parameter2 are set with self:SetParameters(param1, param2)
+		--they act like fixed parameters for the callback
+		--use they to use a single function for multiple text entries
+	end
+	
+textentry.MyObject.func(textentry.MyObject.param1, textentry.MyObject.param2, text, textentry, byScript or textentry)
+
+--]=]
+
 local detailsFramework = _G["DetailsFramework"]
 if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
@@ -222,6 +235,16 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 	--set tab order
 	function TextEntryMetaFunctions:SetNext(nextbox)
 		self.next = nextbox
+	end
+
+	function TextEntryMetaFunctions:SetParameters(param1, param2)
+		if (param1 ~= nil) then
+			self.param1 = param1
+		end
+
+		if (param2 ~= nil) then
+			self.param2 = param2
+		end
 	end
 
 	--blink
@@ -517,6 +540,12 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 ------------------------------------------------------------------------------------------------------------
 
 function TextEntryMetaFunctions:SetTemplate(template)
+	template = detailsFramework:ParseTemplate(self.type, template) --"textentry"
+
+	if (template.multiline) then
+		self.editbox:SetMultiLine(true)
+	end
+
 	if (template.width) then
 		self.editbox:SetWidth(template.width)
 	end
@@ -591,17 +620,21 @@ end
 ---@field multiline any
 ---@field align any
 ---@field fontsize any
+---@field param1 any
+---@field param2 any
 ---@field ShouldOptimizeAutoComplete boolean?
----@field SetTemplate fun(self:df_textentry, template:table)
+---@field AutoComplete_StopOnEnterPress boolean?
+---@field SetTemplate fun(self:df_textentry, template:table|string)
 ---@field Disable fun(self:df_textentry)
 ---@field Enable fun(self:df_textentry)
 ---@field SetCommitFunction fun(self:df_textentry, func:function)
+---@field SetParameters fun(self:df_textentry, param1:any, param2:any)
 ---@field SetNext fun(self:df_textentry, next:df_textentry)
 ---@field SetLabelText fun(self:df_textentry, text:string)
 ---@field SelectAll fun(self:df_textentry)
 ---@field SetAutoSelectTextOnFocus fun(self:df_textentry, value:boolean)
 ---@field Blink fun(self:df_textentry)
----@field SetText fun(self:df_textentry, text:string)
+---@field SetText fun(self:df_textentry, text:string|number)
 ---@field GetText fun(self:df_textentry)
 ---@field SetEnterFunction fun(self:df_textentry, func:function, param1:any, param2:any)
 ---@field SetHook fun(self:df_textentry, hookName:string, func:function)
@@ -917,6 +950,9 @@ local AutoComplete_OnEnterPressed = function(editboxWidget)
 	end
 	capsule.lastword = ""
 
+	if (capsule.AutoComplete_StopOnEnterPress) then
+		editboxWidget:ClearFocus()
+	end
 end
 
 local AutoComplete_OnEditFocusGained = function(editboxWidget)

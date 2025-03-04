@@ -31,7 +31,8 @@ detailsFramework.Schedules.AfterCombatSchedules = {
 ---@field CancelAllAfterCombat fun()
 ---@field IsAfterCombatScheduled fun(id: any): boolean
 ---@field LazyExecute fun(callback: function, payload: table?, maxIterations: number?, onEndCallback: function?): table
----@field AfterById fun(time: number, callback: function, id: any, ...: any): timer
+---@field AfterById fun(time: number, callback: function, id: any, ...: any): timer cancel the existing timer with same id and start it again
+---@field AfterByIdNoCancel fun(time: number, callback: function, id: any, ...: any): timer block all sub sequent calls with the same id until the timer is finished
 
 ---@class df_looper : table
 ---@field payload table

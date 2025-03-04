@@ -417,3 +417,55 @@ function detailsFramework:NewLabel(parent, container, name, member, text, font, 
 
 	return labelObject
 end
+
+---@class df_errorlabel : df_label
+---@field ShowErrorMsg fun(self: df_errorlabel, msg: string) show an error message to the user
+---@field fadeInAnimationHub animationgroup
+---@field fadeOutAnimationHub animationgroup
+---@field shake df_frameshake
+
+local showErrorMsg = function(self, text)
+	if (self.HideTimer) then
+		return
+	end
+
+	self.fadeInAnimationHub:Play()
+	if (text) then
+		self:SetText(text)
+	end
+	self:PlayFrameShake(self.shake)
+
+	self.HideTimer = C_Timer.NewTimer(4, function()
+		self.fadeOutAnimationHub:Play()
+		self.HideTimer = nil
+	end)
+end
+
+---error msg fontstring, this text is used to show errors to the user, its color is red, size 13 and it is placed centered and below the buttons above
+---it also has an animation to fade out after 5 seconds, and a shake animation when it's shown
+function detailsFramework:CreateErrorLabel(parent, text, size, color, layer, name)
+	---@type df_errorlabel
+	local errorMsg = detailsFramework:CreateLabel(parent, text or "", size or 13, color or "orangered", nil, nil, name, layer or "overlay")
+	if (errorMsg) then
+		errorMsg:SetJustifyH("center")
+		errorMsg:SetAlpha(0)
+
+		--fade out animation
+		local fadeOutAnimationHub = detailsFramework:CreateAnimationHub(errorMsg, function()end, function() errorMsg:SetAlpha(0) end)
+		detailsFramework:CreateAnimation(fadeOutAnimationHub, "Alpha", 1, 2, 1, 0)
+		errorMsg.fadeOutAnimationHub = fadeOutAnimationHub
+
+		--fade in animation
+		local fadeInAnimationHub = detailsFramework:CreateAnimationHub(errorMsg, function() errorMsg:SetAlpha(0) end, function() errorMsg:SetAlpha(1) end)
+		detailsFramework:CreateAnimation(fadeInAnimationHub, "Alpha", 1, 0.1, 0, 1)
+		errorMsg.fadeInAnimationHub = fadeInAnimationHub
+
+		--shake animation
+		local shake = detailsFramework:CreateFrameShake(errorMsg, 0.4, 6, 20, false, true, 0, 1, 0, 0.3)
+		errorMsg.shake = shake
+
+		errorMsg.ShowErrorMsg = showErrorMsg
+
+		return errorMsg
+	end
+end

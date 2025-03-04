@@ -140,7 +140,8 @@
 ---@field playername string
 ---@field breakdown_general profile_breakdown_settings
 ---@field DefaultTooltipIconSize number default size of the icons in the tooltip, this also dictates the size of each line in the tooltip
----@field 
+---@field Format fun(self: details, number: number) : string
+---@field OpenSpecificBreakdownWindow fun(self: details, combatObject: combat, actorName: string, mainAttribute: number, subAttribute: number)
 ---@field 
 ---@field GenerateActorInfo fun(self: details, actor: actor, errorText:string, bIncludeStack:boolean) : table<string, boolean|string|number> generates a table with the main attributes of the actor, this is mainly for debug purposes
 ---@field DumpActorInfo fun(self: details, actor: actor) open a window showig the main attributes of an actor, this is mainly for debug purposes
@@ -150,7 +151,7 @@
 ---@field Msg fun(self: details, msg: string) print a message to the chat frame
 ---@field RemoveSegmentByCombatObject fun(self: details, combatObject: combat) : boolean, combat|nil remove the passed combatObject from the segments list
 ---@field RemoveSegment fun(self: details, segmentIndex: number) : boolean, combat
----@field GetCombatByUID fun(self: details, uniqueCombatId: uniquecombatid) : combat|boolean get a unique combat id and return the combat object
+---@field GetCombatByUID fun(self: details, uniqueCombatId: uniquecombatid) : combat? get a unique combat id and return the combat object
 ---@field DoesCombatWithUIDExists fun(self: details, uniqueCombatId: uniquecombatid) : boolean
 ---@field GetOverallCombat fun(self: details) : combat return the overall combat
 ---@field SetCurrentCombat fun(self: details, combatObject: combat) set the current active combat
@@ -291,6 +292,8 @@
 ---@field PhaseData table
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
+---@field GetCCCastAmount fun(self: combat, actorName: string) : number
+---@field GetInterruptCastAmount fun(self: combat, actorName: string) : number
 ---@field LockActivityTime fun(self: combat)
 ---@field AddCombat fun(self: combat, givingCombat: combat, bSetStartDate:boolean?, bSetEndDate:boolean?)
 ---@field CutDeathEventsByTime fun(self: combat, time: number?) remove death events by time, default 10 seconds
@@ -529,7 +532,7 @@
 ---@field freezed boolean
 ---@field sub_atributo_last table
 ---@field row_info table
----@field
+---@field show_interrupt_casts boolean
 ---@field
 ---@field
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor

@@ -654,6 +654,36 @@ local setExecuteProperties = function(parent, widget, widgetTable, currentXOffse
     return maxColumnWidth, maxWidgetWidth, latestInlineWidget
 end
 
+local setImageProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset)
+    --.texture .width .height .filterType .texcoord
+    if (type(widgetTable.texture) == "table") then
+        local r, g, b, a = detailsFramework:ParseColors(widgetTable.texture)
+        widget:SetColorTexture(r, g, b, a)
+    else
+        widget:SetTexture(widgetTable.texture, "CLAMP", "CLAMP", widgetTable.filterType)
+    end
+
+    widget:SetSize(widgetTable.width, widgetTable.height)
+
+    local left, right, top, bottom = 0, 1, 0, 1
+    if (widgetTable.texcoord) then
+        left, right, top, bottom = unpack(widgetTable.texcoord)
+    end
+    widget:SetTexCoord(left, right, top, bottom)
+
+    if (widgetTable.vertexcolor) then
+        local r, g, b, a = detailsFramework:ParseColors(widgetTable.vertexcolor)
+        widget:SetVertexColor(r, g, b, a)
+    else
+        widget:SetVertexColor(1, 1, 1, 1)
+    end
+
+    setWidgetId(parent, widgetTable, widget)
+
+    widget:ClearAllPoints()
+    widget:SetPoint("topleft", parent, "topleft", currentXOffset, currentYOffset)
+end
+
 local setTextEntryProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset, template, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, textTemplate, latestInlineWidget)
     widget._get = widgetTable.get
     widget.text = widgetTable.get()
@@ -889,6 +919,7 @@ function detailsFramework:SetAsOptionsPanel(frame)
         ["button"] = {}, -- "execute"
         ["textentry"] = {}, --
         ["label"] = {}, --"text"
+        ["image"] = {},
     }
     frame.widgetids = {}
     frame.GetWidgetById = getFrameById
@@ -995,6 +1026,15 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
         else
             widgetObject:ClearHooks()
+        end
+        indexTable[widgetType] = indexTable[widgetType] + 1
+
+    elseif (widgetType == "image") then
+        widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
+        if (not widgetObject) then
+            widgetObject = parent:CreateTexture("$parentWidget" .. widgetType .. indexTable[widgetType], "overlay")
+            table.insert(parent.widget_list, widgetObject)
+            table.insert(parent.widget_list_by_type[widgetType], widgetObject)
         end
         indexTable[widgetType] = indexTable[widgetType] + 1
     end
@@ -1250,6 +1290,15 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     textentry.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 
                     maxColumnWidth, maxWidgetWidth = setTextEntryProperties(parent, textentry, widgetTable, currentXOffset, currentYOffset, buttonTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, textTemplate)
+                    amountLineWidgetAdded = amountLineWidgetAdded + 1
+
+                --image
+                elseif (widgetTable.type == "image") then
+                    local image = getMenuWidgetVolative(parent, "image", widgetIndexes)
+                    widgetCreated = image
+
+                    setImageProperties(parent, image, widgetTable, currentXOffset, currentYOffset)
+
                     amountLineWidgetAdded = amountLineWidgetAdded + 1
                 end --end loop
 
@@ -1564,6 +1613,20 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 table.insert(parent.widget_list_by_type.textentry, textentry)
 
                 widgetCreated = textentry
+                amountLineWidgetAdded = amountLineWidgetAdded + 1
+
+            elseif (widgetTable.type == "image") then
+                local image = parent:CreateTexture("$parentMenuImage" .. index, "overlay")
+
+                setImageProperties(parent, image, widgetTable, currentXOffset, currentYOffset)
+
+                currentYOffset = currentYOffset - widgetTable.height + 10
+
+                --store the widget created into the overall table and the widget by type
+                table.insert(parent.widget_list, image)
+                table.insert(parent.widget_list_by_type.textentry, image)
+
+                widgetCreated = image
                 amountLineWidgetAdded = amountLineWidgetAdded + 1
             end
 

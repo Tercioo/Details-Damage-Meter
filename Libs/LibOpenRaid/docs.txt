@@ -109,14 +109,12 @@ unitInfo = {
     .specId = number
     .specName = string
     .role = string
-    .renown = number
-    .covenantId = number
-    .talents = {talentId, talentId, talentId, ...}
+    .heroTalentId = number
+    .talents = dragonflight talent string, e.g: "CkGAvcQZXENQPQXqed372Hg2KuxMzssYmZmZWegZZYGjFGLjZAAAAAAAAAAAAsBDzwYGNzAmxYmxgplZGAAAAAwAAAgltxGmmZWGCAABsgZmBA"
     .pvpTalents = {talentId, talentId, talentId}
-    .conduits = {spellId, conduitLevel, spellId, conduitLevel, spellId, conduitLevel, ...}
     .class = string class eng name 'ROGUE'
     .classId = number
-    .className = string class localized name
+    .className = string class localized name 'Rogue'
     .name = string name without realm
     .nameFull = string name with realm 'unitName-ServerName'
 }
@@ -369,11 +367,9 @@ function MyAddonObject.OnUnitUpdate(unitId, unitInfo, allUnitsInfo)
         local specId = unitInfo.specId
         local specName = unitInfo.specName
         local role = unitInfo.role
-        local renown = unitInfo.renown
-        local covenantId = unitInfo.covenantId
+        local heroTalentId = unitInfo.heroTalentId
         local talents = unitInfo.talents
         local pvpTalents = unitInfo.pvpTalents
-        local conduits = unitInfo.conduits
         local class = unitInfo.class = string class eng name 'ROGUE'
         local classId = unitInfo.classId = number
         local className = unitInfo.className
@@ -399,34 +395,12 @@ openRaidLib.RegisterCallback(MyAddonObject, "UnitInfoWipe", "OnUnitInfoWipe")
 Note: a "UnitUpdate" callback is triggered right after this event to notify the player info is updated.
 
 ===================================================================================================================================
-"TalentUpdate": when a unit changed a talent
+"TalentUpdate": when a unit changed a talent | DEPRECATRED | Use: OnUnitUpdate
 ===================================================================================================================================
 
-function MyAddonObject.OnTalentUpdate(unitId, talents, unitInfo, allUnitsInfo)
-    for i = 1, 7 do
-        local talentId = talents[i]
-        local talentID, talentName, texture, selected, available = GetTalentInfoByID(talentId)
-        print(talentName)
-    end
-end
-
---registering the callback:
-openRaidLib.RegisterCallback(MyAddonObject, "TalentUpdate", "OnTalentUpdate")
-
 ===================================================================================================================================
-"PvPTalentUpdate": when an unit changed a pvp talent
+"PvPTalentUpdate": when an unit changed a pvp talent | DEPRECATRED | Use: OnUnitUpdate
 ===================================================================================================================================
-
-function MyAddonObject.OnPvPTalentUpdate(unitId, pvpTalents, unitInfo, allUnitsInfo)
-    for i = 1, 3 do
-        local talentId = pvpTalents[i]
-        local talentID, talentName, icon, selected, available, spellID, unlocked, row, column, known, grantedByAura = GetPvpTalentInfoByID(talentId)
-        print(talentName)
-    end
-end
-
---registering the callback:
-openRaidLib.RegisterCallback(MyAddonObject, "PvPTalentUpdate", "OnPvPTalentUpdate")
 
 ===================================================================================================================================
 "UnitDeath": when an unit died

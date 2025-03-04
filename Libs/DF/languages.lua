@@ -919,7 +919,7 @@ function DF.Language.UnregisterCallback(addonId, callback)
     for i = 1, #addonNamespaceTable.callbacks do
         local callbackTable = addonNamespaceTable.callbacks[i]
         if (callbackTable.callback == callback) then
-            tremove(addonNamespaceTable.callbacks, i)
+            table.remove(addonNamespaceTable.callbacks, i)
             return true
         end
     end

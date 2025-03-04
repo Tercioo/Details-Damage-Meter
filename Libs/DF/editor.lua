@@ -647,7 +647,7 @@ detailsFramework.EditorMixin = {
                     end
 
                     local x, y = moverFrame:GetCenter()
-                    moverFrame:SetPoint("center", UIParent, "bottomleft", x, y)
+                    --moverFrame:SetPoint("center", UIParent, "bottomleft", x, y)
 
                     --current position of object selected
                     local x, y = object:GetCenter()
@@ -655,8 +655,12 @@ detailsFramework.EditorMixin = {
                     moverFrame.MovingInfo.restingY = y
                     moverFrame:SetScript("OnUpdate", onTickNotMoving)
 
-                    moverFrame:GetScript("OnMouseDown")(moverFrame)
-                    moverFrame:GetScript("OnMouseUp")(moverFrame)
+                    --problem, I don't remember why caused the issue of the hide on click on others tabs, I think the mover was anchored to parent frame all points
+                    if (not moverFrame.moved) then
+                        moverFrame:GetScript("OnMouseDown")(moverFrame)
+                        moverFrame:GetScript("OnMouseUp")(moverFrame)
+                        --moverFrame.moved = true
+                    end
                 end
 
                 self.ObjectBackgroundTexture:SetPoint("topleft", object, "topleft", 0, 0)
@@ -1011,7 +1015,7 @@ detailsFramework.EditorMixin = {
             if (objectX ~= moverFrame.MovingInfo.restingX or objectY ~= moverFrame.MovingInfo.restingY) then
                 moverFrame:SetPoint("center", object, moverFrame.anchorName, 0, 0)
                 local x, y = moverFrame:GetCenter()
-                moverFrame:SetPoint("center", UIParent, "bottomleft", x, y)
+                --moverFrame:SetPoint("center", UIParent, "bottomleft", x, y)
                 moverFrame.MovingInfo.restingX = objectX
                 moverFrame.MovingInfo.restingY = objectY
             end
