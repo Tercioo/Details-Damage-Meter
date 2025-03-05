@@ -240,7 +240,7 @@
 		---@field spellId number
 		---@field evoker_name string
 		---@field serial string
-		
+
 		---@type bombardmentinfo
 		local bombardment_stuff = {
 			only_one_scalecomander = true,
@@ -385,11 +385,11 @@
 			[105771] = 126664, --warrior charge
 			[385060] = 385062, --fury warrior odyn fury
 			[385061] = 385062, --fury warrior odyn fury offhand
-			[335097] = 335100, --fury warrior crushing blow	
-			[335098] = 335100, --fury warrior crushing blow offhand		
-			[458459] = 845, --arms warrior cleave	
-			[440884] = 440886, --arms warrior demolish	
-			[440888] = 440886, --arms warrior demolish			
+			[335097] = 335100, --fury warrior crushing blow
+			[335098] = 335100, --fury warrior crushing blow offhand
+			[458459] = 845, --arms warrior cleave
+			[440884] = 440886, --arms warrior demolish
+			[440888] = 440886, --arms warrior demolish
 			[95738] = 50622, --fury warrior bladestorm offhand
 			[460670] = 435791, --fury warrior lightning strike
 
@@ -2328,7 +2328,7 @@
 		local npcId = tonumber(select(6, strsplit("-", petGuid)) or 0)
 
 		if (Details222.Debug.DebugPets) then
-			
+
 		end
 
 		--differenciate army and apoc pets for DK
@@ -5821,6 +5821,38 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 
 				if (evokerCount == 1) then
+					--this combat can reatribute bombardments
+					bombardment_stuff.only_one_scalecomander = true
+					bombardment_stuff.evoker_name = evokerName
+					bombardment_stuff.serial = evokerSerial
+					--print("only one scaler commander found, yoinking bombardments damage for:", bombardment_stuff.evoker_name)
+				else
+					bombardment_stuff.only_one_scalecomander = false
+					bombardment_stuff.evoker_name = ""
+					bombardment_stuff.serial = ""
+				end
+			else
+				local evokerCount = 0
+				local evokerName = ""
+				local evokerSerial = ""
+				local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+
+				local unitName = GetUnitName("player", true)
+				local unitInfo = openRaidLib.GetUnitInfo("player")
+				local unitClass = select(2, UnitClass(unitName))
+				if unitClass == "EVOKER" then
+					if unitInfo and unitInfo.specId and unitInfo.specId ~= 1468 then
+						evokerCount = evokerCount + 1
+						evokerName = unitName
+						evokerSerial = UnitGUID("player")
+					else
+						evokerCount = evokerCount + 1
+						evokerName = unitName
+						evokerSerial = UnitGUID("player")
+					end
+				end
+
+				if evokerCount == 1 then
 					--this combat can reatribute bombardments
 					bombardment_stuff.only_one_scalecomander = true
 					bombardment_stuff.evoker_name = evokerName

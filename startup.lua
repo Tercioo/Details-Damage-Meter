@@ -106,7 +106,7 @@ function Details222.StartUp.StartMeUp()
 	--/run Details.ocd_tracker.show_options = true; ReloadUI()
 	--custom window
 	Details.custom = Details.custom or {}
-	Details222.InitRecap()
+	--Details222.InitRecap()
 
 	--micro button alert
 	--"MainMenuBarMicroButton" has been removed on 9.0
