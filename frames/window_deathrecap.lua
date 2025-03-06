@@ -1,20 +1,12 @@
 
-local addonName, Details222 = ...
+
 local Details = _G.Details
-local AceLocale = LibStub("AceLocale-3.0")
-local L = AceLocale:GetLocale("Details")
----@type detailsframework
-local detailsFramework = DetailsFramework
-local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
-local GameTooltip = GameTooltip
-local perf = Details222.commprefixes
-local deathRecap = Details.death_recap
-local catchStr = detailsFramework.CatchString
-
-local maxBlizzardDeathRecapLines = 5
 local textAlpha = 0.9
-local segmentColor = "orange"
-
+local AceLocale = LibStub("AceLocale-3.0")
+local L = AceLocale:GetLocale( "Details" )
+local detailsFramework = DetailsFramework
+local addonName, Details222 = ...
+local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 
 local on_deathrecap_line_enter = function(self)
 	if (self.spellid) then
@@ -49,7 +41,7 @@ local create_deathrecap_line = function(parent, n)
 
 	line:SetSize(300, 21)
 
-	local timeAtFontString = line:CreateFontString(nil, "overlay", "GameFontNormal")
+	local timeAt = line:CreateFontString(nil, "overlay", "GameFontNormal")
 	local backgroundTexture = line:CreateTexture(nil, "border")
 	local backgroundTextureOverlay = line:CreateTexture(nil, "artwork")
 	local spellIcon = line:CreateTexture(nil, "overlay")
@@ -61,13 +53,6 @@ local create_deathrecap_line = function(parent, n)
 	local lifePercent = line:CreateFontString(nil, "overlay", "GameFontNormal")
 	local lifeStatusBar = line:CreateTexture(nil, "border", nil, -3)
 
-	--spell icon
-	spellIcon:SetSize(19, 19)
-	spellIconBorder:SetTexture([[Interface\ENCOUNTERJOURNAL\LootTab]])
-	spellIconBorder:SetTexCoord(6/256, 38/256, 49/128, 81/128)
-	spellIconBorder:SetSize(20, 20)
-	spellIconBorder:SetPoint("topleft", spellIcon, "topleft", 0, 0)
-
 	--grave icon
 	local graveIcon = line:CreateTexture(nil, "overlay")
 	graveIcon:SetTexture([[Interface\MINIMAP\POIIcons]])
@@ -75,26 +60,34 @@ local create_deathrecap_line = function(parent, n)
 	graveIcon:SetPoint("left", line, "left", 11, 0)
 	graveIcon:SetSize(14, 18)
 
+	--spell icon
+	spellIcon:SetSize(19, 19)
+	spellIconBorder:SetTexture([[Interface\ENCOUNTERJOURNAL\LootTab]])
+	spellIconBorder:SetTexCoord(6/256, 38/256, 49/128, 81/128)
+	spellIconBorder:SetSize(20, 20)
+	spellIconBorder:SetPoint("topleft", spellIcon, "topleft", 0, 0)
+
 	--locations
-	timeAtFontString:SetPoint("left", line, "left", 2, 0)
+	timeAt:SetPoint("left", line, "left", 2, 0)
 	spellIcon:SetPoint("left", line, "left", 50, 0)
 	sourceName:SetPoint("left", line, "left", 82, 0)
 	amount:SetPoint("left", line, "left", 240, 0)
 	lifePercent:SetPoint("left", line, "left", 320, 0)
 
-	--set the text colors
+	--text colors
 	detailsFramework:SetFontColor(amount, "red")
-	detailsFramework:SetFontColor(timeAtFontString, "gray")
+	detailsFramework:SetFontColor(timeAt, "gray")
 	detailsFramework:SetFontColor(sourceName, "yellow")
+
 	detailsFramework:SetFontSize(sourceName, 10)
 
-	--set the text alpha
-	timeAtFontString:SetAlpha(textAlpha)
+	--text alpha
+	timeAt:SetAlpha(textAlpha)
 	sourceName:SetAlpha(textAlpha)
 	amount:SetAlpha(textAlpha)
 	lifePercent:SetAlpha(textAlpha)
 
-	--text size and justification setup
+	--text setup
 	amount:SetWidth(85)
 	amount:SetJustifyH("right")
 	lifePercent:SetWidth(42)
@@ -145,7 +138,7 @@ local create_deathrecap_line = function(parent, n)
 	backgroundTextureOverlay:SetAlpha(0.5)
 	backgroundTextureOverlay:Hide()
 
-	line.timeAt = timeAtFontString
+	line.timeAt = timeAt
 	line.spellIcon = spellIcon
 	line.sourceName = sourceName
 	line.amount = amount
@@ -165,144 +158,8 @@ local create_deathrecap_line = function(parent, n)
 	return line
 end
 
-function Details222.InitRecap()
-    hooksecurefunc(_G, "DeathRecap_LoadUI", function() --received taint reports, could be third party issues
-        hooksecurefunc(_G, "DeathRecapFrame_OpenRecap", function(RecapID)
-            local currentCombat = Details:GetCurrentCombat()
-            --get the player current death and link the death table with the death recapID
-            local playerDeaths = currentCombat:GetPlayerDeaths(Details.playername)
-            if (playerDeaths) then
-                local latestDeath = playerDeaths[#playerDeaths]
-                if (latestDeath) then
-                    latestDeath.RecapID = RecapID
-
-                    --synchronize last events from Details! and Blizzard recap
-                    local events = DeathRecap_GetEvents(recapID)
-                    --death is event index 1(the event that killed the player)
-                    local evtData = events[1]
-
-                    if (evtData) then
-                        --recap by blizzard
-                        local spellName = evtData.spellName
-                        local spellId = evtData.spellId
-                        local event = evtData.event
-                        local environmentalType = evtData.environmentalType
-                        local timeStamp = evtData.timestamp
-                        local amountDamage = evtData.amount
-
-                        local spellId, spellName, texture = DeathRecapFrame_GetEventInfo(evtData)
-                        local format = Details:GetCurrentToKFunction()
-
-                        if (Details.death_recap.enabled) then
-                            if (type(spellName) == string and(Details:GetZoneType() == "party" or Details:GetZoneType() == "raid")) then
-                                texture = texture or [[Interface\ICONS\INV_Misc_QuestionMark]]
-                                local msgText = "|cFFAAAAFFDeath Recap(Blizzard):"
-                                print(msgText, "|T" .. texture .. ":16:16:0:0:64:64:5:59:5:59|t", GetSpellLink(spellId) or spellName, format(_, amountDamage or 0))
-                            end
-                        end
-                    end
-                end
-            end
-
-            Details.OpenDetailsDeathRecap(nil, RecapID)
-        end)
-    end)
-
-    if (detailsFramework.IsDragonflightAndBeyond()) then
-        local header = {}
-        local headerTable = {
-            ["name"] = {text = "Time", width = 70},
-            ["width"] = {text = "Width", width = 50},
-            ["align"] = {text = "Last Hit", width = 120},
-            ["type"] = {text = "Spell School", width = 70},
-            ["cd"] = {text = "Last Cooldown", width = 120},
-        }
-
-        local parent = _G["DeathRecapFrame"]
-        local headerFrame = detailsFramework:CreateHeader(parent, headerTable)
-
-        --Terciob: please never use spectator stuff to get the dampening percent when player dies
-        local forbidden = {IsSpectating = true, GetDampeningPercent = true}
-
-        local counter = 0
-        local countToKillDamage = 1
-        local columnsCreated = {}
-        local countCallback = function()
-            countToKillDamage = countToKillDamage + 1
-            --count 12 frames after
-            if (countToKillDamage > 30) then --use after 0.5 seconds
-                Details.CaptureSet(Details, false, "damage", true)
-            end
-        end
-
-        local getArenaDumpening = function()
-            --local dampening = C_Commentator.GetDampeningPercent() --do not use this
-            local dampening = 0 --find another way to get the dampening percent
-            return dampening
-        end
-
-        --[=[ deathtable is a table with the following structure:
-            eventTable [1] = type of the event
-            eventTable [2] = spellId --spellid or false if this is a battle ress event
-            eventTable [3] = amount --amount of damage or healing
-            eventTable [4] = time --unix time
-            eventTable [5] = player health when the event happened
-            eventTable [6] = name of the actor which caused this event
-            eventTable [7] = absorbed
-            eventTable [8] = spell school
-            eventTable [9] = friendly fire
-            eventTable [10] = amount of overkill damage
-    --]=]
-
-        local createSpecialLog = function()
-            if (Details.first_arena_deathlog and type(Details.first_arena_deathlog) == "table") then
-                local newDeathEvent = {
-                    6,
-                    -1, --spellId
-                    1000,
-                    false,
-                    getArenaDumpening(), --amount of damage or healing but in this case is 0
-                    time(), --when the event happened using unix time
-                    0, --player health when the event happened
-                    "death", --source name
-                }
-                table.insert(Details.first_arena_deathlog, newDeathEvent)
-            end
-        end
-
-        --Details.first_arena_deathlog = nil
-        Details:InstallHook("HOOK_DEATH", function(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
-            if (not Details.first_arena_deathlog) then
-                Details.first_arena_deathlog = {}
-                createSpecialLog()
-            end
-        end)
-
-        local monitorDeaths = catchStr(unpack(Details.column_sizes))
-        local tableContents = _G[monitorDeaths]
-        for key in pairs(tableContents) do
-            if (not forbidden[key]) then
-                local dampening = getArenaDumpening()
-                Details222.DHook(tableContents, key, countCallback)
-                columnsCreated[#columnsCreated+1] = {tableContents, key, countCallback, dampening}
-            end
-        end
-
-    --create a deathrecap scroll the events before death
-        local okay, errorText = pcall(function()
-            ---@diagnostic disable-next-line: missing-parameter
-            local deathEventsScrollBox = detailsFramework:CreateScrollBox(parent, "DeathRecapEventsScrollFrame", function()end, columnsCreated)
-            deathEventsScrollBox:SetPoint("topleft", _G["DeathRecapFrame"], "topleft", 10, -50)
-            deathEventsScrollBox:SetSize(_G["DeathRecapFrame"]:GetWidth()-5, _G["DeathRecapFrame"]:GetHeight()-30)
-
-            headerFrame:SetPoint("topleft", deathEventsScrollBox, "topleft", 2, -2)
-            headerFrame:SetPoint("topright", deathEventsScrollBox, "topright", -2, -2)
-        end)
-    end
-end
-
-local openDetailsDeathRecapAtSegment = function(segment)
-	Details.OpenDetailsDeathRecap(segment)
+local OpenDetailsDeathRecapAtSegment = function(segment)
+	Details.OpenDetailsDeathRecap(segment, RecapID)
 end
 
 function Details.BuildDeathTableFromRecap(recapID)
@@ -317,7 +174,7 @@ function Details.BuildDeathTableFromRecap(recapID)
 	--build an death log using details format
 	ArtificialDeathLog = {
 		{}, --deathlog events
-		(events[1] and events[1].timestamp) or (DeathRecapFrame and DeathRecapFrame.DeathTimeStamp) or 0, --time of death
+		(events[1] and events[1].timestamp) or(DeathRecapFrame and DeathRecapFrame.DeathTimeStamp) or 0, --time of death
 		UnitName("player"),
 		select(2, UnitClass("player")),
 		UnitHealthMax("player"),
@@ -373,8 +230,7 @@ function Details.GetDeathRecapFromChat()
 	end
 
 	if (recapIDFromChat) then
-        local bFromChat = true
-		Details.OpenDetailsDeathRecap(nil, recapIDFromChat, bFromChat)
+		Details.OpenDetailsDeathRecap(nil, recapIDFromChat, true)
 		return
 	end
 end
@@ -389,22 +245,23 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
                 button:Hide()
             end
         end
+
         return
     end
 
     --hide blizzard death recap
-    if (DeathRecapFrame) then
-        for i = 1, maxBlizzardDeathRecapLines do
-            DeathRecapFrame["Recap" .. i]:Hide()
-        end
-    end
+    DeathRecapFrame.Recap1:Hide()
+    DeathRecapFrame.Recap2:Hide()
+    DeathRecapFrame.Recap3:Hide()
+    DeathRecapFrame.Recap4:Hide()
+    DeathRecapFrame.Recap5:Hide()
 
     --create details death recap if not existant
-    if (not Details.DeathRecap and DeathRecapFrame) then
+    if (not Details.DeathRecap) then
         Details.DeathRecap = CreateFrame("frame", "DetailsDeathRecap", DeathRecapFrame, "BackdropTemplate")
         Details.DeathRecap:SetAllPoints()
 
-        DeathRecapFrame.Title:SetText(DeathRecapFrame.Title:GetText() .. " (by Details!)")
+        DeathRecapFrame.Title:SetText(DeathRecapFrame.Title:GetText() .. "(by Details!)")
 
         --lines
         Details.DeathRecap.Lines = {}
@@ -420,14 +277,14 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
             segmentButton:SetSize(16, 20)
             segmentButton:SetPoint("topright", DeathRecapFrame, "topright",(-abs(i-6) * 22) - 10, -5)
 
-            local textFontString = segmentButton:CreateFontString(nil, "overlay", "GameFontNormal")
-            segmentButton.text = textFontString
-            textFontString:SetText("#" .. i)
-            textFontString:SetPoint("center")
-            detailsFramework:SetFontColor(textFontString, "silver")
+            local text = segmentButton:CreateFontString(nil, "overlay", "GameFontNormal")
+            segmentButton.text = text
+            text:SetText("#" .. i)
+            text:SetPoint("center")
+            detailsFramework:SetFontColor(text, "silver")
 
             segmentButton:SetScript("OnClick", function()
-                openDetailsDeathRecapAtSegment(i)
+                OpenDetailsDeathRecapAtSegment(i)
             end)
             table.insert(Details.DeathRecap.Segments, i, segmentButton)
         end
@@ -441,16 +298,16 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
     local death = Details.tabela_vigente.last_events_tables
 
     --see if this segment has a death for the player
-    local bFoundPlayer = false
+    local foundPlayer = false
     for index = #death, 1, -1 do
         if (death[index][3] == Details.playername) then
-            bFoundPlayer = true
+            foundPlayer = true
             break
         end
     end
 
     --in case a combat has been created after the player death, the death won't be at the current segment
-    if (not bFoundPlayer) then
+    if (not foundPlayer) then
         local segmentsTable = Details:GetCombatSegments()
         for i = 1, 2 do
             local segment = segmentsTable[1]
@@ -490,9 +347,9 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
         end
 
         if (not segment) then
-            detailsFramework:SetFontColor(Details.DeathRecap.Segments[1].text, segmentColor)
+            detailsFramework:SetFontColor(Details.DeathRecap.Segments[1].text, "orange")
         else
-            detailsFramework:SetFontColor(Details.DeathRecap.Segments[segment].text, segmentColor)
+            detailsFramework:SetFontColor(Details.DeathRecap.Segments[segment].text, "orange")
             death = segmentsTable[segment] and segmentsTable[segment].last_events_tables
         end
     else
@@ -503,7 +360,7 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
 
     --if couldn't find the requested log from details!, so, import the log from the blizzard death recap
     --or if the player cliced on the chat link for the recap
-    local artificialDeathLog
+    local ArtificialDeathLog
     if (not death or RecapID) then
         if (segment) then
             --nop, the player requested a death log from details it self but the log does not exists
@@ -512,7 +369,7 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
         end
 
         --get the death events from the blizzard's recap
-        artificialDeathLog = Details.BuildDeathTableFromRecap(RecapID)
+        ArtificialDeathLog = Details.BuildDeathTableFromRecap(RecapID)
     end
 
     DeathRecapFrame.Unavailable:Hide()
@@ -521,8 +378,8 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
     local relevanceTime = Details.death_recap.relevance_time
 
     local t
-    if (artificialDeathLog) then
-        t = artificialDeathLog
+    if (ArtificialDeathLog) then
+        t = ArtificialDeathLog
     else
         for index = #death, 1, -1 do
             if (death[index][3] == Details.playername) then
@@ -545,7 +402,7 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
         end)
         for i = #BiggestDamageHits, 1, -1 do
             if (BiggestDamageHits[i][4] + relevanceTime < timeOfDeath) then
-                table.remove(BiggestDamageHits, i)
+                tremove(BiggestDamageHits, i)
             end
         end
 
@@ -596,7 +453,7 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
         else
             --cut table to show only 10 events
             while(#BiggestDamageHits > 10) do
-                table.remove(BiggestDamageHits, 11)
+                tremove(BiggestDamageHits, 11)
             end
         end
 
@@ -612,10 +469,14 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
         end)
 
         local events = BiggestDamageHits
+
+        local maxHP = t[5]
         local lineIndex = 10
 
+        --for i = #events, 1, -1 do
         for i, event in ipairs(events) do
             local event = events[i]
+
             local evType = event[1]
 
             local healthPercent = floor(event[5] * 100)
@@ -632,6 +493,7 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
             local customSpellInfo = event[11]
 
             if (type(evType) == "boolean" and evType) then
+
                 local line = Details.DeathRecap.Lines[lineIndex]
                 if (line) then
                     line.timeAt:SetText(format("%.1f", eventTime - timeOfDeath) .. "s")
@@ -700,8 +562,10 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
                     DetailsFramework:TruncateText(line.sourceName, 185)
 
                     if (amount > 1000) then
+                        --line.amount:SetText("-" .. Details:ToK(amount))
                         line.amount:SetText("-" .. Details:comma_value(floor(amount)))
                     else
+                        --line.amount:SetText("-" .. floor(amount))
                         line.amount:SetText("-" .. floor(amount))
                     end
 
@@ -739,3 +603,87 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
         end
     end
 end
+
+hooksecurefunc(_G, "DeathRecap_LoadUI", function()
+	hooksecurefunc(_G, "DeathRecapFrame_OpenRecap", function(RecapID)
+        local currentCombat = Details:GetCurrentCombat()
+        --get the player current death and link the death table with the death recapID
+        local playerDeaths = currentCombat:GetPlayerDeaths(Details.playername)
+        if (playerDeaths) then
+            local latestDeath = playerDeaths[#playerDeaths]
+            if (latestDeath) then
+                latestDeath.RecapID = RecapID
+
+                --synchronize last events from Details! and Blizzard recap
+                local events = DeathRecap_GetEvents(recapID)
+                --death is event index 1(the event that killed the player)
+                local evtData = events[1]
+
+                if (evtData) then
+                    --recap by blizzard
+                    local spellName = evtData.spellName
+                    local spellId = evtData.spellId
+                    local event = evtData.event
+                    local environmentalType = evtData.environmentalType
+                    local timeStamp = evtData.timestamp
+                    local amountDamage = evtData.amount
+                    local overkill = evtData.overkill
+                    local absorbed = evtData.absorbed
+                    local resisted = evtData.resisted
+                    local blocked = evtData.blocked
+                    local currentHp = evtData.currentHP
+                    local hideCaster = evtData.hideCaster
+                    local sourceName = evtData.sourceName
+                    local casterPrestige = evtData.casterPrestige
+                    local spellSchool = evtData.school
+
+                    local spellId, spellName, texture = DeathRecapFrame_GetEventInfo(evtData)
+                    local format = Details:GetCurrentToKFunction()
+
+                    if (Details.death_recap.enabled) then
+                        if (type(spellName) == string and(Details:GetZoneType() == "party" or Details:GetZoneType() == "raid")) then
+                            texture = texture or [[Interface\ICONS\INV_Misc_QuestionMark]]
+                            local msgText = "|cFFAAAAFFDeath Recap(Blizzard):"
+                            print(msgText, "|T" .. texture .. ":16:16:0:0:64:64:5:59:5:59|t", GetSpellLink(spellId) or spellName, format(_, amountDamage or 0))
+                        end
+                    end
+
+                    --recap by Details!
+                    --[=[
+                    local deathEventsDetails = latestDeath[1]
+                    for evIndex = #deathEventsDetails, 1, -1 do
+                        local ev = deathEventsDetails[evIndex]
+                        local evType = ev[1]
+                        local spellId = ev[2]
+                        local amount = ev[3]
+                        --is a damage? true boolean
+                        if (type(evType) == "boolean" and evType) then
+                            local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+                            if (spellName) then
+                                --print("Killed by(Details!-Debug): ", spellName, "amount:", amount)
+                            else
+                                --print("Killed by(Details!-Debug): spell not found")
+                            end
+                            break
+                        end
+                    end
+                    --]=]
+
+                    --Details:Msg("the message above are debugs of an Alpha version of Details!")
+
+                    --local whatKilledThePlayer = 0
+                end
+            end
+        end
+
+		Details.OpenDetailsDeathRecap(nil, RecapID)
+	end)
+end)
+
+--[=[ hooks not loaded at this point
+Details:InstallHook(DETAILS_HOOK_DEATH, function(_, _, _, _, _, _, _, targetName)
+    if (targetName == UnitName("player")) then
+
+    end
+end)
+--]=]

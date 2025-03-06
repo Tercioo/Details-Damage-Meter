@@ -8,39 +8,6 @@ local ejTable = Details222.EncounterJournalDump
 
 --maybe also cache old expansions and perhaps current expansion dungeons that aren't in the current mythic+ season
 
----@class details_encounterinfo : table
----@field name string
----@field mapId number
----@field instanceId number
----@field dungeonEncounterId number
----@field journalEncounterId number
----@field journalInstanceId number
----@field creatureName string
----@field creatureIcon string
----@field creatureId number
----@field creatureDisplayId number
----@field creatureUIModelSceneId number
-
----@class details_instanceinfo : table
----@field name string
----@field bgImage string
----@field mapId number
----@field instanceId number
----@field journalInstanceId number
----@field encountersArray details_encounterinfo[]
----@field encountersByName table<string, details_encounterinfo>
----@field encountersByDungeonEncounterId table<number, details_encounterinfo>
----@field encountersByJournalEncounterId table<number, details_encounterinfo>
----@field icon string
----@field iconSize table<number, number>
----@field iconCoords table<number, number, number, number>
----@field iconLore string
----@field iconLoreSize table<number, number>
----@field iconLoreCoords table<number, number, number, number>
----@field iconTexture string
----@field iconTextureSize table<number, number>
----@field iconTextureCoords table<number, number, number, number>
-
 ---@return details_encounterinfo?
 function Details:GetEncounterInfo(id)
     if (not Details222.EJCache.CacheCreated) then

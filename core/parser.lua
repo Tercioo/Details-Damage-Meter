@@ -243,6 +243,7 @@
 			infernobless = {},
 		}
 
+
 		Details.augmentation_cache = augmentation_cache
 
 		Details222.SpecHelpers[1473].augmentation_cache = augmentation_cache
@@ -379,11 +380,11 @@
 			[105771] = 126664, --warrior charge
 			[385060] = 385062, --fury warrior odyn fury
 			[385061] = 385062, --fury warrior odyn fury offhand
-			[335097] = 335100, --fury warrior crushing blow	
-			[335098] = 335100, --fury warrior crushing blow offhand		
-			[458459] = 845, --arms warrior cleave	
-			[440884] = 440886, --arms warrior demolish	
-			[440888] = 440886, --arms warrior demolish			
+			[335097] = 335100, --fury warrior crushing blow
+			[335098] = 335100, --fury warrior crushing blow offhand
+			[458459] = 845, --arms warrior cleave
+			[440884] = 440886, --arms warrior demolish
+			[440888] = 440886, --arms warrior demolish
 			[95738] = 50622, --fury warrior bladestorm offhand
 			[460670] = 435791, --fury warrior lightning strike
 
@@ -2326,7 +2327,7 @@
 		local npcId = tonumber(select(6, strsplit("-", petGuid)) or 0)
 
 		if (Details222.Debug.DebugPets) then
-			
+
 		end
 
 		--differenciate army and apoc pets for DK
@@ -5807,6 +5808,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 			end
 		end)
+
 
 		if (Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, true)
