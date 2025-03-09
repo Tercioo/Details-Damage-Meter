@@ -1398,6 +1398,7 @@ local default_global_data = {
 		current_exp_raid_encounters = {},
 		encounter_journal_cache = {}, --store a dump of the encounter journal
 		installed_skins_cache = {},
+		last_10days_cache_cleanup = 0,
 
 		auto_change_to_standard = true,
 

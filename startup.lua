@@ -596,6 +596,15 @@ function Details222.StartUp.StartMeUp()
 		Details:Destroy(Details.cached_talents)
 	end
 
+	--10 days cache cleanup
+	if (now > Details.last_10days_cache_cleanup) then
+		Details:Destroy(Details.spell_pool)
+		Details:Destroy(Details.npcid_pool)
+		Details:Destroy(Details.spell_school_cache)
+		Details:Destroy(Details.cached_talents)
+		Details.last_10days_cache_cleanup = now + (60*60*24*10)
+	end
+
 	--get the player spec
 	C_Timer.After(2, Details.parser_functions.PLAYER_SPECIALIZATION_CHANGED)
 
