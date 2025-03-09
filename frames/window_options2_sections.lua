@@ -7297,6 +7297,21 @@ do
                 desc = "Merges spells like Atonement and Awakened Faeline with their critical damage component.",
                 boxfirst = true,
             },
+
+            {--record tank avoidance
+                type = "toggle",
+                get = function() return Details.parser_options.tank_avoidance end,
+                set = function(self, fixedparam, value)
+                    Details.parser_options.tank_avoidance = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                    Details:UpdateParserGears()
+                end,
+                name = "Record Tank Avoidance",
+                desc = "Record tank avoidance, this information is used in the Avoidance tank for tanks",
+                boxfirst = true,
+            },
+            
         }
 
         sectionFrame.sectionOptions = sectionOptions

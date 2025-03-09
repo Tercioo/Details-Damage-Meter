@@ -255,11 +255,6 @@
 
 		local empower_cache = {}
 
-		local scale_factors = {
-			[256] = 3.80,--disc priest
-			[254] = 9.73, --hunter mm
-		}
-
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 	local container_misc = Details.container_type.CONTAINER_MISC_CLASS
@@ -586,15 +581,13 @@
 		local _current_encounter_id
 		local _in_resting_zone = false
 		local _global_combat_counter = 0
+		local _parser_options = {}
 
 		---amount of events allowed to store in the table which records the latest events that happened to a player before his death, this value can also be retrieved with Details.deadlog_events
 		local _amount_of_last_events = 16
 
 		--map type
 		local _is_in_instance = false
-
-		--overheal for shields
-		local _use_shield_overheal = false
 
 	--hooks
 		local _hook_cooldowns = false
@@ -943,16 +936,16 @@
 					sourceSerial, sourceName, sourceFlags = unpack(blessingSource)
 				end
 
-			elseif (Details.NeltharusWeaponSpellIds[spellId]) then
-				sourceName = Details.NeltharusWeaponActorName
-				sourceFlags = 0x514
-				sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			--elseif (Details.NeltharusWeaponSpellIds[spellId]) then
+			--	sourceName = Details.NeltharusWeaponActorName
+			--	sourceFlags = 0x514
+			--	sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			end
 		end
 
 	------------------------------------------------------------------------------------------------
 		--check if need start an combat
-		if (not _in_combat) then --~startcombat ~combatstart
+		if (not Details.in_combat) then --~startcombat ~combatstart
 			if (	token ~= "SPELL_PERIODIC_DAMAGE" and
 				(
 					(sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(sourceName)) --error here, need to remove the realm from sourceName
@@ -1139,22 +1132,21 @@
 				_current_gtotal[1] = _current_gtotal[1] + amount
 			end
 
+			if (tanks_members_cache[targetSerial] and targetActor.classe == "MONK") then
+				if (absorbed) then
+					--the absorbed amount was staggered and should not be count as damage taken now
+					--this absorbed will hit the player with the stagger debuff
+					amount = (amount or 0) - absorbed
+				end
+			end
+
 			--record avoidance only for tank actors
-			if (tanks_members_cache[targetSerial]) then
-				--monk's stagger
-				if (targetActor.classe == "MONK") then
+			if (_parser_options.tank_avoidance and tanks_members_cache[targetSerial]) then
+				--advanced damage taken
+				--if advanced  damage taken is enabled, the damage taken to tanks acts like the monk stuff above
+				if (Details.damage_taken_everything and targetActor.classe ~= "MONK") then
 					if (absorbed) then
-						--the absorbed amount was staggered and should not be count as damage taken now
-						--this absorbed will hit the player with the stagger debuff
 						amount = (amount or 0) - absorbed
-					end
-				else
-					--advanced damage taken
-					--if advanced  damage taken is enabled, the damage taken to tanks acts like the monk stuff above
-					if (Details.damage_taken_everything) then
-						if (absorbed) then
-							amount = (amount or 0) - absorbed
-						end
 					end
 				end
 
@@ -1166,7 +1158,6 @@
 				end
 
 				local overall = avoidance.overall
-
 				local mob = avoidance[sourceName]
 				if (not mob) then --if isn't in the table, build on the fly
 					mob =  Details:CreateActorAvoidanceTable(true)
@@ -1233,9 +1224,8 @@
 				end
 
 				if (unitId) then
-					local health = UnitHealth(unitId)
 					local maxHealth = max(UnitHealthMax(unitId), SMALL_FLOAT)
-					thisEvent[5] = health / maxHealth
+					thisEvent[5] = UnitHealth(unitId) / maxHealth
 				else
 					thisEvent[5] = cacheAnything.arenaHealth[targetName] or 100000
 				end
@@ -1321,12 +1311,12 @@
 			end
 		end
 
-		--double check for Astral Nova explosion (only inside AA dungeon)
-		if (spellId == 387848 and not is_friendly_fire) then
-			if ((targetActor.grupo or targetOwner and targetOwner.grupo) and (sourceActor.grupo or ownerActor and ownerActor.grupo)) then
-				is_friendly_fire = true
-			end
-		end
+		--double check for Astral Nova explosion (only inside AA dungeon, dragonflight)
+		--if (spellId == 387848 and not is_friendly_fire) then
+		--	if ((targetActor.grupo or targetOwner and targetOwner.grupo) and (sourceActor.grupo or ownerActor and ownerActor.grupo)) then
+		--		is_friendly_fire = true
+		--	end
+		--end
 
 		if (is_friendly_fire) then
 			if (sourceActor.grupo) then --se tiver ele n�o adiciona o evento l� em cima
@@ -1710,7 +1700,7 @@
 			end
 		end
 
-		if (_trinket_data_cache[spellId] and _in_combat) then --~trinket
+		if (_trinket_data_cache[spellId] and Details.in_combat) then --~trinket
 			---@type trinketdata
 			local thisData = _trinket_data_cache[spellId]
 			if (thisData.lastCombatId == _global_combat_counter) then
@@ -2497,7 +2487,7 @@
 		end
 
 		--diminuir o escudo nas tabelas de ShieldCache
-		if (_use_shield_overheal) then
+		if (_parser_options.shield_overheal) then
 			local shieldsOnTarget = shield_cache[targetName]
 			if (shieldsOnTarget) then
 				local shieldsBySpellId = shieldsOnTarget[shieldSpellId]
@@ -2648,23 +2638,6 @@
 
 			sourceActor.heal_enemy_amt = sourceActor.heal_enemy_amt + effectiveHeal
 			return true
-		end
-
-		--check if this is a mythic dungeon run
-		if (false) then
-			if (Details222.MythicPlus.IsMythicPlus()) then
-				if (bitBand(targetFlags, REACTION_FRIENDLY) == 0 and bitBand(sourceFlags, REACTION_FRIENDLY) == 0) then
-					--this is a enemy healing another enemy
-					--create or get an actor which the actor name is the spell name
-					local actorName = GetSpellInfo(spellId)
-					local spellActor = _current_heal_container:GetOrCreateActor(spellId, actorName, 0x514, true)
-					spellActor.grupo = true
-					spellActor.last_event = _tempo
-					spellActor.total = spellActor.total + effectiveHeal
-					spellActor.spellicon = GetSpellTexture(spellId)
-					spellActor.customColor = {0.5, 0.953, 0.082}
-				end
-			end
 		end
 
 	------------------------------------------------------------------------------------------------
@@ -3076,7 +3049,7 @@
 			end
 
 			--healing done absorbs
-			if (_use_shield_overheal) then
+			if (_parser_options.shield_overheal) then
 				if (shield_spellid_cache[spellId] and amount) then
 					if (not shield_cache[targetName]) then
 						shield_cache[targetName] = {}
@@ -3186,7 +3159,7 @@
 				parser:add_buff_uptime(token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_REFRESH")
 			end
 
-			if (_use_shield_overheal) then
+			if (_parser_options.shield_overheal) then
 				if (shield_spellid_cache[spellId] and amount) then
 					if (shield_cache[targetName] and shield_cache[targetName][spellId] and shield_cache[targetName][spellId][sourceName]) then
 						if (ignored_overheal[spellId]) then
@@ -3283,7 +3256,7 @@
 
 			------------------------------------------------------------------------------------------------
 			--shield overheal
-			if (_use_shield_overheal) then
+			if (_parser_options.shield_overheal) then
 				if (shield_spellid_cache[spellId]) then
 					if (shield_cache [targetName] and shield_cache [targetName][spellId] and shield_cache [targetName][spellId][sourceName]) then
 						if (amount) then
@@ -7293,8 +7266,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--last events pointer
 		last_events_cache = _current_combat.player_last_events
 		_amount_of_last_events = Details.deadlog_events
-
-		_use_shield_overheal = Details.parser_options.shield_overheal
+		_parser_options = Details.parser_options
 		shield_spellid_cache = Details.shield_spellid_cache
 
 		--refresh total containers

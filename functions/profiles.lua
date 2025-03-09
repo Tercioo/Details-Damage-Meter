@@ -1629,6 +1629,8 @@ local default_global_data = {
 			shield_overheal = false,
 			--compute the energy wasted by players when they current energy is equal to the maximum energy
 			energy_overflow = false,
+			--compute avoidance for tanks
+			tank_avoidance = false,
 		},
 
 	--aura creation frame libwindow
