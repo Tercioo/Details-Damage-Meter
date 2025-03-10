@@ -53,7 +53,7 @@
 	function Details222.TimeMachine.Ticker()
 		_tempo = _time()
 		Details._tempo = _tempo
-		Details:UpdateGears()
+		Details:UpdateGears() --update _tempo variable in 3 core files
 
 		if (Details.is_in_battleground or Details.is_in_arena) then
 			return calculateTimeFor_PvP(timeMachine)

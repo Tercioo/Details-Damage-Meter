@@ -56,16 +56,3 @@ DB = hash{
 
 encounter table = hash {["time"] = time(), ["guild"] = guild name, ["date"] = formated date, ["healing"] = {[playername] = playertable}, ["elapsed"] = combat time, ["damage"] = {[playername] = playertable}}
 player table = indexed {total done, item level, class index}
-
-=======================================
-Parser
-=======================================
-
-/dump Details.parser.original_functions
-will tell all internal tokens used by the parser.
-
-Details.parser:SetParserFunction (token, func)
-replaces a original parser function with a customized one.
-If no function passed, it uses the default function.
-
-

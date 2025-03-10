@@ -568,6 +568,8 @@
 		[SPELLID_WARLOCK_SOULLINK] = true,
 		[74040] = true, --grim batol drake
 		[457658] = true, --grim batol drake
+		[467230] = true, --11.1 raid blaze of glory
+		[465741] = true, --11.1 raid garbage dump
 	}
 
 	--expose the ignore spells table to external scripts
@@ -2562,7 +2564,7 @@
 		end
 
 		--sanguine ichor mythic dungeon affix (heal enemies)
-		if (spellId == SPELLID_SANGUINE_HEAL) then
+		if (spellId == SPELLID_SANGUINE_HEAL) then --not used in 11.1 patch (season 2 tww)
 			sourceName = Details.SanguineHealActorName
 			sourceFlags = 0x518
 			sourceSerial = "Creature-0-3134-2289-28065-" .. SPELLID_SANGUINE_HEAL .. "-000164C698"
@@ -2928,7 +2930,7 @@
 		end
 
 		if (auraType == "BUFF") then
-			aura_debugger_parserfile("IN", spellName, sourceName, targetName)
+			--aura_debugger_parserfile("IN", spellName, sourceName, targetName)
 
 			if (LIB_OPEN_RAID_BLOODLUST[spellId]) then --~bloodlust
 				if (Details.playername == targetName) then
@@ -3123,7 +3125,7 @@
 		end
 
 		if (tipo == "BUFF") then
-			aura_debugger_parserfile("RE", spellName, sourceName, targetName)
+			--aura_debugger_parserfile("RE", spellName, sourceName, targetName)
 
 			if (spellId == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy spellid
 				local miscActorObject = misc_cache[sourceName]
@@ -3218,7 +3220,7 @@
 		end
 
 		if (tipo == "BUFF") then
-			aura_debugger_parserfile("OUT", spellName, sourceName, targetName)
+			--aura_debugger_parserfile("OUT", spellName, sourceName, targetName)
 
 			if (spellId == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy spellid
 				if (not pet_frenzy_cache[sourceName]) then
@@ -4191,7 +4193,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	---search key: ~spellcast ~castspell ~cast
+	---search key: ~spellcast ~castspell ~cast ~casts
 	---comment: this function is called when a spell is casted
 	---@param token string
 	---@param time number
@@ -5145,8 +5147,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			token_list ["SPELL_AURA_APPLIED_DOSE"] = parser.buff_refresh
 
 		elseif (capture_type == "energy") then
-			token_list ["SPELL_ENERGIZE"] = parser.energize
-			token_list ["SPELL_PERIODIC_ENERGIZE"] = parser.energize
+			if (_parser_options.energy_resources) then
+				token_list ["SPELL_ENERGIZE"] = parser.energize
+				token_list ["SPELL_PERIODIC_ENERGIZE"] = parser.energize
+			end
 
 		elseif (capture_type == "spellcast") then
 			token_list ["SPELL_CAST_SUCCESS"] = parser.spellcast
@@ -5193,19 +5197,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		["dead"] = parser.dead,
 		["spell_empower"] = parser.spell_empower,
 	}
-
-	function parser:SetParserFunction (token, func)
-		if (parser.original_functions [token]) then
-			if (type(func) == "function") then
-				parser [token] = func
-			else
-				parser [token] = parser.original_functions [token]
-			end
-			parser:RefreshFunctions()
-		else
-			return Details:Msg("Invalid Token for SetParserFunction.")
-		end
-	end
 
 	local all_parser_tokens = {
 		["SPELL_PERIODIC_DAMAGE"] = "spell_dmg",
@@ -5518,6 +5509,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (Details.debug) then
 			Details:Msg("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
+
+		Details:Destroy(Details.CLEUEventAmount)
+		Details:Destroy(Details.CLEUEventTime)
 
 		Details222.Perf.WindowUpdate = 0
 		Details222.Perf.WindowUpdateC = true
@@ -6856,6 +6850,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	Details.CLEUEventAmount = {}
+	Details.CLEUEventTime = {}
+
+
 	local parserDebug = {}
 	function Details.OnParserEventDebug()																											    --buffs: spellschool, auraType, amount, arg1, arg2, arg3
 		local time, token, hidding, sourceSerial, sourceName, sourceFlags, who_flags2, targetSerial, targetName, targetFlags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, unknown1, unknown2, unknown3, unknown4, unknown5 = CombatLogGetCurrentEventInfo()
@@ -6865,6 +6863,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	---~parser ~cleu ~parserevent
 	Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
 	Details222.PFrame = Details222.parser_frame
 

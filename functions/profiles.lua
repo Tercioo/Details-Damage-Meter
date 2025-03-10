@@ -1631,6 +1631,8 @@ local default_global_data = {
 			energy_overflow = false,
 			--compute avoidance for tanks
 			tank_avoidance = false,
+			--compute resources
+			energy_resources = false,
 		},
 
 	--aura creation frame libwindow
