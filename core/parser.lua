@@ -6028,6 +6028,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Msg("CHALLENGE_MODE_END", GetTime())
 	end
 
+	--[=[
 	--WORLD_STATE_TIMER_START are a timer only used on scenarios
 	function Details.parser_functions:WORLD_STATE_TIMER_START(...)
 		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
@@ -6048,15 +6049,43 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 	end
+	--]=]
 
+	local startMythicPlusRun = function()
+		if (DetailsMythicPlusFrame.ZoneLeftTimer and not DetailsMythicPlusFrame.ZoneLeftTimer:IsCancelled()) then
+			DetailsMythicPlusFrame.ZoneLeftTimer:Cancel()
+		end
+
+		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+		if (difficultyID == 8) then
+			Details.challengeModeMapId = C_ChallengeMode.GetActiveChallengeMapID()
+
+			Details222.MythicPlus.CHALLENGE_MODE_START_AT = GetTime()
+			Details222.MythicPlus.RUN_START_AT = time()
+			Details222.MythicPlus.WorldStateTimerEndAt = nil
+
+			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+			Details222.MythicPlus.Level = activeKeystoneLevel or 2
+
+			Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
+			Details222.MythicPlus.WorldStateTimerStartAt = time()
+
+			--debug auras
+			Details222.MythicPlus.debug_auras = {}
+		end
+	end
+
+	--challenge mode start is triggered when the loading screen is done
 	function Details.parser_functions:CHALLENGE_MODE_START(...) --~challenge ~mythic+ ~m+
 		--send mythic dungeon start event
 		if (Details.debug) then
 		end
 
-		if (DetailsMythicPlusFrame.ZoneLeftTimer and not DetailsMythicPlusFrame.ZoneLeftTimer:IsCancelled()) then
-			DetailsMythicPlusFrame.ZoneLeftTimer:Cancel()
-		end
+		Details222.MythicPlus.LogStep("CHALLENGE_MODE_START, starting 10 seconds timer.")
+		detailsFramework.Sechedules.NewTimer (10, function()
+			Details222.MythicPlus.LogStep("CHALLENGE_MODE_START timer ended, starting the dungeon.")
+			startMythicPlusRun()
+		end)
 
 		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 		if (difficultyID == 8) then
@@ -6151,6 +6180,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.MythicPlus.PrimaryAffix = primaryAffix
 		Details222.MythicPlus.IsEligibleForScore = isEligibleForScore
 		Details222.MythicPlus.UpgradeMembers = upgradeMembers
+		Details222.MythicPlus.RUN_END_AT = time()
 
 		local dungeonName, id, timeLimit, texture, backgroundTexture = C_ChallengeMode.GetMapUIInfo(mapID)
 
@@ -6181,6 +6211,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			TimeLimit = timeLimit,
 			Texture = texture,
 			BackgroundTexture = backgroundTexture,
+			StartTime = Details222.MythicPlus.RUN_START_AT,
+			EndTime = Details222.MythicPlus.RUN_END_AT,
 			time = time or 0.1,
 		}
 

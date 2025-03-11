@@ -639,7 +639,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	createReportOverlay(spellsTab.GetPhaseScrollFrame())
 	createReportOverlay(spellsTab.GetGenericScrollFrame())
 
-	local reportButton = DF:CreateButton(tabFrame, onClickReportButton, 130, 18, Loc["STRING_REPORT_TEXT"], 1, 2) --will have a text?
+	local reportButton = DF:CreateButton(tabFrame, onClickReportButton, 130, 18, "Report", 1, 2) --will have a text?
 	reportButton:SetPoint("right", optionsButton, "left", -5, 0)
 	reportButton.textsize = 12
 	reportButton.textcolor = "DETAILS_STATISTICS_ICON"
