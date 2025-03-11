@@ -5537,7 +5537,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (Details:IsZoneIdFromCurrentExpansion(zoneMapID)) then
-			print("encouter is from current expansion")
+			--print("encouter is from current expansion")
 			Details.current_exp_raid_encounters[encounterID] = true
 		end
 
