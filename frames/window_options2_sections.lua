@@ -7254,7 +7254,7 @@ do
                 boxfirst = true,
             },
 
-            {type = "blank"},
+            {type = "breakline"},
             {type = "label", get = function() return "Parser Options:" end, text_template = subSectionTitleTextTemplate},
 
             {--overheal shields
@@ -7297,6 +7297,41 @@ do
                 desc = "Merges spells like Atonement and Awakened Faeline with their critical damage component.",
                 boxfirst = true,
             },
+
+            {--record tank avoidance
+                type = "toggle",
+                get = function() return Details.parser_options.tank_avoidance end,
+                set = function(self, fixedparam, value)
+                    Details.parser_options.tank_avoidance = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                    Details:UpdateParserGears()
+                end,
+                name = "Record Tank Avoidance",
+                desc = "Record tank avoidance, this information is used in the Avoidance tank for tanks.",
+                boxfirst = true,
+            },
+
+            {--record energy resources
+                type = "toggle",
+                get = function() return Details.parser_options.energy_resources end,
+                set = function(self, fixedparam, value)
+                    Details.parser_options.energy_resources = value
+                    if (value) then
+                        Details:CaptureEnable("energy")
+                    else
+                        Details:CaptureDisable("energy")
+                    end
+                    afterUpdate()
+                    Details:ClearParserCache()
+                    Details:UpdateParserGears()
+                end,
+                name = "Record Energy Resources",
+                desc = "Energy resources are mana, rage, energy, runic power, and others.",
+                boxfirst = true,
+            },
+            
+            
         }
 
         sectionFrame.sectionOptions = sectionOptions
