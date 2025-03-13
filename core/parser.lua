@@ -6082,7 +6082,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		Details222.MythicPlus.LogStep("CHALLENGE_MODE_START, starting 10 seconds timer.")
-		detailsFramework.Sechedules.NewTimer (10, function()
+		detailsFramework.Schedules.NewTimer (10, function()
 			Details222.MythicPlus.LogStep("CHALLENGE_MODE_START timer ended, starting the dungeon.")
 			startMythicPlusRun()
 		end)
@@ -6157,7 +6157,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local mapID = completionInfo.mapChallengeModeID or Details.challengeModeMapId or C_ChallengeMode.GetActiveChallengeMapID()
 		local upgradeMembers = completionInfo.members
 		local level = completionInfo.level
-		local time = completionInfo.time
+		local completionTime = completionInfo.time
 		local onTime = completionInfo.onTime
 		local keystoneUpgradeLevels = completionInfo.keystoneUpgradeLevels
 		local practiceRun = completionInfo.practiceRun
@@ -6169,7 +6169,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details222.MythicPlus.MapID = mapID
 		Details222.MythicPlus.Level = level --level of the key just finished
-		Details222.MythicPlus.ElapsedTime = time --total time of the mythic+ run
+		Details222.MythicPlus.ElapsedTime = completionTime --total time of the mythic+ run
 		Details222.MythicPlus.OnTime = onTime
 		Details222.MythicPlus.KeystoneUpgradeLevels = keystoneUpgradeLevels
 		Details222.MythicPlus.PracticeRun = practiceRun
@@ -6194,8 +6194,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details.LastMythicPlusData = {
 			MapID = mapID,
 			Level = level,
-			ElapsedTime = time or 0.1,
-			TimeWithoutDeaths = time or 0.1,
+			ElapsedTime = completionTime or 0.1,
+			TimeWithoutDeaths = completionTime or 0.1,
 			OnTime = onTime,
 			KeystoneUpgradeLevels = keystoneUpgradeLevels,
 			PracticeRun = practiceRun,
@@ -6213,10 +6213,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			BackgroundTexture = backgroundTexture,
 			StartTime = Details222.MythicPlus.RUN_START_AT,
 			EndTime = Details222.MythicPlus.RUN_END_AT,
-			time = time or 0.1,
+			time = completionTime or 0.1,
 		}
 
-		if (time) then
+		if (completionTime) then
             --Subtract death time from time of run to get the true time
             local deaths = C_ChallengeMode.GetDeathCount()
             if deaths and deaths > 0 then
@@ -6225,12 +6225,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
                     secondsPerDeath = 15
                 end
 
-                time = time - deaths * (secondsPerDeath * 1000)
+				completionTime = completionTime - deaths * (secondsPerDeath * 1000)
             end
 
-        	Details222.MythicPlus.time = math.floor(time / 1000)
+        	Details222.MythicPlus.time = math.floor(completionTime / 1000)
 			Details.LastMythicPlusData.TimeWithoutDeaths = Details222.MythicPlus.time
-			Details:Msg("run elapsed time:", DetailsFramework:IntegerToTimer(time / 1000))
+			Details:Msg("run elapsed time:", DetailsFramework:IntegerToTimer(completionTime / 1000))
 		else
 			Details222.MythicPlus.time = 0.1
 		end
