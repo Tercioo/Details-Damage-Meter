@@ -391,6 +391,8 @@
 		local bSetStartTime = true
 		newCombatObject:SetDateToNow(bSetStartTime)
 
+		newCombatObject.timeStart = time()
+
 		--set the combat id on the combat object
 		newCombatObject.combat_id = combatCounter
 
@@ -422,6 +424,7 @@
 			Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")
 		end)
 		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_IN")
+
 		Details:UptadeRaidMembersCache()
 
 		--we already have boss information? build .is_boss table
@@ -560,6 +563,8 @@
 		local bSetEndTime = true
 		currentCombat:SetDateToNow(bSetStartTime, bSetEndTime)
 		currentCombat:SetEndTime(GetTime())
+
+		currentCombat.timeEnd = time()
 
 		--drop player last events table to garbage collector
 		currentCombat.player_last_events = {}
