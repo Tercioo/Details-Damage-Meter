@@ -1548,6 +1548,14 @@ end
 			customCombat = combatRecevingTheSum
 		end
 
+		if (combatToAdd.bloodlust and combatToAdd.timeStart) then
+			for i = 1, #combatToAdd.bloodlust do
+				local bloodlust = combatToAdd.bloodlust[i]
+				combatRecevingTheSum.bloodlust_overall = combatRecevingTheSum.bloodlust_overall or {}
+				combatRecevingTheSum.bloodlust_overall[#combatRecevingTheSum.bloodlust_overall+1] = combatToAdd.timeStart + bloodlust
+			end
+		end
+
 		local bRefreshActor = false
 
 		for classType = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
