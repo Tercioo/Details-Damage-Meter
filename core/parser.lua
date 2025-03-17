@@ -6618,6 +6618,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	playerLogin:RegisterEvent("PLAYER_LOGIN")
 	playerLogin:SetScript("OnEvent", function()
 		Details222.StartUp.StartMeUp()
+		crowdControlSpells = Details.CrowdControlSpellNamesCache
 	end)
 
 	function Details.parser_functions:PET_BATTLE_OPENING_START(...)
@@ -7326,6 +7327,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs --can be deprecated
 		_in_combat = Details.in_combat
 
+		crowdControlSpells = Details.CrowdControlSpellNamesCache
 		Details:Destroy(ignored_npcids)
 
 		--fill it with the default npcs ignored
