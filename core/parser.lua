@@ -39,7 +39,7 @@
 	local shield_cache = Details.ShieldCache --details local
 	local parser = Details.parser --details local
 
-	local crowdControlSpells = LIB_OPEN_RAID_CROWDCONTROL
+	local crowdControlSpells = Details.CrowdControlSpellNamesCache --built during startup, can be edited to add or remove spells
 	local spellContainerClass = Details.container_habilidades --details local
 
 	--localize the cooldown table from the framework
@@ -7267,6 +7267,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (Details.iam_a_tank) then
 			tanks_members_cache[UnitGUID("player")] = true
 		end
+	end
+
+
+	---returns a table containing crowd control spells.
+	---the table maps spell names to a boolean value indicating whether the spell is a crowd control spell.
+	---@param self details
+	---@return table<spellname, boolean> crowdControlSpellsTable table of crowd control spells.
+	function Details:GetCrowdControlSpells()
+		return crowdControlSpells
 	end
 
 	---return true or false
