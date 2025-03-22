@@ -1534,7 +1534,10 @@ function C_ChallengeMode.GetMapTable() return {} end
 ---@param mapChallengeModeID number The map id for the challenge mode.
 ---@return string name The name of the challenge mode map.
 ---@return number id The id of the challenge mode map.
-function C_ChallengeMode.GetMapUIInfo(mapChallengeModeID) return "", 0 end
+---@return number timeLimit The time limit for the challenge mode map.
+---@return number texture The texture for the challenge mode map.
+---@return number backgroundTexture The background texture for the challenge mode map.
+function C_ChallengeMode.GetMapUIInfo(mapChallengeModeID) return "", 0, 0, 0, 0 end
 
 ---return the affix information for the challenge mode.
 ---@param affixID number The affix id for the challenge mode.

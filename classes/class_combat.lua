@@ -289,6 +289,75 @@ local segmentTypeToString = {
 		return self.amountCasts[actorName] and self.amountCasts[actorName][spellName] or 0
 	end
 
+	---return the amount of casts of crowd control spell by an actor
+	---@param self combat
+	---@param actorName string
+	---@return table<string, number>
+	---@return number
+	function classCombat:GetCrowdControlSpells(actorName)
+		local spellsCastedByThisActor = self:GetSpellCastTable(actorName)
+		local amountOfCCCastsByThisActor = self:GetCCCastAmount(actorName)
+		local ccSpellNames = Details.CrowdControlSpellNamesCache
+
+		---@type table<string, number>
+		local crowdControlSpellsUsed = {}
+
+		for spellName in pairs(ccSpellNames) do
+			if (spellsCastedByThisActor[spellName]) then
+				local amountOfCasts = spellsCastedByThisActor[spellName]
+				if (amountOfCasts > 0) then
+					crowdControlSpellsUsed[spellName] = amountOfCasts
+				end
+			end
+		end
+
+		return crowdControlSpellsUsed, amountOfCCCastsByThisActor
+	end
+
+	---@class spell_hit_player : table
+	---@field spellId number
+	---@field amount number
+	---@field damagerName string
+
+	---return the amount of damage taken by spells from an actor
+	---@param self combat
+	---@param actorName string
+	---@return spell_hit_player[]
+	function classCombat:GetDamageTakenBySpells(actorName)
+        ---@type actordamage?
+		local actor = self:GetActor(DETAILS_ATTRIBUTE_DAMAGE, actorName)
+		if (not actor) then
+			return {}
+		end
+
+		---@type spell_hit_player[]
+		local spellsThatHitThisPlayer = {}
+
+		for damagerName in pairs (actor.damage_from) do
+			local damagerObject = self:GetActor(DETAILS_ATTRIBUTE_DAMAGE, damagerName)
+			if (damagerObject) then
+				for spellId, spellTable in pairs(damagerObject:GetSpellList()) do
+					if (spellTable.targets and spellTable.targets[actor:Name()]) then
+						local amount = spellTable.targets[actor:Name()]
+						if (amount > 0) then
+							---@type spell_hit_player
+							local spellThatHitThePlayer = {
+								spellId = spellId,
+								amount = amount,
+								damagerName = damagerObject:Name(),
+							}
+							spellsThatHitThisPlayer[#spellsThatHitThisPlayer+1] = spellThatHitThePlayer
+						end
+					end
+				end
+			end
+		end
+
+		table.sort(spellsThatHitThisPlayer, function(t1, t2) return t1.amount > t2.amount end)
+
+		return spellsThatHitThisPlayer
+	end
+
 	function classCombat:GetInterruptCastAmount(actorName)
 		local interruptSpellNames = Details.InterruptSpellNamesCache
 		local playerCasts = self.amountCasts[actorName]

@@ -1243,6 +1243,24 @@ end
 		end
 	end
 
+	function Details:PlayerHealthTick()
+		for i = 1, #Details.cache_damage_group do
+			local actor = Details.cache_damage_group[i]
+			if (actor) then
+				local health = UnitHealth(actor.nome)
+				if (health) then
+					Details.HealthCache[actor.serial] = health
+					local healthmax = UnitHealthMax(actor.nome)
+					if (healthmax) then
+						Details.HealthMaxCache[actor.serial] = healthmax
+					end
+				end
+			end
+		end
+	end
+
+	local playerHealthTick = 1
+
 	---do tasks that need to run every second during the combat
 	---also check if all members of the group are in combat or not
 	---when no one is in combat, the combat is over
@@ -1251,6 +1269,12 @@ end
 		Details:TimeDataTick()
 		Details:BrokerTick()
 		Details:HealthTick()
+
+		playerHealthTick = playerHealthTick + 1
+		if (playerHealthTick > 5) then
+			playerHealthTick = 1
+			Details:PlayerHealthTick()
+		end
 
 		local currentCombat = Details:GetCurrentCombat()
 		if (Details.encounter_table.start and not Details.encounter_table["end"] and currentCombat.is_boss) then

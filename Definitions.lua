@@ -426,6 +426,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field PhaseData table
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
+---@field GetCrowdControlSpells fun(self: combat, actorName: string) : table<string, number> return the amount of casts of crowd control spell by an actor
 ---@field GetCCCastAmount fun(self: combat, actorName: string) : number returns the number of crowd control casts made by the specified actor
 ---@field GetInterruptCastAmount fun(self: combat, actorName: string) : number
 ---@field LockActivityTime fun(self: combat)
@@ -593,7 +594,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field IsGroupPlayer fun(actor: actor) : boolean return true if the actor is a player in the group (or was in the group during the combat)
 ---@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns"|"dispel") : spellcontainer
 ---@field Class fun(actor: actor) : string get the ingame class of the actor
----@field Spec fun(actor: actor) : string get the ingame spec of the actor
+---@field Spec fun(actor: actor) : number get the ingame spec of the actor
 ---@field Name fun(actor: actor) : string get the name of the actor
 ---@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
 ---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
@@ -644,7 +645,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field dispell_spells spellcontainer
 ---@field dispell_targets table<string, number> [targetName] = amount
 ---@field dispell_oque table<number, number> [spellId] = amount, amount of times the actor dispelled the spellId
-
+---@field interrompeu_oque table<number, number> [spellId] = amount, amount of times the actor interrupted the spellId
 --interrupt_targets interrupt_spells interrompeu_oque
 --cc_break_targets cc_break_spells cc_break_oque
 

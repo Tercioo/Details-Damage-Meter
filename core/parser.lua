@@ -1,5 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	---@type details
 	local Details = _G.Details
     local addonName, Details222 = ...
 	local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
@@ -10,9 +11,23 @@
 
 	Details.challengeModeMapId = nil
 
+	local UnitHealthMax = UnitHealthMax
+	Details.HealthMaxFrame = CreateFrame("Frame")
+	Details.HealthMaxFrame:RegisterEvent("UNIT_MAXHEALTH")
+	Details.HealthCache = {}
+	Details.HealthMaxCache = {}
+	Details.HealthMaxCalls = 0
+
+	Details.HealthMaxFrame:SetScript("OnEvent", function(self, event, unitId)
+		local unitGUID = UnitGUID(unitId)
+		if (unitGUID) then
+			Details.HealthMaxCache[unitGUID] = max(UnitHealthMax(unitId), SMALL_FLOAT)
+			Details.HealthMaxCalls = Details.HealthMaxCalls + 1
+		end
+	end)
+
 	local UnitAffectingCombat = UnitAffectingCombat
 	local UnitHealth = UnitHealth
-	local UnitHealthMax = UnitHealthMax
 	local UnitGUID = UnitGUID
 	local IsInGroup = IsInGroup
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
@@ -36,8 +51,8 @@
 	local _tempo = time()
 	_ = nil
 
-	local shield_cache = Details.ShieldCache --details local
-	local parser = Details.parser --details local
+	local shield_cache = Details.ShieldCache
+	local parser = Details.parser
 
 	local crowdControlSpells = Details.CrowdControlSpellNamesCache --built during startup, can be edited to add or remove spells
 	local spellContainerClass = Details.container_habilidades --details local
@@ -1111,7 +1126,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--group checks and avoidance
-
+		local healthChange = amount
 		if (absorbed) then
 			amount = absorbed + (amount or 0)
 		end
@@ -1202,55 +1217,63 @@
 				end
 			end
 
-			--record death log
-			local actorLatestEvents = last_events_cache[targetName]
+			if (Details.HealthCache[targetSerial]) then --if the check passes, it is guaranteed to be a player character
+				--record death log
+				---local ttt = debugprofilestop()
 
-			if (not actorLatestEvents) then
-				actorLatestEvents = _current_combat:CreateLastEventsTable(targetName)
-			end
-
-			local i = actorLatestEvents.n
-
-			local thisEvent = actorLatestEvents[i]
-			thisEvent[1] = true --true if this is a damage || false for healing
-			thisEvent[2] = spellId --spellid || false if this is a battle ress line
-			thisEvent[3] = amount --amount of damage or healing
-			thisEvent[4] = time --parser time
-
-			--current unit healh
-			if (targetActor.arena_enemy) then
-				--this is an arena enemy, get the heal with the unit Id
-				local unitId = Details.arena_enemies[targetName]
-				if (not unitId) then
-					unitId = Details:GuessArenaEnemyUnitId(targetName)
+				local actorLatestEvents = last_events_cache[targetName]
+				if (not actorLatestEvents) then
+					actorLatestEvents = _current_combat:CreateLastEventsTable(targetName)
 				end
 
-				if (unitId) then
-					local maxHealth = max(UnitHealthMax(unitId), SMALL_FLOAT)
-					thisEvent[5] = UnitHealth(unitId) / maxHealth
+				Details.HealthCache[targetSerial] = Details.HealthCache[targetSerial] - healthChange
+				if (Details.HealthCache[targetSerial] < 0) then
+					Details.HealthCache[targetSerial] = 0
+				end
+
+				local i = actorLatestEvents.n
+
+				local thisEvent = actorLatestEvents[i]
+				thisEvent[1] = true --true if this is a damage || false for healing
+				thisEvent[2] = spellId --spellid || false if this is a battle ress line
+				thisEvent[3] = amount --amount of damage or healing
+				thisEvent[4] = time --parser time
+
+				--current unit healh
+				if (targetActor.arena_enemy) then
+					--this is an arena enemy, get the heal with the unit Id
+					local unitId = Details.arena_enemies[targetName]
+					if (not unitId) then
+						unitId = Details:GuessArenaEnemyUnitId(targetName)
+					end
+
+					if (unitId) then
+						local maxHealth = max(UnitHealthMax(unitId), SMALL_FLOAT)
+						thisEvent[5] = UnitHealth(unitId) / maxHealth
+					else
+						thisEvent[5] = cacheAnything.arenaHealth[targetName] or 100000
+					end
+
+					cacheAnything.arenaHealth[targetName] = thisEvent[5]
 				else
-					thisEvent[5] = cacheAnything.arenaHealth[targetName] or 100000
+					thisEvent[5] =  Details.HealthCache[targetSerial] / Details.HealthMaxCache[targetSerial]
 				end
 
-				cacheAnything.arenaHealth[targetName] = thisEvent[5]
-			else
-				thisEvent[5] = UnitHealth(targetName) / max(UnitHealthMax(targetName), SMALL_FLOAT)
-			end
+				thisEvent[6] = sourceName --source name
+				thisEvent[7] = absorbed
+				thisEvent[8] = spellType or school
+				thisEvent[9] = false
+				thisEvent[10] = overkill
+				thisEvent[11] = critical
+				thisEvent[12] = crushing
 
-			thisEvent[6] = sourceName --source name
-			thisEvent[7] = absorbed
-			thisEvent[8] = spellType or school
-			thisEvent[9] = false
-			thisEvent[10] = overkill
-			thisEvent[11] = critical
-			thisEvent[12] = crushing
+				i = i + 1
 
-			i = i + 1
-
-			if (i == _amount_of_last_events + 1) then
-				actorLatestEvents.n = 1
-			else
-				actorLatestEvents.n = i
+				if (i == _amount_of_last_events + 1) then
+					actorLatestEvents.n = 1
+				else
+					actorLatestEvents.n = i
+				end
 			end
 		end
 
@@ -2555,11 +2578,12 @@
 			end
 		end
 
-		if (spellId == 98021) then --spirit link toten
-			return parser:SLT_healing(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overHealing, absorbed, critical, bIsShield)
-		end
+	if (spellId == 98021) then --spirit link toten
+		return parser:SLT_healing(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overHealing, absorbed, critical, bIsShield)
+	end
 
-		if (is_using_spellId_override) then
+
+	if (is_using_spellId_override) then
 			spellId = override_spellId[spellId] or spellId
 		end
 
@@ -2605,8 +2629,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--get actors
-
-		--healer
+	--healer
 		local sourceActor, ownerActor = healing_cache[sourceSerial], nil
 		if (not sourceActor) then
 			sourceActor, ownerActor, sourceName = _current_heal_container:GetOrCreateActor(sourceSerial, sourceName, sourceFlags, true)
@@ -2648,10 +2671,17 @@
 			_current_gtotal[2] = _current_gtotal[2] + effectiveHeal
 		end
 
-		if (targetActor.grupo) then
+		if (targetActor.grupo and Details.HealthCache[targetSerial]) then
+			---local ttt = debugprofilestop()
+
 			local t = last_events_cache[targetName]
 			if (not t) then
 				t = _current_combat:CreateLastEventsTable(targetName)
+			end
+
+			Details.HealthCache[targetSerial] = Details.HealthCache[targetSerial] + max(amount - overHealing, 0)
+			if (Details.HealthCache[targetSerial] > Details.HealthMaxCache[targetSerial]) then
+				Details.HealthCache[targetSerial] = Details.HealthMaxCache[targetSerial]
 			end
 
 			local i = t.n
@@ -2665,7 +2695,8 @@
 				end
 				previousEvent[7] = previousEvent[7] or bIsShield
 				previousEvent[1] = false --true if this is a damage || false for healing
-				previousEvent[5] = UnitHealth(targetName) / UnitHealthMax(targetName)
+				previousEvent[5] = Details.HealthCache[targetSerial] / Details.HealthMaxCache[targetSerial]
+				--previousEvent[5] = UnitHealth(targetName) / Details.HealthMaxCache[targetSerial]
 				previousEvent[11] = (previousEvent[11] or 0) + 1 --attempt to perform arithmetic on a boolean value (during battlegrounds - fix 02 Nov 2023)
 			else
 				local thisEvent = t[i]
@@ -2689,7 +2720,8 @@
 						thisEvent[5] = 0
 					end
 				else
-					thisEvent[5] = UnitHealth(targetName) / max(UnitHealthMax(targetName), SMALL_FLOAT)
+					--thisEvent[5] = UnitHealth(targetName) / Details.HealthMaxCache[targetSerial]
+					thisEvent[5] = Details.HealthCache[targetSerial] / Details.HealthMaxCache[targetSerial]
 				end
 
 				thisEvent[6] = sourceName
@@ -2708,7 +2740,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--~activity time
-		if (not sourceActor.iniciar_hps) then
+	if (not sourceActor.iniciar_hps) then
 			sourceActor:GetOrChangeActivityStatus(true)
 
 			if (ownerActor and not ownerActor.iniciar_hps) then
@@ -2729,8 +2761,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--add amount
-
-		--actor target
+	--actor target
 		if (effectiveHeal > 0) then
 			--combat total
 			_current_total[2] = _current_total[2] + effectiveHeal
@@ -6883,10 +6914,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	Details.CLEUEventAmount = {}
-	Details.CLEUEventTime = {}
-
-
 	local parserDebug = {}
 	function Details.OnParserEventDebug()																											    --buffs: spellschool, auraType, amount, arg1, arg2, arg3
 		local time, token, hidding, sourceSerial, sourceName, sourceFlags, who_flags2, targetSerial, targetName, targetFlags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, unknown1, unknown2, unknown3, unknown4, unknown5 = CombatLogGetCurrentEventInfo()
@@ -7183,6 +7210,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (IsInRaid()) then
 			local unitIdCache = Details222.UnitIdCache.Raid
 
+			Details:Destroy(Details.HealthCache)
+			Details:Destroy(Details.HealthMaxCache)
+			Details.HealthMaxCalls = 0
+			local max = math.max
+			local UnitHealth = UnitHealth
+			local UnitHealthMax = UnitHealthMax
+
 			for i = 1, GetNumGroupMembers() do
 				local unitId = unitIdCache[i]
 				local unitName = GetUnitName(unitId, true)
@@ -7203,6 +7237,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (auto_regen_power_specs[Details.cached_specs[unitGUID]]) then
 					auto_regen_cache[unitName] = auto_regen_power_specs[Details.cached_specs[unitGUID]]
 				end
+
+				Details.HealthCache[unitGUID] = UnitHealth(unitId)
+				Details.HealthMaxCache[unitGUID] = max(UnitHealthMax(unitId), SMALL_FLOAT)
 			end
 
 		elseif (IsInGroup()) then
@@ -7224,6 +7261,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (auto_regen_power_specs[Details.cached_specs[unitGUID]]) then
 					auto_regen_cache[unitName] = auto_regen_power_specs[Details.cached_specs[unitGUID]]
 				end
+
+				Details.HealthCache[unitGUID] = UnitHealth(unitId)
+				Details.HealthMaxCache[unitGUID] = max(UnitHealthMax(unitId), SMALL_FLOAT)
 			end
 
 			--player
@@ -7241,6 +7281,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (auto_regen_power_specs[Details.cached_specs[playerGUID]]) then
 				auto_regen_cache[playerName] = auto_regen_power_specs[Details.cached_specs[playerGUID]]
 			end
+
+			Details.HealthCache[playerGUID] = UnitHealth("player")
+			Details.HealthMaxCache[playerGUID] = max(UnitHealthMax("player"), SMALL_FLOAT)
 		else
 			local playerName = Details.playername
 			local playerGUID = UnitGUID("player")
@@ -7263,6 +7306,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (auto_regen_power_specs[Details.cached_specs[playerGUID]]) then
 				auto_regen_cache[playerName] = auto_regen_power_specs[Details.cached_specs[playerGUID]]
 			end
+
+			Details.HealthCache[playerGUID] = UnitHealth("player")
+			Details.HealthMaxCache[playerGUID] = max(UnitHealthMax("player"), SMALL_FLOAT)
 		end
 
 		if (Details.iam_a_tank) then
@@ -7328,6 +7374,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_in_combat = Details.in_combat
 
 		crowdControlSpells = Details.CrowdControlSpellNamesCache
+
 		Details:Destroy(ignored_npcids)
 
 		--fill it with the default npcs ignored
