@@ -5541,9 +5541,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details:Msg("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
 
-		Details:Destroy(Details.CLEUEventAmount)
-		Details:Destroy(Details.CLEUEventTime)
-
 		Details222.Perf.WindowUpdate = 0
 		Details222.Perf.WindowUpdateC = true
 
