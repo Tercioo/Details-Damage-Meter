@@ -270,9 +270,10 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field DefaultTooltipIconSize number default size of the icons in the tooltip, this also dictates the size of each line in the tooltip
 ---@field Format fun(self: details, number: number) : string
 ---@field OpenSpecificBreakdownWindow fun(self: details, combatObject: combat, actorName: string, mainAttribute: number, subAttribute: number)
----@field GetInstanceInfo fun(self: details) : details_instanceinfo
+---@field GetInstanceInfo fun(self: details, id: instanceid|instancename|mapid) : details_instanceinfo
 ---@field CreatePlayerPortrait fun(self: details, parent: frame, name: string) : frame
 ---@field 
+---@field GetItemLevelFromGuid fun(self: details, guid: guid) : number return the item level of the player, if the player is not found, return 0
 ---@field GenerateActorInfo fun(self: details, actor: actor, errorText:string, bIncludeStack:boolean) : table<string, boolean|string|number> generates a table with the main attributes of the actor, this is mainly for debug purposes
 ---@field DumpActorInfo fun(self: details, actor: actor) open a window showig the main attributes of an actor, this is mainly for debug purposes
 ---@field GetDisplayClassByDisplayId fun(self: details, displayId: number) : table -return the class object for the given displayId (attributeId)

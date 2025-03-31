@@ -756,6 +756,7 @@ end
 
 --@button is the raw button frame, object is the button capsule
 --click on the main dropdown frame (not the menu options popup)
+--this is the function that refreshes the dropdown menu
 function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 	local object = button.MyObject
 

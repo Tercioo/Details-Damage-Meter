@@ -496,6 +496,9 @@ function Details222.StartUp.StartMeUp()
 	--store the names of all crowd control spells
 	---@type table<string, boolean>
 	Details.CrowdControlSpellNamesCache = {}
+	---@type table<unitname, table<string, boolean>>
+	Details.CrowdControlSpellsByUnitCache = {}
+
 	for spellId, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
 		if (spellData.type == 8) then
 			local spellInfo = C_Spell.GetSpellInfo(spellId)
@@ -509,6 +512,41 @@ function Details222.StartUp.StartMeUp()
 		if (spellInfo) then
 			Details.CrowdControlSpellNamesCache[spellInfo.name] = true
 		end
+	end
+
+	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+	if (openRaidLib) then
+		local t = {}
+		function t.OnUnitUpdate(unitId, unitInfo)
+			local specId = unitInfo.specId
+			local specName = unitInfo.specName
+			local role = unitInfo.role
+			local heroTalentId = unitInfo.heroTalentId
+			local talents = unitInfo.talents
+			local pvpTalents = unitInfo.pvpTalents
+			local class = unitInfo.class-- = string class eng name 'ROGUE'
+			local classId = unitInfo.classId-- = number
+			local className = unitInfo.className
+			local unitName = unitInfo.name-- = string name without realm
+			local unitNameFull = unitInfo.nameFull-- = string name with realm 'unitName-ServerName'
+
+			for spellId, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
+				if (spellData.type == 8) then
+					local spellInfo = C_Spell.GetSpellInfo(spellId)
+					if (spellInfo) then
+						Details.CrowdControlSpellsByUnitCache[unitNameFull] = Details.CrowdControlSpellsByUnitCache[unitNameFull] or {}
+						if (not spellData.ignoredIfTalent) then
+							Details.CrowdControlSpellNamesCache[spellInfo.name] = true
+						else
+							
+						end
+					end
+				end
+			end
+		end
+
+		--registering the callback:
+		openRaidLib.RegisterCallback(ToggleBackpack, "UnitInfoUpdate", "OnUnitUpdate")
 	end
 
 	function Details:OpenOptionsWindowAtStart()
