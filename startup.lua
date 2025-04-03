@@ -493,10 +493,12 @@ function Details222.StartUp.StartMeUp()
         end
     end
 
-	--store the names of all crowd control spells
+	---used to know if the spell is a crowd control during the parser debuff event.
 	---@type table<string, boolean>
 	Details.CrowdControlSpellNamesCache = {}
-	---@type table<unitname, table<string, boolean>>
+
+	---not in use atm, waiting the unzip of talents string.
+	---@type table<unitname, table<spellname, boolean>>
 	Details.CrowdControlSpellsByUnitCache = {}
 
 	for spellId, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
@@ -509,7 +511,7 @@ function Details222.StartUp.StartMeUp()
 	end
 	for spellId, spellData in pairs(LIB_OPEN_RAID_CROWDCONTROL) do
 		local spellInfo = C_Spell.GetSpellInfo(spellId)
-		if (spellInfo) then
+		if (spellInfo and not Details.CrowdControlSpellNamesCache[spellInfo.name]) then
 			Details.CrowdControlSpellNamesCache[spellInfo.name] = true
 		end
 	end
@@ -538,7 +540,7 @@ function Details222.StartUp.StartMeUp()
 						if (not spellData.ignoredIfTalent) then
 							Details.CrowdControlSpellNamesCache[spellInfo.name] = true
 						else
-							
+							--check if the player the talent from spellData.ignoredIfTalent
 						end
 					end
 				end

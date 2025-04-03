@@ -766,20 +766,20 @@ do
 			[331866] = {cooldown = 0,	class = "COVENANT|VENTHYR"}, --Agent of Chaos
 			[334693] = {cooldown = 0,	class = "DEAHTKNIGHT"}, --Absolute Zero
 			[221562] = {cooldown = 45,	class = "DEATHKNIGHT"}, --Asphyxiate
-			[47528] = {cooldown = 15,	class = "DEATHKNIGHT"}, --Mind Freeze
+			--[47528] = {cooldown = 15,	class = "DEATHKNIGHT"}, --Mind Freeze
 			[207167] = {cooldown = 60,	class = "DEATHKNIGHT"}, --Blinding Sleet
 			[91807] = {cooldown = 0,	class = "DEATHKNIGHT"}, --Shambling Rush
 			[108194] = {cooldown = 45,	class = "DEATHKNIGHT"}, --Asphyxiate
 			[211881] = {cooldown = 30,	class = "DEMONHUNTER"}, --Fel Eruption
 			[200166] = {cooldown = 0,	class = "DEMONHUNTER"}, --Metamorphosis
 			[217832] = {cooldown = 45,	class = "DEMONHUNTER"}, --Imprison
-			[183752] = {cooldown = 15,	class = "DEMONHUNTER"}, --Disrupt
+			--[183752] = {cooldown = 15,	class = "DEMONHUNTER"}, --Disrupt
 			[207685] = {cooldown = 0,	class = "DEMONHUNTER"}, --Sigil of Misery
 			[179057] = {cooldown = 45,	class = "DEMONHUNTER"}, --Chaos Nova
 			[221527] = {cooldown = 45,	class = "DEMONHUNTER"}, --Imprison with detainment talent
 			[339] = {cooldown = 0,		class = "DRUID"}, --Entangling Roots
 			[102359] = {cooldown = 30,	class = "DRUID"}, --Mass Entanglement
-			[93985] = {cooldown = 0,	class = "DRUID"}, --Skull Bash
+			--[93985] = {cooldown = 0,	class = "DRUID"}, --Skull Bash
 			[2637] = {cooldown = 0,		class = "DRUID"}, --Hibernate
 			[5211] = {cooldown = 60,	class = "DRUID"}, --Mighty Bash
 			[99] = {cooldown = 30,		class = "DRUID"}, --Incapacitating Roar
@@ -795,7 +795,7 @@ do
 			[360806] = {cooldown = 15,	class = "EVOKER"}, --Sleep Walk
 			[162480] = {cooldown = 0,	class = "HUNTER"}, --Steel Trap
 			[187707] = {cooldown = 15,	class = "HUNTER"}, --Muzzle
-			[147362] = {cooldown = 24,	class = "HUNTER"}, --Counter Shot
+			--[147362] = {cooldown = 24,	class = "HUNTER"}, --Counter Shot
 			[190927] = {cooldown = 6,	class = "HUNTER"}, --Harpoon
 			[117526] = {cooldown = 45,	class = "HUNTER"}, --Binding Shot
 			[24394] = {cooldown = 0,	class = "HUNTER"}, --Intimidation
@@ -820,24 +820,24 @@ do
 			[126819] = {cooldown = 0,	class = "MAGE"}, --Polymorph
 			[61305] = {cooldown = 0,	class = "MAGE"}, --Polymorph
 			[28272] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-			[2139] = {cooldown = 24,	class = "MAGE"}, --Counterspell
+			--[2139] = {cooldown = 24,	class = "MAGE"}, --Counterspell
 			[198909] = {cooldown = 0,	class = "MONK"}, --Song of Chi-Ji
 			[119381] = {cooldown = 60,	class = "MONK"}, --Leg Sweep
 			[107079] = {cooldown = 120,	class = "MONK"}, --Quaking Palm
 			[116706] = {cooldown = 0,	class = "MONK"}, --Disable
 			[115078] = {cooldown = 45,	class = "MONK"}, --Paralysis
-			[116705] = {cooldown = 15,	class = "MONK"}, --Spear Hand Strike
+			--[116705] = {cooldown = 15,	class = "MONK"}, --Spear Hand Strike
 			[31935] = {cooldown = 15,	class = "PALADIN"}, --Avenger's Shield
 			[20066] = {cooldown = 15,	class = "PALADIN"}, --Repentance
 			[217824] = {cooldown = 0,	class = "PALADIN"}, --Shield of Virtue
 			[105421] = {cooldown = 0,	class = "PALADIN"}, --Blinding Light
 			[10326] = {cooldown = 15,	class = "PALADIN"}, --Turn Evil
 			[853] = {cooldown = 60,		class = "PALADIN"}, --Hammer of Justice
-			[96231] = {cooldown = 15,	class = "PALADIN"}, --Rebuke
+			--[96231] = {cooldown = 15,	class = "PALADIN"}, --Rebuke
 			[205364] = {cooldown = 30,	class = "PRIEST"}, --Dominate Mind
 			[64044] = {cooldown = 45,	class = "PRIEST"}, --Psychic Horror
 			[226943] = {cooldown = 0,	class = "PRIEST"}, --Mind Bomb
-			[15487] = {cooldown = 45,	class = "PRIEST"}, --Silence
+			--[15487] = {cooldown = 45,	class = "PRIEST"}, --Silence
 			[605] = {cooldown = 0,		class = "PRIEST"}, --Mind Control
 			[8122] = {cooldown = 45,	class = "PRIEST"}, --Psychic Scream
 			[200200] = {cooldown = 60,	class = "PRIEST"}, --Holy Word: Chastise
@@ -846,7 +846,7 @@ do
 			[114404] = {cooldown = 20,	class = "PRIEST"}, --Void Tendril's Grasp
 			[6770] = {cooldown = 0,		class = "ROGUE"}, --Sap
 			[2094] = {cooldown = 120,	class = "ROGUE"}, --Blind
-			[1766] = {cooldown = 15,	class = "ROGUE"}, --Kick
+			--[1766] = {cooldown = 15,	class = "ROGUE"}, --Kick
 			[427773] = {cooldown = 0,	class = "ROGUE"}, --Blind
 			[408] = {cooldown = 20,		class = "ROGUE"}, --Kidney Shot
 			[1776] = {cooldown = 20,	class = "ROGUE"}, --Gouge
@@ -855,7 +855,7 @@ do
 			[269352] = {cooldown = 30,	class = "SHAMAN"}, --Hex
 			[277778] = {cooldown = 30,	class = "SHAMAN"}, --Hex
 			[64695] = {cooldown = 0,	class = "SHAMAN"}, --Earthgrab
-			[57994] = {cooldown = 12,	class = "SHAMAN"}, --Wind Shear
+			--[57994] = {cooldown = 12,	class = "SHAMAN"}, --Wind Shear
 			[197214] = {cooldown = 40,	class = "SHAMAN"}, --Sundering
 			[118905] = {cooldown = 0,	class = "SHAMAN"}, --Static Charge
 			[277784] = {cooldown = 30,	class = "SHAMAN"}, --Hex
@@ -870,10 +870,10 @@ do
 			[118699] = {cooldown = 0,	class = "WARLOCK"}, --Fear
 			[710] = {cooldown = 0,		class = "WARLOCK"}, --Banish
 			[212619] = {cooldown = 60,	class = "WARLOCK"}, --Call Felhunter
-			[19647] = {cooldown = 24,	class = "WARLOCK"}, --Spell Lock
+			--[19647] = {cooldown = 24,	class = "WARLOCK"}, --Spell Lock
 			[30283] = {cooldown = 60,	class = "WARLOCK"}, --Shadowfury
 			[5484] = {cooldown = 40,	class = "WARLOCK"}, --Howl of Terror
-			[6552] = {cooldown = 15,	class = "WARRIOR"}, --Pummel
+			--[6552] = {cooldown = 15,	class = "WARRIOR"}, --Pummel
 			[132168] = {cooldown = 0,	class = "WARRIOR"}, --Shockwave
 			[132169] = {cooldown = 0,	class = "WARRIOR"}, --Storm Bolt
 			[5246] = {cooldown = 90,	class = "WARRIOR"}, --Intimidating Shout
