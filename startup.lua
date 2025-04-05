@@ -520,6 +520,7 @@ function Details222.StartUp.StartMeUp()
 	if (openRaidLib) then
 		local t = {}
 		function t.OnUnitUpdate(unitId, unitInfo)
+			--print("open raid update...")
 			local specId = unitInfo.specId
 			local specName = unitInfo.specName
 			local role = unitInfo.role
@@ -541,6 +542,11 @@ function Details222.StartUp.StartMeUp()
 							Details.CrowdControlSpellNamesCache[spellInfo.name] = true
 						else
 							--check if the player the talent from spellData.ignoredIfTalent
+							--local unitTalents = openRaidLib.GetSpellIdsFromTalentString(talents)
+							--dumpt(unitTalents)
+							--print("talentId", spellData.ignoredIfTalent)
+							--print("has the talent?", unitTalents[spellData.ignoredIfTalent])
+							break
 						end
 					end
 				end
@@ -548,7 +554,18 @@ function Details222.StartUp.StartMeUp()
 		end
 
 		--registering the callback:
-		openRaidLib.RegisterCallback(ToggleBackpack, "UnitInfoUpdate", "OnUnitUpdate")
+		openRaidLib.RegisterCallback(t, "UnitInfoUpdate", "OnUnitUpdate")
+
+		--test
+		--[=[
+		C_Timer.After(5, function()
+			local unitName = UnitName("player")
+			local unitInfo = openRaidLib.GetUnitInfo("player")
+			if (unitInfo) then
+				t.OnUnitUpdate("player", unitInfo)
+			end
+		end)
+		--]=]
 	end
 
 	function Details:OpenOptionsWindowAtStart()

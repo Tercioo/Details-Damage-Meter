@@ -471,6 +471,23 @@
 		return playerName, playerClass, deathTime, deathCombatTime, deathTimeString, playerMaxHealth, deathEvents, lastCooldown, spec
 	end
 
+	function Details:UnpackDeathEvent(deathEvent)
+		local evType = deathEvent[1]
+		local spellId = deathEvent[2]
+		local amount = deathEvent[3] --amount of damage or heal
+		local eventTime = deathEvent[4] --time()
+		local heathPercent = deathEvent[5]
+		local sourceName = deathEvent[6]
+		local absorbed = deathEvent[7]
+		local spellSchool = deathEvent[8]
+		local friendlyFire = deathEvent[9]
+		local overkill = deathEvent[10] --amount of damage overkill, -1 if the hit did not killed the target
+		local criticalHit = deathEvent[11]
+		local crushing = deathEvent[12]
+
+		return evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing
+	end
+
 	---get a random fraction number
 	---@return number
 	function Details:GetOrderNumber() --anyString

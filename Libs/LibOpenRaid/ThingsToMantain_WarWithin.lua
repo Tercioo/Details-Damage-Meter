@@ -443,7 +443,7 @@ do
 			[79206] = {cooldown = 120,   duration = 15,   specs = {262, 263, 264},  talent = false, charges = 1,    class = "SHAMAN",   type = 5}, --Spiritwalker's Grace
 			[383013] = {cooldown = 45,   duration = 6,   specs = {262, 263, 264},  	talent = false, charges = 1,    class = "SHAMAN",   type = 7}, --Poison Cleansing Totem
 			[305483] = {cooldown = 45,   duration = 5,   specs = {262, 263, 264},  	talent = false, charges = 1,    class = "SHAMAN",   type = 8}, --Lightning Lasso
-			[197214] = {cooldown = 40,   duration = 2,   specs = {262},  			talent = false, charges = 1,    class = "SHAMAN",   type = 8}, --Sundering
+			[197214] = {cooldown = 40,   duration = 2,   specs = {262},  			talent = false, charges = 1,    class = "SHAMAN",   type = 8, ignoredIfTalent = 469344}, --Sundering
 			[108270] = {cooldown = 180,    duration = 15,specs = {262, 263, 264},   talent = false, charges = 1,    class = "SHAMAN",    type = 2}, --Stone Bulwark Totem
 			[384352] = {cooldown = 60,	duration = 0,specs = {263},		talent = false,	charges = 1,	class = "SHAMAN",	type = 1}, --Doom Winds
 			
@@ -827,7 +827,7 @@ do
 			[116706] = {cooldown = 0,	class = "MONK"}, --Disable
 			[115078] = {cooldown = 45,	class = "MONK"}, --Paralysis
 			--[116705] = {cooldown = 15,	class = "MONK"}, --Spear Hand Strike
-			[31935] = {cooldown = 15,	class = "PALADIN"}, --Avenger's Shield
+			--[31935] = {cooldown = 15,	class = "PALADIN"}, --Avenger's Shield
 			[20066] = {cooldown = 15,	class = "PALADIN"}, --Repentance
 			[217824] = {cooldown = 0,	class = "PALADIN"}, --Shield of Virtue
 			[105421] = {cooldown = 0,	class = "PALADIN"}, --Blinding Light
@@ -856,7 +856,7 @@ do
 			[277778] = {cooldown = 30,	class = "SHAMAN"}, --Hex
 			[64695] = {cooldown = 0,	class = "SHAMAN"}, --Earthgrab
 			--[57994] = {cooldown = 12,	class = "SHAMAN"}, --Wind Shear
-			[197214] = {cooldown = 40,	class = "SHAMAN"}, --Sundering
+			--[197214] = {cooldown = 40,	class = "SHAMAN"}, --Sundering
 			[118905] = {cooldown = 0,	class = "SHAMAN"}, --Static Charge
 			[277784] = {cooldown = 30,	class = "SHAMAN"}, --Hex
 			[309328] = {cooldown = 30,	class = "SHAMAN"}, --Hex
