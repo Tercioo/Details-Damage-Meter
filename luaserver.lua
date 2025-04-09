@@ -5098,8 +5098,8 @@ GetPartyAssignment = function(unit) return "", "" end
 
 ---return name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole
 ---@param raidID number
----@return string, string, number, number, string, string, string, boolean, boolean, string, boolean, string
-GetRaidRosterInfo = function(raidID) return "", "", 0, 0, "", "", "", true, true, "", true, "" end
+---@return string, number, number, number, string, string, string, boolean, boolean, string, boolean, string
+GetRaidRosterInfo = function(raidID) return "", 0, 0, 0, "", "", "", true, true, "", true, "" end
 
 ---@param unit string
 ---@return number
