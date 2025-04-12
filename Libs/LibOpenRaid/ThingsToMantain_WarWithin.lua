@@ -759,6 +759,25 @@ do
 			end
 		end)
 
+		local ccSpellNameCache = {}
+		function openRaidLib.GetCCSpellIdBySpellName(spellName)
+			if (ccSpellNameCache[spellName]) then
+				return ccSpellNameCache[spellName]
+			end
+
+			for spellId in pairs(LIB_OPEN_RAID_CROWDCONTROL) do
+				local spellInfo = C_Spell.GetSpellInfo(spellId)
+				if (spellInfo) then
+					if (spellInfo.name == spellName) then
+						ccSpellNameCache[spellName] = spellId
+						return spellId
+					end
+				end
+			end
+
+			return nil
+		end
+
 		--list of all crowd control spells
 		--it is not transmitted to other clients
         -- TODO: Update for war within
