@@ -920,12 +920,19 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						currentText = nil
 					end
 
-					if (thisOption.color) then
-						local r, g, b, a = DF:ParseColors(thisOption.color)
-						thisOptionFrame.label:SetTextColor(r, g, b, a)
-					else
-						thisOptionFrame.label:SetTextColor(1, 1, 1, 1)
+					local regions = {thisOptionFrame:GetRegions()}
+					for _, region in ipairs(regions) do
+						if (region:GetObjectType() == "FontString") then
+							if (thisOption.color) then
+								local r, g, b, a = DF:ParseColors(thisOption.color)
+								region:SetTextColor(r, g, b, a)
+							else
+								region:SetTextColor(1, 1, 1, 1)
+							end
+						end
 					end
+					
+
 
 					thisOptionFrame.table = thisOption
 
