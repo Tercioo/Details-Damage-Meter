@@ -782,6 +782,9 @@ do
 		--it is not transmitted to other clients
         -- TODO: Update for war within
 		LIB_OPEN_RAID_CROWDCONTROL = {
+			[462031] = {cooldown = 60,	class = "HUNTER"}, --Implosive Trap
+			[116844] = {cooldown = 45,	class = "MONK"}, --Ring of Peace
+			[20549] = {cooldown = 90,	class = ""}, --War Stomp (Tauren)
 			[331866] = {cooldown = 0,	class = "COVENANT|VENTHYR"}, --Agent of Chaos
 			[334693] = {cooldown = 0,	class = "DEAHTKNIGHT"}, --Absolute Zero
 			[221562] = {cooldown = 45,	class = "DEATHKNIGHT"}, --Asphyxiate

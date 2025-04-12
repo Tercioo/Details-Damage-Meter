@@ -21,6 +21,7 @@
 ---@field SetEmptyTextAndIcon fun(self:df_dropdown, text:string, icon:any)
 ---@field Select fun(self:df_dropdown, optionName:string|number, byOptionNumber:boolean?, bOnlyShown:boolean?, runCallback:boolean?):boolean
 ---@field SelectDelayed fun(self:df_dropdown, optionName:string|number, byOptionNumber:boolean?, bOnlyShown:boolean?, runCallback:boolean?) --call Select() after a random delay
+---@field UseSimpleHeader fun(self:df_dropdown) ignore text color, font, statusbar, in the main frame
 ---@field Open fun(self:df_dropdown)
 ---@field Close fun(self:df_dropdown)
 ---@field Refresh fun(self:df_dropdown)
@@ -535,6 +536,10 @@ function DropDownMetaFunctions:SetEmptyTextAndIcon(text, icon)
 	self:Selected(self.last_select)
 end
 
+function DropDownMetaFunctions:UseSimpleHeader(value)
+	self.isSimpleHeader = value
+end
+
 function DropDownMetaFunctions:Selected(thisOption)
 	if (not thisOption) then
 		--does not have any options?
@@ -621,7 +626,7 @@ function DropDownMetaFunctions:Selected(thisOption)
 		self.dropdown.rightTexture:SetTexture("")
 	end
 
-	if (thisOption.statusbar) then
+	if (thisOption.statusbar and not self.isSimpleHeader) then
 		self.statusbar:SetTexture(thisOption.statusbar)
 		if (thisOption.statusbarcolor) then
 			self.statusbar:SetVertexColor(unpack(thisOption.statusbarcolor))
@@ -637,7 +642,7 @@ function DropDownMetaFunctions:Selected(thisOption)
 		self.statusbar:SetPoint("bottomright", self.widget, "bottomright", -2, 2)
 	end
 
-	if (thisOption.color) then
+	if (thisOption.color and not self.isSimpleHeader) then
 		local r, g, b, a = DF:ParseColors(thisOption.color)
 		self.label:SetTextColor(r, g, b, a)
 	else
@@ -647,7 +652,7 @@ function DropDownMetaFunctions:Selected(thisOption)
 	if (overrideFont) then
 		self.label:SetFont(overrideFont, 10)
 
-	elseif (thisOption.font) then
+	elseif (thisOption.font and not self.isSimpleHeader) then
 		self.label:SetFont(thisOption.font, 10)
 
 	else
