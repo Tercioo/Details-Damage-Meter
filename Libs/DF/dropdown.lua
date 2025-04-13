@@ -31,17 +31,19 @@
 ---@field SetMenuSize fun(self:df_dropdown, width:number, height:number)
 ---@field Disable fun(self:df_dropdown)
 ---@field Enable fun(self:df_dropdown)
+---@field OnCreateOptionFrame function callback: fun(self:df_dropdown, optionFrame:button, optionTable:dropdownoption) assign a function to be called when creating an option frame
+---@field OnUpdateOptionFrame function callback: fun(self:df_dropdown, optionFrame:button, optionTable:dropdownoption) assign a function to be called when updating an option frame
 
 ---@class dropdownoption : table
 ---@field value any
 ---@field label string text shown in the dropdown option
 ---@field onclick fun(dropdownObject:table, fixedValue:any, value:any)? function to call when the option is selected
 ---@field icon string|number? texture
----@field color any any color format
----@field font string?
----@field texcoord number[]? left, right, top, bottom
 ---@field iconcolor any any color format
 ---@field iconsize number[]? width, height
+---@field texcoord number[]? left, right, top, bottom
+---@field color any any color format
+---@field font string?
 ---@field languageId string?
 ---@field rightbutton function? function to call on right click
 ---@field statusbar string|number? statusbar texture
@@ -814,6 +816,11 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						thisOptionFrame:SetPoint("topright", parent, "topright", 0, (-optionIndex * 20))
 						thisOptionFrame.object = object
 						object.menus[i] = thisOptionFrame
+
+						if (object.OnCreateOptionFrame) then
+							--function(dropdown, optionFrame, optionTable)
+							xpcall(object.OnCreateOptionFrame, geterrorhandler(), object, thisOptionFrame, thisOption)
+						end
 					end
 
 					thisOptionFrame:SetFrameStrata(thisOptionFrame:GetParent():GetFrameStrata())
@@ -920,19 +927,25 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						currentText = nil
 					end
 
-					local regions = {thisOptionFrame:GetRegions()}
-					for _, region in ipairs(regions) do
-						if (region:GetObjectType() == "FontString") then
-							if (thisOption.color) then
-								local r, g, b, a = DF:ParseColors(thisOption.color)
-								region:SetTextColor(r, g, b, a)
-							else
-								region:SetTextColor(1, 1, 1, 1)
+					if (not thisOptionFrame.fontStrings) then
+						thisOptionFrame.fontStrings = {}
+						local regions = {thisOptionFrame:GetRegions()}
+						for _, region in ipairs(regions) do
+							if (region:GetObjectType() == "FontString") then
+								table.insert(thisOptionFrame.fontStrings, region)
 							end
 						end
 					end
-					
 
+					for j = 1, #thisOptionFrame.fontStrings do
+						local fontString = thisOptionFrame.fontStrings[j]
+						if (thisOption.color) then
+							local r, g, b, a = DF:ParseColors(thisOption.color)
+							fontString:SetTextColor(r, g, b, a)
+						else
+							fontString:SetTextColor(1, 1, 1, 1)
+						end
+					end
 
 					thisOptionFrame.table = thisOption
 
@@ -941,6 +954,11 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						frameWitdh = labelwitdh + 40
 					end
 					thisOptionFrame:Show()
+
+					if (object.OnUpdateOptionFrame) then
+						--function(dropdown, optionFrame, optionTable)
+						xpcall(object.OnUpdateOptionFrame, geterrorhandler(), object, thisOptionFrame, thisOption)
+					end
 
 					i = i + 1
 				end

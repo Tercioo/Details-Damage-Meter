@@ -922,6 +922,13 @@ do
 				LIB_OPEN_RAID_COOLDOWNS_SHARED_ID[id] = LIB_OPEN_RAID_COOLDOWNS_SHARED_ID[id] or {}
 				LIB_OPEN_RAID_COOLDOWNS_SHARED_ID[id][spellID] = spellData.type
 			end
+
+			if (spellData.type == 8) then --crowd control
+				if (not LIB_OPEN_RAID_CROWDCONTROL[spellID]) then
+					local ccTable = {cooldown = spellData.cooldown, class = spellData.class}
+					LIB_OPEN_RAID_CROWDCONTROL[spellID] = ccTable
+				end
+			end
 		end
 
 

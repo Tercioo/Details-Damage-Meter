@@ -306,6 +306,9 @@ local segmentTypeToString = {
 			if (spellsCastedByThisActor[spellName]) then
 				local amountOfCasts = spellsCastedByThisActor[spellName]
 				if (amountOfCasts > 0) then
+					if (Details.debug_spell_cast) then
+						print("GetCrowdControlSpells > ", actorName, spellName, amountOfCasts)
+					end
 					crowdControlSpellsUsed[spellName] = amountOfCasts
 				end
 			end
