@@ -793,7 +793,9 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field amount number
 ---@field total number
 ---@field actorName string
+---@field spellId number?
 ---@field Icon texture
+---@field IconFrame frame
 ---@field InLineTexts fontstring[]
 ---@field statusBar breakdownspellbarstatusbar
 ---@field bIsFromLeftScroll boolean
