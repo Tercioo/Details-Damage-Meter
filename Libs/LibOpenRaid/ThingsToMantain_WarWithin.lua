@@ -375,7 +375,7 @@ do
 			[23920] = {cooldown = 25, duration = 0, 	specs = {}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 5}, --Spell Refleciton
 			[385060] = {cooldown = 45, duration = 0, 	specs = {}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 5}, --Odyn's Fury (can remove root with Avatar)
 			[3411] = {cooldown = 30, duration = 6, 		specs = {73}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 3}, --Intervene
-			[386071] = {cooldown = 90, duration = 6, 	specs = {73}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 8}, --Disrupting Shout
+			[386071] = {cooldown = 90, duration = 6, 	specs = {73}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 6}, --Disrupting Shout
 			[385952] = {cooldown = 45, duration = 4, 	specs = {73}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 5}, --Shield Charge
 			[1160] = {cooldown = 45, duration = 8, 		specs = {73}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 2}, --Demoralizing Shout
 			[385952] = {cooldown = 45, duration = 4, 	specs = {71, 72, 73}, 		talent = false,	charges = 1,	class = "WARRIOR",	type = 8}, --Shield Charge

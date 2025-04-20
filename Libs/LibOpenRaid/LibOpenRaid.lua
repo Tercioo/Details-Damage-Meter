@@ -56,7 +56,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 154
+local CONST_LIB_VERSION = 155
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -124,6 +124,9 @@ end
     local CONST_COMM_OPENNOTES_RECEIVED_PREFIX = "N" --when a note is received
     local CONST_COMM_OPENNOTES_REQUESTED_PREFIX = "Q" --when received a request to send your note
 
+    local CONST_COMM_RATING_DATA_PREFIX = "M"
+    local CONST_COMM_RATING_DATAREQUEST_PREFIX = "O" 
+    
     local CONST_COMM_SENDTO_PARTY = "0x1"
     local CONST_COMM_SENDTO_RAID = "0x2"
     local CONST_COMM_SENDTO_GUILD = "0x4"
@@ -450,6 +453,14 @@ end
                 end
             end
 
+            --if this is isn't a rating data comm, check if the lib can receive comms
+            if (dataTypePrefix ~= CONST_COMM_RATING_DATA_PREFIX and dataTypePrefix ~= CONST_COMM_RATING_DATAREQUEST_PREFIX) then
+                if (not openRaidLib.IsCommAllowed()) then
+                    openRaidLib.DiagnosticError("comm not allowed.")
+                    return
+                end
+            end
+
             if (CONST_DIAGNOSTIC_COMM_RECEIVED) then
                 openRaidLib.diagnosticCommReceived(data)
             end
@@ -496,6 +507,8 @@ end
         [CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX] = {}, --received a request to send keystone data
         [CONST_COMM_OPENNOTES_RECEIVED_PREFIX] = {}, --received notes
         [CONST_COMM_OPENNOTES_REQUESTED_PREFIX] = {}, --requested notes
+        [CONST_COMM_RATING_DATA_PREFIX] = {}, --received rating data
+        [CONST_COMM_RATING_DATAREQUEST_PREFIX] = {}, --received a request to send rating data
     }
 
     function openRaidLib.commHandler.RegisterComm(prefix, func)
@@ -833,6 +846,8 @@ end
         "KeystoneUpdate",
         "KeystoneWipe",
         "NoteUpdated",
+        "RatingUpdate",
+        "RatingWipe"
     }
 
     --save build the table to avoid lose registered events on older versions
@@ -3171,6 +3186,284 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
     openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.KeystoneInfoManager.OnPlayerEnterWorld)
     openRaidLib.internalCallback.RegisterCallback("onEnterGroup", openRaidLib.KeystoneInfoManager.OnPlayerEnterGroup)
     openRaidLib.internalCallback.RegisterCallback("mythicDungeonEnd", openRaidLib.KeystoneInfoManager.OnMythicDungeonFinished)
+
+--------------------------------------------------------------------------------------------------------------------------------
+--~rating
+
+    ---@class MythicPlusRatingMapSummary
+    ---@field challengeModeID number
+    ---@field mapScore number	
+    ---@field bestRunLevel number	
+    ---@field bestRunDurationMS number
+    ---@field finishedSuccess boolean	
+
+    ---@class ratinginfo
+    ---@field classID number
+    ---@field currentSeasonScore number
+    ---@field runs MythicPlusRatingMapSummary[]
+
+    --manager constructor
+    openRaidLib.RatingInfoManager = {
+        --structure:
+        --[playerName] = ratinginfo
+        ---@type table<string, ratinginfo>
+        RatingData = {},
+    }
+
+    --API calls
+        --return a table containing all information of units
+        --format: [playerName-realm] = {information}
+        function openRaidLib.GetAllRatingInfo()
+            return openRaidLib.RatingInfoManager.GetAllRatingInfo()
+        end
+
+        --return a table containing information of a single unit
+        function openRaidLib.GetRatingInfo(unitId)
+            local unitName = GetUnitName(unitId, true) or unitId
+            return openRaidLib.RatingInfoManager.GetRatingInfo(unitName)
+        end
+
+        function openRaidLib.RequestRatingDataFromGuild()
+            if (IsInGuild()) then
+                local dataToSend = "" .. CONST_COMM_RATING_DATAREQUEST_PREFIX
+                openRaidLib.commHandler.SendCommData(dataToSend, 0x4)
+                diagnosticComm("RequestRatingDataFromGuild| " .. dataToSend) --debug
+                return true
+            else
+                return false
+            end
+        end
+
+        function openRaidLib.RequestRatingDataFromParty()
+            if (IsInGroup() and not IsInRaid()) then
+                local dataToSend = "" .. CONST_COMM_RATING_DATAREQUEST_PREFIX
+                openRaidLib.commHandler.SendCommData(dataToSend, 0x1)
+                diagnosticComm("RequestRatingDataFromParty| " .. dataToSend) --debug
+                return true
+            else
+                return false
+            end
+        end
+
+        function openRaidLib.RequestRatingDataFromRaid()
+            if (IsInRaid()) then
+                local dataToSend = "" .. CONST_COMM_RATING_DATAREQUEST_PREFIX
+                openRaidLib.commHandler.SendCommData(dataToSend, 0x2)
+                diagnosticComm("RequestRatingDataFromRaid| " .. dataToSend) --debug
+                return true
+            else
+                return false
+            end
+        end
+
+        function openRaidLib.WipeRatingData()
+            wipe(openRaidLib.RatingInfoManager.RatingData)
+            --trigger public callback
+            openRaidLib.publicCallback.TriggerCallback("RatingWipe", openRaidLib.RatingInfoManager.RatingData)
+
+            --rating are only available on retail
+            if (not checkClientVersion("retail")) then
+                return
+            end
+
+            --generate rating info for the player
+            local unitName = UnitName("player")
+            local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(unitName, true)
+            openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
+
+            openRaidLib.publicCallback.TriggerCallback("RatingUpdate", unitName, ratingInfo, openRaidLib.RatingInfoManager.RatingData)
+            return true
+        end
+
+    --privite stuff, these function can still be called, but not advised
+        ---@type ratinginfo
+        local ratingTablePrototype = {
+            classID = 0,
+            currentSeasonScore = 0,
+            runs = {}
+        }
+
+    function openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
+        --- I really just want this whole thing
+        local summary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary("player")
+
+        ratingInfo.currentSeasonScore = summary.currentSeasonScore or 0
+        ratingInfo.runs = summary.runs or {}
+        
+        local _, _, playerClassID = UnitClass("player")
+        ratingInfo.classID = playerClassID
+    end
+
+    function openRaidLib.RatingInfoManager.GetAllRatingInfo()
+        return openRaidLib.RatingInfoManager.RatingData
+    end
+
+    --get the rating info table or create a new one if 'createNew' is true
+    function openRaidLib.RatingInfoManager.GetRatingInfo(unitName, createNew)
+        local ratingInfo = openRaidLib.RatingInfoManager.RatingData[unitName]
+        if (not ratingInfo and createNew) then
+            ratingInfo = {}
+            openRaidLib.TCopy(ratingInfo, ratingTablePrototype)
+            openRaidLib.RatingInfoManager.RatingData[unitName] = ratingInfo
+        end
+        return ratingInfo
+    end
+
+    local getRatingInfoToComm = function()
+        local playerName = UnitName("player")
+        local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(playerName, true)
+        openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
+    
+        local dataToSend = "" .. CONST_COMM_RATING_DATA_PREFIX .. ","
+
+        local runs = {}
+        for _, runInfo in ipairs(ratingInfo.runs) do
+            runs[#runs+1] = {
+                runInfo.challengeModeID,
+                runInfo.bestRunDurationMS,
+                runInfo.finishedSuccess and 1 or 0,
+                runInfo.mapScore,
+                runInfo.bestRunLevel
+            }
+        end
+
+        dataToSend = dataToSend .. ratingInfo.classID .. ","
+        dataToSend = dataToSend .. ratingInfo.currentSeasonScore .. ","
+        dataToSend = dataToSend .. openRaidLib.PackTableAndSubTables(runs)
+        
+        return dataToSend
+    end
+
+    function openRaidLib.RatingInfoManager.SendPlayerRatingInfoToParty()
+        local dataToSend = getRatingInfoToComm()
+        openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_PARTY)
+        diagnosticComm("SendPlayerRatingInfoToParty| " .. dataToSend) --debug
+    end
+
+    function openRaidLib.RatingInfoManager.SendPlayerRatingInfoToGuild()
+        local dataToSend = getRatingInfoToComm()
+        openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_GUILD)
+        diagnosticComm("SendPlayerRatingInfoToGuild| " .. dataToSend) --debug
+    end
+
+    --when a request data is received, only send the data to party and guild
+    --sending stuff to raid need to be called my the application with 'openRaidLib.RequestRatingDataFromRaid()'
+    function openRaidLib.RatingInfoManager.OnReceiveRequestData()
+        if (not checkClientVersion("retail")) then
+            return
+        end
+
+        --update the information about the key stone the player has
+        local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(UnitName("player"), true)
+        openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
+
+        local _, instanceType = GetInstanceInfo()
+        if (instanceType == "party") then
+            openRaidLib.Schedules.NewUniqueTimer(math.random(1), openRaidLib.RatingInfoManager.SendPlayerRatingInfoToParty, "RatingInfoManager", "sendRatingInfoToParty_Schedule")
+
+        elseif (instanceType == "raid" or instanceType == "pvp") then
+            openRaidLib.Schedules.NewUniqueTimer(math.random(0, 30) + math.random(1), openRaidLib.RatingInfoManager.SendPlayerRatingInfoToParty, "RatingInfoManager", "sendRatingInfoToParty_Schedule")
+
+        else
+            openRaidLib.Schedules.NewUniqueTimer(math.random(4), openRaidLib.RatingInfoManager.SendPlayerRatingInfoToParty, "RatingInfoManager", "sendRatingInfoToParty_Schedule")
+        end
+
+        if (IsInGuild()) then
+            openRaidLib.Schedules.NewUniqueTimer(math.random(0, 6) + math.random(), openRaidLib.RatingInfoManager.SendPlayerRatingInfoToGuild, "RatingInfoManager", "sendRatingInfoToGuild_Schedule")
+        end
+    end
+    openRaidLib.commHandler.RegisterComm(CONST_COMM_RATING_DATAREQUEST_PREFIX, openRaidLib.RatingInfoManager.OnReceiveRequestData)
+
+    function openRaidLib.RatingInfoManager.OnReceiveRatingData(data, unitName)
+        if (not checkClientVersion("retail")) then
+            return
+        end
+
+        local classID = tonumber(data[1])
+        local currentSeasonScore = tonumber(data[2])
+
+        local unpackedTable = openRaidLib.UnpackTable(data, 3, false, true, 5) -- 5 is the number of items in the run table
+
+        local runs = {}
+        for _, runInfo in ipairs(unpackedTable) do
+            local challengeModeID, bestRunDurationMS, finishedSuccess, mapScore, bestRunLevel = unpack(runInfo)
+            
+            runs[#runs+1] = {
+                challengeModeID = challengeModeID,
+                bestRunDurationMS = bestRunDurationMS,
+                finishedSuccess = finishedSuccess == 1 and true or false,
+                mapScore = mapScore,
+                bestRunLevel = bestRunLevel
+            }
+        end
+
+        local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(unitName, true)
+        ratingInfo.classID = classID
+        ratingInfo.currentSeasonScore = currentSeasonScore
+        ratingInfo.runs = runs
+
+        --trigger public callback
+        openRaidLib.publicCallback.TriggerCallback("RatingUpdate", unitName, ratingInfo, openRaidLib.RatingInfoManager.RatingData)
+    end
+    openRaidLib.commHandler.RegisterComm(CONST_COMM_RATING_DATA_PREFIX, openRaidLib.RatingInfoManager.OnReceiveRatingData)
+
+    --on entering a group, send rating information for the party
+    function openRaidLib.RatingInfoManager.OnPlayerEnterGroup()
+        --rating is only available on retail
+        if (not checkClientVersion("retail")) then
+            return
+        end
+
+        if (IsInGroup() and not IsInRaid()) then
+            --update the information about the rating the player has
+            local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(UnitName("player"), true)
+            openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
+
+            --send to the group what rating the player has
+            openRaidLib.Schedules.NewUniqueTimer(1 + math.random(0, 2) + math.random(), openRaidLib.RatingInfoManager.SendPlayerRatingInfoToParty, "RatingInfoManager", "sendRatingInfoToParty_Schedule")
+        end
+    end
+
+    local ratingManagerOnPlayerEnterWorld = function()
+        --hack: trigger a received data request to send data to party and guild when logging in
+        openRaidLib.RatingInfoManager.OnReceiveRequestData()
+
+        --trigger public callback
+        local unitName = UnitName("player")
+        local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(unitName, true)
+        openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
+
+        openRaidLib.publicCallback.TriggerCallback("RatingUpdate", unitName, ratingInfo, openRaidLib.RatingInfoManager.RatingData)
+    end
+
+    function openRaidLib.RatingInfoManager.OnPlayerEnterWorld()
+        --rating is only available on retail
+        if (not checkClientVersion("retail")) then
+            return
+        end
+
+        C_Timer.After(2, ratingManagerOnPlayerEnterWorld)
+    end
+
+    function openRaidLib.RatingInfoManager.OnMythicDungeonFinished()
+        --rating is only available on retail
+        if (not checkClientVersion("retail")) then
+            return
+        end
+        --hack: on received data send data to party and guild
+        openRaidLib.RatingInfoManager.OnReceiveRequestData()
+
+        --trigger public callback
+        local unitName = UnitName("player")
+        local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(unitName, true)
+        openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
+
+        openRaidLib.publicCallback.TriggerCallback("RatingUpdate", unitName, ratingInfo, openRaidLib.RatingInfoManager.RatingData)
+    end
+
+    openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.RatingInfoManager.OnPlayerEnterWorld)
+    openRaidLib.internalCallback.RegisterCallback("onEnterGroup", openRaidLib.RatingInfoManager.OnPlayerEnterGroup)
+    openRaidLib.internalCallback.RegisterCallback("mythicDungeonEnd", openRaidLib.RatingInfoManager.OnMythicDungeonFinished)
 
 --------------------------------------------------------------------------------------------------------------------------------
 --data
