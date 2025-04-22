@@ -181,6 +181,7 @@ do
 		LIB_OPEN_RAID_HEALING_POTIONS = {
 			[431416] = true, --Healing Potion algari
 			[431419] = true, --Cavedweller's Delight
+			[452767] = true, --Heartseeking Health Injector (engineering tinker)
 		}
 
 		LIB_OPEN_RAID_MANA_POTIONS = {
