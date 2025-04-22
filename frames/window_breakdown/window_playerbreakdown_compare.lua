@@ -1,9 +1,11 @@
 
 local Details = Details
+local addonName, Details222 = ...
 local red = "FFFFAAAA"
 local green = "FFAAFFAA"
 local _GetSpellInfo = Details.GetSpellInfo
 local unpack = unpack
+local GetSpellInfo = Details222.GetSpellInfo --api local
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --~compare
