@@ -1103,7 +1103,10 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 
 	slider.invert_colors = colorInverted
 
-	slider:SetScript("OnClick", SwitchOnClick)
+	--print(slider:GetObjectType()) --slider
+	----print(slider.widget:GetObjectType()) --button
+	slider.widget:SetScript("OnClick", SwitchOnClick)
+	--slider:SetScript("OnClick", SwitchOnClick)
 
 	slider:SetValue(defaultValue)
 

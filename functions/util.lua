@@ -471,6 +471,23 @@
 		return playerName, playerClass, deathTime, deathCombatTime, deathTimeString, playerMaxHealth, deathEvents, lastCooldown, spec
 	end
 
+	function Details:UnpackDeathEvent(deathEvent)
+		local evType = deathEvent[1]
+		local spellId = deathEvent[2]
+		local amount = deathEvent[3] --amount of damage or heal
+		local eventTime = deathEvent[4] --time()
+		local heathPercent = deathEvent[5]
+		local sourceName = deathEvent[6]
+		local absorbed = deathEvent[7]
+		local spellSchool = deathEvent[8]
+		local friendlyFire = deathEvent[9]
+		local overkill = deathEvent[10] --amount of damage overkill, -1 if the hit did not killed the target
+		local criticalHit = deathEvent[11]
+		local crushing = deathEvent[12]
+
+		return evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing
+	end
+
 	---get a random fraction number
 	---@return number
 	function Details:GetOrderNumber() --anyString
@@ -1243,6 +1260,24 @@ end
 		end
 	end
 
+	function Details:PlayerHealthTick()
+		for i = 1, #Details.cache_damage_group do
+			local actor = Details.cache_damage_group[i]
+			if (actor) then
+				local health = UnitHealth(actor.nome)
+				if (health) then
+					Details.HealthCache[actor.serial] = health
+					local healthmax = UnitHealthMax(actor.nome)
+					if (healthmax) then
+						Details.HealthMaxCache[actor.serial] = healthmax
+					end
+				end
+			end
+		end
+	end
+
+	local playerHealthTick = 1
+
 	---do tasks that need to run every second during the combat
 	---also check if all members of the group are in combat or not
 	---when no one is in combat, the combat is over
@@ -1251,6 +1286,12 @@ end
 		Details:TimeDataTick()
 		Details:BrokerTick()
 		Details:HealthTick()
+
+		playerHealthTick = playerHealthTick + 1
+		if (playerHealthTick > 5) then
+			playerHealthTick = 1
+			Details:PlayerHealthTick()
+		end
 
 		local currentCombat = Details:GetCurrentCombat()
 		if (Details.encounter_table.start and not Details.encounter_table["end"] and currentCombat.is_boss) then

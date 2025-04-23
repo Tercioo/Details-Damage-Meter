@@ -29,7 +29,7 @@ end
 
 ---@alias raid_difficulty_eng_name_lowercase "normal" | "heroic" | "mythic" | "raidfinder"
 
-
+--health and max heal cahces
 
 ------------------------------------------------------------------------------------------------------------
 

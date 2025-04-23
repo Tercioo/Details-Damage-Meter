@@ -88,39 +88,39 @@
 ---| "DETAILS_SUBATTRIBUTE_DEBUFFUPTIME"
 
 --globals
-DETAILS_ATTRIBUTE_DAMAGE = true
-DETAILS_ATTRIBUTE_HEAL = true
-DETAILS_ATTRIBUTE_ENERGY = true
-DETAILS_ATTRIBUTE_MISC = true
-DETAILS_SUBATTRIBUTE_DAMAGEDONE = true
-DETAILS_SUBATTRIBUTE_DPS = true
-DETAILS_SUBATTRIBUTE_DAMAGETAKEN = true
-DETAILS_SUBATTRIBUTE_FRIENDLYFIRE = true
-DETAILS_SUBATTRIBUTE_FRAGS = true
-DETAILS_SUBATTRIBUTE_ENEMIES = true
-DETAILS_SUBATTRIBUTE_VOIDZONES = true
-DETAILS_SUBATTRIBUTE_BYSPELLS = true
-DETAILS_SUBATTRIBUTE_HEALDONE = true
-DETAILS_SUBATTRIBUTE_HPS = true
-DETAILS_SUBATTRIBUTE_OVERHEAL = true
-DETAILS_SUBATTRIBUTE_HEALTAKEN = true
-DETAILS_SUBATTRIBUTE_HEALENEMY = true
-DETAILS_SUBATTRIBUTE_HEALPREVENTED = true
-DETAILS_SUBATTRIBUTE_HEALABSORBED = true
-DETAILS_SUBATTRIBUTE_REGENMANA = true
-DETAILS_SUBATTRIBUTE_REGENRAGE = true
-DETAILS_SUBATTRIBUTE_REGENENERGY = true
-DETAILS_SUBATTRIBUTE_REGENRUNE = true
-DETAILS_SUBATTRIBUTE_RESOURCES = true
-DETAILS_SUBATTRIBUTE_ALTERNATEPOWER = true
-DETAILS_SUBATTRIBUTE_CCBREAK = true
-DETAILS_SUBATTRIBUTE_RESS = true
-DETAILS_SUBATTRIBUTE_INTERRUPT = true
-DETAILS_SUBATTRIBUTE_DISPELL = true
-DETAILS_SUBATTRIBUTE_DEATH = true
-DETAILS_SUBATTRIBUTE_DCOOLDOWN = true
-DETAILS_SUBATTRIBUTE_BUFFUPTIME = true
-DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = true
+DETAILS_ATTRIBUTE_DAMAGE = 1
+DETAILS_ATTRIBUTE_HEAL = 2
+DETAILS_ATTRIBUTE_ENERGY = 3
+DETAILS_ATTRIBUTE_MISC = 4
+DETAILS_SUBATTRIBUTE_DAMAGEDONE = 1
+DETAILS_SUBATTRIBUTE_DPS = 2
+DETAILS_SUBATTRIBUTE_DAMAGETAKEN = 3
+DETAILS_SUBATTRIBUTE_FRIENDLYFIRE = 4
+DETAILS_SUBATTRIBUTE_FRAGS = 5
+DETAILS_SUBATTRIBUTE_ENEMIES = 6
+DETAILS_SUBATTRIBUTE_VOIDZONES = 7
+DETAILS_SUBATTRIBUTE_BYSPELLS = 8
+DETAILS_SUBATTRIBUTE_HEALDONE = 1
+DETAILS_SUBATTRIBUTE_HPS = 2
+DETAILS_SUBATTRIBUTE_OVERHEAL = 3
+DETAILS_SUBATTRIBUTE_HEALTAKEN = 4
+DETAILS_SUBATTRIBUTE_HEALENEMY = 5
+DETAILS_SUBATTRIBUTE_HEALPREVENTED = 6
+DETAILS_SUBATTRIBUTE_HEALABSORBED = 7
+DETAILS_SUBATTRIBUTE_REGENMANA = 1
+DETAILS_SUBATTRIBUTE_REGENRAGE = 2
+DETAILS_SUBATTRIBUTE_REGENENERGY = 3
+DETAILS_SUBATTRIBUTE_REGENRUNE = 4
+DETAILS_SUBATTRIBUTE_RESOURCES = 5
+DETAILS_SUBATTRIBUTE_ALTERNATEPOWER = 6
+DETAILS_SUBATTRIBUTE_CCBREAK = 1
+DETAILS_SUBATTRIBUTE_RESS = 2
+DETAILS_SUBATTRIBUTE_INTERRUPT = 3
+DETAILS_SUBATTRIBUTE_DISPELL = 4
+DETAILS_SUBATTRIBUTE_DEATH = 5
+DETAILS_SUBATTRIBUTE_DCOOLDOWN = 6
+DETAILS_SUBATTRIBUTE_BUFFUPTIME = 7
+DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
 
 ---@alias detailstotals
 ---| "DETAILS_TOTALS_ONLYGROUP"
@@ -257,6 +257,8 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field bossimage texturepath|number?
 
 ---@class details
+---@field encounter_table table store the encounter data for the current encounter
+---@field boss1_health_percent number store the health percentage (one to zero) of the boss1
 ---@field pets table<guid, petinfo> store the pet guid as the key and the petinfo as the value
 ---@field SpellTableMixin spelltablemixin
 ---@field BreakdownWindowFrame breakdownwindow
@@ -268,9 +270,10 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field DefaultTooltipIconSize number default size of the icons in the tooltip, this also dictates the size of each line in the tooltip
 ---@field Format fun(self: details, number: number) : string
 ---@field OpenSpecificBreakdownWindow fun(self: details, combatObject: combat, actorName: string, mainAttribute: number, subAttribute: number)
----@field GetInstanceInfo fun(self: details) : details_instanceinfo
+---@field GetInstanceInfo fun(self: details, id: instanceid|instancename|mapid) : details_instanceinfo
 ---@field CreatePlayerPortrait fun(self: details, parent: frame, name: string) : frame
 ---@field 
+---@field GetItemLevelFromGuid fun(self: details, guid: guid) : number return the item level of the player, if the player is not found, return 0
 ---@field GenerateActorInfo fun(self: details, actor: actor, errorText:string, bIncludeStack:boolean) : table<string, boolean|string|number> generates a table with the main attributes of the actor, this is mainly for debug purposes
 ---@field DumpActorInfo fun(self: details, actor: actor) open a window showig the main attributes of an actor, this is mainly for debug purposes
 ---@field GetDisplayClassByDisplayId fun(self: details, displayId: number) : table -return the class object for the given displayId (attributeId)
@@ -311,11 +314,9 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field UnpackMythicDungeonInfo fun(self: details, mythicDungeonInfo: mythicdungeoninfo) : boolean, segmentid, number, number, number, string, number, string, number, number, number unpack the mythic dungeon info and return the values
 ---@field CreateRightClickToCloseLabel fun(self: details, parent: frame) : df_label return a df_label with the text "Right click to close", need to set point
 ---@field IsValidActor fun(self: details, actor: actor) : boolean return true if the actor is valid
----@field 
----@field 
----@field 
-
-
+---@field GetCrowdControlSpells fun(self: details) : table<spellname, boolean> return a table of crowd control spells
+---@field UnpackDeathTable fun(self: details, deathTable: deathtable) : actorname, actorclass, unixtime, combattime, timestring, number, table, {key1: unixtime, key2: spellid}, specializationid unpack values inside a deathTable, deathEvents is in order or first event in the first index and last event on latest index
+---@field UnpackDeathEvent fun(self: details, deathEvent: table) : any, spellid, number, number, number, string, number?, number, boolean, number, boolean, boolean evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing.
 
 ---@class detailseventlistener : table
 ---@field RegisterEvent fun(self: detailseventlistener, event: detailsevent, callback: function)
@@ -380,6 +381,11 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field playerTalents table<actorname, string> [playerName] = "talent string"
 ---@field bossName string? the name of the boss, if the combat has no unitId "boss1", this value is nil
 ---@field context string? for the context manager
+---@field combat_id number
+---@field timeStart number time() when the combat started
+---@field timeEnd number time() when the combat ended
+---@field bloodlust number[]? combat time of when the player received a bloodlust/heroism
+---@field bloodlust_overall number[]? exists only in segments that received a merge, uses time()
 ---@field 
 ---@field __call table
 ---@field __index table
@@ -420,7 +426,8 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field PhaseData table
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
----@field GetCCCastAmount fun(self: combat, actorName: string) : number
+---@field GetCrowdControlSpells fun(self: combat, actorName: string) : table<string, number> return the amount of casts of crowd control spell by an actor
+---@field GetCCCastAmount fun(self: combat, actorName: string) : number returns the number of crowd control casts made by the specified actor
 ---@field GetInterruptCastAmount fun(self: combat, actorName: string) : number
 ---@field LockActivityTime fun(self: combat)
 ---@field AddCombat fun(self: combat, givingCombat: combat, bSetStartDate:boolean?, bSetEndDate:boolean?)
@@ -587,7 +594,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field IsGroupPlayer fun(actor: actor) : boolean return true if the actor is a player in the group (or was in the group during the combat)
 ---@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns"|"dispel") : spellcontainer
 ---@field Class fun(actor: actor) : string get the ingame class of the actor
----@field Spec fun(actor: actor) : string get the ingame spec of the actor
+---@field Spec fun(actor: actor) : number get the ingame spec of the actor
 ---@field Name fun(actor: actor) : string get the name of the actor
 ---@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
 ---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
@@ -638,7 +645,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field dispell_spells spellcontainer
 ---@field dispell_targets table<string, number> [targetName] = amount
 ---@field dispell_oque table<number, number> [spellId] = amount, amount of times the actor dispelled the spellId
-
+---@field interrompeu_oque table<number, number> [spellId] = amount, amount of times the actor interrupted the spellId
 --interrupt_targets interrupt_spells interrompeu_oque
 --cc_break_targets cc_break_spells cc_break_oque
 
@@ -1021,3 +1028,99 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field font_color color
 ---@field font_outline outline
 ---@field font_face string
+
+---@class animatedtexture : texture, df_frameshake
+---@field CreateRandomBounceSettings function
+---@field BounceFrameShake df_frameshake
+
+---@class playerbanner : frame
+---@field index number
+---@field BackgroundBannerMaskTexture texture
+---@field BackgroundBannerGradient texture
+---@field FadeInAnimation animationgroup
+---@field BackgroundShowAnim animationgroup
+---@field DungeonBackdropShowAnim animationgroup
+---@field BackgroundGradientAnim animationgroup
+---@field BackgroundBannerFlashTextureColorAnimation animationgroup
+---@field BounceFrameShake df_frameshake
+---@field NextLootSquare number
+---@field LootSquares details_lootsquare[]
+---@field LevelUpFrame frame
+---@field LevelUpTextFrame frame
+---@field WaitingForLootLabel df_label
+---@field RantingLabel df_label
+---@field LevelFontString fontstring
+---@field KeyStoneDungeonTexture texture
+---@field DungeonBorderTexture texture
+---@field FlashTexture texture
+---@field LootSquare frame
+---@field LootIcon texture
+---@field LootIconBorder texture
+---@field LootItemLevel fontstring
+---@field unitId string
+---@field unitName string
+---@field PlayerNameFontString fontstring
+---@field PlayerNameBackgroundTexture texture
+---@field DungeonBackdropTexture texture
+---@field BackgroundBannerTexture animatedtexture
+---@field BackgroundBannerFlashTexture animatedtexture
+---@field RoleIcon texture
+---@field Portrait texture
+---@field Border texture
+---@field Name fontstring
+---@field AnimIn animationgroup
+---@field AnimOut animationgroup
+---@field StartTextDotAnimation fun(self:playerbanner)
+---@field StopTextDotAnimation fun(self:playerbanner)
+---@field ClearLootSquares fun(self:playerbanner)
+---@field GetLootSquare fun(self:playerbanner):details_lootsquare
+
+---@class details_lootsquare : frame
+---@field LootIcon texture
+---@field LootIconBorder texture
+---@field LootItemLevel fontstring
+---@field LootItemLevelBackgroundTexture texture
+---@field itemLink string
+---@field ShadowTexture texture
+
+---@class details_loot_cache : table
+---@field playerName string
+---@field itemLink string
+---@field effectiveILvl number
+---@field itemQuality number
+---@field itemID number
+---@field time number
+
+---@class lootframe : frame
+---@field LootCache details_loot_cache[]
+
+---@class details_mplus_endframe : frame
+---@field unitCacheByName playerbanner[]
+---@field entryAnimationDuration number
+---@field AutoCloseTimeBar df_timebar
+---@field OpeningAnimation animationgroup
+---@field HeaderFadeInAnimation animationgroup
+---@field HeaderTexture texture
+---@field TopFrame frame
+---@field ContentFrame frame
+---@field ContentFrameFadeInAnimation animationgroup
+---@field YellowSpikeCircle texture
+---@field YellowFlash texture
+---@field Level fontstring
+---@field leftFiligree texture
+---@field rightFiligree texture
+---@field bottomFiligree texture
+---@field CloseButton df_closebutton
+---@field ConfigButton df_button
+---@field ShowBreakdownButton df_button
+---@field ShowChartButton df_button
+---@field PlayerBanners playerbanner[]
+---@field YouBeatTheTimerLabel fontstring
+---@field RantingLabel df_label
+---@field ElapsedTimeIcon texture
+---@field ElapsedTimeText fontstring
+---@field OutOfCombatIcon texture
+---@field OutOfCombatText fontstring
+---@field SandTimeIcon texture
+---@field KeylevelText fontstring
+---@field StrongArmIcon texture

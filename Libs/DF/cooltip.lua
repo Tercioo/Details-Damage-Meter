@@ -28,7 +28,7 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 30
+local version = 31
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -183,6 +183,9 @@ function DF:CreateCoolTip()
 		["SparkPositionYOffset"] = true,
 
 		["NoLanguageDetection"] = true,
+
+		["UseTrilinearLeft"] = true,
+		["UseTrilinearRight"] = true,
 	}
 
 	gameCooltip.AliasList = {
@@ -1264,7 +1267,7 @@ function DF:CreateCoolTip()
 				end
 
 				menuButton.leftIcon:Show()
-				menuButton.leftIcon:SetTexture(leftIconSettings[1])
+				menuButton.leftIcon:SetTexture(leftIconSettings[1], "CLAMP", "CLAMP", gameCooltip.OptionsTable.UseTrilinearLeft and "TRILINEAR" or "LINEAR")
 			end
 
 			textureObject:SetWidth(leftIconSettings[2])
@@ -1331,7 +1334,7 @@ function DF:CreateCoolTip()
 				end
 
 				menuButton.rightIcon:Show()
-				menuButton.rightIcon:SetTexture(rightIconSettings[1])
+				menuButton.rightIcon:SetTexture(rightIconSettings[1], "CLAMP", "CLAMP", gameCooltip.OptionsTable.UseTrilinearRight and "TRILINEAR" or "LINEAR")
 			end
 
 			menuButton.rightIcon:SetWidth(rightIconSettings[2])
