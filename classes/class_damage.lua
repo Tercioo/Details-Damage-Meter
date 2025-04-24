@@ -4624,7 +4624,7 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 				})
 			end
 		else
-            ---@type {[1]:actorname, [2]:valueamount, [3]:class, [4]:actor}
+			---@type {[1]:actorname, [2]:valueamount, [3]:class, [4]:actor}
 			local thisAggrossorTable = damageTakenDataSorted[i]
 			local actorName = thisAggrossorTable[1]
 			local amount = thisAggrossorTable[2]
@@ -5102,44 +5102,44 @@ function damageClass:BuildDamageTakenSpellList()
 	---@type combat
 	local combatObject = Details:GetCombatFromBreakdownWindow()
 
-    ---@type actorcontainer
+	---@type actorcontainer
 	local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
 
 	--create the table which will be returned with the data
 	---@type {topValue: number, totalValue: number, headersAllowed: table, combatTime: number, [number]: {spellId: number, total: number, petName: string, spellScholl: number}}
 	local resultTable = {topValue = 0, totalValue = 0, headersAllowed = damageTakenSpellSourcesHeadersAllowed, combatTime = combatObject:GetCombatTime()}
 
-    --- @type table<number, {spellId: number, total: number, petName: string, spellScholl: number}>
-    local unsortedSpells = {}
+	--- @type table<number, {spellId: number, total: number, petName: string, spellScholl: number}>
+	local unsortedSpells = {}
 
-    for enemyName, _ in pairs(self.damage_from) do --who damaged the player
-        --get the aggressor
-        local enemyActorObject = damageContainer:GetActor(enemyName)
-        if (
-            enemyActorObject and enemyActorObject.targets[targetActorName]
-            and (enemyActorObject:IsNeutralOrEnemy() or enemyActorObject:Name() == targetActorName)
-        ) then
+	for enemyName, _ in pairs(self.damage_from) do --who damaged the player
+		--get the aggressor
+		local enemyActorObject = damageContainer:GetActor(enemyName)
+		if (
+			enemyActorObject and enemyActorObject.targets[targetActorName]
+			and (enemyActorObject:IsNeutralOrEnemy() or enemyActorObject:Name() == targetActorName)
+		) then
 			---@type {[1]:spellid, [2]:valueamount, [3]:actorname}[]
 			local spellTargetDamageList = {}
 
 			for spellId, spellTable in pairs(enemyActorObject.spells._ActorTable) do
-                ---@cast spellTable spelltable
+				---@cast spellTable spelltable
 				local damageOnTarget = spellTable.targets[targetActorName]
 				if (damageOnTarget) then
-				    unsortedSpells[spellId] = unsortedSpells[spellId] or {spellId = spellId, total = 0, petName = "", spellScholl = spellTable.spellschool}
-				    unsortedSpells[spellId].total = unsortedSpells[spellId].total + damageOnTarget
-				    resultTable.totalValue = resultTable.totalValue + damageOnTarget
+					unsortedSpells[spellId] = unsortedSpells[spellId] or {spellId = spellId, total = 0, petName = "", spellScholl = spellTable.spellschool}
+					unsortedSpells[spellId].total = unsortedSpells[spellId].total + damageOnTarget
+					resultTable.totalValue = resultTable.totalValue + damageOnTarget
 				end
 			end
-        end
-    end
-    local sortedSpells = {}
-    for _, spellTable in pairs(unsortedSpells) do
-        sortedSpells[#sortedSpells+1] = spellTable
-    end
+		end
+	end
+	local sortedSpells = {}
+	for _, spellTable in pairs(unsortedSpells) do
+		sortedSpells[#sortedSpells+1] = spellTable
+	end
 
-    table.sort(sortedSpells, function(a, b) return a.total > b.total end)
-    Mixin(resultTable, sortedSpells)
+	table.sort(sortedSpells, function(a, b) return a.total > b.total end)
+	Mixin(resultTable, sortedSpells)
 
 	return resultTable
 end
