@@ -4248,6 +4248,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			sourceName = "[*] " .. spellName
 		end
 
+		if (Details.debug_spell_cast) then
+			if (LIB_OPEN_RAID_CROWDCONTROL[spellId]) then
+				Details:Msg("Spell casted (parser):", sourceName, targetName, spellName, spellId)
+			end
+		end
+
 		---@type actor, actor
 		local sourceActor, ownerActor = misc_cache[sourceSerial] or misc_cache_pets[sourceSerial] or misc_cache[sourceName], misc_cache_petsOwners[sourceSerial]
 		if (not sourceActor) then
@@ -4291,6 +4297,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local amountOfCasts = _current_combat.amountCasts[sourceName][spellName] or 0
 		amountOfCasts = amountOfCasts + 1
 		_current_combat.amountCasts[sourceName][spellName] = amountOfCasts
+
+		if (Details.debug_spell_cast) then
+			if (LIB_OPEN_RAID_CROWDCONTROL[spellId]) then
+				Details:Msg("Spell casted (db):", sourceActor.nome, targetName, spellName, spellId)
+			end
+		end
 
 	------------------------------------------------------------------------------------------------
 	--record cooldowns cast which can't track with buff applyed
