@@ -25,8 +25,14 @@ local CONST_SPELLBLOCK_DEFAULT_COLOR = {.4, .4, .4, 1}
 local CONST_SPELLBLOCK_HEADERTEXT_COLOR = {.9, .8, 0, 1}
 local CONST_SPELLBLOCK_HEADERTEXT_SIZE = 11
 
----@param actorName string
-local selectActor = function(actorName)
+---@param actorBar breakdowngenericbar?
+---@param locked boolean? whether the actor is locked in by clicking on it
+local selectActor = function(actorBar, locked)
+    local actorName = actorBar and actorBar.actorName or nil
+    spellsTab.selectedActor = actorName
+    spellsTab.selectedActorBar = actorBar
+    spellsTab.actorIsLocked = locked
+
     ---@type instance
     local instanceObject = spellsTab.GetInstance()
     local mainAttribute, subAttribute = instanceObject:GetDisplay()
@@ -40,19 +46,25 @@ local selectActor = function(actorName)
     ---@type actorcontainer
     local actorContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
 
-    spellsTab.GenericScrollFrameLeft.selectedActor = actorName
-
     if (mainAttribute == DETAILS_ATTRIBUTE_DAMAGE) then
         if (subAttribute == DETAILS_SUBATTRIBUTE_DAMAGETAKEN) then
-            local aggressorActor = actorContainer:GetActor(actorName)
-            ---@type {topValue: number, data: {key1: spellid, key2: number, key3: actorname}[]}
-            local spellList = damageClass.BuildDamageTakenSpellListFromAgressor(currentActor, aggressorActor)
+            local spellList
+            if (actorName) then
+                local aggressorActor = actorContainer:GetActor(actorName)
+                ---@type {topValue: number, data: {[1]: spellid, [2]: number, [3]: actorname}[]}
+                spellList = currentActor:BuildDamageTakenSpellListFromAgressor(aggressorActor)
+            else
+                spellList = currentActor:BuildDamageTakenSpellList()
+            end
             spellsTab.GenericScrollFrameRight:RefreshMe(spellList)
 
         elseif (subAttribute == DETAILS_SUBATTRIBUTE_FRIENDLYFIRE) then
+            if (not actorName) then
+                return
+            end
             --currentActor is the player which inflicted the damage to other players
             --actorName is the name of the actor in the hovered bar
-            local spellList = damageClass.BuildFriendlySpellListFromAgressor(currentActor, actorName)
+            local spellList = currentActor:BuildFriendlySpellListFromAgressor(actorName)
             spellsTab.GenericScrollFrameRight:RefreshMe(spellList)
         end
     end
@@ -63,8 +75,8 @@ end
 local onEnterGenericBar = function(self) --~onenter ~genericbaronenter
     self:SetAlpha(1)
 
-    if (self.bIsFromLeftScroll) then
-        selectActor(self.actorName)
+    if (self.bIsFromLeftScroll and not spellsTab.actorIsLocked) then
+        selectActor(self, false)
     end
 
     --when hovered over, it need to detect which data is shown and call a function within a class to generate the data to show in the right scroll
@@ -74,6 +86,27 @@ end
 ---@param self breakdowngenericbar
 local onLeaveGenericBar = function(self) --~onleave ~genericbaronleave
     self:SetAlpha(0.9)
+
+    if (self.bIsFromLeftScroll and not spellsTab.actorIsLocked) then
+        selectActor(nil, false)
+    end
+end
+
+---@param self breakdowngenericbar
+local onClickGenericBar = function(self) --~onclick ~genericbaronclick
+    if (self.bIsFromLeftScroll) then
+        if (spellsTab.actorIsLocked) then
+            if (spellsTab.selectedActorBar == self) then
+                self.overlayTexture:Hide()
+                selectActor(self, false)
+                return
+            end
+            spellsTab.selectedActorBar.overlayTexture:Hide()
+        end
+
+        self.overlayTexture:Show()
+        selectActor(self, true)
+    end
 end
 
 ---get a generic bar from the scroll box, if it doesn't exist, return nil
@@ -343,6 +376,7 @@ local createGenericBar = function(self, index) --~create ~generic ~creategeneric
     genericBar:SetFrameStrata("HIGH")
     genericBar:SetScript("OnEnter", onEnterGenericBar)
     genericBar:SetScript("OnLeave", onLeaveGenericBar)
+    genericBar:SetScript("OnClick", onClickGenericBar)
 
     DF:Mixin(genericBar, DF.HeaderFunctions)
 
@@ -374,6 +408,15 @@ local createGenericBar = function(self, index) --~create ~generic ~creategeneric
     backgroundTexture:SetColorTexture(.05, .05, .05)
     backgroundTexture:SetAlpha(1)
     statusBar.backgroundTexture = backgroundTexture
+
+	---@type texture overlay texture to use when the spellbar is selected
+	local statusBarOverlayTexture = statusBar:CreateTexture("$parentTextureOverlay", "overlay", nil, 7)
+	statusBarOverlayTexture:SetTexture([[Interface/AddOns/Details/images/overlay_indicator_1]])
+	statusBarOverlayTexture:SetVertexColor(1, 1, 1, 0.2)
+	statusBarOverlayTexture:SetAllPoints()
+	statusBarOverlayTexture:Hide()
+	genericBar.overlayTexture = statusBarOverlayTexture
+	statusBar.overlayTexture = statusBarOverlayTexture
 
     --frame which will allow showing the spell tooltip
     ---@type frame
@@ -448,6 +491,13 @@ function spellsTab.CreateGenericContainers(tabFrame) --~create ~generic ~createg
     local leftContainer = DF:CreateFrameContainer(tabFrame, optionsLeftScroll, tabFrame:GetName() .. "GenericScrollContainerLeft")
     leftContainer:SetPoint("topleft", tabFrame, "topleft", 0, 0)
     leftContainer:SetFrameLevel(tabFrame:GetFrameLevel()+1)
+    leftContainer:HookScript("OnShow", function()
+        spellsTab.actorIsLocked = false
+        if spellsTab.selectedActorBar then
+            spellsTab.selectedActorBar.overlayTexture:Hide()
+            spellsTab.selectedActor, spellsTab.selectedActorBar = nil, nil
+        end
+    end)
     spellsTab.GenericContainerFrameLeft = leftContainer
 
     ---@type df_framecontainer
@@ -545,18 +595,16 @@ function spellsTab.CreateGenericContainers(tabFrame) --~create ~generic ~createg
         genericScrollFrameRight:SetData({})
         genericScrollFrameRight:Refresh()
 
-        if self.selectedActor then
-            local found = false
-            for i = 1, #data do
-                if self.selectedActor == data[i].name then
-                    selectActor(self.selectedActor)
-                    found = true
-                    break
-                end
+        local selectedActorFound = false
+        for i = 1, #data do
+            if spellsTab.selectedActor == data[i].name then
+                selectActor(genericScrollFrameLeft:GetLine(i), spellsTab.actorIsLocked)
+                selectedActorFound = true
+                break
             end
-            if not found then
-                self.selectedActor = nil
-            end
+        end
+        if not selectedActorFound then
+            selectActor(nil)
         end
     end
 

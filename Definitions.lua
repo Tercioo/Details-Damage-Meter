@@ -798,6 +798,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field IconFrame frame
 ---@field InLineTexts fontstring[]
 ---@field statusBar breakdownspellbarstatusbar
+---@field overlayTexture texture
 ---@field bIsFromLeftScroll boolean
 ---@field bIsFromRightScroll boolean
 
