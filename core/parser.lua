@@ -6068,29 +6068,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Msg("CHALLENGE_MODE_END", GetTime())
 	end
 
-	--[=[
-	--WORLD_STATE_TIMER_START are a timer only used on scenarios
-	function Details.parser_functions:WORLD_STATE_TIMER_START(...)
-		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-		if (difficultyID == 8) then
-			if (Details222.MythicPlus.CHALLENGE_MODE_START_AT) then --would be nil if a world timer starts before the challenge mode start event
-				--todo: should also check if the mythic+ is active
-				if (Details222.MythicPlus.CHALLENGE_MODE_START_AT + 10 > GetTime()) then
-					if (not Details222.MythicPlus.WorldStateTimerStartAt) then
-						local payload1, payload2, payload3 = ...
-						payload1 = payload1 or ""
-						payload2 = payload2 or ""
-						payload3 = payload3 or ""
-						Details222.MythicPlus.LogStep("Event: WORLD_STATE_TIMER_START | payload1: " .. payload1 .. " | payload2: " .. payload2 .. " | payload3: " .. payload3)
-						Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
-						Details222.MythicPlus.WorldStateTimerStartAt = time()
-					end
-				end
-			end
-		end
-	end
-	--]=]
-
 	local startMythicPlusRun = function()
 		if (DetailsMythicPlusFrame.ZoneLeftTimer and not DetailsMythicPlusFrame.ZoneLeftTimer:IsCancelled()) then
 			DetailsMythicPlusFrame.ZoneLeftTimer:Cancel()

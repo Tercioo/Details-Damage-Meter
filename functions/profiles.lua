@@ -1862,7 +1862,7 @@ function Details:RestoreState_CurrentMythicDungeonRun()
 				Details:Msg("D! (debug) mythic dungeon state restored.")
 
 				C_Timer.After(2, function()
-					Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
+					Details:SendEvent("COMBAT_MYTHICDUNGEON_CONTINUE")
 				end)
 				return
 			else
