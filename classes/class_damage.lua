@@ -5116,19 +5116,30 @@ function damageClass:BuildDamageTakenSpellList()
 		--get the aggressor
 		local enemyActorObject = damageContainer:GetActor(enemyName)
 		if (
-			enemyActorObject and enemyActorObject.targets[targetActorName]
-			and (enemyActorObject:IsNeutralOrEnemy() or enemyActorObject:Name() == targetActorName)
+			enemyActorObject
+			and (
+				(enemyActorObject.targets[targetActorName] and enemyActorObject:IsNeutralOrEnemy())
+				or (enemyActorObject.friendlyfire[targetActorName] and enemyActorObject:Name() == targetActorName)
+			)
 		) then
-			---@type {[1]:spellid, [2]:valueamount, [3]:actorname}[]
-			local spellTargetDamageList = {}
-
-			for spellId, spellTable in pairs(enemyActorObject.spells._ActorTable) do
-				---@cast spellTable spelltable
-				local damageOnTarget = spellTable.targets[targetActorName]
-				if (damageOnTarget) then
-					unsortedSpells[spellId] = unsortedSpells[spellId] or {spellId = spellId, total = 0, petName = "", spellScholl = spellTable.spellschool}
-					unsortedSpells[spellId].total = unsortedSpells[spellId].total + damageOnTarget
-					resultTable.totalValue = resultTable.totalValue + damageOnTarget
+			if (enemyActorObject.targets[targetActorName]) then
+				for spellId, spellTable in pairs(enemyActorObject.spells._ActorTable) do
+					---@cast spellTable spelltable
+					local damageOnTarget = spellTable.targets[targetActorName]
+					if (damageOnTarget) then
+						unsortedSpells[spellId] = unsortedSpells[spellId] or {spellId = spellId, total = 0, petName = "", spellScholl = spellTable.spellschool}
+						unsortedSpells[spellId].total = unsortedSpells[spellId].total + damageOnTarget
+						resultTable.totalValue = resultTable.totalValue + damageOnTarget
+					end
+				end
+			else
+				local staggerSpellId = 124255
+				local friendlyFire = enemyActorObject.friendlyfire[targetActorName]
+				if (friendlyFire and friendlyFire.spells[staggerSpellId] and friendlyFire.spells[staggerSpellId] > 0) then
+					local staggerDamage = friendlyFire.spells[staggerSpellId]
+					unsortedSpells[staggerSpellId] = unsortedSpells[staggerSpellId] or {spellId = staggerSpellId, total = 0, petName = "", spellScholl = 1}
+					unsortedSpells[staggerSpellId].total = unsortedSpells[staggerSpellId].total + staggerDamage
+					resultTable.totalValue = resultTable.totalValue + staggerDamage
 				end
 			end
 		end
