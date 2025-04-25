@@ -4476,7 +4476,7 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 	local combatObject = instance:GetShowingCombat()
 	local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
 
-	---@type {key1:actorname, key2:valueamount, key3:class, key4:actor}
+	---@type {[1]:actorname, [2]:valueamount, [3]:class, [4]:actor}[]
 	local damageTakenDataSorted = {}
 	local mainAttribute, subAttribute = instance:GetDisplay()
 
@@ -4496,7 +4496,7 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 			--get the aggressor
 			local enemyActorObject = damageContainer:GetActor(enemyName)
 			if (enemyActorObject) then
-				---@type {key1:actorname, key2:valueamount, key3:class, key4:actor}
+				---@type {[1]:actorname, [2]:valueamount, [3]:class, [4]:actor}
 				local damageTakenTable
 				local damageInflictedByThisEnemy = enemyActorObject.targets[actorName]
 
@@ -4570,17 +4570,17 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 	-- create a full list of incoming damage, before adding any lines to the tooltip, so we can sort them appropriately
 
 	---@class cooltip_icon
-	---@field key1 textureid
-	---@field key2 number 1 for main tooltip frame, 2 for the secondary frame
-	---@field key3 number 1 for the left side, 2 for the right size
-	---@field key4 width
-	---@field key5 height
-	---@field key6 coordleft
-	---@field key7 coordright
-	---@field key8 coordtop
-	---@field key9 coordbottom
+	---@field [1] textureid|texturepath
+	---@field [2] number 1 for main tooltip frame, 2 for the secondary frame
+	---@field [3] number 1 for the left side, 2 for the right size
+	---@field [4] width
+	---@field [5] height
+	---@field [6] coordleft?
+	---@field [7] coordright?
+	---@field [8] coordtop?
+	---@field [9] coordbottom?
 
-	---@type {key1:valueamount, key2:table<string, string>, key3:cooltip_icon}
+	---@type {[1]:valueamount, [2]:{[1]:actorname, [1]:string, [3]:nil, [4]:color}, [3]:cooltip_icon}
 	local lines_to_add = {}
 
 	for i = 1, maxDataAllowed do
@@ -4591,7 +4591,7 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 		--the iteration doesnt check friendly fire for all actors, only a few cases like Monk Stagger
 
 		if (enemyActorObject:IsNeutralOrEnemy() or enemyActorObject:Name() == self:Name()) then
-			---@type {key1:spellid, key2:valueamount, key:actorname}
+			---@type {[1]:spellid, [2]:valueamount, [3]:actorname}[]
 			local spellTargetDamageList = {}
 
 			for spellId, spellTable in pairs(enemyActorObject.spells._ActorTable) do
@@ -4624,14 +4624,14 @@ function damageClass:ToolTip_DamageTaken(instance, numero, barra, keydown)
 				})
 			end
 		else
-			---@type actorname, valueamount, class, actor
+			---@type {[1]:actorname, [2]:valueamount, [3]:class, [4]:actor}
 			local thisAggrossorTable = damageTakenDataSorted[i]
 			local actorName = thisAggrossorTable[1]
 			local amount = thisAggrossorTable[2]
 			local class = thisAggrossorTable[3]
 			local actorObject = thisAggrossorTable[4]
 
-			---@type {key1:actorname, key2:string, key3:nil, key4:color}
+			---@type {[1]:actorname, [1]:string, [3]:nil, [4]:color}
 			local addLineArgs
 			---@type cooltip_icon
 			local addIconArgs
@@ -5042,9 +5042,9 @@ function damageClass:MontaInfoFriendlyFire() --~friendlyfire ~friendly ~ff
 end
 
 local damageTakenSpellSourcesHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
-function damageClass.BuildDamageTakenSpellListFromAgressor(targetActor, aggressorActor)
+function damageClass:BuildDamageTakenSpellListFromAgressor(aggressorActor)
 	--target actor name
-	local targetActorName = targetActor:Name()
+	local targetActorName = self:Name()
 
 	---@type combat
 	local combatObject = Details:GetCombatFromBreakdownWindow()
@@ -5090,6 +5090,67 @@ function damageClass.BuildDamageTakenSpellListFromAgressor(targetActor, aggresso
 			end
 		end
 	end
+
+	return resultTable
+end
+
+---@return {topValue: number, totalValue: number, headersAllowed: table, combatTime: number, [number]: {spellId: number, total: number, petName: string, spellScholl: number}}
+function damageClass:BuildDamageTakenSpellList()
+	--target actor name
+	local targetActorName = self:Name()
+
+	---@type combat
+	local combatObject = Details:GetCombatFromBreakdownWindow()
+
+	---@type actorcontainer
+	local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+
+	--create the table which will be returned with the data
+	---@type {topValue: number, totalValue: number, headersAllowed: table, combatTime: number, [number]: {spellId: number, total: number, petName: string, spellScholl: number}}
+	local resultTable = {topValue = 0, totalValue = 0, headersAllowed = damageTakenSpellSourcesHeadersAllowed, combatTime = combatObject:GetCombatTime()}
+
+	--- @type table<number, {spellId: number, total: number, petName: string, spellScholl: number}>
+	local unsortedSpells = {}
+
+	for enemyName, _ in pairs(self.damage_from) do --who damaged the player
+		--get the aggressor
+		local enemyActorObject = damageContainer:GetActor(enemyName)
+		if (
+			enemyActorObject
+			and (
+				(enemyActorObject.targets[targetActorName] and enemyActorObject:IsNeutralOrEnemy())
+				or (enemyActorObject.friendlyfire[targetActorName] and enemyActorObject:Name() == targetActorName)
+			)
+		) then
+			if (enemyActorObject.targets[targetActorName]) then
+				for spellId, spellTable in pairs(enemyActorObject.spells._ActorTable) do
+					---@cast spellTable spelltable
+					local damageOnTarget = spellTable.targets[targetActorName]
+					if (damageOnTarget) then
+						unsortedSpells[spellId] = unsortedSpells[spellId] or {spellId = spellId, total = 0, petName = "", spellScholl = spellTable.spellschool}
+						unsortedSpells[spellId].total = unsortedSpells[spellId].total + damageOnTarget
+						resultTable.totalValue = resultTable.totalValue + damageOnTarget
+					end
+				end
+			else
+				local staggerSpellId = 124255
+				local friendlyFire = enemyActorObject.friendlyfire[targetActorName]
+				if (friendlyFire and friendlyFire.spells[staggerSpellId] and friendlyFire.spells[staggerSpellId] > 0) then
+					local staggerDamage = friendlyFire.spells[staggerSpellId]
+					unsortedSpells[staggerSpellId] = unsortedSpells[staggerSpellId] or {spellId = staggerSpellId, total = 0, petName = "", spellScholl = 1}
+					unsortedSpells[staggerSpellId].total = unsortedSpells[staggerSpellId].total + staggerDamage
+					resultTable.totalValue = resultTable.totalValue + staggerDamage
+				end
+			end
+		end
+	end
+	local sortedSpells = {}
+	for _, spellTable in pairs(unsortedSpells) do
+		sortedSpells[#sortedSpells+1] = spellTable
+	end
+
+	table.sort(sortedSpells, function(a, b) return a.total > b.total end)
+	Mixin(resultTable, sortedSpells)
 
 	return resultTable
 end
