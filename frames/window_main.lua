@@ -3421,7 +3421,8 @@ do
 		self:SetPoint("center", UIParent, "center", x, y)
 	end
 
-	tooltipAnchor.alert = CreateFrame("frame", "DetailsTooltipAnchorAlert", UIParent, "ActionBarButtonSpellActivationAlert")
+	--tooltipAnchor.alert = CreateFrame("frame", "DetailsTooltipAnchorAlert", UIParent, "ActionBarButtonSpellActivationAlert")
+	tooltipAnchor.alert = CreateFrame("frame", "DetailsTooltipAnchorAlert", UIParent)
 	tooltipAnchor.alert:SetFrameStrata("FULLSCREEN")
 	tooltipAnchor.alert:Hide()
 	tooltipAnchor.alert:SetPoint("topleft", tooltipAnchor, "topleft", -60, 6)

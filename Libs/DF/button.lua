@@ -1,9 +1,10 @@
 
 --[=[
 	callback format:
-	function(button, clickType, param1, param2)
+	function(blizzardButton, clickType, param1, param2)
 	end
 
+	Use .MyObject to get the framework button object
 --]=]
 
 local detailsFramework = _G["DetailsFramework"]

@@ -2762,7 +2762,6 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNUPDATE_PREFIX, function(
     local sharedCooldownId = spellData and spellData.shareid
     if (sharedCooldownId) then
         local spellsWithSharedCooldown = LIB_OPEN_RAID_COOLDOWNS_SHARED_ID[sharedCooldownId]
-        --print("has shared cooldown:", next(spellsWithSharedCooldown))
 
         for thisSpellId in pairs(spellsWithSharedCooldown) do
             --don't run for the spell that triggered the shared cooldown
@@ -2770,7 +2769,6 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNUPDATE_PREFIX, function(
                 --before triggering the cooldown, check if the player has the spell
                 if (cooldownGetSpellInfo(unitName, thisSpellId)) then
                     local spellInfo = C_Spell.GetSpellInfo(thisSpellId)
-                    --print("trigger cooldown on:", spellInfo.name)
 
                     openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, thisSpellId, cooldownTimer, charges, startTime, duration, auraDuration)
 
