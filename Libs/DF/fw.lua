@@ -1,6 +1,6 @@
 
 
-local dversion = 604
+local dversion = 605
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -54,6 +54,8 @@ local SPELLBOOK_BANK_PET = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.P
 local IsPassiveSpell = IsPassiveSpell or C_Spell.IsSpellPassive
 local GetOverrideSpell = C_SpellBook and C_SpellBook.GetOverrideSpell or C_Spell.GetOverrideSpell or GetOverrideSpell
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
+local GetSpecialization = GetSpecialization or C_SpecializationInfo.GetSpecialization
+local GetSpecializationInfo = GetSpecializationInfo or C_SpecializationInfo.GetSpecializationInfo
 local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
 SMALL_NUMBER = 0.000001
@@ -229,15 +231,11 @@ function DF.IsTWWWow()
 	return DF.IsWarWow()
 end
 
-function DF.ExpHasRoleSupport()
-	return buildInfo >= 50000 --roles was implemented on mists of pandaria
-end
-
 ---return true if the player is playing in the WotLK version of wow with the retail api
 ---@return boolean
 function DF.IsNonRetailWowWithRetailAPI()
     local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 50000 and buildInfo >= 30401) or (buildInfo < 20000 and buildInfo >= 11404) then
+    if (buildInfo < 60000 and buildInfo >= 30401) or (buildInfo < 20000 and buildInfo >= 11404) then
         return true
     end
 	return false
@@ -380,14 +378,14 @@ end
 ---@param specId number?
 ---@return string
 function DF.UnitGroupRolesAssigned(unitId, bUseSupport, specId)
-	if (DF.ExpHasRoleSupport()) then --classic is now mop which has role support, so use build > 50000 to check for role support
+	if (UnitGroupRolesAssigned) then
 		local role = UnitGroupRolesAssigned(unitId)
 
 		if (specId == 1473 and bUseSupport) then
 			return "SUPPORT"
 		end
 
-		if (role == "NONE" and UnitIsUnit(unitId, "player") and GetSpecialization) then --mop does not have GetSpecialization
+		if (role == "NONE" and UnitIsUnit(unitId, "player")) then
 			local specializationIndex = GetSpecialization() or 0
 			local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
 			if (id == 1473 and bUseSupport) then
@@ -3595,7 +3593,7 @@ function DF:CreateAnimation(animationGroup, animationType, order, duration, arg1
 		anim:SetToAlpha(arg2)
 
 	elseif (animationType == "SCALE") then
-		if (DF.IsDragonflight() or DF.IsNonRetailWowWithRetailAPI() or DF.IsWarWow() or DF.IsPandaWow()) then
+		if (DF.IsDragonflight() or DF.IsNonRetailWowWithRetailAPI() or DF.IsWarWow()) then
 			anim:SetScaleFrom(arg1, arg2)
 			anim:SetScaleTo(arg3, arg4)
 		else
