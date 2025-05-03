@@ -48,7 +48,7 @@
 	local isWOTLK = detailsFramework.IsWotLKWow()
 	local isERA = detailsFramework.IsClassicWow()
 	local isCATA = detailsFramework.IsCataWow()
-    local isPANDA = detailsFramework.IsPandaWoW()
+    local isPANDA = detailsFramework.IsPandaWow()
     local isCLASSIC = isCATA or isPANDA or isERA or isWOTLK
 	local _tempo = time()
 	_ = nil
