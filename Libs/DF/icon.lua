@@ -53,7 +53,7 @@ detailsFramework.SideIsCorner = {
 	[17] = true,
 }
 
----@class df_icon : frame
+---@class df_icon : button
 ---@field spellId number
 ---@field startTime number
 ---@field duration number
@@ -137,7 +137,7 @@ detailsFramework.IconMixin = {
 	---@return df_icon
     CreateIcon = function(self, iconName)
 		---@type df_icon
-        local iconFrame = CreateFrame("frame", iconName, self, "BackdropTemplate")
+        local iconFrame = CreateFrame("button", iconName, self, "BackdropTemplate")
 
 		---@type texture
         iconFrame.Texture = iconFrame:CreateTexture(nil, "artwork")
