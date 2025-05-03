@@ -379,7 +379,10 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 						end
 
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
-						ImageObject.image:SetGradientAlpha(gradientTable.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
+
+						if (not detailsFramework.IsPandaWow()) then --in mop this function is nil
+							ImageObject.image:SetGradientAlpha(gradientTable.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
+						end
 					end
 				else
 					local r, g, b, a = detailsFramework:ParseColors(texture)

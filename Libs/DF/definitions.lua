@@ -206,6 +206,7 @@ GameCooltipFrame2 = {}
 ---@field IsDragonflightWow fun():boolean
 ---@field IsWarWow fun():boolean
 ---@field IsTWWWow fun():boolean
+---@field ExpHasRoleSupport fun():boolean
 ---@field CreateFullBorder fun(self:table, name:string, parent:frame) : border_frame
 ---@field CreateButton fun(self:table, parent:frame, func:function, width:number, height:number, text:any, param1:any, param2:any, texture:atlasname|texturepath|textureid|nil, member:string?, name:string?, shortMethod:any, buttonTemplate:table?, textTemplate:table?) : df_button callback function(blizzButton, clickType, param1, param2) end
 ---@field CreateCloseButton fun(self:table, parent:frame, frameName:string?) : df_closebutton
@@ -282,6 +283,7 @@ GameCooltipFrame2 = {}
 ---@field CreateIconRow fun(self:table, parent:frame, name:string?, options:table?) : df_iconrow
 ---@field ConvertAnchorPointToInside fun(self:table, anchorPoint:anchorid) : anchorid
 ---@field ExpansionHasAugEvoker fun():boolean
+---@field ExpansionHasEvoker fun():boolean
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
 ---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
 ---@field GetCurrentClassName fun(self:table) : string return the name of the class the player is playing
