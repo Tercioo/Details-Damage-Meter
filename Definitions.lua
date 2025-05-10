@@ -40,6 +40,7 @@
 ---| "COMBAT_ARENA_END"
 ---| "COMBAT_MYTHICDUNGEON_START"
 ---| "COMBAT_MYTHICDUNGEON_END"
+---| "COMBAT_MYTHICDUNGEON_CONTINUE"
 ---| "GROUP_ONENTER"
 ---| "GROUP_ONLEAVE"
 ---| "ZONE_TYPE_CHANGED"
@@ -793,9 +794,12 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field amount number
 ---@field total number
 ---@field actorName string
+---@field spellId number?
 ---@field Icon texture
+---@field IconFrame frame
 ---@field InLineTexts fontstring[]
 ---@field statusBar breakdownspellbarstatusbar
+---@field overlayTexture texture
 ---@field bIsFromLeftScroll boolean
 ---@field bIsFromRightScroll boolean
 

@@ -71,6 +71,19 @@ function Details222.StartUp.StartMeUp()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialize
 
+	do
+		--advertising patreon cuz I'm in need, need to make absolute sure this is removed before 11.1.7 goes live
+		local version = GetBuildInfo()
+		if (version == "11.1.7") then
+			--limit this to 10 days to be safe, don't want problems
+			local time = time()
+			local limitTime = 1747072462 --10 days ahead of May 02
+			if (time < limitTime) then
+				Details:Msg("Help support Details! author on Patreon: https://www.patreon.com/terciob")
+			end
+		end
+	end
+
 	--make an encounter journal cache. the cache will load before this if any function tries to get information from the cache
 	C_Timer.After(3, Details222.EJCache.CreateEncounterJournalDump)
 

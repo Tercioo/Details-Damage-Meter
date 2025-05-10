@@ -373,6 +373,9 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 		else
 			textentry:SetText("")
 			textentry.MyObject.currenttext = ""
+			if (textentry.MyObject.callWithNoText) then
+				textentry.MyObject.func(textentry.MyObject.param1, textentry.MyObject.param2, "", textentry, byScript or textentry)
+			end
 		end
 
 		if (not object.NoClearFocusOnEnterPressed) then
@@ -535,6 +538,14 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 			end
 		end)
 
+		self:SetHook("OnTextChanged", function()
+			if (self:GetText() ~= "") then
+				searchFontString:Hide()
+			else
+				searchFontString:Show()
+			end
+		end)
+
 		self.__bIsSearchBox = true
 	end
 ------------------------------------------------------------------------------------------------------------
@@ -624,6 +635,7 @@ end
 ---@field param2 any
 ---@field ShouldOptimizeAutoComplete boolean?
 ---@field AutoComplete_StopOnEnterPress boolean?
+---@field callWithNoText boolean?
 ---@field SetTemplate fun(self:df_textentry, template:table|string)
 ---@field Disable fun(self:df_textentry)
 ---@field Enable fun(self:df_textentry)

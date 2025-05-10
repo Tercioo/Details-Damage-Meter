@@ -56,7 +56,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 156
+local CONST_LIB_VERSION = 160
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -125,8 +125,8 @@ end
     local CONST_COMM_OPENNOTES_REQUESTED_PREFIX = "Q" --when received a request to send your note
 
     local CONST_COMM_RATING_DATA_PREFIX = "M"
-    local CONST_COMM_RATING_DATAREQUEST_PREFIX = "O" 
-    
+    local CONST_COMM_RATING_DATAREQUEST_PREFIX = "O"
+
     local CONST_COMM_SENDTO_PARTY = "0x1"
     local CONST_COMM_SENDTO_RAID = "0x2"
     local CONST_COMM_SENDTO_GUILD = "0x4"
@@ -2426,17 +2426,16 @@ end
                     --don't run for the spell that triggered the shared cooldown
                     if (thisSpellId ~= spellId) then
                         --before triggering the cooldown, check if the player has the spell
-                        if (not cooldownGetSpellInfo(playerName, thisSpellId)) then
-                            return
+                        if (cooldownGetSpellInfo(playerName, thisSpellId)) then --won't have BOP because it's not talented
+                            local spellInfo = C_Spell.GetSpellInfo(thisSpellId)
+                            openRaidLib.CooldownManager.CooldownSpellUpdate(playerName, thisSpellId, timeLeft, charges, startTimeOffset, duration, auraDuration)
+
+                            local cooldownInfo = cooldownGetSpellInfo(playerName, thisSpellId)
+                            local unitCooldownTable = openRaidLib.GetUnitCooldowns(playerName)
+
+                            --trigger a public callback
+                            openRaidLib.publicCallback.TriggerCallback("CooldownUpdate", openRaidLib.GetUnitID(playerName), thisSpellId, cooldownInfo, unitCooldownTable, openRaidLib.CooldownManager.UnitData)
                         end
-
-                        openRaidLib.CooldownManager.CooldownSpellUpdate(playerName, thisSpellId, timeLeft, charges, startTimeOffset, duration, auraDuration)
-
-                        local cooldownInfo = cooldownGetSpellInfo(playerName, thisSpellId)
-                        local unitCooldownTable = openRaidLib.GetUnitCooldowns(playerName)
-
-                        --trigger a public callback
-                        openRaidLib.publicCallback.TriggerCallback("CooldownUpdate", openRaidLib.GetUnitID(playerName), thisSpellId, cooldownInfo, unitCooldownTable, openRaidLib.CooldownManager.UnitData)
                     end
                 end
             end
@@ -2763,21 +2762,22 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNUPDATE_PREFIX, function(
     local sharedCooldownId = spellData and spellData.shareid
     if (sharedCooldownId) then
         local spellsWithSharedCooldown = LIB_OPEN_RAID_COOLDOWNS_SHARED_ID[sharedCooldownId]
+
         for thisSpellId in pairs(spellsWithSharedCooldown) do
             --don't run for the spell that triggered the shared cooldown
             if (thisSpellId ~= spellId) then
                 --before triggering the cooldown, check if the player has the spell
-                if (not cooldownGetSpellInfo(unitName, thisSpellId)) then
-                    return
+                if (cooldownGetSpellInfo(unitName, thisSpellId)) then
+                    local spellInfo = C_Spell.GetSpellInfo(thisSpellId)
+
+                    openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, thisSpellId, cooldownTimer, charges, startTime, duration, auraDuration)
+
+                    local cooldownInfo = cooldownGetSpellInfo(unitName, thisSpellId)
+                    local unitCooldownTable = openRaidLib.GetUnitCooldowns(unitName)
+
+                    --trigger a public callback
+                    openRaidLib.publicCallback.TriggerCallback("CooldownUpdate", openRaidLib.GetUnitID(unitName), thisSpellId, cooldownInfo, unitCooldownTable, openRaidLib.CooldownManager.UnitData)
                 end
-
-                openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, thisSpellId, cooldownTimer, charges, startTime, duration, auraDuration)
-
-                local cooldownInfo = cooldownGetSpellInfo(unitName, thisSpellId)
-                local unitCooldownTable = openRaidLib.GetUnitCooldowns(unitName)
-
-                --trigger a public callback
-                openRaidLib.publicCallback.TriggerCallback("CooldownUpdate", openRaidLib.GetUnitID(unitName), thisSpellId, cooldownInfo, unitCooldownTable, openRaidLib.CooldownManager.UnitData)
             end
         end
     end
@@ -3192,10 +3192,10 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
 
     ---@class MythicPlusRatingMapSummary
     ---@field challengeModeID number
-    ---@field mapScore number	
-    ---@field bestRunLevel number	
+    ---@field mapScore number
+    ---@field bestRunLevel number
     ---@field bestRunDurationMS number
-    ---@field finishedSuccess boolean	
+    ---@field finishedSuccess boolean
 
     ---@class ratinginfo
     ---@field classID number
@@ -3287,9 +3287,9 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         --- I really just want this whole thing
         local summary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary("player")
 
-        ratingInfo.currentSeasonScore = summary.currentSeasonScore or 0
-        ratingInfo.runs = summary.runs or {}
-        
+        ratingInfo.currentSeasonScore = summary and summary.currentSeasonScore or 0
+        ratingInfo.runs = summary and summary.runs or {}
+
         local _, _, playerClassID = UnitClass("player")
         ratingInfo.classID = playerClassID
     end
@@ -3313,7 +3313,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         local playerName = UnitName("player")
         local ratingInfo = openRaidLib.RatingInfoManager.GetRatingInfo(playerName, true)
         openRaidLib.RatingInfoManager.UpdatePlayerRatingInfo(ratingInfo)
-    
+
         local dataToSend = "" .. CONST_COMM_RATING_DATA_PREFIX .. ","
 
         local runs = {}
@@ -3330,7 +3330,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         dataToSend = dataToSend .. ratingInfo.classID .. ","
         dataToSend = dataToSend .. ratingInfo.currentSeasonScore .. ","
         dataToSend = dataToSend .. openRaidLib.PackTableAndSubTables(runs)
-        
+
         return dataToSend
     end
 
@@ -3387,7 +3387,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         local runs = {}
         for _, runInfo in ipairs(unpackedTable) do
             local challengeModeID, bestRunDurationMS, finishedSuccess, mapScore, bestRunLevel = unpack(runInfo)
-            
+
             runs[#runs+1] = {
                 challengeModeID = challengeModeID,
                 bestRunDurationMS = bestRunDurationMS,

@@ -589,7 +589,7 @@ BackdropTemplateMixin = {}
 ---@field SetClampRectInsets fun(self: frame, left: number, right: number, top: number, bottom: number)
 ---@field SetMovable fun(self: frame, movable: boolean)
 ---@field SetUserPlaced fun(self: frame, userPlaced: boolean)
----@field SetBackdrop fun(self: frame, backdrop: backdrop|table)
+---@field SetBackdrop fun(self: frame, backdrop: backdrop|table|nil)
 ---@field SetBackdropColor fun(self: frame, red: red|number, green: green|number, blue: blue|number, alpha: alpha|number?)
 ---@field SetBackdropBorderColor fun(self: frame, red: red|number, green: green|number, blue: blue|number, alpha: alpha|number?)
 ---@field GetBackdrop fun(self: frame) : backdrop
@@ -874,7 +874,7 @@ BackdropTemplateMixin = {}
 ---@field SetTextColor fun(self: editbox, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
 ---@field SetJustifyH fun(self:editbox, alignment:string)
 ---@field SetTextInsets fun(self:editbox, left:number, right:number, top:number, bottom:number)
----@field SetFocus fun(self:editbox, focus:boolean)
+---@field SetFocus fun(self:editbox)
 ---@field HasFocus fun(self:editbox) : boolean return true if the editbox has focus
 ---@field HighlightText fun(self:editbox, start:number?, finish:number?) select a portion of the text, passing zero will select the entire text
 
@@ -890,6 +890,68 @@ BackdropTemplateMixin = {}
 ---@field SetObeyStepOnDrag fun(self: slider, obeyStep: boolean)
 ---@field SetThumbTexture fun(self: slider, texture: textureid|texturepath)
 ---@field SetStepsPerPage fun(self: slider, steps: number)
+
+---@class encodingutil : table
+---@field EncodeHex fun(self: encodingutil, str: string) : string
+---@field DecodeHex fun(self: encodingutil, str: string) : string
+---@field EncodeBase64 fun(self: encodingutil, str: string, variant: string?) : string
+---@field DecodeBase64 fun(self: encodingutil, str: string, variant: string?) : string
+---@field CompressString fun(self: encodingutil, str: string, method: string?, level: string?) : string
+---@field DecompressString fun(self: encodingutil, str: string, method: string?) : string
+---@field SerializeJSON fun(self: encodingutil, value: any, options: table?) : string
+---@field DeserializeJSON fun(self: encodingutil, str: string) : any
+---@field SerializeCBOR fun(self: encodingutil, value: any, options: table?) : string
+---@field DeserializeCBOR fun(self: encodingutil, str: string) : any
+
+C_EncodingUtil = {}
+
+---@param source string
+---@param method string?
+---@param level string?
+---@return string
+function C_EncodingUtil.CompressString(source, method, level) return "" end
+
+---@param source string
+---@param variant string?
+---@return string
+function C_EncodingUtil.DecodeBase64(source, variant) return "" end
+
+---@param source string
+---@return string
+function C_EncodingUtil.DecodeHex(source) return "" end
+
+---@param source string
+---@param method string?
+---@return string
+function C_EncodingUtil.DecompressString(source, method) return "" end
+
+---@param source string
+---@return any
+function C_EncodingUtil.DeserializeCBOR(source) return nil end
+
+---@param source string
+---@return any
+function C_EncodingUtil.DeserializeJSON(source) return nil end
+
+---@param source string
+---@param variant string?
+---@return string
+function C_EncodingUtil.EncodeBase64(source, variant) return "" end
+
+---@param source string
+---@return string
+function C_EncodingUtil.EncodeHex(source) return "" end
+
+---@param value any
+---@param options table?
+---@return string
+function C_EncodingUtil.SerializeCBOR(value, options) return "" end
+
+---@param value any
+---@param options table?
+---@return string
+function C_EncodingUtil.SerializeJSON(value, options) return "" end
+
 
 ---get all frames under the cursor that has mouse focus
 ---@return uiobject[]
@@ -2260,6 +2322,9 @@ UseSoulstone = function(type) end
 CanSolveArtifact = function() return true end
 
 UIParent = {}
+
+---@return number
+GetNumClasses = function() return 0 end
 
 ---@param raceIndex number
 ---@return number, string, string, number, number, number, number, number

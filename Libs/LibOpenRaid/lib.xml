@@ -9,4 +9,5 @@
 	<Script file="ThingsToMantain_Wrath.lua" />
 	<Script file="ThingsToMantain_Era.lua" />
 	<Script file="ThingsToMantain_Cata.lua" />
+	<Script file="ThingsToMantain_Pandaria.lua" />
 </Ui>

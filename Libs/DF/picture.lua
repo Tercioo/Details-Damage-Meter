@@ -379,7 +379,8 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 						end
 
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
-						ImageObject.image:SetGradientAlpha(gradientTable.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
+
+                        ImageObject.image:SetGradientAlpha(gradientTable.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
 					end
 				else
 					local r, g, b, a = detailsFramework:ParseColors(texture)

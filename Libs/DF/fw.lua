@@ -1,6 +1,6 @@
 
 
-local dversion = 600
+local dversion = 606
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -54,6 +54,8 @@ local SPELLBOOK_BANK_PET = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.P
 local IsPassiveSpell = IsPassiveSpell or C_Spell.IsSpellPassive
 local GetOverrideSpell = C_SpellBook and C_SpellBook.GetOverrideSpell or C_Spell.GetOverrideSpell or GetOverrideSpell
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
+local GetSpecialization = GetSpecialization or C_SpecializationInfo.GetSpecialization
+local GetSpecializationInfo = GetSpecializationInfo or C_SpecializationInfo.GetSpecializationInfo
 local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
 SMALL_NUMBER = 0.000001
@@ -144,7 +146,7 @@ end
 ---return if the wow version the player is playing is a classic version of wow
 ---@return boolean
 function DF.IsTimewalkWoW()
-    if (buildInfo < 50000) then        return true    end
+    if (buildInfo < 60000) then        return true    end
 	return false
 end
 
@@ -233,7 +235,7 @@ end
 ---@return boolean
 function DF.IsNonRetailWowWithRetailAPI()
     local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 50000 and buildInfo >= 30401) or (buildInfo < 20000 and buildInfo >= 11404) then
+    if (buildInfo < 60000 and buildInfo >= 30401) or (buildInfo < 20000 and buildInfo >= 11404) then
         return true
     end
 	return false
@@ -376,7 +378,7 @@ end
 ---@param specId number?
 ---@return string
 function DF.UnitGroupRolesAssigned(unitId, bUseSupport, specId)
-	if (not DF.IsTimewalkWoW()) then --Was function exist check. TBC has function, returns NONE. -Flamanis 5/16/2022
+	if (UnitGroupRolesAssigned) then
 		local role = UnitGroupRolesAssigned(unitId)
 
 		if (specId == 1473 and bUseSupport) then
@@ -4087,6 +4089,7 @@ function DF:CreateGlowOverlay(parent, antsColor, glowColor)
 	end
 
 	local glowFrame = CreateFrame("frame", frameName, parent, "ActionBarButtonSpellActivationAlert")
+	--local glowFrame = CreateFrame("frame", frameName, parent)
 	glowFrame:HookScript("OnShow", glow_overlay_onshow)
 	glowFrame:HookScript("OnHide", glow_overlay_onhide)
 
@@ -4746,7 +4749,7 @@ function DF:GetCurrentSpecId()
 end
 
 local specs_per_class = {
-	["DEMONHUNTER"] = {577, 581},
+	["DEMONHUNTER"] = {577, 581}, --havoc, vengence
 	["DEATHKNIGHT"] = {250, 251, 252},
 	["WARRIOR"] = {71, 72, 73},
 	["MAGE"] = {62, 63, 64},
