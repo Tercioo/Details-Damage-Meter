@@ -56,7 +56,7 @@
 	local shield_cache = Details.ShieldCache
 	local parser = Details.parser
 
-	local crowdControlSpells = Details.CrowdControlSpellNamesCache --built during startup, can be edited to add or remove spells
+	local crowdControlSpells = Details.CrowdControlSpellNamesCache or {} --built during startup, can be edited to add or remove spells
 	local spellContainerClass = Details.container_habilidades --details local
 
 	--localize the cooldown table from the framework
