@@ -1,6 +1,6 @@
 
 
-local dversion = 606
+local dversion = 607
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -378,44 +378,51 @@ end
 ---@param specId number?
 ---@return string
 function DF.UnitGroupRolesAssigned(unitId, bUseSupport, specId)
-	if (UnitGroupRolesAssigned) then
-		local role = UnitGroupRolesAssigned(unitId)
+    local role
 
-		if (specId == 1473 and bUseSupport) then
-			return "SUPPORT"
-		end
+    if (specId == 1473 and bUseSupport) then
+        return "SUPPORT"
+    end
 
-		if (role == "NONE" and UnitIsUnit(unitId, "player")) then
-			local specializationIndex = GetSpecialization() or 0
-			local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
-			if (id == 1473 and bUseSupport) then
-				return "SUPPORT"
-			end
-			return id and role or "NONE"
-		end
+    if (UnitGroupRolesAssigned) then
+        role = UnitGroupRolesAssigned(unitId)
+    end
 
-		return role
-	else
-		--attempt to guess the role by the player spec
-		local classLoc, className = UnitClass(unitId)
-		if (className == "MAGE" or className == "ROGUE" or className == "HUNTER" or className == "WARLOCK") then
-			return "DAMAGER"
-		end
+    if (role == "NONE") then
+        if (GetSpecialization) then
+            if (UnitIsUnit(unitId, "player")) then
+                local specializationIndex = GetSpecialization() or 0
+                local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
+                if (id == 1473 and bUseSupport) then
+                    return "SUPPORT"
+                end
+                return id and role or "NONE"
+            end
+        else
+            --attempt to guess the role by the player spec
+            local classLoc, className = UnitClass(unitId)
+            if (className == "MAGE" or className == "ROGUE" or className == "HUNTER" or className == "WARLOCK") then
+                return "DAMAGER"
+            end
 
-		if (Details) then
-			--attempt to get the role from Details! Damage Meter
-			local guid = UnitGUID(unitId)
-			if (guid) then
-				local role = Details.cached_roles[guid]
-				if (role) then
-					return role
-				end
-			end
-		end
+            if (Details) then
+                --attempt to get the role from Details! Damage Meter
+                local guid = UnitGUID(unitId)
+                if (guid) then
+                    role = Details.cached_roles[guid]
+                    if (role) then
+                        return role
+                    end
+                end
+            end
 
-		local role = DF:GetRoleByClassicTalentTree()
-		return role
-	end
+            if (UnitIsUnit(unitId, "player")) then
+                role = DF:GetRoleByClassicTalentTree()
+            end
+        end
+    end
+
+    return role
 end
 
 ---return the specializationid of the player it self
