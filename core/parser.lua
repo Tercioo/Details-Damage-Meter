@@ -5611,6 +5611,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.CacheKeystoneForAllGroupMembers()
 	end
 
+	---@param self details
+	---@return details_encounter_table
+	function Details:GetCurrentEncounterInfo()
+		return Details.encounter_table
+	end
+
 	--ENCOUNRTER_END
 	function Details.parser_functions:ENCOUNTER_END(...)
 		if (Details.debug) then

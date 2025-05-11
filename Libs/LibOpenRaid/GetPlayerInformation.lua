@@ -481,7 +481,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
         local itemLink = GetInventoryItemLink("player", equipmentSlotId)
         if (itemLink) then
             --get the information from the item
-            local _, itemId, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
+            local itemQuality, hyperlinkType, itemId, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
             local gemsIds = {gemId1, gemId2, gemId3, gemId4}
 
             --enchant
@@ -539,36 +539,40 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
         local itemLink = GetInventoryItemLink("player", equipmentSlotId)
         if (itemLink) then
             --local itemStatsTable = {}
-            local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = select(2, strsplit(":", itemLink))
-            itemID = tonumber(itemID)
+            --local linkOptions = {LinkUtil.ExtractLink(itemLink)} [1] 'item' [2] itemlink string [3] item name
+            --local link = linkTable[2]
+
+            local _, linkOptions = LinkUtil.ExtractLink(itemLink);
 
             local effectiveILvl, isPreview, baseILvl = GetDetailedItemLevelInfo(itemLink)
             if (not effectiveILvl) then
                 openRaidLib.mainControl.scheduleUpdatePlayerData()
                 effectiveILvl = 0
+
+                local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = strsplit(":", linkOptions)
+                itemID = tonumber(itemID)
+
                 openRaidLib.__errors[#openRaidLib.__errors+1] = "Fail to get Item Level: " .. (itemID or "invalid itemID") .. " " .. (itemLink and itemLink:gsub("|H", "") or "invalid itemLink")
             end
 
             local itemStatsTable = GetItemStats(itemLink)
-            --GetItemStats(itemLink, itemStatsTable)
             local gemSlotsAvailable = itemStatsTable and itemStatsTable.EMPTY_SOCKET_PRISMATIC or 0
 
-            local noPrefixItemLink = itemLink : gsub("^|c%x%x%x%x%x%x%x%x|Hitem", "")
+            --linkOptions = "212092::213481::::::80:63::35:7:6652:10397:10390:10371:10256:1527:10255:1:28:2462:::::"
+
+            local noPrefixItemLink = linkOptions --itemLink:gsub("^|c%x%x%x%x%x%x%x%x|Hitem", "")
             local linkTable = {strsplit(":", noPrefixItemLink)}
-            local numModifiers = linkTable[14]
+            local numModifiers = linkTable[13]
+
             numModifiers = numModifiers and tonumber(numModifiers) or 0
 
-            for i = #linkTable, 14 + numModifiers + 1, -1 do
+            for i = #linkTable, 13 + numModifiers + 1, -1 do
                 table.remove(linkTable, i)
             end
 
             local newItemLink = table.concat(linkTable, ":")
             newItemLink = newItemLink
             equipmentList[#equipmentList+1] = {equipmentSlotId, gemSlotsAvailable, effectiveILvl, newItemLink}
-
-            if (equipmentSlotId == 2) then
-                debug = {itemLink:gsub("|H", ""), newItemLink}
-            end
         end
     end
 
