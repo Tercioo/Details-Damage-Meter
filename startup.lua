@@ -102,7 +102,10 @@ function Details222.StartUp.StartMeUp()
 	Details:InitializeRunCodeWindow()
 	Details:InitializePlaterIntegrationWindow()
 	Details:InitializeMacrosWindow()
-	Details:InitializeEncounterSwapper()
+
+	if (Details.InitializeEncounterSwapper) then
+		Details:InitializeEncounterSwapper()
+	end
 
 	Details222.CreateAllDisplaysFrame()
 
