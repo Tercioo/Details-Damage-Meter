@@ -705,6 +705,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field SetSegment fun(instance: instance, segment: segmentid, force: boolean|nil)
 ---@field SetDisplay fun(instance: instance, segmentId: segmentid?, attributeId: attributeid?, subAttributeId: attributeid?, modeId: modeid?)
 ---@field GetDisplay fun(instance: instance) : attributeid, attributeid
+---@field IsShowing fun(instance: instance, segmentId: segmentid, displayId: attributeid, subDisplayId: attributeid) : boolean
 ---@field ResetWindow fun(instance: instance, resetType: number|nil, segmentId: segmentid|nil)
 ---@field RefreshData fun(instance: instance, force: boolean|nil)
 ---@field RefreshWindow fun(instance: instance, force: boolean|nil)
