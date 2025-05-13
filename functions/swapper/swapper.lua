@@ -25,6 +25,7 @@ end
 ---@field SwapperGetEncounterData fun(self:details):table return a table with data stored by the current swapper
 ---@field SwapperGetWindow fun(self:details):instance? return the window that is being swapped
 ---@field SwapperFreezeDamage fun(self:details) get damage done by players and store in Details:SwapperGetEncounterData()
+---@field SwapperFreezeDamageOnTarget fun(self:details, targetName:string) get damage done by players on a target and store in Details:SwapperGetEncounterData()
 ---@field SwapperRestoreWindow fun(self:details) restore the window that was swapped
 ---@field SwapperSetCustomDisplay fun(self:details, instanceObject:instance, customDisplayName:string, customDisplayIcon:string, customDisplaySearchCode:string) set the display of the window to a custom display
 
@@ -96,6 +97,19 @@ function Details:SwapperFreezeDamage()
     return freezeDamage()
 end
 
+function Details:SwapperFreezeDamageOnTarget(targetName)
+    local currentCombat = Details:GetCurrentCombat()
+    local damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+    for index, actorObject in damageContainer:ListActors() do
+        ---@cast actorObject actordamage
+        if (actorObject:IsPlayer()) then
+            local targets = actorObject.targets
+            local damageOnTarget = targets[targetName] or 0
+            data.encounterData[actorObject:Name()] = damageOnTarget
+        end
+    end
+end
+
 ---@param self details
 ---@return table
 function Details:SwapperGetEncounterData()
@@ -139,7 +153,7 @@ function Details:SwapperSetCustomDisplay(instanceObject, customDisplayName, cust
     else
         --if it doesn't exist, create it and set the display
         debugPrint("3 Custom display not found, creating and setting display to:", customDisplayName)
-        local customObject = Details:CreateCustomDisplayObject(customDisplayName, customDisplayIcon, customDisplaySearchCode)
+        local customObject = Details:CreateCustomDisplayObject(customDisplayName, customDisplayIcon, customDisplaySearchCode, [[return true]])
         Details:InstallCustomObject(customObject)
         local customDisplayAmount = Details:GetNumCustomDisplays()
         instanceObject:SetDisplay(DETAILS_SEGMENTID_CURRENT, DETAILS_ATTRIBUTE_CUSTOM, customDisplayAmount)
@@ -164,13 +178,13 @@ function Details:InitializeEncounterSwapper()
     eventListener:RegisterEvent("COMBAT_ENCOUNTER_PHASE_CHANGED")
 
     function eventListener:OnDetailsEvent(event, param1, param2, param3)
-        debugPrint("eventListener:OnEvent", event, param1, param2, param3)
+        --debugPrint("eventListener:OnEvent", event, param1, param2, param3)
 
         if (event == "COMBAT_ENCOUNTER_PHASE_CHANGED") then
             local encounterTable = Details:GetCurrentEncounterInfo()
             local encounterSwapperInfo = getEncounterSwapperInfo(encounterTable.id)
             if (not encounterSwapperInfo) then
-                debugPrint("No encounter swapper info found for encounter id:", encounterTable.id)
+                --debugPrint("No encounter swapper info found for encounter id:", encounterTable.id)
                 return
             end
 
@@ -185,12 +199,12 @@ function Details:InitializeEncounterSwapper()
             end
 
         elseif (event == "COMBAT_ENCOUNTER_END") then
-            debugPrint("Encounter ended")
+            --debugPrint("Encounter ended")
             local swappedWindow = Details:SwapperGetWindow()
             if (swappedWindow) then
                 Details:SwapperRestoreWindow()
             else
-                debugPrint("No swapped window found at the end of the encounter")
+                --debugPrint("No swapped window found at the end of the encounter")
             end
         end
     end
@@ -214,7 +228,18 @@ do --Vexie and the Geargrinders
             local damageWindow = Details:GetDamageWindow()
             debugPrint("encounterSwapperInfo -> Phase 2 running", damageWindow and "window found" or "no window found")
             if (damageWindow) then
-                Details:SwapperFreezeDamage()
+                --Details:SwapperFreezeDamage()
+                local npcName = Details:GetSourceFromNpcId(225821)
+                if (npcName) then
+                    print("Freezing damage on target:", npcName)
+                    Details:SwapperFreezeDamageOnTarget(npcName)
+                else
+                    debugPrint("No npc name found for npc id 225821.")
+                    return
+                end
+
+                local swapperEncounterData = Details:SwapperGetEncounterData()
+                swapperEncounterData.targetName = npcName
 
                 local customDisplaySearchCode = [[
                     ---@type combat, table, instance
@@ -230,17 +255,17 @@ do --Vexie and the Geargrinders
 
                     for index, actorObject in damageContainer:ListActors() do
                         if (actorObject:IsPlayer()) then
-                            local freezedDamage = swapperEncounterData[actorObject:Name()]
-                            if (freezedDamage) then
-                                local phaseDamage = actorObject.total - freezedDamage
-                                if (phaseDamage > 0) then
-                                    instanceContainer:AddValue(actorObject, phaseDamage) --actorObject, amountDamage
-                                    totalDamage = totalDamage + phaseDamage --amountDamage
-                                    if (phaseDamage > topDamage) then
-                                        topDamage = phaseDamage --top damage
-                                    end
-                                    amount = amount + 1 --amount of actors found
+                            local freezedDamageOnTarget = swapperEncounterData[actorObject:Name()] or 0
+                            local targets = actorObject.targets
+                            local damageOnTarget = (targets[swapperEncounterData.targetName] or 0) - freezedDamageOnTarget
+
+                            if (damageOnTarget > 0) then
+                                instanceContainer:SetValue(actorObject, damageOnTarget) --actorObject, amountDamage
+                                totalDamage = totalDamage + damageOnTarget --amountDamage
+                                if (damageOnTarget > topDamage) then
+                                    topDamage = damageOnTarget --top damage
                                 end
+                                amount = amount + 1 --amount of actors found
                             end
                         end
                     end
@@ -248,7 +273,7 @@ do --Vexie and the Geargrinders
                     return totalDamage, topDamage, amount
                 ]]
 
-                local customDisplayName = "Phase 2 Damage"
+                local customDisplayName = "Damage On Geargrinder"
                 local customDisplayIcon = "Interface\\Icons\\spell_nature_earthbind"
                 Details:SwapperSetCustomDisplay(damageWindow, customDisplayName, customDisplayIcon, customDisplaySearchCode)
             end

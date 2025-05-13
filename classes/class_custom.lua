@@ -258,7 +258,7 @@
 					local percent, ptotal
 
 					if (percent_script) then
-						okey, percent = pcall (percent_script, floor(actor.value), top, total, combatObject, instanceObject, actor)
+						okey, percent = xpcall (percent_script, geterrorhandler(), floor(actor.value), top, total, combatObject, instanceObject, actor)
 						if (not okey) then
 							Details:Msg("|cFFFF9900percent script error|r:", percent)
 							return Details:EndRefresh (instanceObject, 0, combatObject, combatObject [1])
@@ -268,7 +268,7 @@
 					end
 
 					if (total_script) then
-						local okey, value = pcall (total_script, floor(actor.value), top, total, combatObject, instanceObject, actor)
+						local okey, value = xpcall (total_script, geterrorhandler(), floor(actor.value), top, total, combatObject, instanceObject, actor)
 						if (not okey) then
 							Details:Msg("|cFFFF9900total script error|r:", value)
 							return Details:EndRefresh (instanceObject, 0, combatObject, combatObject [1])
@@ -545,7 +545,7 @@
 		--percent
 			if (percent_script) then
 				--local value, top, total, combat, instance = ...
-				okey, percent = pcall (percent_script, self.value, top, total, combat, instance, self)
+				okey, percent = xpcall (percent_script, geterrorhandler(), self.value, top, total, combat, instance, self)
 				if (not okey) then
 					Details:Msg("|cFFFF9900error on custom display function|r:", percent)
 					return Details:EndRefresh (instance, 0, combat, combat [1])
@@ -564,7 +564,7 @@
 
 		--total done
 			if (total_script) then
-				local okey, value = pcall (total_script, self.value, top, total, combat, instance, self)
+				local okey, value = xpcall (total_script, geterrorhandler(), self.value, top, total, combat, instance, self)
 				if (not okey) then
 					Details:Msg("|cFFFF9900error on custom display function|r:", value)
 					return Details:EndRefresh (instance, 0, combat, combat [1])
@@ -1003,7 +1003,7 @@
 		if (customObject:IsScripted()) then
 			if (customObject.tooltip) then
 				local func = Details.custom_function_cache [instanceObject.customName .. "Tooltip"]
-				local okey, errortext = pcall(func, actorObject, instanceObject.showing, instanceObject, keydown)
+				local okey, errortext = xpcall(func, geterrorhandler(), actorObject, instanceObject.showing, instanceObject, keydown)
 				if (not okey) then
 					Details:Msg("|cFFFF9900error on custom display tooltip function|r:", errortext)
 					return false
