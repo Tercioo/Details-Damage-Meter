@@ -12,7 +12,7 @@ local _
 ---@diagnostic disable-next-line: undefined-field
 local classCustom = Details.atributo_custom
 
-local debugmode = true
+local debugmode = false
 local debugPrint = function(...)
     if (debugmode) then
         print("|cFFFFFF00Details Swapper (dev):|r", ...)
@@ -231,7 +231,7 @@ do --Vexie and the Geargrinders
                 --Details:SwapperFreezeDamage()
                 local npcName = Details:GetSourceFromNpcId(225821)
                 if (npcName) then
-                    print("Freezing damage on target:", npcName)
+                    debugPrint("Freezing damage on target:", npcName)
                     Details:SwapperFreezeDamageOnTarget(npcName)
                 else
                     debugPrint("No npc name found for npc id 225821.")
