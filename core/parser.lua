@@ -141,15 +141,12 @@
 			paladin_vivaldi_blessings = {},
 			chronowarden_thread_fate = {},
 			scalecommander_bombardments = {},
+			shaman_stormlash_totem = {},
 			track_hunter_frenzy = false,
 			rampage_cast_amount = {},
+			aug_members_cache = {},
+			scalecommander_members_cache = {}
 		}
-		
-	--store the number of aug evokerSerial
-		local aug_members_cache = {}
-		
-	--store the number of dev and evokerSerial
-		local scalecommander_members_cache = {}
 
 	--store the gear of each player
 		local gearCache = {}
@@ -564,14 +561,14 @@
 		[124255] = true, --stagger
 		[282449] = true, --akaari's soul rogue
 		[196917] = true, --light of the martyr
-		[388009] = true, --blessing of spring
-		[388012] = true, --blessing of summer
+		[388009] = true, --blessing of summer
 		[410265] = true, --inferno's blessing
 		[404908] = true, --fate mirror
 		[360828] = true, --blistering scales
 		[409632] = true, --breath of eons
 		[432895] = true, --thread of fate
 		[434481] = true, --bombardments
+		[120687] = true, --stormlash totem
 		[384601] = true, --Anti Magic Bomb
 		[392171] = true, --Rose of the Vale
 		[392166] = true, --Azure Stone of Might
@@ -588,6 +585,7 @@
 		[409632] = true, --breath of eons
 		[432895] = true, --thread of fate
 		[434481] = true, --bombardments
+		[120687] = true, --stormlash totem
 	}
 
 	--damage spells to ignore
@@ -1923,8 +1921,9 @@
 		local newSerial = sourceSerial
 		local newName = sourceName
 		local newFlags = sourceFlags
+		local blessingSource = nil
 		if (spellId == 388009) then --damage from the paladin blessings of the seasons
-			local blessingSource = cacheAnything.paladin_vivaldi_blessings[sourceSerial]
+			blessingSource = cacheAnything.paladin_vivaldi_blessings[sourceSerial]
 			if (blessingSource) then
 				newSerial, newName, newFlags = unpack(blessingSource)
 			end
@@ -1937,8 +1936,8 @@
 				currentlyBuffedWithInfernoBless = augmentation_cache.infernobless[sourceSerial]
 				countBuffedWithInfernoBless = #currentlyBuffedWithInfernoBless
 			end
-			if (aug_members_cache) then
-				countAugMember = #aug_members_cache
+			if (cacheAnything.aug_members_cache) then
+				countAugMember = #cacheAnything.aug_members_cache
 			end
 			if (countBuffedWithInfernoBless == 1) then
 				newSerial, newName, newFlags = unpack(currentlyBuffedWithInfernoBless[1])
@@ -1947,7 +1946,7 @@
 				newFlags = 0x514
 				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			elseif (countAugMember == 1) then
-				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+				newSerial, newName, newFlags = unpack(cacheAnything.aug_members_cache[1])
 			end
 			
 		elseif (spellId == 404908) then --damage from fate mirror
@@ -1958,8 +1957,8 @@
 				currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
 				countBuffedWithPrescience = #currentlyBuffedWithPrescience
 			end
-			if (aug_members_cache) then
-				countAugMember = #aug_members_cache
+			if (cacheAnything.aug_members_cache) then
+				countAugMember = #cacheAnything.aug_members_cache
 			end
 			if (countBuffedWithPrescience == 1) then
 				newSerial, newName, newFlags = unpack(currentlyBuffedWithPrescience[1])
@@ -1968,7 +1967,7 @@
 				newFlags = 0x514
 				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			elseif (countAugMember == 1) then
-				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+				newSerial, newName, newFlags = unpack(cacheAnything.aug_members_cache[1])
 			end
 			
 		elseif (spellId == 360828) then --damage from blistering scales
@@ -1979,8 +1978,8 @@
 				currentlyBuffedWithBlistering = augmentation_cache.shield[sourceSerial]
 				countBuffedWithBlistering = #currentlyBuffedWithBlistering
 			end
-			if (aug_members_cache) then
-				countAugMember = #aug_members_cache
+			if (cacheAnything.aug_members_cache) then
+				countAugMember = #cacheAnything.aug_members_cache
 			end
 			if (countBuffedWithBlistering == 1) then
 				newSerial, newName, newFlags = unpack(currentlyBuffedWithBlistering[1])
@@ -1989,7 +1988,7 @@
 				newFlags = 0x514
 				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			elseif (countAugMember == 1) then
-				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+				newSerial, newName, newFlags = unpack(cacheAnything.aug_members_cache[1])
 			end
 			
 		elseif (spellId == 409632) then
@@ -2015,8 +2014,8 @@
 					end
 				end
 			end
-			if (aug_members_cache) then
-				countAugMember = #aug_members_cache
+			if (cacheAnything.aug_members_cache) then
+				countAugMember = #cacheAnything.aug_members_cache
 			end
 			if (eonsSourcesFound == 1) then
 				newSerial = lastEvokerSerial
@@ -2027,18 +2026,18 @@
 				newFlags = 0x514
 				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			elseif (countAugMember == 1) then
-				newSerial, newName, newFlags = unpack(aug_members_cache[1])
+				newSerial, newName, newFlags = unpack(cacheAnything.aug_members_cache[1])
 			end
 		elseif (spellId == 432895) then --damage from thread of fate
-			local chronoThreadSource = cacheAnything.chronowarden_thread_fate[sourceSerial]
-			if (cacheAnything.chronowarden_thread_fate[sourceSerial]) then
-				newSerial, newName, newFlags = unpack(chronoThreadSource)
+			blessingSource = cacheAnything.chronowarden_thread_fate[sourceSerial]
+			if (blessingSource) then
+				newSerial, newName, newFlags = unpack(blessingSource)
 			end
 		elseif (spellId == 434481) then
 			local countScalecommanderMember = 0
 			local countBombardmentsCasters = 0
-			if (scalecommander_members_cache) then
-				countScalecommanderMember = #scalecommander_members_cache
+			if (cacheAnything.scalecommander_members_cache) then
+				countScalecommanderMember = #cacheAnything.scalecommander_members_cache
 			end
 			if (cacheAnything.scalecommander_bombardments) then
 				--countBombardmentsCasters = #cacheAnything.scalecommander_bombardments
@@ -2057,11 +2056,17 @@
 				newFlags = 0x514
 				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			elseif (countScalecommanderMember == 1) then
-				newSerial, newName, newFlags = unpack(scalecommander_members_cache[1])
+				newSerial, newName, newFlags = unpack(cacheAnything.scalecommander_members_cache[1])
+			end
+		elseif (spellId == 120687) then --damage from stormlash totem
+			blessingSource = cacheAnything.shaman_stormlash_totem[sourceSerial]
+			if (blessingSource) then
+				newSerial, newName, newFlags = unpack(blessingSource)
 			end
 		end
 		return newSerial, newName, newFlags
 	end
+
 	--extra attacks - disabled
 	function parser:spell_dmg_extra_attacks(token, time, who_serial, who_name, who_flags, _, _, _, _, spellid, spellName, spelltype, arg1)
 		--print("this is even exists on ingame cleu?")
@@ -2610,8 +2615,8 @@
 				currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
 				countBuffedWithPrescience = #currentlyBuffedWithPrescience
 			end
-			if (aug_members_cache) then
-				countAugMember = #aug_members_cache
+			if (cacheAnything.aug_members_cache) then
+				countAugMember = #cacheAnything.aug_members_cache
 			end
 			if (countBuffedWithPrescience == 1) then
 				sourceSerial, sourceName, sourceFlags = unpack(currentlyBuffedWithPrescience[1])
@@ -2620,7 +2625,7 @@
 				sourceFlags = 0x514
 				sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			elseif (countAugMember == 1) then
-				sourceSerial, sourceName, sourceFlags = unpack(aug_members_cache[1])
+				sourceSerial, sourceName, sourceFlags = unpack(cacheAnything.aug_members_cache[1])
 			end
 
 		elseif (spellId == 432896) then --heal from thread of fate
@@ -2998,6 +3003,9 @@
 
 			elseif (spellId == 431716) then --buff: thread of fate
 				cacheAnything.chronowarden_thread_fate[targetSerial] = {sourceSerial, sourceName, sourceFlags}
+			
+			elseif (spellId == 120676) then --buff: stormlash totem
+				cacheAnything.shaman_stormlash_totem[targetSerial] = {sourceSerial, sourceName, sourceFlags}
 				
 			elseif (spellId == 27827) then --spirit of redemption (holy ~priest) ~spirit
 				local deathLog = last_events_cache[targetName]
@@ -3172,6 +3180,10 @@
 		
 		if (spellId == 431716) then --buff: thread of fate
 			cacheAnything.chronowarden_thread_fate[targetSerial] = {sourceSerial, sourceName, sourceFlags}
+		end		
+		
+		if (spellId == 120676) then --buff: stormlash totem
+			cacheAnything.shaman_stormlash_totem[targetSerial] = {sourceSerial, sourceName, sourceFlags}
 		end				
 
 		if (augmentation_aura_list[spellId]) then
@@ -3311,6 +3323,9 @@
 				
 			elseif (spellId == 431716) then --buff: thread of fate
 				cacheAnything.chronowarden_thread_fate[targetSerial] = nil
+				
+			elseif (spellId == 120676) then --buff: stormlash totem
+				cacheAnything.shaman_stormlash_totem[targetSerial] = nil
 			end
 
 			------------------------------------------------------------------------------------------------
@@ -6941,6 +6956,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
 		Details:Destroy(cacheAnything.chronowarden_thread_fate)
 		Details:Destroy(cacheAnything.scalecommander_bombardments)
+		Details:Destroy(cacheAnything.shaman_stormlash_totem)
 		Details:Destroy(cacheAnything.rampage_cast_amount)
 
 		if (not bIsFromCombatStart) then
@@ -7118,8 +7134,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(auto_regen_cache)
 		Details:Destroy(bitfield_swap_cache)
 		Details:Destroy(empower_cache)
-		Details:Destroy(aug_members_cache)
-		Details:Destroy(scalecommander_members_cache)
+		Details:Destroy(cacheAnything.aug_members_cache)
+		Details:Destroy(cacheAnything.scalecommander_members_cache)
 
 		local currentCombat = Details:GetCurrentCombat()
 
@@ -7162,17 +7178,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				
 				if (Details.cached_specs[unitGUID] == 1473) then
 					if (unitGUID == playerGUID) then
-						table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(cacheAnything.aug_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
 					else
-						table.insert(aug_members_cache, {unitGUID, unitName, 0x512})
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(cacheAnything.aug_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x512})
 					end
 				elseif (Details.cached_specs[unitGUID] == 1467) then
 					if (unitGUID == playerGUID) then
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
 					else
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x512})
 					end
 				end
 			end
@@ -7203,17 +7219,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				
 				if (Details.cached_specs[unitGUID] == 1473) then
 					if (unitGUID == playerGUID) then
-						table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(cacheAnything.aug_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
 					else
-						table.insert(aug_members_cache, {unitGUID, unitName, 0x512})
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(cacheAnything.aug_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x512})
 					end
 				elseif (Details.cached_specs[unitGUID] == 1467) then
 					if (unitGUID == playerGUID) then
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
 					else
-						table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x512})
+						table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x512})
 					end
 				end
 			end
@@ -7249,10 +7265,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details.HealthMaxCache[playerGUID] = max(UnitHealthMax("player"), SMALL_FLOAT)
 				
 			if (Details.cached_specs[playerGUID] == 1473) then
-				table.insert(aug_members_cache, {unitGUID, unitName, 0x511})
-				table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+				table.insert(cacheAnything.aug_members_cache, {unitGUID, unitName, 0x511})
+				table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
 			elseif (Details.cached_specs[playerGUID] == 1467) then
-				table.insert(scalecommander_members_cache, {unitGUID, unitName, 0x511})
+				table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
 			end
 		end
 
