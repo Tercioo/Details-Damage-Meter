@@ -1,5 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	---@type details
 	local Details = _G.Details
 	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local addonName, Details222 = ...
@@ -30,6 +31,50 @@
 	local GetNumGroupMembers = GetNumGroupMembers --wow api local
 	local UnitAffectingCombat = UnitAffectingCombat --wow api local
 	local _InCombatLockdown = InCombatLockdown --wow api local
+
+
+	---@class details : table
+	---@field gump detailsframework
+	---@field tabela_instancias instance[]
+	---@field tabela_vigente combat
+	---@field tabela_overall_combat combat
+	---@field tabela_pets table
+	---@field IsInMythicPlus fun(self:details):boolean
+	---@field FindBuffDuration fun(self:details, unitId:string, spellId:number, casterName:string):number|nil, number|nil
+	---@field FindBuffDurationByUnitName fun(self:details, targetString:string, spellId:number, casterString:string):number|nil, number|nil
+	---@field FindDebuffDuration fun(self:details, unitId:string, spellId:number, casterName:string):number|nil, number|nil
+	---@field FindDebuffDurationByUnitName fun(self:details, targetString:string, spellId:number, casterString:string):number|nil, number|nil
+	---@field FindBuffCastedBy fun(self:details, unitId:string, buffSpellId:number, casterName:string):string|nil, string|nil, number|nil, string|nil, number|nil, number|nil, string|nil, boolean|nil, boolean|nil, number|nil, boolean|nil, boolean|nil, boolean|nil, boolean|nil
+	---@field FindBuffCastedByUnitName fun(self:details, targetString:string, buffSpellId:number, casterString:string):string|nil, string|nil, number|nil, string|nil, number|nil, number|nil, string|nil, boolean|nil, boolean|nil, number|nil, boolean|nil, boolean|nil, boolean|nil, boolean|nil
+	---@field FindUnitIDByUnitSerial fun(self:details, unitSerial:string):string|nil
+	---@field GetNpcIdFromGuid fun(self:details, guid:string):number
+	---@field GetSourceFromNpcId fun(self:details, npcId:number):string?
+	---@field GetRaidLeader fun(self:details):string, string
+	---@field GetOrderNumber fun(self:details):number
+	---@field LowerizeKeys fun(self:details, _table:table):table
+	---@field UseEastAsianNumericalSystem fun(self:details)
+	---@field UseWestNumericalSystem fun(self:details)
+	---@field ToK fun(self:details, numero:number):string
+	---@field ToK2 fun(self:details, numero:number):string
+	---@field ToK0 fun(self:details, numero:number):string
+	---@field ToKMin fun(self:details, numero:number):string
+	---@field ToK2Min fun(self:details, numero:number):string
+	---@field ToK0Min fun(self:details, numero:number):string
+	---@field ToKReport fun(self:details, numero:number):string
+	---@field Format fun(self:details, n:number, custom:string):string
+	---@field comma_value fun(self:details, n:number):string
+	---@field comma_value_raw fun(self:details, n:string):string
+	---@field FadeHandler table
+	---@field FadeHandler.frames table
+	---@field FadeHandler.OnUpdateFrame frame
+	---@field FadeHandler.Fader fun(self:details, frame:frame, animationType:string, speed:number, hideType:string, param5:string)
+	---@field NoToK fun(self:details, numero:number):number
+	---@field GetCurrentToKFunction fun(self:details):function
+	---@field SetNumericalSystemOverride fun(self:details, language:string)
+	---@field GetNumericalSystem fun(self:details):number
+	---@field SelectNumericalSystem fun(self:details, system:number)
+	---@field UpdateToKFunctions fun(self:details)
+
 
 	local playerRealmName = GetRealmName()
 
@@ -417,7 +462,7 @@
 	function Details:GetNpcIdFromGuid (guid)
 		local NpcId = select( 6, strsplit( "-", guid ) )
 		if (NpcId) then
-			return tonumber( NpcId )
+			return tonumber( NpcId ) or 0
 		end
 		return 0
 	end

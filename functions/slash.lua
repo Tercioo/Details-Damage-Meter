@@ -3117,7 +3117,7 @@ noteEditor.OpenNoteEditor = function()
 			local CONST_NOTESELECTOR_WIDTH = 224
 			local CONST_NOTEEDITOR_HEIGHT = CONST_WINDOW_HEIGHT - 155
 			local CONST_NOTEEDITOR_WIDTH = CONST_WINDOW_WIDTH - 230
-			local CONST_NOTE_MIN_CHARACTERS = 50
+			local CONST_NOTE_MIN_CHARACTERS = 20
 			local CONST_NOTE_MAX_CHARACTERS = 1500
 
 			local editorAlpha = 0.1
@@ -3150,6 +3150,7 @@ noteEditor.OpenNoteEditor = function()
 			---@param noteIndex number?
 			function mainFrame.SaveNote(noteIndex)
 				local noteText = mainFrame.EditboxNotes.editbox:GetText()
+
 				if (noteText and noteText ~= "") then
 					if (#savedNotes == 0) then
 						savedNotes[#savedNotes+1] = {name = "default", note = noteText}
@@ -3161,7 +3162,8 @@ noteEditor.OpenNoteEditor = function()
 							end
 							savedNotes[noteIndex].note = noteText
 						else
-							savedNotes[#savedNotes+1] = {name = noteName, note = "", renamed = false}
+							--no note is selected, create a new note
+							savedNotes[#savedNotes+1] = {name = noteName, note = noteText, renamed = false}
 						end
 					end
 
@@ -3176,6 +3178,10 @@ noteEditor.OpenNoteEditor = function()
 			end
 
 			function mainFrame.SelectNote(noteIndex)
+				if (mainFrame.currentNoteIndex) then
+					mainFrame.SaveNote(mainFrame.currentNoteIndex)
+				end
+
 				local noteData = savedNotes[noteIndex]
 				mainFrame.currentNoteIndex = noteIndex
 				mainFrame.EditboxNotes.editbox:SetText(noteData.note)
@@ -3197,8 +3203,11 @@ noteEditor.OpenNoteEditor = function()
 					mainFrame.currentNoteIndex = nil
 					mainFrame.EditboxNotes.editbox:SetText("")
 
-				elseif (noteIndex < mainFrame.currentNoteIndex) then
+				elseif (mainFrame.currentNoteIndex and noteIndex < mainFrame.currentNoteIndex) then
 					mainFrame.currentNoteIndex = mainFrame.currentNoteIndex - 1
+
+				elseif (not mainFrame.currentNoteIndex) then
+					mainFrame.EditboxNotes.editbox:SetText("")
 				end
 
 				mainFrame.NoteSelectionScrollFrame:Refresh()
@@ -3662,6 +3671,7 @@ noteEditor.OpenNoteEditor = function()
 				detailsFramework:CreateHighlightTexture(sendButton)
 
 				local saveNoteButton = detailsFramework:CreateButton(bottomFrame, function()
+					--print("mainFrame.currentNoteIndex", mainFrame.currentNoteIndex) --nil when no note is selected
 					mainFrame.SaveNote(mainFrame.currentNoteIndex)
 				end, buttonWidth, buttonHeight, "Save Note")
 				saveNoteButton:SetPoint("bottomleft", sendButton, "bottomright", 4, 0)

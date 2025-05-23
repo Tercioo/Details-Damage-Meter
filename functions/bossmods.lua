@@ -4,7 +4,6 @@ local addonName, Details222 = ...
 
 --get the total of damage and healing of a phase of an encounter
 function Details:OnCombatPhaseChanged()
-
     local current_combat = Details:GetCurrentCombat()
     local current_phase = current_combat.PhaseData[#current_combat.PhaseData][1]
 
