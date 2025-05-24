@@ -605,8 +605,9 @@
 		end
 
 		--tag as a mythic dungeon segment, can be any type of segment, this tag also avoid the segment to be tagged as trash
-		local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo()
-		if (mythicLevel and mythicLevel >= 2) then
+		--local mythicLevel = C_ChallengeMode and C_ChallengeMode. GetActiveKeystoneInfo() -- C_ChallengeMode.GetActiveKeystoneInfo() Returned NIL (Mist Beta 05.24.2025)
+		--if (mythicLevel and mythicLevel >= 2) then
+		if (C_ChallengeMode.IsChallengeModeActive() == true) then
 			currentCombat.is_mythic_dungeon_segment = true
 			currentCombat.is_mythic_dungeon_run_id = Details.mythic_dungeon_id
 
