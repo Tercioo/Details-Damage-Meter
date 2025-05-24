@@ -1315,19 +1315,19 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 		end
 	end
 
-	if (sourceGUID) then --aqui ir� identificar o boss ou o oponente
-		if (targetName and bitBand (targetFlags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
+	if (sourceGUID) then --here you will identify the boss or opponent
+		if (targetName and bitBand (targetFlags, REACTION_HOSTILE) ~= 0) then --trying to catch the enemy by target
 			combatObject.contra = targetName
 			if (bitBand (targetFlags, CONTROL_PLAYER) ~= 0) then
-				combatObject.pvp = true --o alvo � da fac��o oposta ou foi dado mind control
+				combatObject.pvp = true --the target is from the opposing faction or has been given mind control
 			end
-		elseif (sourceName and bitBand (sourceFlags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
+		elseif (sourceName and bitBand (sourceFlags, REACTION_HOSTILE) ~= 0) then --trying to catch the enemy by who in case the mob is the one who gave the first hit
 			combatObject.contra = sourceName
 			if (bitBand (sourceFlags, CONTROL_PLAYER) ~= 0) then
-				combatObject.pvp = true --o who � da fac��o oposta ou foi dado mind control
+				combatObject.pvp = true --who is from the opposing faction or has been given mind control
 			end
 		else
-			combatObject.pvp = true --se ambos s�o friendly, seria isso um PVP entre jogadores da mesma fac��o?
+			combatObject.pvp = true --If both are friendly, would this be PVP between players of the same faction?
 		end
 	end
 
