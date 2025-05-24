@@ -180,6 +180,8 @@ function Details:InitializeEncounterSwapper()
     function eventListener:OnDetailsEvent(event, param1, param2, param3)
         --debugPrint("eventListener:OnEvent", event, param1, param2, param3)
 
+        do return end
+
         if (event == "COMBAT_ENCOUNTER_PHASE_CHANGED") then
             local encounterTable = Details:GetCurrentEncounterInfo()
             local encounterSwapperInfo = getEncounterSwapperInfo(encounterTable.id)
