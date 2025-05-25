@@ -56,7 +56,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 162
+local CONST_LIB_VERSION = 163
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -138,8 +138,8 @@ end
     local CONST_SPECIALIZATION_VERSION_CLASSIC = 0
     local CONST_SPECIALIZATION_VERSION_MODERN = 1
 
-    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_THREE_SECONDS
-    local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_THREE_SECONDS
+    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_THREE_SECONDS  --seconds between cooldown checks (ticker time)
+    local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_THREE_SECONDS --time tolerance when checking if the cooldown timeleft has changed
 
     local CONST_COOLDOWN_INDEX_TIMELEFT = 1
     local CONST_COOLDOWN_INDEX_CHARGES = 2
@@ -214,6 +214,11 @@ end
 
     openRaidLib.DeprecatedMessage = function(msg)
         sendChatMessage("|cFFFF9922OpenRaidLib|r:", "|cFFFF5555" .. msg .. "|r")
+    end
+
+    --set the ticker interval to check if the cooldown has changed
+    function openRaidLib.SetCooldownCheckInterval(value)
+        CONST_COOLDOWN_CHECK_INTERVAL = value
     end
 
     local isTimewalkWoW = function()
@@ -2186,13 +2191,13 @@ local cooldownTimeLeftCheck_Ticker = function(tickerObject)
         return
     end
 
-    tickerObject.cooldownTimeLeft = tickerObject.cooldownTimeLeft - CONST_COOLDOWN_CHECK_INTERVAL
+    tickerObject.cooldownTimeLeft = tickerObject.cooldownTimeLeft - tickerObject.tickInterval
     local timeLeft, charges, startTimeOffset, duration, auraDuration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
 
     local bUpdateLocally = false
 
-    --is the spell ready to use?
-    if (timeLeft == 0) then
+    --is the spell ready to use?, 0.5 seconds for latency compensation
+    if (timeLeft <= tickerObject.latencyCompensation) then
         --it's ready
         openRaidLib.CooldownManager.SendPlayerCooldownUpdate(spellId, 0, charges, 0, 0, 0)
         openRaidLib.CooldownManager.CooldownTickers[spellId] = nil
@@ -2237,12 +2242,28 @@ local cooldownStartTicker = function(spellId, cooldownTimeLeft)
         end
     end
 
+    local tickInterval = CONST_COOLDOWN_CHECK_INTERVAL
+    local maxTicks = ceil(cooldownTimeLeft / tickInterval)
+    local latencyCompensation = 0
+
+    local cooldownOptions = LIB_OPEN_RAID_COOLDOWNS_CONFIG and LIB_OPEN_RAID_COOLDOWNS_CONFIG[spellId]
+    if (cooldownOptions) then
+        if (cooldownOptions.tickInterval) then
+            tickInterval = cooldownOptions.tickInterval
+            maxTicks = ceil(cooldownTimeLeft / tickInterval)
+        end
+        if (cooldownOptions.latencyCompensation) then
+            latencyCompensation = cooldownOptions.latencyCompensation
+        end
+    end
+
     --create a new ticker
-    local maxTicks = ceil(cooldownTimeLeft / CONST_COOLDOWN_CHECK_INTERVAL)
-    local newTicker = C_Timer.NewTicker(CONST_COOLDOWN_CHECK_INTERVAL, cooldownTimeLeftCheck_Ticker, maxTicks)
+    local newTicker = C_Timer.NewTicker(tickInterval, cooldownTimeLeftCheck_Ticker, maxTicks)
 
     --store the ticker
     openRaidLib.CooldownManager.CooldownTickers[spellId] = newTicker
+    newTicker.tickInterval = tickInterval
+    newTicker.latencyCompensation = latencyCompensation
     newTicker.spellId = spellId
     newTicker.cooldownTimeLeft = cooldownTimeLeft
     newTicker.startTime = GetTime()

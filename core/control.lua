@@ -306,7 +306,7 @@
 
 		--is in a m+ dungeon?
 		Details222.MythicPlus.debug_auras = {}
-		local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() or 1
+		local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() or 1 --not mop friendly
 		if (mythicLevel) then
 			if (Details222.MythicPlus.debug_auras) then
 				--iterate among all actors on the utility container and store the update of each buff
@@ -605,7 +605,7 @@
 		end
 
 		--tag as a mythic dungeon segment, can be any type of segment, this tag also avoid the segment to be tagged as trash
-		local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo()
+		local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
 		if (mythicLevel and mythicLevel >= 2) then
 			currentCombat.is_mythic_dungeon_segment = true
 			currentCombat.is_mythic_dungeon_run_id = Details.mythic_dungeon_id

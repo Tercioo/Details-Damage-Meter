@@ -1189,6 +1189,28 @@ do
 			[219984] = 119732, --Xeph'itik
 		}
 
+		--overwrite values in this table only after PEW event.
+		--tickInterval: amount of seconds between each tick, default: 3. lower this to increase precision on when the cooldown ended.
+		LIB_OPEN_RAID_COOLDOWNS_CONFIG = {
+			[6552] =	{tickInterval = 1, latencyCompensation = 0.5}, --Pummel
+			[2139] =	{tickInterval = 1, latencyCompensation = 0.5}, --Counterspell
+			[15487] =	{tickInterval = 1, latencyCompensation = 0.5}, --Silence (shadow) Last Word Talent to reduce cooldown in 15 seconds
+			[1766] =	{tickInterval = 1, latencyCompensation = 0.5}, --Kick
+			[96231] =	{tickInterval = 1, latencyCompensation = 0.5}, --Rebuke (protection and retribution)
+			[116705] =	{tickInterval = 1, latencyCompensation = 0.5}, --Spear Hand Strike (brewmaster and windwalker)
+			[57994] =	{tickInterval = 1, latencyCompensation = 0.5}, --Wind Shear
+			[47528] =	{tickInterval = 1, latencyCompensation = 0.5}, --Mind Freeze
+			[106839] =	{tickInterval = 1, latencyCompensation = 0.5}, --Skull Bash (feral, guardian)
+			[78675] =	{tickInterval = 1, latencyCompensation = 0.5}, --Solar Beam (balance)
+			[147362] =	{tickInterval = 1, latencyCompensation = 0.5}, --Counter Shot (beast mastery, marksmanship)
+			[187707] =	{tickInterval = 1, latencyCompensation = 0.5}, --Muzzle (survival)
+			[183752] =	{tickInterval = 1, latencyCompensation = 0.5}, --Disrupt
+			[19647] =	{tickInterval = 1, latencyCompensation = 0.5}, --Spell Lock (pet felhunter ability)
+			[132409] =	{tickInterval = 1, latencyCompensation = 0.5}, --Spell Lock with felhunter Sacrified by Grimeoire of Sacrifice
+			[89766] =	{tickInterval = 1, latencyCompensation = 0.5}, --Axe Toss (pet felguard ability)
+			[351338] =	{tickInterval = 1, latencyCompensation = 0.5}, --Quell (Evoker)
+		}
+
 		LIB_OPEN_RAID_DATABASE_LOADED = true
     end
 

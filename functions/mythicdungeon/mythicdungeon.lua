@@ -133,7 +133,7 @@ function DetailsMythicPlusFrame.MythicDungeonStarted()
     --this counter is individual for each character
     Details.mythic_dungeon_id = Details.mythic_dungeon_id + 1
 
-    local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+    local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
     local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
 
     local mapID = C_Map.GetBestMapForUnit("player")
@@ -186,7 +186,7 @@ function DetailsMythicPlusFrame.OnChallengeModeStart()
     else
         --print("D! mythic dungeon was already started!")
         --from zone changed
-        local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+        local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
         local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
 
         if (not Details.MythicPlus.Started and Details.MythicPlus.DungeonID == currentZoneID and Details.MythicPlus.Level == mythicLevel) then
@@ -227,7 +227,7 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
                 if (not combatObject.is_boss.killed) then
                     local encounterName = combatObject.is_boss.encounter
                     local zoneName = combatObject.is_boss.zone
-                    local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+                    local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
 
                     local currentCombat = Details:GetCurrentCombat()
 
@@ -317,7 +317,7 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
 			end
 		end
 
-        local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+        local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
         local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
 		Details222.MythicPlus.LogStep("COMBAT_MYTHICDUNGEON_START | settings: " .. result .. " | level: " .. mythicLevel .. " | zone: " .. zoneName .. " | zoneId: " .. currentZoneID)
 
@@ -466,7 +466,7 @@ function DetailsMythicPlusFrame.SaveMythicPlusStats(combatObject)
 
         statsForLevel.history = statsForLevel.history or {}
 
-        local amountDeaths = C_ChallengeMode.GetDeathCount() or 0
+        local amountDeaths = C_ChallengeMode.GetDeathCount and C_ChallengeMode.GetDeathCount() or 0
 
         ---@type mythicplusrunstats
         local runStats = {
