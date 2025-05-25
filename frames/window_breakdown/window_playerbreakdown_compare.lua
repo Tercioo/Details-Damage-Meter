@@ -819,16 +819,10 @@ local on_enter_target = function(self)
                     bar [2].lefttext:SetText(this_index .. ". " .. name)
                     bar [2].bg:Show()
 
-
                     if (spell [2] > this_spell [2]) then
                         local diff = spell [2] - this_spell [2]
-                        local up
-                        if (this_spell [2] == 0) then
-                            up = 999
-                        else
-                            up = diff / this_spell [2] * 100  --Div by 0
-                            up = math.floor(up)
-                        end
+                        local up = diff / math.max(this_spell [2], 0.01) * 100
+                        up = math.floor(up)
                         if (up > 999) then
                             up = "" .. 999
                         end
@@ -836,13 +830,8 @@ local on_enter_target = function(self)
                         bar [2].righttext:SetText(" |c" .. minor .. up .. "%|r")
                     else
                         local diff = this_spell [2] - spell [2]
-                        local down
-                        if (spell [2] == 0) then
-                            down = 999
-                        else
-                            down = diff / spell [2] * 100  -- Div by 0 
-                            down = math.floor(down)
-                        end
+                        local down = diff / math.max(spell [2], 0,01) * 100  -- Div by 0 
+                        down = math.floor(down)
                         if (down > 999) then
                             down = "" .. 999
                         end
@@ -1194,7 +1183,7 @@ local on_enter = function(self)
             local amt_casts = combatObject:GetSpellCastAmount(player2_misc:Name(), GetSpellInfo(spellid))
 
             if (amt_casts) then
-                if (player1_casts == 0) then
+                if (not player1_casts) then
                     frame2.tooltip.casts_label3:SetText(amt_casts)
                     frame2.tooltip.casts_label2:SetText(COMPARE_UNKNOWNDATA)
 
