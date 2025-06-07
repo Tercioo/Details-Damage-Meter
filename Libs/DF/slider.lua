@@ -1024,6 +1024,7 @@ end
 ---@field GetCapsule fun(self:df_button):df_button capsule only exists in the actual frame of the encapsulated widget
 ---@field SetCheckedTexture fun(self:df_button, texture:string)
 ---@field SetChecked fun(self:df_button, value:boolean)
+---@field GetChecked fun(self:df_button):boolean
 ---@field CreateExtraSpaceToClick fun(self:df_button, label:df_label, widgetWidth:number?, highlight:any?):button
 
 
