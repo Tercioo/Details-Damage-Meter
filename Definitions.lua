@@ -401,6 +401,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field timeEnd number time() when the combat ended
 ---@field bloodlust number[]? combat time of when the player received a bloodlust/heroism
 ---@field bloodlust_overall number[]? exists only in segments that received a merge, uses time()
+---@field compressed_charts table store chart data
 ---@field 
 ---@field __call table
 ---@field __index table

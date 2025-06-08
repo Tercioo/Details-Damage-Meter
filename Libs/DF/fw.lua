@@ -1,6 +1,6 @@
 
 
-local dversion = 609
+local dversion = 610
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -804,7 +804,8 @@ function DF.table.setfrompath(t, path, value)
 		local lastTable
 		local lastKey
 
-		for key in path:gmatch("[%w_]+") do
+		--for key in path:gmatch("[%w_]+") do
+		for key in path:gmatch("[^%.%[%]]+") do
 			lastTable = t
 			lastKey = key
 
