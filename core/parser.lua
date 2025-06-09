@@ -858,7 +858,8 @@
 			local npcId = npcid_cache[targetSerial] --target npc
 			if (not npcId) then
 				--this string manipulation is running on every event
-				npcId = tonumber(select(6, strsplit("-", targetSerial)) or 0)
+				--npcId = tonumber(select(6, strsplit("-", targetSerial)) or 0)
+				npcId = tonumber(targetSerial:match("^[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-([^%-]*)"))
 				npcid_cache[targetSerial] = npcId
 			end
 
