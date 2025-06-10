@@ -821,7 +821,7 @@ local on_enter_target = function(self)
 
                     if (spell [2] > this_spell [2]) then
                         local diff = spell [2] - this_spell [2]
-                        local up = diff / this_spell [2] * 100
+                        local up = diff / math.max(this_spell [2], 0.01) * 100
                         up = math.floor(up)
                         if (up > 999) then
                             up = "" .. 999
@@ -830,7 +830,7 @@ local on_enter_target = function(self)
                         bar [2].righttext:SetText(" |c" .. minor .. up .. "%|r")
                     else
                         local diff = this_spell [2] - spell [2]
-                        local down = diff / spell [2] * 100
+                        local down = diff / math.max(spell [2], 0,01) * 100  -- Div by 0 
                         down = math.floor(down)
                         if (down > 999) then
                             down = "" .. 999
