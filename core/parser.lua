@@ -303,7 +303,7 @@
 	--spellIds override
 	local override_spellId = {}
 
-	if (isWOTLK) then
+	if (isCATA) then
 		override_spellId = {
 			--Scourge Strike
 			[55090] = 55271,
@@ -318,12 +318,14 @@
 			[51418] = 55268,
 			[51419] = 55268,
 			[66962] = 55268, --offhand
+			[66196] = 55268, --frost dk frost strike offhand
 
 			--Obliterate
 			[49020] = 51425,
 			[51423] = 51425,
 			[51424] = 51425,
 			[66974] = 51425, --offhand
+			[66198] = 51425, --frost dk obliterate offhand
 
 			--Death Strike
 			[49998] = 49924,
@@ -353,22 +355,6 @@
 
 			--Seal of Command
 			[20424] = 69403, --53739 and 53733
-
-			--odyn's fury warrior
-			[385062] = 385060,
-			[385061] = 385060,
-
-			--crushing blow
-			[335098] = 335097,
-			[335100] = 335097,
-
-			--charge warrior
-			[105771] = 126664,
-
-			--elemental stances
-			[377458] = 377459,
-			[377461] = 377459,
-			[382133] = 377459,
 		}
 
 	else --retail
