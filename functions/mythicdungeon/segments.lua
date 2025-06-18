@@ -42,7 +42,7 @@ function Details222.MythicPlus.OnBossDefeated(encounterID, encounterName)
         SegmentName = (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. string.lower(_G["BOSS"]) .. ")"
     }
 
-    local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+    local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
     local mPlusTable = currentCombat.is_mythic_dungeon
 
     --logs

@@ -1336,6 +1336,8 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	combatObject.data_inicio = 0
 	combatObject.tempo_start = _tempo
 
+	combatObject.compressed_charts = {}
+
 	combatObject.boss_hp = 1
 
 	C_Timer.After(0.5, getBossName)

@@ -12,6 +12,66 @@ textentry.MyObject.func(textentry.MyObject.param1, textentry.MyObject.param2, te
 
 --]=]
 
+---@class df_textentry : editbox
+---@field widget editbox
+---@field tooltip any
+---@field show any
+---@field hide any
+---@field width any
+---@field height any
+---@field text any
+---@field multiline any
+---@field align any
+---@field fontsize any
+---@field param1 any
+---@field param2 any
+---@field ShouldOptimizeAutoComplete boolean?
+---@field AutoComplete_StopOnEnterPress boolean?
+---@field callWithNoText boolean?
+---@field onleave_backdrop_border_color table
+---@field onenter_backdrop_border_color table
+---@field onenter_backdrop table backdrop color
+---@field onleave_backdrop table backdrop color
+---@field SetTemplate fun(self:df_textentry, template:table|string)
+---@field Disable fun(self:df_textentry)
+---@field Enable fun(self:df_textentry)
+---@field SetCommitFunction fun(self:df_textentry, func:function)
+---@field SetParameters fun(self:df_textentry, param1:any, param2:any)
+---@field SetNext fun(self:df_textentry, next:df_textentry)
+---@field SetLabelText fun(self:df_textentry, text:string)
+---@field SelectAll fun(self:df_textentry)
+---@field SetAutoSelectTextOnFocus fun(self:df_textentry, value:boolean)
+---@field Blink fun(self:df_textentry)
+---@field SetText fun(self:df_textentry, text:string|number)
+---@field GetText fun(self:df_textentry)
+---@field SetEnterFunction fun(self:df_textentry, func:function, param1:any, param2:any)
+---@field SetHook fun(self:df_textentry, hookName:string, func:function)
+---@field SetAsSearchBox fun(self:df_textentry)
+---@field SetAsAutoComplete fun(self:df_textentry, poolName:string, poolTable:table?, shouldOptimize:boolean?) poolName is the name of the member on textEntry that will be used to store the pool table, poolTable is an array with word to be used on the autocomplete, shouldOptimize is a boolean that will optimize the autocomplete by using a cache table, it's recommended to use it if the autocomplete array is too large.
+
+---@class df_searchbox : df_textentry
+---@field ClearSearchButton button
+---@field MagnifyingGlassTexture texture
+---@field SearchFontString fontstring
+---@field BottomLineTexture texture
+---@field PressEnter fun(self:df_searchbox)
+---@field ClearFocus fun(self:df_searchbox)
+
+---@class df_luaeditor : frame
+---@field scroll scrollframe
+---@field editbox editbox
+---@field scrollnumberlines number
+---@field editboxlines editbox
+---@field SetTemplate fun(self:df_luaeditor, template:table)
+---@field Disable fun(self:df_luaeditor)
+---@field Enable fun(self:df_luaeditor)
+---@field SetText fun(self:df_luaeditor, text:string)
+---@field GetText fun(self:df_luaeditor):string
+---@field SetTextSize fun(self:df_luaeditor, size:number)
+---@field ClearFocus fun(self:df_luaeditor)
+---@field SetFocus fun(self:df_luaeditor)
+
+
 local detailsFramework = _G["DetailsFramework"]
 if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
@@ -620,39 +680,6 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
----@class df_textentry : editbox
----@field widget editbox
----@field tooltip any
----@field show any
----@field hide any
----@field width any
----@field height any
----@field text any
----@field multiline any
----@field align any
----@field fontsize any
----@field param1 any
----@field param2 any
----@field ShouldOptimizeAutoComplete boolean?
----@field AutoComplete_StopOnEnterPress boolean?
----@field callWithNoText boolean?
----@field SetTemplate fun(self:df_textentry, template:table|string)
----@field Disable fun(self:df_textentry)
----@field Enable fun(self:df_textentry)
----@field SetCommitFunction fun(self:df_textentry, func:function)
----@field SetParameters fun(self:df_textentry, param1:any, param2:any)
----@field SetNext fun(self:df_textentry, next:df_textentry)
----@field SetLabelText fun(self:df_textentry, text:string)
----@field SelectAll fun(self:df_textentry)
----@field SetAutoSelectTextOnFocus fun(self:df_textentry, value:boolean)
----@field Blink fun(self:df_textentry)
----@field SetText fun(self:df_textentry, text:string|number)
----@field GetText fun(self:df_textentry)
----@field SetEnterFunction fun(self:df_textentry, func:function, param1:any, param2:any)
----@field SetHook fun(self:df_textentry, hookName:string, func:function)
----@field SetAsSearchBox fun(self:df_textentry)
----@field SetAsAutoComplete fun(self:df_textentry, poolName:string, poolTable:table?, shouldOptimize:boolean?) poolName is the name of the member on textEntry that will be used to store the pool table, poolTable is an array with word to be used on the autocomplete, shouldOptimize is a boolean that will optimize the autocomplete by using a cache table, it's recommended to use it if the autocomplete array is too large.
-
 ---@param parent frame
 ---@param textChangedCallback function
 ---@param width number
@@ -810,14 +837,6 @@ function detailsFramework:NewTextEntry(parent, container, name, member, width, h
 
 	return newTextEntryObject, withLabel
 end
-
----@class df_searchbox : df_textentry
----@field ClearSearchButton button
----@field MagnifyingGlassTexture texture
----@field SearchFontString fontstring
----@field BottomLineTexture texture
----@field PressEnter fun(self:df_searchbox)
----@field ClearFocus fun(self:df_searchbox)
 
 ---create a search box with no backdrop, a magnifying glass icon and a clear search button
 ---@param parent frame
@@ -1139,19 +1158,6 @@ local set_speciallua_editor_font_size = function(borderFrame, newSize)
 	borderFrame.editboxlines:SetFont(file, newSize, flags)
 end
 
----@class df_luaeditor : frame
----@field scroll scrollframe
----@field editbox editbox
----@field scrollnumberlines number
----@field editboxlines editbox
----@field SetTemplate fun(self:df_luaeditor, template:table)
----@field Disable fun(self:df_luaeditor)
----@field Enable fun(self:df_luaeditor)
----@field SetText fun(self:df_luaeditor, text:string)
----@field GetText fun(self:df_luaeditor):string
----@field SetTextSize fun(self:df_luaeditor, size:number)
----@field ClearFocus fun(self:df_luaeditor)
----@field SetFocus fun(self:df_luaeditor)
 
 ---create a text box to edit lua code
 ---if 'nointent' is true, the lua code will not be indented / highlighted / colored

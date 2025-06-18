@@ -459,12 +459,8 @@
 --details api functions
 
 	--get the npc id from guid
-	function Details:GetNpcIdFromGuid (guid)
-		local NpcId = select( 6, strsplit( "-", guid ) )
-		if (NpcId) then
-			return tonumber( NpcId ) or 0
-		end
-		return 0
+	function Details:GetNpcIdFromGuid(guid)
+		return tonumber(guid:match("^[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-([^%-]*)")) or 0
 	end
 
 	function Details:GetSourceFromNpcId (npcId)

@@ -295,7 +295,7 @@
 	--spellIds override
 	local override_spellId = {}
 
-	if (isWOTLK) then
+	if (isCATA) then
 		override_spellId = {
 			--Scourge Strike
 			[55090] = 55271,
@@ -310,12 +310,14 @@
 			[51418] = 55268,
 			[51419] = 55268,
 			[66962] = 55268, --offhand
+			[66196] = 55268, --frost dk frost strike offhand
 
 			--Obliterate
 			[49020] = 51425,
 			[51423] = 51425,
 			[51424] = 51425,
 			[66974] = 51425, --offhand
+			[66198] = 51425, --frost dk obliterate offhand
 
 			--Death Strike
 			[49998] = 49924,
@@ -345,22 +347,6 @@
 
 			--Seal of Command
 			[20424] = 69403, --53739 and 53733
-
-			--odyn's fury warrior
-			[385062] = 385060,
-			[385061] = 385060,
-
-			--crushing blow
-			[335098] = 335097,
-			[335100] = 335097,
-
-			--charge warrior
-			[105771] = 126664,
-
-			--elemental stances
-			[377458] = 377459,
-			[377461] = 377459,
-			[382133] = 377459,
 		}
 
 	else --retail
@@ -868,7 +854,8 @@
 			local npcId = npcid_cache[targetSerial] --target npc
 			if (not npcId) then
 				--this string manipulation is running on every event
-				npcId = tonumber(select(6, strsplit("-", targetSerial)) or 0)
+				--npcId = tonumber(select(6, strsplit("-", targetSerial)) or 0)
+				npcId = tonumber(targetSerial:match("^[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-([^%-]*)"))
 				npcid_cache[targetSerial] = npcId
 			end
 
@@ -4738,7 +4725,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 				local bIsMythicRun = false
 				--check if this is a mythic+ run for overall deaths
-				local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() --classic wow doesn't not have C_ChallengeMode API
+				local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo() --classic wow doesn't not have C_ChallengeMode API
 				if (mythicLevel and type(mythicLevel) == "number" and mythicLevel >= 2) then --several checks to be future proof
 					bIsMythicRun = true
 				end
@@ -6024,7 +6011,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details222.MythicPlus.RUN_START_AT = time()
 			Details222.MythicPlus.WorldStateTimerEndAt = nil
 
-			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
 			Details222.MythicPlus.Level = activeKeystoneLevel or 2
 
 			Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
@@ -6054,7 +6041,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details222.MythicPlus.WorldStateTimerEndAt = nil
 			Details222.MythicPlus.LogStep("Event: CHALLENGE_MODE_START")
 
-			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo()
+			local activeKeystoneLevel, activeAffixIDs, wasActiveKeystoneCharged = C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo()
 			Details222.MythicPlus.Level = activeKeystoneLevel or 2
 
 			Details.challengeModeMapId = C_ChallengeMode.GetActiveChallengeMapID()
@@ -6178,7 +6165,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (completionTime) then
             --Subtract death time from time of run to get the true time
-            local deaths = C_ChallengeMode.GetDeathCount()
+            local deaths = C_ChallengeMode.GetDeathCount and C_ChallengeMode.GetDeathCount()
             if deaths and deaths > 0 then
                 local secondsPerDeath = 5
                 if level >= 7 then

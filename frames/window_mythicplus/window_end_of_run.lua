@@ -1436,5 +1436,5 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 end
 
 Details222.MythicPlus.IsMythicPlus = function()
-	return C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() and true or false
+	return C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo and C_ChallengeMode.GetActiveKeystoneInfo() and true or false
 end

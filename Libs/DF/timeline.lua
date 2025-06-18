@@ -663,6 +663,7 @@ detailsFramework.TimeLine_LineMixin = {
 ---@field UpdateOnClickCallback fun(self:df_timeline, button:button?)
 ---@field HideVerticalScroll fun(self:df_timeline)
 ---@field SetScale fun(self:df_timeline, scale:number)
+---@field GetScale fun(self:df_timeline):number
 
 detailsFramework.TimeLineMixin = {
 	GetHorizontalScrolledWidth = function(self)
@@ -697,6 +698,10 @@ detailsFramework.TimeLineMixin = {
 				end
 			end
 		end
+	end,
+
+	GetScale = function(self)
+		return self.currentScale
 	end,
 
 	SetScale = function(self, scale)
