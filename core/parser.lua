@@ -1623,6 +1623,8 @@
 		end
 
 		--actor owner (if any)
+		targetRaidFlags = bitBand(targetRaidFlags, COMBATLOG_OBJECT_RAIDTARGET_MASK)
+
 		if (ownerActor) then --se for dano de um Pet
 			ownerActor.total = ownerActor.total + amount --e adiciona o dano ao pet
 
