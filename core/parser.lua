@@ -303,7 +303,7 @@
 	--spellIds override
 	local override_spellId = {}
 
-	if (isCATA) then
+	if (isCATA or isPANDA) then
 		override_spellId = {
 			--Scourge Strike
 			[55265] = 55090,
