@@ -880,9 +880,10 @@ do
 	--Handle events --must have this function
 	function Clock:OnDetailsEvent(event)
 		return
-	end	--enter combat
+	end	
+	
+	--enter combat
 	function Clock:PlayerEnterCombat()
-		-- Start timer if not already running
 		if (not Clock.tick) then
 			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
 		end
@@ -890,21 +891,17 @@ do
 
 	--leave combat  
 	function Clock:PlayerLeaveCombat()
-		-- Keep timer running to show segment duration
-		-- Timer will be stopped only when plugin is disabled or reset
 		if (not Clock.tick) then
 			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
 		end
 	end
 	
-	-- Start timer when plugin initializes
 	function Clock:OnEnable()
 		if (not Clock.tick) then
 			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
 		end
 	end
 	
-	-- Stop timer when plugin is disabled
 	function Clock:OnDisable()
 		if (Clock.tick) then
 			Details:CancelTimer(Clock.tick)
@@ -914,7 +911,9 @@ do
 
 	function Details:ClockPluginTickOnSegment()
 		Details:ClockPluginTick(true)
-	end	--1 sec tick
+	end	
+	
+	--1 sec tick
 	function Details:ClockPluginTick(force)
 		for index, childObject in ipairs(Clock.childs) do
 			---@type instance
@@ -924,17 +923,16 @@ do
 				local displayText = "0m 0s"
 				
 				if (Details.in_combat) then
-					-- When in combat, show current combat time (like title bar timer)
+					-- When in combat, show current combat time
 					local currentCombat = Details:GetCurrentCombat()
 					if (currentCombat and not currentCombat.__destroyed) then
 						local combatTime = currentCombat:GetCombatTime()
 						if (combatTime and combatTime > 0) then
 							if (timeType == 1) then
-								-- Minutes and seconds format
 								local minutes, seconds = math.floor(combatTime/60), math.floor(combatTime%60)
 								displayText = minutes .. "m " .. seconds .. "s"
 							elseif (timeType == 2) then
-								-- Seconds only format
+								-- Seconds only
 								displayText = math.floor(combatTime) .. "s"
 							else
 								-- Default to minutes and seconds
@@ -947,22 +945,22 @@ do
 					-- When not in combat, show selected segment duration
 					local combatObject = instance:GetCombat()
 					if (combatObject and not combatObject.__destroyed) then
-						-- Get segment duration from start_time and end_time
+						-- Get segment duration 
+						-- 1. from start_time and end_time
+						-- 2. if no end_time, use current time - start_time
 						local segmentDuration = 0
 						if (combatObject.end_time and combatObject.start_time) then
 							segmentDuration = combatObject.end_time - combatObject.start_time
 						elseif (combatObject.start_time) then
-							-- If no end_time, use current time - start_time
 							segmentDuration = GetTime() - combatObject.start_time
 						end
 						
 						if (segmentDuration > 0) then
 							if (timeType == 1) then
-								-- Minutes and seconds format
 								local minutes, seconds = math.floor(segmentDuration/60), math.floor(segmentDuration%60)
 								displayText = minutes .. "m " .. seconds .. "s"
 							elseif (timeType == 2) then
-								-- Seconds only format
+								-- Seconds only
 								displayText = math.floor(segmentDuration) .. "s"
 							elseif (timeType == 3) then
 								-- Time difference from previous segment
@@ -988,6 +986,7 @@ do
 			end
 		end
 	end
+	
 	--on reset
 	function Clock:DataReset()
 		for index, child in ipairs(Clock.childs) do
@@ -995,7 +994,7 @@ do
 				child.text:SetText("0m 0s")
 			end
 		end
-		-- Ensure timer is running after reset
+
 		if (not Clock.tick) then
 			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
 		end
