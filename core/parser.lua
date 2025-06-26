@@ -1097,10 +1097,9 @@
 			end
 		end
 
-		if (sourceActor.grupo and not sourceActor.arena_enemy and not sourceActor.enemy and not targetActor.arena_enemy) then --source = friendly player and not an enemy player
-			--dano to adversario estava caindo aqui por nao estar checando .enemy
+		if ((sourceActor.grupo or (sourceActor.owner and sourceActor.owner.grupo)) and not sourceActor.arena_enemy and not sourceActor.enemy and not targetActor.arena_enemy) then --source = friendly player/pet and not an enemy player 
+			--dano to adversario estava caindo aqui por nao estar checando .enemy 
 			_current_gtotal[1] = _current_gtotal[1] + amount
-
 		elseif (targetActor.grupo) then --source = arena enemy or friendly player
 			if (targetActor.arena_enemy) then
 				_current_gtotal[1] = _current_gtotal[1] + amount
