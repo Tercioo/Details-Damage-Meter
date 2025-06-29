@@ -410,10 +410,8 @@ function Details222.StartUp.StartMeUp()
 			lowerInstanceId = Details:GetInstance(lowerInstanceId)
 			if (lowerInstanceId) then
 				--check if there's changes in the size of the news string
-				if (Details.last_changelog_size ~= #Loc["STRING_VERSION_LOG"]) then
+				if (false and Details.last_changelog_size ~= #Loc["STRING_VERSION_LOG"]) then
 					Details.last_changelog_size = #Loc["STRING_VERSION_LOG"]
-
-					if (true) then return end --stop opening the new window automatically
 
 					if (Details.auto_open_news_window) then
 						C_Timer.After(5, function()

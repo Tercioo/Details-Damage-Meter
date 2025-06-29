@@ -183,7 +183,7 @@ function _detalhes:OpenWelcomeWindow()
 	end
 
 -- frame alert
-
+--[[
 	local frame_alert = CreateFrame("frame", nil, window)
 	frame_alert:SetPoint("topright", window)
 	function _detalhes:StopPlayStretchAlert()
@@ -204,7 +204,7 @@ function _detalhes:OpenWelcomeWindow()
 	end
 	frame_alert.alert = CreateFrame("frame", "DetailsWelcomeWindowAlert", UIParent, "ActionBarButtonSpellActivationAlert")
 	frame_alert.alert:SetFrameStrata("FULLSCREEN")
-	frame_alert.alert:Hide()
+	frame_alert.alert:Hide()]]
 
 local window_openned_at = time()
 
@@ -1126,7 +1126,8 @@ local window_openned_at = time()
 		stretch_image:SetTexCoord(0.716796875, 1, 0.876953125, 1)
 
 		local stretch_frame_alert = CreateFrame("frame", nil, window)
-		stretch_frame_alert:SetScript("OnHide", function()
+		--[[
+        stretch_frame_alert:SetScript("OnHide", function()
 			_detalhes:StopPlayStretchAlert()
 		end)
 		stretch_frame_alert:SetScript("OnShow", function()
@@ -1152,7 +1153,7 @@ local window_openned_at = time()
 				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
 			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer("StopPlayStretchAlert", 30)
-		end)
+		end)]]
 
 
 		pages [#pages+1] = {bg6, texto5, stretch_image, texto_stretch, stretch_frame_alert}
@@ -1194,6 +1195,7 @@ local window_openned_at = time()
 		instance_button_image:SetTexCoord(0.328125, 0.71484375, 0.724609375, 1)
 
 		local instance_frame_alert = CreateFrame("frame", nil, window)
+        --[[
 		instance_frame_alert:SetScript("OnHide", function()
 			_detalhes:StopPlayStretchAlert()
 		end)
@@ -1221,6 +1223,8 @@ local window_openned_at = time()
 			end
 			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer("StopPlayStretchAlert", 30)
 		end)
+
+        ]]
 
 		pages [#pages+1] = {bg6, texto6, instance_button_image, texto_instance_button, instance_frame_alert}
 
@@ -1445,6 +1449,8 @@ local window_openned_at = time()
 
 			local bar1 = _detalhes:GetInstance(1):GetRow(1)
 
+            --[[
+
 			frame_alert.alert:SetPoint("topleft", bar1, "topleft", -60, 8)
 			frame_alert.alert:SetPoint("bottomright", bar1, "bottomright", 60, -10)
 
@@ -1465,12 +1471,12 @@ local window_openned_at = time()
 				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
 			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer("StopPlayStretchAlert", 2)
-
+            ]]
 		end)
-
+        --[[
 		tooltip_frame:SetScript("OnHide", function()
 			_detalhes:StopPlayStretchAlert()
-		end)
+		end)]]
 
 		pages [#pages+1] = {bg88, texto88, micro_image1, texto_micro_display, tooltip_frame}
 

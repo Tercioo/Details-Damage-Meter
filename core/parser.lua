@@ -295,55 +295,49 @@
 	--spellIds override
 	local override_spellId = {}
 
-	if (isCATA) then
+	if (isCATA or isPANDA) then
 		override_spellId = {
 			--Scourge Strike
-			[55090] = 55271,
-			[55265] = 55271,
-			[55270] = 55271,
-			[70890] = 55271, --shadow
+			[55265] = 55090,
+			[55270] = 55090,
+			[70890] = 55090, --shadow
 
 			--Frost Strike
-			[49143] = 55268,
-			[51416] = 55268,
-			[51417] = 55268,
-			[51418] = 55268,
-			[51419] = 55268,
-			[66962] = 55268, --offhand
-			[66196] = 55268, --frost dk frost strike offhand
+			[51416] = 49143,
+			[51417] = 49143,
+			[51418] = 49143,
+			[51419] = 49143,
+			[66962] = 49143, --offhand
+			[66196] = 49143, --frost dk frost strike offhand
 
 			--Obliterate
-			[49020] = 51425,
-			[51423] = 51425,
-			[51424] = 51425,
-			[66974] = 51425, --offhand
-			[66198] = 51425, --frost dk obliterate offhand
+			[51423] = 49020,
+			[51424] = 49020,
+			[66974] = 49020, --offhand
+			[66198] = 49020, --frost dk obliterate offhand
 
 			--Death Strike
-			[49998] = 49924,
-			[49999] = 49924,
-			[45463] = 49924,
-			[49923] = 49924,
-			[66953] = 49924, --offhand
+			[49999] = 49998,
+			[45463] = 49998,
+			[49923] = 49998,
+			[66953] = 49998, --offhand
 
 			--Blood Strike
-			[45902] = 49930,
-			[49926] = 49930,
-			[49927] = 49930,
-			[49928] = 49930,
-			[49929] = 49930,
-			[66979] = 49930, --offhand
+			[49926] = 45902,
+			[49927] = 45902,
+			[49928] = 45902,
+			[49929] = 45902,
+			[66979] = 45902, --offhand
 
 			--Rune Strike
 			[6621] = 56815, --offhand
 
 			--Plague Strike
-			[45462] = 49921,
-			[49917] = 49921,
-			[49918] = 49921,
-			[49919] = 49921,
-			[49920] = 49921,
-			[66992] = 49921, --offhand
+			[49917] = 45462,
+			[49918] = 45462,
+			[49919] = 45462,
+			[49920] = 45462,
+			[66992] = 45462, --offhand
 
 			--Seal of Command
 			[20424] = 69403, --53739 and 53733
@@ -1476,6 +1470,8 @@
 		end
 
 		--actor owner (if any)
+		targetRaidFlags = targetRaidFlags and bitBand(targetRaidFlags, COMBATLOG_OBJECT_RAIDTARGET_MASK)
+
 		if (ownerActor) then --se for dano de um Pet
 			ownerActor.total = ownerActor.total + amount --e adiciona o dano ao pet
 
