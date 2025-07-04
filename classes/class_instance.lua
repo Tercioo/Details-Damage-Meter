@@ -1477,6 +1477,9 @@ function Details:BaseFrameSnap()
 	end
 
 	local my_baseframe = self.baseframe
+
+    self:RestoreMainWindowPositionNoResize()
+
 	for lado, snap_to in pairs(self.snap) do
 		local instancia_alvo = Details.tabela_instancias [snap_to]
 
@@ -1493,7 +1496,7 @@ function Details:BaseFrameSnap()
 					instancia_alvo.baseframe:SetPoint("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
 				elseif (lado == 3) then --a direita
-					instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
+					instancia_alvo.baseframe:SetPoint("TOPLEFT", my_baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
 
 				elseif (lado == 4) then --em cima
 					local statusbar_y_mod = 0
