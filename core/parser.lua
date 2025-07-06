@@ -654,6 +654,14 @@
 			[12654] = true, --Ignite
 			[419800] = true, --Intensifying Flame
 			[448744] = true, --Authority of Radiant Power
+			[388009] = true, --blessing of summer
+			[410265] = true, --inferno's blessing
+			[404908] = true, --fate mirror
+			[360828] = true, --blistering scales
+			[409632] = true, --breath of eons
+			[432895] = true, --thread of fate
+			[434481] = true, --bombardments
+			[120687] = true, --stormlash totem
 		}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -7248,10 +7256,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details.HealthMaxCache[playerGUID] = max(UnitHealthMax("player"), SMALL_FLOAT)
 				
 			if (Details.cached_specs[playerGUID] == 1473) then
-				table.insert(cacheAnything.aug_members_cache, {unitGUID, unitName, 0x511})
-				table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
+				table.insert(cacheAnything.aug_members_cache, {playerGUID, playerName, 0x511})
+				table.insert(cacheAnything.scalecommander_members_cache, {playerGUID, playerName, 0x511})
 			elseif (Details.cached_specs[playerGUID] == 1467) then
-				table.insert(cacheAnything.scalecommander_members_cache, {unitGUID, unitName, 0x511})
+				table.insert(cacheAnything.scalecommander_members_cache, {playerGUID, playerName, 0x511})
 			end
 		end
 
