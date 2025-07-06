@@ -287,6 +287,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field CreatePlayerPortrait fun(self: details, parent: frame, name: string) : frame
 ---@field GetCurrentEncounterInfo fun(self: details) : details_encounter_table
 ---@field GetAllInstances fun(self: details) : instance[] return a table with all the instances
+---@field GetCoreVersion fun(self: details) : number return the core version, this is used to check API version for scripts and plugins
 ---@field 
 ---@field GetItemLevelFromGuid fun(self: details, guid: guid) : number return the item level of the player, if the player is not found, return 0
 ---@field GenerateActorInfo fun(self: details, actor: actor, errorText:string, bIncludeStack:boolean) : table<string, boolean|string|number> generates a table with the main attributes of the actor, this is mainly for debug purposes
@@ -329,7 +330,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field UnpackMythicDungeonInfo fun(self: details, mythicDungeonInfo: mythicdungeoninfo) : boolean, segmentid, number, number, number, string, number, string, number, number, number unpack the mythic dungeon info and return the values
 ---@field CreateRightClickToCloseLabel fun(self: details, parent: frame) : df_label return a df_label with the text "Right click to close", need to set point
 ---@field IsValidActor fun(self: details, actor: actor) : boolean return true if the actor is valid
----@field GetCrowdControlSpells fun(self: details) : table<spellname, boolean> return a table of crowd control spells
+---@field GetCrowdControlSpells fun(self: details) : table<spellid, boolean> return a table of crowd control spells
 ---@field UnpackDeathTable fun(self: details, deathTable: deathtable) : actorname, actorclass, unixtime, combattime, timestring, number, table, {key1: unixtime, key2: spellid}, specializationid unpack values inside a deathTable, deathEvents is in order or first event in the first index and last event on latest index
 ---@field UnpackDeathEvent fun(self: details, deathEvent: table) : any, spellid, number, number, number, string, number?, number, boolean, number, boolean, boolean evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing.
 
@@ -442,7 +443,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field PhaseData table
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
----@field GetCrowdControlSpells fun(self: combat, actorName: string) : table<string, number> return the amount of casts of crowd control spell by an actor
+---@field GetCrowdControlSpells fun(self: combat, actorName: string) : table<spellid, number> return the amount of casts of crowd control spell by an actor
 ---@field GetCCCastAmount fun(self: combat, actorName: string) : number returns the number of crowd control casts made by the specified actor
 ---@field GetInterruptCastAmount fun(self: combat, actorName: string) : number
 ---@field LockActivityTime fun(self: combat)

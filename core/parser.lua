@@ -56,7 +56,7 @@
 	local shield_cache = Details.ShieldCache
 	local parser = Details.parser
 
-	local crowdControlSpells = Details.CrowdControlSpellNamesCache or {} --built during startup, can be edited to add or remove spells
+	local crowdControlSpells = Details.CrowdControlSpellIdsCache or {} --built during startup, can be edited to add or remove spells
 	local spellContainerClass = Details.container_habilidades --details local
 
 	--localize the cooldown table from the framework
@@ -3074,7 +3074,7 @@
 			if (_in_combat) then
 				------------------------------------------------------------------------------------------------
 				--buff uptime
-				if (crowdControlSpells[spellName]) then
+				if (crowdControlSpells[spellId]) then
 					parser:add_cc_done (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
 				end
 
@@ -6599,7 +6599,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	playerLogin:RegisterEvent("PLAYER_LOGIN")
 	playerLogin:SetScript("OnEvent", function()
 		Details222.StartUp.StartMeUp()
-		crowdControlSpells = Details.CrowdControlSpellNamesCache
+		crowdControlSpells = Details.CrowdControlSpellIdsCache
 	end)
 
 	function Details.parser_functions:PET_BATTLE_OPENING_START(...)
@@ -7270,7 +7270,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---returns a table containing crowd control spells.
 	---the table maps spell names to a boolean value indicating whether the spell is a crowd control spell.
 	---@param self details
-	---@return table<spellname, boolean> crowdControlSpellsTable table of crowd control spells.
+	---@return table<spellid, boolean> crowdControlSpellsTable table of crowd control spells.
 	function Details:GetCrowdControlSpells()
 		return crowdControlSpells
 	end
@@ -7323,7 +7323,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs --can be deprecated
 		_in_combat = Details.in_combat
 
-		crowdControlSpells = Details.CrowdControlSpellNamesCache
+		crowdControlSpells = Details.CrowdControlSpellIdsCache
 
 		Details:Destroy(ignored_npcids)
 
