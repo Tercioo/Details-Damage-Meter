@@ -3907,9 +3907,11 @@ local findPlayerPositionInEnemyDamageTaken = function(playerName, enemyName, com
 	local damagers = {}
 	if (enemyActor) then
 		local damageTakenTable = enemyActor.damage_from
-		for damagerName, amount in pairs(damageTakenTable) do
+		for damagerName in pairs(damageTakenTable) do
+			---@type actordamage
 			local damagerActor = combatObject(DETAILS_ATTRIBUTE_DAMAGE, damagerName)
 			if (damagerActor and damagerActor:IsPlayer()) then
+				local amount = damagerActor.targets[enemyName] or 0
 				damagers[#damagers+1] = {damagerName, amount}
 			end
 		end
