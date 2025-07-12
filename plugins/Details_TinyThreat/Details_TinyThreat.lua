@@ -685,6 +685,13 @@ local function CreatePluginFrames (data)
                             ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
                         end
                     end
+
+                    local thisplayer_name = GetUnitName ("player", true)
+                    local role = _UnitGroupRolesAssigned (thisplayer_name)
+                    local _, class = UnitClass (thisplayer_name)
+                    local t = {thisplayer_name, 0, false, role, class, 0, 0}
+                    ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                    ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
                 end
 
 			elseif (_IsInGroup()) then
