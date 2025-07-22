@@ -1,6 +1,6 @@
 
 
-local dversion = 610
+local dversion = 612
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -4097,13 +4097,8 @@ function DF:CreateGlowOverlay(parent, antsColor, glowColor)
 	end
 
 	local glowFrame
-	if (buildInfo >= 110107) then --24-05-2025: in the 11.1.7 patch, the template used here does not exist anymore
-		--possible candidates to replace the template. template name and the parent key to the animation group:
-		--"ActionBarButtonAssistedCombatRotationTemplate".ActiveFrame.GlowAnim
-		--"ActionBarButtonAssistedCombatHighlightTemplate".Anim
-		--"ActionButtonTargetReticleFrameTemplate".HighlightAnim
-		--"ActionButtonTemplate".SpellHighlightAnim
-		glowFrame = CreateFrame("frame", frameName, parent)
+	if (buildInfo >= 110107) then --24-05-2025: in the 11.1.7 patch, the template used here does not exist anymore, replacement used
+		glowFrame = CreateFrame("frame", frameName, parent, "ActionButtonSpellAlertTemplate")
 	else
 		glowFrame = CreateFrame("frame", frameName, parent, "ActionBarButtonSpellActivationAlert")
 	end

@@ -1044,6 +1044,8 @@
 			local nTimeIntervalBetweenUpdates = 0.1
 			Details:SetWindowUpdateSpeed(nTimeIntervalBetweenUpdates, bNoSave)
 		end
+
+		Details222.ArenaSummary.OnArenaStart()
 	end
 
 	--return the GetTime() of the current or latest arena match

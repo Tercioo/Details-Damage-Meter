@@ -4,6 +4,9 @@ local _
 local tocName, Details222 = ...
 local detailsFramework = DetailsFramework
 
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization
+local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+
 --start funtion
 function Details222.StartUp.StartMeUp()
 	if (Details.AndIWillNeverStop) then
