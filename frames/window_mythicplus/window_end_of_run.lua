@@ -1020,6 +1020,63 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		backgroundGradient:SetPoint("bottomright", readyFrame, "bottomright", 0, 0)
 		backgroundGradient:SetWidth(readyFrame:GetWidth())
 
+		--this is a frame that will be placed above the readyFrame with a full opaque background.
+		--the goal of the frame is to tell the player to download the details! mythic plus addon.
+		--the frame will also have a button to disable the message by setting 'Details.mythic_plus.show_damage_graphic' to false
+		local downloadFrame = CreateFrame("frame", "$DownloadFrame", readyFrame)
+		downloadFrame:SetSize(readyFrame:GetWidth(), readyFrame:GetHeight())
+		downloadFrame:SetPoint("topleft", readyFrame, "topleft", 0, 0)
+		downloadFrame:SetPoint("bottomright", readyFrame, "bottomright", 0, 0)
+		downloadFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+
+		local backgroundTexture = downloadFrame:CreateTexture("$parentBackgroundTexture", "background", nil, 0)
+		backgroundTexture:SetColorTexture(0.2, 0.2, 0.2, 1)
+		backgroundTexture:SetAllPoints()
+		downloadFrame.BackgroundTexture = backgroundTexture
+
+		local downloadText = downloadFrame:CreateFontString("$parentDownloadText", "overlay", "GameFontNormal")
+		downloadText:SetSize(readyFrame:GetWidth() - 20, 200)
+		downloadText:SetTextColor(unpack(textColor))
+		detailsFramework:SetFontSize(downloadText, 16)
+		downloadText:SetText("YOUR M+ PANEL LEVELED UP!\n\nDownload\n|cFFFFFFFFDetails! Damage Meter Mythic+|r\n addon to see a complete overview of your runs!")
+		downloadText:SetPoint("center", downloadFrame, "center", 0, 135)
+		downloadFrame.DownloadText = downloadText
+
+		local downloadButton = detailsFramework:CreateButton(downloadFrame, function()
+			readyFrame:Hide()
+			Details.mythic_plus.show_damage_graphic = false
+			Details:CopyPaste("Details! Damage Meter Mythic+")
+		end, readyFrame:GetWidth()-20, 40, "Copy addon name and don't show this again.")
+		downloadButton:SetPoint("center", downloadFrame, "center", 0, -150)
+		DetailsFramework:AddRoundedCornersToFrame(downloadButton.widget, Details.PlayerBreakdown.RoundedCornerPreset)
+		downloadButton.textsize = 14
+		downloadFrame.DownloadButton = downloadButton
+
+		local previewImage = downloadFrame:CreateTexture("$parentPreviewImage", "overlay")
+		previewImage:SetTexture([[Interface\AddOns\Details\images\mythicp_plugin_panel.png]], nil, nil, "TRILINEAR")
+		previewImage:SetSize(readyFrame:GetWidth() - 20, 160)
+		previewImage:SetPoint("bottomright", downloadButton.widget, "topright", 0, 36)
+
+		local clickToEnlargeText = downloadFrame:CreateFontString("$parentClickToEnlargeText", "overlay", "GameFontNormal")
+		clickToEnlargeText:SetTextColor(1, 1, 1)
+		detailsFramework:SetFontSize(clickToEnlargeText, 11)
+		clickToEnlargeText:SetText("Click to enlarge the preview image")
+		clickToEnlargeText:SetPoint("top", previewImage, "bottom", 0, -5)
+		downloadFrame.ClickToEnlargeText = clickToEnlargeText
+
+		local isExpanded = false
+		local expandPreviewTextureButton = detailsFramework:CreateButton(downloadFrame, function()
+			--expand the preview image to show the full size
+			if (not isExpanded) then
+				previewImage:SetSize(1506, 672)
+				isExpanded = true
+			else
+				previewImage:SetSize(readyFrame:GetWidth() - 20, 160)
+				isExpanded = false
+			end
+		end, readyFrame:GetWidth()-20, 40, "")
+		expandPreviewTextureButton:SetAllPoints(previewImage)
+
 		---@type playerbanner[]
 		readyFrame.unitCacheByName = {}
 

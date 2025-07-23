@@ -295,8 +295,13 @@ do
 		customItemList[450960] = {itemId = 219311, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(450960), aura1 = 450962, aura2 = nil} --[Void Pactstone] death effect has the same spellId --start|SPELL_DAMAGE|450960|"Void Pulse"|end
 
 		--11.2
-		customItemList[1234219] = {itemId = 242867, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(1234219), aura1 = nil, aura2 = nil} --Automatic Footbomb Dispenser
-		customItemList[1245376] = {itemId = 246939, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(1245376), aura1 = 1245376, aura2 = nil} --Essence-Hunter's Eyeglass
+		customItemList[1234219] = {itemId = 242867, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(1234219), aura1 = nil, aura2 = nil} --[Automatic Footbomb Dispenser]
+		customItemList[1245376] = {itemId = 246939, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(1245376), aura1 = 1245376, aura2 = nil} --[Essence-Hunter's Eyeglass]
+		customItemList[1242875] = {itemId = 242399, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(1242875), aura1 = nil, aura2 = nil} --[Screams of a Forgotten Sky]
+		customItemList[1239221] = {itemId = 242392, isPassive = true, onUse = false, castId = nil, defaultName = GetSpellInfo(1239221), aura1 = 1239221, aura2 = nil} --[Diamantine Voidcore]
+		customItemList[1244448] = {itemId = 242403, isPassive = false, onUse = true, castId = 1244448, defaultName = GetSpellInfo(1244448), aura1 = nil, aura2 = nil} --
+		customItemList[343393] = {itemId = 178826, isPassive = false, onUse = true, castId = 343393, defaultName = GetSpellInfo(343393), aura1 = nil, aura2 = nil} --[Sunblood Amethyst]
+
 
 
 		--customItemList[] = {itemId = , isPassive = , onUse = , castId = , defaultName = GetSpellInfo(), aura1 = , aura2 = } --
