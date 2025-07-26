@@ -1,4 +1,7 @@
 
+--this code has been deprecated and won't receive updates anymore.
+--the mythic+ focus has been shifted to the MythicPlusBreakdown addon, which is a standalone addon.
+
 local Details = _G.Details
 local debugmode = false --print debug lines
 local verbosemode = false --auto open the chart panel
@@ -1047,7 +1050,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 			Details.mythic_plus.show_damage_graphic = false
 			Details:CopyPaste("Details! Damage Meter Mythic+")
 		end, readyFrame:GetWidth()-20, 40, "Copy addon name and don't show this again.")
-		downloadButton:SetPoint("center", downloadFrame, "center", 0, -150)
+		downloadButton:SetPoint("center", downloadFrame, "center", 0, -142)
 		DetailsFramework:AddRoundedCornersToFrame(downloadButton.widget, Details.PlayerBreakdown.RoundedCornerPreset)
 		downloadButton.textsize = 14
 		downloadFrame.DownloadButton = downloadButton
@@ -1076,6 +1079,34 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 			end
 		end, readyFrame:GetWidth()-20, 40, "")
 		expandPreviewTextureButton:SetAllPoints(previewImage)
+
+		local deprecatedText = downloadFrame:CreateFontString("$parentDeprecatedText", "overlay", "GameFontNormal")
+		deprecatedText:SetTextColor(1, 0.7, 0.7, 1)
+		detailsFramework:SetFontSize(deprecatedText, 11)
+		deprecatedText:SetText("this panel will be removed on 11.2")
+		deprecatedText:SetPoint("bottom", downloadFrame, "bottom", 0, 7)
+
+		local whyFrame = CreateFrame("frame", nil, downloadFrame)
+		whyFrame:SetSize(80, 30)
+		whyFrame:SetPoint("bottomright", downloadFrame, "bottomright", -2, -2)
+		whyFrame:SetScript("OnEnter", function()
+			GameCooltip:Preset(2)
+			GameCooltip:SetOwner(whyFrame, "bottom", "top", 0, 5)
+			GameCooltip:AddLine("We made the decision to expand the features of this panel and for that to happen we need more developers.")
+			GameCooltip:AddLine("Having to learn how the old code of this panel works and make implementations on it would be madness.")
+			GameCooltip:AddLine("Because of that, we decided to rewrite the entire thing and build from the ground up.")
+			GameCooltip:AddLine("This panel won't receive more updates which means it'll break when 11.2 patch is released.")
+			GameCooltip:Show()
+		end)
+		whyFrame:SetScript("OnLeave", function()
+			GameCooltip:Hide()
+		end)
+
+		local whyText = whyFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+		whyText:SetTextColor(1, 1, 1)
+		detailsFramework:SetFontSize(whyText, 11)
+		whyText:SetText("why?")
+		whyText:SetPoint("center", whyFrame, "center", 0, 0)
 
 		---@type playerbanner[]
 		readyFrame.unitCacheByName = {}
@@ -1370,6 +1401,8 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 	--mythic+ finished, showing the readyFrame for the user
 	local readyFrame = mythicDungeonFrames.ReadyFrame
 	readyFrame:Show()
+
+	do return end
 
 	readyFrame.TopFrame:Show()
 	--readyFrame.YellowSpikeCircle.OnShowAnimation:Play()

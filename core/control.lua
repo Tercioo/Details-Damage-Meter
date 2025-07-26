@@ -915,20 +915,28 @@
 		--issue: invalidCombat will be just floating around in memory if not destroyed
 	end --end of leaving combat function
 
+	---@class arena_ally : table
+	---@field role string
+	---@field guid string
+
+	---@class details : table
+	---@field arena_table arena_ally
+	---@field arena_enemies table<actorname, unit>
+
 	function Details:GetPlayersInArena() --ARENA_OPPONENT_UPDATE
 		local aliados = GetNumGroupMembers() -- LE_PARTY_CATEGORY_HOME
 		for i = 1, aliados-1 do
 			local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("party" .. i) or "DAMAGER"
 			if (role ~= "NONE" and UnitExists("party" .. i)) then
 				local unitName = Details:GetFullName("party" .. i)
-				Details.arena_table [unitName] = {role = role}
+				Details.arena_table [unitName] = {role = role, guid = UnitGUID("party" .. i)}
 			end
 		end
 
 		local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player") or "DAMAGER"
 		if (role ~= "NONE") then
 			local playerName = Details:GetFullName("player")
-			Details.arena_table [playerName] = {role = role}
+			Details.arena_table [playerName] = {role = role, guid = UnitGUID("player")}
 		end
 
 		--enemies
@@ -1048,6 +1056,42 @@
 		Details222.ArenaSummary.OnArenaStart()
 	end
 
+	--PVP_MATCH_STATE_CHANGED
+	--PVP_MATCH_COMPLETE
+
+	local isInArena = false
+	local arenaStarted = false
+	local tdebugframe = CreateFrame("Frame", "DetailsParserDebugFrameASD", UIParent)
+	tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
+	tdebugframe:SetScript("OnEvent", function(self, event, ...)
+		local zoneName, instanceType = GetInstanceInfo()
+
+		if (event == "ZONE_CHANGED_NEW_AREA" and instanceType == "arena") then
+			if (not isInArena) then
+				isInArena = true
+				tdebugframe:RegisterEvent("PVP_MATCH_COMPLETE")
+				tdebugframe:RegisterEvent("PVP_MATCH_STATE_CHANGED")
+			elseif (isInArena and instanceType ~= "arena") then
+				isInArena = false
+				tdebugframe:UnregisterEvent("PVP_MATCH_COMPLETE")
+				tdebugframe:UnregisterEvent("PVP_MATCH_STATE_CHANGED")
+			end
+
+			return
+		end
+
+		--C_PvP.IsMatchActive() is true even before the arena match starts
+		if (C_PvP.IsMatchActive() and not arenaStarted) then
+			arenaStarted = true
+
+		elseif (not C_PvP.IsMatchActive() and arenaStarted) then
+			arenaStarted = false
+			Details:LeftArena()
+			Details.is_in_arena = false
+		end
+	end)
+
 	--return the GetTime() of the current or latest arena match
 	function Details:GetArenaStartTime()
 		return Details.lastArenaStartTime
@@ -1107,6 +1151,8 @@
 
 		--reset the update speed, as it could have changed when the arena started.
 		Details:SetWindowUpdateSpeed(Details.update_speed)
+
+		Details222.ArenaSummary.OnArenaEnd()
 	end
 
 	function Details:FlagActorsOnPvPCombat()
