@@ -1062,7 +1062,10 @@
 	local isInArena = false
 	local arenaStarted = false
 	local tdebugframe = CreateFrame("Frame", "DetailsParserDebugFrameASD", UIParent)
-	tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
+	if (detailsFramework.IsDragonflightAndBeyond()) then
+		tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	end
 
 	tdebugframe:SetScript("OnEvent", function(self, event, ...)
 		local zoneName, instanceType = GetInstanceInfo()
