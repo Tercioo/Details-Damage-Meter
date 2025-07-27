@@ -105,7 +105,7 @@ function ArenaSummary.OnArenaStart()
     --what need to be done:
     --1. create a table for each player in the arena
     for unitName, data in pairs(Details.arena_table) do
-        print("ArenaSummary: Adding player " .. unitName)
+        --print("ArenaSummary: Adding player " .. unitName)
         local thisData = detailsFramework.table.copy({}, data)
         thisData.isFriendly = true
         thisData.guid = UnitGUID(unitName) or ""
@@ -114,7 +114,7 @@ function ArenaSummary.OnArenaStart()
     end
     --2. create a table for each enemy in the arena
     for enemyName, unitId in pairs(Details.arena_enemies) do
-        print("ArenaSummary: Adding enemy " .. enemyName)
+        --print("ArenaSummary: Adding enemy " .. enemyName)
         local thisData = {
             role = "NONE",
             isFriendly = false,
@@ -446,7 +446,7 @@ function ArenaSummary.CreateWindow()
             local arenaData = ArenaSummary.UncompressArena(Details.arena_data_index_selected)
 
             if (not arenaData) then
-                print("ArenaSummary: No arena data found for index " .. Details.arena_data_index_selected)
+                --print("ArenaSummary: No arena data found for index " .. Details.arena_data_index_selected)
                 return
             end
 
