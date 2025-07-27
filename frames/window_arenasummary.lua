@@ -7,7 +7,10 @@ local addonName, Details222 = ...
 local detailsFramework = DetailsFramework
 local _
 
-local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+if (not openRaidLib) then
+    return
+end
 
 Details222.ArenaSummary = {
     arenaData = {},
