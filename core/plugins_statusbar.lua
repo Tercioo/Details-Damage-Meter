@@ -880,72 +880,123 @@ do
 	--Handle events --must have this function
 	function Clock:OnDetailsEvent(event)
 		return
-	end
-
+	end	
+	
 	--enter combat
 	function Clock:PlayerEnterCombat()
-		Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
+		if (not Clock.tick) then
+			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
+		end
 	end
 
-	--leave combat
+	--leave combat  
 	function Clock:PlayerLeaveCombat()
-		Details:CancelTimer(Clock.tick)
+		if (not Clock.tick) then
+			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
+		end
+	end
+	
+	function Clock:OnEnable()
+		if (not Clock.tick) then
+			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
+		end
+	end
+	
+	function Clock:OnDisable()
+		if (Clock.tick) then
+			Details:CancelTimer(Clock.tick)
+			Clock.tick = nil
+		end
 	end
 
 	function Details:ClockPluginTickOnSegment()
 		Details:ClockPluginTick(true)
-	end
-
+	end	
+	
 	--1 sec tick
 	function Details:ClockPluginTick(force)
 		for index, childObject in ipairs(Clock.childs) do
 			---@type instance
 			local instance = childObject.instance
 			if (childObject.enabled and instance:IsEnabled()) then
-				---@type combat
-				local combatObject = instance:GetCombat()
-				if (combatObject and not combatObject.__destroyed and ((instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL) or (instance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL and not Details.in_combat) or force)) then
-					local timeType = childObject.options.timeType
-					if (timeType == 1) then
-						local combatTime = combatObject:GetCombatTime()
-						local minutos, segundos = math.floor(combatTime/60), math.floor(combatTime%60)
-						childObject.text:SetText(minutos .. "m " .. segundos .. "s")
-
-					elseif (timeType == 2) then
-						local combatTime = combatObject:GetCombatTime()
-						childObject.text:SetText(combatTime .. "s")
-
-					elseif (timeType == 3) then
-						local segmentId = instance:GetSegmentId()
-
-						if (segmentId < 1) then
-							segmentId = 1
-						elseif (segmentId > Details.segments_amount) then
-							segmentId = Details.segments_amount
-						else
-							segmentId = segmentId + 1
+				local timeType = childObject.options.timeType
+				local displayText = "0m 0s"
+				
+				if (Details.in_combat) then
+					-- When in combat, show current combat time
+					local currentCombat = Details:GetCurrentCombat()
+					if (currentCombat and not currentCombat.__destroyed) then
+						local combatTime = currentCombat:GetCombatTime()
+						if (combatTime and combatTime > 0) then
+							if (timeType == 1) then
+								local minutes, seconds = math.floor(combatTime/60), math.floor(combatTime%60)
+								displayText = minutes .. "m " .. seconds .. "s"
+							elseif (timeType == 2) then
+								-- Seconds only
+								displayText = math.floor(combatTime) .. "s"
+							else
+								-- Default to minutes and seconds
+								local minutes, seconds = math.floor(combatTime/60), math.floor(combatTime%60)
+								displayText = minutes .. "m " .. seconds .. "s"
+							end
 						end
-
-						local lastFight = Details:GetCombat(segmentId)
-						local currentCombatTime = combatObject:GetCombatTime()
-
-						if (lastFight) then
-							childObject.text:SetText(currentCombatTime - lastFight:GetCombatTime() .. "s")
-						else
-							childObject.text:SetText(currentCombatTime .. "s")
+					end
+				else
+					-- When not in combat, show selected segment duration
+					local combatObject = instance:GetCombat()
+					if (combatObject and not combatObject.__destroyed) then
+						-- Get segment duration 
+						-- 1. from start_time and end_time
+						-- 2. if no end_time, use current time - start_time
+						local segmentDuration = 0
+						if (combatObject.end_time and combatObject.start_time) then
+							segmentDuration = combatObject.end_time - combatObject.start_time
+						elseif (combatObject.start_time) then
+							segmentDuration = GetTime() - combatObject.start_time
+						end
+						
+						if (segmentDuration > 0) then
+							if (timeType == 1) then
+								local minutes, seconds = math.floor(segmentDuration/60), math.floor(segmentDuration%60)
+								displayText = minutes .. "m " .. seconds .. "s"
+							elseif (timeType == 2) then
+								-- Seconds only
+								displayText = math.floor(segmentDuration) .. "s"
+							elseif (timeType == 3) then
+								-- Time difference from previous segment
+								local segmentId = instance:GetSegmentId()
+								local previousSegment = Details:GetCombat(segmentId + 1)
+								if (previousSegment and previousSegment.end_time and previousSegment.start_time) then
+									local previousDuration = previousSegment.end_time - previousSegment.start_time
+									local timeDiff = segmentDuration - previousDuration
+									displayText = math.floor(timeDiff) .. "s"
+								else
+									displayText = math.floor(segmentDuration) .. "s"
+								end
+							else
+								-- Default to minutes and seconds
+								local minutes, seconds = math.floor(segmentDuration/60), math.floor(segmentDuration%60)
+								displayText = minutes .. "m " .. seconds .. "s"
+							end
 						end
 					end
 				end
+				
+				childObject.text:SetText(displayText)
 			end
 		end
 	end
-
+	
 	--on reset
 	function Clock:DataReset()
 		for index, child in ipairs(Clock.childs) do
 			if (child.enabled and child.instance:IsEnabled()) then
 				child.text:SetText("0m 0s")
 			end
+		end
+
+		if (not Clock.tick) then
+			Clock.tick = Details:ScheduleRepeatingTimer("ClockPluginTick", 1)
 		end
 	end
 
@@ -1014,15 +1065,15 @@ do
 	if (type(install) == "table" and install.error) then
 		print(install.errortext)
 		return
-	end
-
-	--Register needed events
+	end	--Register needed events
 	Details:RegisterEvent(Clock, "COMBAT_PLAYER_ENTER", Clock.PlayerEnterCombat)
 	Details:RegisterEvent(Clock, "COMBAT_PLAYER_LEAVE", Clock.PlayerLeaveCombat)
 	Details:RegisterEvent(Clock, "DETAILS_INSTANCE_CHANGESEGMENT", Details.ClockPluginTickOnSegment)
 	Details:RegisterEvent(Clock, "DETAILS_DATA_SEGMENTREMOVED", Details.ClockPluginTick)
-	Details:RegisterEvent(Clock, "DETAILS_DATA_RESET", Clock.PlayerLeaveCombat)
-	Details:RegisterEvent(Clock, "DETAILS_DATA_SEGMENTREMOVED", Clock.PlayerLeaveCombat)
+	Details:RegisterEvent(Clock, "DETAILS_DATA_RESET", Clock.DataReset)
+	
+	-- Start the timer immediately when plugin loads
+	Clock:OnEnable()
 end
 
 ---------BUILT-IN THREAT PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
