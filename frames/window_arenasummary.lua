@@ -225,6 +225,28 @@ function ArenaSummary.OnArenaEnd()
 
     local arenaDataCompressed = Details.arena_data_compressed
 
+    local factionIndex = GetBattlefieldArenaFaction() --0 for horde, 1 for alliance
+    --couldn't find much documentation about custom victory, assuming is custom games and shuffles.
+    local victoryStatID = C_PvP.GetCustomVictoryStatID()
+    local hasNoWinner = victoryStatID > 0 and not C_PvP.IsRatedSoloShuffle();
+
+    --0: PVP_SCOREBOARD_MATCH_COMPLETE, 1: PVP_MATCH_VICTORY, 2: PVP_MATCH_DEFEAT, 3: PVP_MATCH_DRAW
+
+    local winnerStatus = 0
+
+    if (not hasNoWinner) then
+        local enemyFactionIndex = (factionIndex + 1) % 2
+        local winner = C_PvP.GetActiveMatchWinner()
+
+        if (winner == factionIndex) then
+            winnerStatus = 1 --win
+        elseif (winner == enemyFactionIndex) then
+            winnerStatus = 2 --loss
+        else
+            winnerStatus = 3 --draw
+        end
+    end
+
     local thisArenaData = {
         combatId = Details222.ArenaSummary.arenaData.combatId,
         arenaName = Details222.ArenaSummary.arenaData.arenaName,
@@ -236,6 +258,8 @@ function ArenaSummary.OnArenaEnd()
         playerName = UnitName("player"),
         playerClass = select(2, UnitClass("player")),
         playerGuid = UnitGUID("player"),
+        winnerStatus = winnerStatus, --0: no winner, 1: win, 2: loss, 3: draw
+        factionIndex = factionIndex, --0 for horde, 1 for alliance
     }
 
     local thisArenaDataCompressed = ArenaSummary.CompressArena(thisArenaData)
@@ -252,6 +276,7 @@ function ArenaSummary.OnArenaEnd()
         playerClass = select(2, UnitClass("player")),
         playerGuid = UnitGUID("player"),
         groupMembers = {},
+        winnerStatus = winnerStatus, --0: no winner, 1: win, 2: loss, 3: draw
     }
 
     for unitName, playerData in pairs(Details222.ArenaSummary.arenaData.combatData.groupMembers) do
@@ -267,7 +292,7 @@ function ArenaSummary.CreateWindow()
     local maxLines = 10
     local lineHeight = 22
     local windowWidth = 900
-    local windowHeight = 400
+    local windowHeight = 500
     local scrollWidth = windowWidth - 32
     local scrollHeight = 306
 
@@ -279,13 +304,21 @@ function ArenaSummary.CreateWindow()
     window:SetFrameStrata("HIGH")
     window:SetFrameLevel(10)
 
+    detailsFramework:ApplyStandardBackdrop(window)
+
     local arenaInfoText = window:CreateFontString("$parentArenaInfoText", "overlay", "GameFontNormal")
     arenaInfoText:SetText("")
     arenaInfoText:SetPoint("top", window, "top", 0, posY)
     window.ArenaInfoText = arenaInfoText
     detailsFramework:SetFontSize(arenaInfoText, 18)
 
-    posY = posY - 28
+    local arenaOutcomeText = window:CreateFontString("$parentArenaOutcomeText", "overlay", "GameFontNormal")
+    arenaOutcomeText:SetText("")
+    arenaOutcomeText:SetPoint("top", arenaInfoText, "bottom", 0, -10)
+    detailsFramework:SetFontSize(arenaOutcomeText, 20)
+    window.ArenaOutcomeText = arenaOutcomeText
+
+    posY = posY - 128
 
     --header
 		local headerTable = {
@@ -485,6 +518,15 @@ function ArenaSummary.CreateWindow()
 
             local elapsedTime = arenaData.endTime - arenaData.startTime
             window.ArenaInfoText:SetText(arenaData.arenaName .. " ".. detailsFramework:IntegerToTimer(elapsedTime) .. " - " .. arenaData.dampening .. "% Dampening")
+
+            window.ArenaOutcomeText:SetText(PVP_SCOREBOARD_MATCH_COMPLETE)
+            if (arenaData.winnerStatus == 1) then
+                window.ArenaOutcomeText:SetText(PVP_MATCH_VICTORY)
+            elseif (arenaData.winnerStatus == 2) then
+                window.ArenaOutcomeText:SetText(PVP_MATCH_DEFEAT)
+            elseif (arenaData.winnerStatus == 3) then
+                window.ArenaOutcomeText:SetText(PVP_MATCH_DRAW)
+            end
 
         end
 

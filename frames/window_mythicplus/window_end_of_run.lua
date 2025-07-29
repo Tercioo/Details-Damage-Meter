@@ -1045,14 +1045,16 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		downloadText:SetPoint("center", downloadFrame, "center", 0, 135)
 		downloadFrame.DownloadText = downloadText
 
+--/run _G.MythicDungeonFrames.ShowEndOfMythicPlusPanel()
+
 		local downloadButton = detailsFramework:CreateButton(downloadFrame, function()
 			readyFrame:Hide()
 			Details.mythic_plus.show_damage_graphic = false
 			Details:CopyPaste("Details! Damage Meter Mythic+")
-		end, readyFrame:GetWidth()-20, 40, "Copy addon name and don't show this again.")
+		end, readyFrame:GetWidth()-20, 40, "Click to copy addon name and don't show this again.")
 		downloadButton:SetPoint("center", downloadFrame, "center", 0, -142)
 		DetailsFramework:AddRoundedCornersToFrame(downloadButton.widget, Details.PlayerBreakdown.RoundedCornerPreset)
-		downloadButton.textsize = 14
+		downloadButton.textsize = 12
 		downloadFrame.DownloadButton = downloadButton
 
 		local previewImage = downloadFrame:CreateTexture("$parentPreviewImage", "overlay")
