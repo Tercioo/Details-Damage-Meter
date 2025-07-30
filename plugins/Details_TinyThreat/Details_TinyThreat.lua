@@ -665,14 +665,34 @@ local function CreatePluginFrames (data)
 
 			--> pre build player list
 			if (_IsInRaid()) then
-				for i = 1, _GetNumGroupMembers(), 1 do
-					local thisplayer_name = GetUnitName ("raid"..i, true)
-					local role = _UnitGroupRolesAssigned (thisplayer_name)
-					local _, class = UnitClass (thisplayer_name)
-					local t = {thisplayer_name, 0, false, role, class, 0, 0}
-					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
-					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
-				end
+                if (not ThreatMeter.saveddata.only_my_group) then
+                    for i = 1, _GetNumGroupMembers(), 1 do
+                        local thisplayer_name = GetUnitName ("raid"..i, true)
+                        local role = _UnitGroupRolesAssigned (thisplayer_name)
+                        local _, class = UnitClass (thisplayer_name)
+                        local t = {thisplayer_name, 0, false, role, class, 0, 0}
+                        ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                        ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+                    end
+                else
+                    for i = 1, 4, 1 do
+                        local thisplayer_name = GetUnitName ("party"..i, true)
+                        if (thisplayer_name) then
+                            local role = _UnitGroupRolesAssigned (thisplayer_name)
+                            local _, class = UnitClass (thisplayer_name)
+                            local t = {thisplayer_name, 0, false, role, class, 0, 0}
+                            ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                            ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+                        end
+                    end
+
+                    local thisplayer_name = GetUnitName ("player", true)
+                    local role = _UnitGroupRolesAssigned (thisplayer_name)
+                    local _, class = UnitClass (thisplayer_name)
+                    local t = {thisplayer_name, 0, false, role, class, 0, 0}
+                    ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                    ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+                end
 
 			elseif (_IsInGroup()) then
 				for i = 1, _GetNumGroupMembers()-1, 1 do
@@ -682,6 +702,14 @@ local function CreatePluginFrames (data)
 					local t = {thisplayer_name, 0, false, role, class, 0, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+
+                    if (ThreatMeter.saveddata.show_party_pets and UnitExists ("partypet" .. i)) then
+                        local thispet_name = GetUnitName ("partypet" .. i, true) .. " *PET*"
+                        local role = "DAMAGER"
+                        local t = {thispet_name, 0, false, role, class, 0, 0}
+                        ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                        ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
+                    end
 				end
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
@@ -689,6 +717,14 @@ local function CreatePluginFrames (data)
 				local t = {thisplayer_name, 0, false, role, class, 0, 0}
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+
+                if (ThreatMeter.saveddata.show_party_pets and UnitExists ("pet")) then
+					local thispet_name = GetUnitName ("pet", true) .. " *PET*"
+					local role = "DAMAGER"
+					local t = {thispet_name, 0, false, role, class, 0, 0}
+					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+					ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
+				end
 
 			else
 				local thisplayer_name = GetUnitName ("player", true)
@@ -804,6 +840,20 @@ local build_options_panel = function()
 			desc = "If this is enabled, certain bosses will show an additional threat threshold at 90.9% of the off-tank's threat. Any player above this threshold might be targeted after the Main Tank is incapacitated.",
 			name = "Enable Gouge mode",
 		},
+        {
+            type = "toggle",
+            get = function() return ThreatMeter.saveddata.show_party_pets end,
+            set = function(self, fixedparam, value) ThreatMeter.saveddata.show_party_pets = value end,
+            desc = "If this is enabled, you will see pets while in a party but not while in a raid",
+            name = "Show pets in party"
+        },
+        {
+            type = "toggle",
+            get = function() return ThreatMeter.saveddata.only_my_group end,
+            set = function(self, fixedparam, value) ThreatMeter.saveddata.only_my_group = value end,
+            desc = "If this is enabled, you will only see members in your group while in a raid",
+            name = "Show only my group"
+        },
 
 
 --[=[
@@ -900,6 +950,8 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeter.saveddata.hide_pull_bar = ThreatMeter.saveddata.hide_pull_bar or false
 				ThreatMeter.saveddata.absolute_mode = ThreatMeter.saveddata.absolute_mode or false
 				ThreatMeter.saveddata.disable_gouge = ThreatMeter.saveddata.disable_gouge or false
+				ThreatMeter.saveddata.show_party_pets = ThreatMeter.saveddata.show_party_pets or false
+                ThreatMeter.saveddata.only_my_group = ThreatMeter.saveddata.only_my_group or false
 
 				ThreatMeter.saveddata.playSound = ThreatMeter.saveddata.playSound or false
 				ThreatMeter.saveddata.playSoundFile = ThreatMeter.saveddata.playSoundFile or "Details Threat Warning Volume 3"

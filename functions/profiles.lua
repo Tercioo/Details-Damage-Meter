@@ -1170,6 +1170,10 @@ local default_player_data = {
 			last_coach_name = false,
 		},
 
+		arena_data_headers = {},
+		arena_data_compressed = {}, --store data for arena the character did
+		arena_data_index_selected = 1, --index of the arena data selected to be shown in the arena data panel
+
 		player_stats = {},
 
 		combat_log = {

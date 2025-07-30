@@ -4,6 +4,9 @@ local _
 local tocName, Details222 = ...
 local detailsFramework = DetailsFramework
 
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization
+local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+
 --start funtion
 function Details222.StartUp.StartMeUp()
 	if (Details.AndIWillNeverStop) then
@@ -512,6 +515,10 @@ function Details222.StartUp.StartMeUp()
 	---@type table<string, boolean>
 	Details.CrowdControlSpellNamesCache = {}
 
+	--cache of all spells ids that are used by crowd control effects
+	---@type table<spellid, spellname>
+	Details.CrowdControlSpellIdsCache = {}
+
 	---not in use atm, waiting the unzip of talents string.
 	---@type table<unitname, table<spellname, boolean>>
 	Details.CrowdControlSpellsByUnitCache = {}
@@ -520,6 +527,7 @@ function Details222.StartUp.StartMeUp()
 		if (spellData.type == 8) then
 			local spellInfo = C_Spell.GetSpellInfo(spellId)
 			if (spellInfo) then
+				Details.CrowdControlSpellIdsCache[spellId] = spellInfo.name
 				Details.CrowdControlSpellNamesCache[spellInfo.name] = true
 			end
 		end
@@ -527,6 +535,7 @@ function Details222.StartUp.StartMeUp()
 	for spellId, spellData in pairs(LIB_OPEN_RAID_CROWDCONTROL) do
 		local spellInfo = C_Spell.GetSpellInfo(spellId)
 		if (spellInfo and not Details.CrowdControlSpellNamesCache[spellInfo.name]) then
+			Details.CrowdControlSpellIdsCache[spellId] = spellInfo.name
 			Details.CrowdControlSpellNamesCache[spellInfo.name] = true
 		end
 	end

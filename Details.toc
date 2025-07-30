@@ -136,6 +136,7 @@ frames\window_pro_file.lua
 frames\window_nestspells.lua
 frames\window_deathrecap.lua
 frames\window_transcriptor.lua
+frames\window_arenasummary.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua

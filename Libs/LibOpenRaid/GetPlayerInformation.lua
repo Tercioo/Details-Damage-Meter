@@ -27,6 +27,9 @@ local CONST_ISITEM_BY_TYPEID = {
     [12] = true, --utility items
 }
 
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization
+local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+
 local GetInventoryItemLink = GetInventoryItemLink
 
 -- TWW compat

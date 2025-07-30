@@ -2126,7 +2126,7 @@ local iconFrame_OnEnter = function(self)
 
 			instance:BuildInstanceBarTooltip(self)
 
-			local bIsClassic = (DetailsFramework.IsClassicWow() or DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow())
+			local bIsClassic = (DetailsFramework.IsClassicWow() or DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow() or DetailsFramework.IsPandaWow())
 
 			local classIcon, classL, classR, classT, classB = Details:GetClassIcon(class)
 

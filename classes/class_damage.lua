@@ -3900,6 +3900,32 @@ local barAlha = .6
 Details222.commprefixes = "Comm"
 
 ---------DAMAGE DONE & DPS
+local findPlayerPositionInEnemyDamageTaken = function(playerName, enemyName, combatObject)
+	--find the player position in the enemy damage taken table
+	---@type actordamage
+	local enemyActor = combatObject(DETAILS_ATTRIBUTE_DAMAGE, enemyName)
+	local damagers = {}
+	if (enemyActor) then
+		local damageTakenTable = enemyActor.damage_from
+		for damagerName in pairs(damageTakenTable) do
+			---@type actordamage
+			local damagerActor = combatObject(DETAILS_ATTRIBUTE_DAMAGE, damagerName)
+			if (damagerActor and damagerActor:IsPlayer()) then
+				local amount = damagerActor.targets[enemyName] or 0
+				damagers[#damagers+1] = {damagerName, amount}
+			end
+		end
+	end
+
+	table.sort(damagers, Details.Sort2)
+
+	for i = 1, #damagers do
+		if (damagers[i][1] == playerName) then
+			return "#" .. i --return the position of the player in the enemy damage taken table
+		end
+	end
+	return "" --not found
+end
 
 function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 	local owner = self.owner
@@ -4100,7 +4126,9 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 
 				for i = 1, math.min(max_targets, #ActorTargetsSortTable) do
 					local enemyTable = ActorTargetsSortTable[i]
-					GameCooltip:AddLine(enemyTable[1], formatTooltipNumber(_, enemyTable[2]) .." ("..format("%.1f", enemyTable[2] / ActorDamageWithPet * 100).."%)")
+
+					local position = findPlayerPositionInEnemyDamageTaken(self.nome, enemyTable[1], combatObject)
+					GameCooltip:AddLine(enemyTable[1], formatTooltipNumber(_, enemyTable[2]) .. "  " .. position .. "  ("..format("%.1f", enemyTable[2] / ActorDamageWithPet * 100).."%)")
 
 					local portraitTexture-- = Details222.Textures.GetPortraitTextureForNpcID(enemyTable[3]) --disabled atm
 					if (portraitTexture) then
