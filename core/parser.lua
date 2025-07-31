@@ -2536,12 +2536,12 @@
 			end
 		end
 
-	if (spellId == 98021) then --spirit link toten
-		return parser:SLT_healing(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overHealing, absorbed, critical, bIsShield)
-	end
+		if (spellId == 98021) then --spirit link toten
+			return parser:SLT_healing(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overHealing, absorbed, critical, bIsShield)
+		end
 
 
-	if (is_using_spellId_override) then
+		if (is_using_spellId_override) then
 			spellId = override_spellId[spellId] or spellId
 		end
 
@@ -4149,7 +4149,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--if the interrupt is from a pet, then we need to add the interrupt to the owner
 		if (ownerActor) then
 			if (not ownerActor.interrupt) then
-				ownerActor.interrupt = Details:GetOrderNumber(sourceName)
+				ownerActor.interrupt = Details:GetOrderNumber()
 				ownerActor.interrupt_targets = {}
 				ownerActor.interrupt_spells = spellContainerClass:CreateSpellContainer(container_misc)
 				ownerActor.interrompeu_oque = {}
@@ -4165,6 +4165,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 			--which spells this actor interrupted
 			ownerActor.interrompeu_oque[extraSpellID] = (ownerActor.interrompeu_oque[extraSpellID] or 0) + 1
+
+			--owner spells table
+			local spell = ownerActor.interrupt_spells._ActorTable[spellId]
+			if (not spell) then
+				spell = ownerActor.interrupt_spells:GetOrCreateSpell(spellId, true, token)
+			end
+			_spell_utility_func(spell, targetName, token, extraSpellID, extraSpellName)
 
 			--pet interrupt
 			if (_hook_interrupt) then
@@ -7293,6 +7300,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@return table
 	function Details:GetParserPlayerCache()
 		return raid_members_cache
+	end
+
+	function Details:SetDeathLogTemporaryLimit(limitAmount)
+		Details.temp_deathlog_limit = limitAmount
+		_amount_of_last_events = Details.temp_deathlog_limit or Details.deadlog_events
 	end
 
 	--serach key: ~cache
