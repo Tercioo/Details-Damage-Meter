@@ -3074,7 +3074,8 @@
 			if (_in_combat) then
 				------------------------------------------------------------------------------------------------
 				--buff uptime
-				if (crowdControlSpells[spellId]) then
+				if (crowdControlSpells[spellId] or Details.CrowdControlSpellNamesCache[spellName]) then --
+					--print("adding cc done", sourceName, targetName, spellId, spellName)
 					parser:add_cc_done (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
 				end
 
