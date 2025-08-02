@@ -159,7 +159,7 @@ eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
 
     --the new arena summary window will start the real time dps tracker any way
     if (Details.zone_type == "arena") then
-        --bCanStartRealTimeDpsTracker = true
+        bCanStartRealTimeDpsTracker = true
     end
 
     if (bCanStartRealTimeDpsTracker) then
