@@ -530,7 +530,6 @@
 	end
 
 	---get a random fraction number
-	---@return number
 	function Details:GetOrderNumber() --anyString
 		--local name = upper(anyString .. "zz")
 		--local byte1 = abs(_string_byte(name, 2)-91) / 1000000

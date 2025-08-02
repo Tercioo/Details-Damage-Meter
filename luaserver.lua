@@ -271,6 +271,57 @@ CLASS_ICON_TCOORDS = {}
 ---| "INCLUDE_NAME_PLATE_ONLY"
 ---| "MAW"
 
+---@class pvpscoreinfo : table
+---@field name string 	
+---@field guid string
+---@field killingBlows number 	
+---@field honorableKills number 	
+---@field deaths number 	
+---@field honorGained number 	
+---@field faction number 	
+---@field raceName string 	
+---@field className string 	
+---@field classToken string 	
+---@field damageDone number 	
+---@field healingDone number 	
+---@field rating number 	
+---@field ratingChange number 	
+---@field prematchMMR number 	
+---@field mmrChange number 	
+---@field postmatchMMR number 	10.1.0
+---@field talentSpec string 	
+---@field honorLevel number 	
+---@field roleAssigned number 	
+---@field stats pvpstatinfo[] 	
+
+---@class pvpstatinfo : table
+---@field pvpStatID number
+---@field pvpStatValue number
+---@field orderIndex number
+---@field name string
+---@field tooltip string
+---@field iconName string
+
+---@class pvppostmatchitemreward : table
+---@field type string
+---@field link string
+---@field quantity number
+---@field specID number
+---@field sex number
+---@field isUpgraded boolean
+
+---@class pvppostmatchcurrencyreward
+---@field currencyType number
+---@field quantityChanged number
+
+---@class matchpvpstatcolumn : table
+---@field pvpStatID number
+---@field columnHeaderID number
+---@field orderIndex number
+---@field name string
+---@field tooltipTitle string
+---@field tooltip string
+
 ---@class backdrop : table
 ---@field bgFile string?
 ---@field edgeFile string?
