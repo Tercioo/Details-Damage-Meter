@@ -12,11 +12,82 @@ if (not openRaidLib) then
     return
 end
 
+--PVPMatchResults.content
+--PVPMatchResults.content.earningsContainer
+--PVPMatchResults.content.earningsContainer.rewardsContainer .items [GetChildren | Button] child={.Icon .IconBorder .IconOverlay .IconOverlay2 .Count .SpecIcon .SpecRing .link?ItemLink}
+--PVPMatchResults.content.earningsContainer.progressContainer .honor{.button{.Ring .Icon .CircleMask} .text .legacyButton} .conquest{.button{.Ring .Icon .CircleMask} .text .legacyButton} .rating{.button{.Icon .RankingShadow .Ranking(fontstring)} .text}
+--PVPMatchResults.buttonContainer.requeueButton
+--PVPMatchResults.buttonContainer.leaveButton
+--PVPMatchResults.header (fontstring VICTORY or DEFEAT)
+
+---@class details : table
+---@field arena_data_headers table
+---@field arena_data_compressed table
+---@field arena_data_index_selected number which dataset is showing in the arena scoreboard
+
+---@class arena_playerinfo : table
+---@field name string
+---@field role string
+---@field class string
+---@field spec number
+---@field guid string
+---@field isFriendly boolean
+---@field killingBlows killingblow[]
+---@field dps number
+---@field hps number
+---@field realTimeDps table<number>
+---@field realTimePeakDamage number
+---@field totalDamage number
+---@field totalDamageTaken number
+---@field totalHeal number
+---@field totalHealTaken number
+---@field totalDispels number
+---@field totalInterrupts number
+---@field totalInterruptsCasts number
+---@field totalCrowdControlCasts number
+---@field damageDoneBySpells table
+---@field healingDoneBySpells table
+---@field dispelWhat table<string, number>
+---@field interruptWhat table<string, number>
+---@field crowdControlSpells table<string, number>
+---@field honorableKills number
+---@field deaths number
+---@field honorGained number
+---@field faction number --0 for horde, 1 for alliance
+---@field className string --name of the class, e.g. "Priest"
+---@field classToken string --token of the class, e.g. "PRIEST"
+---@field rating number --current rating of the player
+---@field ratingChange number --rating change after the match
+---@field prematchMMR number --MMR before the match
+---@field mmrChange number --MMR change after the match
+---@field postmatchMMR number --MMR after the match
+---@field talentSpec string --talent spec of the player, e.g. "None"
+---@field honorLevel number --honor level of the player
+---@field roleAssigned string --role assigned to the player, e.g. "NONE"
+---@field stats table --table with the stats of the player
+
+---@class arenasummary : table
+---@field Lines arenaline[]
+---@field arenaData table
+---@field LoopTicker timer
+---@field DeathHook boolean
+---@field window frame
+---@field OpenWindow fun(): frame
+---@field NewPlayer fun(actorObject: actor, isFriendly: boolean, unitId: string)
+---@field OnArenaStart fun()
+---@field OnArenaEnd fun()
+---@field CompressArena fun(arenaData: table): table --compresses the arena data to be saved in the Details.arena_data_compressed table
+---@field CreateWindow fun(): frame --creates the arena summary window
+---@field SetFontSettings fun() --sets the font settings for the arena summary window
+
 Details222.ArenaSummary = {
     arenaData = {},
 }
 
+local tickerId = 1
+
 local ArenaSummary = Details222.ArenaSummary
+ArenaSummary.CurrentArenaData = nil --this variable is used to store the current arena data being displayed in the arena summary window
 
 function Details:OpenArenaSummaryWindow()
     return ArenaSummary.OpenWindow()
@@ -31,6 +102,8 @@ function ArenaSummary.OpenWindow()
         ArenaSummary.window:Show()
     end
 
+    ArenaSummary.window.RequeueButton:Enable()
+
     --refresh the scroll area
     ArenaSummary.window.ArenaPlayersScroll:RefreshScroll()
 end
@@ -42,14 +115,60 @@ local makePlayerTable = function(unitName, thisData)
         class = thisData.class or "UNKNOWN",
         guid = thisData.guid or "",
         isFriendly = thisData.isFriendly or false,
-        finalHits = 0,
+        killingBlows = {},
         dps = 0, --the average dps for this player
         hps = 0, --the average hps for this player
         realTimeDps = {}, --this table stores an array of numbers with the real time dps values per second
         realTimePeakDamage = 0, --the peak damage done in real time
+
+        totalDispels = 0,
+        totalInterrupts = 0,
+        totalInterruptsCasts = 0,
+        totalCrowdControlCasts = 0,
+        dispelWhat = {},
+        interruptWhat = {},
+        crowdControlSpells = 0,
     }
     return playerTable
 end
+
+function ArenaSummary.NewPlayer(actorObject, isFriendly, unitId)
+    if (ArenaSummary.LoopTicker and not ArenaSummary.LoopTicker:IsCancelled()) then
+        if (isFriendly) then
+            if (not Details222.ArenaSummary.arenaData.combatData.groupMembers[actorObject.nome]) then
+                local thisData = Details.arena_table[actorObject.nome]
+                thisData.isFriendly = true
+                thisData.guid = UnitGUID(unitId) or ""
+                thisData.class = select(2, UnitClass(actorObject.nome)) or "UNKNOWN"
+                Details222.ArenaSummary.arenaData.combatData.groupMembers[actorObject.nome] = makePlayerTable(actorObject.nome, thisData)
+
+                local realTimeDps = Details222.ArenaSummary.arenaData.combatData.groupMembers[actorObject.nome].realTimeDps
+                --initialize the real time dps array from 1 to the index of tickerId
+                for i = 1, tickerId do
+                    realTimeDps[i] = 0
+                end
+            end
+        else
+            if (not Details222.ArenaSummary.arenaData.combatData.groupMembers[actorObject.nome]) then
+                local thisData = {
+                    role = "NONE",
+                    isFriendly = false,
+                    guid = UnitGUID(unitId) or "",
+                    class = select(2, UnitClass(unitId)) or "UNKNOWN"
+                }
+                Details222.ArenaSummary.arenaData.combatData.groupMembers[actorObject.nome] = makePlayerTable(actorObject.nome, thisData)
+
+                local realTimeDps = Details222.ArenaSummary.arenaData.combatData.groupMembers[actorObject.nome].realTimeDps
+                --initialize the real time dps array from 1 to the index of tickerId
+                for i = 1, tickerId do
+                    realTimeDps[i] = 0
+                end
+            end
+        end
+    end
+end
+
+--details isn't closing the arena combat when the arena ends
 
 --ARENA TICKER
 local arenaTicker = function(tickerObject)
@@ -68,17 +187,23 @@ local arenaTicker = function(tickerObject)
             playerData.hps = healingActorObject.total / combatTime
         end
 
-        local currentDPS = Details.CurrentDps.GetCurrentDps(playerData.guid)
-        playerData.realTimeDps[#playerData.realTimeDps + 1] = currentDPS or 0
-        if (currentDPS and currentDPS > playerData.realTimePeakDamage) then
+        local currentDPS = Details.CurrentDps.GetCurrentDps(playerData.guid) or 0
+        playerData.realTimeDps[#playerData.realTimeDps + 1] = currentDPS
+        if (currentDPS > playerData.realTimePeakDamage) then
             playerData.realTimePeakDamage = currentDPS
         end
+
+        print("CurrentDPS:", unitName, currentDPS)
     end
 
     Details222.ArenaSummary.arenaData.dampening = C_Commentator.GetDampeningPercent()
+
+    tickerId = tickerId + 1
 end
 
-function ArenaSummary.OnArenaStart()
+function ArenaSummary.OnArenaStart() --~start
+    print("ARENA STARTED!!", "elapsed time:", "date:", date("%Y-%m-%d %H:%M:%S", time()), time())
+
     local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
 
     Details222.ArenaSummary.arenaData = {
@@ -92,6 +217,70 @@ function ArenaSummary.OnArenaStart()
         combatId = Details:GetCurrentCombat():GetCombatUID(),
     }
 
+    if (not ArenaSummary.DeathHook) then --~death ~dead ~kill
+        local onDeathEvent = function(_, token, time, sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags, playerDeathTable, lastCooldown, combatElapsedTime, maxHealth)
+            --when a death occurs, get the deathTable and examin it to get the player which did the most amount of damage
+            --[=[
+                playerDeathTable = {
+                    eventsBeforePlayerDeath, --table
+                    time, --number unix time
+                    thisPlayer.nome, --string player name
+                    thisPlayer.classe, --string player class
+                    maxHealth, --number max health
+                    minutes .. "m " .. seconds .. "s", --time of death as string
+                    ["dead"] = true,
+                    ["last_cooldown"] = thisPlayer.last_cooldown,
+                    ["dead_at"] = combatElapsedTime,
+                    ["spec"] = thisPlayer.spec,
+                }
+            --]=]
+
+            local eventsBeforePlayerDeath = playerDeathTable[1]
+            local damageSum = {}
+            for i = 1, #eventsBeforePlayerDeath do
+                local event = eventsBeforePlayerDeath[i]
+                local evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing = Details:UnpackDeathEvent(event)
+                if (evType == true) then --is a damage event
+                    damageSum[sourceName] = (damageSum[sourceName] or 0) + amount
+                end
+            end
+
+            --goal is to iterate among the damageSum table and find the player with the most damage
+            local orderedTable = {}
+            for sourceName, damage in pairs(damageSum) do
+                orderedTable[#orderedTable + 1] = {name = sourceName, damage = damage}
+            end
+            table.sort(orderedTable, function(a, b)
+                return a.damage > b.damage
+            end)
+
+            local mostDamagePlayer = orderedTable[1]
+
+            if (mostDamagePlayer) then
+                local playerData = Details222.ArenaSummary.arenaData.combatData.groupMembers[mostDamagePlayer.name]
+                local killingBlows = playerData.killingBlows
+                local thisKillingBlow = {
+                    enemyName = targetName,
+                    damageByPlayers = orderedTable
+                }
+                killingBlows[#killingBlows + 1] = thisKillingBlow
+                print("ADDED a KILL for player", mostDamagePlayer.name, "with damage:", mostDamagePlayer.damage)
+            end
+        end
+
+        Details:InstallHook(DETAILS_HOOK_DEATH, onDeathEvent)
+
+        ArenaSummary.DeathHook = true
+    end
+
+    ---@class killingblowdamage : table
+    ---@field name string who caused the damage
+    ---@field damage number how much damage was done by this player
+
+    ---@class killingblow : table
+    ---@field enemyName string
+    ---@field damageByPlayers killingblowdamage[] --table with the player name as key and the damage done as value
+
     --data already existing:
         --Details.arena_table [unitName] = {role = role}
         --Details.arena_enemies[enemyName] = "arena" .. i
@@ -102,16 +291,21 @@ function ArenaSummary.OnArenaStart()
         --"Your Team Healing"
         --"Enemy Team Healing"
 
-    --what need to be done:
+    --the aknoladge of other players in arena players can be done after the match starts due to hidden players
+
     --1. create a table for each player in the arena
     for unitName, data in pairs(Details.arena_table) do
-        --print("ArenaSummary: Adding player " .. unitName)
-        local thisData = detailsFramework.table.copy({}, data)
-        thisData.isFriendly = true
-        thisData.guid = UnitGUID(unitName) or ""
-        thisData.class = select(2, UnitClass(unitName)) or "UNKNOWN"
-        Details222.ArenaSummary.arenaData.combatData.groupMembers[unitName] = makePlayerTable(unitName, thisData)
+        if (unitName ~= UNKNOWN) then
+            --print("ArenaSummary: Adding player " .. unitName)
+            local thisData = detailsFramework.table.copy({}, data)
+            thisData.isFriendly = true
+            thisData.guid = UnitGUID(unitName) or ""
+            thisData.class = select(2, UnitClass(unitName)) or "UNKNOWN"
+            Details222.ArenaSummary.arenaData.combatData.groupMembers[unitName] = makePlayerTable(unitName, thisData)
+            print("arena friendly:", unitName)
+        end
     end
+
     --2. create a table for each enemy in the arena
     for enemyName, unitId in pairs(Details.arena_enemies) do
         --print("ArenaSummary: Adding enemy " .. enemyName)
@@ -122,51 +316,97 @@ function ArenaSummary.OnArenaStart()
             class = select(2, UnitClass(unitId)) or "UNKNOWN"
         }
         Details222.ArenaSummary.arenaData.combatData.groupMembers[enemyName] = makePlayerTable(enemyName, thisData)
+
+        print("arena enemy:", enemyName)
     end
 
     --signature: NewLooper(time: number, callback: function, loopAmount: number, loopEndCallback: function?, checkPointCallback: function?, ...: any): timer
     local time = 1
     local loopAmount = 0 --0 means infinite
     local loopEndCallback = function() end --called when the loop ends
+
+    tickerId = 1
     ArenaSummary.LoopTicker = detailsFramework.Schedules.NewLooper(time, arenaTicker, loopAmount, loopEndCallback)
 end
 
----@class details : table
----@field arena_data_headers table
----@field arena_data_compressed table
+---@param actorObject actordamage
+function ArenaSummary.GetPlayerDamageSpells(actorObject)
+    local spellsUsed = actorObject:GetActorSpells()
+    local damageSpells = {}
+    for _, spellTable in pairs(spellsUsed) do
+        table.insert(damageSpells, {spellTable.id, spellTable.total})
+    end
+    table.sort(damageSpells, function(a, b) return a[2] > b[2] end)
+    return damageSpells
+end
 
----@class arena_playerinfo : table
----@field name string
----@field role string
----@field class string
----@field guid string
----@field isFriendly boolean
----@field finalHits number
----@field dps number
----@field hps number
----@field realTimeDps table<number>
----@field realTimePeakDamage number
----@field totalDamage number
----@field totalDamageTaken number
----@field totalHeal number
----@field totalHealTaken number
----@field totalDispels number
----@field totalInterrupts number
----@field totalInterruptsCasts number
----@field totalCrowdControlCasts number
----@field dispelWhat table<string, number>
----@field interruptWhat table<string, number>
----@field crowdControlSpells table<string, number>
+---@param actorObject actorheal
+function ArenaSummary.GetPlayerHealingSpells(actorObject)
+    local spellsUsed = actorObject:GetActorSpells()
+    local healingSpells = {}
+    for _, spellTable in pairs(spellsUsed) do
+        table.insert(healingSpells, {spellTable.id, spellTable.total})
+    end
+    table.sort(healingSpells, function(a, b) return a[2] > b[2] end)
+    return healingSpells
+end
 
-function ArenaSummary.OnArenaEnd()
+function ArenaSummary.OnArenaEnd() --~end
     if (ArenaSummary.LoopTicker) then
         ArenaSummary.LoopTicker:Cancel()
+    end
+
+    local combat = Details:GetCurrentCombat()
+    local combatTime = combat:GetCombatTime()
+    print("ARENA ENDED!!", "elapsed time:", combatTime, "date:", date("%Y-%m-%d %H:%M:%S", time()), time())
+
+    local damageContainer = combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+    for index, actor in damageContainer:ListActors() do
+        if (actor:IsPlayer()) then
+            print("arena damage actor:", actor.nome, actor.classe)
+        end
     end
 
     local currentCombat = Details:GetCurrentCombat()
     local combatTime = currentCombat:GetCombatTime()
 
     local actorContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+
+    --player and arena information
+	local teamInfos = {
+		C_PvP.GetTeamInfo(0),
+		C_PvP.GetTeamInfo(1),
+	}
+
+    --dumpt(C_PvP.GetTeamInfo(0))
+
+    Details222.ArenaSummary.arenaData.combatData.teamInfos = teamInfos
+    Details222.ArenaSummary.arenaData.isArenaSkirmish = IsArenaSkirmish()
+    Details222.ArenaSummary.arenaData.isRatedSoloShuffle = C_PvP.IsRatedSoloShuffle()
+    Details222.ArenaSummary.arenaData.isFactionalMatch = C_PvP.IsMatchFactional()
+    Details222.ArenaSummary.arenaData.isBrawlSoloShuffle = C_PvP.IsBrawlSoloShuffle()
+    Details222.ArenaSummary.arenaData.isBrawlSoloRBG = C_PvP.IsBrawlSoloRBG()
+    Details222.ArenaSummary.arenaData.isSoloShuffle = C_PvP.IsSoloShuffle()
+    Details222.ArenaSummary.arenaData.playerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(GetPlayerGuid())
+    Details222.ArenaSummary.arenaData.doesMatchOutcomeAffectRating = C_PvP.DoesMatchOutcomeAffectRating()
+    Details222.ArenaSummary.arenaData.statColumns = C_PvP.GetMatchPVPStatColumns()
+
+    local personalRatedInfo = C_PvP.GetPVPActiveMatchPersonalRatedInfo()
+    if (personalRatedInfo) then
+        Details222.ArenaSummary.arenaData.playerPersonalRatedInfo = personalRatedInfo
+    end
+
+    --player rewards
+    Details222.ArenaSummary.arenaData.playerRewards = {}
+	for k, item in pairs(C_PvP.GetPostMatchItemRewards()) do
+        ---@cast item pvppostmatchitemreward
+        table.insert(Details222.ArenaSummary.arenaData.playerRewards, item)
+	end
+
+	for k, currency in pairs(C_PvP.GetPostMatchCurrencyRewards()) do
+        ---@cast currency pvppostmatchcurrencyreward
+        table.insert(Details222.ArenaSummary.arenaData.playerRewards, currency)
+	end
 
     --iterate among the arena players and update their data
     for unitName, playerInfo in pairs(Details222.ArenaSummary.arenaData.combatData.groupMembers) do
@@ -177,13 +417,104 @@ function ArenaSummary.OnArenaEnd()
             playerInfo.dps = damageActorObject.total / combatTime
             playerInfo.totalDamage = damageActorObject.total
             playerInfo.totalDamageTaken = damageActorObject.damage_taken
+            playerInfo.damageDoneBySpells = ArenaSummary.GetPlayerDamageSpells(damageActorObject)
         end
+
         ---@type actorheal
         local healingActorObject = currentCombat:GetActor(DETAILS_ATTRIBUTE_HEAL, unitName)
         if (healingActorObject) then
             playerInfo.hps = healingActorObject.total / combatTime
             playerInfo.totalHeal = healingActorObject.total
             playerInfo.totalHealTaken = healingActorObject.healing_taken
+            playerInfo.healingDoneBySpells = ArenaSummary.GetPlayerHealingSpells(healingActorObject)
+        end
+
+        pcall(function()
+
+        -- Reduce realTimeDps table size if combatTime > 240 seconds (4 minutes)
+        if playerInfo.realTimeDps and #playerInfo.realTimeDps > 240 then
+            local original = playerInfo.realTimeDps
+            local reduced = {}
+            local factor = math.ceil(#original / 240)
+            for i = 1, 240 do
+                local startIdx = (i - 1) * factor + 1
+                local endIdx = math.min(i * factor, #original)
+                local sum, sumSq, count = 0, 0, 0
+                for j = startIdx, endIdx do
+                    local val = original[j]
+                    sum = sum + val
+                    sumSq = sumSq + val * val
+                    count = count + 1
+                end
+                if count > 0 then
+                    local mean = sum / count
+                    local variance = (sumSq / count) - (mean * mean)
+                    local stddev = math.sqrt(math.max(variance, 0))
+                    reduced[i] = mean + stddev
+                else
+                    reduced[i] = 0
+                end
+            end
+            playerInfo.realTimeDps = reduced
+            playerInfo.originalRealTimeDps = original
+        end
+
+        end)
+
+        playerInfo.spec = Details:GetSpecFromSerial(playerInfo.guid)
+        playerInfo.ilevel = Details:GetItemLevelFromGuid(playerInfo.guid) or 0
+
+        print("groupMembers IT -> UName:", unitName, playerInfo.guid, playerInfo.spec, playerInfo.ilevel)
+
+        if (UnitIsUnit(unitName, "player")) then
+            local playerGUID = UnitGUID("player")
+            ---@type pvpscoreinfo
+            local localPlayerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(playerGUID)
+            if (localPlayerScoreInfo) then
+                --playerInfo.killingBlows = localPlayerScoreInfo.killingBlows or 0
+                playerInfo.guid = localPlayerScoreInfo.guid or "NONE"
+                playerInfo.honorableKills = localPlayerScoreInfo.honorableKills or 0
+                playerInfo.deaths = localPlayerScoreInfo.deaths or 0
+                playerInfo.honorGained = localPlayerScoreInfo.honorGained or 0
+                playerInfo.faction = localPlayerScoreInfo.faction or 0
+                playerInfo.className = localPlayerScoreInfo.className or "Priest"
+                playerInfo.classToken = localPlayerScoreInfo.classToken or "PRIEST"
+                playerInfo.rating = localPlayerScoreInfo.rating or 0
+                playerInfo.ratingChange = localPlayerScoreInfo.ratingChange or 0
+                playerInfo.prematchMMR = localPlayerScoreInfo.prematchMMR or 0
+                playerInfo.mmrChange = localPlayerScoreInfo.mmrChange or 0
+                playerInfo.postmatchMMR = localPlayerScoreInfo.postmatchMMR or 0
+                playerInfo.talentSpec = localPlayerScoreInfo.talentSpec or "None"
+                playerInfo.honorLevel = localPlayerScoreInfo.honorLevel or 0
+                playerInfo.roleAssigned = localPlayerScoreInfo.roleAssigned or "NONE"
+                playerInfo.stats = localPlayerScoreInfo.stats or {}
+            end
+
+        elseif (playerInfo.guid) then
+            ---@type pvpscoreinfo
+            local localPlayerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(playerInfo.guid)
+            print("UName:", unitName, playerInfo.guid, localPlayerScoreInfo)
+            if (localPlayerScoreInfo) then
+                --playerInfo.killingBlows = localPlayerScoreInfo.killingBlows or 0
+                playerInfo.guid = localPlayerScoreInfo.guid or "NONE"
+                playerInfo.honorableKills = localPlayerScoreInfo.honorableKills or 0
+                playerInfo.deaths = localPlayerScoreInfo.deaths or 0
+                playerInfo.honorGained = localPlayerScoreInfo.honorGained or 0
+                playerInfo.faction = localPlayerScoreInfo.faction or 0
+                playerInfo.className = localPlayerScoreInfo.className or "Priest"
+                playerInfo.classToken = localPlayerScoreInfo.classToken or "PRIEST"
+                playerInfo.rating = localPlayerScoreInfo.rating or 0
+                playerInfo.ratingChange = localPlayerScoreInfo.ratingChange or 0
+                playerInfo.prematchMMR = localPlayerScoreInfo.prematchMMR or 0
+                playerInfo.mmrChange = localPlayerScoreInfo.mmrChange or 0
+                playerInfo.postmatchMMR = localPlayerScoreInfo.postmatchMMR or 0
+                playerInfo.talentSpec = localPlayerScoreInfo.talentSpec or "None"
+                playerInfo.honorLevel = localPlayerScoreInfo.honorLevel or 0
+                playerInfo.roleAssigned = localPlayerScoreInfo.roleAssigned or "NONE"
+                playerInfo.stats = localPlayerScoreInfo.stats or {}
+            end
+        else
+            print("unit without guid:", unitName)
         end
 
         local ccTotal = 0
@@ -247,7 +578,15 @@ function ArenaSummary.OnArenaEnd()
         end
     end
 
+    local scoresTable = {}
+    local scores = GetNumBattlefieldScores();
+    print("GetNumBattlefieldScores():", scores)
+    for index = 1, scores do
+        scoresTable[index] = C_PvP.GetScoreInfo(index)
+    end
+
     local thisArenaData = {
+        scoresTable = scoresTable,
         combatId = Details222.ArenaSummary.arenaData.combatId,
         arenaName = Details222.ArenaSummary.arenaData.arenaName,
         arenaMapId = Details222.ArenaSummary.arenaData.arenaMapId,
@@ -260,6 +599,18 @@ function ArenaSummary.OnArenaEnd()
         playerGuid = UnitGUID("player"),
         winnerStatus = winnerStatus, --0: no winner, 1: win, 2: loss, 3: draw
         factionIndex = factionIndex, --0 for horde, 1 for alliance
+        teamInfos = teamInfos,
+        isArenaSkirmish = IsArenaSkirmish(),
+        isRatedSoloShuffle = C_PvP.IsRatedSoloShuffle(),
+        isFactionalMatch = C_PvP.IsMatchFactional(),
+        isBrawlSoloShuffle = C_PvP.IsBrawlSoloShuffle(),
+        isBrawlSoloRBG = C_PvP.IsBrawlSoloRBG(),
+        isSoloShuffle = C_PvP.IsSoloShuffle(),
+        playerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(GetPlayerGuid()),
+        doesMatchOutcomeAffectRating = C_PvP.DoesMatchOutcomeAffectRating(),
+        statColumns = C_PvP.GetMatchPVPStatColumns(),
+        playerRewards = Details222.ArenaSummary.arenaData.playerRewards,
+        playerPersonalRatedInfo = Details222.ArenaSummary.arenaData.playerPersonalRatedInfo,
     }
 
     local thisArenaDataCompressed = ArenaSummary.CompressArena(thisArenaData)
@@ -287,12 +638,16 @@ function ArenaSummary.OnArenaEnd()
     print("ARENA HEADER ADDED amount:", #Details.arena_data_headers)
 end
 
-function ArenaSummary.CreateWindow()
+--PVPMatchResults.content.earningsContainer.rewardsContainer.items
+--PVPMatchResults.content.earningsContainer.progressContainer.honor.button
+--PVPMatchResults.content.earningsContainer.progressContainer.conquest.button
+
+function ArenaSummary.CreateWindow() --~create
     local posY = -35
     local maxLines = 10
     local lineHeight = 22
     local windowWidth = 900
-    local windowHeight = 500
+    local windowHeight = 550
     local scrollWidth = windowWidth - 32
     local scrollHeight = 306
 
@@ -322,48 +677,98 @@ function ArenaSummary.CreateWindow()
 
     --header
 		local headerTable = {
-			{text = "", width = 20},
-			{text = "Name", width = 120},
-			{text = "Final Hits", width = 60},
-			{text = "Peak Damage", width = 90},
-			{text = "Dps", width = 60},
-            {text = "Hps", width = 60},
-            {text = "Dispels", width = 60},
-            {text = "Interrupts", width = 70},
-            {text = "CCs", width = 70},
+			{text = "", width = 22}, --1
+			{text = "Name", width = 120}, --2
+			{text = "Kills", width = 60}, --3
+			{text = "Peak Damage", width = 90}, --4
+			{text = "Dps", width = 60}, --5
+            {text = "Hps", width = 60}, --6
+            {text = "Dispels", width = 60}, --7
+            {text = "Interrupts", width = 70}, --8
+            {text = "CCs", width = 70}, --9
 		}
+
+        local headerTableHash = {
+            ["Icon"] = headerTable[1],
+            ["PlayerName"] = headerTable[2],
+            ["KillingBlows"] = headerTable[3],
+            ["PeakDamage"] = headerTable[4],
+            ["Dps"] = headerTable[5],
+            ["Hps"] = headerTable[6],
+            ["Dispels"] = headerTable[7],
+            ["Interrupts"] = headerTable[8],
+            ["CrowdControlSpells"] = headerTable[9],
+        }
 
 		local headerOptions = {
 			padding = 2,
 		}
 
-		local header = detailsFramework:CreateHeader(window, headerTable, headerOptions)
+		local header = detailsFramework:CreateHeader(window, headerTable, headerOptions) --~header
 		header:SetPoint("topleft", window, "topleft", 5, posY)
 
     --create a scroll area for the lines
         local refreshFunc = function(self, data, offset, totalLines) --~refresh
-			local ToK = Details:GetCurrentToKFunction()
 
 			for i = 1, totalLines do
 				local index = i + offset
+
+                ---@type arena_playerinfo
 				local playerData = data[index]
 
 				if (playerData) then
 					local line = self:GetLine(i)
 
+                    line.actorName = playerData.name
+                    line.playerInfo = playerData
+
                     --set the data for the line
-                    line.Icon:SetTexture("Interface\\ICONS\\" .. playerData.class) --use class icon as icon
+                    local iconTexture, iconLeft, iconTop, iconRight, iconBottom
+                    local unitSpec = playerData.spec
+
+                    --print(playerData.name, "spec:", unitSpec, "class:", playerData.class, playerData.realTimePeakDamage)
+
+                    if (unitSpec and unitSpec > 20) then
+                        iconTexture, iconLeft, iconRight, iconTop, iconBottom = Details:GetSpecIcon(unitSpec, false)
+                    else
+                        iconLeft, iconRight, iconTop, iconBottom, iconTexture = detailsFramework:GetClassTCoordsAndTexture(playerData.class)
+                    end
+
+                    local peakDamage = playerData.realTimePeakDamage
+
+                    line.Icon.Icon:SetTexture(iconTexture)
+                    line.Icon.Icon:SetTexCoord(iconLeft, iconRight, iconTop, iconBottom)
 
                     local playerNameWithOutRealm = detailsFramework:RemoveRealmName(playerData.name)
-                    line.PlayerName:SetText(playerNameWithOutRealm)
-                    line.FinalHits:SetText(playerData.finalHits or 0)
-                    line.PeakDamage:SetText(Details:Format(playerData.realTimePeakDamage or 0))
-                    line.Dps:SetText(Details:Format(playerData.dps or 0))
-                    line.Hps:SetText(Details:Format(playerData.hps or 0))
-                    line.Dispels:SetText(playerData.totalDispels or 0)
-                    line.Interrupts:SetText(playerData.totalInterrupts or 0)
-                    line.CrowdControlSpells:SetText(playerData.totalCrowdControlCasts or 0)
-                    --line.CrowdControlSpells:SetText(table.concat(detailsFramework.table.keys(playerData.crowdControlSpells), ", ") or "None")
+                    line.PlayerName.Text:SetText(playerNameWithOutRealm)
+
+                    line.KillingBlows.Text:SetText(#playerData.killingBlows)
+                    line.KillingBlows.value = #playerData.killingBlows
+
+                    line.PeakDamage.Text:SetText(Details:Format(peakDamage))
+                    line.PeakDamage.value = peakDamage
+
+                    line.Dps.Text:SetText(Details:Format(playerData.dps))
+                    line.Dps.value = playerData.dps
+
+                    line.Hps.Text:SetText(Details:Format(playerData.hps))
+                    line.Hps.value = playerData.hps
+
+                    local totalDispels = playerData.totalDispels or 0
+                    local totalInterrupts = playerData.totalInterrupts or 0
+                    local totalCrowdControlCasts = playerData.totalCrowdControlCasts or 0
+
+                    line.Dispels.Text:SetText(floor(totalDispels))
+                    line.Dispels.value = totalDispels
+
+                    line.Interrupts.Text:SetText(floor(totalInterrupts))
+                    line.Interrupts.value = totalInterrupts
+
+                    line.CrowdControlSpells.Text:SetText(floor(totalCrowdControlCasts))
+                    line.CrowdControlSpells.value = totalCrowdControlCasts
+
+                    --line.Rating.Text:SetText(playerData.rating)
+                    --line.CrowdControlSpells.Text:SetText(table.concat(detailsFramework.table.keys(playerData.crowdControlSpells), ", ") or "None")
 
                     if (playerData.isFriendly) then
                         line:SetBackdropColor(0.2, 0.8, 0.2, 0.2) --green for friendly players
@@ -384,10 +789,219 @@ function ArenaSummary.CreateWindow()
             self:SetBackdropColor(r, g, b, a - 0.2) --decrease the alpha to make it less visible
         end
 
+        local tooltips = {
+            ---@param line arenaline
+            ---@param button arenaline_button
+            Icon = function(line, button)
+                return false
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            PlayerName = function(line, button)
+                return false
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            KillingBlows = function(line, button)
+                local playerInfo = line.playerInfo
+                local killingBlows = playerInfo.killingBlows
+                for i = 1, #killingBlows do
+                    local thisKillingBlow = killingBlows[i]
+                    local enemyName = thisKillingBlow.enemyName
+                    local damageByPlayers = thisKillingBlow.damageByPlayers
+                    GameCooltip:AddLine("Enemy:", detailsFramework:RemoveRealmName(enemyName))
+
+                    local enemyPlayerInfo = ArenaSummary.GetPlayerInfoFromCurrentSelectedArenaData(enemyName)
+                    if (enemyPlayerInfo) then
+                        --specId
+                        local specId = enemyPlayerInfo.spec
+                        if (specId and specId > 20) then
+                            local specIcon, left, right, top, bottom = Details:GetSpecIcon(specId, false)
+                            GameCooltip:AddIcon(specIcon, 1, 2, 18, 18, left, right, top, bottom)
+                        else
+                            --class icon
+                            local left, right, top, bottom, classIcon = detailsFramework:GetClassTCoordsAndTexture(enemyPlayerInfo.class)
+                            GameCooltip:AddIcon(classIcon, 1, 2, 18, 18, left, right, top, bottom)
+                        end
+                    end
+
+                    GameCooltip:AddLine("")
+
+                    for j = 1, #damageByPlayers do
+                        local playerDamage = damageByPlayers[j]
+                        local damagerPlayerInfo = ArenaSummary.GetPlayerInfoFromCurrentSelectedArenaData(playerDamage.name)
+                        if (damagerPlayerInfo) then
+                            GameCooltip:AddLine(detailsFramework:RemoveRealmName(playerDamage.name), Details:Format(playerDamage.damage))
+                            --specId
+                            local specId = damagerPlayerInfo.spec
+                            if (specId and specId > 20) then
+                                local specIcon, left, right, top, bottom = Details:GetSpecIcon(specId, false)
+                                GameCooltip:AddIcon(specIcon, 1, 1, 18, 18, left, right, top, bottom)
+                            else
+                                --class icon
+                                local left, right, top, bottom, classIcon = detailsFramework:GetClassTCoordsAndTexture(damagerPlayerInfo.class)
+                                GameCooltip:AddIcon(classIcon, 1, 1, 18, 18, left, right, top, bottom)
+                            end
+                        else
+                            GameCooltip:AddLine(detailsFramework:RemoveRealmName(playerDamage.name), Details:Format(playerDamage.damage))
+                        end
+                    end
+                end
+
+                return true
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            PeakDamage = function(line, button)
+                return false
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            Dps = function(line, button)
+                local playerInfo = line.playerInfo
+                local damageBySpells = playerInfo.damageDoneBySpells
+                for i = 1, #damageBySpells do
+                    local spellId, damage = damageBySpells[i][1], damageBySpells[i][2]
+                    local spellInfo = C_Spell.GetSpellInfo(spellId)
+                    if (spellInfo) then
+                        GameCooltip:AddLine(spellInfo.name, Details:Format(damage))
+                        GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
+                    end
+
+                    if (i == 5) then
+                        break
+                    end
+                end
+
+                return true
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            Hps = function(line, button)
+                local playerInfo = line.playerInfo
+                local healingBySpells = playerInfo.healingDoneBySpells
+                for i = 1, #healingBySpells do
+                    local spellId, healing = healingBySpells[i][1], healingBySpells[i][2]
+                    if (healing > 0) then
+                        local spellInfo = C_Spell.GetSpellInfo(spellId)
+                        if (spellInfo) then
+                            GameCooltip:AddLine(spellInfo.name, Details:Format(healing))
+                            GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
+                        end
+                    end
+
+                    if (i == 5) then
+                        break
+                    end
+                end
+
+                return true
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            Dispels = function(line, button)
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            Interrupts = function(line, button)
+            end,
+
+            ---@param line arenaline
+            ---@param button arenaline_button
+            CrowdControl = function(line, button)
+            end,
+        }
+
+        local emptyFunction = function() end
+
+        function ArenaSummary.SetFontSettings()
+            for i = 1, #ArenaSummary.Lines do
+                local line = ArenaSummary.Lines[i]
+                for j = 1, #line.Buttons do
+                    local button = line.Buttons[j]
+                    detailsFramework:SetFontSize(button.Text, 10)
+                end
+            end
+        end
+
+        ---@class arenaline_button : df_button
+        ---@field Icon texture
+        ---@field Text fontstring
+        ---@field type string
+        ---@field value number
+
+        local buttonOnEnter = function(self)
+            local button = self:GetObject()
+            local type = button.type
+
+            if (button.value == 0) then
+                return --no tooltip for this button
+            end
+
+            local tooltipFunc = tooltips[type]
+            if (tooltipFunc) then
+                GameCooltip:Preset(2)
+                GameCooltip:SetOwner(self, "bottom", "top", 0, 5)
+                local line = button:GetParent()
+                if (tooltipFunc(line, button)) then
+                    GameCooltip:Show()
+                end
+            end
+        end
+
+        local buttonOnLeave = function(self)
+            GameCooltip:Hide()
+        end
+
+        --this button is used to give a tooltip when the player hover over the value
+        local createLineColumnButton = function(line, name)
+            --local button = CreateFrame("button", "$parentColumnButton" .. name, line, "BackdropTemplate")
+            local callbackParam1 = name
+            ---@type arenaline_button
+            local button = detailsFramework:CreateButton(line, emptyFunction, 100, 20, "", callbackParam1, nil, nil, nil, "$parent" .. name)
+            button.type = name
+            button.value = 0
+
+            --icon
+            local icon = button:CreateTexture("$parentIcon", "overlay")
+            icon:SetSize(lineHeight - 2, lineHeight - 2)
+            icon:SetPoint("left", button.widget, "left", 2, 0)
+            button.Icon = icon
+
+            --text
+			local text = line:CreateFontString("$parentText", "overlay", "GameFontNormal")
+            text:SetPoint("left", button.widget, "left", 2, 0)
+            button.Text = text
+
+            button:SetScript("OnEnter", buttonOnEnter)
+            button:SetScript("OnLeave", buttonOnLeave)
+            button:SetPropagateMouseMotion(true)
+
+            return button
+        end
+
+        ---@class arenaline : button
+        ---@field Buttons arenaline_button[]
+        ---@field actorName string
+        ---@field playerInfo arena_playerinfo
+
+        ArenaSummary.Lines = {}
+
         local createLineFunc = function(self, index)
 			local line = CreateFrame("button", "$parentLine" .. index, self,"BackdropTemplate")
 			line:SetPoint("topleft", self, "topleft", 1, -((index-1)*(lineHeight+1)) - 1)
 			line:SetSize(scrollWidth - 2, lineHeight)
+
+            ArenaSummary.Lines[index] = line
+
+            line.Buttons = {}
 
 			line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 			line:SetBackdropColor(unpack(backdrop_color))
@@ -399,65 +1013,78 @@ function ArenaSummary.CreateWindow()
 			line:SetScript("OnLeave", lineOnLeave)
 
 			--icon
-			local icon = line:CreateTexture("$parentSpellIcon", "overlay")
-			icon:SetSize(lineHeight - 2, lineHeight - 2)
+			local icon = createLineColumnButton(line, "Icon")
+            icon:SetWidth(headerTableHash.Icon.width - 2)
 
 			--player name
-			local playerNameText = line:CreateFontString("$parentPlayerName", "overlay", "GameFontNormal")
+            local playerName = createLineColumnButton(line, "PlayerName")
+            playerName:SetWidth(headerTableHash.PlayerName.width - 2)
 
             --final hits
-            local finalHitsText = line:CreateFontString("$parentFinalHits", "overlay", "GameFontNormal")
+            local killingBlows = createLineColumnButton(line, "KillingBlows")
+            killingBlows:SetWidth(headerTableHash.KillingBlows.width - 2)
 
             --peak damage
-            local peakDamageText = line:CreateFontString("$parentPeakDamage", "overlay", "GameFontNormal")
+            local peakDamage = createLineColumnButton(line, "PeakDamage")
+            peakDamage:SetWidth(headerTableHash.PeakDamage.width - 2)
 
             --dps
-            local dpsText = line:CreateFontString("$parentDps", "overlay", "GameFontNormal")
+            local dps = createLineColumnButton(line, "Dps")
+            dps:SetWidth(headerTableHash.Dps.width - 2)
+
             --hps
-            local hpsText = line:CreateFontString("$parentHps", "overlay", "GameFontNormal")
+            local hps = createLineColumnButton(line, "Hps")
+            hps:SetWidth(headerTableHash.Hps.width - 2)
 
             --peak healing
-            local dispelsText = line:CreateFontString("$parentDispels", "overlay", "GameFontNormal")
+            local dispels = createLineColumnButton(line, "Dispels")
+            dispels:SetWidth(headerTableHash.Dispels.width - 2)
 
             --interrupts
-            local interruptsText = line:CreateFontString("$parentInterrupts", "overlay", "GameFontNormal")
+            local interrupts = createLineColumnButton(line, "Interrupts")
+            interrupts:SetWidth(headerTableHash.Interrupts.width - 2)
 
             --crowd control spells
-            local ccsText = line:CreateFontString("$parentCrowdControlSpells", "overlay", "GameFontNormal")
+            local ccs = createLineColumnButton(line, "CrowdControlSpells")
+            ccs:SetWidth(headerTableHash.CrowdControlSpells.width - 2)
 
-            local textSize = 10
-            --use the framework to set the font size
-            detailsFramework:SetFontSize(ccsText, textSize)
-            detailsFramework:SetFontSize(interruptsText, textSize)
-            detailsFramework:SetFontSize(dispelsText, textSize)
-            detailsFramework:SetFontSize(hpsText, textSize)
-            detailsFramework:SetFontSize(dpsText, textSize)
-            detailsFramework:SetFontSize(peakDamageText, textSize)
-            detailsFramework:SetFontSize(finalHitsText, textSize)
-            detailsFramework:SetFontSize(playerNameText, textSize)
+            --rating
+            --local rating = createLineColumnButton(line, "Rating")
 
+            line.Buttons[#line.Buttons+1] = icon
+            line.Buttons[#line.Buttons+1] = playerName
+            line.Buttons[#line.Buttons+1] = killingBlows
+            line.Buttons[#line.Buttons+1] = peakDamage
+            line.Buttons[#line.Buttons+1] = dps
+            line.Buttons[#line.Buttons+1] = hps
+            line.Buttons[#line.Buttons+1] = dispels
+            line.Buttons[#line.Buttons+1] = interrupts
+            line.Buttons[#line.Buttons+1] = ccs
+            --line.Buttons[#line.Buttons+1] = rating
 
             line:AddFrameToHeaderAlignment(icon)
-            line:AddFrameToHeaderAlignment(playerNameText)
-            line:AddFrameToHeaderAlignment(finalHitsText)
-            line:AddFrameToHeaderAlignment(peakDamageText)
-            line:AddFrameToHeaderAlignment(dpsText)
-            line:AddFrameToHeaderAlignment(hpsText)
-            line:AddFrameToHeaderAlignment(dispelsText)
-            line:AddFrameToHeaderAlignment(interruptsText)
-            line:AddFrameToHeaderAlignment(ccsText)
+            line:AddFrameToHeaderAlignment(playerName)
+            line:AddFrameToHeaderAlignment(killingBlows)
+            line:AddFrameToHeaderAlignment(peakDamage)
+            line:AddFrameToHeaderAlignment(dps)
+            line:AddFrameToHeaderAlignment(hps)
+            line:AddFrameToHeaderAlignment(dispels)
+            line:AddFrameToHeaderAlignment(interrupts)
+            line:AddFrameToHeaderAlignment(ccs)
+            --line:AddFrameToHeaderAlignment(rating)
 
             line:AlignWithHeader(header, "left")
 
             line.Icon = icon
-            line.PlayerName = playerNameText
-            line.FinalHits = finalHitsText
-            line.PeakDamage = peakDamageText
-            line.Dps = dpsText
-            line.Hps = hpsText
-            line.Dispels = dispelsText
-            line.Interrupts = interruptsText
-            line.CrowdControlSpells = ccsText
+            line.PlayerName = playerName
+            line.KillingBlows = killingBlows
+            line.PeakDamage = peakDamage
+            line.Dps = dps
+            line.Hps = hps
+            line.Dispels = dispels
+            line.Interrupts = interrupts
+            line.CrowdControlSpells = ccs
+            --line.Rating = rating
 
             return line
         end
@@ -473,44 +1100,49 @@ function ArenaSummary.CreateWindow()
             arenaPlayersScroll:RefreshScroll()
         end
 
+        function ArenaSummary.GetSelectedArenaIndex()
+            return Details.arena_data_index_selected or 1
+        end
+
+        ---@param playerName string
+        ---@return arena_playerinfo?
+        function ArenaSummary.GetPlayerInfoFromCurrentSelectedArenaData(playerName)
+            local arenaData = ArenaSummary.CurrentArenaData
+
+            if (not arenaData) then
+                print("ArenaSummary: No arena data found.")
+                return nil
+            end
+
+            local playersInTheArena = arenaData.combatData.groupMembers
+            if (not playersInTheArena) then
+                print("ArenaSummary: No players found in the arena data.")
+                return nil
+            end
+
+            return playersInTheArena[playerName]
+        end
+
         function arenaPlayersScroll:RefreshScroll()
             local playersData = {}
 
-            local arenaData = ArenaSummary.UncompressArena(Details.arena_data_index_selected)
+            local index = Details.arena_data_index_selected or 1
+            index = 1
+
+            local arenaData = ArenaSummary.UncompressArena(index)
+            ArenaSummary.CurrentArenaData = arenaData
+
+            --dumpt(arenaData)
 
             if (not arenaData) then
-                --print("ArenaSummary: No arena data found for index " .. Details.arena_data_index_selected)
+                print("ArenaSummary: No arena data found for index " .. Details.arena_data_index_selected)
                 return
             end
 
             local playersInTheArena = arenaData.combatData.groupMembers
             --iterate through the players in the arena and create lines for them
             for unitName, playerData in pairs(playersInTheArena) do
-                local thisPlayer = {
-                    name = playerData.name or unitName,
-                    role = playerData.role or "NONE",
-                    class = playerData.class or "UNKNOWN",
-                    guid = playerData.guid or "",
-                    isFriendly = playerData.isFriendly or false,
-                    finalHits = playerData.finalHits or 0,
-                    dps = playerData.dps or 0,
-                    hps = playerData.hps or 0,
-                    realTimeDps = playerData.realTimeDps or {},
-                    realTimePeakDamage = playerData.realTimePeakDamage or 0,
-                    totalDamage = playerData.totalDamage or 0,
-                    totalDamageTaken = playerData.totalDamageTaken or 0,
-                    totalHeal = playerData.totalHeal or 0,
-                    totalHealTaken = playerData.totalHealTaken or 0,
-                    totalDispels = playerData.totalDispels or 0,
-                    totalInterrupts = playerData.totalInterrupts or 0,
-                    totalInterruptsCasts = playerData.totalInterruptsCasts or 0,
-                    totalCrowdControlCasts = playerData.totalCrowdControlCasts or 0,
-                    dispelWhat = detailsFramework.table.copy({}, playerData.dispelWhat or {}),
-                    interruptWhat = detailsFramework.table.copy({}, playerData.interruptWhat or {}),
-                    crowdControlSpells = detailsFramework.table.copy({}, playerData.crowdControlSpells or {}),
-                }
-
-                playersData[#playersData+1] = thisPlayer
+                playersData[#playersData+1] = playerData
             end
 
             arenaPlayersScroll:SetData(playersData)
@@ -518,6 +1150,9 @@ function ArenaSummary.CreateWindow()
 
             local elapsedTime = arenaData.endTime - arenaData.startTime
             window.ArenaInfoText:SetText(arenaData.arenaName .. " ".. detailsFramework:IntegerToTimer(elapsedTime) .. " - " .. arenaData.dampening .. "% Dampening")
+
+--print("arenaData.winnerStatus", arenaData.winnerStatus)
+--dumpt(arenaData)
 
             window.ArenaOutcomeText:SetText(PVP_SCOREBOARD_MATCH_COMPLETE)
             if (arenaData.winnerStatus == 1) then
@@ -527,13 +1162,38 @@ function ArenaSummary.CreateWindow()
             elseif (arenaData.winnerStatus == 3) then
                 window.ArenaOutcomeText:SetText(PVP_MATCH_DRAW)
             end
-
         end
 
 		--create lines
 		for i = 1, maxLines do
 			arenaPlayersScroll:CreateLine(createLineFunc)
 		end
+
+        --queue as team button
+        local requeueButton = detailsFramework:CreateButton(window, function(self)
+            self:Disable()
+            RequeueSkirmish()
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+        end, 140, 20, "Queue as Team")
+        requeueButton:SetPoint("bottom", window, "bottom", -100, 10)
+        requeueButton.fontsize = 12
+        requeueButton:SetTemplate("OPAQUE_DARK")
+        window.RequeueButton = requeueButton
+
+        --leave button
+        local leaveButton = detailsFramework:CreateButton(window, function()
+            if (IsInLFDBattlefield()) then
+                ConfirmOrLeaveLFGParty()
+            else
+                ConfirmOrLeaveBattlefield()
+            end
+
+            PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+        end, 140, 20, "Leave Arena")
+        leaveButton:SetPoint("bottom", window, "bottom", 100, 10)
+        leaveButton.fontsize = 12
+        leaveButton:SetTemplate("OPAQUE_DARK")
+        window.LeaveButton = leaveButton
 
     return window
 end
@@ -543,6 +1203,7 @@ function ArenaSummary.UncompressArena(headerIndex)
     assert(C_EncodingUtil, "C_EncodingUtil is nil")
 
     local compressedArenas = Details.arena_data_compressed
+    print("##:", #compressedArenas, "headerIndex:", headerIndex)
 
     local arenaData = compressedArenas[headerIndex]
     if (not arenaData) then

@@ -1050,6 +1050,10 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 			newActor.classe = forceClass
 		end
 
+		if (Details.is_in_arena) then
+			Details:ArenaPlayerCreated(newActor)
+		end
+
 		return newActor, petOwnerObject, actorName
 	end
 

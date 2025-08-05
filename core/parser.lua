@@ -2548,12 +2548,12 @@
 			end
 		end
 
-	if (spellId == 98021) then --spirit link toten
-		return parser:SLT_healing(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overHealing, absorbed, critical, bIsShield)
-	end
+		if (spellId == 98021) then --spirit link toten
+			return parser:SLT_healing(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overHealing, absorbed, critical, bIsShield)
+		end
 
 
-	if (is_using_spellId_override) then
+		if (is_using_spellId_override) then
 			spellId = override_spellId[spellId] or spellId
 		end
 
@@ -3124,7 +3124,8 @@
 			if (_in_combat) then
 				------------------------------------------------------------------------------------------------
 				--buff uptime
-				if (crowdControlSpells[spellId]) then
+				if (crowdControlSpells[spellId] or Details.CrowdControlSpellNamesCache[spellName]) then --
+					--print("adding cc done", sourceName, targetName, spellId, spellName)
 					parser:add_cc_done (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
 				end
 
@@ -4231,7 +4232,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--if the interrupt is from a pet, then we need to add the interrupt to the owner
 		if (ownerActor) then
 			if (not ownerActor.interrupt) then
-				ownerActor.interrupt = Details:GetOrderNumber(sourceName)
+				ownerActor.interrupt = Details:GetOrderNumber()
 				ownerActor.interrupt_targets = {}
 				ownerActor.interrupt_spells = spellContainerClass:CreateSpellContainer(container_misc)
 				ownerActor.interrompeu_oque = {}
@@ -4247,6 +4248,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 			--which spells this actor interrupted
 			ownerActor.interrompeu_oque[extraSpellID] = (ownerActor.interrompeu_oque[extraSpellID] or 0) + 1
+
+			--owner spells table
+			local spell = ownerActor.interrupt_spells._ActorTable[spellId]
+			if (not spell) then
+				spell = ownerActor.interrupt_spells:GetOrCreateSpell(spellId, true, token)
+			end
+			_spell_utility_func(spell, targetName, token, extraSpellID, extraSpellName)
 
 			--pet interrupt
 			if (_hook_interrupt) then
@@ -4325,6 +4333,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_current_combat.amountCasts[sourceName] = castsByPlayer
 		end
 
+		if (ownerActor) then
+			--add a cast to the owner
+			local ownerName = ownerActor.nome
+			castsByPlayer = _current_combat.amountCasts[ownerName]
+			if (not castsByPlayer) then
+				castsByPlayer = {}
+				_current_combat.amountCasts[ownerName] = castsByPlayer
+			end
+		end
+
 		--rampage cast spam
 		if (spellId == 184367 or spellId == 184707 or spellId == 201364) then --rampage spellIds (IDs from Retail - wow patch 10.1.0)
 			local latestRampageCastByPlayer = (cacheAnything.rampage_cast_amount[sourceName] or 0)
@@ -4337,6 +4355,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local amountOfCasts = _current_combat.amountCasts[sourceName][spellName] or 0
 		amountOfCasts = amountOfCasts + 1
 		_current_combat.amountCasts[sourceName][spellName] = amountOfCasts
+
+		--pet cast add to owner
+		if (ownerActor) then
+			local ownerName = ownerActor.nome
+			local amountOfCasts = _current_combat.amountCasts[ownerName][spellName] or 0
+			amountOfCasts = amountOfCasts + 1
+			_current_combat.amountCasts[ownerName][spellName] = amountOfCasts
+		end
 
 		if (Details.debug_spell_cast) then
 			if (LIB_OPEN_RAID_CROWDCONTROL[spellId]) then
@@ -7294,6 +7320,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@return table
 	function Details:GetParserPlayerCache()
 		return raid_members_cache
+	end
+
+	function Details:SetDeathLogTemporaryLimit(limitAmount)
+		Details.temp_deathlog_limit = limitAmount
+		_amount_of_last_events = Details.temp_deathlog_limit or Details.deadlog_events
 	end
 
 	--serach key: ~cache
