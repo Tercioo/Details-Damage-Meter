@@ -705,6 +705,7 @@ function ilvl_core:CalcItemLevel(unitid, guid, shout)
 
 			--------------------------------------------------------------------------------------------------------
 
+			--[=[
 			for i = 1, 7 do
 				for o = 1, 3 do
 					--need to review this in classic
@@ -720,6 +721,7 @@ function ilvl_core:CalcItemLevel(unitid, guid, shout)
 				Details.cached_talents [guid] = talents
 				Details:SendEvent("UNIT_TALENTS", nil, unitid, talents, guid)
 			end
+			--]=]
 		end
 
 		--------------------------------------------------------------------------------------------------------
