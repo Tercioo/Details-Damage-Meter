@@ -193,7 +193,7 @@ local arenaTicker = function(tickerObject)
             playerData.realTimePeakDamage = currentDPS
         end
 
-        print("CurrentDPS:", unitName, currentDPS)
+        --print("CurrentDPS:", unitName, currentDPS)
     end
 
     Details222.ArenaSummary.arenaData.dampening = C_Commentator.GetDampeningPercent()
@@ -302,7 +302,7 @@ function ArenaSummary.OnArenaStart() --~start
             thisData.guid = UnitGUID(unitName) or ""
             thisData.class = select(2, UnitClass(unitName)) or "UNKNOWN"
             Details222.ArenaSummary.arenaData.combatData.groupMembers[unitName] = makePlayerTable(unitName, thisData)
-            print("arena friendly:", unitName)
+            --print("arena friendly:", unitName)
         end
     end
 
@@ -317,7 +317,7 @@ function ArenaSummary.OnArenaStart() --~start
         }
         Details222.ArenaSummary.arenaData.combatData.groupMembers[enemyName] = makePlayerTable(enemyName, thisData)
 
-        print("arena enemy:", enemyName)
+        --print("arena enemy:", enemyName)
     end
 
     --signature: NewLooper(time: number, callback: function, loopAmount: number, loopEndCallback: function?, checkPointCallback: function?, ...: any): timer
@@ -358,12 +358,12 @@ function ArenaSummary.OnArenaEnd() --~end
 
     local combat = Details:GetCurrentCombat()
     local combatTime = combat:GetCombatTime()
-    print("ARENA ENDED!!", "elapsed time:", combatTime, "date:", date("%Y-%m-%d %H:%M:%S", time()), time())
+    print("ARENA ENDED!!", "elapsed time:", combatTime, "date:", date("%Y-%m-%d %H:%M:%S", time()), "/run Details:OpenArenaSummaryWindow()")
 
     local damageContainer = combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
     for index, actor in damageContainer:ListActors() do
         if (actor:IsPlayer()) then
-            print("arena damage actor:", actor.nome, actor.classe)
+            --print("arena damage actor:", actor.nome, actor.classe)
         end
     end
 
@@ -464,7 +464,7 @@ function ArenaSummary.OnArenaEnd() --~end
         playerInfo.spec = Details:GetSpecFromSerial(playerInfo.guid)
         playerInfo.ilevel = Details:GetItemLevelFromGuid(playerInfo.guid) or 0
 
-        print("groupMembers IT -> UName:", unitName, playerInfo.guid, playerInfo.spec, playerInfo.ilevel)
+        --print("groupMembers IT -> UName:", unitName, playerInfo.guid, playerInfo.spec, playerInfo.ilevel)
 
         if (UnitIsUnit(unitName, "player")) then
             local playerGUID = UnitGUID("player")
@@ -493,7 +493,7 @@ function ArenaSummary.OnArenaEnd() --~end
         elseif (playerInfo.guid) then
             ---@type pvpscoreinfo
             local localPlayerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(playerInfo.guid)
-            print("UName:", unitName, playerInfo.guid, localPlayerScoreInfo)
+            --print("UName:", unitName, playerInfo.guid, localPlayerScoreInfo)
             if (localPlayerScoreInfo) then
                 --playerInfo.killingBlows = localPlayerScoreInfo.killingBlows or 0
                 playerInfo.guid = localPlayerScoreInfo.guid or "NONE"
@@ -514,7 +514,7 @@ function ArenaSummary.OnArenaEnd() --~end
                 playerInfo.stats = localPlayerScoreInfo.stats or {}
             end
         else
-            print("unit without guid:", unitName)
+            --print("unit without guid:", unitName)
         end
 
         local ccTotal = 0
@@ -580,7 +580,7 @@ function ArenaSummary.OnArenaEnd() --~end
 
     local scoresTable = {}
     local scores = GetNumBattlefieldScores();
-    print("GetNumBattlefieldScores():", scores)
+    --print("GetNumBattlefieldScores():", scores)
     for index = 1, scores do
         scoresTable[index] = C_PvP.GetScoreInfo(index)
     end
@@ -635,7 +635,7 @@ function ArenaSummary.OnArenaEnd() --~end
     end
 
     table.insert(Details.arena_data_headers, 1, thisArenaHeader)
-    print("ARENA HEADER ADDED amount:", #Details.arena_data_headers)
+    --print("ARENA HEADER ADDED amount:", #Details.arena_data_headers)
 end
 
 --PVPMatchResults.content.earningsContainer.rewardsContainer.items
@@ -1110,13 +1110,13 @@ function ArenaSummary.CreateWindow() --~create
             local arenaData = ArenaSummary.CurrentArenaData
 
             if (not arenaData) then
-                print("ArenaSummary: No arena data found.")
+                --print("ArenaSummary: No arena data found.")
                 return nil
             end
 
             local playersInTheArena = arenaData.combatData.groupMembers
             if (not playersInTheArena) then
-                print("ArenaSummary: No players found in the arena data.")
+                --print("ArenaSummary: No players found in the arena data.")
                 return nil
             end
 
@@ -1135,7 +1135,7 @@ function ArenaSummary.CreateWindow() --~create
             --dumpt(arenaData)
 
             if (not arenaData) then
-                print("ArenaSummary: No arena data found for index " .. Details.arena_data_index_selected)
+                --print("ArenaSummary: No arena data found for index " .. Details.arena_data_index_selected)
                 return
             end
 
