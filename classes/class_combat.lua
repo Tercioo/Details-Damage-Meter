@@ -1471,7 +1471,14 @@ end
 	function classCombat:CreateLastEventsTable(playerName)
 		local lastEventsTable = {}
 
-		for i = 1, Details.deadlog_events do
+		local amountOfIndexes = Details.deadlog_events
+		if (Details.temp_deathlog_limit) then
+			if (Details.temp_deathlog_limit > Details.deadlog_events) then
+				amountOfIndexes = Details.temp_deathlog_limit
+			end
+		end
+
+		for i = 1, amountOfIndexes do
 			lastEventsTable[i] = {}
 		end
 

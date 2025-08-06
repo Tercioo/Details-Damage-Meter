@@ -1090,9 +1090,6 @@
 			Details:SetWindowUpdateSpeed(nTimeIntervalBetweenUpdates, bNoSave)
 		end
 
-		--increase the deathlog amount
-		Details:SetDeathLogTemporaryLimit(100)
-
 		Details222.ArenaSummary.OnArenaStart()
 	end
 

@@ -5568,6 +5568,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 			end
 
+			--increase the deathlog amount for arenas
+			Details:SetDeathLogTemporaryLimit(100)
+
 			Details.is_in_arena = true
 			Details:EnteredInArena()
 		else
@@ -7323,8 +7326,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details:SetDeathLogTemporaryLimit(limitAmount)
-		Details.temp_deathlog_limit = limitAmount
-		_amount_of_last_events = Details.temp_deathlog_limit or Details.deadlog_events
+		if (limitAmount and limitAmount > Details.deadlog_events) then
+			Details.temp_deathlog_limit = limitAmount
+			_amount_of_last_events = Details.temp_deathlog_limit or Details.deadlog_events
+		else
+			Details.temp_deathlog_limit = nil
+			_amount_of_last_events = Details.deadlog_events
+		end
 	end
 
 	--serach key: ~cache
