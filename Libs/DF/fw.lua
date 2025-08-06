@@ -1,6 +1,6 @@
 
 
-local dversion = 612
+local dversion = 613
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -56,6 +56,8 @@ local GetOverrideSpell = C_SpellBook and C_SpellBook.GetOverrideSpell or C_Spell
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
 local GetSpecialization = GetSpecialization or C_SpecializationInfo.GetSpecialization
 local GetSpecializationInfo = GetSpecializationInfo or C_SpecializationInfo.GetSpecializationInfo
+local GetSpecializationRole = GetSpecializationRole or C_SpecializationInfo.GetSpecializationRole
+
 local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
 SMALL_NUMBER = 0.000001
