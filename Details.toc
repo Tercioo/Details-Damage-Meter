@@ -1,5 +1,4 @@
 ## Interface: 110200
-## Interface-Mists: 50500
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Анализирует сражение в реальном времени, предоставляя игрокам чистые визуальные данные
@@ -181,3 +180,4 @@ functions\loaddata.lua
 startup.lua
 
 functions\api2.lua
+
