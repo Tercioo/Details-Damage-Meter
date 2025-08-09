@@ -33,7 +33,7 @@ end
 
 ------------------------------------------------------------------------------------------------------------
 
-function Details:SetDeathLogLimit(limitAmount)
+function Details:SetDeathLogLimit(limitAmount) --the temporary limit function is inside the parser as it need to deal with upvalues
 	if (limitAmount and type(limitAmount) == "number" and limitAmount >= 8) then
 		Details.deadlog_events = limitAmount
 

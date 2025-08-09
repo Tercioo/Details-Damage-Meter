@@ -5386,6 +5386,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details.zone_id = zoneMapID
 		Details.zone_name = zoneName
 
+		Details:SetDeathLogTemporaryLimit(nil) --reset the temp amount
+
 		--Details222.ContextManager:CheckContextInterest(zoneMapID, zoneName, zoneType, difficultyID)
 
 		_in_resting_zone = IsResting()
@@ -7324,7 +7326,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return raid_members_cache
 	end
 
-	function Details:SetDeathLogTemporaryLimit(limitAmount)
+	function Details:SetDeathLogTemporaryLimit(limitAmount) --when the zone type changes, this is automatically called with value nil (remove the temp limit)
 		if (limitAmount and limitAmount > Details.deadlog_events) then
 			Details.temp_deathlog_limit = limitAmount
 			_amount_of_last_events = Details.temp_deathlog_limit or Details.deadlog_events

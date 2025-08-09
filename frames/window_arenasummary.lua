@@ -21,6 +21,8 @@ end
 --PVPMatchResults.header (fontstring VICTORY or DEFEAT)
 
 ---@class details : table
+---@field zone_type string the type of the current zone, e.g. "arena", "raid", "dungeon", "scenario"
+---@field arena_debug boolean
 ---@field arena_data_headers table
 ---@field arena_data_compressed table
 ---@field arena_data_index_selected number which dataset is showing in the arena scoreboard
@@ -192,8 +194,6 @@ local arenaTicker = function(tickerObject)
         if (currentDPS > playerData.realTimePeakDamage) then
             playerData.realTimePeakDamage = currentDPS
         end
-
-        --print("CurrentDPS:", unitName, currentDPS)
     end
 
     Details222.ArenaSummary.arenaData.dampening = C_Commentator.GetDampeningPercent()
@@ -202,7 +202,9 @@ local arenaTicker = function(tickerObject)
 end
 
 function ArenaSummary.OnArenaStart() --~start
-    print("ARENA STARTED!!", "elapsed time:", "date:", date("%Y-%m-%d %H:%M:%S", time()), time())
+    if (Details.arena_debug) then
+        print("ARENA STARTED!!", "elapsed time:", "date:", date("%Y-%m-%d %H:%M:%S", time()), time())
+    end
 
     local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
 
@@ -219,6 +221,10 @@ function ArenaSummary.OnArenaStart() --~start
 
     if (not ArenaSummary.DeathHook) then --~death ~dead ~kill
         local onDeathEvent = function(_, token, time, sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags, playerDeathTable, lastCooldown, combatElapsedTime, maxHealth)
+            if (Details.zone_type ~= "arena") then
+                return
+            end
+
             --when a death occurs, get the deathTable and examin it to get the player which did the most amount of damage
             --[=[
                 playerDeathTable = {
@@ -241,7 +247,9 @@ function ArenaSummary.OnArenaStart() --~start
                 local event = eventsBeforePlayerDeath[i]
                 local evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing = Details:UnpackDeathEvent(event)
                 if (evType == true) then --is a damage event
-                    damageSum[sourceName] = (damageSum[sourceName] or 0) + amount
+                    if (Details222.ArenaSummary.arenaData.combatData.groupMembers[sourceName]) then
+                        damageSum[sourceName] = (damageSum[sourceName] or 0) + amount
+                    end
                 end
             end
 
@@ -264,7 +272,10 @@ function ArenaSummary.OnArenaStart() --~start
                     damageByPlayers = orderedTable
                 }
                 killingBlows[#killingBlows + 1] = thisKillingBlow
-                print("ADDED a KILL for player", mostDamagePlayer.name, "with damage:", mostDamagePlayer.damage)
+
+                if (Details.arena_debug) then
+                    print("ADDED a KILL for player", mostDamagePlayer.name, "with damage:", mostDamagePlayer.damage)
+                end
             end
         end
 
@@ -358,7 +369,9 @@ function ArenaSummary.OnArenaEnd() --~end
 
     local combat = Details:GetCurrentCombat()
     local combatTime = combat:GetCombatTime()
-    print("ARENA ENDED!!", "elapsed time:", combatTime, "date:", date("%Y-%m-%d %H:%M:%S", time()), "/run Details:OpenArenaSummaryWindow()")
+    if (Details.arena_debug) then
+        print("ARENA ENDED!!", "elapsed time:", combatTime, "date:", date("%Y-%m-%d %H:%M:%S", time()), "/run Details:OpenArenaSummaryWindow()")
+    end
 
     local damageContainer = combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
     for index, actor in damageContainer:ListActors() do

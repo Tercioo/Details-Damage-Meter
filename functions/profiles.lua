@@ -1414,6 +1414,8 @@ local default_global_data = {
 		boss_wipe_counter = {},
 		boss_wipe_min_time = 20, --minimum time to consider a wipe as a boss wipe
 
+		arena_debug = false,
+
 		user_is_patreon_supporter = false,
 
 		show_aug_predicted_spell_damage = false,
