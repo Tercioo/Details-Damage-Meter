@@ -7,10 +7,10 @@ local addonName, Details222 = ...
 local detailsFramework = DetailsFramework
 local _
 
-local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-if (not openRaidLib) then
-    return
-end
+Details222.ArenaSummary = {
+    arenaData = {},
+}
+
 
 --PVPMatchResults.content
 --PVPMatchResults.content.earningsContainer
@@ -82,10 +82,6 @@ end
 ---@field CreateWindow fun(): frame --creates the arena summary window
 ---@field SetFontSettings fun() --sets the font settings for the arena summary window
 
-Details222.ArenaSummary = {
-    arenaData = {},
-}
-
 local tickerId = 1
 
 local ArenaSummary = Details222.ArenaSummary
@@ -96,11 +92,11 @@ function Details:OpenArenaSummaryWindow()
 end
 
 function ArenaSummary.OpenWindow()
-    if not ArenaSummary.window then
+    if (not ArenaSummary.window) then
         ArenaSummary.window = ArenaSummary.CreateWindow()
     end
 
-    if not ArenaSummary.window:IsShown() then
+    if (not ArenaSummary.window:IsShown()) then
         ArenaSummary.window:Show()
     end
 
@@ -534,12 +530,15 @@ function ArenaSummary.OnArenaEnd() --~end
         local ccUsed = {}
 
         if (Details:GetCoreVersion() < 166) then
-            for spellName, casts in pairs(currentCombat:GetCrowdControlSpells(unitName)) do
-                local spellInfo = C_Spell.GetSpellInfo(spellName)
-                local spellId = spellInfo and spellInfo.spellID or openRaidLib.GetCCSpellIdBySpellName(spellName)
-                if (spellId ~= 197214) then
-                    ccUsed[spellName] = casts
-                    ccTotal = ccTotal + casts
+            local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+            if (openRaidLib) then
+                for spellName, casts in pairs(currentCombat:GetCrowdControlSpells(unitName)) do
+                    local spellInfo = C_Spell.GetSpellInfo(spellName)
+                    local spellId = spellInfo and spellInfo.spellID or openRaidLib.GetCCSpellIdBySpellName(spellName)
+                    if (spellId ~= 197214) then
+                        ccUsed[spellName] = casts
+                        ccTotal = ccTotal + casts
+                    end
                 end
             end
         else
@@ -672,6 +671,8 @@ function ArenaSummary.CreateWindow() --~create
     window:SetFrameStrata("HIGH")
     window:SetFrameLevel(10)
 
+    window:SetFrameStrata("DIALOG")
+
     detailsFramework:ApplyStandardBackdrop(window)
 
     local arenaInfoText = window:CreateFontString("$parentArenaInfoText", "overlay", "GameFontNormal")
@@ -693,7 +694,7 @@ function ArenaSummary.CreateWindow() --~create
 			{text = "", width = 22}, --1
 			{text = "Name", width = 120}, --2
 			{text = "Kills", width = 60}, --3
-			{text = "Peak Damage", width = 90}, --4
+			{text = "Peak Dps", width = 90}, --4
 			{text = "Dps", width = 60}, --5
             {text = "Hps", width = 60}, --6
             {text = "Dispels", width = 60}, --7
