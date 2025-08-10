@@ -576,7 +576,7 @@ function ArenaSummary.OnArenaEnd() --~end
 
     local factionIndex = GetBattlefieldArenaFaction and GetBattlefieldArenaFaction() --0 for horde, 1 for alliance
     --couldn't find much documentation about custom victory, assuming is custom games and shuffles.
-    local victoryStatID = C_PvP.GetCustomVictoryStatID and C_PvP.GetCustomVictoryStatID()
+    local victoryStatID = C_PvP.GetCustomVictoryStatID and C_PvP.GetCustomVictoryStatID() or 0
     local hasNoWinner = victoryStatID > 0 and not (C_PvP.IsRatedSoloShuffle and C_PvP.IsRatedSoloShuffle())
 
     --0: PVP_SCOREBOARD_MATCH_COMPLETE, 1: PVP_MATCH_VICTORY, 2: PVP_MATCH_DEFEAT, 3: PVP_MATCH_DRAW
