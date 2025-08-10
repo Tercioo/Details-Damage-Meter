@@ -381,41 +381,47 @@ function ArenaSummary.OnArenaEnd() --~end
 
     local actorContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
 
+
+
     --player and arena information
 	local teamInfos = {
-		C_PvP.GetTeamInfo(0),
-		C_PvP.GetTeamInfo(1),
+		C_PvP.GetTeamInfo and C_PvP.GetTeamInfo(0) or {},
+		C_PvP.GetTeamInfo and C_PvP.GetTeamInfo(1) or {},
 	}
 
     --dumpt(C_PvP.GetTeamInfo(0))
 
     Details222.ArenaSummary.arenaData.combatData.teamInfos = teamInfos
     Details222.ArenaSummary.arenaData.isArenaSkirmish = IsArenaSkirmish()
-    Details222.ArenaSummary.arenaData.isRatedSoloShuffle = C_PvP.IsRatedSoloShuffle()
-    Details222.ArenaSummary.arenaData.isFactionalMatch = C_PvP.IsMatchFactional()
-    Details222.ArenaSummary.arenaData.isBrawlSoloShuffle = C_PvP.IsBrawlSoloShuffle()
-    Details222.ArenaSummary.arenaData.isBrawlSoloRBG = C_PvP.IsBrawlSoloRBG()
-    Details222.ArenaSummary.arenaData.isSoloShuffle = C_PvP.IsSoloShuffle()
-    Details222.ArenaSummary.arenaData.playerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(GetPlayerGuid())
-    Details222.ArenaSummary.arenaData.doesMatchOutcomeAffectRating = C_PvP.DoesMatchOutcomeAffectRating()
-    Details222.ArenaSummary.arenaData.statColumns = C_PvP.GetMatchPVPStatColumns()
+    Details222.ArenaSummary.arenaData.isRatedSoloShuffle = C_PvP.IsRatedSoloShuffle and C_PvP.IsRatedSoloShuffle() or false
+    Details222.ArenaSummary.arenaData.isFactionalMatch = C_PvP.IsMatchFactional and C_PvP.IsMatchFactional() or false
+    Details222.ArenaSummary.arenaData.isBrawlSoloShuffle = C_PvP.IsBrawlSoloShuffle and C_PvP.IsBrawlSoloShuffle() or false
+    Details222.ArenaSummary.arenaData.isBrawlSoloRBG = C_PvP.IsBrawlSoloRBG and C_PvP.IsBrawlSoloRBG() or false
+    Details222.ArenaSummary.arenaData.isSoloShuffle = C_PvP.IsSoloShuffle and C_PvP.IsSoloShuffle() or false
+    Details222.ArenaSummary.arenaData.playerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid and C_PvP.GetScoreInfoByPlayerGuid(UnitGUID("player")) or 0
+    Details222.ArenaSummary.arenaData.doesMatchOutcomeAffectRating = C_PvP.DoesMatchOutcomeAffectRating and C_PvP.DoesMatchOutcomeAffectRating() or false
+    Details222.ArenaSummary.arenaData.statColumns = C_PvP.GetMatchPVPStatColumns and C_PvP.GetMatchPVPStatColumns() or {}
 
-    local personalRatedInfo = C_PvP.GetPVPActiveMatchPersonalRatedInfo()
+    local personalRatedInfo = C_PvP.GetPVPActiveMatchPersonalRatedInfo and C_PvP.GetPVPActiveMatchPersonalRatedInfo()
     if (personalRatedInfo) then
         Details222.ArenaSummary.arenaData.playerPersonalRatedInfo = personalRatedInfo
     end
 
     --player rewards
     Details222.ArenaSummary.arenaData.playerRewards = {}
-	for k, item in pairs(C_PvP.GetPostMatchItemRewards()) do
-        ---@cast item pvppostmatchitemreward
-        table.insert(Details222.ArenaSummary.arenaData.playerRewards, item)
-	end
+    if (C_PvP.GetPostMatchItemRewards) then
+        for k, item in pairs(C_PvP.GetPostMatchItemRewards()) do
+            ---@cast item pvppostmatchitemreward
+            table.insert(Details222.ArenaSummary.arenaData.playerRewards, item)
+        end
+    end
 
-	for k, currency in pairs(C_PvP.GetPostMatchCurrencyRewards()) do
-        ---@cast currency pvppostmatchcurrencyreward
-        table.insert(Details222.ArenaSummary.arenaData.playerRewards, currency)
-	end
+    if (C_PvP.GetPostMatchCurrencyRewards) then
+        for k, currency in pairs(C_PvP.GetPostMatchCurrencyRewards()) do
+            ---@cast currency pvppostmatchcurrencyreward
+            table.insert(Details222.ArenaSummary.arenaData.playerRewards, currency)
+        end
+    end
 
     --iterate among the arena players and update their data
     for unitName, playerInfo in pairs(Details222.ArenaSummary.arenaData.combatData.groupMembers) do
@@ -478,7 +484,7 @@ function ArenaSummary.OnArenaEnd() --~end
         if (UnitIsUnit(unitName, "player")) then
             local playerGUID = UnitGUID("player")
             ---@type pvpscoreinfo
-            local localPlayerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(playerGUID)
+            local localPlayerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid and C_PvP.GetScoreInfoByPlayerGuid(playerGUID) or {}
             if (localPlayerScoreInfo) then
                 --playerInfo.killingBlows = localPlayerScoreInfo.killingBlows or 0
                 playerInfo.guid = localPlayerScoreInfo.guid or "NONE"
@@ -501,7 +507,7 @@ function ArenaSummary.OnArenaEnd() --~end
 
         elseif (playerInfo.guid) then
             ---@type pvpscoreinfo
-            local localPlayerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(playerInfo.guid)
+            local localPlayerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid and C_PvP.GetScoreInfoByPlayerGuid(playerInfo.guid) or {}
             --print("UName:", unitName, playerInfo.guid, localPlayerScoreInfo)
             if (localPlayerScoreInfo) then
                 --playerInfo.killingBlows = localPlayerScoreInfo.killingBlows or 0
@@ -568,10 +574,10 @@ function ArenaSummary.OnArenaEnd() --~end
 
     local arenaDataCompressed = Details.arena_data_compressed
 
-    local factionIndex = GetBattlefieldArenaFaction() --0 for horde, 1 for alliance
+    local factionIndex = GetBattlefieldArenaFaction and GetBattlefieldArenaFaction() --0 for horde, 1 for alliance
     --couldn't find much documentation about custom victory, assuming is custom games and shuffles.
-    local victoryStatID = C_PvP.GetCustomVictoryStatID()
-    local hasNoWinner = victoryStatID > 0 and not C_PvP.IsRatedSoloShuffle();
+    local victoryStatID = C_PvP.GetCustomVictoryStatID and C_PvP.GetCustomVictoryStatID()
+    local hasNoWinner = victoryStatID > 0 and not (C_PvP.IsRatedSoloShuffle and C_PvP.IsRatedSoloShuffle())
 
     --0: PVP_SCOREBOARD_MATCH_COMPLETE, 1: PVP_MATCH_VICTORY, 2: PVP_MATCH_DEFEAT, 3: PVP_MATCH_DRAW
 
@@ -579,7 +585,7 @@ function ArenaSummary.OnArenaEnd() --~end
 
     if (not hasNoWinner) then
         local enemyFactionIndex = (factionIndex + 1) % 2
-        local winner = C_PvP.GetActiveMatchWinner()
+        local winner = C_PvP.GetActiveMatchWinner and C_PvP.GetActiveMatchWinner()
 
         if (winner == factionIndex) then
             winnerStatus = 1 --win
@@ -591,10 +597,10 @@ function ArenaSummary.OnArenaEnd() --~end
     end
 
     local scoresTable = {}
-    local scores = GetNumBattlefieldScores();
+    local scores = GetNumBattlefieldScores and GetNumBattlefieldScores() or 0
     --print("GetNumBattlefieldScores():", scores)
     for index = 1, scores do
-        scoresTable[index] = C_PvP.GetScoreInfo(index)
+        scoresTable[index] = C_PvP.GetScoreInfo and C_PvP.GetScoreInfo(index) or {}
     end
 
     local thisArenaData = {
@@ -612,15 +618,15 @@ function ArenaSummary.OnArenaEnd() --~end
         winnerStatus = winnerStatus, --0: no winner, 1: win, 2: loss, 3: draw
         factionIndex = factionIndex, --0 for horde, 1 for alliance
         teamInfos = teamInfos,
-        isArenaSkirmish = IsArenaSkirmish(),
-        isRatedSoloShuffle = C_PvP.IsRatedSoloShuffle(),
-        isFactionalMatch = C_PvP.IsMatchFactional(),
-        isBrawlSoloShuffle = C_PvP.IsBrawlSoloShuffle(),
-        isBrawlSoloRBG = C_PvP.IsBrawlSoloRBG(),
-        isSoloShuffle = C_PvP.IsSoloShuffle(),
-        playerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid(GetPlayerGuid()),
-        doesMatchOutcomeAffectRating = C_PvP.DoesMatchOutcomeAffectRating(),
-        statColumns = C_PvP.GetMatchPVPStatColumns(),
+        isArenaSkirmish = IsArenaSkirmish and IsArenaSkirmish() or false,
+        isRatedSoloShuffle = C_PvP.IsRatedSoloShuffle and C_PvP.IsRatedSoloShuffle() or false,
+        isFactionalMatch = C_PvP.IsMatchFactional and C_PvP.IsMatchFactional() or false,
+        isBrawlSoloShuffle = C_PvP.IsBrawlSoloShuffle and C_PvP.IsBrawlSoloShuffle() or false,
+        isBrawlSoloRBG = C_PvP.IsBrawlSoloRBG and C_PvP.IsBrawlSoloRBG() or false,
+        isSoloShuffle = C_PvP.IsSoloShuffle and C_PvP.IsSoloShuffle() or false,
+        playerScoreInfo = C_PvP.GetScoreInfoByPlayerGuid and C_PvP.GetScoreInfoByPlayerGuid(GetPlayerGuid()) or {},
+        doesMatchOutcomeAffectRating = C_PvP.DoesMatchOutcomeAffectRating and C_PvP.DoesMatchOutcomeAffectRating() or false,
+        statColumns = C_PvP.GetMatchPVPStatColumns and C_PvP.GetMatchPVPStatColumns() or {},
         playerRewards = Details222.ArenaSummary.arenaData.playerRewards,
         playerPersonalRatedInfo = Details222.ArenaSummary.arenaData.playerPersonalRatedInfo,
     }
@@ -1168,13 +1174,13 @@ function ArenaSummary.CreateWindow() --~create
 --print("arenaData.winnerStatus", arenaData.winnerStatus)
 --dumpt(arenaData)
 
-            window.ArenaOutcomeText:SetText(PVP_SCOREBOARD_MATCH_COMPLETE)
+            window.ArenaOutcomeText:SetText(PVP_SCOREBOARD_MATCH_COMPLETE or "Match Completed")
             if (arenaData.winnerStatus == 1) then
-                window.ArenaOutcomeText:SetText(PVP_MATCH_VICTORY)
+                window.ArenaOutcomeText:SetText(PVP_MATCH_VICTORY or "VICTORY")
             elseif (arenaData.winnerStatus == 2) then
-                window.ArenaOutcomeText:SetText(PVP_MATCH_DEFEAT)
+                window.ArenaOutcomeText:SetText(PVP_MATCH_DEFEAT or "DEFEAT")
             elseif (arenaData.winnerStatus == 3) then
-                window.ArenaOutcomeText:SetText(PVP_MATCH_DRAW)
+                window.ArenaOutcomeText:SetText(PVP_MATCH_DRAW or "DRAW")
             end
         end
 
