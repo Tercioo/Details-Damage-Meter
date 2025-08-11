@@ -527,7 +527,7 @@ detailsFramework.LayoutFrame = {
 	end
 
 -- frame stratas
-	function PanelMetaFunctions:SetFrameStrata()
+	function PanelMetaFunctions:GetFrameStrata()
 		return self.widget:GetFrameStrata()
 	end
 	function PanelMetaFunctions:SetFrameStrata(strata)
@@ -3042,9 +3042,9 @@ local calc_lowess_smoothing = function(self, data, bandwidth)
 		-- For all the values in the span, compute the weight and then the linear fit
 
 		for j = jmin, jmax do
-			w = calc_cubeweight (i, j, bandwidth/2)
-			x = j
-			y = data [j]
+			local w = calc_cubeweight (i, j, bandwidth/2)
+			local x = j
+			local y = data [j]
 
 			A = A + w*x
 			B = B + w*y

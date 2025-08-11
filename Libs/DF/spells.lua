@@ -482,7 +482,6 @@ DF.CooldownsBySpec = {
 			[98008] = 4, --Spirit Link Totem
 			[108280] = 4, --Healing Tide Totem
 			[16191] = 4, --Mana Tide Totem
-			[198103] = 4, --Earth Elemental
 			[207399] = 4, --Ancestral Protection Totem (talent)
 			[198103] = 4, --Earth Elemental
 			[65992] = 5, --Tremor Totem
@@ -846,7 +845,6 @@ DF.CooldownsInfo = {
 	[198589] = {cooldown = 60, duration = 10, talent = false, charges = 1, class = "DEMONHUNTER", type = 2}, --Blur
 
 	[196555] = {cooldown = 120, duration = 5, talent = 21865, charges = 1, class = "DEMONHUNTER", type = 2}, --Netherwalk (talent)
-	[196718] = {cooldown = 180, duration = 8, talent = false, charges = 1, class = "DEMONHUNTER", type = 4}, --Darkness
 	[187827] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "DEMONHUNTER", type = 2}, --Metamorphosis
 	[196718] = {cooldown = 180, duration = 8, talent = false, charges = 1, class = "DEMONHUNTER", type = 4}, --Darkness
 	[188501] = {cooldown = 30, duration = 10, talent = false, charges = 1, class = "DEMONHUNTER", type = 5}, --Spectral Sight
@@ -909,7 +907,6 @@ DF.CooldownsInfo = {
 	[199754] = {cooldown = 120, duration = 10, talent = false, charges = 1, class = "ROGUE", type = 2},  --Riposte
 	[121471] = {cooldown = 180, duration = 20, talent = false, charges = 1, class = "ROGUE", type = 1},  --Shadow Blades
 	[343142] = {cooldown = 90, duration = 10, talent = 19250, charges = 1, class = "ROGUE", type = 5},  --Dreadblades
-	[121471]  = {cooldown = 180, duration = 20, talent = false, charges = 1, class = "ROGUE", type = 1},  --Shadow Blades
 }
 
 -- {cooldown = , duration = , talent = false, charges = 1}

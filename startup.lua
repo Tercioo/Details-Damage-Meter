@@ -1,11 +1,11 @@
-
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local _
 local tocName, Details222 = ...
 local detailsFramework = DetailsFramework
 
 local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization
-local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or GetSpecializationInfo
+local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or
+GetSpecializationInfo
 
 --start funtion
 function Details222.StartUp.StartMeUp()
@@ -20,6 +20,29 @@ function Details222.StartUp.StartMeUp()
 	Details.lastArenaStartTime = GetTime()
 	Details.lastBattlegroundStartTime = GetTime()
 
+	if (PVPMatchResults and detailsFramework.IsWarWow()) then
+		PVPMatchResults:HookScript("OnShow", function(self)
+			if (not DetailsOpenArenaSummaryButtonOnPVPMatchResults) then
+				local detailsButton = CreateFrame("button", "DetailsOpenArenaSummaryButtonOnPVPMatchResults", self,
+					"UIPanelButtonTemplate")
+				detailsButton:SetPoint("topright", self, "topright", -16, -16)
+				detailsButton:SetSize(200, 30)
+				detailsButton:SetText("Open Details Breakdown")
+				detailsButton:SetScript("OnClick", function()
+					Details:OpenArenaSummaryWindow()
+					Details:OpenArenaSummaryWindow()
+				end)
+
+				--a label below the button with the text "under development"
+				local label = detailsButton:CreateFontString(nil, "overlay", "GameFontNormalSmall")
+				label:SetPoint("top", detailsButton, "bottom", 0, -2)
+				label:SetText("Under Development")
+				label:SetTextColor(1, 0.5, 0.5, 1)
+				label:SetAlpha(0.5)
+			end
+		end)
+	end
+
 	--save the time when the addon finished loading
 	Details.AddOnStartTime = GetTime()
 	function Details.GetStartupTime()
@@ -31,48 +54,56 @@ function Details222.StartUp.StartMeUp()
 		Details:FillUserCustomSpells()
 	end)
 
-	Details.challengeModeMapId = C_ChallengeMode and C_ChallengeMode.GetActiveChallengeMapID and C_ChallengeMode.GetActiveChallengeMapID()
+	Details.challengeModeMapId = C_ChallengeMode and C_ChallengeMode.GetActiveChallengeMapID and
+	C_ChallengeMode.GetActiveChallengeMapID()
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---row single click, this determines what happen when the user click on a bar
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	--row single click, this determines what happen when the user click on a bar
 
 	--single click row function replace
-		--damage, dps, damage taken, friendly fire
-			Details.row_singleclick_overwrite[1] = {true, true, true, true, Details.atributo_damage.ReportSingleFragsLine, Details.atributo_damage.ReportEnemyDamageTaken, Details.atributo_damage.ReportSingleVoidZoneLine, Details.atributo_damage.ReportSingleDTBSLine}
-		--healing, hps, overheal, healing taken
-			Details.row_singleclick_overwrite[2] = {true, true, true, true, false, Details.atributo_heal.ReportSingleDamagePreventedLine}
-		--mana, rage, energy, runepower
-			Details.row_singleclick_overwrite[3] = {true, true, true, true} --missing other resources and alternate power
-		--cc breaks, ress, interrupts, dispells, deaths
-			Details.row_singleclick_overwrite[4] = {true, true, true, true, Details.atributo_misc.ReportSingleDeadLine, Details.atributo_misc.ReportSingleCooldownLine, Details.atributo_misc.ReportSingleBuffUptimeLine, Details.atributo_misc.ReportSingleDebuffUptimeLine}
+	--damage, dps, damage taken, friendly fire
+	Details.row_singleclick_overwrite[1] = { true, true, true, true, Details.atributo_damage.ReportSingleFragsLine,
+		Details.atributo_damage.ReportEnemyDamageTaken, Details.atributo_damage.ReportSingleVoidZoneLine, Details
+		.atributo_damage.ReportSingleDTBSLine }
+	--healing, hps, overheal, healing taken
+	Details.row_singleclick_overwrite[2] = { true, true, true, true, false, Details.atributo_heal
+		.ReportSingleDamagePreventedLine }
+	--mana, rage, energy, runepower
+	Details.row_singleclick_overwrite[3] = { true, true, true, true } --missing other resources and alternate power
+	--cc breaks, ress, interrupts, dispells, deaths
+	Details.row_singleclick_overwrite[4] = { true, true, true, true, Details.atributo_misc.ReportSingleDeadLine, Details
+		.atributo_misc.ReportSingleCooldownLine, Details.atributo_misc.ReportSingleBuffUptimeLine, Details.atributo_misc
+		.ReportSingleDebuffUptimeLine }
 
-		function Details:ReplaceRowSingleClickFunction(attribute, subAttribute, func)
-			assert(type(attribute) == "number" and attribute >= 1 and attribute <= 4, "ReplaceRowSingleClickFunction expects a attribute index on #1 argument.")
-			assert(type(subAttribute) == "number" and subAttribute >= 1 and subAttribute <= 10, "ReplaceRowSingleClickFunction expects a sub attribute index on #2 argument.")
-			assert(type(func) == "function", "ReplaceRowSingleClickFunction expects a function on #3 argument.")
+	function Details:ReplaceRowSingleClickFunction(attribute, subAttribute, func)
+		assert(type(attribute) == "number" and attribute >= 1 and attribute <= 4,
+			"ReplaceRowSingleClickFunction expects a attribute index on #1 argument.")
+		assert(type(subAttribute) == "number" and subAttribute >= 1 and subAttribute <= 10,
+			"ReplaceRowSingleClickFunction expects a sub attribute index on #2 argument.")
+		assert(type(func) == "function", "ReplaceRowSingleClickFunction expects a function on #3 argument.")
 
-				Details.row_singleclick_overwrite[attribute][subAttribute] = func
-			return true
-		end
+		Details.row_singleclick_overwrite[attribute][subAttribute] = func
+		return true
+	end
 
-		Details.click_to_report_color = {1, 0.8, 0, 1}
-		--death tooltip function, exposed for 3rd party customization
-		--called when the mouse hover over a player line when displaying deaths
-		--the function called receives 4 parameters: instanceObject, lineFrame, combatObject, deathTable
-		--@instance: the details! object of the window showing the deaths
-		--@lineFrame: the frame to setpoint your frame
-		--@combatObject: the combat itself
-		--@deathTable: a table containing all the information about the player's death
-		Details.ShowDeathTooltipFunction = Details.ShowDeathTooltip
+	Details.click_to_report_color = { 1, 0.8, 0, 1 }
+	--death tooltip function, exposed for 3rd party customization
+	--called when the mouse hover over a player line when displaying deaths
+	--the function called receives 4 parameters: instanceObject, lineFrame, combatObject, deathTable
+	--@instance: the details! object of the window showing the deaths
+	--@lineFrame: the frame to setpoint your frame
+	--@combatObject: the combat itself
+	--@deathTable: a table containing all the information about the player's death
+	Details.ShowDeathTooltipFunction = Details.ShowDeathTooltip
 
-		if (C_CVar) then
-			if (not InCombatLockdown() and DetailsFramework.IsDragonflightAndBeyond()) then --disable for releases
+	if (C_CVar) then
+		if (not InCombatLockdown() and DetailsFramework.IsDragonflightAndBeyond()) then --disable for releases
 			--C_CVar.SetCVar("cameraDistanceMaxZoomFactor", 2.6)
-			end
 		end
+	end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---initialize
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	--initialize
 
 	do
 		--advertising patreon cuz I'm in need, need to make absolute sure this is removed before 11.1.7 goes live
@@ -175,7 +206,8 @@ function Details222.StartUp.StartMeUp()
 			Details.Schedules.Cancel(Details.scheduled_window_update)
 			Details.scheduled_window_update = nil
 		end
-		Details.scheduled_window_update = Details.Schedules.NewTimer(time or 1, Details.ScheduledWindowUpdate, Details, bIsForced)
+		Details.scheduled_window_update = Details.Schedules.NewTimer(time or 1, Details.ScheduledWindowUpdate, Details,
+			bIsForced)
 	end
 
 	--do the first refresh here, not waiting for the regular refresh schedule to kick in
@@ -215,8 +247,8 @@ function Details222.StartUp.StartMeUp()
 			local instance = Details:GetInstance(id)
 			if (instance:IsEnabled()) then
 				if (instance.modo == 3 and Details.auto_change_to_standard) then --everything
-					instance.LastModo = 2 --standard
-					instance.modo = 2 --standard
+					instance.LastModo = 2                            --standard
+					instance.modo = 2                                --standard
 				end
 
 				--refresh wallpaper
@@ -239,7 +271,7 @@ function Details222.StartUp.StartMeUp()
 
 		--refresh skin for other windows
 		if (lowerInstanceId) then
-			for instanceId = lowerInstanceId+1, Details:GetNumInstances() do
+			for instanceId = lowerInstanceId + 1, Details:GetNumInstances() do
 				local instance = Details:GetInstance(instanceId)
 				if (instance and instance.baseframe and instance.ativa) then
 					instance:ChangeSkin()
@@ -273,6 +305,7 @@ function Details222.StartUp.StartMeUp()
 			Details.CheckWallpaperAfterStartup = nil
 			Details.profile_loaded = nil
 		end
+
 		Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
 	end
 
@@ -281,56 +314,56 @@ function Details222.StartUp.StartMeUp()
 	--start garbage collector
 	Details222.GarbageCollector.lastCollectTime = 0
 	Details222.GarbageCollector.intervalTime = 300
-	Details222.GarbageCollector.collectorTimer = Details.Schedules.NewTicker(Details222.GarbageCollector.intervalTime, Details222.GarbageCollector.RestartInternalGarbageCollector)
+	Details222.GarbageCollector.collectorTimer = Details.Schedules.NewTicker(Details222.GarbageCollector.intervalTime,
+		Details222.GarbageCollector.RestartInternalGarbageCollector)
 
 	--player role
 	local UnitGroupRolesAssigned = _G.DetailsFramework.UnitGroupRolesAssigned
 	Details.last_assigned_role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player")
 
 	--load parser capture options
-		Details:CaptureRefresh()
+	Details:CaptureRefresh()
 
 	--register parser events
-		Details.listener:RegisterEvent("PLAYER_REGEN_DISABLED")
-		Details.listener:RegisterEvent("PLAYER_REGEN_ENABLED")
-		Details.listener:RegisterEvent("UNIT_PET")
+	Details.listener:RegisterEvent("PLAYER_REGEN_DISABLED")
+	Details.listener:RegisterEvent("PLAYER_REGEN_ENABLED")
+	Details.listener:RegisterEvent("UNIT_PET")
 
-		Details.listener:RegisterEvent("GROUP_ROSTER_UPDATE")
-		Details.listener:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+	Details.listener:RegisterEvent("GROUP_ROSTER_UPDATE")
+	Details.listener:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 
-		Details.listener:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-		Details.listener:RegisterEvent("PLAYER_ENTERING_WORLD")
+	Details.listener:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	Details.listener:RegisterEvent("PLAYER_ENTERING_WORLD")
 
-		if (C_EventUtils.IsEventValid("SCENARIO_COMPLETED")) then
-			Details.listener:RegisterEvent("SCENARIO_COMPLETED")
-		end
+	if (C_EventUtils.IsEventValid("SCENARIO_COMPLETED")) then
+		Details.listener:RegisterEvent("SCENARIO_COMPLETED")
+	end
 
-		Details.listener:RegisterEvent("ENCOUNTER_START")
-		Details.listener:RegisterEvent("ENCOUNTER_END")
+	Details.listener:RegisterEvent("ENCOUNTER_START")
+	Details.listener:RegisterEvent("ENCOUNTER_END")
 
-		Details.listener:RegisterEvent("START_TIMER")
-		Details.listener:RegisterEvent("UNIT_NAME_UPDATE")
+	Details.listener:RegisterEvent("START_TIMER")
+	Details.listener:RegisterEvent("UNIT_NAME_UPDATE")
 
-		Details.listener:RegisterEvent("PLAYER_ROLES_ASSIGNED")
-		Details.listener:RegisterEvent("ROLE_CHANGED_INFORM")
+	Details.listener:RegisterEvent("PLAYER_ROLES_ASSIGNED")
+	Details.listener:RegisterEvent("ROLE_CHANGED_INFORM")
 
-		Details.listener:RegisterEvent("UNIT_FACTION")
+	Details.listener:RegisterEvent("UNIT_FACTION")
 
-		Details.listener:RegisterEvent("PLAYER_TARGET_CHANGED")
+	Details.listener:RegisterEvent("PLAYER_TARGET_CHANGED")
 
-		if (not DetailsFramework.IsTimewalkWoW()) then --C_EventUtils.IsEventValid
-			Details.listener:RegisterEvent("PET_BATTLE_OPENING_START")
-			Details.listener:RegisterEvent("PET_BATTLE_CLOSE")
-			Details.listener:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-			Details.listener:RegisterEvent("PLAYER_TALENT_UPDATE")
-			Details.listener:RegisterEvent("CHALLENGE_MODE_START")
-			--Details.listener:RegisterEvent("CHALLENGE_MODE_END") --doesn't exists ingame (only at cleu)
-			Details.listener:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-			Details.listener:RegisterEvent("WORLD_STATE_TIMER_START")
+	if (not DetailsFramework.IsTimewalkWoW()) then --C_EventUtils.IsEventValid
+		Details.listener:RegisterEvent("PET_BATTLE_OPENING_START")
+		Details.listener:RegisterEvent("PET_BATTLE_CLOSE")
+		Details.listener:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+		Details.listener:RegisterEvent("PLAYER_TALENT_UPDATE")
+		Details.listener:RegisterEvent("CHALLENGE_MODE_START")
+		--Details.listener:RegisterEvent("CHALLENGE_MODE_END") --doesn't exists ingame (only at cleu)
+		Details.listener:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+		Details.listener:RegisterEvent("WORLD_STATE_TIMER_START")
+	end
 
-		end
-
-		Details222.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	Details222.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 	--update is in group
 	Details.details_users = {}
@@ -425,7 +458,9 @@ function Details222.StartUp.StartMeUp()
 					if (lowerInstanceId) then
 						C_Timer.After(10, function()
 							if (lowerInstanceId:IsEnabled()) then
-								lowerInstanceId:InstanceAlert(Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 60, {Details.OpenNewsWindow}, true)
+								lowerInstanceId:InstanceAlert(Loc["STRING_VERSION_UPDATE"],
+									{ [[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false }, 60,
+									{ Details.OpenNewsWindow }, true)
 								Details:Msg("A new version has been installed: /details news") --localize-me
 							end
 						end)
@@ -495,6 +530,7 @@ function Details222.StartUp.StartMeUp()
 				Details.FadeHandler.Fader(devText, "in", 2)
 				Details.FadeHandler.Fader(instance._version, "in", 2)
 			end
+
 			Details.Schedules.NewTimer(12, Details.FadeStartVersion, Details)
 		end
 	end
@@ -502,14 +538,14 @@ function Details222.StartUp.StartMeUp()
 	--store the names of all interrupt spells
 	---@type table<string, boolean>
 	Details.InterruptSpellNamesCache = {}
-    for spellId, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
-        if (spellData.type == 6) then
-            local spellInfo = C_Spell.GetSpellInfo(spellId)
-            if (spellInfo) then
-                Details.InterruptSpellNamesCache[spellInfo.name] = true
-            end
-        end
-    end
+	for spellId, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
+		if (spellData.type == 6) then
+			local spellInfo = C_Spell.GetSpellInfo(spellId)
+			if (spellInfo) then
+				Details.InterruptSpellNamesCache[spellInfo.name] = true
+			end
+		end
+	end
 
 	---used to know if the spell is a crowd control during the parser debuff event.
 	---@type table<string, boolean>
@@ -551,17 +587,18 @@ function Details222.StartUp.StartMeUp()
 			local heroTalentId = unitInfo.heroTalentId
 			local talents = unitInfo.talents
 			local pvpTalents = unitInfo.pvpTalents
-			local class = unitInfo.class-- = string class eng name 'ROGUE'
-			local classId = unitInfo.classId-- = number
+			local class = unitInfo.class  -- = string class eng name 'ROGUE'
+			local classId = unitInfo.classId -- = number
 			local className = unitInfo.className
-			local unitName = unitInfo.name-- = string name without realm
-			local unitNameFull = unitInfo.nameFull-- = string name with realm 'unitName-ServerName'
+			local unitName = unitInfo.name -- = string name without realm
+			local unitNameFull = unitInfo.nameFull -- = string name with realm 'unitName-ServerName'
 
 			for spellId, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
 				if (spellData.type == 8) then
 					local spellInfo = C_Spell.GetSpellInfo(spellId)
 					if (spellInfo) then
-						Details.CrowdControlSpellsByUnitCache[unitNameFull] = Details.CrowdControlSpellsByUnitCache[unitNameFull] or {}
+						Details.CrowdControlSpellsByUnitCache[unitNameFull] = Details.CrowdControlSpellsByUnitCache
+						[unitNameFull] or {}
 						if (not spellData.ignoredIfTalent) then
 							Details.CrowdControlSpellNamesCache[spellInfo.name] = true
 						else
@@ -598,6 +635,7 @@ function Details222.StartUp.StartMeUp()
 		--Details:OpenCustomDisplayWindow()
 		--Details:OpenWelcomeWindow()
 	end
+
 	Details.Schedules.NewTimer(2, Details.OpenOptionsWindowAtStart, Details)
 	--Details:OpenCustomDisplayWindow()
 
@@ -605,7 +643,8 @@ function Details222.StartUp.StartMeUp()
 	Details.SafeRun(Details.RegisterMinimap, "Register Minimap Icon", Details)
 
 	--hot corner addon
-	Details.Schedules.NewTimer(5, function() Details.SafeRun(Details.DoRegisterHotCorner, "Register on Hot Corner Addon", Details) end, Details)
+	Details.Schedules.NewTimer(5,
+		function() Details.SafeRun(Details.DoRegisterHotCorner, "Register on Hot Corner Addon", Details) end, Details)
 
 	--restore mythic dungeon state
 	Details:RestoreState_CurrentMythicDungeonRun()
@@ -653,7 +692,6 @@ function Details222.StartUp.StartMeUp()
 				}
 				trinketData[spellId] = thisTrinketData
 			end
-
 		elseif (trinketTable.onUse and trinketTable.castId) then
 			Details222.OnUseItem.Trinkets[trinketTable.castId] = spellId
 		end
@@ -683,7 +721,7 @@ function Details222.StartUp.StartMeUp()
 		Details:Destroy(Details.npcid_pool)
 		Details:Destroy(Details.spell_school_cache)
 		Details:Destroy(Details.cached_talents)
-		Details.last_10days_cache_cleanup = now + (60*60*24*10)
+		Details.last_10days_cache_cleanup = now + (60 * 60 * 24 * 10)
 	end
 
 	--get the player spec
@@ -819,7 +857,10 @@ function Details222.StartUp.StartMeUp()
 
 	pcall(Details222.ClassCache.MakeCache)
 
-	if (time() > 1740761826+31622400) then wipe(Details) return	end
+	if (time() > 1740761826 + 31622400) then
+		wipe(Details)
+		return
+	end
 
 	Details:BuildSpecsNameCache()
 
@@ -833,37 +874,25 @@ function Details222.StartUp.StartMeUp()
 		DetailsFramework.table.copy(Details.class_coords, Details.default_profile.class_coords)
 	end
 
---[=
-	--remove on v11 launch
 	if (DetailsFramework.IsWarWow()) then
-	C_Timer.After(1, function() if (SplashFrame) then SplashFrame:Hide() end end)
-	function HelpTip:SetHelpTipsEnabled(flag, enabled)
-		if (Details.streamer_config.no_helptips) then
-			HelpTip.supressHelpTips[flag] = false
+		--streamer mode
+		function HelpTip:SetHelpTipsEnabled(flag, enabled)
+			if (Details.streamer_config.no_helptips) then
+				HelpTip.supressHelpTips[flag] = false
+			end
 		end
-	end
-	hooksecurefunc(HelpTipTemplateMixin, "OnShow", function(self)
-		if (Details.streamer_config.no_helptips) then
-			self:Hide()
-		end
-	end)
-	hooksecurefunc(HelpTipTemplateMixin, "OnUpdate", function(self)
-		if (Details.streamer_config.no_helptips) then
-			self:Hide()
-		end
-	end)
 
-	C_Timer.After(5, function()
-	if (TutorialPointerFrame_1) then
-		--TutorialPointerFrame_1:Hide()
-		hooksecurefunc(TutorialPointerFrame_1, "Show", function(self)
-			--self:Hide()
+		hooksecurefunc(HelpTipTemplateMixin, "OnShow", function(self)
+			if (Details.streamer_config.no_helptips) then
+				self:Hide()
+			end
+		end)
+		hooksecurefunc(HelpTipTemplateMixin, "OnUpdate", function(self)
+			if (Details.streamer_config.no_helptips) then
+				self:Hide()
+			end
 		end)
 	end
-end)
-end
---]=]
-
 end
 
 Details.AddOnLoadFilesTime = _G.GetTime()

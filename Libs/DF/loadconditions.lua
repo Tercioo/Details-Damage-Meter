@@ -764,7 +764,6 @@ function detailsFramework:OpenLoadConditionsPanel(optionsTable, callback, frameO
 			for _, roleTable in ipairs(detailsFramework:GetRoleTypes()) do
 				local texture, l, r, t, b = detailsFramework:GetRoleIconAndCoords(roleTable.ID)
 				table.insert(roleTypes, {
-					name = (roleTable.Texture .. " " .. roleTable.Name),
 					name = roleTable.Name,
 					texture = texture,
 					texcoord = {l, r, t, b},

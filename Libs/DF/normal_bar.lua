@@ -462,7 +462,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	end
 
 -- frame stratas
-	function BarMetaFunctions:SetFrameStrata()
+	function BarMetaFunctions:GetFrameStrata()
 		return self.statusbar:GetFrameStrata()
 	end
 	function BarMetaFunctions:SetFrameStrata(strata)

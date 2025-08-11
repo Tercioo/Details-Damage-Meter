@@ -476,7 +476,17 @@ function DetailsMythicPlusFrame.SaveMythicPlusStats(combatObject)
             deaths = amountDeaths,
             affix = PrimaryAffix,
             combatTime = combatObject:GetCombatTime(),
+            playerNames = {},
         }
+
+        local damagerContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+        if (damagerContainer) then
+            for _, playerObject in damagerContainer:ListActors() do
+                if (playerObject:IsPlayer()) then
+                    table.insert(runStats.playerNames, playerObject.nome)
+                end
+            end
+        end
 
         table.insert(statsForLevel.history, runStats)
 
