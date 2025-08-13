@@ -1403,6 +1403,11 @@ local default_global_data = {
 		encounter_journal_cache = {}, --store a dump of the encounter journal
 		installed_skins_cache = {},
 		last_10days_cache_cleanup = 0,
+		recent_players = {},
+
+		slashk_dnd = false,
+		slashk_addon = "bigwigs",
+		slashk_addon_first = false,
 
 		auto_change_to_standard = true,
 

@@ -177,7 +177,7 @@ local cleanfunction = function() end
 
 	--setup the castbar to be used by another unit
 	healthBarMetaFunctions.SetUnit = function(self, unit, displayedUnit)
-		if (self.unit ~= unit or self.displayedUnit ~= displayedUnit or unit == nil) then
+		if (self.unit ~= unit or self.displayedUnit ~= displayedUnit or unit == nil) then --1x Details/Libs/DF/unitframe.lua:180: script ran too long
 			self.unit = unit
 			self.displayedUnit = displayedUnit or unit
 

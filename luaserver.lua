@@ -5583,8 +5583,9 @@ SpellTargetUnit = function(unit) end
 
 ToggleSpellAutocast = function() end
 
+---@param unit string
 ---@return string, string, number, number, boolean, string
-UnitCastingInfo = function() return "", "", 0, 0, false, "" end
+UnitCastingInfo = function(unit) return "", "", 0, 0, false, "" end
 
 ---@param unit string
 ---@return string, string, number, number, boolean, string

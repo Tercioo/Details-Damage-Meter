@@ -1,6 +1,6 @@
 
 
-local dversion = 614
+local dversion = 616
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1123,7 +1123,48 @@ function DF:SplitTextInLines(text)
 	return lines
 end
 
+---@diagnostic disable-next-line: missing-fields
+DF.string = {}
+
 DF.strings = {}
+
+---@class df_strings
+---@field Acronym fun(phrase:string):string return the first upper case letter of each word of a string
+---@field FormatDateByLocale fun(timestamp:number, ignoreYear:boolean?):string given a timestamp return a formatted date string
+
+function DF.string.Acronym(phrase)
+	local acronym = phrase:gsub("%-", ""):gsub("(%a)[^%s]*%s*", function(word)
+		--only use the first letter if it's uppercase
+		if (word:match("%u")) then
+			return word:upper()
+		else
+			return ""
+		end
+	end)
+	return acronym
+end
+
+function DF.string.FormatDateByLocale(timestamp, ignoreYear)
+	local locale = GetLocale()
+	local dataTable = date("*t", timestamp)
+	local monthAbbreviated = date("%b", timestamp)
+
+	if (locale == "enUS") then
+		--monthAbbreviated day, year (Mar 19, 2024)
+		if (ignoreYear) then
+			return string.format("%s %d", monthAbbreviated, dataTable.day)
+		else
+			return string.format("%s %d, %d", monthAbbreviated, dataTable.day, dataTable.year)
+		end
+	else
+		--day, monthAbbreviated, year (5 Mar 2024)
+		if (ignoreYear) then
+			return string.format("%d %s", dataTable.day, monthAbbreviated)
+		else
+			return string.format("%d %s %d", dataTable.day, monthAbbreviated, dataTable.year)
+		end
+	end
+end
 
 ---receive an array and output a string with the values separated by commas
 ---if bDoCompression is true, the string will be compressed using LibDeflate
@@ -1282,6 +1323,19 @@ end
 ---@return string
 function DF:IntegerToTimer(value) --~formattime
 	return "" .. math.floor(value/60) .. ":" .. string.format("%02.f", value%60)
+end
+
+--this function transform a number into a string showing the time format for cooldowns
+---@param self table
+---@param value number
+---@return string
+function DF:IntegerToCooldownTime(value) --~formattime
+	if (value >= 3600) then
+		return floor(value/3600) .. "h"
+	elseif (value > 60) then
+		return floor(value/60) .. "m"
+	end
+	return floor(value) .. "s"
 end
 
 ---remove the realm name from a name

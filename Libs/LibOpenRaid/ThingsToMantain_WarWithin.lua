@@ -1215,6 +1215,184 @@ do
 			[351338] =	{tickInterval = 1, latencyCompensation = 0.5}, --Quell (Evoker)
 		}
 
+		LIB_OPEN_RAID_MYTHIC_PLUS_CURRENT_SEASON = { --mapIds
+			2830, --Path of the Eco-Dome - Eco-Dome Al'dani
+			2287, --Path of the Sinful Soul - Halls of Atonement
+			2773, --Path of the Circuit Breaker - Operation: Floodgate
+			2662, --Path of the Arathi Flagship - The Dawnbreaker
+			2649, --Path of the Light's Reverence - Priory of the Sacred Flame
+			2660, --Path of the Ruined City - Ara-Kara, City of Echoes
+			2441, --Path of the Streetwise Merchant - Tazavesh, the Veiled Market
+
+			--1763, --atal'dazar (development debug)
+		}
+
+		---@alias teleporter_spellid number
+		---@type table<teleporter_spellid, number|boolean>
+		LIB_OPEN_RAID_MYTHIC_PLUS_TELEPORT_SPELLS = { --spellId, mapId
+			--11.2 /dump GetInstanceInfo()
+			[1237215] = 2830, --Path of the Eco-Dome - Eco-Dome Al'dani
+			[354465] = 2287, --Path of the Sinful Soul - Halls of Atonement
+			[1216786] = 2773, --Path of the Circuit Breaker - Operation: Floodgate
+			[445414] = 2662, --Path of the Arathi Flagship - The Dawnbreaker
+			[445444] = 2649, --Path of the Light's Reverence - Priory of the Sacred Flame
+			[445417] = 2660, --Path of the Ruined City - Ara-Kara, City of Echoes
+			[367416] = 2441, --Path of the Streetwise Merchant - Tazavesh, the Veiled Market
+
+			--deprecated
+			[1226482] = true, --Path of the Full House - Liberation of Undermine
+			[1239155] = true, --Path of the All-Devouring - Manaforge Omega
+			[424153] = true, --Path of Ancient Horrors - Black Rook Hold
+			[393279] = true, --Path of Arcane Secrets - The Azure Vault
+			[410074] = true, --Path of Festering Rot - The Underrot
+			[424167] = true, --Path of Heart's Bane - Waycrest Manor
+			[445416] = true, --Path of Nerubian Ascension - City of Threads
+			[393764] = true, --Path of Proven Worth - Halls of Valor.
+			[354466] = true, --Path of the Ascendant - Spires of Ascension
+			[467553] = true, --Path of the Azerite Refinery - The MOTHERLODE!! (alliance)
+			[467555] = true, --Path of the Azerite Refinery - The MOTHERLODE!! (horde)
+			[445418] = true, --Path of the Besieged Harbor - Siege of Boralus (alliance)
+			[464256] = true, --Path of the Besieged Harbor - Siege of Boralus (horde)
+			[432257] = true, --Path of the Bitter Legacy - Aberrus, the Shadowed Crucible
+			[131228] = true, --Path of the Black Ox - Siege of Niuzao
+			[159895] = true, --Path of the Bloodmaul - Bloodmaul Slag Mines
+			[159902] = true, --Path of the Burning Mountain - Upper Blackrock Spire
+			[393256] = true, --Path of the Clutch Defender - Ruby Life Pools
+			[445269] = true, --Path of the Corrupted Foundry - The Stonevault
+			[354462] = true, --Path of the Courageous - The Necrotic Wake
+			[159899] = true, --Path of the Crescent Moon - Shadowmoon Burial Grounds
+			[159900] = true, --Path of the Dark Rail - Grimrail Depot
+			[393273] = true, --Path of the Draconic Diploma - Algeth'ar Academy
+			[410078] = true, --Path of the Earth-Warder - Neltharion's Lair
+			[373262] = true, --Path of the Fallen Guardian - Karazhan
+			[445443] = true, --Path of the Fallen Stormriders - The Rookery
+			[373192] = true, --Path of the First Ones - Sepulcher of the First Ones
+			[467546] = true, --Path of the Waterworks - Cinderbrew Meadery
+			[445440] = true, --Path of the Flaming Brewery - Cinderbrew Meadery
+			[410071] = true, --Path of the Freebooter - Freehold
+			[424187] = 1763, --Path of the Golden Tomb
+			[393766] = true, --Path of the Grand Magistrix - Court of Stars
+			[159896] = true, --Path of the Iron Prow - Iron Docks
+			[131204] = true, --Path of the Jade Serpent - Temple of the Jade Serpent
+			[141543] = true, --Path of the Last Emperor - ??
+			[354464] = true, --Path of the Misty Forest - Mists of Tirna Scithe
+			[131222] = true, --Path of the Mogu King - Mogu'shan Palace
+			[131232] = true, --Path of the Necromancer - Scholomance
+			[424163] = true, --Path of the Nightmare Lord - Darkheart Thicket
+			[393276] = true, --Path of the Obsidian Hoard - Neltharus
+			[354463] = true, --Path of the Plagued - Plaguefall
+			[432254] = true, --Path of the Primal Prison - Vault of the Incarnates
+			[393267] = true, --Path of the Rotting Woods - Brackenhide Hollow
+			[131231] = true, --Path of the Scarlet Blade - Scarlet Halls
+			[131229] = true, --Path of the Scarlet Mitre - Scarlet Monastery
+			[354468] = true, --Path of the Scheming Loa - De Other Side
+			[432258] = true, --Path of the Scorching Dream - Amirdrassil, the Dream's Hope
+			[373274] = true, --Path of the Scrappy Prince - Operation: Mechagon
+			[131225] = true, --Path of the Setting Sun - Gate of the Setting Sun.
+			[131206] = true, --Path of the Shado-Pan - Shado-Pan Monastery
+			[373190] = true, --Path of the Sire - Castle Nathria
+			[159898] = true, --Path of the Skies - Skyreach
+			[354469] = true, --Path of the Stone Warden - Sanguine Depths
+			[131205] = true, --Path of the Stout Brew - Stormstout Brewery
+			[183835] = true, --Path of the Templar - ??
+			[424142] = true, --Path of the Tidehunter - Throne of the Tides
+			[393283] = true, --Path of the Titanic Reservoir - Halls of Infusion
+			[256830] = true, --Path of the Titans - ??
+			[373191] = true, --Path of the Tormented Soul - Sanctum of Domination
+			[445424] = true, --Path of the Twilight Fortress - Grim Batol
+			[354467] = true, --Path of the Undefeated - Theater of Pain
+			[159901] = true, --Path of the Verdant - The Everbloom
+			[159897] = true, --Path of the Vigilant - Auchindoun
+			[177211] = true, --Path of the Void Flames - ??
+			[445441] = true, --Path of the Warding Candles - Darkflame Cleft
+			[393222] = true, --Path of the Watcher's Legacy - Uldaman: Legacy of Tyr
+			[393262] = true, --Path of the Windswept Plains - The Nokhud Offensive
+			[424197] = true, --Path of Twisted Time - Dawn of the Infinite
+			[410080] = true, --Path of Wind's Domain - The Vortex Pinnacle
+		}
+
+		--zoneName, challengeMapId, timeLimit, texture, textureBackground, mapId, teleportSpellId
+		LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO = {
+			[2] = {"Temple of the Jade Serpent", 2, 1800, 632363, 632283, 960},
+			[56] = {"Stormstout Brewery", 56, 2700, 632362, 632282, 961},
+			[57] = {"Gate of the Setting Sun", 57, 2700, 632357, 632277, 962},
+			[58] = {"Shado-Pan Monastery", 58, 3600, 632361, 632281, 959},
+			[59] = {"Siege of Niuzao Temple", 59, 3000, 643269, 643266, 1011},
+			[60] = {"Mogu'shan Palace", 60, 2700, 632359, 632279, 994},
+			[76] = {"Scholomance", 76, 3300, 136355, 608254, 1007},
+			[77] = {"Scarlet Halls", 77, 2700, 643268, 643265, 1001},
+			[78] = {"Scarlet Monastery", 78, 2700, 136354, 608253, 1004},
+			[161] = {"Skyreach", 161, 3400, 1042064, 1041989, 1209},
+			[163] = {"Bloodmaul Slag Mines", 163, 1800, 1042059, 1041984, 1175},
+			[164] = {"Auchindoun", 164, 3300, 1042057, 1041982, 1182},
+			[165] = {"Shadowmoon Burial Grounds", 165, 1980, 1042063, 1041988, 1176},
+			[166] = {"Grimrail Depot", 166, 1800, 1042061, 1041986, 1208},
+			[167] = {"Upper Blackrock Spire", 167, 5100, 1042065, 1041990, 1358},
+			[168] = {"The Everbloom", 168, 1980, 1060551, 1060545, 1279},
+			[169] = {"Iron Docks", 169, 1800, 1060552, 1060546, 1195},
+			[197] = {"Eye of Azshara", 197, 2100, 1498161, 1498153, 1456},
+			[198] = {"Darkheart Thicket", 198, 1800, 1411867, 1411849, 1466},
+			[199] = {"Black Rook Hold", 199, 2160, 1411865, 1411847, 1501},
+			[200] = {"Halls of Valor", 200, 2280, 1498162, 1498154, 1477},
+			[206] = {"Neltharion's Lair", 206, 1980, 1450576, 1450572, 1458},
+			[207] = {"Vault of the Wardens", 207, 1980, 1411870, 1411852, 1493},
+			[208] = {"Maw of Souls", 208, 1440, 1411868, 1411850, 1492},
+			[209] = {"The Arcway", 209, 2700, 1411869, 1411851, 1516},
+			[210] = {"Court of Stars", 210, 1800, 1498160, 1498152, 1571},
+			[227] = {"Return to Karazhan: Lower", 227, 2520, 1537287, 1537281, 1651},
+			[233] = {"Cathedral of Eternal Night", 233, 2100, 1616925, 1616920, 1677},
+			[234] = {"Return to Karazhan: Upper", 234, 2100, 1537287, 1537281, 1651},
+			[239] = {"Seat of the Triumvirate", 239, 2100, 1718526, 1718205, 1753},
+			[244] = {"Atal'Dazar", 244, 1800, 1778896, 1778890, 1763, 424187},
+			[245] = {"Freehold", 245, 1800, 1778897, 1778891, 1754},
+			[246] = {"Tol Dagor", 246, 2160, 2178737, 2177730, 1771},
+			[247] = {"The MOTHERLODE!!", 247, 1980, 2178735, 2177728, 1594},
+			[248] = {"Waycrest Manor", 248, 2220, 2178742, 2177732, 1862},
+			[249] = {"Kings' Rest", 249, 2520, 2178730, 2177723, 1762},
+			[250] = {"Temple of Sethraliss", 250, 2160, 2178734, 2177727, 1877},
+			[251] = {"The Underrot", 251, 1800, 2178736, 2177729, 1841},
+			[252] = {"Shrine of the Storm", 252, 2520, 2178732, 2177725, 1864},
+			[353] = {"Siege of Boralus", 353, 1980, 2178733, 2177726, 1822},
+			[369] = {"Operation: Mechagon - Junkyard", 369, 2280, 3025336, 3025327, 2097},
+			[370] = {"Operation: Mechagon - Workshop", 370, 1920, 3025336, 3025327, 2097},
+			[375] = {"Mists of Tirna Scithe", 375, 1800, 3759929, 3759919, 2290},
+			[376] = {"The Necrotic Wake", 376, 1860, 3759930, 3759920, 2286},
+			[377] = {"De Other Side", 377, 2580, 3759935, 3759925, 2291},
+			[378] = {"Halls of Atonement", 378, 1920, 3759928, 3759918, 2287, 354465},
+			[379] = {"Plaguefall", 379, 2280, 3759931, 3759921, 2289},
+			[380] = {"Sanguine Depths", 380, 2460, 3759932, 3759922, 2284},
+			[381] = {"Spires of Ascension", 381, 2340, 3759933, 3759923, 2285},
+			[382] = {"Theater of Pain", 382, 2040, 3759934, 3759924, 2293},
+			[391] = {"Tazavesh: Streets of Wonder", 391, 1920, 4181531, 4182024, 2441, 367416},
+			[392] = {"Tazavesh: So'leah's Gambit", 392, 1800, 4181531, 4182024, 2441, 367416},
+			[399] = {"Ruby Life Pools", 399, 1800, 4746639, 4742937, 2521},
+			[400] = {"The Nokhud Offensive", 400, 2400, 4746636, 4742934, 2516},
+			[401] = {"The Azure Vault", 401, 2250, 4746634, 4742932, 2515},
+			[402] = {"Algeth'ar Academy", 402, 1920, 4746641, 4742939, 2526},
+			[403] = {"Uldaman: Legacy of Tyr", 403, 2100, 4746642, 4742940, 2451},
+			[404] = {"Neltharus", 404, 1980, 4746640, 4742938, 2519},
+			[405] = {"Brackenhide Hollow", 405, 2100, 4746635, 4742933, 2520},
+			[406] = {"Halls of Infusion", 406, 2100, 4746638, 4742936, 2527},
+			[438] = {"The Vortex Pinnacle", 438, 1800, 460873, 526414, 657},
+			[456] = {"Throne of the Tides", 456, 2040, 460875, 526413, 643},
+			[463] = {"Dawn of the Infinite: Galakrond's Fall", 463, 2040, 5221804, 5222376, 2579},
+			[464] = {"Dawn of the Infinite: Murozond's Rise", 464, 2160, 5221804, 5222376, 2579},
+			[499] = {"Priory of the Sacred Flame", 499, 1950, 5912512, 5912542, 2649, 445444},
+			[500] = {"The Rookery", 500, 1740, 5912514, 5912544, 2648},
+			[501] = {"The Stonevault", 501, 1980, 5912515, 5912545, 2652},
+			[502] = {"City of Threads", 502, 2100, 5912509, 5912539, 2669},
+			[503] = {"Ara-Kara, City of Echoes", 503, 1800, 5912507, 5912537, 2660, 445417},
+			[504] = {"Darkflame Cleft", 504, 1860, 5912510, 5912540, 2651},
+			[505] = {"The Dawnbreaker", 505, 1860, 5912513, 5912543, 2662, 445414},
+			[506] = {"Cinderbrew Meadery", 506, 1980, 5912508, 5912538, 2661},
+			[507] = {"Grim Batol", 507, 2040, 460863, 526406, 670},
+			[525] = {"Operation: Floodgate", 525, 1980, 6422372, 6422410, 2773, 1216786},
+			[541] = {"The Stonecore", 541, 1800, 460872, 526412, 725},
+			[542] = {"Eco-Dome Al'dani", 542, 1860, 7074037, 7074041, 2830, 1237215},
+		}
+
+
+
 		LIB_OPEN_RAID_DATABASE_LOADED = true
     end
 

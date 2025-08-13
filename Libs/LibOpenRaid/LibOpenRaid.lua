@@ -59,7 +59,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 164
+local CONST_LIB_VERSION = 165
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -447,7 +447,7 @@ end
             --don't receive comms from the player it self
             local playerName = UnitName("player")
             if (playerName == sender) then
-                --return
+                return
             end
 
             --if this received data is not a safe comm, then decode it
@@ -478,15 +478,7 @@ end
             end
 
             --if this is isn't a keystone data comm, check if the lib can receive comms
-            if (dataTypePrefix ~= CONST_COMM_KEYSTONE_DATA_PREFIX and dataTypePrefix ~= CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX) then
-                if (not openRaidLib.IsCommAllowed()) then
-                    openRaidLib.DiagnosticError("comm not allowed.")
-                    return
-                end
-            end
-
-            --if this is isn't a rating data comm, check if the lib can receive comms
-            if (dataTypePrefix ~= CONST_COMM_RATING_DATA_PREFIX and dataTypePrefix ~= CONST_COMM_RATING_DATAREQUEST_PREFIX) then
+            if (dataTypePrefix ~= CONST_COMM_KEYSTONE_DATA_PREFIX and dataTypePrefix ~= CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX and dataTypePrefix ~= CONST_COMM_RATING_DATA_PREFIX and dataTypePrefix ~= CONST_COMM_RATING_DATAREQUEST_PREFIX) then
                 if (not openRaidLib.IsCommAllowed()) then
                     openRaidLib.DiagnosticError("comm not allowed.")
                     return
@@ -3115,6 +3107,9 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
     end
 
     function openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToGuild()
+        if (LIB_OPEN_RAID_MYTHIC_PLUS_DND) then
+            return
+        end
         local dataToSend = getKeystoneInfoToComm()
         openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_GUILD)
         diagnosticComm("SendPlayerKeystoneInfoToGuild| " .. dataToSend) --debug

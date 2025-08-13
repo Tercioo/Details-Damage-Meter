@@ -57,6 +57,10 @@ function Details222.StartUp.StartMeUp()
 	Details.challengeModeMapId = C_ChallengeMode and C_ChallengeMode.GetActiveChallengeMapID and
 	C_ChallengeMode.GetActiveChallengeMapID()
 
+	if (Details.slashk_dnd) then
+		LIB_OPEN_RAID_MYTHIC_PLUS_DND = true
+	end
+
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	--row single click, this determines what happen when the user click on a bar
 

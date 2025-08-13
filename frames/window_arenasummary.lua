@@ -1223,7 +1223,7 @@ function ArenaSummary.UncompressArena(headerIndex)
     assert(C_EncodingUtil, "C_EncodingUtil is nil")
 
     local compressedArenas = Details.arena_data_compressed
-    print("##:", #compressedArenas, "headerIndex:", headerIndex)
+    --print("##:", #compressedArenas, "headerIndex:", headerIndex)
 
     local arenaData = compressedArenas[headerIndex]
     if (not arenaData) then

@@ -6194,13 +6194,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.MythicPlus.UpgradeMembers = upgradeMembers
 		Details222.MythicPlus.RUN_END_AT = time()
 
-		local dungeonName, id, timeLimit, texture, backgroundTexture = C_ChallengeMode.GetMapUIInfo(mapID)
+		local dungeonName, id, timeLimit, texture, backgroundTexture, instanceMapId = C_ChallengeMode.GetMapUIInfo(mapID)
 
 		Details222.MythicPlus.DungeonName = dungeonName
 		Details222.MythicPlus.DungeonID = id
 		Details222.MythicPlus.TimeLimit = timeLimit
 		Details222.MythicPlus.Texture = texture
 		Details222.MythicPlus.BackgroundTexture = backgroundTexture
+		Details222.MythicPlus.InstanceMapID = instanceMapId
 
 		--store the data of the mythic+ run that just finished, this table always exists when COMBAT_MYTHICDUNGEON_END is triggered
 		Details.LastMythicPlusData = {

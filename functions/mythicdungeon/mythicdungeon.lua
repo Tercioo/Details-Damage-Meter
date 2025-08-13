@@ -334,6 +334,71 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
 
     elseif (event == "COMBAT_MYTHICPLUS_OVERALL_READY") then
         DetailsMythicPlusFrame.SaveMythicPlusStats(...)
+
+        C_Timer.After(1, function()
+            local okay, errorText = pcall(function()
+                local recentPlayers = Details:GetRecentPlayers()
+                local recentType = "mplus"
+
+                --create a list of character names in the friends list, so we don't add character that already in the friends list
+                local friendsCharacters = {}
+                local BnetFriends = BNGetNumFriends()
+                for i = 1, BnetFriends do
+                    local bNetFriend = C_BattleNet.GetFriendAccountInfo(i)
+                    if (bNetFriend) then
+                        local gameAccountInfo = bNetFriend.gameAccountInfo
+                        if (gameAccountInfo) then
+                            local isOnline = gameAccountInfo.isOnline
+                            local characterName = gameAccountInfo.characterName
+                            if (isOnline and characterName and string.len(characterName) >= 2) then
+                                friendsCharacters[gameAccountInfo.characterName] = true
+                            end
+                        end
+                    end
+                end
+
+                for i = 1, GetNumGroupMembers() - 1 do
+                    local unitId = "party" .. i
+                    local playerName = UnitName(unitId)
+
+                    if (playerName and not friendsCharacters[playerName] and not C_FriendList.GetFriendInfo(playerName)) then
+                        local classId = select(3, UnitClass(unitId)) or 0
+                        local specId = Details.cached_specs[UnitGUID(unitId)] or 0
+                        local timeWhen = time()
+                        local challengeMapId = Details222.MythicPlus.MapID or 0
+                        local mapId = Details222.MythicPlus.InstanceMapID or 0
+                        local level = Details222.MythicPlus.Level
+                        local onTime = Details222.MythicPlus.OnTime
+
+                        --check if the player is already in the recent players table
+                        local found = false
+                        for j = 1, #recentPlayers do
+                            local thisTable = recentPlayers[j]
+                            if (thisTable[3] == playerName) then
+                                table.remove(recentPlayers, j)
+                                table.insert(recentPlayers, 1, thisTable)
+                                thisTable[7] = thisTable[7] + 1 --increment the played together amount
+                                found = true
+                                break
+                            end
+                        end
+
+                        local runId = 0
+                        if (DetailsMythicPlus) then
+                            runId = DetailsMythicPlus.GetLatestRunId() or 0
+                        end
+
+                        if (not found) then
+                            recentPlayers[#recentPlayers + 1] = {recentType, timeWhen, playerName, classId, specId, mapId, 1, challengeMapId, level, onTime, runId}
+                        end
+                    end
+                end
+            end) --pcall end
+
+            if (not okay) then
+                Details:Msg("add recent friend resulted in an error:", errorText)
+            end
+        end) --c_timer end
     end
 end
 
@@ -355,6 +420,40 @@ local playerLeftDungeonZoneTimer_Callback = function()
             DetailsMythicPlusFrame.ZoneLeftTimer = nil
         end
     end
+end
+
+function Details:GetRecentPlayers()
+    return Details.recent_players
+end
+
+---usage: local recentType, timeWhen, playerName, classId, specId, mapId, param1, param2, param3, param4 = Details:UnpackRecentPlayerTable(recentPlayerTable)
+---@param recentPlayerTable table
+---@return string recentType
+---@return number timeWhen
+---@return string playerName
+---@return number classId
+---@return number specId
+---@return number mapId
+---@return number playedTogetherAmount --amount of times the player played with this player
+---@return number param1 --for mplus this is challengeMapId
+---@return number param2 --for mplus this is level
+---@return boolean param3 --for mplus this is onTime
+---@return number param4 --for mplus this is runId
+function Details:UnpackRecentPlayerTable(recentPlayerTable)
+    local from = recentPlayerTable[1] --string, e.g. "mplus"
+    local when = recentPlayerTable[2] --time()
+    local playerName = recentPlayerTable[3] --string
+    local classId = recentPlayerTable[4] --number
+    local specId = recentPlayerTable[5] --number
+    local mapId = recentPlayerTable[6] --number
+    local playedTogetherAmount = recentPlayerTable[7] --number
+
+    local challengeMapId = recentPlayerTable[8] --number
+    local level = recentPlayerTable[9] --number
+    local onTime = recentPlayerTable[10] --boolean
+    local runId = recentPlayerTable[11] --number
+
+    return from, when, playerName, classId, specId, mapId, playedTogetherAmount, challengeMapId, level, onTime, runId
 end
 
 DetailsMythicPlusFrame:SetScript("OnEvent", function(_, event, ...)
