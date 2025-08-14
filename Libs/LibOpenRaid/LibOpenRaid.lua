@@ -59,7 +59,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 165
+local CONST_LIB_VERSION = 166
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -2924,6 +2924,7 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
     ---@field classID number
     ---@field rating number
     ---@field mythicPlusMapID number
+    ---@field specID number
 
     --manager constructor
     openRaidLib.KeystoneInfoManager = {
@@ -3061,6 +3062,7 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
             classID = 0,
             rating = 0,
             mythicPlusMapID = 0,
+            specID = 0,
         }
 
     function openRaidLib.KeystoneInfoManager.UpdatePlayerKeystoneInfo(keystoneInfo)
@@ -3074,6 +3076,9 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
 
         local ratingSummary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary("player")
         keystoneInfo.rating = ratingSummary and ratingSummary.currentSeasonScore or 0
+
+        local specID = GetSpecializationInfo(GetSpecialization()) or 0
+        keystoneInfo.specID = specID
     end
 
     function openRaidLib.KeystoneInfoManager.GetAllKeystonesInfo()
@@ -3096,7 +3101,7 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
         local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(playerName, true)
         openRaidLib.KeystoneInfoManager.UpdatePlayerKeystoneInfo(keystoneInfo)
 
-        local dataToSend = CONST_COMM_KEYSTONE_DATA_PREFIX .. "," .. keystoneInfo.level .. "," .. keystoneInfo.mapID .. "," .. keystoneInfo.challengeMapID .. "," .. keystoneInfo.classID .. "," .. keystoneInfo.rating .. "," .. keystoneInfo.mythicPlusMapID
+        local dataToSend = CONST_COMM_KEYSTONE_DATA_PREFIX .. "," .. keystoneInfo.level .. "," .. keystoneInfo.mapID .. "," .. keystoneInfo.challengeMapID .. "," .. keystoneInfo.classID .. "," .. keystoneInfo.rating .. "," .. keystoneInfo.mythicPlusMapID .. "," .. keystoneInfo.specID
         return dataToSend
     end
 
@@ -3115,12 +3120,19 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
         diagnosticComm("SendPlayerKeystoneInfoToGuild| " .. dataToSend) --debug
     end
 
+    local latestSend = 0
+
     --when a request data is received, only send the data to party and guild
     --sending stuff to raid need to be called my the application with 'openRaidLib.RequestKeystoneDataFromRaid()'
     function openRaidLib.KeystoneInfoManager.OnReceiveRequestData()
         if (not checkClientVersion("retail")) then
             return
         end
+
+        if (latestSend+1 > GetTime()) then
+            return
+        end
+        latestSend = GetTime()
 
         --update the information about the key stone the player has
         local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(UnitName("player"), true)
@@ -3131,14 +3143,16 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
             openRaidLib.Schedules.NewUniqueTimer(math.random(1), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty, "KeystoneInfoManager", "sendKeystoneInfoToParty_Schedule")
 
         elseif (instanceType == "raid" or instanceType == "pvp") then
-            openRaidLib.Schedules.NewUniqueTimer(math.random(0, 30) + math.random(1), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty, "KeystoneInfoManager", "sendKeystoneInfoToParty_Schedule")
+            openRaidLib.Schedules.NewUniqueTimer(math.random(0, 10) + math.random(1), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty, "KeystoneInfoManager", "sendKeystoneInfoToParty_Schedule")
 
         else
-            openRaidLib.Schedules.NewUniqueTimer(math.random(4), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty, "KeystoneInfoManager", "sendKeystoneInfoToParty_Schedule")
+            openRaidLib.Schedules.NewUniqueTimer(math.random(1), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty, "KeystoneInfoManager", "sendKeystoneInfoToParty_Schedule")
         end
 
         if (IsInGuild()) then
-            openRaidLib.Schedules.NewUniqueTimer(math.random(0, 6) + math.random(), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToGuild, "KeystoneInfoManager", "sendKeystoneInfoToGuild_Schedule")
+            local delay = math.random(0, 2) + math.random()
+            C_Timer.After(delay, openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToGuild)
+            --openRaidLib.Schedules.NewUniqueTimer(delay, openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToGuild, "KeystoneInfoManager", "sendKeystoneInfoToGuild_Schedule")
         end
     end
     openRaidLib.commHandler.RegisterORComm(CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX, openRaidLib.KeystoneInfoManager.OnReceiveRequestData)
@@ -3154,8 +3168,9 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
         local classID = tonumber(data[4])
         local rating = tonumber(data[5])
         local mythicPlusMapID = tonumber(data[6])
+        local specID = tonumber(data[7]) or 0
 
-        if (level and mapID and challengeMapID and classID and rating and mythicPlusMapID) then
+        if (level and mapID and challengeMapID and classID and rating and mythicPlusMapID and specID) then
             local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(unitName, true)
             keystoneInfo.level = level
             keystoneInfo.mapID = mapID
@@ -3163,6 +3178,7 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
             keystoneInfo.challengeMapID = challengeMapID
             keystoneInfo.classID = classID
             keystoneInfo.rating = rating
+            keystoneInfo.specID = specID
 
             --trigger public callback
             openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", unitName, keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)

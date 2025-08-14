@@ -1925,17 +1925,17 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	SLASH_KEYSTONE2 = "/keys"
 	SLASH_KEYSTONE3 = "/key"
 
-	local noMythicPlusAddonMsg = "To track your Mythic+ runs including loot, score, damage, healing done, and who you played with, install the |cFFFFAA00Details! Damage Meter Mythic+|r addon on |cFFfff1c1Wago AddOns|r or |cFFfff1c1Curse Forge|r."
+	local noMythicPlusAddonMsg = Loc["STRING_NO_MYTHIC_PLUS_ADDON"]
 
 	--header
 	local keystoneHeaderTable = {
-		{text = "Class", width = 40, canSort = true, dataType = "number", order = "DESC", offset = 0},
-		{text = "Player Name", width = 100, canSort = true, dataType = "string", order = "DESC", offset = 0},
-		{text = "Level", width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0, selected = true},
-		{text = "Dungeon", width = 150, canSort = true, dataType = "string", order = "DESC", offset = 0},
-		{text = "Rating", width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0},
-		{text = "Teleport", width = 100, canSort = false, offset = 0},
-		{text = "Likes you gave", width = 130, canSort = false, offset = 0, name = "likesGiven"},
+		{text = CLASS, width = 40, canSort = true, dataType = "number", order = "DESC", offset = 0},
+		{text = Loc["STRING_FORGE_FILTER_PLAYERNAME"], width = 100, canSort = true, dataType = "string", order = "DESC", offset = 0},
+		{text = LEVEL, width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0, selected = true},
+		{text = Loc["STRING_OPTIONS_PERFORMANCE_DUNGEON"], width = 150, canSort = true, dataType = "string", order = "DESC", offset = 0},
+		{text = RATING, width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0},
+		{text = Loc["STRING_TELEPORT"], width = 100, canSort = false, offset = 0},
+		{text = Loc["STRING_LIKES_YOU_GAVE"], width = 130, canSort = false, offset = 0, name = "likesGiven"},
 	}
 
 	local buttonsCreated = {}
@@ -1961,11 +1961,35 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		teleportButton.Text:SetPoint("left", teleportButton.Icon, "right", 2, 0)
 		teleportButton.Text:SetTextColor(1, 1, 1, 1)
 		teleportButton.Text:SetText("Teleport")
-		teleportButton.CastBar = detailsFramework:CreateCastBar(teleportButton, "DetailsMythicPlusKeysCastBar" .. i, {FillOnInterrupt=false})
+		teleportButton.CastBar = detailsFramework:CreateCastBar(teleportButton, "DetailsMythicPlusKeysCastBar" .. i, {DontUpdateAlpha=true,FillOnInterrupt=false, NoFadeEffects=true})
 		teleportButton.CastBar:SetUnit("player")
 		teleportButton.CastBar:SetAllPoints()
+		teleportButton.CastBar:SetHook("OnShow", function(self)
+			local line = self:GetParent() and self:GetParent():GetParent()
+			if (line) then
+				if (self.spellID ~= line.teleportButton.spellId) then
+					self:SetAlpha(0)
+				end
+			end
+		end)
+		teleportButton.CastBar:HookScript("OnUpdate", function(self, event, ...)
+			local line = self:GetParent() and self:GetParent():GetParent()
+			if (line) then
+				if (self.spellID ~= line.teleportButton.spellId) then
+					self:SetAlpha(0)
+				end
+			end
+		end)
 		teleportButton.CastBar:HookScript("OnEvent", function(self, event, ...)
 			if (event == "UNIT_SPELLCAST_START") then
+				local line = self:GetParent() and self:GetParent():GetParent()
+				if (line and line ~= UIParent) then
+					if (self.spellID ~= line.teleportButton.spellId) then
+						self:SetAlpha(0)
+					else
+						self:SetAlpha(1)
+					end
+				end
 				teleportButton.CastBar.Text:Hide()
 				teleportButton.CastBar.Icon:Hide()
 				teleportButton.CastBar.Spark:SetHeight(40)
@@ -2003,7 +2027,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	--a fontstring positioned at the topleft of the footer with the text "teleporters:"
 	local teleportersLabel = footer:CreateFontString(nil, "overlay", "GameFontNormal")
 	teleportersLabel:SetPoint("topleft", footer, "topleft", 58, -9)
-	teleportersLabel:SetText("Teleporters:")
+	teleportersLabel:SetText(Loc["STRING_TELEPORTERS"])
 
 	local cooldownBlocker = CreateFrame("frame", "$parentCooldownBlocker", footer, "BackdropTemplate")
 	cooldownBlocker:SetPoint("topleft", footer, "topleft", 140, -5)
@@ -2073,7 +2097,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		blockTeleporter:SetScript("OnEnter", function()
 			GameCooltip:Preset(2)
 			GameCooltip:SetOwner(blockTeleporter, "bottom", "top", 0, 5)
-			GameCooltip:AddLine("You don't have this teleporter", "", 1)
+			GameCooltip:AddLine(Loc["STRING_NO_TELEPORTER"], "", 1)
 			GameCooltip:Show()
 		end)
 		blockTeleporter:SetScript("OnLeave", function()
@@ -2226,9 +2250,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				dndCheckbox:SetTemplate(detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 				dndCheckbox:SetAsCheckBox()
 				dndCheckbox:SetPoint("bottomright", f, "bottomright", -126, 23)
-				dndCheckbox.tooltip = "Your key won't be sent to your guild or friends. While in a group, it will still be sent."
+				dndCheckbox.tooltip = Loc["STRING_KEYSTONE_DND_TOOLTIP"]
 				dndCheckbox.Text = dndCheckbox:CreateFontString("$parentText", "overlay", "GameFontNormal")
-				dndCheckbox.Text:SetText("Enable Do Not Disturb")
+				dndCheckbox.Text:SetText(Loc["STRING_ENABLE_DO_NOT_DISTURB"])
 				dndCheckbox.Text:SetPoint("left", dndCheckbox.widget, "right", 5, 0)
 				detailsFramework:SetFontSize(dndCheckbox.Text, 10)
 
@@ -2393,7 +2417,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
 						openRaidLib.RequestKeystoneDataFromGuild()
 					end
-				end, 100, 22, "Request from Guild")
+				end, 100, 22, Loc["STRING_KEYSTONE_REQUEST_FROM_GUILD"])
 				requestFromGuildButton:SetPoint("bottomleft", statusBar, "topleft", 2, 2)
 				requestFromGuildButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				requestFromGuildButton:SetIcon("UI-RefreshButton", 20, 20, "overlay", {0, 1, 0, 1}, "lawngreen")
@@ -2457,10 +2481,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					local dfButton = self.MyObject
 					GameCooltip:Preset(2)
 					GameCooltip:SetOwner(self)
-					GameCooltip:AddLine("Click to view the scoreboard.")
+					GameCooltip:AddLine(Loc["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"])
 					if (not DetailsMythicPlus) then
 						--GameCooltip:AddLine("Install 'Details! Damage Meter Mythic+' addon.", "", 1, "#FFF33030")
-						GameCooltip:AddLine("Mythic+ addon not found.", "", 1, "#FFF33030")
+						GameCooltip:AddLine(Loc["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"], "", 1, "#FFF33030")
 						GameCooltip:AddLine(noMythicPlusAddonMsg, "", 1, "#FFFFFF00")
 						GameCooltip:SetOption("FixedWidth", 320)
 					end
@@ -2573,6 +2597,8 @@ recentPlayerTable = {
 					addToFriendsButton.Texture:SetTexture("Interface\\FriendsFrame\\UI-Toast-FriendRequestIcon")
 					addToFriendsButton.Texture:SetTexCoord(.1, .9, .1, .9)
 					addToFriendsButton.Texture:SetVertexColor(detailsFramework:ParseColors("#FFF5F520"))
+
+					addToFriendsButton.tooltip = Loc["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"]
 
 					--[=[
 					local addToBnetButton = detailsFramework:CreateButton(button.widget, function()
@@ -2707,10 +2733,13 @@ recentPlayerTable = {
 				f.Header = detailsFramework:CreateHeader(f, keystoneHeaderTable, headerOptions, "DetailsKeystoneInfoFrameHeader")
 				f.Header:SetPoint("topleft", f, "topleft", 2, -25)
 
-				--scroll
+				--scroll -~refresh
 				local refreshScrollLines = function(self, data, offset, totalLines)
 					local RaiderIO = _G.RaiderIO
 					local faction = UnitFactionGroup("player") --this can get problems with 9.2.5 cross faction raiding
+
+					--for i = 1, GetNumGuildMembers() do
+					--end
 
 					for i = 1, totalLines do
 						local index = i + offset
@@ -2719,8 +2748,10 @@ recentPlayerTable = {
 						if (unitTable) then
 							local line = self:GetLine(i)
 
-							local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty, isOnline, isGuildMember = unpack(unitTable)
+							local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty, isOnline, isGuildMember, specId = unpack(unitTable)
 							local challengeMapInfo = LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO[challengeMapID]
+
+							line.unitName = unitName
 
 							if (mapName == "") then
 								mapName = "user need update details!"
@@ -2742,9 +2773,29 @@ recentPlayerTable = {
 								end
 							end
 
-							line.icon:SetTexture(classIconTexture)
-							local L, R, T, B = unpack(iconTexCoords)
-							line.icon:SetTexCoord(L+0.02, R-0.02, T+0.02, B-0.02)
+							local unitRole = detailsFramework.UnitGroupRolesAssigned(unitName)
+							if (specId and specId > 20) then
+								local id, name, description, icon, role, classFile, className = GetSpecializationInfoByID(specId)
+								unitRole = role
+								local specIcon, L, R, T, B = Details:GetSpecIcon(specId, false)
+								line.icon:SetTexture(specIcon)
+								line.icon:SetTexCoord(L, R, T, B)
+							else
+								line.icon:SetTexture(classIconTexture)
+								local L, R, T, B = unpack(iconTexCoords)
+								line.icon:SetTexCoord(L+0.02, R-0.02, T+0.02, B-0.02)
+							end
+
+							local role = unitRole
+							if (role == "DAMAGER") then
+								line.roleIcon:SetAtlas("GM-icon-role-dps")
+							elseif (role == "HEALER") then
+								line.roleIcon:SetAtlas("GM-icon-role-healer")
+							elseif (role == "TANK") then
+								line.roleIcon:SetAtlas("GM-icon-role-tank")
+							else
+								line.roleIcon:SetColorTexture(.1, .1, .1, .3)
+							end
 
 							--remove the realm name from the player name (if any)
 							local unitNameNoRealm = detailsFramework:RemoveRealmName(unitName)
@@ -2766,7 +2817,7 @@ recentPlayerTable = {
 								line.dungeonNameText.text = shortMapName
 							end
 
-							detailsFramework:TruncateText(line.dungeonNameText, 220)
+							detailsFramework:TruncateText(line.dungeonNameText, 150)
 							line.classicDungeonNameText.text = "" --mapNameChallenge
 							detailsFramework:TruncateText(line.classicDungeonNameText, 120)
 							line.inMyParty = inMyParty > 0
@@ -2830,7 +2881,7 @@ recentPlayerTable = {
 												else
 													line.teleportButton.Text:SetText("")
 													line.teleportButton.Icon:SetTexture("")
-													line.blockTeleporterButton.Text:SetText("Teleport")
+													line.blockTeleporterButton.Text:SetText(Loc["STRING_TELEPORT"])
 													line.blockTeleporterButton.Icon:SetTexture(texture)
 												end
 											end
@@ -2842,7 +2893,7 @@ recentPlayerTable = {
 											line.teleportButton:Show()
 											line.teleportButton:SetAttribute("spell", spellId)
 											line.teleportButton.spellId = spellId
-											line.teleportButton.Text:SetText("Teleport")
+											line.teleportButton.Text:SetText(Loc["STRING_TELEPORT"])
 											line.teleportButton:SetParent(line)
 											line.blockTeleporterButton:Hide()
 										else
@@ -2911,7 +2962,7 @@ recentPlayerTable = {
 						helpButton:SetScript("OnEnter", function()
 							GameCooltip:Preset(2)
 							GameCooltip:SetOwner(helpButton, "bottom", "top", 0, 5)
-							GameCooltip:AddLine("Life-time likes you gave for this player through the 'GG' button in the |cFFFFFF00Details! Damage Meter Mythic+|r addon.\n\nView run breakdown by selecting a Mythic+ run you did with this player.", "", 1)
+							GameCooltip:AddLine(Loc["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"], "", 1)
 							GameCooltip:Show()
 						end)
 						helpButton:SetScript("OnLeave", function()
@@ -2968,6 +3019,10 @@ recentPlayerTable = {
 					local icon = line:CreateTexture("$parentClassIcon", "overlay")
 					icon:SetSize(CONST_SCROLL_LINE_HEIGHT - 2, CONST_SCROLL_LINE_HEIGHT - 2)
 
+					local roleIcon = line:CreateTexture("$parentRoleIcon", "overlay")
+					roleIcon:SetSize(CONST_SCROLL_LINE_HEIGHT+2, CONST_SCROLL_LINE_HEIGHT+2)
+					roleIcon:SetPoint("left", icon, "right", 2, 0)
+
 					--player name
 					local playerNameText = detailsFramework:CreateLabel(line, "")
 
@@ -3010,6 +3065,7 @@ recentPlayerTable = {
 					selectRunDropdown:SetPoint("left", likesGivenText, "right", 5, 0)
 
 					line.icon = icon
+					line.roleIcon = roleIcon
 					line.playerNameText = playerNameText
 					line.keystoneLevelText = keystoneLevelText
 					line.dungeonNameText = dungeonNameText
@@ -3059,13 +3115,27 @@ recentPlayerTable = {
 				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
 				--]=]
 
-				function f.RefreshData()
+				function f.RefreshData() --~refreshdata
 					local newData = {}
 					newData.offlineGuildPlayers = {}
 					local keystoneData = openRaidLib.GetAllKeystonesInfo()
 
 					f.RecentPlayersFrame.GridScrollBox:SetData(Details:GetRecentPlayers())
 					f.RecentPlayersFrame.GridScrollBox:Refresh()
+
+					--need to know if any line has its dropdown open
+					local lines = scrollFrame:GetLines()
+
+					--unit name
+					local unitNameOnLineWithDropdownOpened
+
+					for i = 1, #lines do
+						local dropdown = lines[i].selectRunDropdown
+						if (dropdown:IsOpen()) then
+							unitNameOnLineWithDropdownOpened = lines[i].unitName
+							break
+						end
+					end
 
 					--[=[
 						["Exudragão"] =  {
@@ -3080,6 +3150,22 @@ recentPlayerTable = {
 
 					if (#keystoneData == 0 and false) then
 						keystoneData = { --~fake ~testdata
+							["FakePlayer"] =  {
+								["mapID"] = 1763,
+								["challengeMapID"] = 244,
+								["mythicPlusMapID"] = 0,
+								["rating"] = 215,
+								["classID"] = 13,
+								["level"] = 6,
+							},
+							["Gimsei"] =  {
+								["mapID"] = 2441, --1763,
+								["challengeMapID"] = 391, --244,
+								["mythicPlusMapID"] = 0,
+								["rating"] = 215,
+								["classID"] = 13,
+								["level"] = 6,
+							},
 							["Gimsi"] =  {
 								["mapID"] = 2441, --1763,
 								["challengeMapID"] = 391, --244,
@@ -3088,7 +3174,7 @@ recentPlayerTable = {
 								["classID"] = 13,
 								["level"] = 6,
 							},
-							["FakePlayer"] =  {
+							["FakePlaywer"] =  {
 								["mapID"] = 1763,
 								["challengeMapID"] = 244,
 								["mythicPlusMapID"] = 0,
@@ -3139,6 +3225,7 @@ recentPlayerTable = {
 							local classIcon = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]]
 							local coords = CLASS_ICON_TCOORDS
 							local _, class = GetClassInfo(classId)
+							local specId = keystoneInfo.specID or 0
 
 							local mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.mythicPlusMapID)
 							if (not mapName) then
@@ -3171,6 +3258,7 @@ recentPlayerTable = {
 									isInMyParty,
 									isOnline, --is false when the unit is from the cache
 									isGuildMember, --is a guild member
+									specId,
 									--mapNameChallenge,
 								}
 
@@ -3276,6 +3364,16 @@ recentPlayerTable = {
 
 					scrollFrame:SetData(newData)
 					scrollFrame:Refresh()
+
+					if (unitNameOnLineWithDropdownOpened) then
+						for i = 1, #lines do
+							local unitName = lines[i].unitName
+							if (unitName == unitNameOnLineWithDropdownOpened) then
+								lines[i].selectRunDropdown:Open()
+								break
+							end
+						end
+					end
 				end
 
 				function f.OnKeystoneUpdate(unitId, keystoneInfo, allKeystonesInfo)
@@ -3294,32 +3392,26 @@ recentPlayerTable = {
 					end
 
 					self.lastUpdate = self.lastUpdate + deltaTime
-					if (self.lastUpdate > 1) then
+					if (self.lastUpdate > 3) then
 						self.lastUpdate = 0
-
-						--need to know if any line has its dropdown open
-						local lines = scrollFrame:GetLines()
-						local lineWithDropdownOpened
-
-						for i = 1, #lines do
-							local dropdown = lines[i].selectRunDropdown
-							if (dropdown:IsOpen()) then
-								lineWithDropdownOpened = lines[i]
-								break
-							end
-						end
-
 						self.RefreshData()
-
-						if (lineWithDropdownOpened) then
-							lineWithDropdownOpened.selectRunDropdown:Open()
-						end
 					end
 				end)
+
+				f.lastGuildRequest = GetTime()
+				local guildName = GetGuildInfo("player")
+				if (guildName) then
+					f.RequestFromGuildButton:Click()
+				end
 			end
 
 			--show the frame
-			DetailsKeystoneInfoFrame:Show()
+			if (DetailsKeystoneInfoFrame:IsShown()) then
+				DetailsKeystoneInfoFrame:Hide()
+				return
+			else
+				DetailsKeystoneInfoFrame:Show()
+			end
 
 			openRaidLib.RegisterCallback(DetailsKeystoneInfoFrame, "KeystoneUpdate", "OnKeystoneUpdate")
 
@@ -3330,6 +3422,11 @@ recentPlayerTable = {
 					C_GuildInfo.GuildRoster()
 				end
 				DetailsKeystoneInfoFrame.RequestFromGuildButton:Enable()
+
+				if (DetailsKeystoneInfoFrame.lastGuildRequest and GetTime() - DetailsKeystoneInfoFrame.lastGuildRequest > 60) then
+					DetailsKeystoneInfoFrame.lastGuildRequest = GetTime()
+					DetailsKeystoneInfoFrame.RequestFromGuildButton:Click()
+				end
 			else
 				DetailsKeystoneInfoFrame.RequestFromGuildButton:Disable()
 			end

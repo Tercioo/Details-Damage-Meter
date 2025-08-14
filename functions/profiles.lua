@@ -614,6 +614,8 @@ local default_profile = {
 		[1473] = {384/512, 448/512, 256/512, 320/512}, -- Augmentation
 	},
 
+	window2_data = {},
+
 	--class icons and colors
 	class_icons_small = [[Interface\AddOns\Details\images\classes_small]],
 	class_coords = {

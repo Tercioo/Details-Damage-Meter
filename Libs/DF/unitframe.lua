@@ -938,7 +938,7 @@ detailsFramework.CastFrameFunctions = {
 		FadeOutTime = 0.5, --amount of time in seconds to go from 100% to zero alpha when the cast finishes
 		CanLazyTick = true, --if true, it'll execute the lazy tick function, it ticks in a much slower pace comparece with the regular tick
 		LazyUpdateCooldown = 0.2, --amount of time to wait for the next lazy update, this updates non critical things like the cast timer
-
+		DontUpdateAlpha = false,
 		ShowEmpoweredDuration = true, --full hold time for empowered spells
 
 		FillOnInterrupt = true,
@@ -1512,7 +1512,9 @@ detailsFramework.CastFrameFunctions = {
 
 			self:SetMinMaxValues(0, self.maxValue)
 			self:SetValue(self.value)
-			self:SetAlpha(1)
+			if (not self.Settings.DontUpdateAlpha) then
+				self:SetAlpha(1)
+			end
 			self.Icon:SetTexture(texture)
 			self.Icon:Show()
 			self.Text:SetText(text or name)
@@ -1524,7 +1526,9 @@ detailsFramework.CastFrameFunctions = {
 			self.flashTexture:Hide()
 			self:Animation_StopAllAnimations()
 
-			self:SetAlpha(1)
+			if (not self.Settings.DontUpdateAlpha) then
+				self:SetAlpha(1)
+			end
 
 			--set the statusbar color
 			self:UpdateCastColor()
@@ -1669,7 +1673,9 @@ detailsFramework.CastFrameFunctions = {
 			self:SetMinMaxValues(0, self.maxValue)
 			self:SetValue(self.value)
 
-			self:SetAlpha(1)
+			if (not self.Settings.DontUpdateAlpha) then
+				self:SetAlpha(1)
+			end
 			self.Icon:SetTexture(texture)
 			self.Icon:Show()
 			self.Text:SetText(text)
@@ -1681,7 +1687,9 @@ detailsFramework.CastFrameFunctions = {
 			self.flashTexture:Hide()
 			self:Animation_StopAllAnimations()
 
-			self:SetAlpha(1)
+			if (not self.Settings.DontUpdateAlpha) then
+				self:SetAlpha(1)
+			end
 
 			--set the statusbar color
 			self:UpdateCastColor()
