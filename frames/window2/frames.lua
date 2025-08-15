@@ -109,6 +109,11 @@ end
 function AllInOneWindow:CreateLineForWindow(window)
     ---@type details_allinonewindow_line
     local line = CreateFrame("Frame", "DetailsAllInOneWindowLine" .. window:GetId(), window, "BackdropTemplate")
+
+    line.Icon = line:CreateTexture("$parentIcon", "artwork")
+    line.Icon:SetPoint("topleft", line, "topleft", 1, -1)
+    line.Icon:SetPoint("bottomleft", line, "bottomleft", 1, 1)
+
     --stopped here, creating the line frames
     --for reference, the comment below hasjthe content from breakdown spell frames lua file.
     --[=[
@@ -246,7 +251,8 @@ end
 ---@param window details_allinonewindow_frame
 ---@param line details_allinonewindow_line
 function AllInOneWindow:RefreshLineForWindow(window, line)
-
+    local icon = line.Icon
+    local height = window.settings.line_height
 
 end
 
