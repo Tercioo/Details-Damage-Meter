@@ -59,7 +59,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 166
+local CONST_LIB_VERSION = 168
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -984,6 +984,7 @@ end
         ["pvpTalentUpdate"] = {},
         ["onPlayerDeath"] = {},
         ["onPlayerRess"] = {},
+        ["raidEncounterStart"] = {},
         ["raidEncounterEnd"] = {},
         ["mythicDungeonStart"] = {},
         ["playerPetChange"] = {},
@@ -1166,6 +1167,13 @@ end
             openRaidLib.Schedules.NewUniqueTimer(4 + math.random(0, 5), openRaidLib.GearManager.SendAllGearInfo, "GearManager", "sendAllGearInfo_Schedule")
         end,
 
+        ["ENCOUNTER_START"] = function()
+            if (IsInRaid() or IsInGroup()) then
+                openRaidLib.UpdateUnitIDCache()
+                openRaidLib.internalCallback.TriggerEvent("raidEncounterStart")
+            end
+        end,
+
         ["ENCOUNTER_END"] = function()
             if (IsInRaid()) then
                 openRaidLib.internalCallback.TriggerEvent("raidEncounterEnd")
@@ -1234,6 +1242,7 @@ end
             eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
             eventFrame:RegisterEvent("TRAIT_TREE_CURRENCY_INFO_UPDATED")
             eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
+            eventFrame:RegisterEvent("ENCOUNTER_START")
         end
     end
 
@@ -2534,6 +2543,11 @@ end
         --run on next frame
         openRaidLib.Schedules.NewUniqueTimer(0.1, openRaidLib.CooldownManager.CheckCooldownsAfterEncounterEnd, "CooldownManager", "encounterEndCooldownsCheck_Schedule")
     end
+    function openRaidLib.CooldownManager.OnEncounterStart()
+        openRaidLib.Schedules.CancelUniqueTimer("CooldownManager", "sendAllPlayerCooldowns_Schedule")
+        openRaidLib.Schedules.CancelUniqueTimer("CooldownManager", "sendAllPlayerCooldownsFromTalentChange_Schedule")
+        openRaidLib.CooldownManager.SendAllPlayerCooldowns()
+    end
 
     function openRaidLib.CooldownManager.OnMythicPlusStart()
         openRaidLib.Schedules.NewUniqueTimer(0.5, openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
@@ -2576,6 +2590,7 @@ end
     openRaidLib.internalCallback.RegisterCallback("playerCast", openRaidLib.CooldownManager.OnPlayerCast)
     openRaidLib.internalCallback.RegisterCallback("onPlayerRess", openRaidLib.CooldownManager.OnPlayerRess)
     openRaidLib.internalCallback.RegisterCallback("talentUpdate", openRaidLib.CooldownManager.OnPlayerTalentChanged)
+    openRaidLib.internalCallback.RegisterCallback("raidEncounterStart", openRaidLib.CooldownManager.OnEncounterStart)
     openRaidLib.internalCallback.RegisterCallback("raidEncounterEnd", openRaidLib.CooldownManager.OnEncounterEnd)
     openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.CooldownManager.OnEncounterEnd)
     openRaidLib.internalCallback.RegisterCallback("mythicDungeonStart", openRaidLib.CooldownManager.OnMythicPlusStart)
