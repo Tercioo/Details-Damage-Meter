@@ -100,7 +100,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished(bFromZoneLeft)
         end
 
         --merge segments
-        if (Details.mythic_plus.make_overall_when_done and not Details.MythicPlus.IsRestoredState) then -- and not bFromZoneLeft
+        if (not Details.MythicPlus.IsRestoredState) then -- and not bFromZoneLeft
             if (DetailsMythicPlusFrame.DevelopmentDebug) then
                 print("Details!", "MythicDungeonFinished() > not in combat, creating overall segment now")
             end

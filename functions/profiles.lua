@@ -1660,7 +1660,6 @@ local default_global_data = {
 		mythic_plus = {
 			merge_boss_trash = true,
 			boss_dedicated_segment = true,
-			make_overall_when_done = true,
 			make_overall_boss_only = false,
 			show_damage_graphic = true,
 
@@ -2083,7 +2082,6 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 		local mythicPlusSettings = Details.mythic_plus
 		mythicPlusSettings.merge_boss_trash = true
 		mythicPlusSettings.boss_dedicated_segment = true
-		mythicPlusSettings.make_overall_when_done = true
 		mythicPlusSettings.make_overall_boss_only = false
 		mythicPlusSettings.show_damage_graphic = true
 		mythicPlusSettings.reverse_death_log = false
