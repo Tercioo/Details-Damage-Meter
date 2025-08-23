@@ -7032,16 +7032,6 @@ do
                 desc = Loc["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT_DESC"],
             },
 
-            {--make overall when done
-                type = "toggle",
-                get = function() return Details.mythic_plus.make_overall_when_done end,
-                set = function(self, fixedparam, value)
-                    Details.mythic_plus.make_overall_when_done = value
-                end,
-                name = Loc["STRING_OPTIONS_MPLUS_MAKEOVERALL"],
-                desc = Loc["STRING_OPTIONS_MPLUS_MAKEOVERALL_DESC"],
-            },
-
             {--merge trash
                 type = "toggle",
                 get = function() return Details.mythic_plus.merge_boss_trash end,

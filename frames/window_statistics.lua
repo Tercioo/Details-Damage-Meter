@@ -1068,13 +1068,13 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
         end
     end
 
-    print("raidName", raidName)
-    print("bossEncounterId", bossEncounterId)
-    print("difficultyId", difficultyId)
-    print("playerRole", playerRole)
-    print("guildName", guildName)
-    print("playerBase", playerBase)
-    print("playerName", playerName)
+    --print("raidName", raidName)
+    --print("bossEncounterId", bossEncounterId)
+    --print("difficultyId", difficultyId)
+    --print("playerRole", playerRole)
+    --print("guildName", guildName)
+    --print("playerBase", playerBase)
+    --print("playerName", playerName)
 
     if (raidName) then
         statsWindow.select_raid:Select(raidName)
