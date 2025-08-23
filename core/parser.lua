@@ -567,6 +567,7 @@
 		[457658] = true, --grim batol drake
 		[467230] = true, --11.1 raid blaze of glory
 		[465741] = true, --11.1 raid garbage dump
+        [1246948] = true, --11.2 raid Shooting Star
 	}
 
 	--expose the ignore spells table to external scripts
