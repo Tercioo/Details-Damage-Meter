@@ -1357,6 +1357,160 @@ do
 			[55271]			=	252, -- Scourge Strike (rank 4)
 			[49206]			=	252, -- Summon Gargoyle
 		}
+	elseif (DetailsFramework.IsPandaWow()) then
+		_detalhes.SpecSpellList = { --~spec
+
+			-- Balance Druid:
+			[2912] 	 	    = 	102, -- Starfire
+			[24858] 		= 	102, -- Moonkin Form
+			[48505] 		=	102, -- Starfall
+			[78674] 		=	102, -- Starsurge
+
+			-- Feral DPS (Cat):
+			[5217] 		    =   103, -- Tiger's Fury
+			[5221]			=	103, -- Shred
+
+			-- Feral Tank (Bear) / Guardian Druid:
+			[62606] 		= 	104, -- Savage Defense
+			[33745] 		= 	104, -- Lacerate
+
+			-- Restoration Druid:
+			[33891] 		= 	105, -- Tree of Life
+			[18562] 		= 	105, -- Swiftmend
+			[33763]			=	105, -- Lifebloom
+
+			-- Beast Mastery Hunter:
+			[19574]			=	253, -- Bestial Wrath
+			[34026]			=	253, -- Kill Command
+
+			-- Marksmanship Hunter:
+			[19434]			=	254, -- Aimed Shot
+			[56641]			=	254, -- Steady Shot
+			[53209]			=	254, -- Chimera Shot
+
+			-- Survival Hunter:
+			[3674]			= 	255, -- Black Arrow 
+			[53301]			=	255, -- Explosive Shot 
+
+			-- Arcane Mage:
+			[30451]			=	62, -- Arcane Blast
+			[12042]			=	62, -- Arcane Power
+			[44425]			=	62, -- Arcane Barrage
+
+			-- Fire Mage:
+			[11129]			=	63, -- Combustion
+			[133]			=	63, -- Fireball
+
+			-- Frost Mage:
+			[116]			=	64, -- Frostbolt
+			[31687]			=	64, -- Summon Water Elemental
+
+			-- Holy Paladin:
+			[20473]			=	65, -- Holy Shock
+			[31842]			=	65, -- Divine Favor
+			[53563]			=	65, -- Beacon of Light
+
+			-- Protection Paladin:
+			[53600]			=	66, -- Shield of the Righteous
+			[26573]			=	66, -- Consecration
+			[31935]			=	66, -- Avenger's Shield
+
+			-- Retribution Paladin:
+			[85256]			=	70, -- Templar's Verdict
+			[84963]			=	70, -- Inquisition
+			[53385]			=	70, -- Divine Storm
+
+			-- Discipline Priest:
+			[81700]			=	256, -- Archangel
+			[33206]			=	256, -- Pain Suppression
+			[47540]			=	256, -- Penance
+			[89485]			=	256, -- Inner Focus
+
+			-- Holy Priest:
+			[47788]			=	257, -- Guardian Spirit
+			[126135]		=	257, -- Lightwell 
+			[34861]			=	257, -- Circle of Healing
+
+			-- Shadow Priest:
+			[15286]			=	258, -- Vampiric Embrace
+			[15473]			=	258, -- Shadowform
+			[34914]			=	258, -- Vampiric Touch 
+			[47585]			=	258, -- Dispersion
+
+			-- Assassination Rogue:
+			[1329]			=	259, -- Mutilate 
+			[79140]			=	259, -- Vendetta
+			[32645]			=	259, -- Envenom
+
+			-- Combat Rogue (Outlaw Rogue):
+			[13750]			=	260, -- Adrenaline Rush
+			[51690]			=	260, -- Killing Spree
+			[13877]			=	260, -- Blade Flurry
+			[84617]			=	260, -- Revealing Strike
+
+			-- Subtlety Rogue:
+			[14183]			=	261, -- Premeditation
+			[51713]			=	261, -- Shadow Dance
+
+			-- Elemental Shaman:
+			[61822]			=	262, -- Earthquake
+			[51490]			=	262, -- Thunderstorm
+			[77756]			=	262, -- Lava Surge
+			[88766]			=	262, -- Fulmination
+
+			-- Enhancement Shaman:
+			[17364]			=	263, -- Stormstrike
+			[60103]			=	263, -- Lava Lash
+			[51533]			=	263, -- Feral Spirit
+
+			-- Restoration Shaman:
+			[974]			=	264, -- Earth Shield 
+			[61295]			=	264, -- Riptide 
+
+			-- Affliction Warlock:
+			[30108]			=	265, -- Unstable Affliction 
+			[48181]			=	265, -- Haunt 
+
+			-- Demonology Warlock:
+			[30146]			=	266, -- Summon Felguard
+			[1949]			=	266, -- Hellfire
+			[105174]		=	266, -- Hand of Gul'dan
+			[103958]		=	266, -- Metamorphosis
+
+			-- Destruction Warlock:
+			[17962]			=	267, -- Conflagrate
+			[17877]			=	267, -- Shadowburn
+			[50796]			=	267, -- Chaos Bolt
+
+			-- Arms Warrior:
+			[12294]			=	71, -- Mortal Strike
+			[7384]			=	71, -- Overpower
+
+			-- Fury Warrior:
+			[85288]			=	72, -- Raging Blow
+			[23881]			=	72, -- Bloodthirst
+
+			-- Protection Warrior:
+			[2565]			=	73, -- Shield Block
+			[6572]			=	73, -- Revenge
+			[23922]			=	73, -- Shield Slam
+
+			-- Blood Death Knight:
+
+			[55233]			=	250, -- Vampiric Blood
+			[55050]			=	250, -- Heart Strike 
+			[49028]			=	250, -- Dancing Rune Weapon
+
+			-- Frost Death Knight:
+			[51271]			=	251, -- Pillar of Frost
+			[49143]			=	251, -- Frost Strike
+			[49184]			=	251, -- Howling Blast
+
+			-- Unholy Death Knight:
+			[85948]			=	252, -- Festering Strike
+			[55090]			=	252, -- Scourge Strike
+			[49206]			=	252, -- Summon Gargoyle
+		}
 
 	else
 		--shadowlands
