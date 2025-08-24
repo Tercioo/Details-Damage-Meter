@@ -1966,7 +1966,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		teleportButton.CastBar:SetAllPoints()
 		teleportButton.CastBar:SetHook("OnShow", function(self)
 			local line = self:GetParent() and self:GetParent():GetParent()
-			if (line) then
+			if (line and line.teleportButton) then
 				if (self.spellID ~= line.teleportButton.spellId) then
 					self:SetAlpha(0)
 				end
@@ -1974,7 +1974,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		end)
 		teleportButton.CastBar:HookScript("OnUpdate", function(self, event, ...)
 			local line = self:GetParent() and self:GetParent():GetParent()
-			if (line) then
+			if (line and line.teleportButton) then
 				if (self.spellID ~= line.teleportButton.spellId) then
 					self:SetAlpha(0)
 				end

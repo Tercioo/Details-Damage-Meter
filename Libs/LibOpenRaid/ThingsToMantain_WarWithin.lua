@@ -602,8 +602,8 @@ do
 			[211881] = {cooldown = 30,	duration = 4,	specs = {577},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 5}, --Fel Eruption
 			[204021] = {cooldown = 60,	duration = 10,	specs = {581},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 2}, --Fiery Brand
 			[217832] = {cooldown = 45,	duration = 0,	specs = {577, 581},			talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 8}, --Imprison
-			[187827] = {cooldown = 180,	duration = 15,	specs = {581},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 2}, --Metamorphosis
-			[191427] = {cooldown = 240,	duration = 30,	specs = {577},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 1}, --Metamorphosis
+			[187827] = {cooldown = 180,	duration = 15,	specs = {581},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 2}, --Metamorphosis Vengeance
+			[191427] = {cooldown = 240,	duration = 30,	specs = {577},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 1}, --Metamorphosis Havoc
 			[196555] = {cooldown = 120,	duration = 5,	specs = {577},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 2}, --Netherwalk
 			[202138] = {cooldown = 90,	duration = 6,	specs = {581},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 8}, --Sigil of Chains
 			[207684] = {cooldown = 90,	duration = 12,	specs = {581},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 8}, --Sigil of Misery
@@ -645,6 +645,7 @@ do
 			[389794] = {cooldown = 45,	duration = 0,	pvp = true,	specs = {662, 63, 64},	talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Snowdrift
 			[414660] = {cooldown = 120,	duration = 60,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 4, cdtype = "DR"}, --Mass Barrier
 			[414664] = {cooldown = 300,	duration = 12,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Mass Invisibility (only out of combat)
+			[449700] = {cooldown = 40,    duration = 0,    specs = {},    talent = false,    charges = 1,    class = "MAGE",    type = 8}, --Gravity Lapse
 
 			-- This needs more work to actually function
 			--[342245] = {cooldown = 60,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Alter Time
@@ -1069,9 +1070,7 @@ do
 			--typhoon
 			--[61391] = 132469,
 			--metamorphosis
-			[191427] = 200166,
-			--187827 vengeance need to test these spellIds
-			--191427 havoc
+			[200166] = 191427, --Havoc cast it > spell in the spellbook
 			[370564] = 370537, -- Evoker Stasis
 			--[414658] = 45438, -- Ice Block with the talent Ice Cold
 			--[414658] = 45438, -- Ice Block with the talent IceCold
