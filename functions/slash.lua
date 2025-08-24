@@ -1931,18 +1931,19 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	local keystoneHeaderTable = {
 		{text = CLASS, width = 40, canSort = true, dataType = "number", order = "DESC", offset = 0},
 		{text = Loc["STRING_FORGE_FILTER_PLAYERNAME"], width = 100, canSort = true, dataType = "string", order = "DESC", offset = 0},
-		{text = LEVEL, width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0, selected = true},
+		{text = LEVEL, width = 46, canSort = true, dataType = "number", order = "DESC", offset = 0, selected = true},
 		{text = Loc["STRING_OPTIONS_PERFORMANCE_DUNGEON"], width = 150, canSort = true, dataType = "string", order = "DESC", offset = 0},
-		{text = RATING, width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0},
+		{text = RATING, width = 50, canSort = true, dataType = "number", order = "DESC", offset = 0},
 		{text = Loc["STRING_TELEPORT"], width = 100, canSort = false, offset = 0},
-		{text = Loc["STRING_LIKES_YOU_GAVE"], width = 130, canSort = false, offset = 0, name = "likesGiven"},
+		{text = Loc["STRING_LIKES_YOU_GAVE"], width = 24, canSort = false, offset = 0, name = "likesGiven", columnSpan = 1},
+		{text = "", width = 129, canSort = false, offset = 0, name = "likesGiven"},
 	}
 
 	local buttonsCreated = {}
-	local CONST_SCROLL_LINE_HEIGHT = 20
+	local CONST_SCROLL_LINE_HEIGHT = 22
 	local CONST_WINDOW_WIDTH = 650
-	local CONST_WINDOW_HEIGHT = 720
-	local CONST_SCROLL_LINE_AMOUNT = 23
+	local CONST_WINDOW_HEIGHT = 726
+	local CONST_SCROLL_LINE_AMOUNT = 21
 
 	--pre create 30 protected buttons
 	for i = 1, 30 do
@@ -2011,6 +2012,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 --		border_color = {.05, .05, .05, 0.834},
 --	})
 
+	detailsKeystoneInfoFrame.TitleBar:AdjustPointsOffset(-1, 1)
+	local point1, frame1, point2, offSetX, offSetY = detailsKeystoneInfoFrame.TitleBar:GetPoint(2)
+	detailsKeystoneInfoFrame.TitleBar:SetPoint(point1, frame1, point2, offSetX+2, offSetY+1)
+	detailsKeystoneInfoFrame.TitleBar:SetHeight(detailsKeystoneInfoFrame.TitleBar:GetHeight() + 2)
 
 	local footer = CreateFrame("frame", "$parentFooter", detailsKeystoneInfoFrame, "BackdropTemplate")
 	detailsFramework:ApplyStandardBackdrop(footer)
@@ -2392,6 +2397,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				selectAddonFrame.currentSelected = Details.slashk_addon
 
 				local scaleBar = detailsFramework:CreateScaleBar(f, Details.keystone_frame)
+				scaleBar:SetAlpha(0.5)
+				scaleBar.label:AdjustPointsOffset(-8, 0)
 				f:SetScale(Details.keystone_frame.scale)
 
 				local statusBar = detailsFramework:CreateStatusBar(f)
@@ -2429,11 +2436,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				recentPlayersFrame:SetPoint("bottomright", footer, "topright", 0, 0)
 				recentPlayersFrame:SetHeight(102)
 				detailsFramework:ApplyStandardBackdrop(recentPlayersFrame)
+				recentPlayersFrame:SetBackdropBorderColor(0, 0, 0, 0)
 				f.RecentPlayersFrame = recentPlayersFrame
 
 				recentPlayersFrame.Title = recentPlayersFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-				recentPlayersFrame.Title:SetPoint("bottomleft", recentPlayersFrame, "topleft", 5, 2)
-				recentPlayersFrame.Title:SetText("Recent Players:")
+				recentPlayersFrame.Title:SetPoint("bottomleft", recentPlayersFrame, "topleft", 3, 3)
+				recentPlayersFrame.Title:SetText(Loc["STRING_RECENT_PLAYERS"])
 				recentPlayersFrame:SetAlpha(0.834)
 				detailsFramework:SetFontSize(recentPlayersFrame.Title, 12)
 
@@ -2444,19 +2452,13 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				--grid scroll box for pick an aura and add it to tracking list of black list
 				---@type df_gridscrollbox_options
 				local gridScrollBoxOptions = {
-					width = recentPlayersFrame:GetWidth() - 26,
+					width = recentPlayersFrame:GetWidth() - 24,
 					height = recentPlayersFrame:GetHeight() - 6,
 					line_amount = 3,
 					line_height = 32,
 					columns_per_line = 5,
-					vertical_padding = 1,
-				}
-
-				local emptyFunction = function() end
-				local roundedFramePreset = {
-					color = {.075, .075, .075, 1},
-					border_color = {.2, .2, .2, 1},
-					roundness = 8,
+					vertical_padding = 2,
+					horizontal_padding = 2,
 				}
 
 				local allRecentFriendsButtons = {}
@@ -2506,11 +2508,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					---@type recent_friend_button
 					local button = detailsFramework:CreateButton(line, openScoreBoardAtRunId, width, 32)
 					button.textsize = 11
-					button:SetAlpha(0.834)
+					button:SetAlpha(0.934)
 
 					detailsFramework:ApplyStandardBackdrop(button)
-					button.__background:SetColorTexture(0, 0, 0, 0.3)
-					button:SetBackdropBorderColor(0, 0, 0, 0.5)
+					local r, g, b = detailsFramework:GetDefaultBackdropColor()
+					button.__background:SetColorTexture(r, g, b, 0.2)
+					button:SetBackdropBorderColor(0, 0, 0, 0.25)
 
 					button:SetHook("OnEnter", onEnterRecentButton)
 					button:SetHook("OnLeave", onLeaveRecentButton)
@@ -2707,7 +2710,7 @@ recentPlayerTable = {
 				local tbdData = {} --~grid
 				local gridScrollBox = detailsFramework:CreateGridScrollBox(recentPlayersFrame, "DetailsMythicPlusRecentPlayersGrid", refreshRecentFriends, tbdData, createRecentPlayerButton, gridScrollBoxOptions)
 				recentPlayersFrame.GridScrollBox = gridScrollBox
-				gridScrollBox:SetPoint("topleft", recentPlayersFrame, "topleft", 2, -2)
+				gridScrollBox:SetPoint("topleft", recentPlayersFrame, "topleft", 0, 0)
 				gridScrollBox:SetBackdrop({})
 				gridScrollBox:SetBackdropColor(0, 0, 0, 0)
 				gridScrollBox:SetBackdropBorderColor(0, 0, 0, 0)
@@ -2973,8 +2976,13 @@ recentPlayerTable = {
 				end
 
 				local scrollFrame = detailsFramework:CreateScrollBox(f, "$parentScroll", refreshScrollLines, {}, CONST_WINDOW_WIDTH-10, CONST_WINDOW_HEIGHT-221, CONST_SCROLL_LINE_AMOUNT, CONST_SCROLL_LINE_HEIGHT)
+				scrollFrame:SetBackdropBorderColor(0, 0, 0, 0)
 				detailsFramework:ReskinSlider(scrollFrame)
 				scrollFrame.ScrollBar:AdjustPointsOffset(-23, -1)
+				scrollFrame.ScrollBar:SetFrameLevel(scrollFrame:GetFrameLevel() + 5)
+				scrollFrame.ScrollBar:SetHeight(scrollFrame.ScrollBar:GetHeight() - 20)
+				local point1, frame1, point2, offSetX, offSetY = scrollFrame.ScrollBar:GetPoint(2)
+				scrollFrame.ScrollBar:SetPoint(point1, frame1, point2, offSetX, offSetY + 22)
 
 				scrollFrame:SetPoint("topleft", f.Header, "bottomleft", -1, -1)
 				scrollFrame:SetPoint("topright", f.Header, "bottomright", 0, -1)
@@ -3021,7 +3029,7 @@ recentPlayerTable = {
 
 					local roleIcon = line:CreateTexture("$parentRoleIcon", "overlay")
 					roleIcon:SetSize(CONST_SCROLL_LINE_HEIGHT+2, CONST_SCROLL_LINE_HEIGHT+2)
-					roleIcon:SetPoint("left", icon, "right", 2, 0)
+					roleIcon:SetPoint("left", icon, "right", -1, 0)
 
 					--player name
 					local playerNameText = detailsFramework:CreateLabel(line, "")
@@ -3061,8 +3069,8 @@ recentPlayerTable = {
 					detailsFramework:SetFontColor(blockTeleporterButton.Text, "gray")
 
 					local likesGivenText = detailsFramework:CreateLabel(line, "")
-					local selectRunDropdown = detailsFramework:CreateDropDown(line, refreshDropdown, 1, 100, 20, "selectRunDropdown", nil, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-					selectRunDropdown:SetPoint("left", likesGivenText, "right", 5, 0)
+					local selectRunDropdown = detailsFramework:CreateDropDown(line, refreshDropdown, 1, 112, 20, "selectRunDropdown", nil, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+					--selectRunDropdown:SetPoint("left", likesGivenText, "right", 5, 0)
 
 					line.icon = icon
 					line.roleIcon = roleIcon
@@ -3084,6 +3092,7 @@ recentPlayerTable = {
 					line:AddFrameToHeaderAlignment(ratingText)
 					line:AddFrameToHeaderAlignment(teleportButton)
 					line:AddFrameToHeaderAlignment(likesGivenText)
+					line:AddFrameToHeaderAlignment(selectRunDropdown)
 
 					line:AlignWithHeader(f.Header, "left")
 					return line
@@ -3095,6 +3104,8 @@ recentPlayerTable = {
 				end
 
 				local recentPlayers = Details:GetRecentPlayers()
+				local recentPlayerCopy = detailsFramework.table.copy({}, recentPlayers)
+				recentPlayers = recentPlayerCopy
 
 				--for i = #recentPlayers, 1, -1 do
 				--	local playerData = recentPlayers[i]
@@ -3104,15 +3115,18 @@ recentPlayerTable = {
 				--end
 
 				--table.wipe(recentPlayers)
-				--[=[
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, false, 172}
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 171}
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 170}
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, false, 0}
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
-				recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
+				--[=
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, false, 172}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 171}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 170}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, false, 0}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
+					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 0}
 				--]=]
 
 				function f.RefreshData() --~refreshdata
@@ -3120,7 +3134,9 @@ recentPlayerTable = {
 					newData.offlineGuildPlayers = {}
 					local keystoneData = openRaidLib.GetAllKeystonesInfo()
 
-					f.RecentPlayersFrame.GridScrollBox:SetData(Details:GetRecentPlayers())
+
+
+					f.RecentPlayersFrame.GridScrollBox:SetData(recentPlayers) --Details:GetRecentPlayers()
 					f.RecentPlayersFrame.GridScrollBox:Refresh()
 
 					--need to know if any line has its dropdown open
