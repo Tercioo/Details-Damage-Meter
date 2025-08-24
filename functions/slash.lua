@@ -3069,8 +3069,8 @@ recentPlayerTable = {
 					detailsFramework:SetFontColor(blockTeleporterButton.Text, "gray")
 
 					local likesGivenText = detailsFramework:CreateLabel(line, "")
-					local selectRunDropdown = detailsFramework:CreateDropDown(line, refreshDropdown, 1, 112, 20, "selectRunDropdown", nil, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-					--selectRunDropdown:SetPoint("left", likesGivenText, "right", 5, 0)
+					local selectRunDropdown = detailsFramework:CreateDropDown(line, refreshDropdown, 1, 112, 20, "selectRunDropdown", "$parentDropdown", detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+					selectRunDropdown.widget:SetFrameLevel(line:GetFrameLevel() + 16)
 
 					line.icon = icon
 					line.roleIcon = roleIcon
@@ -3115,7 +3115,7 @@ recentPlayerTable = {
 				--end
 
 				--table.wipe(recentPlayers)
-				--[=
+				--[=[
 					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, false, 172}
 					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 171}
 					recentPlayers[#recentPlayers+1] = {"mplus", time()-3600, "fakePlayer1", 8, 63, 2526, 2, 402, 6, true, 170}
@@ -3164,41 +3164,39 @@ recentPlayerTable = {
 						},
 					--]=]
 
-					if (#keystoneData == 0 and false) then
-						keystoneData = { --~fake ~testdata
-							["FakePlayer"] =  {
+					if (false) then
+						keystoneData["FakePlayer"] =  {
 								["mapID"] = 1763,
 								["challengeMapID"] = 244,
 								["mythicPlusMapID"] = 0,
 								["rating"] = 215,
 								["classID"] = 13,
 								["level"] = 6,
-							},
-							["Gimsei"] =  {
+							}
+						keystoneData["Gimsei"] =  {
 								["mapID"] = 2441, --1763,
 								["challengeMapID"] = 391, --244,
 								["mythicPlusMapID"] = 0,
 								["rating"] = 215,
 								["classID"] = 13,
 								["level"] = 6,
-							},
-							["Gimsi"] =  {
+							}
+						keystoneData["Gimsi"] =  {
 								["mapID"] = 2441, --1763,
 								["challengeMapID"] = 391, --244,
 								["mythicPlusMapID"] = 0,
 								["rating"] = 215,
 								["classID"] = 13,
 								["level"] = 6,
-							},
-							["FakePlaywer"] =  {
+							}
+						keystoneData["FakePlaywer"] =  {
 								["mapID"] = 1763,
 								["challengeMapID"] = 244,
 								["mythicPlusMapID"] = 0,
 								["rating"] = 215,
 								["classID"] = 13,
 								["level"] = 6,
-							},
-						}
+							}
 					end
 
 					local guildUsers = {}
