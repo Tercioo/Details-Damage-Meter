@@ -78,17 +78,62 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --comm functions
 
+---@class talenttierinfo : table
+---@field isExceptional boolean
+---@field talentID number
+---@field known boolean
+---@field maxRank number
+---@field hasGoldBorder boolean
+---@field tier number
+---@field selected boolean
+---@field icon number
+---@field grantedByAura boolean
+---@field meetsPreviewPrereq boolean
+---@field previewRank number
+---@field meetsPrereq boolean
+---@field name string
+---@field isPVPTalentUnlocked boolean
+---@field column number
+---@field rank number
+---@field available boolean
+---@field spellID number
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --item level
 
 	local getHorizontalTalentsAsString = function()
 		local talents = ""
-		for i = 1, 7 do
-			for o = 1, 3 do
-				local talentID, name, texture, selected, available = GetTalentInfo(i, o, 1)
-				if (selected) then
-					talents = "" .. talentID .. ","
-					break
+		local talentGroup = C_SpecializationInfo.GetActiveSpecGroup()
+
+		if (DetailsFramework.IsPandaWow()) then
+			for tier = 1, MAX_NUM_TALENT_TIERS do
+				local tierAvailable, selectedTalent, tierUnlockLevel = GetTalentTierInfo(tier, 1, false)
+
+				local talentInfoQuery = {};
+				talentInfoQuery.tier = tier;
+				talentInfoQuery.column = selectedTalent;
+				talentInfoQuery.groupIndex = talentGroup;
+				talentInfoQuery.isInspect = false;
+				talentInfoQuery.target = "player";
+
+				---@type talenttierinfo
+				local talentInfo = C_SpecializationInfo.GetTalentInfo(talentInfoQuery);
+				if (talentInfo) then
+					local talentId = talentInfo.talentID
+					talents = talents .. "" .. talentId .. ","
+				end
+			end
+		else
+			for i = 1, 7 do
+				for o = 1, 3 do
+					local talentID, name, texture, selected, available = GetTalentInfo(i, o, 1)
+					--print("talentID:", talentID, "name:", name, "texture:", texture, "selected:", selected, "available:", available)
+					if (talentID) then
+						if (selected) then
+							talents = "" .. talentID .. ","
+							break
+						end
+					end
 				end
 			end
 		end
@@ -110,7 +155,7 @@
 			return
 		end
 
-		if (DetailsFramework.IsTimewalkWoW()) then
+		if (DetailsFramework.IsTimewalkWoW() and not DetailsFramework.IsPandaWow()) then
 			return
 		end
 

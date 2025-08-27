@@ -189,6 +189,16 @@ function petContainer.AddPet(petGuid, petName, petFlags, ownerGuid, ownerName, o
 	--print(petName)
 	--print(debugstack())
 
+	--[=[ the event spell_summon triggered a summon event without passing the pet name.
+		2x Details/classes/container_pets.lua:204: attempt to concatenate local 'petName' (a nil value)
+		[Details/classes/container_pets.lua]:204: in function 'AddPet'
+		[Details/core/parser.lua]:2354: in function <Details/core/parser.lua:2298> --spell_summon
+	--]=]
+
+	if (not petName) then
+		petName = UNKNOWN --global for "Unknown"
+	end
+
 	---@type petdata
 	local petData = {
 		ownerName = ownerName,
