@@ -175,6 +175,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[47528] = {class = "DEATHKNIGHT", specs = {250, 251, 252}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Mind Freeze
 	[47476] = {class = "DEATHKNIGHT", specs = {250, 251, 252}, cooldown = 120, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Strangulate
 	[106839] = {class = "DRUID", specs = {103, 104}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Skull Bash (feral, guardian)
+	[114238] = {class = "DRUID", specs = {102, 103, 104, 105}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Fae Silence (all specs, glyph)
 	[78675] = {class = "DRUID", specs = {102}, cooldown = 60, silence = 8, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Solar Beam (balance)
 	[147362] = {class = "HUNTER", specs = {253, 254}, cooldown = 24, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Counter Shot (beast mastery, marksmanship)
 	[187707] = {class = "HUNTER", specs = {255}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Muzzle (survival)
@@ -482,6 +483,7 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[339] = {cooldown = 0,		class = "DRUID"}, --Entangling Roots
 	[102359] = {cooldown = 30,	class = "DRUID"}, --Mass Entanglement
 	[93985] = {cooldown = 0,	class = "DRUID"}, --Skull Bash
+	[114238] = {cooldown = 15,	class = "DRUID"}, --Fae Silence
 	[2637] = {cooldown = 0,		class = "DRUID"}, --Hibernate
 	[5211] = {cooldown = 60,	class = "DRUID"}, --Mighty Bash
 	[22570] = {cooldown = 10,       class = "DRUID"}, --Maim
@@ -670,6 +672,9 @@ LIB_OPEN_RAID_SPELL_INTERRUPT = {
 
 	[106839] = LIB_OPEN_RAID_COOLDOWNS_INFO[106839], --Skull Bash (feral, guardian)
 	[78675] = LIB_OPEN_RAID_COOLDOWNS_INFO[78675], --Solar Beam (balance)
+	[114238] = LIB_OPEN_RAID_COOLDOWNS_INFO[114238], --Fae Silence (Glyph of Fae Silence)
+
+    [20066] = LIB_OPEN_RAID_COOLDOWNS_INFO[20066], --Repentance
 
 	[147362] = LIB_OPEN_RAID_COOLDOWNS_INFO[147362], --Counter Shot (beast mastery, marksmanship)
 	[187707] = LIB_OPEN_RAID_COOLDOWNS_INFO[187707], --Muzzle (survival)
