@@ -1,10 +1,10 @@
-## Interface: 80200
+## Interface: 100000
 ## Title: Lib: Translit
 ## Notes: Transliterate string
 ## Author: Vardex
 ## X-Category: Library
-## X-License: BSD
-## Version: DetailsRetail.8.3.0.7348.141
+## X-License: LGPL-3.0
+## Version: 1.0.5
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 
