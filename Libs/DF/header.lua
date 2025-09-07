@@ -53,6 +53,8 @@ local wipe = wipe
 ---@field SetColumnSettingChangedCallback fun(self: df_headerframe, func: function) : boolean
 ---@field ResetFramesToHeaderAlignment fun(self: df_headerframe)
 ---@field GetFramesFromHeaderAlignment fun(self: df_headerframe) : table
+---@field GetSelectedHeaderColumnData fun(self: df_headerframe) : df_headercolumndata
+---@field GetHeaderTable fun(self: df_headerframe) : df_headercolumndata[]
 
 ---@class df_headercolumnframe : button
 ---@field Icon texture
@@ -211,6 +213,13 @@ detailsFramework.HeaderMixin = {
 		return self.HeaderTable[columnId].width
 	end,
 
+	---get header table
+	---@param self df_headerframe
+	---@return df_headercolumndata[]
+	GetHeaderTable = function(self)
+		return self.HeaderTable
+	end,
+
 	---@param self df_headerframe
 	---@param newTable table
 	SetHeaderTable = function(self, newTable)
@@ -243,6 +252,14 @@ detailsFramework.HeaderMixin = {
 		---@type df_headercolumnframe
 		local columnHeader = self.columnHeadersCreated[columnSelected or 1]
 		return columnSelected, columnHeader.order, columnHeader.key, columnHeader.columnData.name
+	end,
+
+	---get selected header column data
+	---@param self df_headerframe
+	---@return df_headercolumndata
+	GetSelectedHeaderColumnData = function(self)
+		local columnSelected = self.columnSelected
+		return self.HeaderTable[columnSelected]
 	end,
 
 	--clean up and rebuild the header following the header options
@@ -448,7 +465,7 @@ detailsFramework.HeaderMixin = {
 
 		columnHeader.XPosition = self.HeaderWidth -- + self.options.padding
 		columnHeader.YPosition = self.HeaderHeight -- + self.options.padding
-		
+
 		columnHeader.columnAlign = columnData.align or "left"
 		columnHeader.columnOffset = columnData.offset or 0
 

@@ -1,6 +1,6 @@
 
 
-local dversion = 618
+local dversion = 620
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -14,6 +14,7 @@ _G["DetailsFramework"] = DF
 ---@cast DF detailsframework
 
 local detailsFramework = DF
+local Mixin = Mixin
 
 --store functions to call when the PLAYER_LOGIN event is triggered
 detailsFramework.OnLoginSchedules = {}
@@ -3590,14 +3591,8 @@ end
 ---@param object table
 ---@param ... any
 ---@return any
-function DF:Mixin(object, ...) --safe copy from blizz api
-	for i = 1, select("#", ...) do
-		local mixin = select(i, ...)
-		for key, value in pairs(mixin) do
-			object[key] = value
-		end
-	end
-	return object
+function DF:Mixin(object, ...)
+	return Mixin(object, ...)
 end
 
 -----------------------------

@@ -1158,6 +1158,9 @@ local set_speciallua_editor_font_size = function(borderFrame, newSize)
 	borderFrame.editboxlines:SetFont(file, newSize, flags)
 end
 
+local highlight_text_speciallua_editor = function(borderFrame)
+	borderFrame.editbox:HighlightText(0)
+end
 
 ---create a text box to edit lua code
 ---if 'nointent' is true, the lua code will not be indented / highlighted / colored
@@ -1327,6 +1330,7 @@ function detailsFramework:NewSpecialLuaEditorEntry(parent, width, height, member
 	borderframe.ClearFocus = function_clearfocus
 	borderframe.SetFocus = function_setfocus
 	borderframe.SetTextSize = set_speciallua_editor_font_size
+	borderframe.HighlightText = highlight_text_speciallua_editor
 
 	borderframe.Enable = TextEntryMetaFunctions.Enable
 	borderframe.Disable = TextEntryMetaFunctions.Disable

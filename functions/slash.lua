@@ -2091,6 +2091,21 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		teleporterButtons[#teleporterButtons+1] = teleportButton
 		teleportButton:SetFrameLevel(footer:GetFrameLevel() + 1)
 
+		teleportButton:SetScript("OnEnter", function(self)
+			GameCooltip:Preset(2)
+			GameCooltip:SetOwner(self, "bottom", "top", 0, 5)
+			GameCooltip:AddLine(self.dungeonName, "", 1)
+			GameCooltip:Show()
+		end)
+
+		teleportButton:SetScript("OnLeave", function(self)
+			GameCooltip:Hide()
+		end)
+
+		local dungeonAcronym = teleportButton:CreateFontString(nil, "overlay", "GameFontNormal")
+		dungeonAcronym:SetPoint("bottom", teleportButton, "bottom", 0, 0)
+		teleportButton.DungeonAcronym = dungeonAcronym
+
 		teleportButton:SetSize(buttonSize, buttonSize)
 
 		local blockTeleporter = CreateFrame("frame", nil, frameAboveTeleporterButtons)
@@ -2121,6 +2136,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						teleportButton:SetNormalTexture(dungeonInfo[4])
 						teleportButton:SetPushedTexture(dungeonInfo[4])
 						teleportButton:SetHighlightTexture(dungeonInfo[4])
+
+						local dungeonName = dungeonInfo[1] or "Unknown Dungeon"
+						dungeonAcronym:SetText(detailsFramework.string.Acronym(dungeonName))
+						teleportButton.dungeonName = dungeonName
 						break
 					end
 				end

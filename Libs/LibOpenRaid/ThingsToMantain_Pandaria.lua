@@ -583,6 +583,12 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[132168] = {cooldown = 0,	class = "WARRIOR"}, --Shockwave
 	[132169] = {cooldown = 0,	class = "WARRIOR"}, --Storm Bolt
 	[5246] = {cooldown = 90,	class = "WARRIOR"}, --Intimidating Shout
+
+	[114238] = {cooldown = 30,	class = "DRUID"}, --Fay Silence
+	[19386] = {cooldown = 30,	class = "HUNTER"}, --Wyvern Sting
+	[105593] = {cooldown = 30,	class = "PALADIN"}, --Fist of Justice
+	[676] = {cooldown = 30,	class = "WARRIOR"}, --Disarm
+	[117368] = {cooldown = 30,	class = "MONK"}, --Grapple Weapon
 }
 
 --[=[

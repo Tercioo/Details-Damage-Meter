@@ -12,9 +12,10 @@ local CONST_DEFAULT_PROFILE_NAME = "default"
 ---@field __savedGlobalVarsName string the name of the global saved variables
 ---@field __savedVarsDefaultTemplate table the default template for the saved variables
 ---@field __frame frame a frame to use for events
----@field OnLoaded fun(addon:df_addon, profileTable:table) runs when the addon is loaded at event "ADDON_LOADED"
+---@field OnLoad fun(addon:df_addon, profileTable:table) runs when the addon is loaded at event "ADDON_LOADED"
 ---@field OnInit fun(addon:df_addon, profileTable:table) runs when the addon is initialized at event "PLAYER_LOGIN"
 ---@field OnProfileChanged fun(addon:df_addon, profileTable:table) runs when the profile is changed
+---@field SetLogoutLogTable fun(addon:df_addon, logTable:table) sets the logout log table
 
 --runs when the addon received addon_loaded
 local addonLoaded = function(addonFrame, event, addonName)
@@ -26,7 +27,7 @@ local addonLoaded = function(addonFrame, event, addonName)
 
 	if (not addonObject.__savedGlobalVarsName) then
 		if (addonObject.OnLoad) then
-			detailsFramework:Dispatch(addonObject.OnLoad, addonObject)
+			xpcall(addonObject.OnLoad, geterrorhandler(), addonObject)
 		end
 		return
 	end
@@ -49,7 +50,7 @@ local addonLoaded = function(addonFrame, event, addonName)
 	addonObject.profile = profileTable
 
 	if (addonObject.OnLoad) then
-		detailsFramework:Dispatch(addonObject.OnLoad, addonObject, addonObject.profile, true)
+		xpcall(addonObject.OnLoad, geterrorhandler(), addonObject, addonObject.profile, true)
 	end
 end
 
@@ -58,7 +59,7 @@ local addonInit = function(addonFrame)
 	local addonObject = addonFrame.__addonObject
 
 	if (addonObject.OnInit) then
-		detailsFramework:Dispatch(addonObject.OnInit, addonObject, addonObject.profile)
+		xpcall(addonObject.OnInit, geterrorhandler(), addonObject, addonObject.profile)
 	end
 end
 
@@ -83,7 +84,7 @@ local addonEvents = {
 local addonOnEvent = function(addonFrame, event, ...)
 	local func = addonEvents[event]
 	if (func) then
-		func(addonFrame, event, ...)
+		xpcall(func, geterrorhandler(), addonFrame, event, ...)
 	else
 		--might be a registered event from the user
 		if (addonFrame[event]) then

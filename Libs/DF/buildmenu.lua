@@ -621,7 +621,7 @@ local setExecuteProperties = function(parent, widget, widgetTable, currentXOffse
     if (bAlignAsPairs) then
         PixelUtil.SetPoint(label, "topleft", widget:GetParent(), "topleft", currentXOffset, currentYOffset)
         PixelUtil.SetPoint(widget.widget, "left", label, "left", nAlignAsPairsLength, 0)
-
+        label:SetText(">")
         if (not widget.highlightFrame) then
             local highlightFrame = createOptionHighlightFrame(widget, label, (widgetWidth or 140) + nAlignAsPairsLength + 5)
             widget.highlightFrame = highlightFrame
@@ -1673,6 +1673,10 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
     end --end loop
 
     if (bUseScrollFrame) then
+        if (biggestColumnHeight == 0) then
+            biggestColumnHeight = currentYOffset
+        end
+
         parent:SetHeight(biggestColumnHeight * -1)
         canvasFrame:GetParent().RefreshOptions = function()
             parent:RefreshOptions()

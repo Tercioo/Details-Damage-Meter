@@ -701,7 +701,9 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 	instance.top = 0
 
 	--the main attribute is utility, the sub attribute is the type of utility(cc break, ress, etc)
-	local subAttribute = instance.sub_atributo
+	local subAttribute = Details222.OverrideSubAttributeOnNextRefresh or instance.sub_atributo
+	Details222.OverrideSubAttributeOnNextRefresh = nil
+
 	local conteudo = utilityActorContainer._ActorTable
 	local amount = #conteudo
 	local modo = instance.modo
