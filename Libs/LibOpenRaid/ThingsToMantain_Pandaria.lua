@@ -175,6 +175,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[47528] = {class = "DEATHKNIGHT", specs = {250, 251, 252}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Mind Freeze
 	[47476] = {class = "DEATHKNIGHT", specs = {250, 251, 252}, cooldown = 120, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Strangulate
 	[106839] = {class = "DRUID", specs = {103, 104}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Skull Bash (feral, guardian)
+	[114238] = {class = "DRUID", specs = {102, 103, 104, 105}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Fae Silence (all specs, glyph)
 	[78675] = {class = "DRUID", specs = {102}, cooldown = 60, silence = 8, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Solar Beam (balance)
 	[147362] = {class = "HUNTER", specs = {253, 254}, cooldown = 24, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Counter Shot (beast mastery, marksmanship)
 	[187707] = {class = "HUNTER", specs = {255}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Muzzle (survival)
@@ -337,7 +338,6 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[132469] = 	{cooldown = 30, 	duration = false, 	specs = {102,103,104,105}, 	talent =false, charges = 1, class = "DRUID", type = 5}, --Typhoon
 	[319454] = 	{cooldown = 300, 	duration = 45, 		specs = {102,103,104,105}, 	talent =18577, charges = 1, class = "DRUID", type = 5}, --Heart of the Wild (talent)
 	[102793] = 	{cooldown = 60, 	duration = 10, 		specs = {102,103,104,105}, 	talent =false, charges = 1, class = "DRUID", type = 5}, --Ursol's Vortex
-
 	--death knight
 	-- 252 - Unholy
 	-- 251 - Frost
@@ -483,6 +483,7 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[339] = {cooldown = 0,		class = "DRUID"}, --Entangling Roots
 	[102359] = {cooldown = 30,	class = "DRUID"}, --Mass Entanglement
 	[93985] = {cooldown = 0,	class = "DRUID"}, --Skull Bash
+	[114238] = {cooldown = 15,	class = "DRUID"}, --Fae Silence
 	[2637] = {cooldown = 0,		class = "DRUID"}, --Hibernate
 	[5211] = {cooldown = 60,	class = "DRUID"}, --Mighty Bash
 	[22570] = {cooldown = 10,       class = "DRUID"}, --Maim
@@ -490,7 +491,9 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[203123] = {cooldown = 0,	class = "DRUID"}, --Maim
 	[45334] = {cooldown = 0,	class = "DRUID"}, --Immobilized
 	[33786] = {cooldown = 0,	class = "DRUID"}, --Cyclone
-	[236748] = {cooldown = 30,	class = "DRUID"}, --Intimidating Roar
+	[99] = { cooldown = 30, class = "DRUID"}, --Disorienting Roar
+	[236748] = {cooldown = 30,      class = "DRUID"}, --Intimidating Roar
+	[113004] = {cooldown = 30,	class = "DRUID"}, --Intimidating Roar
 	[61391] = {cooldown = 0,	class = "DRUID"}, --Typhoon
 	[163505] = {cooldown = 0,	class = "DRUID"}, --Rake
 	[50259] = {cooldown = 0,	class = "DRUID"}, --Dazed
@@ -509,6 +512,8 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
     [19503] = {cooldown = 30,	class = "HUNTER"}, --Scatter Shot
 	[3355] = {cooldown = 30,	class = "HUNTER"}, --Freezing Trap
 	[203337] = {cooldown = 30,	class = "HUNTER"}, --Freezing trap with diamond ice talent
+	[19386] = { cooldown = 45, class = "HUNTER"}, -- Wyvern Sting
+	[109248] = { cooldown = 45, class = "HUNTER"}, --Binding Shot
 	[31661] = {cooldown = 45,	class = "MAGE"}, --Dragon's Breath
 	[161353] = {cooldown = 0,	class = "MAGE"}, --Polymorph
 	[277787] = {cooldown = 0,	class = "MAGE"}, --Polymorph
@@ -549,6 +554,7 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[200200] = {cooldown = 60,	class = "PRIEST"}, --Holy Word: Chastise
 	[9484] = {cooldown = 0,		class = "PRIEST"}, --Shackle Undead
 	[200196] = {cooldown = 60,	class = "PRIEST"}, --Holy Word: Chastise
+	[113506] = {cooldown = 0,   class = "PRIEST"}, --Cyclone (Symbiosis)
 	[6770] = {cooldown = 0,		class = "ROGUE"}, --Sap
 	[2094] = {cooldown = 120,	class = "ROGUE"}, --Blind
 	[1766] = {cooldown = 15,	class = "ROGUE"}, --Kick
@@ -569,6 +575,7 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[210873] = {cooldown = 30,	class = "SHAMAN"}, --Hex
 	[211004] = {cooldown = 30,	class = "SHAMAN"}, --Hex
 	[51514] = {cooldown = 30,	class = "SHAMAN"}, --Hex
+	[33395] = {cooldown = 60, class = "SHAMAN"}, --Solar Beam (Symbiosis)
 	[305485] = {cooldown = 30,	class = "SHAMAN"}, --Lightning Lasso
 	[89766] = {cooldown = 30,	class = "WARLOCK"}, --Axe Toss (pet felguard ability)
 	[6789] = {cooldown = 45,	class = "WARLOCK"}, --Mortal Coil
@@ -671,6 +678,9 @@ LIB_OPEN_RAID_SPELL_INTERRUPT = {
 
 	[106839] = LIB_OPEN_RAID_COOLDOWNS_INFO[106839], --Skull Bash (feral, guardian)
 	[78675] = LIB_OPEN_RAID_COOLDOWNS_INFO[78675], --Solar Beam (balance)
+	[114238] = LIB_OPEN_RAID_COOLDOWNS_INFO[114238], --Fae Silence (Glyph of Fae Silence)
+
+    [20066] = LIB_OPEN_RAID_COOLDOWNS_INFO[20066], --Repentance
 
 	[147362] = LIB_OPEN_RAID_COOLDOWNS_INFO[147362], --Counter Shot (beast mastery, marksmanship)
 	[187707] = LIB_OPEN_RAID_COOLDOWNS_INFO[187707], --Muzzle (survival)
