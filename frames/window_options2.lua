@@ -463,6 +463,18 @@ function Details:OpenOptionsWindow(instance, bNoReopen, section)
     DetailsPluginContainerWindowMenuFrame:SetColor(unpack(Details.frame_background_color))
 end
 
+---open the default options window, used for the addon compartment
+function Details_OpenDefaultOptionsWindow()
+    local lower_instance = Details:GetLowerInstanceNumber()
+    if (not lower_instance) then
+        local instance = Details:GetInstance(1)
+        Details.CriarInstancia (_, _, 1)
+        Details:OpenOptionsWindow (instance)
+    else
+        Details:OpenOptionsWindow (Details:GetInstance(lower_instance))
+    end
+end
+
 function Details:OpenOptionsPanel(instance, bNoReopen, section) --alias
     Details:OpenOptionsWindow(instance, bNoReopen, section)
 end
