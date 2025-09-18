@@ -1912,66 +1912,81 @@ local sortIfHaveKey = function(table1, table2)
 	end
 end
 
-function Details:JustSortData(combatObject, attribute, subAttribute)
-	---@type actorcontainer
-	local actorContainer = combatObject[attribute]
-
+function Details:GetKeyNameFromAttribute(attribute, subAttribute)
 	if (attribute == 1) then
 		if (subAttribute == 1) then --DAMAGE DONE
-			keyName = "total"
+			return "total"
 		elseif(subAttribute == 2) then --DPS
-			keyName = "last_dps"
+			return "last_dps"
 		elseif(subAttribute == 3) then --DAMAGE TAKEN
-			keyName = "damage_taken"
+			return "damage_taken"
 		elseif(subAttribute == 4) then --FRIENDLY FIRE
-			keyName = "friendlyfire_total"
+			return "friendlyfire_total"
 		elseif(subAttribute == 5) then --FRAGS
-			keyName = "frags"
+			return "frags"
 		elseif(subAttribute == 6) then --ENEMIES
-			keyName = "enemies"
+			return "enemies"
 		elseif(subAttribute == 7) then --AURAS VOIDZONES
-			keyName = "voidzones"
+			return "voidzones"
 		elseif(subAttribute == 8) then --BY SPELL
-			keyName = "damage_taken_by_spells"
+			return "damage_taken_by_spells"
 		end
 
 	elseif (attribute == 2) then
 		if (subAttribute == 1) then --healing DONE
-			keyName = "total"
+			return "total"
 		elseif (subAttribute == 2) then --HPS
-			keyName = "last_hps"
+			return "last_hps"
 		elseif (subAttribute == 3) then --overheal
-			keyName = "totalover"
+			return "totalover"
 		elseif (subAttribute == 4) then --healing take
-			keyName = "healing_taken"
+			return "healing_taken"
 		elseif (subAttribute == 5) then --enemy heal
-			keyName = "heal_enemy_amt"
+			return "heal_enemy_amt"
 		elseif (subAttribute == 6) then --absorbs
-			keyName = "totalabsorb"
+			return "totalabsorb"
 		elseif (subAttribute == 7) then --heal absorb
-			keyName = "totaldenied"
+			return "totaldenied"
+		end
+
+	elseif (attribute == 3) then
+		if (subAttribute == 1) then --RESOURCE GAINED
+			return "total"
+		elseif (subAttribute == 2) then --RESOURCE SPENT
+			return "totalover"
+		elseif (subAttribute == 3) then --MANA REGEN
+			return "mana_potion"
 		end
 
 	elseif (attribute == 4) then
 		if (subAttribute == 1) then --CC BREAKS
-			keyName = "cc_break"
+			return "cc_break"
 		elseif (subAttribute == 2) then --RESS
-			keyName = "ress"
+			return "ress"
 		elseif (subAttribute == 3) then --INTERRUPT
-			keyName = "interrupt"
+			return "interrupt"
 		elseif (subAttribute == 4) then --DISPELLS
-			keyName = "dispell"
+			return "dispell"
 		elseif (subAttribute == 5) then --DEATHS
-			keyName = "dead"
+			return "dead"
 		elseif (subAttribute == 6) then --DEFENSIVE COOLDOWNS
-			keyName = "cooldowns_defensive"
+			return "cooldowns_defensive"
 		elseif (subAttribute == 7) then --BUFF UPTIME
-			keyName = "buff_uptime"
+			return "buff_uptime"
 		elseif (subAttribute == 8) then --DEBUFF UPTIME
-			keyName = "debuff_uptime"
+			return "debuff_uptime"
 		end
 	end
+end
 
-	table.sort(actorContainer._ActorTable, sortIfHaveKey)
+---@param self details
+---@param combatObject combat
+---@param attribute number
+---@param subAttribute number
+function Details:JustSortData(combatObject, attribute, subAttribute)
+	---@type actorcontainer
+	local actorContainer = combatObject[attribute]
+	keyName = Details:GetKeyNameFromAttribute(attribute, subAttribute)
+	table.sort(actorContainer._ActorTable, sortIfHaveKey) --actorContainer is nil
 	actorContainer:Remap()
 end

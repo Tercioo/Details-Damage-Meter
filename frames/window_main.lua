@@ -2241,9 +2241,20 @@ local iconFrame_OnEnter = function(self)
 
 			local lineHeight = 21
 
-			if (RaiderIO and not bIsClassic) then
-				local addedInfo = false
+			local addedInfo = false
 
+			if (C_PlayerInfo and C_PlayerInfo.GetPlayerMythicPlusRatingSummary) then
+				local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName)
+				if (dungeonPlayerInfo) then
+					local currentScore = dungeonPlayerInfo.currentSeasonScore or 0
+					if (currentScore > 0) then
+						GameCooltip:AddLine("M+ Score:", currentScore, 1, "white")
+						addedInfo = true
+					end
+				end
+			end
+
+			if (not addedInfo and RaiderIO and not bIsClassic) then
 				local playerName, playerRealm = actorName:match("(%w+)%-(%w+)")
 				playerName = playerName or actorName
 				playerRealm = playerRealm or GetRealmName()
@@ -2254,14 +2265,8 @@ local iconFrame_OnEnter = function(self)
 
 				if (rioProfile and rioProfile.mythicKeystoneProfile) then
 					rioProfile = rioProfile.mythicKeystoneProfile
-
-					local previousScore = rioProfile.previousScore or 0
 					local currentScore = rioProfile.currentScore or 0
-
-					if (false and previousScore > currentScore and time() > 1700562401) then --2023.11.21 midday
-						GameCooltip:AddLine("M+ Score:", previousScore .. " (|cFFFFDD11" .. currentScore .. "|r)", 1, "white")
-						addedInfo = true
-					else
+					if (currentScore) then
 						GameCooltip:AddLine("M+ Score:", currentScore, 1, "white")
 						addedInfo = true
 					end
@@ -2276,13 +2281,7 @@ local iconFrame_OnEnter = function(self)
 					end
 				end
 
-				if (addedInfo) then
-					GameCooltip:AddIcon([[]], 1, 1, 1, 20)
-					Details:AddTooltipBackgroundStatusbar()
-					--increase frame height
-					height = height + lineHeight
-				end
-			else
+			elseif (not addedInfo) then
 				if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and C_PlayerInfo) then --is retail?
 					local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName)
 					if (dungeonPlayerInfo) then
@@ -2292,10 +2291,17 @@ local iconFrame_OnEnter = function(self)
 							GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 							Details:AddTooltipBackgroundStatusbar()
 							--increase frame height
-							height = height + lineHeight
+							addedInfo = true
 						end
 					end
 				end
+			end
+
+			if (addedInfo) then
+				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
+				Details:AddTooltipBackgroundStatusbar()
+				--increase frame height
+				height = height + lineHeight
 			end
 
 			if (actor.spec == 1473 and actor.tipo == DETAILS_ATTRIBUTE_DAMAGE) then

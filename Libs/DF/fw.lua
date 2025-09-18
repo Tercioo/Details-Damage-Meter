@@ -1,6 +1,6 @@
 
 
-local dversion = 620
+local dversion = 621
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1131,6 +1131,7 @@ DF.strings = {}
 
 ---@class df_strings
 ---@field Acronym fun(phrase:string):string return the first upper case letter of each word of a string
+---@field GetSortValueFromString fun(value:string):number return a number based on the first two letters of the string, useful to sort strings
 ---@field FormatDateByLocale fun(timestamp:number, ignoreYear:boolean?):string given a timestamp return a formatted date string
 
 function DF.string.Acronym(phrase)
@@ -1143,6 +1144,13 @@ function DF.string.Acronym(phrase)
 		end
 	end)
 	return acronym
+end
+
+---@param value string
+function DF.string.GetSortValueFromString(value)
+	value = value:upper()
+	local byte1 = math.abs(string.byte(value, 2) - 91) / 1000000
+	return byte1 + math.abs(string.byte(value, 1) - 91) / 10000
 end
 
 function DF.string.FormatDateByLocale(timestamp, ignoreYear)

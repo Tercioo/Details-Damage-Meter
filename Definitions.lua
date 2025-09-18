@@ -155,8 +155,8 @@ DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
 ---| "DETAILS_SEGMENTTYPE_TRAININGDUMMY"
 
 DETAILS_TOTALS_ONLYGROUP = true
-DETAILS_SEGMENTID_OVERALL = true
-DETAILS_SEGMENTID_CURRENT = true
+DETAILS_SEGMENTID_OVERALL = -1
+DETAILS_SEGMENTID_CURRENT = 0
 DETAILS_COMBAT_AMOUNT_CONTAINERS = true
 DETAILS_SEGMENTTYPE_GENERIC = true
 DETAILS_SEGMENTTYPE_OVERALL = true
@@ -443,6 +443,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field PhaseData table
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
+---@field GetPlayerDeaths fun(self: combat, actorName: string) : table[] return a table with subtable containing the death information of the specified actor
 ---@field GetCrowdControlSpells fun(self: combat, actorName: string) : table<spellid, number> return the amount of casts of crowd control spell by an actor
 ---@field GetCCCastAmount fun(self: combat, actorName: string) : number returns the number of crowd control casts made by the specified actor
 ---@field GetInterruptCastAmount fun(self: combat, actorName: string) : number

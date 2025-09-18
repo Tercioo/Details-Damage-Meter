@@ -179,6 +179,7 @@ do
 
 		--spellId of healing from potions
 		LIB_OPEN_RAID_HEALING_POTIONS = {
+			[1238009] = true, --Invigorating Healing Potion
 			[431416] = true, --Healing Potion algari
 			[431419] = true, --Cavedweller's Delight
 			[452767] = true, --Heartseeking Health Injector (engineering tinker)
@@ -239,7 +240,9 @@ do
 			--defensive potions
 			[6262] = {cooldown = 60,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10}, --Healthstone
 			[431419] = {cooldown = 300,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10, shareid = 101},	--Refreshing Potion
-			[431416] = {cooldown = 300, duration = 0, specs = {}, talent = false, charges = 1, class = "", type = 10, sharedid = 102},	--Healing Potion algari
+			[431416] = {cooldown = 300, duration = 0, specs = {}, talent = false, charges = 1, class = "", type = 10, sharedid = 102},	--Algari Healing Potion
+			[1231009] = {cooldown = 300, duration = 0, specs = {}, talent = false, charges = 1, class = "", type = 10, sharedid = 102},	--Invigorating Healing Potion
+			[452767] = {cooldown = 120, duration = 0, specs = {}, talent = false, charges = 1, class = "", type = 10, sharedid = 102},	--Heartseeking Health Injector (engineering tinker)
 
 			--attack potions
 			[431914] = {cooldown = 300,	duration = 20,	specs = {},	talent = false,	charges = 1, class = "", type = 11, shareid = 101}, --[Potion of Unwavering Focus |A:Professions-ChatIcon-Quality-Tier3:17:18::1|a]

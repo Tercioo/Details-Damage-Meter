@@ -30,6 +30,7 @@ local wipe = wipe
 ---@field FramesToAlign table
 
 ---@class df_headerframe : frame, df_headermixin, df_optionsmixin
+---@field columnOrder string
 ---@field columnHeadersCreated df_headercolumnframe[]
 ---@field options table
 ---@field HeaderTable df_headercolumndata[]
@@ -49,7 +50,7 @@ local wipe = wipe
 ---@field ResetColumnHeaderBackdrop fun(self: df_headerframe, columnHeader: df_headercolumnframe)
 ---@field SetBackdropColorForSelectedColumnHeader fun(self: df_headerframe, columnHeader: df_headercolumnframe)
 ---@field ClearColumnHeader fun(self: df_headerframe, columnHeader: df_headercolumnframe)
----@field GetNextHeader fun(self: df_headerframe) : df_headercolumnframe
+---@field GetNextHeader fun(self: df_headerframe) : df_headercolumnframe internal use only
 ---@field SetColumnSettingChangedCallback fun(self: df_headerframe, func: function) : boolean
 ---@field ResetFramesToHeaderAlignment fun(self: df_headerframe)
 ---@field GetFramesFromHeaderAlignment fun(self: df_headerframe) : table
@@ -69,6 +70,7 @@ local wipe = wipe
 ---@field columnIndex number
 ---@field columnAlign string
 ---@field XPosition number
+---@field YPosition number
 ---@field columnOffset number
 ---@field key string used to sort the values
 
@@ -89,23 +91,28 @@ detailsFramework.HeaderFunctions = {
     ---comment
     ---@param self df_headerchild
 	ResetFramesToHeaderAlignment = function(self)
+		self.FramesToAlign = self.FramesToAlign or {}
 		wipe(self.FramesToAlign)
 	end,
 
 	SetFramesToHeaderAlignment = function(self, ...)
+		self.FramesToAlign = self.FramesToAlign or {}
         ---@cast self df_headerchild
 		wipe(self.FramesToAlign)
 		self.FramesToAlign = {...}
 	end,
 
 	GetFramesFromHeaderAlignment = function(self)
-		return self.FramesToAlign or {}
+		self.FramesToAlign = self.FramesToAlign or {}
+		return self.FramesToAlign
 	end,
 
 	---@param self uiobject
 	---@param headerFrame df_headerframe
 	---@param anchor string
 	AlignWithHeader = function(self, headerFrame, anchor)
+		assert(type(headerFrame) == "table" and headerFrame.GetColumnWidth, "Details! Framework: AlignWithHeader(): 'headerFrame' is not of type df_headerframe.\n" .. debugstack(2, 1, 1))
+
 		local columnHeaderFrames = headerFrame.columnHeadersCreated
 		anchor = anchor or "topleft"
 
