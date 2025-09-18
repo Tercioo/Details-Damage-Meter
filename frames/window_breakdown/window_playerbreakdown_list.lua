@@ -146,6 +146,9 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 
 		---@type combat
 		local combatObject = Details:GetCombatFromBreakdownWindow()
+		if (not combatObject) then
+			return
+		end
 		local encounterId = combatObject:GetEncounterCleuID()
 		local difficultyId = combatObject:GetDifficulty()
 
@@ -264,7 +267,7 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 		local combatObject = self.combatObject
 
 		--warcraftlogs percentile
-		if (self.playerObject.tipo == DETAILS_ATTRIBUTE_DAMAGE) then
+		if (self.playerObject.tipo == DETAILS_ATTRIBUTE_DAMAGE and combatObject) then
 			local actorDPS = self.playerObject.total / combatObject:GetCombatTime()
 
 			local parsePercent = Details222.WarcraftLogs.GetDamageParsePercent(encounterId, difficultyId, actorSpecId, actorDPS)
@@ -474,6 +477,9 @@ local createSegmentsScrollBox = function(breakdownWindowFrame, breakdownSideMenu
 
 		--current breakdown combat
 		local currentBKCombat = Details:GetCombatFromBreakdownWindow()
+		if (not currentBKCombat) then
+			return
+		end
 		--unique combat id from the combat the breakdown window is using
 		local currentBKCombatUniqueID = currentBKCombat:GetCombatUID()
 
@@ -742,7 +748,10 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		end
 
 		local selectedPlayerName = Details:GetActorObjectFromBreakdownWindow():Name()
-		lastSelectedPlayerPerSegment[Details:GetCombatFromBreakdownWindow():GetCombatUID()] = selectedPlayerName
+		local combatObject = Details:GetCombatFromBreakdownWindow()
+		if (combatObject) then
+			lastSelectedPlayerPerSegment[combatObject:GetCombatUID()] = selectedPlayerName
+		end
 		lastSelectedPlayerName = selectedPlayerName
 
 		local playerLineHeight = player_line_height+1 --the +1 is the space between the lines
