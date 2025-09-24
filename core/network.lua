@@ -76,6 +76,67 @@
 	local registredPlugins = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--snipers
+	if (C_ChatInfo) then
+		local cooldownDMPE = 0
+		local prefixesToSnipe = {
+			["DMPE"] = function(commEventFrame, event, prefix, text, channel, sender, target, zoneChannelId, localId, name, instanceId) --details main extension
+				---@diagnostic disable-next-line: undefined-global
+				if (DetailsMythicPlus) then
+					return --addon installed, do not process
+				end
+
+				sender = Ambiguate(sender, "none")
+				--decode the data
+				if (C_EncodingUtil) then
+					text = C_EncodingUtil.DecodeBase64(text)
+					if (text) then
+						---@diagnostic disable-next-line: undefined-global
+						text = C_EncodingUtil.DecompressString(text, Enum.CompressionMethod.Deflate)
+						if (text) then
+							local dataPrefix = text:match("^(.-),")
+							if (dataPrefix == "L") then --ProcessLikePlayer function in DMP
+								text = text:sub(#dataPrefix + 2) --remove the prefix from the text
+								local data = C_EncodingUtil.DeserializeCBOR(text)
+								if (data) then
+									local playerLiked = data.playerLiked
+									if (playerLiked) then
+										if (UnitIsUnit("player", playerLiked)) then
+											if (cooldownDMPE + 300 > GetTime()) then
+												return --on cooldown
+											end
+											Details:Msg("Someone gave you a 'GG, Well Played!' on Details! Mythic Plus addon (get from CurseForge or Wago).")
+											cooldownDMPE = GetTime()
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end,
+		}
+
+        ---@diagnostic disable-next-line: undefined-field
+	    for i = 1, #prefixesToSnipe do
+			local prefix = prefixesToSnipe[i]
+			C_ChatInfo.RegisterAddonMessagePrefix(prefix)
+	    end
+
+	    local onReceiveComm = function(self, event, prefix, text, channel, sender, target, zoneChannelId, localId, name, instanceId)
+		    local callbackFunc = prefixesToSnipe[prefix]
+		    if (callbackFunc) then
+			    xpcall(callbackFunc, geterrorhandler(), self, event, prefix, text, channel, sender, target, zoneChannelId, localId, name, instanceId)
+		    end
+	    end
+
+	    local commEventFrame = CreateFrame("frame")
+		commEventFrame:RegisterEvent("CHAT_MSG_ADDON")
+		commEventFrame:SetScript("OnEvent", onReceiveComm)
+	end
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --comm functions
 
 ---@class talenttierinfo : table
