@@ -56,6 +56,7 @@ local wipe = wipe
 ---@field GetFramesFromHeaderAlignment fun(self: df_headerframe) : table
 ---@field GetSelectedHeaderColumnData fun(self: df_headerframe) : df_headercolumndata
 ---@field GetHeaderTable fun(self: df_headerframe) : df_headercolumndata[]
+---@field PropagateClicks fun(self: df_headerframe, propagate: boolean) if the header and its children should propagate clicks
 
 ---@class df_headercolumnframe : button
 ---@field Icon texture
@@ -92,6 +93,11 @@ detailsFramework.HeaderFunctions = {
     ---@param self df_headerchild
 	ResetFramesToHeaderAlignment = function(self)
 		self.FramesToAlign = self.FramesToAlign or {}
+		--hide all frames
+		for i = 1, #self.FramesToAlign do
+			local uiObject = self.FramesToAlign[i]
+			uiObject:Hide()
+		end
 		wipe(self.FramesToAlign)
 	end,
 
@@ -144,16 +150,17 @@ detailsFramework.HeaderFunctions = {
 				end
 
 				uiObject:SetPoint(columnHeader.columnAlign, self, anchor, columnHeader.XPosition + columnHeader.columnOffset + offset, 0)
+				uiObject:Show()
 			end
 		end
 	end,
 
 	---comment
-	---@param columnHeader df_headercolumnframe
+	---@param newColumnHeaderToSort df_headercolumnframe
 	---@param buttonClicked string
-	OnClick = function(columnHeader, buttonClicked)
+	OnClick = function(newColumnHeaderToSort, buttonClicked)
 		--get the header main frame
-		local headerFrame = columnHeader:GetParent()
+		local headerFrame = newColumnHeaderToSort:GetParent()
 		---@cast headerFrame df_headerframe
 
 		--if this header does not have a clickable header, just ignore
@@ -162,30 +169,31 @@ detailsFramework.HeaderFunctions = {
 		end
 
 		--check if this column has 'canSort' key, otherwise ignore the click
-		if (not columnHeader.columnData.canSort) then
+		if (not newColumnHeaderToSort.columnData.canSort) then
 			return
 		end
 
-		--get the latest column header selected
+		--get the latest column header selected and reset its backdrop and hide the arrow
 		---@type df_headercolumnframe
 		local previousColumnHeader = headerFrame.columnHeadersCreated[headerFrame.columnSelected]
 		previousColumnHeader.Arrow:Hide()
 		headerFrame:ResetColumnHeaderBackdrop(previousColumnHeader)
-		headerFrame:SetBackdropColorForSelectedColumnHeader(columnHeader)
 
-		if (headerFrame.columnSelected == columnHeader.columnIndex) then
-			columnHeader.order = columnHeader.order ~= "ASC" and "ASC" or "DESC"
+		headerFrame:SetBackdropColorForSelectedColumnHeader(newColumnHeaderToSort)
+
+		if (headerFrame.columnSelected == newColumnHeaderToSort.columnIndex) then
+			newColumnHeaderToSort.order = newColumnHeaderToSort.order ~= "ASC" and "ASC" or "DESC"
 		end
-		headerFrame.columnOrder = columnHeader.order
+		headerFrame.columnOrder = newColumnHeaderToSort.order
 
 		--set the new column header selected
-		headerFrame.columnSelected = columnHeader.columnIndex
+		headerFrame.columnSelected = newColumnHeaderToSort.columnIndex
 
-		headerFrame:UpdateSortArrow(columnHeader)
+		headerFrame:UpdateSortArrow(newColumnHeaderToSort)
 
 		if (headerFrame.options.header_click_callback) then
 			--callback with the main header frame, column header, column index and column order as payload
-			local okay, errortext = pcall(headerFrame.options.header_click_callback, headerFrame, columnHeader, columnHeader.columnIndex, columnHeader.order)
+			local okay, errortext = xpcall(headerFrame.options.header_click_callback, geterrorhandler(), headerFrame, newColumnHeaderToSort, newColumnHeaderToSort.columnIndex, newColumnHeaderToSort.order)
 			if (not okay) then
 				print("DF: Header onClick callback error:", errortext)
 			end
@@ -208,6 +216,11 @@ detailsFramework.HeaderFunctions = {
 		if (buttonClicked == "LeftButton") then
 
 		end
+	end,
+
+	PropagateClicks = function(self, propagate)
+		self.options.propagate_clicks = propagate
+		self:Refresh()
 	end,
 }
 
@@ -293,12 +306,16 @@ detailsFramework.HeaderMixin = {
 
 		local columnSpan = 0
 
+		self:SetPropagateMouseClicks(self.options.propagate_clicks)
+
 		--update header frames
 		for headerIndex = 1, headerSize do
 			--get the header button, a new one is created if it doesn't exists yet
 			local columnHeader = self:GetNextHeader()
 			local columnData = self.HeaderTable[headerIndex]
 			self:UpdateColumnHeader(columnHeader, headerIndex)
+
+			columnHeader:SetPropagateMouseClicks(self.options.propagate_clicks)
 
 			--grow direction
 			if (not previousColumnHeader) then
@@ -544,7 +561,20 @@ detailsFramework.HeaderMixin = {
 			--create a new column header
 			---@type df_headercolumnframe
 			columnHeader = CreateFrame("button", "$parentHeaderIndex" .. nextHeader, self, "BackdropTemplate")
-			columnHeader:SetScript("OnClick", detailsFramework.HeaderFunctions.OnClick)
+
+			--store the mouse xy position when onmousedown the column header, when the mouse is up, before calling its onclick function, check if the mouse position is the same, if not ignore the click
+			--this prevents the click event when the user is trying to move the parent frame
+			columnHeader:SetScript("OnMouseDown", function(columnHeader, buttonClicked)
+				columnHeader.mouseDownX, columnHeader.mouseDownY = GetCursorPosition()
+			end)
+			columnHeader:SetScript("OnMouseUp", function(columnHeader, buttonReleased)
+				local mouseUpX, mouseUpY = GetCursorPosition()
+				if (columnHeader.mouseDownX == mouseUpX and columnHeader.mouseDownY == mouseUpY) then
+					-- Call the OnClick function if the mouse hasn't moved
+					detailsFramework.HeaderFunctions.OnClick(columnHeader, buttonReleased)
+				end
+			end)
+
 			columnHeader:SetMovable(true)
 			columnHeader:SetResizable(true)
 
@@ -570,10 +600,23 @@ detailsFramework.HeaderMixin = {
 
 			resizerButton:SetScript("OnEnter", function()
 				resizerButton.texture:SetVertexColor(1, 1, 1, 0.9)
+
+				C_Timer.After(0.2, function()  --delay a bit to avoid the cursor flickering when moving fast
+					if (not resizerButton:IsMouseOver()) then
+						return
+					end
+					--change the cursor to resize
+					if (SetCursor) then
+						SetCursor("UI_RESIZE_CURSOR")
+					end
+				end)
 			end)
 
 			resizerButton:SetScript("OnLeave", function()
 				resizerButton.texture:SetVertexColor(unpack(self.options.reziser_color))
+				if (ResetCursor) then
+					ResetCursor()
+				end
 			end)
 
 			resizerButton:SetScript("OnMouseDown", function() --move this to a single function
@@ -649,6 +692,8 @@ local default_header_options = {
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 	backdrop_color = {0, 0, 0, 0.2},
 	backdrop_border_color = {0.1, 0.1, 0.1, .2},
+
+	propagate_clicks = false,
 
 	text_color = {1, 1, 1, 1},
 	text_size = 10,

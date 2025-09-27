@@ -5,61 +5,514 @@ local addonName, Details222 = ...
 local detailsFramework = DetailsFramework
 local _
 
+local sharedMedia = LibStub("LibSharedMedia-3.0")
+
 ---@class details_allinonewindow : table
----@field windowFrames table
+---@field Debug boolean
+---@field WindowFrames table
+---@field ActorCache table<actorname, actor> a weak table with "v" mode to cache actor references
+---@field HeaderColumnData details_allinonewindow_headercolumndata[] store info about each column in the header, containing width, label, align, sort, etc.
+---@field HeaderColumnDataKeyToIndex table<string, number> a table connecting the column key with the index in the HeaderColumnData table
+---@field Print fun(self: details_allinonewindow, ...: any)
+---@field RegisterEvents fun(self: details_allinonewindow) register the events used by the addon
+---@field OpenWindow fun(self: details_allinonewindow, windowId: number)
 ---@field GetSettings fun(self: details_allinonewindow, windowId: number): details_allinonewindow_settings
 ---@field GetNumWindowsCreated fun(self: details_allinonewindow): number
----@field CreateWindowFrame fun(self: details_allinonewindow): frame
----@field RefreshWindowFrame fun(self: details_allinonewindow, windowId: number)
----@field CreateLineForWindow fun(self: details_allinonewindow, window: details_allinonewindow_frame): details_allinonewindow_line
-
-
----@class details_allinonewindow_settings : table
----@field position table
----@field size table
----@field scale number
-
----@class details_allinonewindow_line : frame
+---@field CreateWindowFrame fun(self: details_allinonewindow): details_allinonewindow_frame
+---@field RefreshWindowLayout fun(self: details_allinonewindow, windowFrame: details_allinonewindow_frame)
+---@field RefreshLineLayout fun(self: details_allinonewindow, windowFrame: details_allinonewindow_frame, line: details_allinonewindow_line)
+---@field CreateLineForWindow fun(self: details_allinonewindow, windowFrame: details_allinonewindow_frame, lineId: number): details_allinonewindow_line
+---@field GetAllWindows fun(self: details_allinonewindow): details_allinonewindow_frame[]
+---@field ExecuteOnAllOpenedWindows fun(self: details_allinonewindow, functionName: string)
+---@field StartRefresher fun(self: details_allinonewindow)
+---@field StopRefresher fun(self: details_allinonewindow)
+---@field RefreshWindow fun(self: details_allinonewindow, windowFrame: details_allinonewindow_frame)
+---@field RefreshHeader fun(self: details_allinonewindow, windowFrame: details_allinonewindow_frame)
+---@field IsRefreshInProgress fun(self: details_allinonewindow): boolean
+---@field SetSegmentIdOnAllWindows fun(self: details_allinonewindow, segmentId: number)
+---@field RefreshColumn fun(self: details_allinonewindow, index: number, windowFrame: details_allinonewindow_frame, line: details_allinonewindow_line, headerColumnFrame: details_allinonewindow_line_dataframe, actorContainers: actorcontainer[], columnName: string, playerName: actorname, combatObject: combat, actorObjects: actor[]): number
+---@field GetActorFromCache fun(self: details_allinonewindow, actorName: actorname): actor?
+---@field GetColumnData fun(self: details_allinonewindow, key: string): details_allinonewindow_headercolumndata
+---@field OpenOptionsPanel fun(self: details_allinonewindow, windowFrame: details_allinonewindow_frame)
+---@field RefreshOptionsPanel fun(self: details_allinonewindow)
+---@field CreateOptionsPanel fun(self: details_allinonewindow)
 
 ---@class details_allinonewindow_headerframe : df_headerframe
 ---@field windowId number
 
+---@class details_allinonewindow_frame_functions : table
+---@field GetCombat fun(self: details_allinonewindow_frame): combat?
+---@field GetId fun(self: details_allinonewindow_frame): number return the window ID
+---@field IsOpen fun(self: details_allinonewindow_line_dataframe): boolean return if the window is currently open
+---@field GetScrollFrame fun(self: details_allinonewindow_frame): df_scrollbox return the scroll frame from the member ScrollFrame
+---@field GetSegmentId fun(self: details_allinonewindow_frame): number return the segment ID from the member segmentId
+---@field SetSegmentId fun(self: details_allinonewindow_frame, segmentId: number, noRefresh: boolean?) set the member segmentId
+---@field ValidateSegment fun(self: details_allinonewindow_frame, noRefresh: boolean?) if the segmentId does not contain a combat, set the segmentId to current, use noRefresh to avoid refreshing the window
+---@field GetHeader fun(self: details_allinonewindow_frame): details_allinonewindow_headerframe return the header frame from the member Header
+---@field GetHeaderNames fun(self: details_allinonewindow_frame): string[] return the column names from the settings table
+---@field CalcAndSetLineAmount fun(self: details_allinonewindow_frame) calculate how many lines can fit in the window and set this amount in the scroll frame
+---@field SetSortKeyTopAndTotal fun(self: details_allinonewindow_frame, key: string, top: number, total: number) set the total value in the scroll frame, used to calculate percentages
+---@field GetSortKeyTopAndTotal fun(self: details_allinonewindow_frame): string, number, number get the total value from the scroll frame
+---@field GetSelectedColumnName fun(self: details_allinonewindow_frame): string get the selected column from the settings table
+---@field SetSelectedColumnName fun(self: details_allinonewindow_frame, key: string) set the selected column in the settings table
+
+---@class details_allinonewindow_frame : frame, details_allinonewindow_frame_functions
+---@field windowId number
+---@field segmentId number
+---@field currentTotal number
+---@field currentTop number
+---@field sortKey string
+---@field isRefreshing boolean
+---@field settings details_allinonewindow_settings
+---@field latestRefresh number timestamp in GetTime() of the last time the window was refreshed
+---@field BackgroundTexture texture
+---@field RightResizerGrip df_resizergrip
+---@field Lines details_allinonewindow_line[]
+---@field Header details_allinonewindow_headerframe
+---@field ScrollFrame df_scrollbox the scroll frame where the lines showing player information are displayed
+
+---@class details_allinonewindow_line : button, df_headerfunctions
+---@field index number
+---@field onMouseUpTime number
+---@field ExpandedChildren button[]
+---@field FramesForData details_allinonewindow_line_dataframe[]|details_allinonewindow_line_statusbar_iconbutton[]
+---@field BackgroundTexture texture a texture placed in the background layer
+---@field HighlightTexture texture a texture placed in the highlight layer, shown when the mouse passes over
+---@field StatusBar details_allinonewindow_line_statusbar
+---@field PlayerIconTexture texture a shortcut to the texture used in the player icon frame
+---@field GetFrameForData fun(self: details_allinonewindow_line, columnId: number): details_allinonewindow_line_dataframe|details_allinonewindow_line_statusbar_iconbutton
+---@field GetAllFramesForData fun(self: details_allinonewindow_line): table
+---@field GetStatusBar fun(self: details_allinonewindow_line): details_allinonewindow_line_statusbar
+
+---@class details_allinonewindow_line_statusbar : statusbar
+---@field StatusBarTexture texture
+---@field OverlayTexture texture
+---@field HighlightTexture texture
+---@field PlayerIconFrame details_allinonewindow_line_statusbar_iconbutton
+---@field ExpandButton details_allinonewindow_line_statusbar_expandbutton
+
+---@class details_allinonewindow_line_statusbar_iconbutton : button
+---@field Text fontstring
+---@field Texture texture
+
+---@class details_allinonewindow_line_statusbar_expandbutton : button
+---@field isExpanded boolean
+---@field Texture texture this texture is usualy an arrow down or up
+
+---a dataframe is a frame which will have a text to show data, this data can be a damage, healing, interrupts, etc.
+---@class details_allinonewindow_line_dataframe : button
+---@field onEnterCallback fun(self: details_allinonewindow_line_dataframe) function to run when the mouse enter the frame, it is set using SetOnEnterCallback
+---@field Text fontstring the fontstring to show the data
+---@field SetOnEnterCallback fun(self: details_allinonewindow_line_dataframe, func: fun(self: details_allinonewindow_line_dataframe)) set a function to run when the mouse enter the frame
+
+--declaring the classes for the settings table
+---@class details_allinonewindow_settings : table
+---@field data details_allinonewindow_settings_data
+---@field header details_allinonewindow_settings_header
+---@field window details_allinonewindow_settings_window
+---@field lines details_allinonewindow_settings_lines
+---@field titlebar details_allinonewindow_settings_titlebar
+
+---@class details_allinonewindow_settings_data : table
+---@field segmentId number
+
+---@class details_allinonewindow_settings_header : table
+---@field column_names string[]
+---@field column_selected string
+---@field background_color number[]
+---@field column_order table<string, number> the order of the columns, this is used to restore the order when a column is removed and added back
+---@field column_width table<string, number> column name and its width
+
+---@class details_allinonewindow_settings_window : table
+---@field position table
+---@field width number
+---@field height number
+---@field line_amount number
+---@field background_texture string
+---@field background_color number[]
+---@field strata string
+---@field clickthrough_window boolean
+---@field clickthrough_incombatonly boolean
+---@field locked boolean
+---@field header_ontop boolean
+
+---@class details_allinonewindow_settings_lines : table
+---@field height number
+---@field space_between number
+---@field highlight boolean
+---@field always_show_player boolean
+---@field texture_background string
+---@field texture_background_color number[]
+---@field texture_background_colorbyclass boolean
+---@field texture_main string
+---@field texture_main_colorbyclass boolean
+---@field texture_main_color number[]
+---@field texture_overlay string
+---@field texture_overlay_color number[]
+---@field icon_enabled boolean
+---@field icon_spec string
+---@field icon_class string
+---@field icon_line_startafter boolean
+---@field icon_show_faction boolean
+---@field totalbar_enabled boolean
+---@field totalbar_ontop boolean
+---@field totalbar_grouponly boolean
+---@field totalbar_color number[]
+---@field text_color number[]
+---@field text_size number
+---@field text_x_offset number
+---@field text_y_offset number
+---@field text_font string
+---@field text_percent_type number
+---@field text_left_colorbyclass boolean
+---@field text_left_outline string
+---@field text_left_shadow_color number[]
+---@field text_left_shadow_offset number[]
+---@field text_show_rank boolean
+---@field text_centered boolean
+
+---@class details_allinonewindow_settings_titlebar : table
+---@field height number
+
+---@type details_allinonewindow_settings
+local defaultSettings = {
+    data =  {
+        segmentId = DETAILS_SEGMENTID_CURRENT,
+    },
+    header = {
+        column_selected = "dmgdps",
+        column_names = {"icon", "rank", "pname", "dmgdps", "healhps", "death", "interrupt", "dispel"},
+        column_order = {},
+        column_width = {},
+        background_color = {.2, .2, .2, 0.834},
+    },
+    window = {
+        position = {},
+        width = 200, --automatically calculated
+        height = 100, --automatically calculated
+        line_amount = 5,
+        background_texture = "Details Ground",
+        background_color = {.1, .1, .1, 0.834},
+        strata = "LOW", --LOW, MEDIUM, HIGH, DIALOG
+        clickthrough_window = false, --the window ignores mouse clicks
+        clickthrough_incombatonly = true, --when enabled, the clickthrough is only active when in combat
+        locked = false, --when disabled, resizers are not shown and the window is locked
+        header_ontop = true, --the header is on top of the window
+    },
+
+    lines = {
+        height = 20, --height of each line
+        space_between = 1, --pixels between each line
+        highlight = true, --show a white texture with low alpha when hovering over a line
+        always_show_player = true, --when enabled, the player line will always be shown
+        texture_background = "You Are the Best!",
+        texture_background_color = {.1, .1, .1, 0.3},
+        texture_background_colorbyclass = true,
+        texture_main = "You Are the Best!", --the texture used in the statusbar
+        texture_main_colorbyclass = true, --when enabled, the texture color will be based on the player's class
+        texture_main_color = {.3, .3, .3, 0.834}, --the color of the texture used in the statusbar when not colored by class
+        texture_overlay = "Details Vidro", --the texture used in the statusbar overlay
+        texture_overlay_color = {.3, .3, .3, 0}, --the color of the texture overlay used in the statusbar, alpha zero by default to hide it
+        icon_enabled = true, --show the player icon on the left side of the line
+        icon_spec = [[Interface\AddOns\Details\images\spec_icons_normal]], --always show the spec if the unit spec is known
+        icon_class = [[Interface\AddOns\Details\images\classes_small]], --fallback to class texture if spec is unknown
+        icon_line_startafter = true, --places the line left side attached to icon right side, otherwise it attached to the icon left side. transparent icons might want to disable this.
+        icon_show_faction = true, --while in a battleground, show the faction icon if the unit is an enemy
+        totalbar_enabled = false, --show the total bar
+        totalbar_ontop = false, --show the total bar on top of the lines, otherwise it will be below
+        totalbar_grouponly = true, --only show the total bar when the player is in a group
+        totalbar_color = {.3, .3, .3, 0.834},
+
+        text_color = {1, 1, 1, 0.823}, --the text color used in the lines
+        text_size = 11, --the text size used in the lines
+        text_x_offset = 0, --the text horizontal offset, used to align the text with the statusbar
+        text_y_offset = 0, --the text vertical offset, used to align the text with the statusbar
+        text_centered = false,
+        text_font = "Accidental Presidency",
+        text_percent_type = 1, --type 1: relative to total, 2: relative to top player
+        text_left_colorbyclass = false,
+        text_left_outline = "NONE",
+        text_left_shadow_color = {0, 0, 0, 1},
+        text_left_shadow_offset = {1, -1},
+        text_show_rank = true, --show the rank number before the name
+    },
+
+    titlebar = {
+        height = 20,
+    },
+}
+
 ---@type details_allinonewindow
----@diagnostic disable-next-line: missing-fields
-local AllInOneWindow = {
-    windowFrames = {},
+local AllInOneWindow = Details222.AllInOneWindow
+AllInOneWindow.WindowFrames = {}
+AllInOneWindow.ActorCache = Details222.Tables.MakeWeakTable()
+
+AllInOneWindow.Debug = true
+function AllInOneWindow:Print(...)
+    if (self.Debug) then
+        print("|cFFFF8800AllInOneWindow:|r", ...)
+    end
+end
+
+---get an actor from the cache
+---@param self details_allinonewindow
+---@param actorName actorname
+---@return actor?
+function AllInOneWindow:GetActorFromCache(actorName)
+    return self.ActorCache[actorName]
+end
+
+---@type details_allinonewindow_frame_functions
+local windowFunctionsMixin = {
+    ---returns the window id
+    ---@param self details_allinonewindow_frame
+    ---@return number windowId
+    GetId = function(self)
+        return self.windowId
+    end,
+
+    ---return true if the window is open
+    ---@param self details_allinonewindow_frame
+    ---@return boolean isOpen
+    IsOpen = function(self)
+        return self:IsShown()
+    end,
+
+    ---return the scroll frame used in the window
+    ---@param self details_allinonewindow_frame
+    ---@return df_scrollbox scrollFrame
+    GetScrollFrame = function(self)
+        return self.ScrollFrame
+    end,
+
+    ---return the segment id used in the window
+    ---@param self details_allinonewindow_frame
+    ---@return number segmentId
+    GetSegmentId = function(self)
+        return self.segmentId
+    end,
+
+    ---set the segment id used in the window
+    ---@param self details_allinonewindow_frame
+    ---@param segmentId number
+    ---@param noRefresh boolean
+    SetSegmentId = function(self, segmentId, noRefresh)
+        self.segmentId = segmentId
+        --refresh the window
+        if (not noRefresh) then
+            AllInOneWindow:RefreshWindow(self)
+        end
+    end,
+
+    ---@param self details_allinonewindow_frame
+    ---@param noRefresh boolean
+    ValidateSegment = function(self, noRefresh)
+        local segmentId = self:GetSegmentId()
+        if (segmentId ~= DETAILS_SEGMENTID_CURRENT and segmentId ~= DETAILS_SEGMENTID_OVERALL) then
+            local combat = Details:GetCombat(segmentId)
+            if (not combat) then
+                self:SetSegmentId(DETAILS_SEGMENTID_CURRENT, noRefresh)
+            end
+        end
+    end,
+
+    ---return the header frame used in the window
+    ---@param self details_allinonewindow_frame
+    ---@return details_allinonewindow_headerframe
+    GetHeader = function(self)
+        return self.Header
+    end,
+
+    ---this function return the settings table with the header column data
+    ---@param self details_allinonewindow_frame
+    ---@return string[] columnNames
+    GetHeaderNames = function(self)
+        return self.settings.header.column_names
+    end,
+
+    GetCombat = function(self)
+        return Details:GetCombat(self:GetSegmentId())
+    end,
+
+    ---@param self details_allinonewindow_frame
+    CalcAndSetLineAmount = function(self)
+        --calculate how many lines can fit in the window, for this we get the window height minus the header height and divide by line height+space
+        local lineHeight = self.settings.lines.height
+        local headerHeight = self:GetHeader():GetHeight()
+        local availableHeight = self:GetHeight() - headerHeight
+        local lineLimitToUpdate = math.floor(availableHeight / (lineHeight + 2))
+        local scrollFrame = self:GetScrollFrame()
+        scrollFrame:SetNumFramesShown(lineLimitToUpdate)
+    end,
+
+    SetSortKeyTopAndTotal = function(self, key, top, total)
+        self.sortKey = key
+        self.currentTop = top
+        self.currentTotal = total
+    end,
+
+    GetSortKeyTopAndTotal = function(self)
+        return self.sortKey, self.currentTop, self.currentTotal
+    end,
+
+    GetSelectedColumnName = function(self)
+        return self.settings.header.column_selected
+    end,
+    SetSelectedColumnName = function(self, key)
+        self.settings.header.column_selected = key
+    end,
 }
 
 ---@param self details_allinonewindow
 ---@param windowId number
 function AllInOneWindow:GetSettings(windowId)
     local windowSetting = Details.window2_data[windowId]
+    if (not windowSetting) then
+        windowSetting = detailsFramework.table.copy({}, defaultSettings)
+        Details.window2_data[windowId] = windowSetting
+    else
+        detailsFramework.table.deploy(windowSetting, defaultSettings)
+    end
     return windowSetting
 end
 
 ---@param self details_allinonewindow
 function AllInOneWindow:GetNumWindowsCreated()
-    return #self.windowFrames
+    return #self.WindowFrames
+end
+
+function AllInOneWindow:GetAllWindows()
+    return self.WindowFrames
+end
+
+function AllInOneWindow:ExecuteOnAllOpenedWindows(functionName)
+    local allWindows = AllInOneWindow:GetAllWindows()
+    for i = 1, #allWindows do
+        local windowFrame = allWindows[i]
+        if (windowFrame:IsOpen()) then
+            local func = windowFrame[functionName]
+            if (func) then
+                func(windowFrame)
+            end
+        end
+    end
+end
+
+function AllInOneWindow:SetSegmentIdOnAllWindows(segmentId)
+    for i = 1, #self.WindowFrames do
+        local windowFrame = self.WindowFrames[i]
+        if (windowFrame:IsOpen()) then
+            windowFrame:SetSegmentId(segmentId)
+        end
+    end
+end
+
+function AllInOneWindow:OpenWindow(windowId) --~open õpen
+    local windowFrame = self.WindowFrames[windowId]
+    if (not windowFrame) then
+        windowFrame = self:CreateWindowFrame()
+        windowFrame:SetPoint("center", UIParent, "center", 0, 0)
+        windowFrame.settings = self:GetSettings(windowId)
+        windowFrame.latestRefresh = -1
+        self.WindowFrames[windowId] = windowFrame
+
+        --check if there is new columnNames to add to the order
+        for i = 1, #AllInOneWindow.HeaderColumnData do
+            local columnName = AllInOneWindow.HeaderColumnData[i].name
+            if (columnName and not windowFrame.settings.header.column_order[columnName]) then
+                windowFrame.settings.header.column_order[columnName] = i
+            end
+        end
+
+        windowFrame:SetSize(windowFrame.settings.window.width, windowFrame.settings.window.height)
+
+        local LibWindow = LibStub("LibWindow-1.1")
+        LibWindow.RegisterConfig(windowFrame, windowFrame.settings.window.position)
+        LibWindow.MakeDraggable(windowFrame)
+        LibWindow.RestorePosition(windowFrame)
+
+        windowFrame:SetPoint("center", UIParent, "center", 0, 100)
+
+        --[=[
+            C_Timer.After(1, function()
+                if (windowFrame:IsOpen()) then
+                --clear all point
+                    windowFrame:ClearAllPoints()
+                    windowFrame:SetPoint("center", UIParent, "center", 0, 100)
+                end
+            end)
+        --]=]
+
+        windowFrame:SetMovable(true)
+        windowFrame:SetResizable(true)
+
+        windowFrame:CalcAndSetLineAmount()
+
+        windowFrame.segmentId = windowFrame.settings.data.segmentId or DETAILS_SEGMENTID_CURRENT
+    end
+
+    AllInOneWindow:RegisterEvents()
+
+    local noRefresh = true
+    windowFrame:ValidateSegment(noRefresh)
+
+    windowFrame:Show()
+    self:RefreshWindowLayout(windowFrame)
+
+    local debugSizes = false
+    if (debugSizes) then
+        print("window size:", windowFrame:GetWidth(), windowFrame:GetHeight())
+        local header = windowFrame:GetHeader()
+        print("header size:", header:GetWidth(), header:GetHeight())
+        local scrollFrame = windowFrame:GetScrollFrame()
+        print("scrollFrame size:", scrollFrame:GetWidth(), scrollFrame:GetHeight())
+    end
+
+    self:RefreshWindow(windowFrame)
+
+    C_Timer.After(1, function()
+        if (windowFrame:IsOpen()) then
+            self:RefreshWindow(windowFrame)
+        end
+    end)
+end
+
+function Details:OpenAllInOneWindow(windowId)
+    AllInOneWindow:OpenWindow(windowId)
 end
 
 ---run when the user clicks a column header
 ---@param headerFrame df_headerframe
 ---@param columnHeader df_headercolumnframe
-local onColumnHeaderClickCallback = function(headerFrame, columnHeader)
-    AllInOneWindow:RefreshWindowFrame(headerFrame:GetParent())
+local onColumnHeaderClickCallback = function(headerFrame, columnHeader, columnIndex, order)
+    ---@type details_allinonewindow_frame
+    local windowFrame = headerFrame:GetParent()
+    windowFrame:SetSelectedColumnName(columnHeader.key)
+    AllInOneWindow:RefreshWindow(windowFrame)
 end
 
 ---@param headerFrame details_allinonewindow_headerframe
----@param setting string
+---@param optionName string
 ---@param columnName string
----@param columnWidth number
-local onHeaderColumnOptionChanged = function(headerFrame, setting, columnName, columnWidth) --setting is usually "width"
-
+---@param value any
+local onHeaderColumnOptionChanged = function(headerFrame, optionName, columnName, value) --setting is usually "width"
+    if (optionName == "width") then
+        local newHeaderColumnWidth = value
+        ---@type details_allinonewindow_frame
+        local windowFrame = headerFrame:GetParent()
+        windowFrame.settings.header.column_width[columnName] = newHeaderColumnWidth
+        C_Timer.After(0, function()
+            AllInOneWindow:RefreshHeader(windowFrame)
+            AllInOneWindow:RefreshWindowLayout(windowFrame)
+        end)
+    end
 end
+
 
 --~header
 local headerOptions = {
     padding = 2,
+    propagate_clicks = true,
     header_height = 14,
     reziser_shown = true,
     reziser_width = 2,
@@ -70,195 +523,598 @@ local headerOptions = {
     text_color = {1, 1, 1, 0.823},
 }
 
-local windowMethods = {
-    GetId = function(self)
-        return self.windowId
-    end,
-}
+---this function get called when the scrollbox needs to refresh its lines
+---it get the data for each line and update the line by the column names
+---@param self df_scrollbox
+---@param data actorname[]
+---@param offset number
+---@param totalLines number
+local windowScrollRefreshFunc = function(self, data, offset, totalLines) --~refresh
 
----@class details_allinonewindow_frame : frame
----@field Header details_allinonewindow_headerframe
----@field GetId fun(self: details_allinonewindow_frame): number
+    local ToK = Details:GetCurrentToKFunction()
+    ---@type details_allinonewindow_frame
+    local windowFrame = self:GetParent()
+    local headerFrame = windowFrame:GetHeader()
+    local headerNames = windowFrame:GetHeaderNames()
+    local combatObject = windowFrame:GetCombat()
 
+    windowFrame.isRefreshing = true
+
+    if not combatObject then
+        return
+    end
+
+    if (windowFrame.latestRefresh == GetTime()) then
+        --return
+    end
+    windowFrame.latestRefresh = GetTime()
+
+    ---@type actorcontainer[]
+    local containers = {
+        combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE),
+        combatObject:GetContainer(DETAILS_ATTRIBUTE_HEAL),
+        combatObject:GetContainer(DETAILS_ATTRIBUTE_ENERGY),
+        combatObject:GetContainer(DETAILS_ATTRIBUTE_MISC),
+    }
+
+    local key, top, total = windowFrame:GetSortKeyTopAndTotal()
+
+    for i = 1, totalLines do
+    	local index = i + offset
+        ---@type string
+		local playerName = data[index]
+        if (playerName) then
+            local line = self:GetLine(i)
+            ---@cast line details_allinonewindow_line
+
+            if (line) then
+                line:ResetFramesToHeaderAlignment()
+                line.PlayerIconTexture:Hide()
+
+                local actorObjects = {
+                    containers[DETAILS_ATTRIBUTE_DAMAGE]:GetActor(playerName),
+                    containers[DETAILS_ATTRIBUTE_HEAL]:GetActor(playerName),
+                    containers[DETAILS_ATTRIBUTE_ENERGY]:GetActor(playerName),
+                    containers[DETAILS_ATTRIBUTE_MISC]:GetActor(playerName),
+                }
+
+                local statusBarWidth = AllInOneWindow.HeaderColumnData[2].width + AllInOneWindow.HeaderColumnData[3].width + 4
+                local statusBar = line:GetStatusBar()
+                statusBar:SetWidth(statusBarWidth)
+
+                for headerIndex, headerName in ipairs(headerNames) do
+                    local headerColumnFrame = line:GetFrameForData(headerIndex)
+                    local result = AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFrame, containers, headerName, playerName, combatObject, actorObjects)
+
+                    local columnData = AllInOneWindow:GetColumnData(headerName)
+                    headerColumnFrame:SetSize(columnData.width - 2, line:GetHeight() - 2)
+
+                    line:AddFrameToHeaderAlignment(headerColumnFrame)
+
+                    if (key == headerName) then
+                        statusBar:SetMinMaxValues(0, top)
+                        statusBar:SetValue(result)
+                    end
+
+                    if (headerName == "rank" or headerName == "pname") then
+                        statusBarWidth = statusBarWidth + columnData.width
+                    end
+
+                    --pergunta: precisa mostrar a scrollbar?
+                end
+
+                if (windowFrame.settings.lines.texture_main_colorbyclass) then
+                    local r, g, b = Details:GetBarColor(actorObjects[1] or actorObjects[2] or actorObjects[3] or actorObjects[4])
+                    statusBar:SetStatusBarColor(r, g, b, 1)
+                else
+                    statusBar.StatusBarTexture:SetVertexColor(unpack(windowFrame.settings.lines.texture_main_color))
+                end
+
+                line:AlignWithHeader(headerFrame, "left")
+            else
+                --print("no line:", i, index, playerName)
+            end
+        end
+    end
+
+    windowFrame.isRefreshing = false
+end
+
+
+--functions to run when the mouse enter a line or leave
+local windowLineOnEnter = function(line)
+    GameCooltip:Preset(2)
+    GameCooltip:SetOwner(line)
+    GameCooltip:AddLine("Entered Line " .. line.index)
+    GameCooltip:Show()
+end
+local windowLineOnLeave = function(line)
+    GameCooltip:Hide()
+end
+--functions to run when the line receives a mouse down and mouse up event
+local windowLineOnMouseDown = function(line, button)
+    --print("mouse down on line", line.index, button)
+end
+local windowLineOnMouseUp = function(line, button)
+    --print("mouse up on line", line.index, button)
+end
+--function to run when the player icon is hovered over and clicked
+local onEnterPlayerIconFrame = function(playerIconFrame)
+    --cooltip showing 'entered icon' phrase
+    GameCooltip:Preset(2)
+    GameCooltip:SetOwner(playerIconFrame)
+    GameCooltip:AddLine("Entered Icon")
+    GameCooltip:Show()
+end
+local onLeavePlayerIconFrame = function(playerIconFrame)
+    GameCooltip:Hide()
+end
+local onClickPlayerIconFrame = function(playerIconFrame)
+    --print("Clicked Icon")
+end
+
+---@param self details_allinonewindow_line
+---@param columnId number
+local getFrameForData = function(self, columnId)
+    return self.FramesForData[columnId]
+end
+
+---@param self details_allinonewindow_line
+local getAllFramesForData = function(self)
+    return self.FramesForData
+end
+
+---@param self details_allinonewindow_line
+local getStatusBar = function(self)
+    return self.StatusBar
+end
+
+--data frame functions (data frame are the frames used to show data in each column of a line (e.g. damage, healing, etc), each line has multiple data frames)
+---@type fun(self: details_allinonewindow_line_dataframe, func: fun(self: details_allinonewindow_line_dataframe))
+local setDataFrameOnEnterCallbackFunction = function(self, func)
+    self.onEnterCallback = func
+end
+---@type fun(self: details_allinonewindow_line_dataframe)
+local onEnterDataFrameFunction = function(self)
+    self.Text:SetTextColor(1, 1, 0, 1)
+
+    if (self.onEnterCallback) then
+        self.onEnterCallback(self)
+    end
+end
+---@type fun(self: details_allinonewindow_line_dataframe)
+local onLeaveDataFrameFunction = function(self)
+    self.Text:SetTextColor(1, 1, 1, 1)
+end
+
+---@param scrollFrame df_scrollbox
+---@param lineId number
+---@return details_allinonewindow_line line
+local createLineForWindow = function(scrollFrame, lineId) --~line
+    ---@type details_allinonewindow_frame
+    local windowFrame = scrollFrame:GetParent()
+
+    ---@type details_allinonewindow_line
+    local line = CreateFrame("Button", "$parentLine" .. lineId, scrollFrame, "BackdropTemplate")
+    line:EnableMouse(true)
+    line:RegisterForClicks("AnyUp", "AnyDown")
+    line:SetScript("OnEnter", windowLineOnEnter)
+    line:SetScript("OnLeave", windowLineOnLeave)
+    line:SetScript("OnMouseDown", windowLineOnMouseDown)
+    line:SetScript("OnMouseUp", windowLineOnMouseUp)
+    line.index = lineId
+    line.onMouseUpTime = 0
+    line.ExpandedChildren = {}
+    line.FramesForData = {}
+
+    detailsFramework:Mixin(line, detailsFramework.HeaderFunctions)
+
+    line.GetFrameForData = getFrameForData
+    line.GetAllFramesForData = getAllFramesForData
+    line.GetStatusBar = getStatusBar
+
+    --the height of the line is set later on an update function
+
+    do --line textures
+        local backgroundTexture = line:CreateTexture("$parentTextureBackground", "background")
+        backgroundTexture:SetAllPoints()
+        line.BackgroundTexture = backgroundTexture
+
+        local highlightTexture = line:CreateTexture("$parentTextureHighlight", "highlight")
+        highlightTexture:SetColorTexture(1, 1, 1, 0.2)
+        highlightTexture:SetAllPoints()
+        line.HighlightTexture = highlightTexture
+    end
+
+    --the statusbar which will fill the line according with the percentage given by the data
+    ---@type details_allinonewindow_line_statusbar
+    local statusBar = CreateFrame("StatusBar", "$parentStatusBar", line)
+    statusBar:SetMinMaxValues(0, 1)
+    statusBar:SetValue(0)
+    statusBar:EnableMouse(false)
+    statusBar:SetFrameLevel(line:GetFrameLevel()+1)
+    line.StatusBar = statusBar
+
+    do --statusbar textures
+        ---@type texture this is the statusbar texture
+        local statusBarTexture = statusBar:CreateTexture("$parentTexture", "artwork")
+        statusBarTexture:SetTexture([[Interface\WORLDSTATEFRAME\WORLDSTATEFINALSCORE-HIGHLIGHT]])
+        statusBar:SetStatusBarTexture(statusBarTexture)
+        statusBar:SetStatusBarColor(0, 1, 0, 1)
+        statusBar.StatusBarTexture = statusBarTexture
+
+        local overlayTexture = statusBar:CreateTexture("$parentTextureOverlay", "overlay", nil, 7)
+        overlayTexture:SetTexture([[Interface/AddOns/Details/images/overlay_indicator_1]])
+        overlayTexture:SetVertexColor(1, 1, 1, 0.2)
+        overlayTexture:SetAllPoints()
+        overlayTexture:Hide()
+        statusBar.OverlayTexture = overlayTexture
+
+        local highlightTexture = statusBar:CreateTexture("$parentTextureHighlight", "highlight")
+        highlightTexture:SetColorTexture(1, 1, 1, 0.1)
+        highlightTexture:SetAllPoints()
+        statusBar.HighlightTexture = highlightTexture
+    end
+
+    --frame which will show the player tooltip when hovering over the icon
+    ---@type details_allinonewindow_line_statusbar_iconbutton
+    local playerIconFrame = CreateFrame("button", "$parentIconFrame", line) --icon position is static
+    playerIconFrame:SetPoint("topleft", line, "topleft", 1, -1)
+    playerIconFrame:SetPoint("bottomleft", line, "bottomleft", 1, 1)
+    playerIconFrame:SetFrameLevel(statusBar:GetFrameLevel()+1)
+    playerIconFrame:SetScript("OnEnter", onEnterPlayerIconFrame)
+    playerIconFrame:SetScript("OnLeave", onLeavePlayerIconFrame)
+    playerIconFrame:SetScript("OnClick", onClickPlayerIconFrame)
+    statusBar.PlayerIconFrame = playerIconFrame
+
+    --the text to show the data, if the icon isn't shown
+    playerIconFrame.Text = playerIconFrame:CreateFontString("$parentText", "overlay", "GameFontHighlightSmall")
+    playerIconFrame.Text:SetPoint("left", playerIconFrame, "left", 2, 0)
+    playerIconFrame.Text:SetJustifyH("left")
+    playerIconFrame.Text:SetTextColor(1, 1, 1, 1)
+    playerIconFrame.Text:SetNonSpaceWrap(true)
+    playerIconFrame.Text:SetWordWrap(false)
+
+    --the icon to show the class or spec icon, it's size only require a width
+    ---@type texture
+    playerIconFrame.Texture = playerIconFrame:CreateTexture("$parentIcon", "artwork")
+    playerIconFrame.Texture:SetAllPoints()
+
+    --shortcut for the icon
+    line.PlayerIconTexture = playerIconFrame.Texture
+
+    line.FramesForData[#line.FramesForData+1] = playerIconFrame
+
+    ---@type details_allinonewindow_line_statusbar_expandbutton
+    local expandButton = CreateFrame("button", "$parentExpandButton", statusBar, "BackdropTemplate")
+    expandButton:SetSize(20, 20) --this size is updated later in an update function
+    expandButton:SetFrameLevel(statusBar:GetFrameLevel()+1)
+    expandButton:RegisterForClicks("LeftButtonDown")
+    expandButton:Hide()
+    statusBar.ExpandButton = expandButton
+
+    ---@type texture
+    local expandButtonTexture = expandButton:CreateTexture("$parentTexture", "artwork")
+    expandButtonTexture:SetPoint("center", expandButton, "center", 0, 0)
+    expandButtonTexture:SetSize(20, 20)
+    expandButton.Texture = expandButtonTexture
+
+    local maxColumns = 16
+
+    --create data frames to hold information for each column
+    for columnId = 1, maxColumns do
+        ---@type details_allinonewindow_line_dataframe
+        local frame = CreateFrame("button", "$parentFrameForData" .. columnId, line)
+        --the size of the frame will be set later to follow the header width
+
+        frame.SetOnEnterCallback = setDataFrameOnEnterCallbackFunction
+        frame:SetScript("OnEnter", onEnterDataFrameFunction)
+        frame:SetScript("OnLeave", onLeaveDataFrameFunction)
+        line.FramesForData[#line.FramesForData+1] = frame
+
+        frame:SetPropagateMouseMotion(true) --let the mouse motion propagate to the line
+        frame:SetPropagateMouseClicks(true) --let the click propagate to the line
+
+        --the text to show the data
+        local text = frame:CreateFontString("$parentText", "overlay", "GameFontHighlightSmall")
+        text:SetPoint("left", frame, "left", 2, 0)
+        text:SetJustifyH("left")
+        text:SetTextColor(1, 1, 1, 1)
+        text:SetNonSpaceWrap(true)
+        text:SetWordWrap(false)
+
+        frame.Text = text
+    end
+
+    return line
+end
+
+---@param self details_allinonewindow_frame
+local onWindowSizeChanged = function(self)
+    if (self.isRefreshing) then
+        C_Timer.After(0, function()
+            if (self:IsOpen()) then
+                self:GetScript("OnSizeChanged")(self)
+            end
+        end)
+        return
+    end
+
+    local settings = self.settings
+    settings.window.width = self:GetWidth()
+    settings.window.height = self:GetHeight()
+
+    local LibWindow = LibStub("LibWindow-1.1")
+    LibWindow.SavePosition(self)
+
+    self:CalcAndSetLineAmount()
+    local scrollFrame = self:GetScrollFrame()
+    scrollFrame:Refresh()
+end
+
+--this function only creates the frames, do not refresh anything
 ---@param self details_allinonewindow
-function AllInOneWindow:CreateWindowFrame()
+---@return details_allinonewindow_frame window
+function AllInOneWindow:CreateWindowFrame() --~create
     local windowId = self:GetNumWindowsCreated()+1
 
     ---@type details_allinonewindow_frame
-    local window = CreateFrame("Frame", "DetailsAllInOneWindow" .. windowId, UIParent, "BackdropTemplate")
-    detailsFramework:Mixin(window, windowMethods)
+    local windowFrame = CreateFrame("Frame", "DetailsAllInOneWindow" .. windowId, UIParent, "BackdropTemplate")
+    detailsFramework:Mixin(windowFrame, windowFunctionsMixin)
+    windowFrame.windowId = windowId
 
-    detailsFramework:ApplyStandardBackdrop(window)
+    windowFrame:SetSortKeyTopAndTotal("dmg", 0.1, 0.1) --avoid division by zero
+
+    windowFrame:SetScript("OnSizeChanged", onWindowSizeChanged)
+
+    detailsFramework:MakeDraggable(windowFrame)
+
+    windowFrame.Lines = {}
+
+    --topleft button to open the options panel
+    local optionsButton = CreateFrame("button", "$parentOptionsButton", windowFrame)
+    optionsButton:SetSize(14, 14)
+    optionsButton:SetPoint("topleft", windowFrame, "topleft", 4, -2)
+    optionsButton.Icon = optionsButton:CreateTexture("$parentIcon", "artwork")
+    optionsButton.Icon:SetPoint("center", optionsButton, "center", 0, 0)
+    optionsButton.Icon:SetSize(optionsButton:GetSize())
+    optionsButton.Icon:SetTexture([[Interface\AddOns\Details\assets\textures\icons\wrench.png]])
+    optionsButton:SetFrameLevel(windowFrame:GetFrameLevel()+2)
+    optionsButton:SetScript("OnClick", function()
+        AllInOneWindow:OpenOptionsPanel(windowFrame)
+    end)
+
+    local scrollWidth = 2
+    local scrollHeight = 2
+    local scrollLineAmount = 40
+    local scrollLineHeight = 20
+
+    local scrollFrame = detailsFramework:CreateScrollBox(windowFrame, "$parentMainScroll", windowScrollRefreshFunc, {}, scrollWidth, scrollHeight, scrollLineAmount, scrollLineHeight)
+    scrollFrame:SetFrameLevel(windowFrame:GetFrameLevel()+1)
+    detailsFramework:ReskinSlider(scrollFrame)
+    windowFrame.ScrollFrame = scrollFrame
+    scrollFrame:SetBackdrop(nil)
+
+    detailsFramework:ApplyStandardBackdrop(windowFrame)
 
 	local headerTable = {}
 
 	---create the header frame, the header frame is the frame which shows the columns names to describe the data shown in the window
 	---@type details_allinonewindow_headerframe
-	local header = detailsFramework:CreateHeader(window, headerTable, headerOptions)
-	header:SetPoint("topleft", window, "topleft", 2, -2)
-	header:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
-	header.windowId = windowId
-	window.Header = header
+	local headerFrame = detailsFramework:CreateHeader(windowFrame, headerTable, headerOptions)
+    headerFrame:SetFrameLevel(windowFrame:GetFrameLevel()+1)
+    headerFrame:SetPropagateMouseClicks(true) --let the click propagate to the windowFrame
+	headerFrame:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
+	headerFrame.windowId = windowId
+	windowFrame.Header = headerFrame
 
-    return window
+    --creating the lines after the header creation
+    for lineId = 1, scrollLineAmount do
+        scrollFrame:CreateLine(createLineForWindow)
+    end
+
+    local backgroundTexture = windowFrame:CreateTexture("$parentBackground", "background")
+    backgroundTexture:SetAllPoints()
+    windowFrame.BackgroundTexture = backgroundTexture
+
+    local leftGrip, rightGrip = detailsFramework:CreateResizeGrips(windowFrame, {width = 20, height = 20})
+    leftGrip:Hide()
+    rightGrip:SetScript("OnMouseDown", function()
+        windowFrame:StartSizing("TOP")
+    end)
+    rightGrip:SetScript("OnMouseUp", function()
+        windowFrame:StopMovingOrSizing()
+    end)
+    windowFrame.RightResizerGrip = rightGrip
+    rightGrip:Hide()
+
+    return windowFrame
+end
+
+local refreshCache = {}
+
+---@param self details_allinonewindow
+---@param windowFrame details_allinonewindow_frame
+function AllInOneWindow:RefreshWindowLayout(windowFrame)
+    local settings = windowFrame.settings
+
+    windowFrame:SetFrameStrata(settings.window.strata)
+
+    local header = windowFrame:GetHeader()
+
+    if (settings.window.clickthrough_window and not settings.window.clickthrough_incombatonly) then
+        windowFrame:EnableMouse(false) --do propagate to children?
+    end
+
+    if (settings.window.locked) then
+        windowFrame.RightResizerGrip:Hide()
+    else
+        windowFrame.RightResizerGrip:Show()
+        windowFrame.RightResizerGrip:Hide() --development as there is no more window resize
+    end
+
+    if (settings.window.header_ontop) then
+        header:SetPoint("topleft", windowFrame, "topleft", 2, -2)
+    else
+        header:SetPoint("bottomleft", windowFrame, "bottomleft", 2, -2)
+    end
+
+    --get the scrollframe
+    local scrollFrame = windowFrame.ScrollFrame
+    scrollFrame:ClearAllPoints()
+    scrollFrame:SetPoint("topleft", header, "bottomleft", 0, -1)
+    scrollFrame:SetPoint("topright", header, "bottomright", 0, -1)
+    scrollFrame:SetPoint("bottomright", windowFrame, "bottomright", 0, 2)
+
+    windowFrame.BackgroundTexture:SetTexture(sharedMedia:Fetch("statusbar", settings.window.background_texture))
+    windowFrame.BackgroundTexture:SetVertexColor(unpack(settings.window.background_color))
+
+    local lineFont = sharedMedia:Fetch("font", settings.lines.text_font)
+    refreshCache.lineFont = lineFont
+
+    --get the lines used in the window frame from the scroll frame
+    ---@type details_allinonewindow_line[]
+    local lines = scrollFrame:GetLines()
+    --refresh the line layouts
+    for i = 1, #lines do
+        local line = lines[i]
+        AllInOneWindow:RefreshLineLayout(windowFrame, line)
+    end
+
+    AllInOneWindow:RefreshHeader(windowFrame)
+
+    local amountOfLines = settings.window.line_amount
+    local lineHeight = settings.lines.height
+    local spaceBetween = settings.lines.space_between
+    local headerHeight = header:GetHeight()
+
+    local totalHeight = 7 + (lineHeight * amountOfLines) + (spaceBetween * (amountOfLines - 1)) + headerHeight --~height
+    windowFrame:SetHeight(totalHeight)
 end
 
 ---@param self details_allinonewindow
----@param window details_allinonewindow_frame
----@return details_allinonewindow_line line
-function AllInOneWindow:CreateLineForWindow(window)
-    ---@type details_allinonewindow_line
-    local line = CreateFrame("Frame", "DetailsAllInOneWindowLine" .. window:GetId(), window, "BackdropTemplate")
-
-    line.Icon = line:CreateTexture("$parentIcon", "artwork")
-    line.Icon:SetPoint("topleft", line, "topleft", 1, -1)
-    line.Icon:SetPoint("bottomleft", line, "bottomleft", 1, 1)
-
-    --stopped here, creating the line frames
-    --for reference, the comment below hasjthe content from breakdown spell frames lua file.
-    --[=[
-        spellBar.index = index
-
-        --size and positioning
-        spellBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
-        local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
-        spellBar:SetPoint("topleft", self, "topleft", 1, y)
-        spellBar:SetPoint("topright", self, "topright", -1, y)
-
-        spellBar:EnableMouse(true)
-        spellBar:RegisterForClicks("AnyUp", "AnyDown")
-        spellBar:SetAlpha(0.823)
-        spellBar:SetFrameStrata("high")
-        spellBar:SetScript("OnEnter", onEnterSpellBar)
-        spellBar:SetScript("OnLeave", onLeaveSpellBar)
-        spellBar:SetScript("OnMouseDown", onMouseDownBreakdownSpellBar)
-        spellBar:SetScript("OnMouseUp", onMouseUpBreakdownSpellBar)
-        spellBar.onMouseUpTime = 0
-        spellBar.ExpandedChildren = {}
-
-        DF:Mixin(spellBar, DF.HeaderFunctions)
-
-        ---@type breakdownspellbarstatusbar
-        local statusBar = CreateFrame("StatusBar", "$parentStatusBar", spellBar)
-        statusBar:SetAllPoints()
-        statusBar:SetAlpha(0.5)
-        statusBar:SetMinMaxValues(0, 100)
-        statusBar:SetValue(50)
-        statusBar:EnableMouse(false)
-        statusBar:SetFrameLevel(spellBar:GetFrameLevel() - 1)
-        spellBar.statusBar = statusBar
-
-        ---@type texture this is the statusbar texture
-        local statusBarTexture = statusBar:CreateTexture("$parentTexture", "artwork")
-        statusBar:SetStatusBarTexture(statusBarTexture)
-        statusBar:SetStatusBarColor(1, 1, 1, 1)
-
-        ---@type texture background texture
-        local backgroundTexture = statusBar:CreateTexture("$parentTextureBackground", "border")
-        backgroundTexture:SetAllPoints()
-        statusBar.backgroundTexture = backgroundTexture
-
-        ---@type texture overlay texture to use when the spellbar is selected
-        local statusBarOverlayTexture = statusBar:CreateTexture("$parentTextureOverlay", "overlay", nil, 7)
-        statusBarOverlayTexture:SetTexture([[Interface/AddOns/Details/images/overlay_indicator_1]])
-        statusBarOverlayTexture:SetVertexColor(1, 1, 1, 0.2)
-        statusBarOverlayTexture:SetAllPoints()
-        statusBarOverlayTexture:Hide()
-        spellBar.overlayTexture = statusBarOverlayTexture
-        statusBar.overlayTexture = statusBarOverlayTexture
-
-        ---@type texture shown when the mouse hoverover this spellbar
-        local hightlightTexture = statusBar:CreateTexture("$parentTextureHighlight", "highlight")
-        hightlightTexture:SetColorTexture(1, 1, 1, 0.2)
-        hightlightTexture:SetAllPoints()
-        statusBar.highlightTexture = hightlightTexture
-
-        --button to expand the bar when there's spells merged
-        ---@type breakdownexpandbutton
-        local expandButton = CreateFrame("button", "$parentExpandButton", spellBar, "BackdropTemplate")
-        expandButton:SetSize(CONST_BAR_HEIGHT, CONST_BAR_HEIGHT)
-        expandButton:RegisterForClicks("LeftButtonDown")
-        spellBar.expandButton = expandButton
-
-        ---@type texture
-        local expandButtonTexture = expandButton:CreateTexture("$parentTexture", "artwork")
-        expandButtonTexture:SetPoint("center", expandButton, "center", 0, 0)
-        expandButtonTexture:SetSize(CONST_BAR_HEIGHT-2, CONST_BAR_HEIGHT-2)
-        expandButton.texture = expandButtonTexture
-
-        --frame which will show the spell tooltip
-        ---@type frame
-        local spellIconFrame = CreateFrame("frame", "$parentIconFrame", spellBar, "BackdropTemplate")
-        spellIconFrame:SetSize(CONST_BAR_HEIGHT - 2, CONST_BAR_HEIGHT - 2)
-        spellIconFrame:SetScript("OnEnter", onEnterSpellIconFrame)
-        spellIconFrame:SetScript("OnLeave", onLeaveSpellIconFrame)
-        spellBar.spellIconFrame = spellIconFrame
-
-        --create the icon to show the spell texture
-        ---@type texture
-        local spellIcon = spellIconFrame:CreateTexture("$parentTexture", "overlay")
-        spellIcon:SetAllPoints()
-        spellIcon:SetTexCoord(.1, .9, .1, .9)
-        detailsFramework:SetMask(spellIcon, Details:GetTextureAtlas("iconmask"))
-        spellBar.spellIcon = spellIcon
-
-        --create a square frame which is placed at the right side of the line to show which targets for damaged by the spell
-        ---@type breakdowntargetframe
-        local targetsSquareFrame = CreateFrame("frame", "$parentTargetsFrame", statusBar, "BackdropTemplate")
-        targetsSquareFrame:SetSize(CONST_SPELLSCROLL_LINEHEIGHT, CONST_SPELLSCROLL_LINEHEIGHT)
-        targetsSquareFrame:SetAlpha(.7)
-        targetsSquareFrame:SetScript("OnEnter", onEnterSpellTarget)
-        targetsSquareFrame:SetScript("OnLeave", onLeaveSpellTarget)
-        targetsSquareFrame:SetFrameLevel(statusBar:GetFrameLevel()+2)
-        spellBar.targetsSquareFrame = targetsSquareFrame
-
-        ---@type texture
-        local targetTexture = targetsSquareFrame:CreateTexture("$parentTexture", "overlay")
-        targetTexture:SetTexture(CONST_TARGET_TEXTURE)
-        targetTexture:SetAllPoints()
-        targetTexture:SetDesaturated(true)
-        spellBar.targetsSquareTexture = targetTexture
-        targetsSquareFrame.texture = targetTexture
-
-        spellBar:AddFrameToHeaderAlignment(spellIconFrame)
-        spellBar:AddFrameToHeaderAlignment(targetsSquareFrame)
-
-        --create texts
-        ---@type fontstring[]
-        spellBar.InLineTexts = {}
-
-        for i = 1, 16 do
-            ---@type fontstring
-            local fontString = spellBar:CreateFontString("$parentFontString" .. i, "overlay", "GameFontHighlightSmall")
-            fontString:SetJustifyH("left")
-            fontString:SetTextColor(1, 1, 1, 1)
-            fontString:SetNonSpaceWrap(true)
-            fontString:SetWordWrap(false)
-            spellBar["lineText" .. i] = fontString
-            spellBar.InLineTexts[i] = fontString
-            fontString:SetTextColor(1, 1, 1, 1)
-            spellBar:AddFrameToHeaderAlignment(fontString)
-        end
-
-        spellBar:AlignWithHeader(self.Header, "left")
-        return spellBar
-    --]=]
-
-    return line
-end
-
----@param self details_allinonewindow
----@param window details_allinonewindow_frame
+---@param windowFrame details_allinonewindow_frame
 ---@param line details_allinonewindow_line
-function AllInOneWindow:RefreshLineForWindow(window, line)
-    local icon = line.Icon
-    local height = window.settings.line_height
+function AllInOneWindow:RefreshLineLayout(windowFrame, line)
+    --this function get the window settings (a table) and apply it to its lines
+    --get the scrollframe
+    local scrollFrame = windowFrame.ScrollFrame
+
+    --settings
+    local settings = windowFrame.settings
+    local index = line.index
+
+    --calculate the point of this line
+    local height = settings.lines.height
+    line:SetHeight(height)
+
+    --calculate the X offset to when the line start after the icon and the Y offset
+    local yOffset = -(index - 1) * (height + settings.lines.space_between) --increment negativelly
+
+    --set the line points
+    line:ClearAllPoints()
+    line:SetPoint("topleft", scrollFrame, "topleft", 0, yOffset)
+    line:SetPoint("topright", scrollFrame, "topright", 0, yOffset)
+
+    local backgroundTexture = line.BackgroundTexture
+    backgroundTexture:SetTexture(settings.lines.texture_background)
+    backgroundTexture:SetVertexColor(unpack(settings.lines.texture_background_color))
+    --if (settings.lines.texture_background_colorbyclass) then
+    --backgroundTexture:SetVertexColor(unpack(settings.lines.texture_background_color)) --set the class color
+    --end
+
+    local highlightTexture = line.HighlightTexture
+    if (settings.lines.highlight) then
+        highlightTexture:Show()
+    else
+        highlightTexture:Hide()
+    end
+
+    local statusBar = line.StatusBar
+    --fetch texture from shared media
+    local texturePath = sharedMedia:Fetch("statusbar", settings.lines.texture_main)
+    statusBar.StatusBarTexture:SetTexture(texturePath)
+
+    local xOffset = settings.lines.icon_enabled and settings.lines.icon_line_startafter and height or 0 -- value = 20
+    statusBar:SetPoint("topleft", line, "topleft", xOffset, 0)
+    statusBar:SetPoint("bottomleft", line, "bottomleft", xOffset, 0)
+
+    local overlayTexture = statusBar.OverlayTexture
+    overlayTexture:SetTexture(settings.lines.texture_overlay)
+    overlayTexture:SetVertexColor(unpack(settings.lines.texture_overlay_color))
+
+    local frameIcon = statusBar.PlayerIconFrame --frameIcon is parented to the line
+    if (settings.lines.icon_enabled) then
+        frameIcon:Show()
+        frameIcon:SetWidth(height-2)
+        frameIcon:SetHeight(height-2)
+        frameIcon.Texture:SetTexture(settings.lines.icon_spec)
+    else
+        frameIcon:Hide()
+    end
+
+    for i = 1, #line.FramesForData do
+        local frame = line.FramesForData[i]
+        local fontString = frame.Text
+        fontString:SetTextColor(unpack(settings.lines.text_color))
+        fontString:SetFont(refreshCache.lineFont, settings.lines.text_size, settings.lines.text_left_outline)
+        fontString:SetShadowColor(unpack(settings.lines.text_left_shadow_color))
+        fontString:SetShadowOffset(unpack(settings.lines.text_left_shadow_offset))
+
+        if (settings.lines.text_centered) then
+            fontString:SetJustifyH("CENTER")
+            fontString:ClearAllPoints()
+            fontString:SetPoint("center", frame, "center", settings.lines.text_x_offset, settings.lines.text_y_offset)
+        else
+            fontString:SetJustifyH("LEFT")
+            fontString:ClearAllPoints()
+            fontString:SetPoint("left", frame, "left", 2 + settings.lines.text_x_offset, settings.lines.text_y_offset)
+        end
+    end
 
 end
 
----@param self details_allinonewindow
----@param window details_allinonewindow_frame
-function AllInOneWindow:RefreshWindowFrame(window)
+--[=[
+    lines = {
+        updates in real time:
+        always_show_player = true, --when enabled, the player line will always be shown
+        texture_background_color = {.1, .1, .1, 0.3},
+        texture_background_colorbyclass = true,
+        texture_main_colorbyclass = true, --when enabled, the texture color will be based on the player's class
+        texture_main_color = {.3, .3, .3, 0.834}, --the color of the texture used in the statusbar when not colored by class
+        icon_spec = [[Interface\AddOns\Details\images\spec_icons_normal]], --always show the spec if the unit spec is known
+        icon_class = [[Interface\AddOns\Details\images\classes_small]], --fallback to class texture if spec is unknown
+        icon_show_faction = true, --while in a battleground, show the faction icon if the unit is an enemy
+        totalbar_ontop = false, --show the total bar on top of the lines, otherwise it will be below
+        totalbar_grouponly = true, --only show the total bar when the player is in a group
+        totalbar_color = {.3, .3, .3, 0.834},
 
+        updates during layout:
+        height = 20, --height of each line
+        space_between = 1, --pixels between each line
+        highlight = true, --show a white texture with low alpha when hovering over a line
+        texture_background = "You Are the Best!",
+        texture_main = "You Are the Best!", --the texture used in the statusbar
+        texture_overlay = "Details Vidro", --the texture used in the statusbar overlay
+        texture_overlay_color = {.3, .3, .3, 0}, --the color of the texture overlay used in the statusbar, alpha zero by default to hide it
+        icon_enabled = true, --show the player icon on the left side of the line
+        icon_line_startafter = true, --places the line left side attached to icon right side, otherwise it attached to the icon left side. transparent icons.
+        totalbar_enabled = false, --show the total bar
 
-end
+        updates in real time:
+        text_show_rank = true, --show the rank number before the name
+        text_percent_type = 1, --type 1: relative to total, 2: relative to top player
+        text_left_colorbyclass = false,
+
+        updates during layout:
+        text_x_offset = 0, --the text vertical offset, used to align the text with the statusbar
+        text_y_offset = 0, --the text vertical offset, used to align the text with the statusbar
+        text_centered = false,
+        text_color = {1, 1, 1, 0.823}, --the text color used in the lines
+        text_size = 11, --the text size used in the lines
+        text_font = "Accidental Presidency",
+        text_left_outline = "NONE",
+        text_left_shadow_color = {0, 0, 0, 1},
+        text_left_shadow_offset = {1, -1},
+    },
+--]=]

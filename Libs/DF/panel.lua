@@ -3655,6 +3655,13 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~right ~click to ~close
 
+---comment
+---@param parent uiobject
+---@param xOffset number?
+---@param yOffset number?
+---@param color any?
+---@param fontSize number?
+---@return df_label
 function detailsFramework:CreateRightClickToClose(parent, xOffset, yOffset, color, fontSize)
 	--default values
 	xOffset = xOffset or 0

@@ -282,6 +282,7 @@ GameCooltipFrame2 = {}
 ---@field CreateTitleBar fun(self:table, parent:frame, titleText:string) : df_titlebar
 ---@field CreateElapsedTimeFrame fun(self:table, parent:frame, name:string?, options:df_elapsedtime_options?) : df_elapsedtime
 ---@field CreateIconRow fun(self:table, parent:frame, name:string?, options:table?) : df_iconrow
+---@field CreateRightClickToClose fun(self:table, parent:uiobject, xOffset:number?, yOffset:number?, color:any?, fontSize:number?) : df_label create a label at the top-right corner of the parent frame with the text "Right Click to Close", when clicked with right mouse button it'll hide the parent frame
 ---@field ConvertAnchorPointToInside fun(self:table, anchorPoint:anchorid) : anchorid
 ---@field ExpansionHasAugEvoker fun():boolean
 ---@field ExpansionHasEvoker fun():boolean

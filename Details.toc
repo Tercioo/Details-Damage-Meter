@@ -157,6 +157,12 @@ classes\class_custom.lua
 classes\custom_damagedone.lua
 classes\custom_healingdone.lua
 
+frames\window2\header_data.lua
+frames\window2\frames.lua
+frames\window2\refresh.lua
+frames\window2\events.lua
+frames\window2\options.lua
+
 core\control.lua
 
 classes\container_actors.lua

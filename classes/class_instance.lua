@@ -3115,6 +3115,8 @@ local menu_icones = {
 	"Interface\\AddOns\\Details\\images\\atributos_icones_misc"
 }
 
+Details.menuIcons = menu_icones
+
 function Details:MontaAtributosOption (instancia, func)
 	func = func or instancia.TrocaTabela
 

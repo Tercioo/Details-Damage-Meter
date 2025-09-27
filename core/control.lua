@@ -1912,6 +1912,20 @@ local sortIfHaveKey = function(table1, table2)
 	end
 end
 
+--make an ascending sort
+local sortIfHaveKey_ASC = function(table1, table2)
+	if (table1[keyName] and table2[keyName]) then
+		return table1[keyName] < table2[keyName]
+
+	elseif (table1[keyName] and not table2[keyName]) then
+		return false
+	elseif (not table1[keyName] and table2[keyName]) then
+		return true
+	else
+		return false
+	end
+end
+
 function Details:GetKeyNameFromAttribute(attribute, subAttribute)
 	if (attribute == 1) then
 		if (subAttribute == 1) then --DAMAGE DONE
@@ -1983,10 +1997,36 @@ end
 ---@param combatObject combat
 ---@param attribute number
 ---@param subAttribute number
-function Details:JustSortData(combatObject, attribute, subAttribute)
+---@param order string
+function Details:JustSortData(combatObject, attribute, subAttribute, order)
 	---@type actorcontainer
 	local actorContainer = combatObject[attribute]
 	keyName = Details:GetKeyNameFromAttribute(attribute, subAttribute)
-	table.sort(actorContainer._ActorTable, sortIfHaveKey) --actorContainer is nil
+	if (order == "ASC") then
+		table.sort(actorContainer._ActorTable, sortIfHaveKey_ASC)
+	else
+		table.sort(actorContainer._ActorTable, sortIfHaveKey)
+	end
 	actorContainer:Remap()
+end
+
+--the received actorContainer is already sorted by 'order', find the top player respecting the order
+function Details:FindTopPlayer(actorContainer, order)
+	if (order == "ASC") then
+		--iterate from the end of the table to index 1 and find the first actor with the key 'grupo'
+		for i = #actorContainer._ActorTable, 1, -1 do
+			local actorObject = actorContainer._ActorTable[i]
+			if (actorObject.grupo) then
+				return actorObject
+			end
+		end
+	else
+		--iterate from index 1 to the end of the table and find the first actor with the key 'grupo'
+		for i = 1, #actorContainer._ActorTable do
+			local actorObject = actorContainer._ActorTable[i]
+			if (actorObject.grupo) then
+				return actorObject
+			end
+		end
+	end
 end
