@@ -21,6 +21,10 @@ function AllInOneWindow:RegisterEvents()
     local eventListener = Details:CreateEventListener()
 
     eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
+        if (not AllInOneWindow:HasOpenWindow()) then
+            return
+        end
+
         --first, clean up all windows, doing the fade out animation on all lines.
         --this code here is just for debug, hide all scroll lines:
         local allWindows = AllInOneWindow:GetAllWindows()
@@ -37,18 +41,29 @@ function AllInOneWindow:RegisterEvents()
         AllInOneWindow:StartRefresher() --this will start the refresher
     end)
 
-
     eventListener:RegisterEvent("COMBAT_PLAYER_LEAVE", function()
+        if (not AllInOneWindow:HasOpenWindow()) then
+            return
+        end
+
         AllInOneWindow:StopRefresher()
     end)
 
     eventListener:RegisterEvent("COMBAT_INVALID", function()
+        if (not AllInOneWindow:HasOpenWindow()) then
+            return
+        end
+
         C_Timer.After(0.1, function()
             AllInOneWindow:ExecuteOnAllOpenedWindows("ValidateSegment")
         end)
     end)
 
     eventListener:RegisterEvent("DETAILS_DATA_RESET", function()
+        if (not AllInOneWindow:HasOpenWindow()) then
+            return
+        end
+
         AllInOneWindow:ExecuteOnAllOpenedWindows("ValidateSegment")
     end)
 

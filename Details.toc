@@ -162,6 +162,7 @@ frames\window2\frames.lua
 frames\window2\refresh.lua
 frames\window2\events.lua
 frames\window2\options.lua
+frames\window2\public.lua
 
 core\control.lua
 

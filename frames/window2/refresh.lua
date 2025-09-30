@@ -231,6 +231,7 @@ function AllInOneWindow:RefreshHeader(windowFrame) --~header
             key = thisColumnData.key,
             icon = showHeaderIcon and thisColumnData.icon or "",
             texcoord = thisColumnData.texcoord,
+            columnSpan = thisColumnData.columnSpan or 0,
         }
 
         headerTable[#headerTable+1] = headerColumnData
@@ -238,6 +239,20 @@ function AllInOneWindow:RefreshHeader(windowFrame) --~header
 
     --the setheadtable is somehow resetting the order set in the 'order' key above
     headerFrame:SetHeaderTable(headerTable) --setting the headerTable, will make the headerFrame to resize itself
+
+    local clearHeaders = {"icon", "rank", "pname"}
+    for i = 1, #clearHeaders do
+        local headerName = clearHeaders[i]
+        local headerColumnFrame = headerFrame:GetHeaderColumnByName(headerName)
+        if (headerColumnFrame) then
+            headerColumnFrame.Text:SetText("")
+            headerColumnFrame.Icon:Hide()
+            if (headerName ~= "pname") then
+                headerColumnFrame.Separator:Hide()
+                headerColumnFrame.resizerButton:Hide()
+            end
+        end
+    end
 
     --the window width has to be the same size of the header
     local headerWidth = headerFrame:GetWidth()

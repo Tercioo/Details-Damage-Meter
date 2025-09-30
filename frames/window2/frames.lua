@@ -16,6 +16,7 @@ local sharedMedia = LibStub("LibSharedMedia-3.0")
 ---@field Print fun(self: details_allinonewindow, ...: any)
 ---@field RegisterEvents fun(self: details_allinonewindow) register the events used by the addon
 ---@field OpenWindow fun(self: details_allinonewindow, windowId: number)
+---@field CloseWindow fun(self: details_allinonewindow, windowId: number)
 ---@field GetSettings fun(self: details_allinonewindow, windowId: number): details_allinonewindow_settings
 ---@field GetNumWindowsCreated fun(self: details_allinonewindow): number
 ---@field CreateWindowFrame fun(self: details_allinonewindow): details_allinonewindow_frame
@@ -36,6 +37,7 @@ local sharedMedia = LibStub("LibSharedMedia-3.0")
 ---@field OpenOptionsPanel fun(self: details_allinonewindow, windowFrame: details_allinonewindow_frame)
 ---@field RefreshOptionsPanel fun(self: details_allinonewindow)
 ---@field CreateOptionsPanel fun(self: details_allinonewindow)
+---@field HasOpenWindow fun(self: details_allinonewindow): boolean return true if there is at least one window open
 
 ---@class details_allinonewindow_headerframe : df_headerframe
 ---@field windowId number
@@ -411,12 +413,30 @@ function AllInOneWindow:SetSegmentIdOnAllWindows(segmentId)
     end
 end
 
+--return if there is at least one window open
+function AllInOneWindow:HasOpenWindow()
+    for _, windowFrame in pairs(self.WindowFrames) do
+        if (windowFrame:IsOpen()) then
+            return true
+        end
+    end
+    return false
+end
+
+function AllInOneWindow:CloseWindow(windowId)
+    local windowFrame = self.WindowFrames[windowId]
+    if (windowFrame) then
+        windowFrame:Hide()
+    end
+end
+
 function AllInOneWindow:OpenWindow(windowId) --~open õpen
     local windowFrame = self.WindowFrames[windowId]
     if (not windowFrame) then
         windowFrame = self:CreateWindowFrame()
         windowFrame:SetPoint("center", UIParent, "center", 0, 0)
         windowFrame.settings = self:GetSettings(windowId)
+        --wipe(windowFrame.settings) --debug
         windowFrame.latestRefresh = -1
         self.WindowFrames[windowId] = windowFrame
 
@@ -875,10 +895,23 @@ function AllInOneWindow:CreateWindowFrame() --~create
 
     windowFrame.Lines = {}
 
+    --topleft button to close the window
+    local closeButton = CreateFrame("button", "$parentCloseButton", windowFrame)
+    closeButton:SetSize(18, 18)
+    closeButton:SetPoint("topleft", windowFrame, "topleft", 1, 0)
+    closeButton.Icon = closeButton:CreateTexture("$parentIcon", "artwork")
+    closeButton.Icon:SetPoint("center", closeButton, "center", 0, 0)
+    closeButton.Icon:SetSize(closeButton:GetSize())
+    closeButton.Icon:SetTexture([[Interface\AddOns\Details\assets\textures\icons\close.png]])
+    closeButton:SetFrameLevel(windowFrame:GetFrameLevel()+2)
+    closeButton:SetScript("OnClick", function()
+        AllInOneWindow:CloseWindow(windowFrame.windowId)
+    end)
+
     --topleft button to open the options panel
     local optionsButton = CreateFrame("button", "$parentOptionsButton", windowFrame)
     optionsButton:SetSize(14, 14)
-    optionsButton:SetPoint("topleft", windowFrame, "topleft", 4, -2)
+    optionsButton:SetPoint("left", closeButton, "right", 2, 0)
     optionsButton.Icon = optionsButton:CreateTexture("$parentIcon", "artwork")
     optionsButton.Icon:SetPoint("center", optionsButton, "center", 0, 0)
     optionsButton.Icon:SetSize(optionsButton:GetSize())
