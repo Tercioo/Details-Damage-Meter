@@ -48,6 +48,7 @@ function AllInOneWindow:RefreshOptionsPanel()
 
     local headerOptionsFrame = optionsPanel.HeaderOptionsFrame
     local headerCheckboxes = headerOptionsFrame.ColumnCheckboxes
+    local headerIconCheckboxes = headerOptionsFrame.ColumnIconCheckboxes
     local headersNamesActive = editingWindowFrame:GetHeaderNames()
 
     for i = 1, #headerCheckboxes do
@@ -61,6 +62,33 @@ function AllInOneWindow:RefreshOptionsPanel()
         end
     end
 
+    local columnShowIcon = editingWindowFrame.settings.header.column_show_icon
+    local columnShowText = editingWindowFrame.settings.header.column_show_text
+
+    for i = 1, #headerIconCheckboxes do
+        local checkboxShowIcon = headerIconCheckboxes[i]
+        local columnName = checkboxShowIcon.columnName
+
+        if (columnShowIcon[columnName] == nil) then
+            columnShowIcon[columnName] = true
+        end
+        if (columnShowIcon[columnName]) then
+            checkboxShowIcon:SetValue(true)
+        else
+            checkboxShowIcon:SetValue(false)
+        end
+
+        if (columnShowText[columnName] == nil) then
+            columnShowText[columnName] = AllInOneWindow:GetColumnData(columnName).showText
+        end
+        local checkboxShowText = headerOptionsFrame.ColumnTextCheckboxes[i]
+        if (columnShowText[columnName]) then
+            checkboxShowText:SetValue(true)
+        else
+            checkboxShowText:SetValue(false)
+        end
+    end
+
     optionsPanel:RefreshOptions()
 end
 
@@ -69,6 +97,7 @@ function AllInOneWindow:CreateOptionsPanel()
     optionsPanel = CreateFrame("frame", "DetailsAllInOneWindowOptionsPanel", UIParent, "BackdropTemplate")
     optionsPanel:SetSize(600, 400)
     optionsPanel:SetPoint("center", UIParent, "center", 0, 0)
+    optionsPanel:SetFrameStrata("HIGH")
 
     detailsFramework:ApplyStandardBackdrop(optionsPanel)
     detailsFramework:MakeDraggable(optionsPanel)
@@ -147,7 +176,39 @@ function AllInOneWindow:CreateOptionsPanel()
         AllInOneWindow:RefreshWindow(windowFrame)
     end
 
+    local onToggleColumnIconVisibility = function(checkbox, fixedValue, state)
+        local columnNameToBeChanged = checkbox.columnName
+        local windowFrame = optionsPanel.WindowFrame
+        local column_show_icon = windowFrame.settings.header.column_show_icon
+
+        if (state) then
+            column_show_icon[columnNameToBeChanged] = true
+        else
+            column_show_icon[columnNameToBeChanged] = false
+        end
+
+        AllInOneWindow:RefreshHeader(windowFrame)
+        AllInOneWindow:RefreshWindow(windowFrame)
+    end
+
+    local onToggleColumnTextVisibility = function(checkbox, fixedValue, state)
+        local columnNameToBeChanged = checkbox.columnName
+        local windowFrame = optionsPanel.WindowFrame
+        local column_show_text = windowFrame.settings.header.column_show_text
+
+        if (state) then
+            column_show_text[columnNameToBeChanged] = true
+        else
+            column_show_text[columnNameToBeChanged] = false
+        end
+
+        AllInOneWindow:RefreshHeader(windowFrame)
+        AllInOneWindow:RefreshWindow(windowFrame)
+    end
+
     headerOptionsFrame.ColumnCheckboxes = {}
+    headerOptionsFrame.ColumnIconCheckboxes = {}
+    headerOptionsFrame.ColumnTextCheckboxes = {}
 
     --iterate among allColumnData and create a checkbox for each column that area available to toggle by the field 'shownOnOptions'
     local amountAdded = 0
@@ -157,12 +218,28 @@ function AllInOneWindow:CreateOptionsPanel()
             columnDataVisibilitySwitch:SetAsCheckBox()
             columnDataVisibilitySwitch:SetPoint("topleft", headerOptionsLabel, "bottomleft", 2, -5 - (amountAdded) * 25)
             columnDataVisibilitySwitch.columnName = columnData.name
-
             local columnDataVisibilityLabel = DetailsFramework:CreateLabel(headerOptionsFrame, columnData.text or columnData.key)
             columnDataVisibilityLabel:SetPoint("left", columnDataVisibilitySwitch, "right", 2, 0)
-
             headerOptionsFrame.ColumnCheckboxes[#headerOptionsFrame.ColumnCheckboxes + 1] = columnDataVisibilitySwitch
             amountAdded = amountAdded + 1
+
+            --checkbox for icon
+            local columnDataShowIcon = DetailsFramework:CreateSwitch(headerOptionsFrame, onToggleColumnIconVisibility, false, _, _, _, _, "ColumnIconCheckbox" .. i, _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+            columnDataShowIcon:SetAsCheckBox()
+            columnDataShowIcon:SetPoint("left", columnDataVisibilitySwitch, "right", 100, 0)
+            columnDataShowIcon.columnName = columnData.name
+            local columnDataShowIconLabel = DetailsFramework:CreateLabel(headerOptionsFrame, "Icon")
+            columnDataShowIconLabel:SetPoint("left", columnDataShowIcon, "right", 2, 0)
+            headerOptionsFrame.ColumnIconCheckboxes[#headerOptionsFrame.ColumnIconCheckboxes + 1] = columnDataShowIcon
+
+            --checkbox for text
+            local columnDataShowText = DetailsFramework:CreateSwitch(headerOptionsFrame, onToggleColumnTextVisibility, false, _, _, _, _, "ColumnTextCheckbox" .. i, _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+            columnDataShowText:SetAsCheckBox()
+            columnDataShowText:SetPoint("left", columnDataShowIcon, "right", 60, 0)
+            columnDataShowText.columnName = columnData.name
+            local columnDataShowTextLabel = DetailsFramework:CreateLabel(headerOptionsFrame, "Text")
+            columnDataShowTextLabel:SetPoint("left", columnDataShowText, "right", 2, 0)
+            headerOptionsFrame.ColumnTextCheckboxes[#headerOptionsFrame.ColumnTextCheckboxes + 1] = columnDataShowText
         end
     end
 
@@ -209,6 +286,8 @@ function AllInOneWindow:CreateOptionsPanel()
             step = 1,
             name = "Text Size",
         },
+
+
     }
 
     local options_text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")

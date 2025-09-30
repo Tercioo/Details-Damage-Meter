@@ -122,6 +122,8 @@ local sharedMedia = LibStub("LibSharedMedia-3.0")
 ---@field background_color number[]
 ---@field column_order table<string, number> the order of the columns, this is used to restore the order when a column is removed and added back
 ---@field column_width table<string, number> column name and its width
+---@field column_show_text table<string, boolean> true to show the text in the column in the header, false to hide it
+---@field column_show_icon table<string, boolean> true to show the icon in the column in the header, false to hide it
 
 ---@class details_allinonewindow_settings_window : table
 ---@field position table
@@ -184,6 +186,8 @@ local defaultSettings = {
         column_names = {"icon", "rank", "pname", "dmgdps", "healhps", "death", "interrupt", "dispel"},
         column_order = {},
         column_width = {},
+        column_show_text = {},
+        column_show_icon = {},
         background_color = {.2, .2, .2, 0.834},
     },
     window = {
