@@ -3927,7 +3927,7 @@ local findPlayerPositionInEnemyDamageTaken = function(playerName, enemyName, com
 	return "" --not found
 end
 
-function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
+function damageClass:ToolTip_DamageDone(instance, numero, barra, keydown)
 	local owner = self.owner
 	if (owner and owner.classe) then
 		r, g, b = unpack(Details.class_colors [owner.classe])
@@ -3938,7 +3938,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 		r, g, b = unpack(Details.class_colors [self.classe])
 	end
 
-	local combatObject = instancia:GetShowingCombat()
+	local combatObject = instance:GetCombat()
 
 	--habilidades
 	local icon_size = Details.tooltip.icon_size
@@ -3965,11 +3965,11 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 			if (Details.time_type == 1 or not self.grupo) then
 				meu_tempo = self:Tempo()
 			elseif(Details.time_type == 2 or Details.use_realtimedps) then
-				meu_tempo = instancia.showing:GetCombatTime()
+				meu_tempo = combatObject:GetCombatTime()
 			end
 
 			if (not meu_tempo) then
-				meu_tempo = instancia.showing:GetCombatTime()
+				meu_tempo = combatObject:GetCombatTime()
 				if (Details.time_type == 3) then --time type 3 is deprecated
 					Details.time_type = 2
 				end
@@ -3985,11 +3985,11 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 
 			--add actor pets
 			for petIndex, petName in ipairs(self:Pets()) do
-				local petActor = instancia.showing[class_type]:PegarCombatente(nil, petName)
+				local petActor = combatObject[class_type]:PegarCombatente(nil, petName)
 				if (petActor) then
 					for _spellid, _skill in pairs(petActor:GetActorSpells()) do
 						local formattedPetName = petName:gsub((" <.*"), "")
-						if (instancia.row_info.textL_translit_text) then
+						if (instance.row_info.textL_translit_text) then
 							formattedPetName = Translit:Transliterate(formattedPetName, "!")
 						end
 						ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo, formattedPetName}
@@ -4065,7 +4065,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 						percent = percent  .. "0"
 					end
 
-					if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
+					if (instance.sub_atributo == 1 or instance.sub_atributo == 6) then
 						GameCooltip:AddLine(nome_magia, formatTooltipNumber(_, totalDamage) .."  ("..percent.."%)")
 					else
 						GameCooltip:AddLine(nome_magia, formatTooltipNumber(_, math.floor(totalDPS)) .."  ("..percent.."%)")
@@ -4102,7 +4102,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 
 		--targets(enemies)
 			local topEnemy = ActorTargetsSortTable[1] and ActorTargetsSortTable[1][2] or 0
-			if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
+			if (instance.sub_atributo == 1 or instance.sub_atributo == 6) then
 				--small blank space
 				Details:AddTooltipSpellHeaderText("", headerColor, 1, false, 0.1, 0.9, 0.1, 0.9, true)
 
@@ -4143,8 +4143,6 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 	end
 
 	--PETS
-	local instance = instancia
-	local combatObject = instance:GetShowingCombat()
 
 	local myPets = self.pets
 	if (#myPets > 0) then --teve ajudantes
@@ -4230,7 +4228,7 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 					petName = Translit:Transliterate(petName, "!")
 				end
 
-				if (instancia.sub_atributo == 1) then
+				if (instance.sub_atributo == 1) then
 					GameCooltip:AddLine(petName, formatTooltipNumber(_, petDamageDone) .. " (" .. math.floor(petDamageDone/self.total*100) .. "%)")
 				else
 					GameCooltip:AddLine(petName, formatTooltipNumber(_, math.floor(petDPS)) .. " (" .. math.floor(petDamageDone/self.total*100) .. "%)")
@@ -4244,10 +4242,9 @@ function damageClass:ToolTip_DamageDone(instancia, numero, barra, keydown)
 	end
 
 	--~Phases
-	local segment = instancia:GetShowingCombat()
-	if (segment and self.grupo) then
-		local bossInfo = segment:GetBossInfo()
-		local phasesInfo = segment:GetPhases()
+	if (combatObject and self.grupo) then
+		local bossInfo = combatObject:GetBossInfo()
+		local phasesInfo = combatObject:GetPhases()
 		if (bossInfo and phasesInfo) then
 			if (#phasesInfo > 1) then
 

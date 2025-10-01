@@ -272,6 +272,8 @@ end
 function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFrame, containers, headerName, playerName, combatObject, actorObjects)
     local combatTime = combatObject:GetCombatTime()
     if (headerColumnFrame) then
+        headerColumnFrame.actorObject = nil
+
         if (headerName == "icon") then
             local damageActor = actorObjects[DETAILS_ATTRIBUTE_DAMAGE]
             local actorSpec = damageActor.spec
@@ -295,6 +297,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
         elseif (headerName == "dmg") then
             local damageActor = actorObjects[DETAILS_ATTRIBUTE_DAMAGE]
             if damageActor then
+                headerColumnFrame.actorObject = damageActor
                 headerColumnFrame.Text:SetText(Details:Format(damageActor.total))
                 return damageActor.total
             else
@@ -305,6 +308,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
         elseif (headerName == "dps") then
             local damageActor = actorObjects[DETAILS_ATTRIBUTE_DAMAGE]
             if damageActor then
+                headerColumnFrame.actorObject = damageActor
                 headerColumnFrame.Text:SetText(Details:Format(damageActor.total / combatTime))
                 return damageActor.total / combatTime
             else
@@ -315,6 +319,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
         elseif (headerName == "dmgdps") then
             local damageActor = actorObjects[DETAILS_ATTRIBUTE_DAMAGE]
             if damageActor then
+                headerColumnFrame.actorObject = damageActor
                 headerColumnFrame.Text:SetText(Details:Format(damageActor.total) .. " / " .. Details:Format(damageActor.total / combatTime))
                 return damageActor.total
             else
@@ -326,6 +331,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
         elseif (headerName == "heal") then
             local healActor = actorObjects[DETAILS_ATTRIBUTE_HEAL]
             if (healActor) then
+                headerColumnFrame.actorObject = healActor
                 headerColumnFrame.Text:SetText(Details:Format(healActor.total))
                 return healActor.total
             else
@@ -336,6 +342,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
         elseif (headerName == "hps") then
             local healActor = actorObjects[DETAILS_ATTRIBUTE_HEAL]
             if (healActor) then
+                headerColumnFrame.actorObject = healActor
                 headerColumnFrame.Text:SetText(Details:Format(healActor.total / combatTime))
                 return healActor.total / combatTime
             else
@@ -346,6 +353,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
         elseif (headerName == "healhps") then
             local healActor = actorObjects[DETAILS_ATTRIBUTE_HEAL]
             if (healActor) then
+                headerColumnFrame.actorObject = healActor
                 headerColumnFrame.Text:SetText(Details:Format(healActor.total) .. " / " .. Details:Format(healActor.total / combatTime))
                 return healActor.total
             else
@@ -366,6 +374,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
             local utilityActor = actorObjects[DETAILS_ATTRIBUTE_MISC]
             if (utilityActor) then
                 headerColumnFrame.Text:SetText(math.floor(utilityActor.interrupt or 0))
+                headerColumnFrame.actorObject = utilityActor
                 return utilityActor.interrupt or 0
             else
                 headerColumnFrame.Text:SetText("0")
@@ -377,6 +386,7 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
             local utilityActor = actorObjects[DETAILS_ATTRIBUTE_MISC]
             if (utilityActor) then
                 headerColumnFrame.Text:SetText(math.floor(utilityActor.dispell or 0))
+                headerColumnFrame.actorObject = utilityActor
                 return utilityActor.dispell or 0
             else
                 headerColumnFrame.Text:SetText("0")

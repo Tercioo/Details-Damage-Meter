@@ -163,6 +163,7 @@ frames\window2\refresh.lua
 frames\window2\events.lua
 frames\window2\options.lua
 frames\window2\public.lua
+frames\window2\tooltips.lua
 
 core\control.lua
 
