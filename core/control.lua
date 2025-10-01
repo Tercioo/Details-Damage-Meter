@@ -556,6 +556,8 @@
 		--remove death events that are irrelevant for the death log
 		currentCombat:CutDeathEventsByTime()
 
+		Details222.Parser.CountInterruptOverlaps()
+
 		--get waste shields
 		if (Details.close_shields) then
 			Details:CloseShields(currentCombat)

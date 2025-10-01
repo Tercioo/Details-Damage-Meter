@@ -29,7 +29,7 @@
 	local UnitAffectingCombat = UnitAffectingCombat
 	local UnitHealth = UnitHealth
 	local UnitGUID = UnitGUID
-	local IsInGroup = IsInGroup
+	--local IsInGroup = IsInGroup
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 	local GetTime = GetTime
 	local tonumber = tonumber
@@ -132,6 +132,9 @@
 		local shield_spellid_cache = {}
 	--pets
 		local petCache = petContainer.Pets
+
+	--interrupt overlap cache
+		local interruptOverlapCache = {}
 
 	--ignore deaths
 		local ignore_death_cache = {}
@@ -4060,7 +4063,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@param sourceSerial guid
 	---@param sourceName actorname
 	---@param sourceFlags controlflags
-	---@param targetSerial guid
+	---@param targetGUID guid
 	---@param targetName actorname
 	---@param targetFlags controlflags
 	---@param targetFlags2 number
@@ -4070,7 +4073,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@param extraSpellID spellid
 	---@param extraSpellName spellname
 	---@param extraSchool spellschool
-	function parser:interrupt(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
+	function parser:interrupt(token, time, sourceSerial, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 		--quake affix from mythic+
 		if (spellId == 240448) then
 			return
@@ -4148,6 +4151,26 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--Details:Msg("warlock pet interrupt, owner:", (ownerActor and ownerActor.nome or "no owner"))
 		end
 
+		--interrupt overlaps
+        --get the list of interrupt attempts by this player
+        ---@type table<guid, interrupt_overlap[]>
+        local interruptCastsOnTarget = interruptOverlapCache[targetGUID]
+        if (interruptCastsOnTarget) then
+            --iterate among interrupt attempts on this target and find the one that matches the time of the interrupt and the source name
+            for i = #interruptCastsOnTarget, 1, -1 do
+                ---@type interrupt_overlap
+                local interruptAttempt = interruptCastsOnTarget[i]
+
+                if (interruptAttempt.sourceName == sourceName) then
+                    if (detailsFramework.Math.IsNearlyEqual(time, interruptAttempt.time, 0.1)) then
+                        --mark as a success interrupt
+                        interruptAttempt.interrupted = true
+                        break
+                    end
+                end
+            end
+        end		
+
 		--if the interrupt is from a pet, then we need to add the interrupt to the owner
 		if (ownerActor) then
 			if (not ownerActor.interrupt) then
@@ -4178,14 +4201,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--pet interrupt
 			if (_hook_interrupt) then
 				for _, func in ipairs(_hook_interrupt_container) do
-					func(nil, token, time, ownerActor.serial, ownerActor.nome, ownerActor.flag_original, targetSerial, targetName, targetFlags, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
+					func(nil, token, time, ownerActor.serial, ownerActor.nome, ownerActor.flag_original, targetGUID, targetName, targetFlags, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 				end
 			end
 		else
 			--player interrupt
 			if (_hook_interrupt) then
 				for _, func in ipairs(_hook_interrupt_container) do
-					func(nil, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
+					func(nil, token, time, sourceSerial, sourceName, sourceFlags, targetGUID, targetName, targetFlags, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 				end
 			end
 		end
@@ -4198,14 +4221,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@param sourceSerial string
 	---@param sourceName string
 	---@param sourceFlags number
-	---@param targetSerial string
+	---@param targetGUID string
 	---@param targetName string
 	---@param targetFlags number
 	---@param targetRaidFlags number
 	---@param spellId number
 	---@param spellName string
 	---@param spellType number?
-	function parser:spellcast(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellType)
+	---@param extraSpellID number?
+	---@param extraSpellName string?
+	---@param extraSchool number?
+	function parser:spellcast(token, time, sourceSerial, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 		--only capture if is in combat
 		if (not _in_combat) then
 			return
@@ -4289,6 +4315,25 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
+		--spell interrupt overlap
+		local interruptSpells = LIB_OPEN_RAID_SPELL_INTERRUPT
+        --check if this is an interrupt spell
+        if (interruptSpells[spellId]) then
+            interruptOverlapCache[targetGUID] = interruptOverlapCache[targetGUID] or {}
+            ---@type interrupt_overlap
+            local spellOverlapData = {
+                time = time,
+                sourceName = sourceName,
+                spellId = spellId,
+                targetName = targetName,
+                extraSpellID = extraSpellID,
+                used = false,
+                interrupted = false,
+            }
+            --store the interrupt attempt in a table
+            table.insert(interruptOverlapCache[targetGUID], spellOverlapData)
+        end
+
 	------------------------------------------------------------------------------------------------
 	--record cooldowns cast which can't track with buff applyed
 		--a player is the caster
@@ -4305,7 +4350,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 						targetName = "--x--x--"
 					end
 				end
-				return parser:add_defensive_cooldown(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName)
+				return parser:add_defensive_cooldown(token, time, sourceSerial, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetRaidFlags, spellId, spellName)
 			end
 		else
 			--enemy successful casts (not interrupted)
@@ -5869,6 +5914,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
+		table.wipe(interruptOverlapCache)
+
 		if (Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, true)
 		end
@@ -6852,6 +6899,60 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end) --end of saving data
 
 	local eraNamedSpellsToID = {}
+
+	function Details222.Parser.CountInterruptOverlaps()
+		for _, interruptCastsOnTarget in pairs(interruptOverlapCache) do
+
+			--store clusters of interrupts that was attempted on the same target within 1.5 seconds
+			--this is a table of tables, where each table is a cluster of interrupts
+			local interruptClusters = {}
+
+			--find interrupt casts casted on the same target within 1.5 seconds of each other
+			local index = 1
+			while (index < #interruptCastsOnTarget) do
+				---@type interrupt_overlap
+				local interruptAttempt = interruptCastsOnTarget[index]
+				local thisCluster = {interruptAttempt}
+				local lastIndex = index
+
+				for j = index+1, #interruptCastsOnTarget do --from the next interrupt to the end of the table
+					lastIndex = j
+					---@type interrupt_overlap
+					local nextInterruptAttempt = interruptCastsOnTarget[j]
+					if (detailsFramework.Math.IsNearlyEqual(interruptAttempt.time, nextInterruptAttempt.time, 1.5)) then
+						table.insert(thisCluster, nextInterruptAttempt)
+					else
+						break
+					end
+				end
+
+				index = lastIndex
+
+				if (#thisCluster > 1) then
+					--add the cluster to the list of clusters
+					table.insert(interruptClusters, thisCluster)
+				end
+			end
+
+			local currentCombat = Details:GetCurrentCombat()
+
+			for _, thisCluster in ipairs(interruptClusters) do
+				--iterate among the cluster and add a overlap if those interrupts without success
+				for i = 1, #thisCluster do
+					---@type interrupt_overlap
+					local interruptAttempt = thisCluster[i]
+
+					if (not interruptAttempt.interrupted) then
+						local sourceName = interruptAttempt.sourceName
+						local utilityActor = currentCombat:GetActor(4, sourceName) --utility container
+						if (utilityActor) then
+							utilityActor.interrupt_cast_overlap = (utilityActor.interrupt_cast_overlap or 0) + 1
+						end
+					end
+				end
+			end
+		end
+	end
 
 	-- ~parserstart ~startparser ~cleu ~parser
 	function Details222.Parser.OnParserEvent()
