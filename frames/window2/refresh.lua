@@ -259,6 +259,10 @@ function AllInOneWindow:RefreshHeader(windowFrame) --~header
     windowFrame:SetWidth(headerWidth + 4) --+4 for the border
 end
 
+local getAnyActor = function(actorObjects)
+    return actorObjects[DETAILS_ATTRIBUTE_DAMAGE] or actorObjects[DETAILS_ATTRIBUTE_HEAL] or actorObjects[DETAILS_ATTRIBUTE_ENERGY] or actorObjects[DETAILS_ATTRIBUTE_MISC]
+end
+
 ---@param self details_allinonewindow
 ---@param index number
 ---@param windowFrame details_allinonewindow_frame
@@ -275,14 +279,16 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
         headerColumnFrame.actorObject = nil
 
         if (headerName == "icon") then
-            local damageActor = actorObjects[DETAILS_ATTRIBUTE_DAMAGE]
-            local actorSpec = damageActor.spec
-            if (actorSpec and actorSpec ~= 0) then
-                local useAlpha = false
-                local texture, left, right, top, bottom = Details:GetSpecIcon(actorSpec, useAlpha)
-                line.PlayerIconTexture:SetTexture(texture)
-                line.PlayerIconTexture:SetTexCoord(left, right, top, bottom)
-                line.PlayerIconTexture:Show()
+            local anyActor = getAnyActor(actorObjects)
+            if (anyActor) then
+                local actorSpec = anyActor.spec
+                if (actorSpec and actorSpec ~= 0) then
+                    local useAlpha = false
+                    local texture, left, right, top, bottom = Details:GetSpecIcon(actorSpec, useAlpha)
+                    line.PlayerIconTexture:SetTexture(texture)
+                    line.PlayerIconTexture:SetTexCoord(left, right, top, bottom)
+                    line.PlayerIconTexture:Show()
+                end
             end
             return 1
 
