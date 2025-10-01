@@ -3134,6 +3134,7 @@ atributo_misc.__add = function(tabela1, tabela2)
 	if (tabela2.interrupt) then
 		if (not tabela1.interrupt) then
 			tabela1.interrupt = 0
+			tabela1.interrupt_cast_overlap = 0
 			tabela1.interrupt_targets = {}
 			tabela1.interrupt_spells = container_habilidades:NovoContainer(container_misc)
 			tabela1.interrompeu_oque = {}
@@ -3141,6 +3142,7 @@ atributo_misc.__add = function(tabela1, tabela2)
 
 		--total de interrupts
 			tabela1.interrupt = tabela1.interrupt + tabela2.interrupt
+			tabela1.interrupt_cast_overlap = tabela1.interrupt_cast_overlap + tabela2.interrupt_cast_overlap
 
 		--soma o interrompeu o que
 			for spellid, amount in pairs(tabela2.interrompeu_oque) do
@@ -3418,6 +3420,7 @@ atributo_misc.__sub = function(tabela1, tabela2)
 	if (tabela2.interrupt) then
 		--total de interrupts
 			tabela1.interrupt = tabela1.interrupt - tabela2.interrupt
+			tabela1.interrupt_cast_overlap = tabela1.interrupt_cast_overlap - tabela2.interrupt_cast_overlap
 
 		--soma o interrompeu o que
 			for spellid, amount in pairs(tabela2.interrompeu_oque) do

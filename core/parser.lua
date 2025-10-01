@@ -4112,6 +4112,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--build containers on the fly
 		if (not sourceActor.interrupt) then
 			sourceActor.interrupt = Details:GetOrderNumber()
+			sourceActor.interrupt_cast_overlap = 0
 			sourceActor.interrupt_targets = {}
 			sourceActor.interrupt_spells = spellContainerClass:CreateSpellContainer(container_misc)
 			sourceActor.interrompeu_oque = {}
