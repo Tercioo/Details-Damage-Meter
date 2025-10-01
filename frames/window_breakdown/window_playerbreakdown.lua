@@ -217,6 +217,10 @@ function Details222.BreakdownWindow.ApplyTextureSettings(statusBar)
 	end
 end
 
+function breakdownWindowFrame:GetCombat()
+	return self.instancia:GetCombat()
+end
+
 ------------------------------------------------------------------------------------------------------------------------------
 --self = instancia
 --jogador = classe_damage ou classe_heal
