@@ -559,6 +559,7 @@
 		[392166] = true, --Azure Stone of Might
 		[379020] = true, --Wand of Negation
 		[372824] = true, --Burning Chains
+        [469704] = true, --Tempered in Battle (Acts like Spirit Link, paladin hero talent)
 	}
 
 	--damage spells to ignore
@@ -888,8 +889,8 @@
 			if (spellId == 124255) then
 				return parser:MonkStagger_damage(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 
-			--spirit link toten
-			elseif (spellId == 98021) then
+			--spirit link totem or tempered in battle
+			elseif (spellId == 98021 or spellId == 469704) then
 				return parser:SLT_damage(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 
 			--rogue's secret technique | when akari's soul gives damage | dragonflight | --REMOVE ON 11.0 - maybe
@@ -2540,7 +2541,7 @@
 			end
 		end
 
-		if (spellId == 98021) then --spirit link toten
+		if (spellId == 98021 or spellId == 469704) then --spirit link totem or tempered in battle
 			return parser:SLT_healing(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, amount, overHealing, absorbed, critical, bIsShield)
 		end
 
