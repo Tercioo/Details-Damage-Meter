@@ -60,6 +60,7 @@ local sharedMedia = LibStub("LibSharedMedia-3.0")
 ---@field GetDisplay fun(self: details_allinonewindow_frame): number, number for back compatibility, return 'atributo' and 'sub_atributo' members
 ---@field SetDisplay fun(self: details_allinonewindow_frame, atributo: number, sub_atributo: number) for back compatibility, set 'atributo' and 'sub_atributo' members
 ---@field GetMode fun(self: details_allinonewindow_frame): string for back compatibility, it'll always return 2 (group mode)
+---@field RefreshWindow fun(self: details_allinonewindow_frame) for back compatibility, refresh the window
 
 ---@class details_allinonewindow_frame : frame, details_allinonewindow_frame_functions
 ---@field windowId number
@@ -413,6 +414,16 @@ local windowFunctionsMixin = {
     GetMode = function(self)
         return 2
     end,
+
+    ---for back compatibility, refresh the window
+    ---@param self details_allinonewindow_frame
+    RefreshWindow = function(self)
+        AllInOneWindow:RefreshWindow(self)
+
+        if (Details:IsBreakdownWindowOpen()) then
+            Details:GetActorObjectFromBreakdownWindow():MontaInfo()
+        end
+    end
 }
 
 ---@param self details_allinonewindow

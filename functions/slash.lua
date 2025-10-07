@@ -1945,11 +1945,15 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	local CONST_WINDOW_HEIGHT = 726
 	local CONST_SCROLL_LINE_AMOUNT = 21
 
+	local detailsKeystoneInfoFrame = detailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones (/key, /keys, /keystone)", "DetailsKeystoneInfoFrame")
+	detailsKeystoneInfoFrame:Hide()
+
 	--pre create 30 protected buttons
 	for i = 1, 30 do
-		local teleportButton = CreateFrame("button", nil, UIParent, "InsecureActionButtonTemplate, BackdropTemplate")
+		local teleportButton = CreateFrame("button", nil, detailsKeystoneInfoFrame, "InsecureActionButtonTemplate, BackdropTemplate")
 		teleportButton:SetAttribute("type", "spell")
 		teleportButton:RegisterForClicks("AnyDown")
+		teleportButton:SetFrameLevel(detailsKeystoneInfoFrame:GetFrameLevel() + 10)
 		teleportButton:SetSize(keystoneHeaderTable[6].width - 10, CONST_SCROLL_LINE_HEIGHT - 2)
 		teleportButton:Hide()
 		buttonsCreated[i] = teleportButton
@@ -2000,9 +2004,6 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 			end
 		end)
 	end
-
-	local detailsKeystoneInfoFrame = detailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones (/key, /keys, /keystone)", "DetailsKeystoneInfoFrame")
-	detailsKeystoneInfoFrame:Hide()
 
 --    detailsKeystoneInfoFrame:SetBackdropColor(.1, .1, .1, 0)
 --    detailsKeystoneInfoFrame:SetBackdropBorderColor(.1, .1, .1, 0)
