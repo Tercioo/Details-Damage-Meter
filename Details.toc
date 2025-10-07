@@ -1,5 +1,5 @@
-## Interface: 110200
-## Interface-Mists: 50500
+## Interface: 110205
+## Interface-Mists: 50501
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Анализирует сражение в реальном времени, предоставляя игрокам чистые визуальные данные
