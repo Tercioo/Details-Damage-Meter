@@ -1988,7 +1988,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		teleportButton.CastBar:HookScript("OnEvent", function(self, event, ...)
 			if (event == "UNIT_SPELLCAST_START") then
 				local line = self:GetParent() and self:GetParent():GetParent()
-				if (line and line ~= UIParent) then
+				if (line and line ~= UIParent and line.teleportButton) then
 					if (self.spellID ~= line.teleportButton.spellId) then
 						self:SetAlpha(0)
 					else
