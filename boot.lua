@@ -146,6 +146,8 @@
 			DebugBuff = false,
 		}
 
+		---@type details_allinonewindow
+		---@diagnostic disable-next-line: missing-fields
 		Details222.AllInOneWindow = {}
 
 		Details222.Tvs = tvs

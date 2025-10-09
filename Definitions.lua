@@ -1054,6 +1054,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field PetContainer petcontainer
 ---@field InstanceDifficulty instancedifficulty
 ---@field ContextManager contextmanager
+---@field AllInOneWindow details_allinonewindow
 
 ---@class profile_breakdown_settings : table
 ---@field font_size number

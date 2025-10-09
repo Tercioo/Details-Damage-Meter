@@ -35,6 +35,9 @@ local IsInInstance = _G.IsInInstance
 local tokFunctions = Details.ToKFunctions
 
 local _, Details222 = ...
+
+---@cast Details222 details222
+
 _ = nil
 
 --constants
@@ -6154,6 +6157,21 @@ local build_mode_list = function(self, deltaTime)
 			if (hasClosedInstances) then
 				GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
 			end
+		end
+
+		local createAllInOneWindow = function()
+			if (not Details222.AllInOneWindow:HasOpenWindow()) then
+				Details222.AllInOneWindow:OpenWindow(1)
+				gameCooltip:Hide()
+			else
+				gameCooltip:Hide()
+			end
+		end
+
+		gameCooltip:AddMenu(2, createAllInOneWindow, true, instance, nil, "Create Midnight Window (12.0)", _, true)
+		gameCooltip:AddIcon([[Interface\AddOns\Details\assets\textures\icons\midnight.png]], 2, 1, 16, 14)
+		if (hasClosedInstances) then
+			GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
 		end
 
 		local ClosedInstances = 0
