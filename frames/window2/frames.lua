@@ -154,6 +154,7 @@ local sharedMedia = LibStub("LibSharedMedia-3.0")
 ---@field column_selected_color number[] this is the background color of the column frames when its header is selected
 
 ---@class details_allinonewindow_settings_window : table
+---@field is_open boolean
 ---@field position table
 ---@field width number
 ---@field height number
@@ -231,6 +232,7 @@ local defaultSettings = {
         clickthrough_incombatonly = true, --when enabled, the clickthrough is only active when in combat
         locked = false, --when disabled, resizers are not shown and the window is locked
         header_ontop = true, --the header is on top of the window
+        is_open = true, --whether the window is open or closed
     },
 
     lines = {
@@ -287,7 +289,10 @@ function Details222.AllInOneWindow:Initialize()
     local windowCount = #windowSetting
     --this will open all windows created
     for i = 1, windowCount do
-        AllInOneWindow:OpenWindow(i)
+        --need to check if this window was opened on the last session
+        if (windowSetting[i].window.is_open) then
+            AllInOneWindow:OpenWindow(i)
+        end
     end
 end
 
@@ -503,6 +508,7 @@ function AllInOneWindow:CloseWindow(windowId)
     local windowFrame = self.WindowFrames[windowId]
     if (windowFrame) then
         windowFrame:Hide()
+        windowFrame.settings.window.is_open = false
     end
 end
 
@@ -575,6 +581,8 @@ function AllInOneWindow:OpenWindow(windowId) --~open õpen
             self:RefreshWindow(windowFrame)
         end
     end)
+
+    windowFrame.settings.window.is_open = true
 end
 
 function Details:OpenAllInOneWindow(windowId)
