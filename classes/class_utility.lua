@@ -2211,6 +2211,11 @@ function atributo_misc:ToolTipInterrupt(instance, numero, barra)
 		end
 	end
 
+	local interruptAmount = combatObject:GetInterruptCastAmount(self.nome)
+	GameCooltip:AddLine("Total Interrupt Cast", interruptAmount)
+	GameCooltip:AddIcon("", nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
+	Details:AddTooltipBackgroundStatusbar()
+
 	local overlapsAmount = self.interrupt_cast_overlap or 0
 	GameCooltip:AddLine("Overlaps", overlapsAmount .. " (" .. _cstr("%.1f", floor(overlapsAmount)/floor(amountOfInterruptsCasted)*100).."%)")
 	GameCooltip:AddIcon("", nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
@@ -2885,10 +2890,14 @@ function atributo_misc:r_connect_shadow(actor, no_refresh, combat_object)
 	if (actor.interrupt) then
 		if (not shadow.interrupt_targets) then
 			shadow.interrupt = 0
+			shadow.interrupt_cast_overlap = 0
 			shadow.interrupt_targets = {}
 			shadow.interrupt_spells = container_habilidades:NovoContainer(Details.container_type.CONTAINER_MISC_CLASS) --cria o container das habilidades usadas para interromper
 			shadow.interrompeu_oque = {}
 		end
+
+		shadow.interrupt_cast_overlap = shadow.interrupt_cast_overlap or 0
+		shadow.interrupt_cast_overlap = shadow.interrupt_cast_overlap + (actor.interrupt_cast_overlap or 0)
 
 		shadow.interrupt = shadow.interrupt + actor.interrupt
 		host_combat.totals[4].interrupt = host_combat.totals[4].interrupt + actor.interrupt
@@ -3187,7 +3196,8 @@ atributo_misc.__add = function(tabela1, tabela2)
 
 		--total de interrupts
 			tabela1.interrupt = tabela1.interrupt + tabela2.interrupt
-			tabela1.interrupt_cast_overlap = tabela1.interrupt_cast_overlap + tabela2.interrupt_cast_overlap
+			tabela1.interrupt_cast_overlap = tabela1.interrupt_cast_overlap or 0
+			tabela1.interrupt_cast_overlap = tabela1.interrupt_cast_overlap + (tabela2.interrupt_cast_overlap or 0)
 
 		--soma o interrompeu o que
 			for spellid, amount in pairs(tabela2.interrompeu_oque) do
