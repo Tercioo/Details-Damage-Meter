@@ -257,7 +257,7 @@ local defaultSettings = {
         totalbar_color = {.3, .3, .3, 0.834},
 
         text_color = {1, 1, 1, 0.823}, --the text color used in the lines
-        text_size = 11, --the text size used in the lines
+        text_size = 13, --the text size used in the lines
         text_x_offset = 0, --the text horizontal offset, used to align the text with the statusbar
         text_y_offset = 0, --the text vertical offset, used to align the text with the statusbar
         text_centered = false,
@@ -437,7 +437,12 @@ local windowFunctionsMixin = {
         if (Details:IsBreakdownWindowOpen()) then
             Details:GetActorObjectFromBreakdownWindow():MontaInfo()
         end
-    end
+    end,
+
+    SetSegmentFromCooltip = function(_, instance, segmentId, bForceChange) --back compatibility with old instances
+        ---@cast instance details_allinonewindow_frame
+        return instance:SetSegmentId(segmentId, bForceChange)
+    end,
 }
 
 ---@param self details_allinonewindow
@@ -1102,6 +1107,18 @@ function AllInOneWindow:CreateWindowFrame() --~create
     optionsButton:SetFrameLevel(windowFrame:GetFrameLevel()+2)
     optionsButton:SetScript("OnClick", function()
         AllInOneWindow:OpenOptionsPanel(windowFrame)
+    end)
+
+    local selectCombatButton = CreateFrame("button", "$parentSelectCombatButton", windowFrame)
+    selectCombatButton:SetSize(14, 14)
+    selectCombatButton:SetPoint("left", optionsButton, "right", 2, 0)
+    selectCombatButton.Icon = selectCombatButton:CreateTexture("$parentIcon", "artwork")
+    selectCombatButton.Icon:SetPoint("center", selectCombatButton, "center", 0, 0)
+    selectCombatButton.Icon:SetSize(selectCombatButton:GetSize())
+    selectCombatButton.Icon:SetTexture([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]])
+    selectCombatButton:SetFrameLevel(windowFrame:GetFrameLevel()+2)
+    selectCombatButton:SetScript("OnClick", function()
+        Details.BuildSegmentMenu(selectCombatButton, 1, windowFrame)
     end)
 
     local scrollWidth = 2

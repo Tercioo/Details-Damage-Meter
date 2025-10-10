@@ -6419,9 +6419,11 @@ local iconLoreCoords = {30/512, 355/512, 45/512, 290/512}
 local wallpaperColor = {1, 1, 1, 0.5}
 
 -- search key: ~segments
-local buildSegmentTooltip = function(self, deltaTime)
+local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 	local gameCooltip = GameCooltip
-	local instance = parameters_table[1]
+
+	local instance = allInOneWindowFrame or parameters_table[1]
+	parameters_table[2] = parameters_table[2] or 0
 	parameters_table[2] = parameters_table[2] + deltaTime
 
 	local battleground_color = {1, 0.666, 0, 1}
@@ -6783,8 +6785,6 @@ local buildSegmentTooltip = function(self, deltaTime)
 						gameCooltip:AddLine(thisCombat:GetCombatName(false, bFindEnemyName), _, 1, "yellow", combatTimeColorGeneric) --formattedElapsedTime
 						gameCooltip:AddIcon(thisCombat:GetCombatIcon(), "main", "left")
 
-						--print("passing here...")
-
 						if (Details.tooltip.submenu_wallpaper and bCanUseBackgroundImage) then
 							gameCooltip:SetWallpaper(2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color, true)
 						end
@@ -7109,7 +7109,18 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 		---------------------------------------------
 
-		Details:SetMenuOwner (self, instance)
+		if (not allInOneWindowFrame) then
+			show_anti_overlap (instance, self, "top")
+			Details:SetMenuOwner(self, instance)
+		else
+			if (instance.LastMenuOpened == "segments" and GameCooltipFrame1:IsShown()) then
+				--already opened
+				gameCooltip:Hide()
+				return
+			end
+			gameCooltip:SetOwner(self, "bottom", "top", 0, 4)
+			instance.LastMenuOpened = "segments"
+		end
 
 		gameCooltip:SetOption("TextSize", Details.font_sizes.menus)
 		gameCooltip:SetOption("TextFont", Details.font_faces.menus)
@@ -7128,14 +7139,14 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 		Details:SetTooltipMinWidth()
 
-		show_anti_overlap (instance, self, "top")
-
 		gameCooltip:ShowCooltip()
 
 		self:SetScript("OnUpdate", nil)
 	end
 
 end
+
+Details.BuildSegmentMenu = buildSegmentTooltip
 
 -- ~skin
 

@@ -101,8 +101,12 @@ local tooltipScripts = {
             return
         end
 
+        local deathTable = playerDeaths[#playerDeaths]
+
         local keyDown = false
-        actorObjects[4]:ToolTipDead(windowFrame, 1, 1, keyDown) --instance, numero, barra, keydown
+        --Details:ToolTipDead(windowFrame, 1, 1, keyDown)
+        Details:ToolTipDead(windowFrame, deathTable, line)
+        --actorObjects[4]:ToolTipDead(windowFrame, 1, 1, keyDown) --instance, numero, barra, keydown
         Details:PostBuildInstanceBarTooltip(actorObjects[1])
     end,
     ["interrupt"] = function(headerColumnFrame, actorObjects, windowFrame, line, combatObject)

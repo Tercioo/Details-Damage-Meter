@@ -345,6 +345,18 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
                 return 0
             end
 
+        elseif (headerName == "overheal") then
+            local healActor = actorObjects[DETAILS_ATTRIBUTE_HEAL]
+            if (healActor) then
+                ---@cast healActor actorheal
+                headerColumnFrame.actorObject = healActor
+                headerColumnFrame.Text:SetText(Details:Format(healActor.totalover))
+                return healActor.totalover
+            else
+                headerColumnFrame.Text:SetText("0")
+                return 0
+            end
+
         elseif (headerName == "hps") then
             local healActor = actorObjects[DETAILS_ATTRIBUTE_HEAL]
             if (healActor) then
