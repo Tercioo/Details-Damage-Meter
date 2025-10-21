@@ -1967,7 +1967,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		teleportButton.Text:SetTextColor(1, 1, 1, 1)
 		teleportButton.Text:SetText("Teleport")
 		teleportButton.CastBar = detailsFramework:CreateCastBar(teleportButton, "DetailsMythicPlusKeysCastBar" .. i, {DontUpdateAlpha=true,FillOnInterrupt=false, NoFadeEffects=true})
-		teleportButton.CastBar:SetUnit("player")
+
+		if detailsFramework.IsTWWWow() then
+			teleportButton.CastBar:SetUnit("player")
+		end
+
 		teleportButton.CastBar:SetAllPoints()
 		teleportButton.CastBar:SetHook("OnShow", function(self)
 			local line = self:GetParent() and self:GetParent():GetParent()

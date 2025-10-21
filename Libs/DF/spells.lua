@@ -1281,7 +1281,30 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --consumables
-if (DF.IsWarWow()) then
+if (DF.IsMidnightWow()) then
+    --midnight TODO Get buff ids. Current alpha on 6/6 does not have all professions fully implemented.
+    DF.WeaponEnchantIds = {
+	}
+
+	DF.FlaskIDs = {
+	}
+
+	DF.FoodIDs = {
+		--TODO Get all buffs. Current alpha on 6/6 does not have all buffs.
+		[457173] = 1, -- Lowest Secondary Stat +273 30min (Pan Seared Mycobloom)
+        [457174] = 1, -- Lowest Secondary Stat +273 15min (Skewered Filet)
+	}
+
+	DF.PotionIDs = {
+	}
+
+	DF.FeastIDs = {
+	}
+
+	DF.RuneIDs = {
+	}
+
+elseif (DF.IsWarWow()) then
     --TWW TODO Get buff ids. Current alpha on 6/6 does not have all professions fully implemented.
     DF.WeaponEnchantIds = {
 	}

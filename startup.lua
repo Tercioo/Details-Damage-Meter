@@ -367,7 +367,9 @@ function Details222.StartUp.StartMeUp()
 		Details.listener:RegisterEvent("WORLD_STATE_TIMER_START")
 	end
 
-	Details222.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	if (detailsFramework.IsWarWowOrBelow()) then
+		Details222.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	end
 
 	--update is in group
 	Details.details_users = {}

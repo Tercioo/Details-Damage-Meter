@@ -345,7 +345,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
         if (tabInfo.createOnDemandFunc) then
             tabFrame:SetScript("OnShow", function()
                 if (tabInfo.createOnDemandFunc) then
-                    detailsFramework:Dispatch(tabInfo.createOnDemandFunc, tabFrame, tabContainer, parent)
+                    xpcall(tabInfo.createOnDemandFunc, geterrorhandler(), tabFrame, tabContainer, parent)
                     tabInfo.createOnDemandFunc = nil
                 end
             end)

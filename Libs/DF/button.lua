@@ -762,9 +762,9 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 
 		if ((x == button.x and y == button.y) or (button.mouse_down + 0.5 > GetTime() and button:IsMouseOver())) then
 			if (buttonType == "LeftButton") then
-				detailsFramework:CoreDispatch((button:GetName() or "Button") .. ":OnMouseUp()", object.func, button, buttonType, object.param1, object.param2)
+				xpcall(object.func, geterrorhandler(), button, buttonType, object.param1, object.param2)
 			else
-				detailsFramework:CoreDispatch((button:GetName() or "Button") .. ":OnMouseUp()", object.funcright, button, buttonType, object.param1, object.param2)
+				xpcall(object.funcright, geterrorhandler(), button, buttonType, object.param1, object.param2)
 			end
 		end
 	end

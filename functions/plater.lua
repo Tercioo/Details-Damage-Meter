@@ -3,6 +3,8 @@
 local Details = _G.Details
 local addonName, Details222 = ...
 
+---@type detailsframework
+local detailsFramework = DetailsFramework
 
 local plater_integration_frame = CreateFrame("frame", "DetailsPlaterFrame", UIParent, "BackdropTemplate")
 plater_integration_frame.DamageTaken = {}
@@ -117,7 +119,9 @@ function Details:RefreshPlaterIntegration()
 		Details:Destroy(plater_integration_frame.DamageTaken)
 		
 		--read cleu events
-		plater_integration_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		if (detailsFramework.IsWarWowOrBelow()) then
+			plater_integration_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		end
 		
 		--start the real time dps updater
 		plater_integration_frame.OnTickFrame.NextUpdate = CONST_REALTIME_UPDATE_TIME
@@ -143,7 +147,9 @@ function Details:RefreshPlaterIntegration()
 		
 	else
 		--unregister the cleu
-		plater_integration_frame:UnregisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+		if (detailsFramework.IsWarWowOrBelow()) then
+			plater_integration_frame:UnregisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+		end
 		
 		--stop the real time updater
 		plater_integration_frame.OnTickFrame:SetScript("OnUpdate", nil)
