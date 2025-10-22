@@ -1,5 +1,5 @@
 
-local dversion = 626
+local dversion = 627
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -56,7 +56,6 @@ local GetOverrideSpell = C_SpellBook and C_SpellBook.GetOverrideSpell or C_Spell
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
 local GetSpecialization = GetSpecialization or C_SpecializationInfo.GetSpecialization
 local GetSpecializationInfo = GetSpecializationInfo or C_SpecializationInfo.GetSpecializationInfo
-local GetSpecializationRole = GetSpecializationRole or C_SpecializationInfo.GetSpecializationRole
 
 local spellBookPetEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet or "pet"
 
@@ -257,6 +256,9 @@ DF.IsWotLKWowWithRetailAPI = DF.IsNonRetailWowWithRetailAPI -- this is still in 
 function DF.ExpansionHasAugEvoker()
 	return DF.IsDragonflightWow() or DF.IsWarWow()
 end
+
+
+local GetSpecializationRole = not DF.IsClassicWow() and GetSpecializationRole or C_SpecializationInfo.GetSpecializationRole
 
 ---for classic wow, get the role using the texture from the talents frame
 local roleBySpecTextureName = {
