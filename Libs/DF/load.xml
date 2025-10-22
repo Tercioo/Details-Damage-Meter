@@ -42,6 +42,7 @@
 	<Script file="buildmenu.lua"/>
 	<Script file="loadconditions.lua"/>
 	<Include file="unitframe.lua"/>
+	<Include file="unitframe_midnight.lua"/>
 	<Script file="icon.lua"/>
 	<Script file="icongeneric.lua"/>
 	<Script file="pictureedit.lua"/>
