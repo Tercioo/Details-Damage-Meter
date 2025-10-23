@@ -522,6 +522,9 @@
 
 		--Smoldering Seedling trinket
 		[212590] = true,
+
+        --Path Helper
+        [226510] = true,
 	}
 
 	local ignored_npcids = {}
