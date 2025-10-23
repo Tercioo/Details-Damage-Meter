@@ -522,9 +522,6 @@
 
 		--Smoldering Seedling trinket
 		[212590] = true,
-
-        --Path Helper
-        [226510] = true,
 	}
 
 	local ignored_npcids = {}
@@ -625,6 +622,15 @@
 		--cache a spellName and the value is the spellId
 		--the container actor will use this name to create a fake player actor where its name is the spellName and the specIcon is the spellIcon
 		Details.SpecialSpellActorsName = {}
+
+        --sanguine affix for m+
+		Details.SanguineHealActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
+
+        if (not isCLASSIC) then
+			if (Details.SanguineHealActorName) then
+				Details.SpecialSpellActorsName[Details.SanguineHealActorName] = SPELLID_SANGUINE_HEAL
+			end
+		end
 
 		--Damage spells that trigger outside of combat, which we don't want to have start a combat.
 		--387846 Fel Armor
