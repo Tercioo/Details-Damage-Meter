@@ -28,7 +28,7 @@ do
 		local instance = Details:GetInstance(1)
 
 		local spec = actorObject:Spec()
-		if (spec and spec > 0) then
+		if (spec and spec > 0 and Details.class_specs_coords[spec]) then
 			---@type string
 			local fileName
 
@@ -200,7 +200,7 @@ do
 	---@param useAlpha boolean
 	---@return string texturePath, number left, number right, number top, number bottom
 	function Details:GetSpecIcon(spec, useAlpha)
-		if (not spec or spec == 0) then
+		if (not spec or spec == 0 or not Details.class_specs_coords[spec]) then
 			--this returns the icon for "unknown" spec (gotten from the class icon file)
 			return [[Interface\AddOns\Details\images\classes_small]], unpack(Details.class_coords["UNKNOW"])
 		end
@@ -250,7 +250,7 @@ do
 
 		if (playerObject) then
 			local spec = playerObject.spec
-			if (spec) then
+			if (spec and Details.class_specs_coords[spec]) then
 				texturePath = [[Interface\AddOns\Details\images\spec_icons_normal]]
 				left, right, top, bottom = unpack(Details.class_specs_coords[spec])
 

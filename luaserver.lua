@@ -862,6 +862,7 @@ BackdropTemplateMixin = {}
 
 ---@class texture : region
 ---@field AddMaskTexture fun(self: texture, maskTexture: texture)
+---@field GetDrawLayer  fun(self: texture) : drawlayer, number
 ---@field SetDrawLayer fun(self: texture, layer: drawlayer, subLayer: number?)
 ---@field GetTexture fun(self: texture) : any
 ---@field SetTexture fun(self: texture, path: textureid|texturepath?, horizontalWrap: texturewrap?, verticalWrap: texturewrap?, filter: texturefilter?)

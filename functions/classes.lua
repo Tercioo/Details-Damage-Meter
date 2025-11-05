@@ -376,7 +376,7 @@ do
 	function Details:AddClassOrSpecIcon(thisString, class, spec, iconSize, useAlphaIcons)
 		iconSize = iconSize or 16
 
-		if (spec) then
+		if (spec and Details.class_specs_coords[spec]) then
 			local specString = ""
 			local L, R, T, B = unpack(Details.class_specs_coords[spec])
 			if (L) then

@@ -26,7 +26,6 @@
                 local line = self:GetLine(i)
                 --update the line with the data
                 line.NameText:SetText(thisData.name)
-                detailsFramework:DebugVisibility(line)
                 line:Show()
             end
         end
