@@ -961,6 +961,110 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print("No boss found. Use: /details bossspells [boss name]. Example: '/details bossspells Dimen' > return Dimensius, the all-devouring spells.")
 		end
 
+	elseif (command == "bsl") then
+		local df = DetailsFramework
+		local allRaids = df.Ejc.GetAllRaidInstances()
+
+		local one, two = rest:match("^(%S*)%s*(.-)$")
+
+		if (not one or one == "") then
+			print("Use: /details bosslore [boss name]. Example: '/details bosslore Dimen' or '/details bosslore the soul' -> Dimensius and The Soul Hunters.")
+			return
+		end
+
+		one = one:lower()
+		if (two and two ~= "") then
+			two = two:lower()
+		else
+			two = nil
+		end
+
+		for i = 1, #allRaids do
+			local r = allRaids[i]
+			local journalId = r.journalInstanceId
+			local journalInstanceId= journalId
+			local encounters = r.encountersArray
+
+			for o = 1, #encounters do
+				local e = encounters[o]
+				local journalEncounterId = e.journalEncounterId
+				local difficulty = 16 --mythic
+
+				local bossName = e.name:lower()
+
+				EJ_SetDifficulty(difficulty)
+				EJ_SelectInstance(journalInstanceId)
+				EJ_SelectEncounter(journalEncounterId)
+
+				local encounterName, encounterDescription, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(journalEncounterId)
+
+				local sectionStack = {}
+				local currentSectionId = rootSectionID
+
+				local spells = {}
+				local loreSpells = {}
+
+				local foundBoss =false
+
+				if (one and bossName:find(one) and not two) then
+					foundBoss = true
+				end
+
+				if one and two and bossName:find(one) and bossName:find(two) then
+					foundBoss = true
+				end
+
+				if (foundBoss) then
+					repeat
+						local sectionInfo = C_EncounterJournal.GetSectionInfo(currentSectionId)
+						if (not sectionInfo) then
+							break
+						end
+
+						if (sectionInfo.spellID) then
+							loreSpells[#loreSpells+1] = sectionInfo
+							--dumpt (sectionInfo)
+						end
+
+						if (sectionInfo.spellID) then
+							local spellInfo = C_Spell.GetSpellInfo(sectionInfo.spellID)
+							sectionInfo.spellName = spellInfo and spellInfo.name
+							sectionInfo.spellIcon = spellInfo and spellInfo.iconID
+
+							table.insert(spells, sectionInfo)
+
+							spells[sectionInfo.spellID] = sectionInfo
+							if (sectionInfo.spellName) then
+								spells[sectionInfo.spellName] = sectionInfo
+							end
+							if (sectionInfo.title) then
+								spells[sectionInfo.title] = sectionInfo
+							end
+						end
+
+						if (sectionInfo.siblingSectionID) then
+							table.insert(sectionStack, sectionInfo.siblingSectionID)
+						end
+
+						if (sectionInfo.firstChildSectionID) then
+							table.insert(sectionStack, sectionInfo.firstChildSectionID)
+						end
+
+						currentSectionId = table.remove(sectionStack)
+					until not currentSectionId
+
+				end
+
+				--print("#loreSpells:", #loreSpells, "for boss:", e.name)
+
+				if (loreSpells[1]) then
+					dumpt(loreSpells)
+				end
+
+				--dumpt(allSpells)
+			end
+		end
+
 	elseif (msg == "buffs") then
 		for i = 1, 40 do
 			local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellid = UnitBuff ("player", i)
