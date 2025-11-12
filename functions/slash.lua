@@ -1021,6 +1021,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 							break
 						end
 
+						local iconFlags = C_EncounterJournal.GetSectionIconFlags(currentSectionId)
+						if iconFlags and #iconFlags > 0 then
+							sectionInfo.iconFlags = iconFlags
+							--dumpt(iconFlags)
+						end
+
 						if (sectionInfo.spellID) then
 							loreSpells[#loreSpells+1] = sectionInfo
 							--dumpt (sectionInfo)
