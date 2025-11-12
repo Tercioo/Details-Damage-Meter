@@ -909,6 +909,58 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print("running... this is a debug command, details wont work until next /reload.")
 		Details:PrepareTablesForSave()
 
+	elseif (command == "bossspells") then
+		local one, two = rest:match("^(%S*)%s*(.-)$")
+
+		if (not one or one == "") then
+			print("Use: /details bossspells [boss name]. Example: '/details bossspells Dimen' or '/details bossspells the soul' -> Dimensius and The Soul Hunters.")
+			return
+		end
+
+		one = one:lower()
+		if (two and two ~= "") then
+			two = two:lower()
+		else
+			two = nil
+		end
+
+		local df = DetailsFramework
+		local allRaids = df.Ejc.GetAllRaidInstances()
+
+		local foundBoss = false
+
+		for i = 1, #allRaids do
+			local r = allRaids[i]
+			local journalId = r.journalInstanceId
+			local encounters = r.encountersArray
+
+			for o = 1, #encounters do
+				local e = encounters[o]
+				local journalEncounterId = e.journalEncounterId
+				local difficulty = 16 --mythic
+
+				local bossName = e.name:lower()
+
+				if (one and bossName:find(one) and not two) then
+					local allSpells = df.Ejc.GetEncounterSpells(journalId, journalEncounterId, difficulty)
+					dumpt(allSpells)
+					foundBoss = true
+					return
+				end
+
+				if one and two and bossName:find(one) and bossName:find(two) then
+					local allSpells = df.Ejc.GetEncounterSpells(journalId, journalEncounterId, difficulty)
+					dumpt(allSpells)
+					foundBoss = true
+					return
+				end
+			end
+		end
+
+		if (not foundBoss) then
+			print("No boss found. Use: /details bossspells [boss name]. Example: '/details bossspells Dimen' > return Dimensius, the all-devouring spells.")
+		end
+
 	elseif (msg == "buffs") then
 		for i = 1, 40 do
 			local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellid = UnitBuff ("player", i)

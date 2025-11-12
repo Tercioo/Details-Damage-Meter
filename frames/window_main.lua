@@ -6562,6 +6562,7 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 							local timeInCombat = thisCombat:GetCombatTime()
 
 							--submenu
+							mythicLevel = mythicLevel or 0
 							gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
 							gameCooltip:AddIcon(Details:GetTextureAtlas("small-pin-yellow"), 2, 1)
 							gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.25, false, false, statusBarTexture)

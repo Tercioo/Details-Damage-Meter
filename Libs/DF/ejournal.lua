@@ -218,6 +218,8 @@ function Ejc.GetEncounterSpells(journalInstanceId, journalEncounterId, difficult
 
         currentSectionId = table.remove(sectionStack)
     until not currentSectionId
+
+    return spells
 end
 
 function Ejc.CreateEncounterJournalDump()

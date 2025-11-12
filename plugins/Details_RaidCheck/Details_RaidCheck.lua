@@ -755,7 +755,7 @@ local CreatePluginFrames = function()
 			if (not talentsTable) then
 				local playersInfoData = openRaidLib.GetAllUnitsInfo()
 				local playerTalentsInfo = playersInfoData[GetUnitName(unitId, true)]
-				if (playerTalentsInfo) then
+				if (playerTalentsInfo and playerTalentsInfo.talents and type(playerTalentsInfo.talents) == "table") then
 					talentsTable = DF.table.copy({}, playerTalentsInfo.talents)
 				end
 			end
