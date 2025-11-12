@@ -988,7 +988,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			for o = 1, #encounters do
 				local e = encounters[o]
 				local journalEncounterId = e.journalEncounterId
-				local difficulty = 16 --mythic
+				local difficulty = DUMP_JOURNAL_DIFF or 16 --mythic
 
 				local bossName = e.name:lower()
 
