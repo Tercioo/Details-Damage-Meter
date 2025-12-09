@@ -1,4 +1,4 @@
-## Interface: 30405
+## Interface: 30405, 38000
 ## Title: Details!: Storage
 ## Notes: Stores information for Details! Damage Meter
 ## DefaultState: Enabled
