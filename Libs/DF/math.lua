@@ -89,10 +89,15 @@ function DF.Math.GetNinePoints(object)
 	local width = object:GetWidth()
 	local height = object:GetHeight()
 
+	if (not centerX or not centerY) then
+		error("Object has no center point: " .. tostring(object:GetName()))
+	end
+
 	local halfWidth = width / 2
 	local halfHeight = height / 2
 
 	---@type df_ninepoints
+	---@diagnostic disable-next-line: missing-fields
 	local ninePoints = {
 		{x = centerX - halfWidth, y = centerY + halfHeight}, --topleft 1
 		{x = centerX - halfWidth, y = centerY}, --left 2

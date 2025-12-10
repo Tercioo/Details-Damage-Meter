@@ -374,6 +374,7 @@ function DropDownMetaFunctions:GetFrameForOption(optionsTable, value) --not test
 end
 
 function DropDownMetaFunctions:Refresh()
+	assert(type(self.func) == "function", "Dropdown without options initializator function, check 2nd parameter (function) on CreateDropdown().")
 	local state, optionsTable = xpcall(self.func, geterrorhandler(), self)
 
 	if (#optionsTable == 0) then
@@ -468,6 +469,7 @@ function DropDownMetaFunctions:Select(optionName, byOptionNumber, bOnlyShown, ru
 		return false
 	end
 
+	assert(type(self.func) == "function", "Dropdown without options initializator function, check 2nd parameter (function) on CreateDropdown().")
 	local runOkay, optionsTable = xpcall(self.func, geterrorhandler(), self)
 
 	if (type(optionsTable) ~= "table") then
@@ -1398,6 +1400,52 @@ function DF:CreateAudioListGenerator(callback)
 	return newGenerator
 end
 
+---function to create a dropdown with a list of status bar textures from SharedMedia library
+---@param callback function
+---@return function
+function DF:CreateStatusbarTextureListGenerator(callback)
+	local newGenerator = function()
+		local dropdownOptions = {}
+
+		local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+		for name, texturePath in pairs(SharedMedia:HashTable("statusbar")) do
+			dropdownOptions[#dropdownOptions+1] = {
+				value = name,
+				label = name,
+				onclick = callback,
+				statusbar = texturePath,
+			}
+		end
+
+		table.sort(dropdownOptions, function(t1, t2) return t1.label < t2.label end)
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
+---create a list generator for frame strata
+---@param callback function
+---@return function
+function DF:CreateFrameStrataListGenerator(callback)
+	local newGenerator = function()
+		local dropdownOptions = {}
+
+		for strataIndex, strataValue in ipairs(DF.FrameStrataLevels) do
+			table.insert(dropdownOptions, {
+				label = strataValue,
+				value = strataValue,
+				onclick = callback
+			})
+		end
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
 ---create a dropdown object with a list of fonts
 ---@param parent frame
 ---@param callback function
@@ -1410,6 +1458,37 @@ end
 ---@param bIncludeDefault boolean?
 function DF:CreateFontDropDown(parent, callback, default, width, height, member, name, template, bIncludeDefault)
 	local func = DF:CreateFontListGenerator(callback, bIncludeDefault)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
+
+---create a dropdown object with a list of status bar textures from SharedMedia library
+---@param parent frame
+---@param callback function
+---@param default any
+---@param width number?
+---@param height number?
+---@param member string?
+---@param name string?
+---@param template table?
+---@return df_dropdown
+function DF:CreateStatusbarTextureDropDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateStatusbarTextureListGenerator(callback)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
+
+---create a dropdown object with a list of frame strata
+---@param parent frame
+---@param callback function
+---@param default any
+---@param width number?
+---@param height number?
+---@param member string?
+---@param name string?
+---@param template table?
+function DF:CreateFrameStrataDropDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateFrameStrataListGenerator(callback)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end

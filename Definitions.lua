@@ -640,6 +640,8 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field damage_from table<actorname, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 ---@field totalabsorbed number amount of damage dealt by the actor by got absorbed by the target, this is a "ABSORB" type of miss but still counts as damage done
 ---@field augmentedSpellsContainer spellcontainer
+---@field last_dps number
+---@field last_dps_realtime number
 
 ---@class actorheal : actor
 ---@field healing_taken number amount of healing the actor took during the segment

@@ -1763,6 +1763,8 @@ end
 ---@param bForceUpdate boolean
 ---@param bExportData boolean
 function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
+	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
+
 	---@type actorcontainer
 	local damageContainer = combatObject[class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
 

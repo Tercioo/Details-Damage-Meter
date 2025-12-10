@@ -690,6 +690,8 @@ function atributo_misc:UpdateDeathRow(deathTable, whichRowLine, rankPosition, in
 end
 
 function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bIsExport)
+	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
+
 	---@type actorcontainer
 	local utilityActorContainer = combatObject[class_type]
 

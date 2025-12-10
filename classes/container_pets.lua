@@ -144,6 +144,7 @@ end
 ---@param petGuid guid
 ---@return boolean
 function petContainer.IsPetInCache(petGuid)
+	if issecretvalue(petGuid) then return false end
 	return petContainer.Pets[petGuid] ~= nil
 end
 

@@ -1,4 +1,4 @@
-## Interface: 110207
+## Interface: 110207, 120000
 ## Interface-Mists: 50503
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
@@ -184,6 +184,7 @@ core\meta.lua
 core\network.lua
 
 core\parser.lua
+core\parser_nocleu.lua
 
 functions\spec_augmentation.lua
 functions\loaddata.lua

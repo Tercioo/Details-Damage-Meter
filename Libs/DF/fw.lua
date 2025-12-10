@@ -1,5 +1,5 @@
 
-local dversion = 629
+local dversion = 642
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -111,6 +111,17 @@ if (not PixelUtil) then
 		}
 	end
 end
+
+DF.FrameStrataLevels = {
+	"BACKGROUND",
+	"LOW",
+	"MEDIUM",
+	"HIGH",
+	"DIALOG",
+	"FULLSCREEN",
+	"FULLSCREEN_DIALOG",
+	"TOOLTIP",
+}
 
 ---return r, g, b, a for the default backdrop color used in addons
 ---@return number
@@ -239,6 +250,10 @@ end
 function DF.IsMidnightWow()
 	if (buildInfo < 130000 and buildInfo >= 120000) then		return true	end
 	return false
+end
+
+function DF.IsAddonApocalypseWow()
+	return buildInfo >= 120000
 end
 
 
@@ -762,6 +777,9 @@ function DF:GetParentNamePath(object)
 		end
 
 		if (parentName) then
+			if (type(parentName) == "table") then
+				parentName = tostring(parentName)
+			end
 			path = parentName .. "." .. path
 		else
 			local result = path:gsub("%.$", "")
@@ -828,7 +846,12 @@ function DF.table.setfrompath(t, path, value)
 		end
 
 		if (lastTable and lastKey) then
-			lastTable[lastKey] = value
+			local numericKey = tonumber(lastKey)
+			if (numericKey) then
+				lastTable[numericKey] = value
+			else
+				lastTable[lastKey] = value
+			end
 			return true
 		end
 	else

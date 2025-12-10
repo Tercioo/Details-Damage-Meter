@@ -391,6 +391,12 @@ local common_events = {
 		return Details:UnregisterEvent(self, event)
 	end
 
+	---@class eventlistener : table
+	---@field Enabled boolean
+	---@field __enabled boolean
+	---@field RegisterEvent fun(self:eventlistener, event:string, func:function):boolean
+	---@field UnregisterEvent fun(self:eventlistener, event:string):boolean
+	---@return eventlistener
 	function Details:CreateEventListener()
 		local new = {Enabled = true, __enabled = true}
 		setmetatable(new, listener_meta)

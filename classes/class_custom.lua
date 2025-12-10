@@ -98,6 +98,8 @@
 	end
 
 	function classCustom:RefreshWindow(instanceObject, combatObject, force, export)
+		if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
+
 		--get the custom object
 		local customObject = instanceObject:GetCustomObject()
 

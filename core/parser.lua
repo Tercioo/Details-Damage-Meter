@@ -13,7 +13,11 @@
 
 	local UnitHealthMax = UnitHealthMax
 	Details.HealthMaxFrame = CreateFrame("Frame")
-	Details.HealthMaxFrame:RegisterEvent("UNIT_MAXHEALTH")
+
+	if not detailsFramework.IsMidnightWow() then
+		Details.HealthMaxFrame:RegisterEvent("UNIT_MAXHEALTH")
+	end
+
 	Details.HealthCache = {}
 	Details.HealthMaxCache = {}
 	Details.HealthMaxCalls = 0
@@ -34,7 +38,7 @@
 	local GetTime = GetTime
 	local tonumber = tonumber
 	local tinsert = table.insert
-	local select = select
+	--local select = select
 	local bitBand = bit.band
 	local floor = math.floor
 	local ipairs = ipairs
@@ -45,11 +49,8 @@
 	local _UnitGroupRolesAssigned = detailsFramework.UnitGroupRolesAssigned
 	local _GetSpellInfo = Details.getspellinfo
     local GetSpellInfo = Details222.GetSpellInfo
-	local isWOTLK = detailsFramework.IsWotLKWow()
 	local isERA = detailsFramework.IsClassicWow()
-	local isCATA = detailsFramework.IsCataWow()
-    local isPANDA = detailsFramework.IsPandaWow()
-    local isCLASSIC = isCATA or isPANDA or isERA or isWOTLK
+    local isCLASSIC = detailsFramework.IsCataWow() or detailsFramework.IsPandaWow() or isERA or detailsFramework.IsWotLKWow()
 	local _tempo = time()
 	_ = nil
 
@@ -306,7 +307,7 @@
 	--spellIds override
 	local override_spellId = {}
 
-	if (isCATA or isPANDA) then
+	if (detailsFramework.IsCataWow() or detailsFramework.IsPandaWow()) then
 		override_spellId = {
 			--Scourge Strike
 			[55265] = 55090,
@@ -6324,6 +6325,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.MythicPlus.LogStep("===== Mythic+ Finished =====")
 	end
 
+	---@param self frame
+	---@param bIsInCombat boolean
+	function Details.parser_functions:PLAYER_IN_COMBAT_CHANGED(bIsInCombat)
+		if (bIsInCombat) then
+			--or not, let me think.
+		else
+
+		end
+	end
+
 	function Details.parser_functions:PLAYER_REGEN_ENABLED(...)
 
 		--check if the player is a rogue and has the aura Vanish
@@ -6983,6 +6994,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return func(nil, token, time, sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetFlags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		end
 	end
+
+	--[=[
+	local midnightEvents = function()
+		local eventList = {
+			"DAMAGE_METER_RESET",
+			"DAMAGE_METER_COMBAT_SESSION_UPDATED",
+		}
+	end
+	--]=]
+
 
 	--open world out of combat spell damage
 	local outofcombat_spell_damage = function(unused, token, time, whoGUID, whoName, whoFlags, targetGUID, targetName, targetFlags, targetFlags2, ...)

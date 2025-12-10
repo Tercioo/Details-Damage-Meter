@@ -709,6 +709,79 @@ function detailsFramework:TableIsAtlas(atlasTale)
 	return false
 end
 
+function detailsFramework:SetTexture(object, texture)
+	local isAtlas = C_Texture.GetAtlasInfo(texture)
+	if (isAtlas) then
+		object:SetAtlas(texture)
+		return
+	end
+
+	if (type(texture) == "table") then
+		local textureInfo = texture
+
+		if (textureInfo.file) then
+			detailsFramework:SetAtlas(object, textureInfo)
+			return
+
+		elseif (textureInfo.gradient) then
+			---@type df_gradienttable
+			local gradientTable = textureInfo
+
+			if (detailsFramework.IsDragonflightAndBeyond() or detailsFramework.IsNonRetailWowWithRetailAPI()) then
+				object:SetColorTexture(1, 1, 1, 1)
+				local fromColor = detailsFramework:FormatColor("tablemembers", gradientTable.fromColor)
+				local toColor = detailsFramework:FormatColor("tablemembers", gradientTable.toColor)
+
+				if (gradientTable.invert) then
+					local temp = fromColor
+					fromColor = toColor
+					toColor = temp
+				end
+
+				object:SetGradient(gradientTable.gradient, fromColor, toColor)
+				return
+			else
+				local fromR, fromG, fromB, fromA = detailsFramework:ParseColors(gradientTable.fromColor)
+				local toR, toG, toB, toA = detailsFramework:ParseColors(gradientTable.toColor)
+
+				if (gradientTable.invert) then
+					local temp = fromR
+					fromR = toR
+					toR = temp
+					temp = fromG
+					fromG = toG
+					toG = temp
+					temp = fromB
+					fromB = toB
+					toB = temp
+					temp = fromA
+					fromA = toA
+					toA = temp
+				end
+
+				object:SetColorTexture(1, 1, 1, 1)
+
+				object:SetGradientAlpha(gradientTable.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
+				return
+			end
+		else
+			local r, g, b, a = detailsFramework:ParseColors(texture)
+			object:SetColorTexture(r, g, b, a)
+			return
+		end
+
+		error("DetailsFramework:SetTexture() texture is a table but without known texture data.")
+		return
+	end
+
+	if (type(texture) == "string" or type(texture) == "number") then
+		object:SetTexture(texture)
+		return
+	end
+
+	error("DetailsFramework:SetTexture() invalid texture.")
+end
+
 ---Receives a texture object and a texture to use as mask
 ---If the mask texture is not created, it will be created and added to a key named MaskTexture
 ---@param self table

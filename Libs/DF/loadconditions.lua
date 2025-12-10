@@ -24,6 +24,7 @@ local GetTalentInfoByID = GetTalentInfoByID ---@diagnostic disable-line
 local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE ---@diagnostic disable-line
 local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE ---@diagnostic disable-line
 local IS_WOW_PROJECT_CLASSIC_ERA = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC ---@diagnostic disable-line
+local IS_WOW_PROJECT_MIDNIGHT = detailsFramework.IsAddonApocalypseWow() ---@diagnostic disable-line
 
 local PixelUtil = PixelUtil or DFPixelUtil  ---@diagnostic disable-line
 local UnitGroupRolesAssigned = detailsFramework.UnitGroupRolesAssigned
@@ -158,6 +159,7 @@ function detailsFramework:CreateLoadFilterParser(callback)
 
 		elseif (event == "CHAT_MSG_LOOT") then
 			local message = ...
+			if IS_WOW_PROJECT_MIDNIGHT and issecretvalue(message) then return end
 			local itemId = message:match("|Hitem:(%d+):")
 			itemId = tonumber(itemId)
 

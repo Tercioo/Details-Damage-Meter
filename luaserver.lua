@@ -943,6 +943,44 @@ BackdropTemplateMixin = {}
 ---@field SetThumbTexture fun(self: slider, texture: textureid|texturepath)
 ---@field SetStepsPerPage fun(self: slider, steps: number)
 
+---@class damagemetertype : table
+---@field DamageDone number
+---@field Dps number
+---@field HealingDone number
+---@field Hps number
+---@field Absorbs number
+---@field Interrupts number
+---@field Dispels number
+---@field DamageTaken number
+
+---return is the value passed is a secret
+---@param value any
+---@return boolean
+function issecretvalue(value) return false end
+
+---return is the value passed is a secret
+---@param value any
+---@return boolean
+function issecrettable(value) return false end
+
+---@class enum : table
+---@field DamageMeterType damagemetertype
+
+---@type enum
+---@diagnostic disable-next-line: missing-fields
+Enum = {
+    DamageMeterType = {
+        DamageDone = 0,
+        Dps = 1,
+        HealingDone = 2,
+        Hps = 3,
+        Absorbs = 4,
+        Interrupts = 5,
+        Dispels = 6,
+        DamageTaken = 7,
+    },
+}
+
 ---@class encodingutil : table
 ---@field EncodeHex fun(self: encodingutil, str: string) : string
 ---@field DecodeHex fun(self: encodingutil, str: string) : string

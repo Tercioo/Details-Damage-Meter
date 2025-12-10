@@ -343,6 +343,10 @@ function Details222.StartUp.StartMeUp()
 		Details.listener:RegisterEvent("SCENARIO_COMPLETED")
 	end
 
+	if (detailsFramework.IsAddonApocalypseWow()) then
+		Details.listener:RegisterEvent("PLAYER_IN_COMBAT_CHANGED")
+	end
+
 	Details.listener:RegisterEvent("ENCOUNTER_START")
 	Details.listener:RegisterEvent("ENCOUNTER_END")
 

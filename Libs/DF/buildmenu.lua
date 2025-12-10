@@ -1,4 +1,5 @@
 
+---@type detailsframework
 local detailsFramework = _G["DetailsFramework"]
 if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
@@ -19,9 +20,13 @@ local _
 ---@field GetWidgetById fun(optionsFrame: df_menu, id: string): table this should return a widget from the widgetids table
 
 ---@class df_menu_table : table
+---@field type string the type of widget to create
 ---@field text_template table
 ---@field id string an unique string or number to identify the button, from parent.widgetids[id], parent is the first argument of BuildMenu and BuildMenuVolatile
 ---@field namePhraseId string the phrase id (from language localization) to use on the button
+---@field hasLabel any
+---@field hidden boolean?
+---@field inline boolean?
 
 ---@class df_menu_label : df_menu_table
 ---@field get function
@@ -100,6 +105,11 @@ local _
 ---@field align string "left", "center" or "right"
 ---@field nocombat boolean can't edit when in combat
 ---@field spacement boolean gives a little of more space from the next widget
+
+---@class df_menu_texture : df_menu_table
+---@field texture any
+---@field texture_width number
+---@field texture_height number
 
 detailsFramework.OptionsFrameMixin = {
 
@@ -1197,6 +1207,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     --do nothing
 
                 elseif (widgetTable.type == "label" or widgetTable.type == "text") then
+                    ---@cast widgetTable df_menu_label
                     local label = getMenuWidgetVolative(parent, "label", widgetIndexes)
                     label:ClearAllPoints()
                     widgetCreated = label
@@ -1212,6 +1223,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                 --dropdowns
                 elseif (widgetTable.type:find("select")) then
+                    ---@cast widgetTable df_menu_dropdown
                     assert(widgetTable.get, "DetailsFramework:BuildMenu: .get() not found in the widget table for 'select'")
                     local dropdown = getMenuWidgetVolative(parent, "dropdown", widgetIndexes)
                     widgetCreated = dropdown
@@ -1220,6 +1232,15 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     do
                         if (widgetTable.type == "selectfont") then
                             local func = detailsFramework:CreateFontListGenerator(widgetTable.set, widgetTable.include_default)
+                            dropdown:SetFunction(func)
+
+                        elseif (widgetTable.type == "selectstatusbartexture") then
+                            local func = detailsFramework:CreateStatusbarTextureListGenerator(widgetTable.set)
+                            dropdown:SetFunction(func)
+
+                        --frame strata
+                        elseif (widgetTable.type == "selectframestrata") then
+                            local func = detailsFramework:CreateFrameStrataListGenerator(widgetTable.set)
                             dropdown:SetFunction(func)
 
                         elseif (widgetTable.type == "selectcolor") then
@@ -1254,6 +1275,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                 --switchs
                 elseif (widgetTable.type == "toggle" or widgetTable.type == "switch") then
+                    ---@cast widgetTable df_menu_toggle
                     local switch = getMenuWidgetVolative(parent, "switch", widgetIndexes)
                     widgetCreated = switch
 
@@ -1269,6 +1291,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                 --slider
                 elseif (widgetTable.type == "range") then
+                    ---@cast widgetTable df_menu_range
                     local slider = getMenuWidgetVolative(parent, "slider", widgetIndexes)
                     widgetCreated = slider
 
@@ -1284,6 +1307,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                 --color
                 elseif (widgetTable.type == "color") then
+                    ---@cast widgetTable df_menu_color
                     local colorpick = getMenuWidgetVolative(parent, "color", widgetIndexes)
                     widgetCreated = colorpick
 
@@ -1300,6 +1324,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                 --button
                 elseif (widgetTable.type == "execute" or widgetTable.type == "button") then
+                    ---@cast widgetTable df_menu_button
                     local button = getMenuWidgetVolative(parent, "button", widgetIndexes)
                     button.widget_type = "execute"
                     widgetCreated = button
@@ -1315,6 +1340,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                 --textentry
                 elseif (widgetTable.type == "textentry") then
+                    ---@cast widgetTable df_menu_textentry
                     local textentry = getMenuWidgetVolative(parent, "textentry", widgetIndexes)
                     widgetCreated = textentry
 
@@ -1330,6 +1356,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
                 --image
                 elseif (widgetTable.type == "image") then
+                    ---@cast widgetTable df_menu_texture
                     local image = getMenuWidgetVolative(parent, "image", widgetIndexes)
                     widgetCreated = image
 
@@ -1496,6 +1523,12 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 do
                     if (widgetTable.type == "selectfont") then
                         dropdown = detailsFramework:CreateFontDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate, widgetTable.include_default)
+
+                    elseif (widgetTable.type == "selectstatusbartexture") then
+                        dropdown = detailsFramework:CreateStatusbarTextureDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)
+
+                    elseif (widgetTable.type == "selectframestrata") then
+                        dropdown = detailsFramework:CreateFrameStrataDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)
 
                     elseif (widgetTable.type == "selectcolor") then
                         dropdown = detailsFramework:CreateColorDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)

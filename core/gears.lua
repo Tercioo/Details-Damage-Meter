@@ -1903,6 +1903,7 @@ function Details.GetPlayTimeOnClassString()
     return "|cffffff00Time played this class(" .. expansionName .. "): " .. days .. " " .. hours .. " " .. minutes
 end
 
+--[=[
 hooksecurefunc("ChatFrame_DisplayTimePlayed", function()
 	if (Details.played_class_time) then
 		C_Timer.After(0, function()
@@ -1923,6 +1924,7 @@ hooksecurefunc("ChatFrame_DisplayTimePlayed", function()
 		end)
 	end
 end)
+--]=]
 
 --game freeze prevention, there are people calling UpdateAddOnMemoryUsage() making the game client on the end user to freeze, this is bad, really bad.
 --Details! replace the function call with one that do the same thing, but warns the player if the function freezes the client too many times.
