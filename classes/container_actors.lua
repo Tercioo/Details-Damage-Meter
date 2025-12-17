@@ -907,7 +907,7 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 			end
 
 		--this actor isn't in the pet cache
-		elseif (not issecretvalue(actorSerial) and not petBlackList[actorSerial]) then --check if is a pet
+		elseif ( (issecretvalue and not issecretvalue(actorSerial)) and not petBlackList[actorSerial]) then --check if is a pet
 			--try to find the owner
 			if (actorFlags and bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
 				--hashName is "petName <ownerName>"

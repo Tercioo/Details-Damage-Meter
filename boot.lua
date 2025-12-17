@@ -37,10 +37,6 @@
 			return Details.realversion
 		end
 
-		if not issecretvalue then
-			function issecretvalue() return false end
-		end
-
 		Details.BFACORE = 131 --core version on BFA launch
 		Details.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 		Details.DRAGONFLIGHT = 147 --core version on Dragonflight launch
