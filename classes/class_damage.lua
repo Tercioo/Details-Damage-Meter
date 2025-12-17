@@ -1739,7 +1739,8 @@ end
 			spellSchoolColor = Details.spells_school[1]
 		end
 
-		Details:SetBarColors(thisLine, instancia, unpack(spellSchoolColor))
+		local r, g, b, a = detailsFramework:ParseColors(spellSchoolColor)
+		Details:SetBarColors(thisLine, instancia, r, g, b, a)
 
 		thisLine.icone_classe:SetTexture(icon)
 		thisLine.icone_classe:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
