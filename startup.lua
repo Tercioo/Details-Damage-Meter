@@ -61,6 +61,10 @@ function Details222.StartUp.StartMeUp()
 		LIB_OPEN_RAID_MYTHIC_PLUS_DND = true
 	end
 
+	if detailsFramework.IsAddonApocalypseWow() then
+		Details:Msg("|cFFFFFF00Oppss, Details! need a few more days to finish porting to Midnight.|r")
+	end
+
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	--row single click, this determines what happen when the user click on a bar
 

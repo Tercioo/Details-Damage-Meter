@@ -347,6 +347,8 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 					---@type df_gradienttable
 					local gradientTable = texture
 
+					--DF.IsTBCWow()
+
 					if (detailsFramework.IsDragonflightAndBeyond() or detailsFramework.IsNonRetailWowWithRetailAPI()) then
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
 						local fromColor = detailsFramework:FormatColor("tablemembers", gradientTable.fromColor)

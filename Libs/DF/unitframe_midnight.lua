@@ -191,7 +191,7 @@ local cleanfunction = function() end
 				self.currentHealth = UnitHealth(unit)
 				self.currentHealthMax = UnitHealthMax(unit)
 				self.currentHealthMissing = UnitHealthMissing(unit, true)
-				self.currentHealthPercent = UnitHealthPercent(unit, true, true)
+				self.currentHealthPercent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
 
 				for _, eventTable in ipairs(self.HealthBarEvents) do
 					local event = eventTable[1]
@@ -293,7 +293,7 @@ local cleanfunction = function() end
 		self:SetMinMaxValues(0, maxHealth, Enum.StatusBarInterpolation.ExponentialEaseOut)
 		self.currentHealthMax = maxHealth
 		self.currentHealthMissing = UnitHealthMissing(self.displayedUnit, true)
-		self.currentHealthPercent = UnitHealthPercent(self.displayedUnit, true, true)
+		self.currentHealthPercent = UnitHealthPercent(self.displayedUnit, true, CurveConstants.ScaleTo100)
 
 		if (self.OnHealthMaxChange) then --direct call
 			self.OnHealthMaxChange(self, self.displayedUnit)
@@ -312,7 +312,7 @@ local cleanfunction = function() end
 		local health = UnitHealth(self.displayedUnit)
 		self.currentHealth = health
 		self.currentHealthMissing = UnitHealthMissing(self.displayedUnit, true)
-		self.currentHealthPercent = UnitHealthPercent(self.displayedUnit, true, true)
+		self.currentHealthPercent = UnitHealthPercent(self.displayedUnit, true, CurveConstants.ScaleTo100)
 		self:SetValue(health, Enum.StatusBarInterpolation.ExponentialEaseOut)
 
 		if (self.OnHealthChange) then --direct call
@@ -676,22 +676,28 @@ detailsFramework.PowerFrameFunctions = {
 	UpdateMaxPower = function(self)
 		self.currentPowerMax = UnitPowerMax(self.displayedUnit, self.powerType)
 		self.currentPowerMissing = UnitPowerMissing(self.displayedUnit, self.powerType)
-		self.currentPowerPercent = UnitPowerPercent(self.displayedUnit, self.powerType, false, true)
+		self.currentPowerPercent = UnitPowerPercent(self.displayedUnit, self.powerType, false, CurveConstants.ScaleTo100)
 		self:SetMinMaxValues(self.minPower, self.currentPowerMax)
 
 		if (not issecretvalue(self.currentPowerMax) and self.currentPowerMax == 0 and self.Settings.HideIfNoPower) then
 			self:Hide()
+		else
+			self:SetAlpha(self.currentPowerMax)
 		end
 	end,
 
 	UpdatePower = function(self)
 		self.currentPower = UnitPower(self.displayedUnit, self.powerType)
 		self.currentPowerMissing = UnitPowerMissing(self.displayedUnit, self.powerType)
-		self.currentPowerPercent = UnitPowerPercent(self.displayedUnit, self.powerType, false, true)
+		self.currentPowerPercent = UnitPowerPercent(self.displayedUnit, self.powerType, false, CurveConstants.ScaleTo100)
 		self:SetValue(self.currentPower)
 
 		if (self.Settings.ShowPercentText) then
-			self.percentText:SetText(format("%.3g%%", self.currentPowerPercent))
+			if (issecretvalue(self.currentPowerMax) or self.currentPowerMax > 0) then
+				self.percentText:SetText(format("%.3g%%", self.currentPowerPercent))
+			else
+				self.percentText:SetText("")
+			end
 		end
 	end,
 
@@ -1302,25 +1308,16 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	OnTick_LazyTick = function(self)
-		if true then
-			self.percentText:SetText("")
-			return self.Settings.CanLazyTick
-		end
-		
 		--run the lazy tick if allowed
 		if (self.Settings.CanLazyTick) then
 			--update the cast time
 			if (self.Settings.ShowCastTime) then
 				if (self.casting) then
-					self.percentText:SetText(format("%.1f", abs(self.value - self.maxValue)))
+					self.percentText:SetText(format("%.1f", self.durationObject:GetRemainingDuration()))
 
 				elseif (self.channeling) then
-					local remainingTime = self.empowered and abs(self.value - self.maxValue) or abs(self.value)
-					if (remainingTime > 999) then
-						self.percentText:SetText("")
-					else
-						self.percentText:SetText(format("%.1f", remainingTime))
-					end
+					--local remainingTime = self.empowered and abs(self.value - self.maxValue) or abs(self.value)
+					self.percentText:SetText(format("%.1f", self.durationObject:GetRemainingDuration()))
 				else
 					self.percentText:SetText("")
 				end
@@ -1334,13 +1331,8 @@ detailsFramework.CastFrameFunctions = {
 
 	--tick function for regular casts
 	OnTick_Casting = function(self, deltaTime)
-		self.value = GetTimePreciseSec() * 1000
-		self:SetValue(self.value)
-		
 		if (self:CheckCastIsDone()) then
-			return
-		else
-			self:SetValue(self.value)
+			return false
 		end
 		
 --[[
@@ -1357,13 +1349,8 @@ detailsFramework.CastFrameFunctions = {
 
 	--tick function for channeling casts
 	OnTick_Channeling = function(self, deltaTime)
-		self.value = GetTimePreciseSec() * 1000
-		self:SetValue(self.value)
-		
 		if (self:CheckCastIsDone()) then
-			return
-		else
-			self:SetValue(self.value)
+			return false
 		end
 		
 --[[
@@ -1516,6 +1503,7 @@ detailsFramework.CastFrameFunctions = {
 		local name, text, texture, startTime, endTime, isTradeSkill, uciCastID, notInterruptible, uciSpellID = CastInfo.UnitCastingInfo(unit)
 		spellID = uciSpellID --or spellID
 		castID = uciCastID --or castID
+		local durationObject = UnitCastingDuration(unit)
 		
 --[[
 		if spellID and (not name or not texture or not text) then
@@ -1561,9 +1549,12 @@ detailsFramework.CastFrameFunctions = {
 			self.value = GetTimePreciseSec() * 1000 --GetTime() - self.spellStartTime
 			self.minValue = startTime
 			self.maxValue = endTime --self.spellEndTime - self.spellStartTime
+			self.durationObject = durationObject
 
-			self:SetMinMaxValues(self.minValue, self.maxValue)
-			self:SetValue(self.value)
+			--self:SetMinMaxValues(self.minValue, self.maxValue)
+			--self:SetValue(self.value)
+			self:SetTimerDuration(durationObject)
+			
 			if (not self.Settings.DontUpdateAlpha) then
 				self:SetAlpha(1)
 			end
@@ -1655,6 +1646,7 @@ detailsFramework.CastFrameFunctions = {
 		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, uciSpellID, _, numStages = CastInfo.UnitChannelInfo (unit)
 		spellID = uciSpellID --or spellID
 		castID = uciCastID --or castID
+		local durationObject = UnitChannelDuration(unit)
 		
 --[[
 		if spellID and (not name or not texture or not text) then
@@ -1729,9 +1721,11 @@ detailsFramework.CastFrameFunctions = {
 			self.minValue = startTime
 			self.maxValue = endTime --self.spellEndTime - self.spellStartTime
 			self.reverseChanneling = self.empowered
+			self.durationObject = durationObject
 
-			self:SetMinMaxValues(self.minValue, self.maxValue)
-			self:SetValue(self.value)
+			--self:SetMinMaxValues(self.minValue, self.maxValue)
+			--self:SetValue(self.value)
+			self:SetTimerDuration(durationObject)
 
 			if (not self.Settings.DontUpdateAlpha) then
 				self:SetAlpha(1)
@@ -1787,13 +1781,15 @@ detailsFramework.CastFrameFunctions = {
 		self.percentText:Hide()
 
 		local value = self:GetValue()
-		local _, maxValue = self:GetMinMaxValues()
+		local minValue, maxValue = self:GetMinMaxValues()
 
 		if (self.interrupted) then
 			if (self.Settings.FillOnInterrupt) then
+				self:SetMinMaxValues(minValue, maxValue)
 				self:SetValue(maxValue)
 			end
 		else
+			self:SetMinMaxValues(minValue, maxValue)
 			self:SetValue(maxValue)
 		end
 
@@ -1827,7 +1823,8 @@ detailsFramework.CastFrameFunctions = {
 			self.percentText:Hide()
 
 			local value = self:GetValue()
-			local _, maxValue = self:GetMinMaxValues()
+			local minValue, maxValue = self:GetMinMaxValues()
+			self:SetMinMaxValues(minValue, maxValue)
 			self:SetValue(maxValue)
 
 			self.casting = nil
@@ -1875,8 +1872,9 @@ detailsFramework.CastFrameFunctions = {
 			self.failed = true
 			self.finished = true
 			self.castID = nil
-			local _, maxValue = self:GetMinMaxValues()
-			self:SetValue(maxValue)
+			--local _, maxValue = self:GetMinMaxValues()
+			self:SetMinMaxValues(self.minValue, self.maxValue)
+			self:SetValue(self.maxValue)
 
 			--set the statusbar color
 			self:UpdateCastColor()
@@ -1900,8 +1898,9 @@ detailsFramework.CastFrameFunctions = {
 			self.castID = nil
 
 			if (self.Settings.FillOnInterrupt) then
-				local _, maxValue = self:GetMinMaxValues()
-				self:SetValue(maxValue)
+				--local _, maxValue = self:GetMinMaxValues()
+				self:SetMinMaxValues(self.minValue, self.maxValue)
+				self:SetValue(self.maxValue)
 			end
 
 			if (self.Settings.HideSparkOnInterrupt) then
@@ -1920,6 +1919,7 @@ detailsFramework.CastFrameFunctions = {
 
 	UNIT_SPELLCAST_DELAYED = function(self, unit, ...)
 		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = CastInfo.UnitCastingInfo (unit)
+		local durationObject = UnitCastingDuration(unit)
 
 		if (not self:IsValid (unit, name, isTradeSkill)) then
 			return
@@ -1930,11 +1930,14 @@ detailsFramework.CastFrameFunctions = {
 		self.spellEndTime = endTime --endTime / 1000
 		self.value = GetTimePreciseSec() * 1000 --GetTime() - self.spellStartTime
 		self.maxValue = endTime --self.spellEndTime - self.spellStartTime
-		self:SetMinMaxValues(self.minValue, self.maxValue)
+		--self:SetMinMaxValues(self.minValue, self.maxValue)
+		self.durationObject = durationObject
+		self:SetTimerDuration(durationObject)
 	end,
 
 	UNIT_SPELLCAST_CHANNEL_UPDATE = function(self, unit, ...)
 		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = CastInfo.UnitChannelInfo (unit)
+		local durationObject = UnitChannelDuration(unit)
 
 		if (not self:IsValid(unit, name, isTradeSkill)) then
 			return
@@ -1946,13 +1949,10 @@ detailsFramework.CastFrameFunctions = {
 		self.value = GetTimePreciseSec() * 1000 --self.empowered and (GetTime() - self.spellStartTime) or (self.spellEndTime - GetTime())
 		self.maxValue = startTime --self.spellEndTime - self.spellStartTime
 
---[[
-		if (self.value < 0 or self.value > self.maxValue) then
-			self.value = 0
-		end
-]]--
-		self:SetMinMaxValues(self.minValue, self.maxValue)
-		self:SetValue(self.value)
+		--self:SetMinMaxValues(self.minValue, self.maxValue)
+		--self:SetValue(self.value)
+		self.durationObject = durationObject
+		self:SetTimerDuration(durationObject)
 	end,
 
 	--cast changed its state to interruptable

@@ -13,6 +13,7 @@
 	<Script file="LibDBIcon-1.0\LibDBIcon-1.0.lua"/>
 	<Script file="LibGraph-2.0\LibGraph-2.0.lua"/>
 	<Script file="LibWindow-1.1\LibWindow-1.1.lua"/>
+	<Script file="PlayerInfo\PlayerInfo.lua"/>
 	<Include file="LibDeflate\lib.xml"/>
 	<Include file="LibOpenRaid\lib.xml"/>
 	<Include file="DF\load.xml"/>

@@ -600,6 +600,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field isTank boolean if true the player had the spec TANK during the combat
 ---@field serial string
 ---@field spec number
+---@field specIcon any
 ---@field grupo boolean
 ---@field classe string
 ---@field fight_component boolean
@@ -637,6 +638,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field friendlyfire_total number
 ---@field friendlyfire table<actorname, friendlyfiretable>
 ---@field damage_taken number amount of damage the actor took during the segment
+---@field damage_taken_ps number
 ---@field damage_from table<actorname, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 ---@field totalabsorbed number amount of damage dealt by the actor by got absorbed by the target, this is a "ABSORB" type of miss but still counts as damage done
 ---@field augmentedSpellsContainer spellcontainer
@@ -647,6 +649,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field healing_taken number amount of healing the actor took during the segment
 ---@field totalover number amount of healing that was overhealed
 ---@field totalabsorb number amount of healing that was absorbed
+---@field totalabsorb_ps number amount of healing that was absorbed
 ---@field heal_enemy_amt number amount of healing done to enemies this included enemy to enemy heals
 ---@field totaldenied number amount of healing that was denied by the target - from cleu event SPELL_HEAL_ABSORBED
 ---@field totalover_without_pet number amount of healing that was overhealed without the pet healing
@@ -654,6 +657,8 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field heal_enemy table<number, number> store the amount of healing done by each spell that landed into an enemy, format: [spellId] = healing done
 ---@field targets_overheal table<string, number> [targetName] = overheal
 ---@field targets_absorbs table<string, number> [targetName] = absorbs
+---@field last_hps number
+---@field last_hps_realtime number
 
 ---@class actorresource : actor
 ---@field powertype number power type of the actor
@@ -662,6 +667,9 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@class actorutility : actor
 ---@field cc_break number amount of times the actor broke a cc
 ---@field interrupt number amount of times the actor interrupted a spell
+---@field interrupt_cast_overlap number
+---@field interrupt_targets table
+---@field interrupt_spells spellcontainer
 ---@field ress number amount of times the actor ressed a player
 ---@field dead number amount of times the actor died
 ---@field cooldowns_defensive number amount of times the actor used a defensive cooldown
@@ -684,7 +692,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@class attributeid : number
 ---@class modeid : number
 
----@class instance : table --~i ~instance
+---@class instance : details --~i ~instance
 ---@field segmento segmentid
 ---@field showing combat
 ---@field meu_id instanceid

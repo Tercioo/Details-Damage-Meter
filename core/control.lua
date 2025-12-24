@@ -418,12 +418,15 @@
 		local bFromCombatStart = true
 		Details:UpdateParserGears(bFromCombatStart)
 
-		--retrieve all buffs applied before the combat starts
-		C_Timer.After(0.05, function()
-			--wait for the initial aura wipe performed by the client in certain situations
-			Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")
-		end)
-		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_IN")
+		--the information I have is auras are always secret 2025/12/23
+		if not detailsFramework.IsAddonApocalypseWow() then
+			--retrieve all buffs applied before the combat starts
+			C_Timer.After(0.05, function()
+				--wait for the initial aura wipe performed by the client in certain situations
+				Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")
+			end)
+			Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_IN")
+		end
 
 		Details:UptadeRaidMembersCache()
 

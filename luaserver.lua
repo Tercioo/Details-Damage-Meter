@@ -1550,14 +1550,15 @@ BackdropTemplateMixin = {}
 ---@field SetStepsPerPage fun(self: slider, steps: number)
 
 ---@class damagemetertype : table
----@field DamageDone number
----@field Dps number
----@field HealingDone number
----@field Hps number
----@field Absorbs number
----@field Interrupts number
----@field Dispels number
----@field DamageTaken number
+---@field DamageDone number 0
+---@field Dps number 1 
+---@field HealingDone number 2
+---@field Hps number 3
+---@field Absorbs number 4
+---@field Interrupts number 5
+---@field Dispels number 6
+---@field DamageTaken number 7
+---@field AvoidableDamageTaken number 8
 
 ---return is the value passed is a secret
 ---@param value any
@@ -1572,6 +1573,12 @@ function issecrettable(value) return false end
 ---@class enum : table
 ---@field DamageMeterType damagemetertype
 ---@field CompressionMethod compressionmethod
+---@field DamageMeterSessionType damagemetersessiontype
+
+---@class damagemetersessiontype : table
+---@field Overall number 0
+---@field Current number 1
+---@field Expired number 2
 
 ---@class compressionmethod : table
 ---@field Deflate number 0
@@ -1590,13 +1597,20 @@ Enum = {
         Interrupts = 5,
         Dispels = 6,
         DamageTaken = 7,
+        AvoidableDamageTaken = 8,
     },
     CompressionMethod = {
         Deflate = 0,
         Zlib = 1,
         Gzip = 2,
     },
+    DamageMeterSessionType = {
+        Overall = 0,
+        Current = 1,
+        Expired = 2,
+    },
 }
+
 
 ---@class encodingutil : table
 ---@field EncodeHex fun(self: encodingutil, str: string) : string

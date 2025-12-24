@@ -45,6 +45,9 @@ DF.Math = {}
 ---@field GetClosestPoint fun(ninePoints: df_ninepoints, coordinate: df_coordinate) : anchorid
 ---@field GetVectorLength fun(vectorX: number, vectorY: number, vectorZ: number?) : number return the magnitude of a vector
 ---@field GetSortFractionFromString fun(str: string) : number return a fraction based on the string first two leters, useful for sorting cases where the number repeats
+---@field PositiveNonZero fun(value: number) : number return the value or a small float if the value is zero or negative
+
+
 
 ---@class df_coordinate : table
 ---@field x number
@@ -208,6 +211,10 @@ function DF.Math.MultiplyBy(value, ...)
 		values[i] = select(i, ...) * value
 	end
 	return unpack(values)
+end
+
+function DF.Math.PositiveNonZero(value)
+	return max(value, 0.001)
 end
 
 function DF.Math.MapRangeUnclamped(inputX, inputY, outputX, outputY, value)

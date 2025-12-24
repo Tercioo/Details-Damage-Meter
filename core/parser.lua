@@ -3803,8 +3803,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	local alternatePowerEnableFrame = CreateFrame("frame", "DetailsAlternatePowerEventHandler")
 	local alternatePowerMonitorFrame = CreateFrame("frame", "DetailsAlternatePowerMonitor")
-	alternatePowerEnableFrame:RegisterEvent("UNIT_POWER_BAR_SHOW")
-	alternatePowerEnableFrame:RegisterEvent("ENCOUNTER_END")
+
+	if not detailsFramework:IsAddonApocalypseWow() then
+		alternatePowerEnableFrame:RegisterEvent("UNIT_POWER_BAR_SHOW")
+		alternatePowerEnableFrame:RegisterEvent("ENCOUNTER_END")
+	end
+
 	alternatePowerEnableFrame.IsRunning = false
 
 	--alternate power will only run when the encounter has a alternate power bar
@@ -5600,6 +5604,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details:Msg("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
 
+		Details:Destroy(Details.encounter_table)
+
 		Details222.Perf.WindowUpdate = 0
 		Details222.Perf.WindowUpdateC = true
 
@@ -5610,7 +5616,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		--leave the current combat when the encounter start, if is doing a mythic plus dungeons, check if the options allows to create a dedicated segment for the boss fight
 		if ((_in_combat and not Details.tabela_vigente.is_boss) and (not Details.MythicPlus.Started or Details.mythic_plus.boss_dedicated_segment)) then
-			Details:SairDoCombate()
+			if not detailsFramework.IsAddonApocalypseWow() then
+				Details:SairDoCombate()
+			end
 		end
 
 		local encounterID, encounterName, difficultyID, raidSize = select(1, ...)
@@ -5721,10 +5729,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (_in_combat) then
 			if (endStatus == 1) then
 				Details.encounter_table.kill = true
-				Details:SairDoCombate(true, {encounterID, encounterName, difficultyID, raidSize, endStatus}) --killed
+				Details.encounter_table.end_status = 1
+				if not detailsFramework.IsAddonApocalypseWow() then
+					Details:SairDoCombate(true, {encounterID, encounterName, difficultyID, raidSize, endStatus}) --killed
+				end
 			else
 				Details.encounter_table.kill = false
-				Details:SairDoCombate(false, {encounterID, encounterName, difficultyID, raidSize, endStatus}) --wipe
+				Details.encounter_table.end_status = 0
+				if not detailsFramework.IsAddonApocalypseWow() then
+					Details:SairDoCombate(false, {encounterID, encounterName, difficultyID, raidSize, endStatus}) --wipe
+				end
 			end
 		else
 			if ((Details.tabela_vigente:GetEndTime() or 0) + 2 >= Details.encounter_table ["end"]) then
@@ -5758,7 +5772,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details222.Cache.ClearAugmentationCache()
 
-		Details:Destroy(Details.encounter_table)
+		if not detailsFramework.IsAddonApocalypseWow() then
+			Details:Destroy(Details.encounter_table)
+		end
+
 		Details:Destroy(dk_pets_cache.army)
 		Details:Destroy(dk_pets_cache.apoc)
 		Details:Destroy(empower_cache)
@@ -7413,8 +7430,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			else
 				local spec = detailsFramework.GetSpecialization()
 				if (spec and spec ~= 0) then
-					if (detailsFramework.GetSpecializationRole (spec) == "TANK") then
-						tanks_members_cache[playerGUID] = true
+					if not detailsFramework.IsTBCWow() then
+						if (detailsFramework.GetSpecializationRole (spec) == "TANK") then
+							tanks_members_cache[playerGUID] = true
+						end
 					end
 				end
 			end

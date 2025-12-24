@@ -2204,10 +2204,12 @@ function atributo_misc:ToolTipInterrupt(instance, numero, barra)
 			---@type table<spellname, number> number is the amount of casts
 			local spellCasts = combatObject.amountCasts[self.nome]
 			--iterating between the spells that are interrupts for this class
-			for spellNameOrId in pairs(classInterrupts) do
-				--if the actor casted this spell
-				if (spellCasts[spellNameOrId]) then
-					amountOfInterruptsCasted = amountOfInterruptsCasted + spellCasts[spellNameOrId]
+			if (spellCasts) then
+				for spellNameOrId in pairs(classInterrupts) do
+					--if the actor casted this spell
+					if (spellCasts[spellNameOrId]) then
+						amountOfInterruptsCasted = amountOfInterruptsCasted + spellCasts[spellNameOrId]
+					end
 				end
 			end
 		end
@@ -2219,6 +2221,8 @@ function atributo_misc:ToolTipInterrupt(instance, numero, barra)
 	Details:AddTooltipBackgroundStatusbar()
 
 	local overlapsAmount = self.interrupt_cast_overlap or 0
+	amountOfInterruptsCasted = detailsFramework.Math.PositiveNonZero(amountOfInterruptsCasted)
+
 	GameCooltip:AddLine("Overlaps", overlapsAmount .. " (" .. _cstr("%.1f", floor(overlapsAmount)/floor(amountOfInterruptsCasted)*100).."%)")
 	GameCooltip:AddIcon("", nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 	Details:AddTooltipBackgroundStatusbar()

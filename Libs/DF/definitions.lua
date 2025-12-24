@@ -321,6 +321,7 @@ GameCooltipFrame2 = {}
 ---@field AddRoundedCornersToFrame fun(self:table, frame:frame, optionsTable:df_roundedpanel_preset?)
 ---@field ParseColors fun(self:table, red:any, green:number?, blue:number?, alpha:number?) : red, green, blue, alpha
 ---@field Mixin fun(self:table, target:table, ...) : table
+---@field MixinX fun(self:table, target:table, ...)
 ---@field SetButtonTexture fun(self:table, button:button|df_button, texture:atlasname|texturepath|textureid)
 ---@field SetFontSize fun(self:table, fontstring:fontstring, size:number)
 ---@field GetFontSize fun(self:table, fontstring:fontstring) : number return the font size of the fontstring

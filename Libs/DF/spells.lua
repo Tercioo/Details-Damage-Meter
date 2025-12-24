@@ -1459,7 +1459,7 @@ elseif (DF.IsWotLKWow()) then
 	DF.FeastIDs = {}
 	DF.RuneIDs = {}
 --~Cata temp
-elseif (DF.IsClassicWow() or DF.IsCataWow() or DF.IsPandaWow()) then
+elseif (DF.IsClassicWow() or DF.IsCataWow() or DF.IsPandaWow() or DF.IsTBCWow()) then
 	DF.PotionIDs = {}
 	DF.FeastIDs = {}
 	DF.RuneIDs = {}

@@ -35,6 +35,11 @@ BUGS:
 
 --]=]
 
+local _, _, _, toc = GetBuildInfo()
+local canRegisterEvents = function()
+    return toc <= 119999
+end
+
 ---@alias castername string
 ---@alias castspellid string
 ---@alias schedulename string
@@ -1107,8 +1112,10 @@ end
 
                         end
 
-                        detailsEventListener:RegisterEvent("UNIT_SPEC", "UnitSpecFound")
-                        detailsEventListener:RegisterEvent("UNIT_TALENTS", "UnitTalentsFound")
+                        if canRegisterEvents() then
+                            detailsEventListener:RegisterEvent("UNIT_SPEC", "UnitSpecFound")
+                            detailsEventListener:RegisterEvent("UNIT_TALENTS", "UnitTalentsFound")
+                        end
                     end
 
                 openRaidLib.bHasEnteredWorld = true
@@ -1221,28 +1228,30 @@ end
 
     --run when PLAYER_ENTERING_WORLD triggers, this avoid any attempt of getting information without the game has completed the load process
     function openRaidLib.OnEnterWorldRegisterEvents()
-        eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-        eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", "pet")
-        eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-        eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
-        eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-        eventFrame:RegisterEvent("UNIT_PET")
-        eventFrame:RegisterEvent("PLAYER_DEAD")
-        eventFrame:RegisterEvent("PLAYER_ALIVE")
-        eventFrame:RegisterEvent("PLAYER_UNGHOST")
-        eventFrame:RegisterEvent("PLAYER_LOGOUT")
+        if canRegisterEvents() then
+            eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+            eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", "pet")
+            eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+            eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+            eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
+            eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+            eventFrame:RegisterEvent("UNIT_PET")
+            eventFrame:RegisterEvent("PLAYER_DEAD")
+            eventFrame:RegisterEvent("PLAYER_ALIVE")
+            eventFrame:RegisterEvent("PLAYER_UNGHOST")
+            eventFrame:RegisterEvent("PLAYER_LOGOUT")
 
-        if (checkClientVersion("retail")) then
-            eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
-            eventFrame:RegisterEvent("PLAYER_PVP_TALENT_UPDATE")
-            eventFrame:RegisterEvent("ENCOUNTER_END")
-            eventFrame:RegisterEvent("CHALLENGE_MODE_START")
-            eventFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-            eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-            eventFrame:RegisterEvent("TRAIT_TREE_CURRENCY_INFO_UPDATED")
-            eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
-            eventFrame:RegisterEvent("ENCOUNTER_START")
+            if (checkClientVersion("retail")) then
+                eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
+                eventFrame:RegisterEvent("PLAYER_PVP_TALENT_UPDATE")
+                eventFrame:RegisterEvent("ENCOUNTER_END")
+                eventFrame:RegisterEvent("CHALLENGE_MODE_START")
+                eventFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+                eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+                eventFrame:RegisterEvent("TRAIT_TREE_CURRENCY_INFO_UPDATED")
+                eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
+                eventFrame:RegisterEvent("ENCOUNTER_START")
+            end
         end
     end
 
@@ -3545,7 +3554,9 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
 
 local createLocalCooldownTracker = function()
     local cdTrackerFrame = CreateFrame("frame")
-    cdTrackerFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+    if canRegisterEvents() then
+        cdTrackerFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+    end
     local allCooldownsFromLib = LIB_OPEN_RAID_COOLDOWNS_INFO
 
     ---@type table<castername, table<castspellid, number>>
