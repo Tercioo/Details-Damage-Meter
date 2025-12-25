@@ -240,6 +240,20 @@ local yellow = function(str)
     return "|cFFFFFF00" .. str .. "|r"
 end
 
+
+local _, _, _, buildInfo = GetBuildInfo()
+local isTimewalkWoW = function()
+    if (buildInfo < 40000) then
+        return true
+    end
+end
+
+local isClassicEra = function()
+    if (buildInfo < 20000) then
+        return true
+    end
+end
+
 ---merge a key-value table into a single string separating values with commas, where the first index is the key and the second index is the value
 ---example: {key1 = value1, key2 = value2, key3 = value3}
 ---returned string: "key1,value1,key2,value2,key3,value3"
@@ -1129,13 +1143,12 @@ do --> talents
 
     getTalents = function()
         --classic era
-        local addonName, title, notes, canLoad, reasonCantLoad = C_AddOns.GetAddOnInfo("Blizzard_TalentUI")
-        if (canLoad and reasonCantLoad ~= "MISSING") then
-            if PlayerTalentFrame_LoadUI and not C_AddOns.IsAddOnLoaded("Blizzard_TalentUI") then
-                PlayerTalentFrame_LoadUI()
-            end
+        if isClassicEra() then
+            PlayerTalentFrame_LoadUI()
+        else
+            local addonName, title, notes, canLoad, reasonCantLoad = C_AddOns.GetAddOnInfo("Blizzard_TalentUI")
             --tbc
-            if TalentFrame_LoadUI and not C_AddOns.IsAddOnLoaded("Blizzard_TalentUI") then
+            if reasonCantLoad ~= "MISSING" and TalentFrame_LoadUI and not C_AddOns.IsAddOnLoaded("Blizzard_TalentUI") then
                 TalentFrame_LoadUI()
             end
         end
@@ -1486,12 +1499,12 @@ do return end
         CONST_COOLDOWN_CHECK_INTERVAL = value
     end
 
-    local isTimewalkWoW = function()
-        local _, _, _, buildInfo = GetBuildInfo()
-        if (buildInfo < 40000) then
-            return true
-        end
-    end
+    ---return if the wow version the player is playing is the vanilla version of wow
+    ---@return boolean
+    function DF.IsClassicWow()
+        if (buildInfo < 20000) then        return true    end
+        return false
+    end    
 
     local checkClientVersion = function(...)
         for i = 1, select("#", ...) do
