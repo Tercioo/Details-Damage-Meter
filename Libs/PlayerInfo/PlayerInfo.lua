@@ -125,6 +125,7 @@ end
 
 ---@class enum_talentversion : table
 ---@field Vanilla number
+---@field Pandaria number
 ---@field Legion number
 ---@field Dragonflight number
 ---@field HeroTalents number
@@ -202,6 +203,7 @@ local enum = {
         Legion = 1,
         Dragonflight = 2,
         HeroTalents = 3,
+        Pandaria = 4,
     },
 
     Callbacks = {
@@ -336,7 +338,7 @@ end
 
 local diagnostics = {
     onCommReceived = function(stringData, sender)
-        print("Details! Framework: Comm received from:", sender, "data:", stringData)
+        print("PlayerInfo: Comm received from:", sender, "data:", stringData)
     end
 }
 
@@ -852,7 +854,7 @@ do --> durability (good on vanilla)
         thisPlayerInfo.durability, thisPlayerInfo.lowestGearDurability = durability, lowestGearDurability
 
         if commHandler.CanSendComm() then
-            print("I CAn Send CoMMS")
+            --print("I CAn Send CoMMS")
             local dataString = CONST_COMM_DURABILITY_PREFIX .. t_pack({durability, lowestGearDurability})
             if commHandler:IsSendingFullUpdate() then
                 commHandler:AddToFullUpdate(dataString)
@@ -865,7 +867,7 @@ do --> durability (good on vanilla)
                 commHandler.SendData(encodedData, getCommChannel())
             end
         else
-            print("CANNOT SEND DURABILITTY COm")
+            --print("CANNOT SEND DURABILITTY COm")
         end
 
         return durability, lowestGearDurability
@@ -1014,6 +1016,8 @@ do --> talents
     local getTalentVersion = function()
         if (gameVersion >= 1 and gameVersion <= 40000) then --vanilla tbc wotlk cataclysm
             return enum.TalentVersion.Vanilla
+        elseif (gameVersion >= 50000 and gameVersion <= 69999) then --panda wod
+            return enum.TalentVersion.Pandaria
         elseif (gameVersion >= 70000 and gameVersion <= 100000) then --legion bfa shadowlands
             return enum.TalentVersion.Legion
         elseif (gameVersion >= 100000 and gameVersion <= 110000) then --dragonflight
@@ -1128,6 +1132,56 @@ do --> talents
         return talents
     end
 
+    ---@return string
+    local getPandariaTalents = function()
+        ---@type string
+        local talents = ""
+
+		local talentGroup = C_SpecializationInfo.GetActiveSpecGroup()
+
+		if (DetailsFramework.IsPandaWow()) then
+			for tier = 1, MAX_NUM_TALENT_TIERS do
+				local tierAvailable, selectedTalent, tierUnlockLevel = GetTalentTierInfo(tier, 1, false)
+
+				if (selectedTalent) then
+					local talentInfoQuery = {}
+					talentInfoQuery.tier = tier
+					talentInfoQuery.column = selectedTalent
+					talentInfoQuery.groupIndex = talentGroup
+					talentInfoQuery.isInspect = false
+					talentInfoQuery.target = "player"
+
+					---@type talenttierinfo
+					local talentInfo = C_SpecializationInfo.GetTalentInfo(talentInfoQuery)
+					if (talentInfo) then
+						local talentId = talentInfo.talentID
+						talents = talents .. "" .. talentId .. ","
+					end
+				end
+			end
+		else
+			for i = 1, 7 do
+				for o = 1, 3 do
+					local talentID, name, texture, selected, available = GetTalentInfo(i, o, 1)
+					--print("talentID:", talentID, "name:", name, "texture:", texture, "selected:", selected, "available:", available)
+					if (talentID) then
+						if (selected) then
+							talents = "" .. talentID .. ","
+							break
+						end
+					end
+				end
+			end
+		end
+
+		--remove the comma after the last talent id
+		if (talents:sub(-1) == ",") then
+			talents = talents:sub(1, -2)
+		end
+
+        return talents
+    end
+
     ---@return number
     local getHeroTalentId = function()
         --if is tww or midnight, append hero talents
@@ -1190,6 +1244,11 @@ do --> talents
                     talents = talents .. "@HT" .. heroTalentId
                 end
             end
+
+        elseif (talentVersion == enum.TalentVersion.Pandaria) then --pandaria wod
+            ---@cast talents string
+            talents = getPandariaTalents()
+            talents = "P@" .. talents
         end
 
         thisPlayerInfo.talents = talents
@@ -1221,9 +1280,14 @@ do --> talents
         ---@type string
         local talentsDataString = talentsData[1]
 
+        if (not talentsDataString or type(talentsDataString) ~= "string" or talentsDataString == "") then
+            if debugCommReceived then
+                print("PI: invalid talent comm:", talentsDataString, type(talentsDataString), "Is empty string:", talentsDataString == "")
+            end
+            return
+        end
+
         local talentsVersion, talents, extraInfo = strsplit("@", talentsDataString)
-
-
 
         if debugCommReceived then
             print("PI: received talent comm", talentsVersion, talents, extraInfo)
