@@ -176,6 +176,17 @@ local CONST_COMM_REQUEST_FULLINFO_PREFIX = "R"
 local printog = _G.print
 local print = function(...) if (debug) then printog(...) end end
 
+local screamMessageSent = {}
+local scream = function(...)
+    local message = ...
+    if (screamMessageSent[message]) then
+        return
+    end
+    screamMessageSent[message] = true
+    printog("|cFFFFAA00[PlayerInfo|Details!]|r", ...)
+    printog(debugstack())
+end
+
 ---@diagnostic disable-next-line: undefined-global
 local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization or function() return 0 end
 ---@diagnostic disable-next-line: undefined-global
@@ -563,6 +574,12 @@ function commHandler.SendData(encodedString, commChannel)
     end
 
     if (commHandler.hasAceComm) then
+        if not encodedString or type(encodedString) ~= "string" then
+            scream("invalid encodedString 0x5445.", encodedString)
+        end
+        if not commChannel or type(commChannel) ~= "string" then
+            scream("invalid commChannel 0x5446.", commChannel)
+        end
         local result = commHandler.aceComm:SendCommMessage(CONST_COMM_PREFIX, encodedString, commChannel)
     else
         ---@diagnostic disable-next-line: undefined-field
