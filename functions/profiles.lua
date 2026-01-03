@@ -867,6 +867,8 @@ local default_profile = {
 	fade_speed = 0.15,
 	use_self_color = false,
 
+	damage_meter_type = 0,
+
 	--minimap
 		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1, text_format = 3},
 		data_broker_text = "",

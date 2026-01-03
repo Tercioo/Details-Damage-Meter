@@ -3129,6 +3129,7 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 
 		if (not previousData or previousData ~= thisLine.minha_tabela or isForceRefresh) then
 			thisLine:SetValue(100)
+			thisLine:Show()
 
 			if (thisLine.hidden or thisLine.fading_in or thisLine.faded) then
 				Details.FadeHandler.Fader(thisLine, "out")

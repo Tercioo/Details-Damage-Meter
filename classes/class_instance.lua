@@ -2,6 +2,9 @@ local AceLocale = LibStub("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
+---@type detailsframework
+local detailsFramework = _G.DetailsFramework
+
 local type= type  --lua local
 local ipairs = ipairs --lua local
 local pairs = pairs --lua local
@@ -22,6 +25,7 @@ local combatClass = Details.combate
 local Details = 		_G.Details
 local _
 local addonName, Details222 = ...
+---@cast Details222 details222
 local gump = 			Details.gump
 
 local modo_raid = Details._detalhes_props["MODO_RAID"]
@@ -1256,6 +1260,9 @@ end
 			self:SoloMode (true)
 		end
 
+		if detailsFramework.IsAddonApocalypseWow() then
+			Details222.BParser.UpdateDamageMeterSwap()
+		end
 	end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -3163,17 +3170,36 @@ function Details:MontaAtributosOption (instancia, func)
 			instancia.sub_atributo_last = {1, 1, 1, 1, 1}
 		end
 
-		for o = 1, atributos [i] do
-			if (Details:CaptureIsEnabled ( Details.atributos_capture [gindex] )) then
-				CoolTip:AddMenu (2, func, true, i, o, options[o], nil, true)
-				CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
-			else
-				CoolTip:AddLine(options[o], nil, 2, .5, .5, .5, 1)
-				CoolTip:AddMenu (2, func, true, i, o)
-				CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
-			end
+		if detailsFramework.IsAddonApocalypseWow() then
+			local doNothingFunction = function()end
+			for o = 1, atributos [i] do
+				local mainDisplay, subDisplay = i, o
+				local damageMeterType = Details222.BParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
 
-			gindex = gindex + 1
+				if (Details:CaptureIsEnabled ( Details.atributos_capture [gindex] ) and damageMeterType < 100) then
+					CoolTip:AddMenu (2, func, true, i, o, options[o], nil, true)
+					CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
+				else
+					CoolTip:AddLine(options[o], nil, 2, .5, .5, .5, 1)
+					CoolTip:AddMenu (2, doNothingFunction, true, i, o)
+					CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
+				end
+
+				gindex = gindex + 1
+			end
+		else
+			for o = 1, atributos [i] do
+				if (Details:CaptureIsEnabled ( Details.atributos_capture [gindex] )) then
+					CoolTip:AddMenu (2, func, true, i, o, options[o], nil, true)
+					CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
+				else
+					CoolTip:AddLine(options[o], nil, 2, .5, .5, .5, 1)
+					CoolTip:AddMenu (2, func, true, i, o)
+					CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
+				end
+
+				gindex = gindex + 1
+			end
 		end
 
 		CoolTip:SetLastSelected (2, i, instancia.sub_atributo_last [i])

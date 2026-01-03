@@ -1426,6 +1426,30 @@
 		GameCooltip:AddStatusBar(100, 1, 0, 0, 0, 0.8)
 	end
 
+	function Details:AddTooltipBackgroundStatusbar_Secret(value, maxValue, useSpark, statusBarColor)
+		Details.tooltip.background [4] = 0.8
+		Details.tooltip.icon_size.W = Details.tooltip.line_height
+		Details.tooltip.icon_size.H = Details.tooltip.line_height
+
+		--useSpark = value ~= 100
+		--value = value or maxValue
+
+		GameCooltip:SetOption("SparkTexture", [[Interface\Buttons\WHITE8X8]])
+		GameCooltip:SetOption("SparkWidth", 1)
+		GameCooltip:SetOption("SparkHeight", 20)
+		GameCooltip:SetOption("SparkColor", Details.tooltip.divisor_color)
+		GameCooltip:SetOption("SparkAlpha", 0.15)
+		GameCooltip:SetOption("SparkPositionXOffset", 5)
+
+		local r, g, b, a = unpack(Details.tooltip.bar_color)
+		if (statusBarColor) then
+			r, g, b, a = detailsFramework:ParseColors(statusBarColor)
+		end
+		local rBG, gBG, bBG, aBG = unpack(Details.tooltip.background)
+		--GameCooltip:AddStatusBar(value, 1, r, g, b, a, useSpark, {value = 100, color = {rBG, gBG, bBG, aBG}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+		GameCooltip:AddStatusBar_MaxValue(value, maxValue, 1, r, g, b, a, useSpark, {value = 100, color = {rBG, gBG, bBG, aBG}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+	end
+
 	function Details:AddTooltipBackgroundStatusbar(side, value, useSpark, statusBarColor)
 		Details.tooltip.background [4] = 0.8
 		Details.tooltip.icon_size.W = Details.tooltip.line_height
@@ -1574,7 +1598,7 @@
 			end
 		end
 
-		Details:AddRoundedCornerToTooltip()
+		--Details:AddRoundedCornerToTooltip()
 
 		GameCooltip:ShowCooltip()
 
@@ -1604,6 +1628,9 @@
 		end
 	end
 
+	---@type bparser
+	local bParser = Details222.BParser
+
 	---@param self instance
 	---@param frame table
 	---@param whichRowLine number
@@ -1611,10 +1638,13 @@
 	function Details:MontaTooltip(frame, whichRowLine, keydown)
 		self:BuildInstanceBarTooltip(frame)
 
-		local GameCooltip = GameCooltip
-
+		---@type detailsline
 		local thisLine = self.barras[whichRowLine] --hoverovered line
 		local object = thisLine.minha_tabela --the object the line is showing
+
+		if bParser.InSecretLockdown() then
+			return
+		end
 
 		--check if the object is valid
 		if (not object) then

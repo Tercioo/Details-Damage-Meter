@@ -77,6 +77,8 @@ functions\commentator.lua
 functions\chat_embed.lua
 functions\storage.lua
 
+core\parser_nocleu.lua
+
 core\aura_scan.lua
 core\timemachine.lua
 
@@ -153,6 +155,8 @@ classes\class_instance.lua
 classes\class_custom.lua
 classes\custom_damagedone.lua
 classes\custom_healingdone.lua
+
+core\parser_nocleu1.lua
 
 frames\window2\header_data.lua
 frames\window2\frames.lua
