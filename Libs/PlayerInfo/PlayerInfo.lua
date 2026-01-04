@@ -580,8 +580,18 @@ function commHandler.SendData(encodedString, commChannel)
         if not commChannel or type(commChannel) ~= "string" then
             scream("invalid commChannel 0x5446.", commChannel)
         end
+
+        --double check if can send comm
+        if not commHandler.CanSendComm() then
+            return
+        end
+
         local result = commHandler.aceComm:SendCommMessage(CONST_COMM_PREFIX, encodedString, commChannel)
     else
+        --double check if can send comm
+        if not commHandler.CanSendComm() then
+            return
+        end
         ---@diagnostic disable-next-line: undefined-field
         C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, encodedString, commChannel)
     end

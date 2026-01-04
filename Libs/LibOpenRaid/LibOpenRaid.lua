@@ -441,8 +441,10 @@ end
         end
     end
 
-    openRaidLib.commHandler.eventFrame:RegisterEvent("CHAT_MSG_ADDON_LOGGED")
-    openRaidLib.commHandler.eventFrame:SetScript("OnEvent", openRaidLib.commHandler.OnReceiveSafeComm)
+    if canRegisterEvents() then
+        openRaidLib.commHandler.eventFrame:RegisterEvent("CHAT_MSG_ADDON_LOGGED")
+        openRaidLib.commHandler.eventFrame:SetScript("OnEvent", openRaidLib.commHandler.OnReceiveSafeComm)
+    end
 
     function openRaidLib.commHandler.aceComm.OnReceiveComm(event, prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID, bIsSafe)
         --check if the data belong to us
@@ -550,7 +552,10 @@ end
     local receivingMsgInParts = {}
 
     local debugCommReception = CreateFrame("frame")
-    debugCommReception:RegisterEvent("CHAT_MSG_ADDON_LOGGED")
+    if canRegisterEvents() then
+        debugCommReception:RegisterEvent("CHAT_MSG_ADDON_LOGGED")
+    end
+
     debugCommReception:SetScript("OnEvent", function(self, event, prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID)
         if (prefix == CONST_COMM_PREFIX_LOGGED) then
             local chunkNumber, totalChunks, data = text:match("^%$(%d+)%$(%d+)(.*)")
@@ -1219,7 +1224,9 @@ end
     }
     openRaidLib.eventFunctions = eventFunctions
 
-    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    if canRegisterEvents() then
+        eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+    end
 
     eventFrame:SetScript("OnEvent", function(self, event, ...)
         local eventCallbackFunc = eventFunctions[event]
@@ -2999,8 +3006,11 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
     end
 
     local bagUpdateEventFrame = _G["OpenRaidBagUpdateFrame"] or CreateFrame("frame", "OpenRaidBagUpdateFrame")
-    bagUpdateEventFrame:RegisterEvent("BAG_UPDATE")
-    bagUpdateEventFrame:RegisterEvent("ITEM_CHANGED")
+    if canRegisterEvents() then
+        bagUpdateEventFrame:RegisterEvent("BAG_UPDATE")
+        bagUpdateEventFrame:RegisterEvent("ITEM_CHANGED")
+    end
+
     bagUpdateEventFrame:SetScript("OnEvent", function(bagUpdateEventFrame, event, ...)
         if (openRaidLib.KeystoneInfoManager.KeystoneChangedTimer) then
             return
