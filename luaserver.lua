@@ -244,6 +244,22 @@ MAX_NUM_TALENTS = 0
 ---| "Minimap"
 ---| "GameTooltip"
 
+---objects that can be created with CreateFrame
+---@alias frameobjects
+---| "Frame"
+---| "Button"
+---| "StatusBar"
+---| "EditBox"
+---| "CheckButton"
+---| "Slider"
+---| "Model"
+---| "PlayerModel"
+---| "DressUpModel"
+---| "TabardModel"
+---| "Cooldown"
+---| "Minimap"
+---| "GameTooltip"
+
 ---@alias audiochannels
 ---| "Master"
 ---| "SFX"
@@ -1122,6 +1138,7 @@ BackdropTemplateMixin = {}
 ---@class objectsize : {height: number, width: number}
 ---@class texturetable : {texture: string, coords: texturecoords, size: objectsize}
 
+---all ui objects inherit from this base class
 ---@class uiobject
 ---@field GetObjectType fun(self: uiobject) : objecttype
 ---@field IsObjectType fun(self: uiobject, objectType: string) : boolean
@@ -1154,6 +1171,7 @@ BackdropTemplateMixin = {}
 ---@field CreateAnimationGroup fun(self: uiobject, name: string|nil, templateName: string|nil) : animationgroup
 ---@field SetIgnoreParentAlpha fun(self: region, ignore: boolean)
 
+---created by frame:CreateAnimationGroup()
 ---@class animationgroup : uiobject
 ---@field CreateAnimation fun(self: animationgroup, animationType: animationtype, name: string|nil, inheritsFrom: string|nil) : animation
 ---@field GetAnimation fun(self: animationgroup, name: string) : animation
@@ -1176,6 +1194,7 @@ BackdropTemplateMixin = {}
 ---@field SetSmoothProgress fun(self: animationgroup, smooth: animsmoothing)
 ---@field Stop fun(self: animationgroup)
 
+---created by animationgroup:CreateAnimation()
 ---@class animation : uiobject
 ---@field GetDuration fun(self: animation) : number
 ---@field GetEndDelay fun(self: animation) : number
@@ -1418,6 +1437,7 @@ BackdropTemplateMixin = {}
 
 ---@class region : uiobject
 
+---created by frame:CreateFontString()
 ---@class fontstring : region
 ---@field SetDrawLayer fun(self: fontstring, layer: drawlayer, subLayer: number?)
 ---@field SetFont fun(self: fontstring, font: string, size: number, flags: string)
@@ -1466,6 +1486,7 @@ BackdropTemplateMixin = {}
 ---@field SetTextTruncateLines fun(self: fontstring, lines: number)
 ---@field GetTextTruncateLines fun(self: fontstring) : number
 
+---created by frame:CreateTexture()
 ---@class texture : region
 ---@field AddMaskTexture fun(self: texture, maskTexture: texture)
 ---@field GetDrawLayer  fun(self: texture) : drawlayer, number
@@ -4203,11 +4224,11 @@ SetWatchedFactionIndex = function(factionIndex) end
 ---@return string, number
 UnitFactionGroup = function(unit) return "", 0 end
 
----@param frameType string
+---@param frameType frameobjects
 ---@param name string | nil
 ---@param parent table | nil
 ---@param template string | nil
----@return table
+---@return frame
 CreateFrame = function(frameType, name, parent, template) return {} end
 
 ---@param fontName string
