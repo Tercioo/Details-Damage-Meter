@@ -145,7 +145,8 @@
 			track_hunter_frenzy = false,
 			rampage_cast_amount = {},
 			aug_members_cache = {},
-			scalecommander_members_cache = {}
+			scalecommander_members_cache = {},
+			lightforged_cache = {},
 		}
 
 	--store the gear of each player
@@ -554,6 +555,7 @@
 		[392166] = true, --Azure Stone of Might
 		[379020] = true, --Wand of Negation
 		[372824] = true, --Burning Chains
+		[1252855] = true, --echo of light
 	}
 	
 	--damage spells that need reattribution
@@ -566,6 +568,7 @@
 		[432895] = true, --thread of fate
 		[434481] = true, --bombardments
 		[120687] = true, --stormlash totem
+		[1252855] = true, --echo of light
 	}
 
 	--damage spells to ignore
@@ -2048,6 +2051,23 @@
 			elseif (countScalecommanderMember == 1) then
 				newSerial, newName, newFlags = unpack(cacheAnything.scalecommander_members_cache[1])
 			end
+		elseif (spellId == 1252855) then
+			local lightforgedCasters = 0
+			if (cacheAnything.lightforged_cache) then
+				for k, v in pairs(cacheAnything.lightforged_cache) do
+					lightforgedCasters = lightforgedCasters + 1
+				end
+			end
+			if (lightforgedCasters == 1) then
+				for k, v in pairs(cacheAnything.lightforged_cache) do
+					newSerial, newName, newFlags = k, unpack(v)
+				end
+			else
+				Details:Msg(lightforgedCasters)
+				newName = Details.StackedBuffActorName
+				newFlags = 0x514
+				newSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			end
 		elseif (spellId == 120687) then --damage from stormlash totem
 			blessingSource = cacheAnything.shaman_stormlash_totem[sourceSerial]
 			if (blessingSource) then
@@ -2628,6 +2648,22 @@
 			if (blessingSource) then
 				sourceSerial, sourceName, sourceFlags = unpack(blessingSource)
 			end
+		elseif (spellId == 1252854) then
+			local lightforgedCasters = 0
+			if (cacheAnything.lightforged_cache) then
+				for k, v in pairs(cacheAnything.lightforged_cache) do
+					lightforgedCasters = lightforgedCasters + 1
+				end
+			end
+			if (lightforgedCasters == 1) then
+				for k, v in pairs(cacheAnything.lightforged_cache) do
+					sourceSerial, sourceName, sourceFlags = k, unpack(v)
+				end
+			else
+				sourceName = Details.StackedBuffActorName
+				sourceFlags = 0x514
+				sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
+			end
 		end
 	------------------------------------------------------------------------------------------------
 	--get actors
@@ -2994,6 +3030,8 @@
 			elseif (spellId == 431716) then --buff: thread of fate
 				cacheAnything.chronowarden_thread_fate[targetSerial] = {sourceSerial, sourceName, sourceFlags}
 			
+			elseif (spellId == 1251920) then --legion remix echo of light
+				cacheAnything.lightforged_cache[sourceSerial] = {sourceName, sourceFlags, 1}
 			elseif (spellId == 120676) then --buff: stormlash totem
 				cacheAnything.shaman_stormlash_totem[targetSerial] = {sourceSerial, sourceName, sourceFlags}
 				
@@ -3314,7 +3352,8 @@
 				
 			elseif (spellId == 431716) then --buff: thread of fate
 				cacheAnything.chronowarden_thread_fate[targetSerial] = nil
-				
+			
+			
 			elseif (spellId == 120676) then --buff: stormlash totem
 				cacheAnything.shaman_stormlash_totem[targetSerial] = nil
 			end
@@ -6975,6 +7014,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
 		Details:Destroy(cacheAnything.chronowarden_thread_fate)
 		Details:Destroy(cacheAnything.scalecommander_bombardments)
+		Details:Destroy(cacheAnything.lightforged_cache)
 		Details:Destroy(cacheAnything.shaman_stormlash_totem)
 		Details:Destroy(cacheAnything.rampage_cast_amount)
 
