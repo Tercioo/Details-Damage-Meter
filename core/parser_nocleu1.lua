@@ -77,8 +77,12 @@ local storeSessionId = function(sessionId)
     storedSessionIds[sessionId] = true
 end
 local wipeStoredSessionIds = function()
-    table.wipe(storedSessionIds)
-    table.wipe(sessionCache)
+    if storedSessionIds then
+        table.wipe(storedSessionIds)
+    end
+    if sessionCache then
+        table.wipe(sessionCache)
+    end
 end
 bParser.WipeStoredSessionIds = wipeStoredSessionIds
 
