@@ -1387,7 +1387,7 @@ end
 
 		--check if the player is a rogue and has the aura Vanish
 		if (Details.playerclass == "ROGUE") then
-			if not detailsFramework.IsAddonApocalypseWow() then
+			if not DetailsFramework.IsAddonApocalypseWow() then
 				--if the player has vanish aura, skip this check
 				---@type aurainfo
 				local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(11327)
