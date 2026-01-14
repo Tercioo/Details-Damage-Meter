@@ -985,9 +985,7 @@ local function move_janela(baseframe, iniciando, instancia, just_updating)
 			this_instance.isMoving = false
 		end
 
-		if (not DetailsFramework.IsTimewalkWoW()) then
-			Details.MicroButtonAlert:Hide()
-		end
+		Details.MicroButtonAlert:Hide()
 
 		if (instancia_alvo and instancia_alvo.ativa and instancia_alvo.baseframe) then
 			instancia_alvo.h_esquerda:Stop()
@@ -1944,6 +1942,13 @@ local lineScript_Onmousedown = function(self, button)
 		return
 	end
 
+	if detailsFramework.IsAddonApocalypseWow() then
+		if Details222.BParser.InSecretLockdown() then
+			return
+			end
+	end
+
+
 	local lefttext = self.lineText1
 	if (lefttext.untruncated) then
 		lefttext.untruncated = nil
@@ -1992,6 +1997,12 @@ local lineScript_Onmouseup = function(self, button)
 	local x, y = _GetCursorPosition()
 	x = floor(x)
 	y = floor(y)
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		if Details222.BParser.InSecretLockdown() then
+			return
+		end
+	end
 
 	if (self.mouse_down and (self.mouse_down+0.4 > GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		if (self.button == "LeftButton" or self.button == "MiddleButton") then
@@ -6297,6 +6308,21 @@ local build_mode_list = function(self, deltaTime)
 			end
 		end
 
+		if Details222.BParser.IsDamageMeterSwapped() then
+			--add options to select the window style
+
+			for styleName, styleIndex in pairs(Enum.DamageMeterStyle) do
+				gameCooltip:AddMenu(2, function()
+					DamageMeter:SetStyle(styleIndex)
+					gameCooltip:Hide()
+				end, instance, nil, true, styleName, _, true)
+				--gameCooltip:AddIcon(Details222.BParser.GetDamageMeterStyleIcon(style), 2, 1, 16, 16)
+			end
+
+			--:GetStyle()
+			--:SetStyle(style)
+		end
+
 		local createAllInOneWindow = function()
 			if (not Details222.AllInOneWindow:HasOpenWindow()) then
 				Details222.AllInOneWindow:OpenWindow(1)
@@ -6593,6 +6619,8 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 				Details222.BParser.ChangeSegment(instance.blzWindow, Enum.DamageMeterSessionType.Overall)
 			end
 
+			local amountLinesAdded = 0
+
 			---@type damagemeter_combat_session[]
 			local blzSegments = C_DamageMeter.GetAvailableCombatSessions()
 			for i, combatSession in ipairs(blzSegments) do
@@ -6604,9 +6632,12 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 				gameCooltip:AddLine(sessionName, _, 1, "white")
 				gameCooltip:AddMenu(1, selectExpired, combatSession.sessionID)
 				gameCooltip:AddIcon(Details:GetTextureAtlas("segment-icon-current"), "main", "left")
+
+				amountLinesAdded = amountLinesAdded + 1
 			end
 
 			GameCooltip:AddLine("$div", nil, nil, -5, -13)
+			amountLinesAdded = amountLinesAdded + 1
 
 			gameCooltip:AddLine(_G["DAMAGE_METER_CURRENT_SESSION"], _, 1, "white")
 			gameCooltip:AddMenu(1, selectCurrent, 0)
@@ -6615,6 +6646,25 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 			gameCooltip:AddLine(_G["DAMAGE_METER_OVERALL_SESSION"], _, 1, "white")
 			gameCooltip:AddMenu(1, selectOverall, -1)
 			gameCooltip:AddIcon(Details:GetTextureAtlas("segment-icon-current"), "main", "left")
+
+			---@type blzwindow
+			local blzWindow = instance.blzWindow
+			local sessionId = blzWindow.sessionID
+			local sessionType = blzWindow.sessionType
+
+			if sessionType == Enum.DamageMeterSessionType.Current then
+				gameCooltip:SetLastSelected("main", amountLinesAdded + 1)
+			elseif sessionType == Enum.DamageMeterSessionType.Overall then
+				gameCooltip:SetLastSelected("main", amountLinesAdded + 2)
+			else
+				for i, combatSession in ipairs(blzSegments) do
+					if combatSession.sessionID == sessionId then
+						gameCooltip:SetLastSelected("main", i)
+						break
+					end
+				end
+			end
+
 
 		else
 			local menuIndex = 0

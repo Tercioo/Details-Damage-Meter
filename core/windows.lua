@@ -109,10 +109,10 @@
 				local row_proxima = self.barras [i+1]
 
 				if (row_proxima and not row.animacao_ignorar) then
-					local v = row.statusbar.value
-					local v_proxima = row_proxima.statusbar.value
+					local v = row.statusbar.value --secret
+					local v_proxima = row_proxima.statusbar.value --secret
 
-					if (v_proxima > v) then
+					if (v_proxima > v) then --not possible, is it?
 						if (row.animacao_fim >= v_proxima) then
 							row:SetValue(v_proxima)
 						else

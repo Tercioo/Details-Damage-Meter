@@ -306,7 +306,9 @@ detailsFramework.HeaderMixin = {
 
 		local columnSpan = 0
 
-		self:SetPropagateMouseClicks(self.options.propagate_clicks)
+		if not InCombatLockdown() then
+			self:SetPropagateMouseClicks(self.options.propagate_clicks)
+		end
 
 		--update header frames
 		for headerIndex = 1, headerSize do
@@ -315,7 +317,9 @@ detailsFramework.HeaderMixin = {
 			local columnData = self.HeaderTable[headerIndex]
 			self:UpdateColumnHeader(columnHeader, headerIndex)
 
-			columnHeader:SetPropagateMouseClicks(self.options.propagate_clicks)
+			if not InCombatLockdown() then
+				columnHeader:SetPropagateMouseClicks(self.options.propagate_clicks)
+			end
 
 			--grow direction
 			if (not previousColumnHeader) then

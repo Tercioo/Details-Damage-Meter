@@ -1763,6 +1763,19 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --main refresh function
 
+function Details:ClearSecretFontStrings(instance)
+	local bars = instance.barras
+	for i = 1, #bars do
+		local thisLine = bars[i]
+		if thisLine.lineText11 then
+			thisLine.lineText11:SetText("")
+			thisLine.lineText12:SetText("")
+			thisLine.lineText13:SetText("")
+			thisLine.lineText14:SetText("")
+		end
+	end
+end
+
 --~refresh
 ---@param instanceObject instance
 ---@param combatObject combat
@@ -1789,6 +1802,8 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 		--colocado isso recentemente para fazer as barras de dano sumirem na troca de atributo
 		return Details:HideBarsNotInUse(instanceObject, damageContainer), "", 0, 0
 	end
+
+	Details:ClearSecretFontStrings(instanceObject)
 
 	--total
 	local total = 0

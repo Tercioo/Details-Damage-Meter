@@ -21,7 +21,7 @@ if detailsFramework.IsAddonApocalypseWow() then
     displayMap = {
         [1] = {
             Enum.DamageMeterType.DamageDone, --damage done
-            Enum.DamageMeterType.DamageDone, --dps
+            Enum.DamageMeterType.Dps, --dps
             Enum.DamageMeterType.DamageTaken, --damage taken
             100, --friendly fire (not supported)
             100, --frags (not supported)
@@ -31,7 +31,7 @@ if detailsFramework.IsAddonApocalypseWow() then
         },
         [2] = {
             Enum.DamageMeterType.HealingDone, --healing done
-            Enum.DamageMeterType.HealingDone, --hps
+            Enum.DamageMeterType.Hps, --hps
             Enum.DamageMeterType.Absorbs, --absorbs
             100, --overhealing (not supported)
             100, --healing taken (not supported)
@@ -105,7 +105,11 @@ local onEvent = function(event, instance, ...)
         end
 
     elseif event == "DETAILS_OPTIONS_MODIFIED" then
-        bParser.UpdateAllDamageMeterWindowsAppearance()
+        if detailsFramework.IsAddonApocalypseWow() then
+            if bParser.IsDamageMeterSwapped() then
+                bParser.UpdateAllDamageMeterWindowsAppearance()
+            end
+        end
     end
 end
 
@@ -135,8 +139,12 @@ function bParser.IsDamageMeterSwapped()
     return Details.damage_meter_type ~= 0
 end
 
+---@param blzWindow blzwindow
+---@param instance instance
 local posses = function(blzWindow, instance)
-    blzWindow.position = {blzWindow:GetPoint(1)}
+    local anchor1, refFrame, anchor2, x, y = blzWindow:GetPoint(1)
+    local refFrameName = refFrame and refFrame:GetName() or "UIParent"
+    Details.damage_meter_position[blzWindow.sessionWindowIndex] = {anchor1, refFrameName, anchor2, x, y}
 
     local scrollBox = blzWindow.ScrollBox
     scrollBox:ClearAllPoints()
@@ -154,6 +162,19 @@ local posses = function(blzWindow, instance)
             if type(v) == "table" and v.Hide then
                 v:Hide()
             end
+        end
+    end
+end
+
+---@param blzWindow blzwindow
+local unposses = function(blzWindow)
+    local position = Details.damage_meter_position[blzWindow.sessionWindowIndex]
+    if position then
+        local anchor1, refFrameName, anchor2, x, y = unpack(position)
+        local refFrame = _G[refFrameName]
+        if refFrame then
+            blzWindow:ClearAllPoints()
+            blzWindow:SetPoint(anchor1, refFrame, anchor2, x, y)
         end
     end
 end
@@ -266,12 +287,24 @@ function bParser.UpdateDamageMeterAppearance(blzWindow)
     end
 end
 
+local debugSwap = false
+
 function bParser.UpdateDamageMeterSwap()
+    if debugSwap then
+        print("[DS] is swapped:", bParser.IsDamageMeterSwapped())
+    end
+
     if bParser.IsDamageMeterSwapped() then
         --show blizzard
         local isDamageMeterEnabled = C_CVar.GetCVarBool("damageMeterEnabled")
+        if debugSwap then
+            print("[DS] isDamageMeterEnabled:", isDamageMeterEnabled)
+        end
         if not isDamageMeterEnabled then
             C_CVar.SetCVar("damageMeterEnabled", "1")
+            if debugSwap then
+                print("[DS] isDamageMeterEnabled:",  C_CVar.GetCVar("damageMeterEnabled"))
+            end
         end
         damageMeter:Show()
 
@@ -288,15 +321,37 @@ function bParser.UpdateDamageMeterSwap()
             end
         end)
 
-        local bWindowIndex = 1
+        local windowUsed = {}
 
         local swapToBlz = function(instance)
-            ---@type blzwindow
-            local blzWindow = _G["DamageMeterSessionWindow" .. bWindowIndex]
+            local blzWindow
+
+            damageMeter:ForEachSessionWindow(function(thisWindow)
+                if not blzWindow and thisWindow and not windowUsed[thisWindow] then
+                    windowUsed[thisWindow] = true
+                    blzWindow = thisWindow
+                    if debugSwap then
+                        print("[DS] IC, has blzWindow: ", blzWindow, "shown:", blzWindow and blzWindow:IsShown())
+                    end
+                end
+            end)
 
             if not blzWindow then
+                if debugSwap then
+                    print("[DS] blzWindow bit found, creating a new one")
+                end
+
                 damageMeter:ShowNewSessionWindow()
-                blzWindow = _G["DamageMeterSessionWindow" .. bWindowIndex]
+
+                damageMeter:ForEachSessionWindow(function(thisWindow)
+                    if not blzWindow and thisWindow and not windowUsed[thisWindow] then
+                        windowUsed[thisWindow] = true
+                        blzWindow = thisWindow
+                        if debugSwap then
+                            print("[DS] IC, has blzWindow: ", blzWindow, "shown:", blzWindow and blzWindow:IsShown())
+                        end
+                    end
+                end)
             end
 
             if blzWindow then
@@ -306,9 +361,22 @@ function bParser.UpdateDamageMeterSwap()
                 DAMAGE_METER_DEFAULT_BAR_HEIGHT = instance.row_info.height
                 DAMAGE_METER_DEFAULT_BAR_SPACING = instance.row_info.spacing
 
-                bWindowIndex = bWindowIndex + 1
+                local mainDisplay, subDisplay = instance:GetDisplay()
+                local damageMeterType = bParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
+                if damageMeterType < 100 then
+                    blzWindow:SetDamageMeterType(damageMeterType)
+                end
+
                 instance.blzWindow = blzWindow
                 blzWindow:Refresh()
+
+                if debugSwap then
+                    print("[DS] blzWindow", blzWindow, "swapped correctly")
+                end
+            else
+                if debugSwap then
+                    print("[DS] blzWindow not found, period")
+                end
             end
         end
 
@@ -323,6 +391,13 @@ function bParser.UpdateDamageMeterSwap()
         damageMeter:Hide()
 
         swappedFrame:SetScript("OnUpdate", nil)
+
+        damageMeter:ForEachSessionWindow(function(thisWindow)
+            if thisWindow then
+                unposses(thisWindow)
+                thisWindow:GetDamageMeterOwner():HideSessionWindow(thisWindow)
+            end
+        end)
 
         --show details
         for i = 1, 10 do

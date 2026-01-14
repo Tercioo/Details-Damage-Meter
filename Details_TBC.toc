@@ -188,8 +188,6 @@ core\meta.lua
 core\network.lua
 
 core\parser.lua
-core\parser_nocleu.lua
-core\parser_nocleu1.lua
 
 functions\spec_augmentation.lua
 functions\loaddata.lua

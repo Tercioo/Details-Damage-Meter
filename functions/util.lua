@@ -74,6 +74,7 @@
 	---@field GetNumericalSystem fun(self:details):number
 	---@field SelectNumericalSystem fun(self:details, system:number)
 	---@field UpdateToKFunctions fun(self:details)
+	---@field ArePlayersInCombat fun(self:details):boolean
 
 
 	local playerRealmName = GetRealmName()
@@ -1386,16 +1387,42 @@ end
 
 		--check if the player is a rogue and has the aura Vanish
 		if (Details.playerclass == "ROGUE") then
-			--if the player has vanish aura, skip this check
-			---@type aurainfo
-			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(11327)
-			if (auraInfo) then
-				return true
+			if not detailsFramework.IsAddonApocalypseWow() then
+				--if the player has vanish aura, skip this check
+				---@type aurainfo
+				local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(11327)
+				if (auraInfo) then
+					return true
+				end
 			end
 		end
 
 		Details:StopCombatTicker()
 		Details:SairDoCombate()
+		return false
+	end
+
+	function Details:ArePlayersInCombat()
+		if (UnitAffectingCombat("player")) then
+			return true
+
+		elseif (IsInRaid()) then
+			local unitIdCache = Details222.UnitIdCache.Raid
+			for i = 1, GetNumGroupMembers() do
+				if (UnitAffectingCombat(unitIdCache[i])) then
+					return true
+				end
+			end
+
+		elseif (IsInGroup()) then
+			local unitIdCache = Details222.UnitIdCache.Party
+			for i = 1, GetNumGroupMembers() do
+				if (UnitAffectingCombat(unitIdCache[i])) then
+					return true
+				end
+			end
+		end
+
 		return false
 	end
 

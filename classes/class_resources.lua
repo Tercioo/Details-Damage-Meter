@@ -286,6 +286,8 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local amount = #conteudo
 	local modo = instancia.modo
 
+	Details:ClearSecretFontStrings(instancia)
+
 	if (sub_atributo == 5) then
 		--showing resources
 
@@ -653,6 +655,8 @@ function atributo_energy:RefreshLine(instancia, barras_container, whichRowLine, 
 		print("DEBUG: problema com <instancia.esta_barra> "..whichRowLine.." "..lugar)
 		return
 	end
+
+	esta_barra.statusbar:SetMinMaxValues(0, 100)
 
 	local tabela_anterior = esta_barra.minha_tabela
 

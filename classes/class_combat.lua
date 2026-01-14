@@ -672,6 +672,10 @@ local segmentTypeToString = {
 			return Loc ["STRING_SEGMENT_TRASH"]
 		end
 
+		if combatType == DETAILS_SEGMENTTYPE_TRAININGDUMMY then
+			return Loc["STRING_TRAINING_DUMMY"]
+		end
+
 		if (self.enemy) then
 			return self.enemy
 		end
@@ -683,7 +687,6 @@ local segmentTypeToString = {
 				return newName
 			end
 		end
-
 		local segmentId = self:GetSegmentSlotId()
 		return Loc["STRING_FIGHTNUMBER"] .. segmentId
 	end
@@ -1265,6 +1268,28 @@ local segmentTypeToString = {
 		end
 	end
 
+	function Details:HasCombatWithSessionId(sessionId)
+		local segmentsTable = Details:GetCombatSegments()
+		for i = 1, #segmentsTable do
+			local thisCombat = segmentsTable[i]
+			if (thisCombat.combatSessionId == sessionId) then
+				return true
+			end
+		end
+		return false
+	end
+
+	function Details:GetCombatWithSessionId(sessionId)
+		local segmentsTable = Details:GetCombatSegments()
+		for i = 1, #segmentsTable do
+			local thisCombat = segmentsTable[i]
+			if (thisCombat.combatSessionId == sessionId) then
+				return thisCombat
+			end
+		end
+		return nil
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internals
 
@@ -1289,6 +1314,7 @@ end
 ---@return combat
 function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...) --~init
 	---@type combat
+	---@diagnostic disable-next-line: missing-fields
 	local combatObject = {}
 
 	combatObject[1] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS,	combatObject, combatId) --Damage
@@ -1307,7 +1333,11 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	--try discover if is a pvp combat
 	local sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags = ...
 
-	if (targetGUID) then
+	if not targetGUID and detailsFramework.IsAddonApocalypseWow() then
+		targetGUID = Details222.BParser.GetPlayerTargetGUID()
+	end
+
+	if (targetGUID and issecretvalue and not issecretvalue(targetGUID)) then
 		local npcId = Details:GetNpcIdFromGuid(targetGUID)
 		if (npcId) then
 			if (Details222.TrainingDummiesNpcId[npcId]) then

@@ -702,6 +702,8 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 	local total = 0
 	instance.top = 0
 
+	Details:ClearSecretFontStrings(instance)
+
 	--the main attribute is utility, the sub attribute is the type of utility(cc break, ress, etc)
 	local subAttribute = Details222.OverrideSubAttributeOnNextRefresh or instance.sub_atributo
 	Details222.OverrideSubAttributeOnNextRefresh = nil
@@ -958,6 +960,8 @@ function atributo_misc:RefreshLine(instancia, barras_container, whichRowLine, lu
 		print("DEBUG: problema com <instancia.esta_barra> "..whichRowLine.." "..lugar)
 		return
 	end
+
+	esta_barra.statusbar:SetMinMaxValues(0, 100)
 
 	local tabela_anterior = esta_barra.minha_tabela
 

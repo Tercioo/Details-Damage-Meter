@@ -137,6 +137,7 @@ function Details222.LoadSavedVariables.CombatSegments()
 		Details.tabela_overall = Details.combate:NovaTabela()
 		Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
 		Details222.PetContainer.Reset()
+		Details222.BParser.WipeStoredSessionIds()
 
 		if (currentCharacterData.saved_pet_cache) then
 			Details:Destroy(currentCharacterData.saved_pet_cache) --saved pet data

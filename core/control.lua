@@ -826,6 +826,7 @@
 				end
 			end
 		else
+			print("|cFFFF3333 Details discarded the segment")
 			--combat denied: combat did not pass the filter and cannot be added into the segment history
 			--rewind the data set to the first slot in the segments table
 			showTutorialForDiscardedSegment()

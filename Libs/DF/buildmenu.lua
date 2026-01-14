@@ -1226,6 +1226,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     ---@cast widgetTable df_menu_dropdown
                     assert(widgetTable.get, "DetailsFramework:BuildMenu: .get() not found in the widget table for 'select'")
                     local dropdown = getMenuWidgetVolative(parent, "dropdown", widgetIndexes)
+                    dropdown:SetTemplate(dropdownTemplate)
                     widgetCreated = dropdown
                     local defaultHeight = 18
 
@@ -1303,6 +1304,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     slider.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 
                     maxColumnWidth, maxWidgetWidth = setRangeProperties(parent, slider, widgetTable, currentXOffset, currentYOffset, sliderTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, widgetTable.usedecimals, bAttachSliderButtonsToLeft)
+                    slider:SetTemplate(sliderTemplate)
                     amountLineWidgetAdded = amountLineWidgetAdded + 1
 
                 --color

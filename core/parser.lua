@@ -5614,9 +5614,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return
 		end
 
-		--leave the current combat when the encounter start, if is doing a mythic plus dungeons, check if the options allows to create a dedicated segment for the boss fight
-		if ((_in_combat and not Details.tabela_vigente.is_boss) and (not Details.MythicPlus.Started or Details.mythic_plus.boss_dedicated_segment)) then
-			if not detailsFramework.IsAddonApocalypseWow() then
+		if not detailsFramework.IsAddonApocalypseWow() then
+			--leave the current combat when the encounter start, if is doing a mythic plus dungeons, check if the options allows to create a dedicated segment for the boss fight
+			if ((_in_combat and not Details.tabela_vigente.is_boss) and (not Details.MythicPlus.Started or Details.mythic_plus.boss_dedicated_segment)) then
 				Details:SairDoCombate()
 			end
 		end
@@ -5624,10 +5624,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local encounterID, encounterName, difficultyID, raidSize = select(1, ...)
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = GetInstanceInfo()
 
-		if (zoneType == "party") then
-			local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-			if (openRaidLib) then
-				openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty()
+		if not detailsFramework.IsAddonApocalypseWow() then
+			if (zoneType == "party") then
+				local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+				if (openRaidLib) then
+					openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty()
+				end
 			end
 		end
 
@@ -5638,15 +5640,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details222.DebugMsg("|cFFFFFF00Who Aggro by UNIT_FLAGS:", Details.LastAggro)
 
-		if (not Details.WhoAggroTimer and Details.announce_firsthit.enabled) then
-			Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
-			for i = 1, 5 do
-				local boss = UnitExists("boss" .. i)
-				if (boss) then
-					local targetName = UnitName("boss" .. i .. "target")
-					if (targetName and type(targetName) == "string") then
-						Details.bossTargetAtPull = targetName
-						break
+		if not detailsFramework.IsAddonApocalypseWow() then
+			if (not Details.WhoAggroTimer and Details.announce_firsthit.enabled) then
+				Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
+				for i = 1, 5 do
+					local boss = UnitExists("boss" .. i)
+					if (boss) then
+						local targetName = UnitName("boss" .. i .. "target")
+						if (targetName and type(targetName) == "string") then
+							Details.bossTargetAtPull = targetName
+							break
+						end
 					end
 				end
 			end
@@ -5741,44 +5745,46 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 			end
 		else
-			if ((Details.tabela_vigente:GetEndTime() or 0) + 2 >= Details.encounter_table ["end"]) then
-				Details.tabela_vigente:SetStartTime(Details.encounter_table ["start"])
-				Details.tabela_vigente:SetEndTime(Details.encounter_table ["end"])
-				Details:RefreshMainWindow(-1, true)
-			end
-		end
-
-		petContainer.Reset()
-		C_Timer.After(1, function() petContainer.PetScan("ENCOUNTER_END") end)
-
-		--tag item level of all players
-		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-		local allPlayersGear = openRaidLib and openRaidLib.GetAllUnitsGear()
-
-		local status = xpcall(function()
-			for actorIndex, actorObject in Details:GetCurrentCombat():GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
-				local gearInfo = allPlayersGear and allPlayersGear[actorObject:Name()]
-				if (gearInfo) then
-					actorObject.ilvl = gearInfo.ilevel
+			if not detailsFramework.IsAddonApocalypseWow() then
+				if ((Details.tabela_vigente:GetEndTime() or 0) + 2 >= Details.encounter_table ["end"]) then
+					Details.tabela_vigente:SetStartTime(Details.encounter_table ["start"])
+					Details.tabela_vigente:SetEndTime(Details.encounter_table ["end"])
+					Details:RefreshMainWindow(-1, true)
 				end
 			end
-		end, geterrorhandler())
-
-		if (not status) then
-			Details:Msg("ilvl error:", status)
 		end
-
-		Details:SendEvent("COMBAT_ENCOUNTER_END", nil, ...)
-
-		Details222.Cache.ClearAugmentationCache()
 
 		if not detailsFramework.IsAddonApocalypseWow() then
-			Details:Destroy(Details.encounter_table)
+			petContainer.Reset()
+			C_Timer.After(1, function() petContainer.PetScan("ENCOUNTER_END") end)
+
+			--tag item level of all players
+			local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+			local allPlayersGear = openRaidLib and openRaidLib.GetAllUnitsGear()
+	
+			local status = xpcall(function()
+				for actorIndex, actorObject in Details:GetCurrentCombat():GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
+					local gearInfo = allPlayersGear and allPlayersGear[actorObject:Name()]
+					if (gearInfo) then
+						actorObject.ilvl = gearInfo.ilevel
+					end
+				end
+			end, geterrorhandler())
+			
+			if (not status) then
+				Details:Msg("ilvl error:", status)
+			end
 		end
 
-		Details:Destroy(dk_pets_cache.army)
-		Details:Destroy(dk_pets_cache.apoc)
-		Details:Destroy(empower_cache)
+		if not detailsFramework.IsAddonApocalypseWow() then
+			Details:SendEvent("COMBAT_ENCOUNTER_END", nil, ...)
+			Details222.Cache.ClearAugmentationCache()
+			Details:Destroy(Details.encounter_table)
+
+			Details:Destroy(dk_pets_cache.army)
+			Details:Destroy(dk_pets_cache.apoc)
+			Details:Destroy(empower_cache)
+		end
 
 		return true
 	end
@@ -6685,6 +6691,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		--load up data from savedvariables for the character
 		Details222.LoadSavedVariables.CharacterData()
+
+		Details222.BParser.SetSessionCache(Details.damage_meter_sessions)
 
 		--load up data from saved variables for the account (shared among all the players' characters; this is not the Blizzard account, lol).
 		Details222.LoadSavedVariables.SharedData()
