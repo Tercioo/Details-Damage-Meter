@@ -50,7 +50,7 @@
 	local _GetSpellInfo = Details.getspellinfo
     local GetSpellInfo = Details222.GetSpellInfo
 	local isERA = detailsFramework.IsClassicWow()
-    local isCLASSIC = detailsFramework.IsCataWow() or detailsFramework.IsPandaWow() or isERA or detailsFramework.IsWotLKWow() or detailsFramework.IsBCC()
+    local isCLASSIC = detailsFramework.IsCataWow() or detailsFramework.IsPandaWow() or isERA or detailsFramework.IsWotLKWow() or detailsFramework.IsTBCWow()
 	local _tempo = time()
 	_ = nil
 
@@ -7893,4 +7893,5 @@ end
 --]=]
 
 --end
+
 
