@@ -1,5 +1,5 @@
 
-local dversion = 650
+local dversion = 654
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -274,7 +274,7 @@ function DF.ExpansionHasAugEvoker()
 end
 
 
-local GetSpecializationRole = not DF.IsClassicWow() and GetSpecializationRole or C_SpecializationInfo.GetSpecializationRole
+local GetSpecializationRole = not DF.IsClassicWow() and not DF.IsTBCWow() and GetSpecializationRole or C_SpecializationInfo.GetSpecializationRole
 
 ---for classic wow, get the role using the texture from the talents frame
 local roleBySpecTextureName = {
