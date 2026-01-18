@@ -1234,10 +1234,10 @@ detailsFramework.CastFrameFunctions = {
 	--handle the interrupt state of the cast
 	--this does not change the cast bar color because this function is called inside the start cast where is already handles the cast color
 	UpdateInterruptState = function(self)
-		if (self.Settings.ShowShield and not self.canInterrupt) then
-			self.BorderShield:Show()
+		if self.notInterruptible ~= nil then
+			self.BorderShield:SetAlphaFromBoolean(self.notInterruptible, 1, 0)
 		else
-			self.BorderShield:Hide()
+			self.BorderShield:SetAlpha(0)
 		end
 	end,
 
@@ -1670,7 +1670,7 @@ detailsFramework.CastFrameFunctions = {
 			self.interrupted = nil
 			self.failed = nil
 			self.finished = nil
-			--self.canInterrupt = true --not notInterruptible
+			self.canInterrupt = nil
 			self.notInterruptible = notInterruptible
 			self.spellID = spellID
 			self.castID = castID
@@ -1842,7 +1842,7 @@ detailsFramework.CastFrameFunctions = {
 			self.interrupted = nil
 			self.failed = nil
 			self.finished = nil
-			--self.canInterrupt = true --not notInterruptible
+			self.canInterrupt = nil
 			self.notInterruptible = notInterruptible
 			self.spellID = spellID
 			self.castID = castID
@@ -1957,25 +1957,24 @@ detailsFramework.CastFrameFunctions = {
 		local unitID, castID, spellID, interruptedBy, castBarID = ...
 
 		if (self.channeling and castBarID == self.castBarID) then --and castID == self.castID) then
-			self.Spark:Hide()
-			self.percentText:Hide()
-
-			local value = self:GetValue()
-			local minValue, maxValue = self:GetMinMaxValues()
-			self:SetMinMaxValues(minValue, maxValue)
-			self:SetValue(maxValue)
-
-			self.casting = nil
-			self.channeling = nil
-			self.finished = true
-			self.castID = nil
-			self.castBarID = nil
-			self.interruptedBy = interruptedBy
-
-			self:UpdateCastColor()
-			if interruptedBy ~= nil then
+			if interruptedBy1 ~= nil then
 				self:UNIT_SPELLCAST_INTERRUPTED(unit, unitID, castID, spellID, interruptedBy, castBarID)
 			else
+				self.Spark:Hide()
+				self.percentText:Hide()
+
+				local value = self:GetValue()
+				local minValue, maxValue = self:GetMinMaxValues()
+				self:SetMinMaxValues(minValue, maxValue)
+				self:SetValue(maxValue)
+
+				self.casting = nil
+				self.channeling = nil
+				self.finished = true
+				self.castID = nil
+				self.castBarID = nil
+				self.interruptedBy = interruptedBy
+
 				if (not self:HasScheduledHide()) then
 					--check if settings has no fade option or if its parents are not visible
 					if (not self:IsVisible()) then
@@ -2150,7 +2149,8 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 			castBar.Text:SetPoint("center", 0, 0)
 
 			castBar.BorderShield = castBar:CreateTexture(nil, "overlay", nil, 5)
-			castBar.BorderShield:Hide()
+			castBar.BorderShield:Show()
+			
 
 			castBar.Icon = castBar:CreateTexture(nil, "overlay", nil, 4)
 			castBar.Icon:Hide()

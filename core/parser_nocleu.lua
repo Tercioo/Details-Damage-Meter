@@ -73,6 +73,10 @@ swappedFrame:SetPoint("topleft", UIParent, "topleft", 0, 0)
 swappedFrame:SetSize(1, 1)
 swappedFrame:EnableMouse(false)
 
+local updateCombatElapsedTime = function(self)
+    local elapsedTime = self:GetFormattedTimeForTitleBar()
+end
+
 local onEvent = function(event, instance, ...)
     ---@cast instance instance
     if event == "DETAILS_INSTANCE_CHANGEATTRIBUTE" then

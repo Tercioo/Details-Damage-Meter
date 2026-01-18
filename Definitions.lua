@@ -713,6 +713,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field blzWindow blzwindow
 ---@field show_interrupt_casts boolean
 ---@field baseframe frame
+---@field use_multi_fontstrings boolean
 ---@field
 ---@field
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor

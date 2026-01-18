@@ -1362,6 +1362,8 @@ local default_player_data = {
 		on_death_menu = false,
 	--damage meter sessions
 		damage_meter_sessions = {},
+	--misc data about a session
+		damage_meter_session_info = {},
 }
 
 Details.default_player_data = default_player_data

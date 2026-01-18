@@ -310,16 +310,16 @@ function Details:CreatePlayerPortrait(parent, name)
 		C_AddOns.LoadAddOn("Blizzard_ChallengesUI")
 	end
 
-	--this template is from Blizzard_ChallengesUI.xml
-    local template = "ChallengeModeBannerPartyMemberTemplate"
+	if C_AddOns.IsAddOnLoaded("Blizzard_ChallengesUI") then
+		--this template is from Blizzard_ChallengesUI.xml
+		local template = "ChallengeModeBannerPartyMemberTemplate"
+		local playerBanner = CreateFrame("frame", name, parent, template)
+		playerBanner:SetAlpha(1)
+		playerBanner:EnableMouse(true)
+		playerBanner:SetFrameLevel(parent:GetFrameLevel()+2)
 
-	local playerBanner = CreateFrame("frame", name, parent, template)
-
-	playerBanner:SetAlpha(1)
-	playerBanner:EnableMouse(true)
-	playerBanner:SetFrameLevel(parent:GetFrameLevel()+2)
-
-	return playerBanner
+		return playerBanner
+	end
 end
 
 local createPlayerBanner = function(parent, name, index)
