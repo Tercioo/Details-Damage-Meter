@@ -1464,6 +1464,8 @@ detailsFramework.EditorMixin = {
         registeredObjects[#registeredObjects+1] = objectRegistered
         self.registeredObjectsByID[id] = objectRegistered
 
+        selectButton:SetFrameLevel(self:GetFrameLevel() + #registeredObjects)
+
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
 
@@ -1650,6 +1652,7 @@ detailsFramework.EditorMixin = {
         local moverObject = self:GetMoverObject()
         moverObject:Hide()
         self.AnchorFrames:DisableAllAnchors()
+        self.overTheTopFrame:Hide()
     end,
 
     ---@param self df_editor
@@ -1660,6 +1663,7 @@ detailsFramework.EditorMixin = {
             self:EditObjectByIndex(objectIndex)
             self.objectSelector:RefreshMe()
         end
+        self.overTheTopFrame:Show()
     end,
 }
 

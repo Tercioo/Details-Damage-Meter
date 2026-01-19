@@ -1075,7 +1075,24 @@ if CreateAbbreviateConfig then
     abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
 end
 
-
+local tt = GetTime()
+local createFakeSources = function()
+    local s = {
+        maxAmount = 198700,
+        combatSources = {
+            [1] = {
+                classFilename = "MAGE",
+                name = "Aazz",
+                isLocalPlayer = true,
+                amountPerSecond = 1095.5953369141,
+                specIconID = 135932,
+                totalAmount = 98700,
+                sourceGUID = "Player-969-00B07A55"
+            }
+        }
+    }
+    return s
+end
 
 ---update the window in real time
 ---@param instance instance
@@ -1119,7 +1136,7 @@ local updateWindow = function(instance) --~update
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Overall, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
             sessionTypeParam = Enum.DamageMeterSessionType.Overall
-
+--/dump C_DamageMeter.GetCombatSessionFromType(1, 0)
         elseif segmentId == 0 then
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Current, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
@@ -1148,6 +1165,9 @@ local updateWindow = function(instance) --~update
 
                 return
             end
+
+            --combatSources = createFakeSources()
+            --combatSources = combatSources.combatSources
 
             local amountOfSources = #combatSources
 
@@ -1236,8 +1256,8 @@ local updateWindow = function(instance) --~update
                         instanceLine.sourceSpells = sourceSpells
                     end
 
-                    instanceLine.statusbar:SetMinMaxValues(0, topValue)
-                    instanceLine.statusbar:SetValue(value)
+                    instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
+                    instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     --apply curve
 
                     if specIcon then
