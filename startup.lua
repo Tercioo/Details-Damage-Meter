@@ -786,6 +786,24 @@ function Details222.StartUp.StartMeUp()
 		end
 	end
 
+	if detailsFramework.IsAddonApocalypseWow() then
+		if not Details.switch_post_apoc then
+			Details.switch_post_apoc = true
+
+			Details.switch.slots = 6
+			Details.switch.table = {
+				{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done
+				{["atributo"] = 2, ["sub_atributo"] = 1}, --healing done
+				{["atributo"] = 4, ["sub_atributo"] = 3}, --interrupts
+				{["atributo"] = 4, ["sub_atributo"] = 4}, --dispels
+				{["atributo"] = 1, ["sub_atributo"] = 3}, --damage taken
+				{["atributo"] = 2, ["sub_atributo"] = 3}, --overhealing
+			}
+
+			Details:Msg("Bookmarks has been reset.")
+		end
+	end
+
 	if (not DetailsFramework.IsTimewalkWoW()) then
 		Details.cached_specs[UnitGUID("player")] = GetSpecializationInfo(GetSpecialization() or 0)
 	end

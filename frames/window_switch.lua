@@ -16,6 +16,8 @@ local floor = math.floor
 local gameCooltip = GameCooltip
 local CreateFrame = CreateFrame
 
+local disabledColor = {.3, .3, .3, 0.0}
+
 function Details222.CreateAllDisplaysFrame()
 	local icon_size = 16
 	local text_color = {.9, .9, .9, 1}
@@ -201,15 +203,16 @@ function Details222.CreateAllDisplaysFrame()
 	end
 
 	allDisplaysFrame:SetScript("OnShow", function()
+		local isApoc = detailsFramework.IsAddonApocalypseWow()
 
 		if (not allDisplaysFrame.already_built) then
 			local x, y = 8, -8
 			allDisplaysFrame.higher_counter = 0
+			local doNothingFunction = function()end
 
 			for attribute = 1, Details.atributos[0] do
 				--localized attribute name
 				local loc_attribute_name = Details.atributos.lista [attribute]
-
 				local title_icon = allDisplaysFrame:CreateTexture(nil, "overlay")
 				title_icon:SetPoint("topleft", x, y)
 				local texture, l, r, t, b = Details:GetAttributeIcon (attribute)
@@ -223,26 +226,51 @@ function Details222.CreateAllDisplaysFrame()
 				y = y - 20
 
 				allDisplaysFrame.buttons [attribute] = {}
+
+				local amountAdded = 0
+
 				for i = 1, #Details.sub_atributos [attribute].lista do
-					--localized sub attribute name
-					local loc_sub_attribute_name = Details.sub_atributos [attribute].lista [i]
-					local button = create_all_switch_button (attribute, i, x, y)
+					local mainDisplay, subDisplay = attribute, i
+					local damageMeterType = Details222.BParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
+					local canAdd = (isApoc and damageMeterType < 100) or (not isApoc)
 
-					button.text:SetText(loc_sub_attribute_name)
-					Details:SetFontSize(button.text, Details.all_switch_config.font_size)
+					if canAdd then
+						--localized sub attribute name
+						local loc_sub_attribute_name = Details.sub_atributos [attribute].lista [i]
+						local button = create_all_switch_button (attribute, i, x, y)
 
-					allDisplaysFrame.check_text_size (button.text)
-					button.texture:SetTexture(Details.sub_atributos [attribute].icones [i] [1])
-					button.texture:SetTexCoord(unpack(Details.sub_atributos [attribute].icones [i] [2]))
-					table.insert(allDisplaysFrame.buttons [attribute], button)
-					y = y - 17
+						button.text:SetText(loc_sub_attribute_name)
+						Details:SetFontSize(button.text, Details.all_switch_config.font_size)
+
+						allDisplaysFrame.check_text_size (button.text)
+						button.texture:SetTexture(Details.sub_atributos [attribute].icones [i] [1])
+						button.texture:SetTexCoord(unpack(Details.sub_atributos [attribute].icones [i] [2]))
+						table.insert(allDisplaysFrame.buttons [attribute], button)
+
+						if detailsFramework.IsAddonApocalypseWow() and damageMeterType >= 100 then
+							button:Hide()
+							button.text:SetTextColor(unpack(disabledColor))
+							button:SetScript("OnClick", nil)
+							button:SetScript("OnEnter", nil)
+							button:SetScript("OnLeave", nil)
+							button.texture:Hide()
+						end
+
+						y = y - 17
+						amountAdded = amountAdded + 1
+					end
 				end
 
 				if (#Details.sub_atributos [attribute].lista > allDisplaysFrame.higher_counter) then
 					allDisplaysFrame.higher_counter = #Details.sub_atributos [attribute].lista
 				end
 
-				x = x + 130
+				if amountAdded > 0 then
+					x = x + 130
+				else
+					title_str:Hide()
+					title_icon:Hide()
+				end
 				y = -8
 			end
 
@@ -289,23 +317,28 @@ function Details222.CreateAllDisplaysFrame()
 
 		local button_index = 1
 		for i = #Details.custom, 1, -1 do
-			local button = allDisplaysFrame.buttons [custom_index] [button_index]
-			if (not button) then
-				button = create_all_switch_button (custom_index, i, allDisplaysFrame.x, allDisplaysFrame.y)
-				table.insert(allDisplaysFrame.buttons [custom_index], button)
-				allDisplaysFrame.y = allDisplaysFrame.y - 17
-			end
-
 			local custom = Details.custom [i]
-			button.text:SetText(custom.name)
-			Details:SetFontSize(button.text, Details.all_switch_config.font_size)
+			local canAdd = (isApoc and custom.apoc) or (not isApoc)
 
-			allDisplaysFrame.check_text_size (button.text)
-			button.texture:SetTexture(custom.icon)
-			button.texture:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
-			button:Show()
+			if canAdd then
+				local button = allDisplaysFrame.buttons[custom_index][button_index]
+				if (not button) then
+					button = create_all_switch_button(custom_index, i, allDisplaysFrame.x, allDisplaysFrame.y)
+					table.insert(allDisplaysFrame.buttons[custom_index], button)
+					allDisplaysFrame.y = allDisplaysFrame.y - 17
+				end
 
-			button_index = button_index + 1
+				button.text:SetText(custom.name)
+				Details:SetFontSize(button.text, Details.all_switch_config.font_size)
+
+				allDisplaysFrame.check_text_size(button.text)
+				button.texture:SetTexture(custom.icon)
+				button.texture:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
+
+				button:Show()
+
+				button_index = button_index + 1
+			end
 		end
 
 		if (#Details.custom > allDisplaysFrame.higher_counter) then
@@ -359,7 +392,12 @@ function Details222.CreateAllDisplaysFrame()
 			allDisplaysFrame.higher_counter = button_index
 		end
 
-		allDisplaysFrame:SetHeight((allDisplaysFrame.higher_counter * 17) + 20 + 16)
+		if detailsFramework.IsAddonApocalypseWow() then
+			allDisplaysFrame:SetHeight((5 * 17) + 20 + 16)
+		else
+			allDisplaysFrame:SetHeight((allDisplaysFrame.higher_counter * 17) + 20 + 16)
+		end
+
 		allDisplaysFrame:SetWidth((120 * 6) + (6 * 2) + (12 * 4))
 
 		allDisplaysFrame.last_up = GetTime()
@@ -449,7 +487,7 @@ end
 function Details.switch:ShowMe(instancia)
 	Details.switch.current_instancia = instancia
 
-	if (IsControlKeyDown()) then
+	if (IsControlKeyDown()) then --close window
 		if (not Details.tutorial.ctrl_click_close_tutorial) then
 			if (not DetailsCtrlCloseWindowPanelTutorial) then
 				local tutorialFrame = CreateFrame("frame", "DetailsCtrlCloseWindowPanelTutorial", Details.switch.frame, "BackdropTemplate")
@@ -503,7 +541,7 @@ function Details.switch:ShowMe(instancia)
 
 		return instancia:ShutDown()
 
-	elseif (IsShiftKeyDown()) then
+	elseif (IsShiftKeyDown()) then --segments view
 		if (not Details.switch.segments_blocks) then
 			local segment_switch = function(self, button, segment)
 				if (button == "LeftButton") then

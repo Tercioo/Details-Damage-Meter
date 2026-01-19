@@ -1363,6 +1363,7 @@
 			desc = Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT_DESC"],
 			source = false,
 			target = false,
+			apoc = true,
 			script = [[
 				local combatObject, instanceContainer, instanceObject = ...
 				local total, top, amount = 0, 0, 0

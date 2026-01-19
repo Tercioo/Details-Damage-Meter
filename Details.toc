@@ -17,6 +17,8 @@
 Libs\libs.xml
 #@end-no-lib-strip@
 
+core\parser_nocleu.xml
+
 locales\Details-enUS.lua
 locales\Details-deDE.lua
 locales\Details-esES.lua

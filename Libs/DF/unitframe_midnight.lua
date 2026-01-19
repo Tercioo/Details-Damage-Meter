@@ -1234,6 +1234,7 @@ detailsFramework.CastFrameFunctions = {
 	--handle the interrupt state of the cast
 	--this does not change the cast bar color because this function is called inside the start cast where is already handles the cast color
 	UpdateInterruptState = function(self)
+		self.BorderShield:Show()
 		if self.notInterruptible ~= nil then
 			self.BorderShield:SetAlphaFromBoolean(self.notInterruptible, 1, 0)
 		else
@@ -1558,6 +1559,7 @@ detailsFramework.CastFrameFunctions = {
 		local castBar = self:GetParent()
 		castBar:Show()
 		castBar:SetAlpha(1)
+		castBar:UpdateInterruptState()
 	end,
 
 	--animation calls
@@ -1712,15 +1714,15 @@ detailsFramework.CastFrameFunctions = {
 			--set the statusbar color
 			self:UpdateCastColor()
 
-			if (not self:IsShown() and not self.Settings.NoFadeEffects) then
-				self:Animation_FadeIn()
-			end
-
 			self.Spark:Show()
 			self:Show()
 
 		--update the interrupt cast border
-		self:UpdateInterruptState()
+			self:UpdateInterruptState()
+			
+		if (not self:IsShown() and not self.Settings.NoFadeEffects) then
+			self:Animation_FadeIn()
+		end
 	end,
 
 	UNIT_SPELLCAST_START = function(self, unit, ...)
@@ -1884,16 +1886,15 @@ detailsFramework.CastFrameFunctions = {
 			--set the statusbar color
 			self:UpdateCastColor()
 
-			if (not self:IsShown() and not self.Settings.NoFadeEffects) then
-				self:Animation_FadeIn()
-			end
-
 			self.Spark:Show()
 			self:Show()
 
 		--update the interrupt cast border
-		self:UpdateInterruptState()
+			self:UpdateInterruptState()
 
+		if (not self:IsShown() and not self.Settings.NoFadeEffects) then
+			self:Animation_FadeIn()
+		end
 	end,
 
 	UNIT_SPELLCAST_CHANNEL_START = function(self, unit, ...)

@@ -1075,6 +1075,8 @@ if CreateAbbreviateConfig then
     abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
 end
 
+
+
 ---update the window in real time
 ---@param instance instance
 local updateWindow = function(instance) --~update
@@ -1363,6 +1365,7 @@ end
 
 local updaterTicker = nil
 local startUpdater = function()
+    --bParser.MakeAsOverlay()
     Details:InstanceCall(switchWindowFontStrings)
     startTimeUpdate()
 
@@ -1377,6 +1380,8 @@ local startUpdater = function()
 end
 
 local stopUpdaterAndClearWindow = function()
+    --bParser.UnmakeAsOverlay()
+
     if (updaterTicker) then
         updaterTicker:Cancel()
         updaterTicker = nil
