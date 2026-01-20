@@ -1,9 +1,15 @@
 
+
+
 --[=[
     You don't need to get the library object. There is no LibStub.
+    There is one global function to call to retrieve a player info table.
     There is two global functions to register and unregister a function to receive callbacks.
-
+    
     API:
+
+    local playerInfo = GetPlayerInfo(playerName)
+    Example: /dump GetPlayerInfo(UnitName("player"))
 
     --to register callbacks, this function is triggered when any event happen.
     local myCallbackFunction = function(eventId, playerInfo)
@@ -27,19 +33,6 @@
 --[[
 
 últimas alteraçoes (11 de dezembro de 2025):
-+ quando a lib é substituida por uma nova, carregar as callbacks registradas (done, not tested)
-+ adicionado o evento GROUP_ROSTER_UPDATE para atualizar o cache de unitIds e mandar comms quando alguem entra no grupo
-+ exceto no login, todos os full updates passam por ScheduleSendPlayerFullUpdate()
-+ fazer os eventospara talentUpdate e itemLevel
-+ testar no retail
-+ fazer a funcção que lida com o envio de todos os dados do player (full update)
-+ quando for mandar todos os dados, mandar em uma unica comm
-+ se estiver em combate e o jogo for midnight ou superior, esperar sair do combate para mandar a comm
-+ sharear os talentos no retail: dragonflight: okay, ttw: okay, midnight: okay
-+ adicionado mais debugs para comms
-+ adicionado a function getCommChannel()
-+ adicionado red() e yellow() para colorir textos de debug
-
 o que fazer ainda:
 - adicionar heroTalentId para o playerInfo
 - adicionar talentVersion para o playerInfo dizendo se é vanilla, etc.
@@ -135,6 +128,7 @@ end
 ---@field SPECID_UPDATE string
 ---@field ITEMLEVEL_UPDATE string
 ---@field TALENTS_UPDATE string
+---@field KEYSTONE_UPDATE string
 
 ---@class playerinfo_enum : table
 ---@field TalentVersion enum_talentversion
@@ -172,6 +166,11 @@ local CONST_COMM_SPECID_PREFIX = "S"
 local CONST_COMM_ILEVEL_PREFIX = "I"
 local CONST_COMM_TALENTS_PREFIX = "T"
 local CONST_COMM_REQUEST_FULLINFO_PREFIX = "R"
+local CONST_COMM_KEYSTONE_PREFIX = "K"
+
+local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
+local GetContainerItemID = GetContainerItemID or C_Container.GetContainerItemID
+local GetContainerItemLink = GetContainerItemLink or C_Container.GetContainerItemLink
 
 local printog = _G.print
 local print = function(...) if (debug) then printog(...) end end
@@ -222,7 +221,19 @@ local enum = {
         SPECID_UPDATE = "SPECID_UPDATE",
         ITEMLEVEL_UPDATE = "ITEMLEVEL_UPDATE",
         TALENTS_UPDATE = "TALENTS_UPDATE",
+        KEYSTONE_UPDATE = "KEYSTONE_UPDATE",
     },
+}
+
+---@type keystoneinfo
+local keystoneTablePrototype = {
+    level = 0,
+    mapID = 0,
+    challengeMapID = 0,
+    classID = 0,
+    rating = 0,
+    mythicPlusMapID = 0,
+    specID = 0,
 }
 
 _G.PlayerInfoEnums = enum --[[GLOBAL]]
@@ -265,6 +276,10 @@ local isClassicEra = function()
     if (buildInfo < 20000) then
         return true
     end
+end
+
+local gameVersionHasMythicPlus = function()
+    return C_ChallengeMode.ClearKeystone and true
 end
 
 ---merge a key-value table into a single string separating values with commas, where the first index is the key and the second index is the value
@@ -428,7 +443,7 @@ local registerComm = function()
             --don't receive comms from the player it self
             local playerName = UnitName("player")
             if (playerName == sender) then
-                return
+                --return
             end
 
             local encodedData = text
@@ -474,6 +489,7 @@ local registerComm = function()
                 for i = 1, #dataParts do
                     local thisDataString = dataParts[i]
                     local thisDataTypePrefix = thisDataString:match("^.")
+
                     if debugFullDataCommReceived then
                         print("PI: fullComm thisDataTypePrefix:", thisDataTypePrefix, "thisDataPart:", thisDataString)
                     end
@@ -571,6 +587,10 @@ function commHandler.SendData(encodedString, commChannel)
         if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
             commChannel = "INSTANCE_CHAT"
         end
+    end
+
+    if not commChannel then
+        return
     end
 
     if (commHandler.hasAceComm) then
@@ -772,6 +792,7 @@ end
 ---@field durability number?
 ---@field lowestGearDurability number?
 ---@field talents table|string?
+---@field keystoneInfo table?
 
 local getPlayerInfo = function(playerName)
     ---@type playerinfo
@@ -786,6 +807,11 @@ local getPlayerInfo = function(playerName)
             classId = classId,
             level = level,
         }
+
+        if (gameVersionHasMythicPlus()) then
+            thisPlayerInfo.keystoneInfo = CopyTable(keystoneTablePrototype)
+        end
+
         playerInfoDatabase[playerName] = thisPlayerInfo
     end
     return thisPlayerInfo
@@ -1030,6 +1056,176 @@ do --> item level (good on vanilla)
         print("PI: Player Item Level:", itemLevel)
     end
 end --end item level
+
+local getKeystone
+do
+    local makeArrayToComm = function(keystoneInfo)
+        local arrayToSend = {
+            keystoneInfo.level,
+            keystoneInfo.mapID,
+            keystoneInfo.challengeMapID,
+            keystoneInfo.classID,
+            keystoneInfo.rating,
+            keystoneInfo.mythicPlusMapID,
+            keystoneInfo.specID,
+        }
+        return arrayToSend
+    end
+
+    local makeKeystoneFromComm = function(packedData)
+        local keystoneData, _ = t_unpack(packedData, 1)
+        local keystoneInfo = {
+            level = keystoneData[1],
+            mapID = keystoneData[2],
+            challengeMapID = keystoneData[3],
+            classID = keystoneData[4],
+            rating = keystoneData[5],
+            mythicPlusMapID = keystoneData[6],
+            specID = keystoneData[7],
+        }
+        return keystoneInfo
+    end
+
+    local sendKeystoneData = function()
+        local thisPlayerInfo = getLocalPlayerInfo()
+        if commHandler.CanSendComm() then
+            local keystoneInfo = thisPlayerInfo.keystoneInfo
+            if not keystoneInfo or keystoneInfo.level < 1 then
+                return
+            end
+
+            local dataString = CONST_COMM_KEYSTONE_PREFIX .. t_pack(makeArrayToComm(keystoneInfo))
+            if commHandler:IsSendingFullUpdate() then
+                commHandler:AddToFullUpdate(dataString)
+            else
+                local encodedData = commHandler.PrepareData(dataString)
+                if CONST_DEBUG_COMM_PROCESSING then
+                    print("PI: Keystone String:", dataString)
+                    print("PI: Keystone Encoded:", encodedData)
+                end
+                commHandler.SendData(encodedData, getCommChannel())
+            end
+        end
+    end
+
+    local getMythicPlusMapID = function()
+        for backpackId = 0, 4 do
+            for slotId = 1, GetContainerNumSlots(backpackId) do
+                local itemId = GetContainerItemID(backpackId, slotId)
+                if (itemId == LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID or itemId == 180653) then
+                    local itemLink = GetContainerItemLink(backpackId, slotId)
+                    local destroyedItemLink = itemLink:gsub("|", "")
+                    local _, _, _, mythicPlusMapID = strsplit(":", destroyedItemLink)
+                    return tonumber(mythicPlusMapID)
+                end
+            end
+        end
+    end
+
+    local updatePlayerKeystoneInfo = function(thisPlayerInfo)
+        local level = C_MythicPlus.GetOwnedKeystoneLevel() or 0
+        local mapId = C_MythicPlus.GetOwnedKeystoneMapID() or 0
+        local mythicPlusMapId = getMythicPlusMapID() or 0
+        local challengeMapId = C_MythicPlus.GetOwnedKeystoneChallengeMapID() or 0
+
+        local _, _, playerClassId = UnitClass("player")
+        local classId = playerClassId
+
+        local ratingSummary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary("player")
+        local rating = ratingSummary and ratingSummary.currentSeasonScore or 0
+
+        local specId = GetSpecializationInfo(GetSpecialization()) or 0
+
+        local keystoneInfo = thisPlayerInfo.keystoneInfo
+        keystoneInfo.level = level
+        keystoneInfo.mapID = mapId
+        keystoneInfo.challengeMapID = challengeMapId
+        keystoneInfo.classID = classId
+        keystoneInfo.rating = rating
+        keystoneInfo.mythicPlusMapID = mythicPlusMapId
+        keystoneInfo.specID = specId
+    end
+
+    local keystoneChangedTimer
+
+    local checkForKeystoneChange = function()
+        --clear the timer reference
+        keystoneChangedTimer = nil
+
+        --check if the player has a keystone in the backpack by quering the keystone level
+        local level = C_MythicPlus.GetOwnedKeystoneLevel()
+        if (not level) then
+            return
+        end
+        local mapId = C_MythicPlus.GetOwnedKeystoneMapID()
+        local thisPlayerInfo = getLocalPlayerInfo()
+
+        if (thisPlayerInfo.keystoneInfo.level ~= level or thisPlayerInfo.keystoneInfo.mapID ~= mapId) then
+            updatePlayerKeystoneInfo(thisPlayerInfo)
+            sendKeystoneData()
+        end
+    end
+
+    local bagUpdateEventFrame = _G["PlayerInfoBagUpdateFrame"] or CreateFrame("frame", "PlayerInfoBagUpdateFrame")
+    if gameVersionHasMythicPlus() then
+        --bagUpdateEventFrame:RegisterEvent("BAG_UPDATE")
+        --bagUpdateEventFrame:RegisterEvent("ITEM_CHANGED")
+    end
+    bagUpdateEventFrame:SetScript("OnEvent", function(bagUpdateEventFrame, event, ...)
+        if (keystoneChangedTimer) then
+            return
+        else
+            keystoneChangedTimer = C_Timer.NewTimer(2, checkForKeystoneChange)
+        end
+    end)
+
+    getKeystone = function()
+        if not gameVersionHasMythicPlus() then
+            return
+        end
+
+        local thisPlayerInfo = getLocalPlayerInfo()
+        updatePlayerKeystoneInfo(thisPlayerInfo)
+        sendKeystoneData()
+
+        return thisPlayerInfo.keystoneInfo
+    end
+
+    handleCommDataFunctions[CONST_COMM_KEYSTONE_PREFIX] = function(senderName, packedData)
+        local receivedKeystoneInfo = makeKeystoneFromComm(packedData)
+
+        if debugCommReceived then
+            print("PI: received keystone comm", type(receivedKeystoneInfo), receivedKeystoneInfo)
+        end
+
+        local remotePlayerInfo = getPlayerInfo(senderName)
+        local keystoneInfo = remotePlayerInfo.keystoneInfo
+        keystoneInfo.level = receivedKeystoneInfo.level
+        keystoneInfo.mapID = receivedKeystoneInfo.mapID
+        keystoneInfo.challengeMapID = receivedKeystoneInfo.challengeMapID
+        keystoneInfo.classID = receivedKeystoneInfo.classID
+        keystoneInfo.rating = receivedKeystoneInfo.rating
+        keystoneInfo.mythicPlusMapID = receivedKeystoneInfo.mythicPlusMapID
+        keystoneInfo.specID = receivedKeystoneInfo.specID
+
+        if CONST_DEBUG_COMM_PROCESSING then
+            dumpt(remotePlayerInfo)
+        end
+
+        handleCallbacks.SendCallback(PlayerInfoEnums.Callbacks.KEYSTONE_UPDATE, remotePlayerInfo)
+    end
+
+    ---@tests item level
+    tests[#tests + 1] = function()
+        local thisPlayerInfo = getLocalPlayerInfo()
+        local keystoneInfo = thisPlayerInfo.keystoneInfo
+        if keystoneInfo then
+            for k,v in pairs(keystoneInfo) do
+                print("   ", k, v)
+            end
+        end
+    end
+end
 
 local getTalents
 do --> talents
@@ -1342,6 +1538,7 @@ do --> talents
     end
 end --end talents
 
+
 --each function will update the local player first and than send to group ~full
 local playerFullUpdate = function()
     --this will trigger 4 comms at the same time, need to create a way to send all this data in a single comm
@@ -1350,6 +1547,7 @@ local playerFullUpdate = function()
         getSpecId()
         getItemLevel()
         getTalents()
+        getKeystone()
     commHandler:SetSendingFullUpdate(false)
 end
 
@@ -1470,290 +1668,3 @@ eventFrame:SetScript("OnEvent", function(self, event, ...) --print("EVENT")
         end
     end
 end)
-
-
-do return end
-
-
-
-    --delay to request all data from other players
-    local CONST_REQUEST_ALL_DATA_COOLDOWN = 30
-    --delay to send all data to other players
-    local CONST_SEND_ALL_DATA_COOLDOWN = 30
-
-    --show failures (when the function return an error) results to chat
-    local CONST_DIAGNOSTIC_ERRORS = false
-    --show the data to be sent and data received from comm
-    local CONST_DIAGNOSTIC_COMM = false
-    --show data received from other players
-    local CONST_DIAGNOSTIC_COMM_RECEIVED = false
-
-    local CONST_COMM_PREFIX = "LRS"
-    local CONST_COMM_PREFIX_LOGGED = "LRS_LOGGED"
-    local CONST_COMM_FULLINFO_PREFIX = "F"
-
-    local CONST_COMM_GEARINFO_FULL_PREFIX = "G"
-    local CONST_COMM_GEARINFO_DURABILITY_PREFIX = "R"
-
-    local CONST_COMM_KEYSTONE_DATA_PREFIX = "K"
-    local CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX = "J"
-
-    local CONST_COMM_OPENNOTES_RECEIVED_PREFIX = "N" --when a note is received
-    local CONST_COMM_OPENNOTES_REQUESTED_PREFIX = "Q" --when received a request to send your note
-
-    local CONST_COMM_RATING_DATA_PREFIX = "M"
-    local CONST_COMM_RATING_DATAREQUEST_PREFIX = "O"
-
-    local CONST_COMM_SENDTO_PARTY = "0x1"
-    local CONST_COMM_SENDTO_RAID = "0x2"
-    local CONST_COMM_SENDTO_GUILD = "0x4"
-
-    local CONST_ONE_SECOND = 1.0
-    local CONST_TWO_SECONDS = 2.0
-    local CONST_THREE_SECONDS = 3.0
-
-    local CONST_SPECIALIZATION_VERSION_CLASSIC = 0
-    local CONST_SPECIALIZATION_VERSION_MODERN = 1
-
-
-
-    local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
-    local GetContainerItemID = GetContainerItemID or C_Container.GetContainerItemID
-    local GetContainerItemLink = GetContainerItemLink or C_Container.GetContainerItemLink
-
-    --from vanilla to cataclysm, the specID did not existed, hence its considered version 0
-    --for mists of pandaria and beyond it's version 1
-    local getSpecializationVersion = function()
-        if (gameVersion >= 50000) then
-            return CONST_SPECIALIZATION_VERSION_MODERN
-        else
-            return CONST_SPECIALIZATION_VERSION_CLASSIC
-        end
-    end
-
-    function openRaidLib.ShowDiagnosticErrors(value)
-        CONST_DIAGNOSTIC_ERRORS = value
-    end
-
-    --make the 'pri-nt' word be only used once, this makes easier to find lost debug pri-nts in the code
-    local sendChatMessage = function(...)
-        print(...)
-    end
-
-    openRaidLib.DiagnosticError = function(msg, ...)
-        if (CONST_DIAGNOSTIC_ERRORS) then
-            sendChatMessage("|cFFFF9922OpenRaidLib|r:", msg, ...)
-        end
-    end
-
-    local diagnosticFilter = nil
-    local diagnosticComm = function(msg, ...)
-        if (CONST_DIAGNOSTIC_COMM) then
-            if (diagnosticFilter) then
-                local lowerMessage = msg:lower()
-                if (lowerMessage:find(diagnosticFilter)) then
-                    sendChatMessage("|cFFFF9922OpenRaidLib|r:", msg, ...)
-                    --dumpt(msg)
-                end
-            else
-                sendChatMessage("|cFFFF9922OpenRaidLib|r:", msg, ...)
-            end
-        end
-    end
-
-    local diagnosticCommReceivedFilter = false
-    openRaidLib.diagnosticCommReceived = function(msg, ...)
-        if (diagnosticCommReceivedFilter) then
-            local lowerMessage = msg:lower()
-            if (lowerMessage:find(diagnosticCommReceivedFilter)) then
-                sendChatMessage("|cFFFF9922OpenRaidLib|r:", msg, ...)
-            end
-        else
-            sendChatMessage("|cFFFF9922OpenRaidLib|r:", msg, ...)
-        end
-    end
-
-
-    openRaidLib.DeprecatedMessage = function(msg)
-        sendChatMessage("|cFFFF9922OpenRaidLib|r:", "|cFFFF5555" .. msg .. "|r")
-    end
-
-    --set the ticker interval to check if the cooldown has changed
-    function openRaidLib.SetCooldownCheckInterval(value)
-        CONST_COOLDOWN_CHECK_INTERVAL = value
-    end
-
-    ---return if the wow version the player is playing is the vanilla version of wow
-    ---@return boolean
-    function DF.IsClassicWow()
-        if (buildInfo < 20000) then        return true    end
-        return false
-    end    
-
-    local checkClientVersion = function(...)
-        for i = 1, select("#", ...) do
-            local clientVersion = select(i, ...)
-
-            if (clientVersion == "retail" and (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or isExpansion_Dragonflight())) then --retail
-                return true
-
-            elseif (clientVersion == "classic_era" and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) then --classic era (vanila)
-                return true
-
-            elseif (clientVersion == "bcc" and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC) then --the burning crusade classic
-                return true
-            end
-        end
-    end
-
---------------------------------------------------------------------------------------------------------------------------------
---~internal cache
---use a console variable to create a flash cache to keep data while the game reload
---this is not a long term database as saved variables are and it get clean up often
-
-C_CVar.RegisterCVar(CONST_CVAR_TEMPCACHE)
-C_CVar.RegisterCVar(CONST_CVAR_TEMPCACHE_DEBUG)
-
---internal namespace
-local tempCache = {
-    debugString = "",
-}
-
-tempCache.copyCache = function(t1, t2)
-    for key, value in pairs(t2) do
-        if (type(value) == "table") then
-            t1[key] = t1[key] or {}
-            tempCache.copyCache(t1[key], t2[key])
-        else
-            t1[key] = value
-        end
-    end
-    return t1
-end
-
---use debug cvar to find issues that occurred during the logoff process
-function openRaidLib.PrintTempCacheDebug()
-    local debugMessage = C_CVar.GetCVar(CONST_CVAR_TEMPCACHE_DEBUG)
-    sendChatMessage("|cFFFF9922OpenRaidLib|r Temp CVar Result:\n", debugMessage)
-end
-
-function tempCache.SaveDebugText()
-    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE_DEBUG, "0")
-    --C_CVar.SetCVar(CONST_CVAR_TEMPCACHE_DEBUG, tempCache.debugString)
-end
-
-function tempCache.AddDebugText(text)
-    tempCache.debugString = tempCache.debugString .. date("%H:%M:%S") .. "| " .. text .. "\n"
-end
-
-function tempCache.SaveCacheOnCVar(data)
-    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE, "0")
-    --C_CVar.SetCVar(CONST_CVAR_TEMPCACHE, data)
-    tempCache.AddDebugText("CVars Saved on saveCahceOnCVar(), Size: " .. #data)
-end
-
-function tempCache.RestoreData()
-    local data = C_CVar.GetCVar(CONST_CVAR_TEMPCACHE)
-    if (data and type(data) == "string" and string.len(data) > 2) then
-        local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0", true)
-        if (LibAceSerializer) then
-            local okay, cacheInfo = LibAceSerializer:Deserialize(data)
-            if (okay) then
-                local age = cacheInfo.createdAt
-                --if the data is older than 5 minutes, much has been changed from the group and the data is out dated
-                if (age + (60 * 5) < time()) then
-                    return
-                end
-
-                local unitsInfo = cacheInfo.unitsInfo
-                local cooldownsInfo = cacheInfo.cooldownsInfo
-                local gearInfo = cacheInfo.gearInfo
-
-                local okayUnitsInfo, unitsInfo = LibAceSerializer:Deserialize(unitsInfo)
-                local okayCooldownsInfo, cooldownsInfo = LibAceSerializer:Deserialize(cooldownsInfo)
-                local okayGearInfo, gearInfo = LibAceSerializer:Deserialize(gearInfo)
-
-                if (okayUnitsInfo and unitsInfo) then
-                    openRaidLib.UnitInfoManager.UnitData = tempCache.copyCache(openRaidLib.UnitInfoManager.UnitData, unitsInfo)
-                else
-                    tempCache.AddDebugText("invalid UnitInfo")
-                end
-
-                if (okayCooldownsInfo and cooldownsInfo) then
-                    openRaidLib.CooldownManager.UnitData = tempCache.copyCache(openRaidLib.CooldownManager.UnitData, cooldownsInfo)
-                else
-                    tempCache.AddDebugText("invalid CooldownsInfo")
-                end
-
-                if (okayGearInfo and gearInfo) then
-                    openRaidLib.GearManager.UnitData = tempCache.copyCache(openRaidLib.GearManager.UnitData, gearInfo)
-                else
-                    tempCache.AddDebugText("invalid GearInfo")
-                end
-            else
-                tempCache.AddDebugText("Deserialization not okay, reason: " .. cacheInfo)
-            end
-        else
-            tempCache.AddDebugText("LibAceSerializer not found")
-        end
-    else
-        if (not data) then
-            tempCache.AddDebugText("invalid temporary cache: getCVar returned nil")
-        elseif (type(data) ~= "string") then
-            tempCache.AddDebugText("invalid temporary cache: getCVar did not returned a string")
-        elseif (string.len(data) < 2) then
-            tempCache.AddDebugText("invalid temporary cache: data length lower than 2 bytes (first login?)")
-        else
-            tempCache.AddDebugText("invalid temporary cache: no reason found")
-        end
-    end
-end
-
-function tempCache.SaveData()
-    tempCache.AddDebugText("SaveData() called.")
-
-    local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0", true)
-    if (LibAceSerializer) then
-        local allUnitsInfo = openRaidLib.UnitInfoManager.UnitData
-        local allUnitsCooldowns = openRaidLib.CooldownManager.UnitData
-        local allPlayersGear = openRaidLib.GearManager.UnitData
-
-        local cacheInfo = {
-            createdAt = time(),
-        }
-
-        local unitsInfoSerialized = LibAceSerializer:Serialize(allUnitsInfo)
-        local unitsCooldownsSerialized = LibAceSerializer:Serialize(allUnitsCooldowns)
-        local playersGearSerialized = LibAceSerializer:Serialize(allPlayersGear)
-
-        if (unitsInfoSerialized) then
-            cacheInfo.unitsInfo = unitsInfoSerialized
-            tempCache.AddDebugText("SaveData() units info serialized okay.")
-        else
-            tempCache.AddDebugText("SaveData() units info serialized failed.")
-        end
-
-        if (unitsCooldownsSerialized) then
-            cacheInfo.cooldownsInfo = unitsCooldownsSerialized
-            tempCache.AddDebugText("SaveData() cooldowns info serialized okay.")
-        else
-            tempCache.AddDebugText("SaveData() cooldowns info serialized failed.")
-        end
-
-        if (playersGearSerialized) then
-            cacheInfo.gearInfo = playersGearSerialized
-            tempCache.AddDebugText("SaveData() gear info serialized okay.")
-        else
-            tempCache.AddDebugText("SaveData() gear info serialized failed.")
-        end
-
-        local cacheInfoSerialized = LibAceSerializer:Serialize(cacheInfo)
-        tempCache.SaveCacheOnCVar(cacheInfoSerialized)
-    else
-        tempCache.AddDebugText("SaveData() AceSerializer not found.")
-    end
-
-    tempCache.SaveDebugText()
-end
-
-

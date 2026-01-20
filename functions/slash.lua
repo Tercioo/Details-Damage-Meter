@@ -3416,6 +3416,9 @@ recentPlayerTable = {
 						end
 					end
 
+					local playersAdded = {}
+
+					--from open raid lib
 					if (keystoneData) then
 						local unitsAdded = {}
 						local isOnline = true
@@ -3488,6 +3491,7 @@ recentPlayerTable = {
 							end
 						end
 					end
+
 
 					--get which column is currently selected and the sort order
 					local columnIndex, order = f.Header:GetSelectedColumn()

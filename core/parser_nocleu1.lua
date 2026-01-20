@@ -918,6 +918,13 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         --local spellPercent = (spellAmount / maxAmount) * 100 --nop
 
         local spellInfo = C_Spell.GetSpellInfo(spellID)
+        if not spellInfo then
+            ---@diagnostic disable-next-line: missing-fields
+            spellInfo = {
+                name = "Unknown Spell",
+                iconID = 136243, --question mark
+            }
+        end
 
         ---@class addonapoc_tooltipdata
         ---@field name string
@@ -1609,7 +1616,9 @@ local detailsListener = Details:CreateEventListener()
 
 local onEvent = function(event, instance, ...)
     if event == "DETAILS_DATA_RESET" then
-        onDataReset()
+        if detailsFramework.IsAddonApocalypseWow() then
+            onDataReset()
+        end
     end
 end
 
