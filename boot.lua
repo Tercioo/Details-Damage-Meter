@@ -46,7 +46,7 @@
 
 		Details = Details
 
-		local gameVersionPrefix = "VPT" --v1, v5, v11
+		local gameVersionPrefix = "VCPM" --v1, v2 v5, v12
 
 		Details.gameVersionPrefix = gameVersionPrefix
 

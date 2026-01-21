@@ -6148,7 +6148,7 @@ function Details:ToolbarMenuSetButtons(_mode, _segment, _attributes, _report, _r
 			end
 		end
 
-		if detailsFramework.IsAddonApocalypseWow() then
+		if detailsFramework.IsAddonApocalypseWow() and self.lastIcon then
 			local anchorFrame = self.lastIcon.widget or self.lastIcon
 			self.baseframe.SwapDamageMeterButton:ClearAllPoints()
 
