@@ -88,7 +88,7 @@ local IsTWWExpansion = function()
 end
 
 local IsDragonflight = function() --and beyond
-	return buildInfo >= 100000
+	return buildInfo >= 100000 and buildInfo < 120000
 end
 
 local IsShadowlands = function()
