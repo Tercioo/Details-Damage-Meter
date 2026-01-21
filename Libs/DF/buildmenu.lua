@@ -875,6 +875,8 @@ local parseOptionsTypes = function(menuOptions)
 
         elseif (widgetTable.type == "fontdropdown") then
             widgetTable.type = "selectfont"
+        elseif (widgetTable.type == "texturedropdown") then
+            widgetTable.type = "selectstatusbartexture"
         elseif (widgetTable.type == "colordropdown") then
             widgetTable.type = "selectcolor"
         elseif (widgetTable.type == "outlinedropdown") then

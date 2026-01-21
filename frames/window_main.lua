@@ -8306,6 +8306,12 @@ function Details:TitleTextTickTimer(instance)
 	--hold the time value to show in the title bar
 	local timer
 
+	if detailsFramework.IsAddonApocalypseWow() then
+		if Details222.BParser.InSecretLockdown() then
+			return
+		end
+	end
+
 	if (instance.attribute_text.enabled) then
 		local zoneType = Details:GetZoneType()
 
@@ -10014,6 +10020,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 	local swapDamageMeterButton = gump:NewButton(baseframe, nil, "DetailsSwapDamageMeterButton"..instancia.meu_id, nil, 16, 16, swapDamageMeterOnClick)
 	baseframe.SwapDamageMeterButton = swapDamageMeterButton
 	swapDamageMeterButton:SetFrameLevel(baseframe:GetFrameLevel()+5)
+
+	local _, _, _, buildVersion = GetBuildInfo()
+	if buildVersion == 120000 then
+		swapDamageMeterButton:Show()
+	else
+		swapDamageMeterButton:Hide()
+	end
 
 	swapDamageMeterButton:SetScript("OnEnter", function()
 		--show gamecooltip saying "swap to blizzard damage meter"

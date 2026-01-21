@@ -254,11 +254,15 @@ function Details:ScrollDamage()
 		DetailsScrollDamage:SetScript("OnShow", function()
 			Details:Destroy(DetailsScrollDamage.Data)
 			damageScroll:RefreshScroll()
-			combatLogReader:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			if not DF.IsAddonApocalypseWow() then
+				combatLogReader:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			end
 		end)
 
 		DetailsScrollDamage:SetScript("OnHide", function()
-			combatLogReader:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			if not DF.IsAddonApocalypseWow() then
+				combatLogReader:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			end
 		end)
 
 		--statusbar and auto open checkbox
@@ -327,4 +331,7 @@ targetDummieHandle:SetScript("OnEvent", function(_, _, unit)
         end
     end
 end)
-targetDummieHandle:RegisterEvent("PLAYER_TARGET_CHANGED")
+
+if not DF.IsAddonApocalypseWow() then
+	targetDummieHandle:RegisterEvent("PLAYER_TARGET_CHANGED")
+end

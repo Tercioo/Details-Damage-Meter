@@ -51,6 +51,9 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
     detailsFramework:AddRoundedCornersToFrame(optionsFrame, Details.PlayerBreakdown.RoundedCornerPreset)
     optionsFrame:SetColor(unpack(Details.frame_background_color))
 
+    local patreonButton = CreateFrame("button", "$parentPatreonButton", optionsFrame)
+    
+
 	optionsFrame.Frame = optionsFrame
 	optionsFrame.__name = "Options"
 	optionsFrame.real_name = "DETAILS_OPTIONS"
