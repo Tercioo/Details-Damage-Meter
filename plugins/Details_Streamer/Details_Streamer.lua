@@ -512,7 +512,7 @@ local function CreatePluginFrames()
 				end
 
 				line.icon2:SetTexture (data [4])
-				line.icon2:SetTexCoord (unpack (data [5]))
+				line.icon2:SetTexCoord (unpack (data [5] or {0, 1, 0, 1}))
 				if (data [4] == defaultAttackIcon) then
 					line.icon2:SetSize (iconSize*0.8, iconSize*0.8)
 					line.icon2:SetPoint ("left", line, "center", 8, 0)

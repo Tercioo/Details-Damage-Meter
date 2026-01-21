@@ -191,7 +191,11 @@ do
 			return [[Interface\AddOns\Details\images\classes_small]], 0.25, 0.49609375, 0.75, 1
 
 		else
-			return [[Interface\AddOns\Details\images\classes_small]], unpack(Details.class_coords[class])
+			local classTCoords = Details.class_coords[class]
+			if (not classTCoords) then
+				classTCoords = CONST_UNKNOWN_CLASS_COORDS
+			end
+			return [[Interface\AddOns\Details\images\classes_small]], unpack(classTCoords)
 		end
 	end
 

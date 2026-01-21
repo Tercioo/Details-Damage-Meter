@@ -1576,6 +1576,7 @@ local default_global_data = {
 		show_totalhitdamage_on_overkill = false,
 
 	--switch tables
+		switch_missing_type = 0,
 		switchSaved = {slots = 4, table = {
 			{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done
 			{["atributo"] = 2, ["sub_atributo"] = 1}, --healing done

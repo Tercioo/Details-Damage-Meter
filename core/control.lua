@@ -999,6 +999,7 @@
 	function Details:GuessArenaEnemyUnitId(unitName)
 		for i = 1, #Details222.UnitIdCache.Arena do
 			local unitId = Details222.UnitIdCache.Arena[i]
+			
 			local enemyName = Details:GetFullName(unitId)
 			if (enemyName == unitName) then
 				Details.arena_enemies[enemyName] = unitId

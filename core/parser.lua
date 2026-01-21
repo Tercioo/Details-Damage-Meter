@@ -5789,7 +5789,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return true
 	end
 
-	function Details.parser_functions:UNIT_PET(unitId)
+	function Details.parser_functions:UNIT_PET(unitId) --unitId is a secret
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
 		petContainer.UNIT_PET(unitId)
 		Details:SchedulePetUpdate(1)
 	end

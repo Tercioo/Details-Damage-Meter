@@ -7811,7 +7811,8 @@ function Details:UpdateClickThrough()
 				self.windowBackgroundDisplay:EnableMouse(false)
 				self.baseframe.UPFrame:EnableMouse(false)
 				self.baseframe.DOWNFrame:EnableMouse(false)
-
+				self.baseframe.UPFrameConnect:EnableMouse(false)
+				self.baseframe.UPFrameLeftPart:EnableMouse(false)
 
 			else
 				self.baseframe:EnableMouse(true)
@@ -7822,6 +7823,8 @@ function Details:UpdateClickThrough()
 				self.windowBackgroundDisplay:EnableMouse(true)
 				self.baseframe.UPFrame:EnableMouse(true)
 				self.baseframe.DOWNFrame:EnableMouse(true)
+				self.baseframe.UPFrameConnect:EnableMouse(true)
+				self.baseframe.UPFrameLeftPart:EnableMouse(true)
 			end
 
 			--titlebar icons
@@ -7853,6 +7856,8 @@ function Details:UpdateClickThrough()
 			self.windowBackgroundDisplay:EnableMouse(true)
 			self.baseframe.UPFrame:EnableMouse(true)
 			self.baseframe.DOWNFrame:EnableMouse(true)
+			self.baseframe.UPFrameConnect:EnableMouse(true)
+			self.baseframe.UPFrameLeftPart:EnableMouse(true)
 
 			--titlebar icons, forcing true because the player isn't in combat and the inCombat setting is enabled
 			local toolbar_buttons = {}
@@ -7891,6 +7896,8 @@ function Details:UpdateClickThrough()
 			self.windowBackgroundDisplay:EnableMouse(false)
 			self.baseframe.UPFrame:EnableMouse(false)
 			self.baseframe.DOWNFrame:EnableMouse(false)
+			self.baseframe.UPFrameConnect:EnableMouse(false)
+			self.baseframe.UPFrameLeftPart:EnableMouse(false)
 		else
 			self.baseframe:EnableMouse(true)
 			self.bgframe:EnableMouse(true)
@@ -7900,6 +7907,8 @@ function Details:UpdateClickThrough()
 			self.windowBackgroundDisplay:EnableMouse(true)
 			self.baseframe.UPFrame:EnableMouse(true)
 			self.baseframe.DOWNFrame:EnableMouse(true)
+			self.baseframe.UPFrameConnect:EnableMouse(true)
+			self.baseframe.UPFrameLeftPart:EnableMouse(true)
 		end
 
 		--titlebar icons

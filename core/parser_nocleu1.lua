@@ -1511,8 +1511,6 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
             end
         end)
 
-
-
     elseif (ev == "DAMAGE_METER_RESET") then
         --if bRegenIsDisabled then
         --    bHadDataResetInCombat = true
@@ -1545,6 +1543,22 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
     elseif (ev == "PLAYER_REGEN_ENABLED") then --left the combat
         if debug then
 
+        end
+
+        if IsEncounterInProgress and IsEncounterInProgress() then
+            return
+
+        elseif InCombatLockdown() then
+            return
+        end
+
+        if IsInInstance() then
+            local isDeadOrGhost = UnitIsDeadOrGhost("player")
+            if isDeadOrGhost then
+                if Details:ArePlayersInCombat() then
+                    return
+                end
+            end
         end
 
         local sessionId = getCurrentSessionId()

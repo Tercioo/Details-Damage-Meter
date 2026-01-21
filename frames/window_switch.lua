@@ -988,6 +988,7 @@ function Details.switch:Update()
 
 	local offset = FauxScrollFrame_GetOffset(DetailsSwitchPanelScroll)
 	local slots_shown = Details.switch.slots
+	local showOneAdd = false
 
 	for i = 1, slots_shown do
 		--bookmark index
@@ -1016,6 +1017,9 @@ function Details.switch:Update()
 		local vcolor
 		local add
 		local textColor = "white"
+
+		local showThisButton = true
+		
 
 		if (options and options.sub_atributo) then
 			if (options.atributo == 5) then --custom
@@ -1079,10 +1083,30 @@ function Details.switch:Update()
 			name = Loc["STRING_SWITCH_CLICKME"]
 			vcolor = vertex_color_unknown
 			add = true
+
+			if Details.switch_missing_type == 1 then
+				if not showOneAdd then
+					showOneAdd = true
+				else
+					showThisButton = false
+				end
+
+			elseif Details.switch_missing_type == 2 then
+				showThisButton = false
+			end
 		end
 
-		button:Show()
-		button.button2:Show()
+		if showThisButton then
+			button:Show()
+			button.button2:Show()
+		else
+			button:Hide()
+			button.button2:Hide()
+			C_Timer.After(0, function()
+				button:Hide()
+				button.button2:Hide()
+			end)
+		end
 
 		local width, height = button.button2.texto:GetSize()
 		button.button2.texto:SetWidth(300)

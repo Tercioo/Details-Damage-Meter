@@ -730,7 +730,9 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 							actorObject.arena_enemy = true
 							actorObject.arena_team = 1 -- former my_team_color
 
-							Details:GuessArenaEnemyUnitId(actorName)
+							if not DF.IsAddonApocalypseWow() then
+								Details:GuessArenaEnemyUnitId(actorName)
+							end
 						end
 
 						local playerArenaInfo = Details.arena_table[actorName]
