@@ -519,10 +519,12 @@
 		--save the unixtime of the latest combat end
 		Details.last_combat_time = _tempo
 
-		Details:CatchRaidBuffUptime("BUFF_UPTIME_OUT")
-		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_OUT")
-		Details:CloseEnemyDebuffsUptime()
-		Details222.AuraScan.CheckForOneHourBuffs()
+		if not detailsFramework.IsAddonApocalypseWow() then
+			Details:CatchRaidBuffUptime("BUFF_UPTIME_OUT")
+			Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_OUT")
+			Details:CloseEnemyDebuffsUptime()
+			Details222.AuraScan.CheckForOneHourBuffs()
+		end
 
 		Details222.GuessSpecSchedules.ClearSchedules()
 
