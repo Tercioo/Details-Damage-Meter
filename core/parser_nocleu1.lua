@@ -892,7 +892,21 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     --local firstCombatant = blzDamageContainer.combatSources[1]
     --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromType(Enum.DamageMeterSessionType.Current, Enum.DamageMeterType.DamageDone, UnitGUID("player"))
 
-    local sourceSpells = instanceLine.sourceSpells
+    local sourceSpells
+
+    local sessionType = instanceLine.sessionType
+    local sessionNumber = instanceLine.sessionNumber
+    local sessionTypeParam = instanceLine.sessionTypeParam
+    local damageMeterType = instanceLine.damageMeterType
+
+    if sessionType == DAMAGE_METER_SESSIONPARAMETER_ID then
+        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, Enum.DamageMeterType.DamageDone, UnitGUID("player")) --waiting blizzard fix this
+        sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, damageMeterType, UnitGUID("player"))
+
+    elseif (sessionType == DAMAGE_METER_SESSIONPARAMETER_TYPE) then
+        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionTypeParam, Enum.DamageMeterType.DamageDone, actorGUID) --waiting blizzard fix this
+        sourceSpells = C_DamageMeter.GetCombatSessionSourceFromType(sessionTypeParam, damageMeterType, UnitGUID("player"))
+    end
 
     if not sourceSpells then
 
@@ -1011,24 +1025,27 @@ local abbreviateOptionsDamage =
     },
     {
         breakpoint = 1000000,
-        abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        abbreviation = "M",
         significandDivisor = 10000,
         fractionDivisor = 100,
-        --abbreviationIsGlobal = false
+        abbreviationIsGlobal = false
     },
     {
         breakpoint = 10000,
-        abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        abbreviation = "K",
         significandDivisor = 1000,
         fractionDivisor = 1,
-        --abbreviationIsGlobal = true,
+        abbreviationIsGlobal = false,
     },
     {
         breakpoint = 1000,
-        abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        abbreviation = "K",
         significandDivisor = 100,
         fractionDivisor = 10,
-        --abbreviationIsGlobal = true,
+        abbreviationIsGlobal = false,
     },
     {
         breakpoint = 1,
@@ -1195,6 +1212,8 @@ local updateWindow = function(instance) --~update
                     instanceLine.sourceData = source
                     instanceLine.sessionType = sessionType
                     instanceLine.sessionNumber = sessionNumber
+                    instanceLine.sessionTypeParam = sessionTypeParam
+                    instanceLine.damageMeterType = damageMeterType
 
                     local actorName = source.name --secret
                     local actorGUID = source.sourceGUID --secret
@@ -1254,16 +1273,7 @@ local updateWindow = function(instance) --~update
                     --instanceLine.lineText13:SetText(value)
                     --instanceLine.lineText14:SetText(totalAmountPerSecond)
 
-                    if sessionType == DAMAGE_METER_SESSIONPARAMETER_ID then
-                        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, Enum.DamageMeterType.DamageDone, UnitGUID("player")) --waiting blizzard fix this
-                        local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionNumber, Enum.DamageMeterType.DamageDone, UnitGUID("player"))
-                        instanceLine.sourceSpells = sourceSpells
 
-                    elseif (sessionType == DAMAGE_METER_SESSIONPARAMETER_TYPE) then
-                        --local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromID(sessionTypeParam, Enum.DamageMeterType.DamageDone, actorGUID) --waiting blizzard fix this
-                        local sourceSpells = C_DamageMeter.GetCombatSessionSourceFromType(sessionTypeParam, Enum.DamageMeterType.DamageDone, UnitGUID("player"))
-                        instanceLine.sourceSpells = sourceSpells
-                    end
 
                     instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)

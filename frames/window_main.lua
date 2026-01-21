@@ -4230,6 +4230,8 @@ function gump:CreateNewLine(instance, index)
 	---@field sourceSpells damagemeter_unit_spells
 	---@field sessionType string
 	---@field sessionNumber number
+	---@field sessionTypeParam number
+	---@field damageMeterType number
 	---@field lineIndex number
 	---@field statusbar statusbar
 	---@field extraStatusbar statusbar
