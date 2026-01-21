@@ -1,4 +1,4 @@
-## Interface: 110207, 120000
+## Interface: 120000, 120001
 ## Interface-Mists: 50503
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
@@ -197,3 +197,4 @@ functions\loaddata.lua
 startup.lua
 
 functions\api2.lua
+
