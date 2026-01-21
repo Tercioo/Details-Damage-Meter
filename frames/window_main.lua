@@ -7813,6 +7813,9 @@ function Details:UpdateClickThrough()
 				self.baseframe.DOWNFrame:EnableMouse(false)
 				self.baseframe.UPFrameConnect:EnableMouse(false)
 				self.baseframe.UPFrameLeftPart:EnableMouse(false)
+				self.baseframe.resize_direita:EnableMouse(false)
+				self.baseframe.resize_esquerda:EnableMouse(false)
+				self.baseframe.lock_button:EnableMouse(false)
 
 			else
 				self.baseframe:EnableMouse(true)
@@ -7825,6 +7828,16 @@ function Details:UpdateClickThrough()
 				self.baseframe.DOWNFrame:EnableMouse(true)
 				self.baseframe.UPFrameConnect:EnableMouse(true)
 				self.baseframe.UPFrameLeftPart:EnableMouse(true)
+
+				if (self.baseframe.isLocked) then
+					self.baseframe.resize_direita:EnableMouse(false)
+					self.baseframe.resize_esquerda:EnableMouse(false)
+					self.baseframe.lock_button:EnableMouse(false)
+				else
+					self.baseframe.resize_direita:EnableMouse(true)
+					self.baseframe.resize_esquerda:EnableMouse(true)
+					self.baseframe.lock_button:EnableMouse(true)
+				end
 			end
 
 			--titlebar icons
@@ -7858,6 +7871,16 @@ function Details:UpdateClickThrough()
 			self.baseframe.DOWNFrame:EnableMouse(true)
 			self.baseframe.UPFrameConnect:EnableMouse(true)
 			self.baseframe.UPFrameLeftPart:EnableMouse(true)
+
+			if (self.baseframe.isLocked) then
+				self.baseframe.resize_direita:EnableMouse(false)
+				self.baseframe.resize_esquerda:EnableMouse(false)
+				self.baseframe.lock_button:EnableMouse(false)
+			else
+				self.baseframe.resize_direita:EnableMouse(true)
+				self.baseframe.resize_esquerda:EnableMouse(true)
+				self.baseframe.lock_button:EnableMouse(true)
+			end
 
 			--titlebar icons, forcing true because the player isn't in combat and the inCombat setting is enabled
 			local toolbar_buttons = {}
@@ -7898,6 +7921,10 @@ function Details:UpdateClickThrough()
 			self.baseframe.DOWNFrame:EnableMouse(false)
 			self.baseframe.UPFrameConnect:EnableMouse(false)
 			self.baseframe.UPFrameLeftPart:EnableMouse(false)
+			self.baseframe.resize_direita:EnableMouse(false)
+			self.baseframe.resize_esquerda:EnableMouse(false)
+			self.baseframe.lock_button:EnableMouse(false)
+
 		else
 			self.baseframe:EnableMouse(true)
 			self.bgframe:EnableMouse(true)
@@ -7909,6 +7936,16 @@ function Details:UpdateClickThrough()
 			self.baseframe.DOWNFrame:EnableMouse(true)
 			self.baseframe.UPFrameConnect:EnableMouse(true)
 			self.baseframe.UPFrameLeftPart:EnableMouse(true)
+
+			if (self.baseframe.isLocked) then
+				self.baseframe.resize_direita:EnableMouse(false)
+				self.baseframe.resize_esquerda:EnableMouse(false)
+				self.baseframe.lock_button:EnableMouse(false)
+			else
+				self.baseframe.resize_direita:EnableMouse(true)
+				self.baseframe.resize_esquerda:EnableMouse(true)
+				self.baseframe.lock_button:EnableMouse(true)
+			end
 		end
 
 		--titlebar icons
