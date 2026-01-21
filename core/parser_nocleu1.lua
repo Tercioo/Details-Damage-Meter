@@ -1046,21 +1046,23 @@ local abbreviateOptionsDPS =
         abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
         significandDivisor = 10000000,
         fractionDivisor = 100,
-        --abbreviationIsGlobal = false
+        abbreviationIsGlobal = false
     },
     {
         breakpoint = 1000000,
-        abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+        abbreviation = "M",
         significandDivisor = 10000,
         fractionDivisor = 100,
-        --abbreviationIsGlobal = false
+        abbreviationIsGlobal = false
     },
     {
         breakpoint = 1000,
-        abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+        abbreviation = "K",
         significandDivisor = 100,
         fractionDivisor = 10,
-        --abbreviationIsGlobal = true,
+        abbreviationIsGlobal = false,
     },
     {
         breakpoint = 1,
