@@ -542,7 +542,7 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 			healthBar.shieldAbsorbIndicator =  healthBar:CreateTexture(nil, "artwork", nil, 3)
 			healthBar.shieldAbsorbIndicator:SetDrawLayer("artwork", 5)
 			
-			healthBar.shieldAbsorbIndicatorBar = CreateFrame("StatusBar", name or (parent:GetName() .. "AbsorbBar"), parent, "BackdropTemplate")
+			healthBar.shieldAbsorbIndicatorBar = CreateFrame("StatusBar", name or (parent:GetName() .. "AbsorbBar"), healthBar, "BackdropTemplate")
 			healthBar.shieldAbsorbIndicatorBar.barTexture = healthBar.shieldAbsorbIndicatorBar:CreateTexture(nil, "artwork", nil, 3)
 			healthBar.shieldAbsorbIndicatorBar:SetStatusBarTexture(healthBar.shieldAbsorbIndicatorBar.barTexture)
 			healthBar.shieldAbsorbIndicatorBar.barTexture:SetTexture([[Interface\RaidFrame\Shield-Fill]])
@@ -1289,7 +1289,7 @@ detailsFramework.CastFrameFunctions = {
 			--reset the cast bar
 			self.casting = nil
 			self.channeling = nil
-			self.caninterrupt = nil
+			self.canInterrupt = nil
 
 			--register events
 			if (unit) then

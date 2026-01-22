@@ -1195,7 +1195,7 @@ local updateWindow = function(instance) --~update
         instanceLine.lineText14:SetText("")
     end
 
-    if (damageMeterType) then
+    if (damageMeterType and damageMeterType < 100) then
         ---@type segmentid
         local segmentId = instance:GetSegmentId()
 
@@ -1208,7 +1208,7 @@ local updateWindow = function(instance) --~update
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Overall, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
             sessionTypeParam = Enum.DamageMeterSessionType.Overall
---/dump C_DamageMeter.GetCombatSessionFromType(1, 0)
+            --/dump C_DamageMeter.GetCombatSessionFromType(1, 0)
         elseif segmentId == 0 then
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Current, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
@@ -1352,7 +1352,10 @@ local updateWindow = function(instance) --~update
                 end
             end
         end
-
+    else
+        if (damageMeterType and damageMeterType == 100) then
+            instance:SetDisplay(DETAILS_ATTRIBUTE_DAMAGE, DETAILS_SUBATTRIBUTE_DAMAGEDONE)
+        end
     end
 end
 
