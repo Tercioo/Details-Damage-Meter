@@ -262,6 +262,7 @@ local doUpdate = function()
     --Details:InstanceCallDetailsFunc(Details.ResetaGump)
     Details:RefreshMainWindow(-1, true)
 
+    --[=[
     local isshowning = 0
     local children = {DetailsRowFrame1:GetChildren()}
     for i = 1, #children do
@@ -270,6 +271,7 @@ local doUpdate = function()
             isshowning = isshowning + 1
         end
     end
+    --]=]
 end
 
 local scheduledUpdateObject
