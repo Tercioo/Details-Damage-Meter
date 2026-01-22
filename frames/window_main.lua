@@ -10069,12 +10069,15 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.SwapDamageMeterButton = swapDamageMeterButton
 	swapDamageMeterButton:SetFrameLevel(baseframe:GetFrameLevel()+5)
 
+	
 	local _, _, _, buildVersion = GetBuildInfo()
 	if buildVersion == 120000 then
 		swapDamageMeterButton:Show()
 	else
 		swapDamageMeterButton:Hide()
 	end
+
+	swapDamageMeterButton:Hide()
 
 	swapDamageMeterButton:SetScript("OnEnter", function()
 		--show gamecooltip saying "swap to blizzard damage meter"

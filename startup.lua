@@ -14,6 +14,8 @@ function Details222.StartUp.StartMeUp()
 	end
 	Details.AndIWillNeverStop = true
 
+	Details.damage_meter_type = 0 --disable blizzard toggle
+
 	--note: this runs after profile loaded
 
 	--set default time for arena and bg to be the Details! load time in case the client loads mid event
