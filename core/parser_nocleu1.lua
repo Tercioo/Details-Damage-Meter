@@ -292,20 +292,20 @@ end
 
 local waitSecretDropTimer
 local startWaitSecretDropTimer = function()
- if not waitSecretDropTimer then
-    C_Timer.NewTicker(1, function(timerObject)
-        local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
-        local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
-        local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
-
-        if stateCombat == 0 and stateEncounter == 0 and stateChallengeMode == 0 then
-            L.ParseSegments()
-            timerObject:Cancel()
-            waitSecretDropTimer = nil
-        end
-    end)
- end
-
+    if not waitSecretDropTimer then
+        C_Timer.NewTicker(0.3, function(timerObject)
+            local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
+            local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
+            --local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
+            if stateCombat == 0 and stateEncounter == 0 then -- and stateChallengeMode == 0
+                if not InCombatLockdown() then
+                    L.ParseSegments()
+                    timerObject:Cancel()
+                    waitSecretDropTimer = nil
+                end
+            end
+        end)
+    end
 end
 
 local cancelWaitSecretDropTimer = function()
