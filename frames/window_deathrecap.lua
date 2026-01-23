@@ -218,13 +218,20 @@ function Details.GetDeathRecapFromChat()
 		for i = numLines, 1, -1 do
 			local text = chat1:GetMessageInfo(i)
 			if (text) then
-				if (text:find("Hdeath:%d")) then
-					local recapID = text:match("|Hdeath:(%d+)|h")
-					if (recapID) then
-						recapIDFromChat = tonumber(recapID)
-					end
-					break
-				end
+                local canReadText = true
+                if issecretvalue and issecretvalue(text) then
+                    canReadText = false
+                end
+
+                if canReadText then
+                    if (text:find("Hdeath:%d")) then
+                        local recapID = text:match("|Hdeath:(%d+)|h")
+                        if (recapID) then
+                            recapIDFromChat = tonumber(recapID)
+                        end
+                        break
+                    end
+                end
 			end
 		end
 	end

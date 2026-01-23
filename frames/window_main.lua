@@ -2129,8 +2129,8 @@ local iconFrame_OnEnter = function(self)
 
 		elseif (actor.nome) then --ensure it's an actor table
 			local serial = actor.serial
-			local name = actor:name()
-			local class = actor:class()
+			local name = actor.nome
+			local class = actor.classe
 			local spec = Details.cached_specs[serial] or actor.spec
 			local talents = Details.cached_talents[serial]
 			local ilvl = Details.ilevel:GetIlvl(serial)
@@ -6334,10 +6334,12 @@ local build_mode_list = function(self, deltaTime)
 			end
 		end
 
-		gameCooltip:AddMenu(2, createAllInOneWindow, true, instance, nil, "Create Midnight Window (12.0)", _, true)
-		gameCooltip:AddIcon([[Interface\AddOns\Details\assets\textures\icons\midnight.png]], 2, 1, 16, 14)
-		if (hasClosedInstances) then
-			GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
+		if not detailsFramework.IsAddonApocalypseWow() then
+			gameCooltip:AddMenu(2, createAllInOneWindow, true, instance, nil, "Create Midnight Window (12.0)", _, true)
+			gameCooltip:AddIcon([[Interface\AddOns\Details\assets\textures\icons\midnight.png]], 2, 1, 16, 14)
+			if (hasClosedInstances) then
+				GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
+			end
 		end
 
 		local ClosedInstances = 0

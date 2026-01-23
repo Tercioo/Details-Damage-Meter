@@ -956,8 +956,6 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     tooltip:SetMaxAmount(maxAmount)
     tooltip:SetHeight(spellAmount * (tooltipLineHeight+1) + 4)
 
-
-
     ---@type addonapoc_tooltipdata[]
     local tooltipData = {}
 
@@ -1274,6 +1272,7 @@ local updateWindow = function(instance) --~update
                     ---@field locale string?
                     ---@field config table?
 
+                    actorName = UnitName(actorName)
                     instanceLine.lineText11:SetText(actorName) --left text
 
                     if instance.use_multi_fontstrings then
