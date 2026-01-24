@@ -7836,12 +7836,11 @@ function Details:UpdateClickThrough()
 				if (self.baseframe.isLocked) then
 					self.baseframe.resize_direita:EnableMouse(false)
 					self.baseframe.resize_esquerda:EnableMouse(false)
-					self.baseframe.lock_button:EnableMouse(false)
 				else
 					self.baseframe.resize_direita:EnableMouse(true)
 					self.baseframe.resize_esquerda:EnableMouse(true)
-					self.baseframe.lock_button:EnableMouse(true)
 				end
+				self.baseframe.lock_button:EnableMouse(true)
 			end
 
 			--titlebar icons
@@ -7879,12 +7878,11 @@ function Details:UpdateClickThrough()
 			if (self.baseframe.isLocked) then
 				self.baseframe.resize_direita:EnableMouse(false)
 				self.baseframe.resize_esquerda:EnableMouse(false)
-				self.baseframe.lock_button:EnableMouse(false)
 			else
 				self.baseframe.resize_direita:EnableMouse(true)
 				self.baseframe.resize_esquerda:EnableMouse(true)
-				self.baseframe.lock_button:EnableMouse(true)
 			end
+			self.baseframe.lock_button:EnableMouse(false)
 
 			--titlebar icons, forcing true because the player isn't in combat and the inCombat setting is enabled
 			local toolbar_buttons = {}
@@ -7944,12 +7942,11 @@ function Details:UpdateClickThrough()
 			if (self.baseframe.isLocked) then
 				self.baseframe.resize_direita:EnableMouse(false)
 				self.baseframe.resize_esquerda:EnableMouse(false)
-				self.baseframe.lock_button:EnableMouse(false)
 			else
 				self.baseframe.resize_direita:EnableMouse(true)
 				self.baseframe.resize_esquerda:EnableMouse(true)
-				self.baseframe.lock_button:EnableMouse(true)
 			end
+			self.baseframe.lock_button:EnableMouse(true)
 		end
 
 		--titlebar icons
