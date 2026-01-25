@@ -940,14 +940,18 @@
 			local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("party" .. i) or "DAMAGER"
 			if (role ~= "NONE" and UnitExists("party" .. i)) then
 				local unitName = Details:GetFullName("party" .. i)
-				Details.arena_table [unitName] = {role = role, guid = UnitGUID("party" .. i)}
+				if not issecretvalue or not issecretvalue(unitName) then
+					Details.arena_table [unitName] = {role = role, guid = UnitGUID("party" .. i)}
+				end
 			end
 		end
 
 		local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player") or "DAMAGER"
 		if (role ~= "NONE") then
 			local playerName = Details:GetFullName("player")
-			Details.arena_table [playerName] = {role = role, guid = UnitGUID("player")}
+			if not issecretvalue or not issecretvalue(playerName) then
+				Details.arena_table [playerName] = {role = role, guid = UnitGUID("player")}
+			end
 		end
 
 		--enemies

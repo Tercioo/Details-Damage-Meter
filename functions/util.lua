@@ -5,6 +5,8 @@
 	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local addonName, Details222 = ...
 	local _
+	---@type detailsframework
+	local detailsFramework = DetailsFramework
 
 	local upper = string.upper --lua local
 	local ipairs = ipairs --lua local
@@ -1290,27 +1292,31 @@ end
 --internal functions
 
 	function Details:HealthTick()
-		if (UnitExists("boss1") and IsInRaid() and IsInInstance()) then
-			local health = (UnitHealth ("boss1") or 0) / (UnitHealthMax ("boss1") or 0)
-			if (Details.boss1_health_percent) then
-				if (Details.boss1_health_percent < health) then
-					return
+		if not detailsFramework.IsAddonApocalypseWow() then
+			if (UnitExists("boss1") and IsInRaid() and IsInInstance()) then
+				local health = (UnitHealth ("boss1") or 0) / (UnitHealthMax ("boss1") or 0)
+				if (Details.boss1_health_percent) then
+					if (Details.boss1_health_percent < health) then
+						return
+					end
 				end
+				Details.boss1_health_percent = health
 			end
-			Details.boss1_health_percent = health
 		end
 	end
 
 	function Details:PlayerHealthTick()
-		for i = 1, #Details.cache_damage_group do
-			local actor = Details.cache_damage_group[i]
-			if (actor) then
-				local health = UnitHealth(actor.nome)
-				if (health) then
-					Details.HealthCache[actor.serial] = health
-					local healthmax = UnitHealthMax(actor.nome)
-					if (healthmax) then
-						Details.HealthMaxCache[actor.serial] = healthmax
+		if not detailsFramework.IsAddonApocalypseWow() then
+			for i = 1, #Details.cache_damage_group do
+				local actor = Details.cache_damage_group[i]
+				if (actor) then
+					local health = UnitHealth(actor.nome)
+					if (health) then
+						Details.HealthCache[actor.serial] = health
+						local healthmax = UnitHealthMax(actor.nome)
+						if (healthmax) then
+							Details.HealthMaxCache[actor.serial] = healthmax
+						end
 					end
 				end
 			end

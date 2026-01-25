@@ -1068,7 +1068,7 @@ end
 
 function StreamOverlay:CastFinished (castid)
 	local spellid = CastsTable [castid].SpellId
-	local target = CastsTable [castid].Target
+	local targetName = CastsTable [castid].Target
 	local caststart = CastsTable [castid].CastStart
 	local hascasttime = CastsTable [castid].HasCastTime
 	
@@ -1082,27 +1082,52 @@ function StreamOverlay:CastFinished (castid)
 		
 	else
 		--just casted a instant spell
-		
-		local icon, backgroundcolor, bordercolor = StreamOverlay:GetSpellInformation (spellid)
-		local spellname, _, spellicon = GetSpellInfo (spellid)
-		
-		local targetObject = Details:GetActor ("current", 1, target) or Details:GetActor ("current", 2, target)
-		
-		local icon2, icon2coords, class = parse_target_icon (targetObject, target)
-		
-		local color2
-		if (icon2 == RoleIcons) then
-			color2 = parse_target_color (class)
-			if (not color2) then
+		if DetailsFramework.IsAddonApocalypseWow() and issecretvalue(targetName) then
+			local icon, backgroundcolor, bordercolor = StreamOverlay:GetSpellInformation (spellid)
+			local spellname, _, spellicon = GetSpellInfo (spellid)
+			
+			--local targetObject = Details:GetActor ("current", 1, targetName) or Details:GetActor ("current", 2, targetName)
+			--local icon2, icon2coords, class = parse_target_icon (targetObject, targetName)
+			--[=[
+			local color2
+			if (icon2 == RoleIcons) then
+				color2 = parse_target_color (class)
+				if (not color2) then
+					color2 = DefaultColor
+				end
+			else
 				color2 = DefaultColor
 			end
+			--]=]
+			
+			--targetName = parse_target_name (targetName)
+			targetName = UnitName(targetName)
+			
+			StreamOverlay:NewText (spellicon, spellname, nil, "", {0, 1, 0, 1}, targetName, DefaultColor, backgroundcolor, bordercolor, castid, caststart, GetTime(), GetTime()+1.2)
 		else
-			color2 = DefaultColor
+			--targetName is a secret
+			local icon, backgroundcolor, bordercolor = StreamOverlay:GetSpellInformation (spellid)
+			local spellname, _, spellicon = GetSpellInfo (spellid)
+			
+
+			local targetObject = Details:GetActor ("current", 1, targetName) or Details:GetActor ("current", 2, targetName)
+			
+			local icon2, icon2coords, class = parse_target_icon (targetObject, targetName)
+			
+			local color2
+			if (icon2 == RoleIcons) then
+				color2 = parse_target_color (class)
+				if (not color2) then
+					color2 = DefaultColor
+				end
+			else
+				color2 = DefaultColor
+			end
+			
+			targetName = parse_target_name (targetName)
+			
+			StreamOverlay:NewText (spellicon, spellname, nil, icon2, icon2coords, targetName, color2, backgroundcolor, bordercolor, castid, caststart, GetTime(), GetTime()+1.2)
 		end
-		
-		target = parse_target_name (target)
-		
-		StreamOverlay:NewText (spellicon, spellname, nil, icon2, icon2coords, target, color2, backgroundcolor, bordercolor, castid, caststart, GetTime(), GetTime()+1.2)
 	end
 end
 

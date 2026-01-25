@@ -1318,11 +1318,6 @@ detailsFramework.CastFrameFunctions = {
 			self:SetValue(self.value)
 		end
 
-		--update spark position
-		local sparkPosition = self.value / self.maxValue * self:GetWidth()
-		self.Spark:SetPoint("center", self, "left", sparkPosition + self.Settings.SparkOffset, 0)
-
-
 		--in order to allow the lazy tick run, it must return true, it tell that the cast didn't finished
 		return true
 	end,
@@ -1336,10 +1331,6 @@ detailsFramework.CastFrameFunctions = {
 		else
 			self:SetValue(self.value)
 		end
-
-		--update spark position
-		local sparkPosition = self.value / self.maxValue * self:GetWidth()
-		self.Spark:SetPoint("center", self, "left", sparkPosition + self.Settings.SparkOffset, 0)
 
 		self:CreateOrUpdateEmpoweredPips()
 
@@ -1953,6 +1944,7 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 			--statusbar texture
 			castBar.barTexture = castBar:CreateTexture(nil, "artwork", nil, -6)
 			castBar:SetStatusBarTexture(castBar.barTexture)
+			castBar.Spark:SetPoint("CENTER", castBar.barTexture, "RIGHT")
 
 			--animations fade in and out
 			local fadeOutAnimationHub = detailsFramework:CreateAnimationHub(castBar, detailsFramework.CastFrameFunctions.Animation_FadeOutStarted, detailsFramework.CastFrameFunctions.Animation_FadeOutFinished)

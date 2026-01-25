@@ -2591,6 +2591,10 @@ end
 function Details:AutoAlignInLineFontStrings()
 	--if this instance is using in line texts, check the min distance and the length of strings to make them more spread appart
 	if (self.use_multi_fontstrings and self.use_auto_align_multi_fontstrings) then
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		local maxStringLength_StringFour = 0
 		local maxStringLength_StringThree = 0
 		local profileOffsetString3 = self.fontstrings_text3_anchor

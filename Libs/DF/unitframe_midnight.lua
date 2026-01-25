@@ -1234,7 +1234,7 @@ detailsFramework.CastFrameFunctions = {
 	--handle the interrupt state of the cast
 	--this does not change the cast bar color because this function is called inside the start cast where is already handles the cast color
 	UpdateInterruptState = function(self)
-		self.BorderShield:Show()
+		--self.BorderShield:Show() -- let this be decided elsewhere?
 		if self.notInterruptible ~= nil then
 			self.BorderShield:SetAlphaFromBoolean(self.notInterruptible, 1, 0)
 		else
@@ -1480,14 +1480,6 @@ detailsFramework.CastFrameFunctions = {
 			return false
 		end
 		
---[[
-		self.value = self.value + deltaTime
-
-		--update spark position
-		local sparkPosition = self.value / self.maxValue * self:GetWidth()
-		self.Spark:SetPoint("center", self, "left", sparkPosition + self.Settings.SparkOffset, 0)
-
-]]--
 		--in order to allow the lazy tick run, it must return true, it tell that the cast didn't finished
 		return true
 	end,
@@ -1498,15 +1490,6 @@ detailsFramework.CastFrameFunctions = {
 			return false
 		end
 		
---[[
-		self.value = self.empowered and self.value + deltaTime or self.value - deltaTime
-
-		--update spark position
-		local sparkPosition = self.value / self.maxValue * self:GetWidth()
-		self.Spark:SetPoint("center", self, "left", sparkPosition + self.Settings.SparkOffset, 0)
-
-		self:CreateOrUpdateEmpoweredPips()
-]]--
 		return true
 	end,
 
@@ -1559,7 +1542,7 @@ detailsFramework.CastFrameFunctions = {
 		local castBar = self:GetParent()
 		castBar:Show()
 		castBar:SetAlpha(1)
-		castBar:UpdateInterruptState()
+		--castBar:UpdateInterruptState() -- this should not be needed, as it is set before
 	end,
 
 	--animation calls
@@ -1634,9 +1617,10 @@ detailsFramework.CastFrameFunctions = {
 
 	UpdateCastingInfo = function(self, unit, ...)
 		local unitID, castID, spellID, castBarID = ...
-		local name, text, texture, startTime, endTime, isTradeSkill, uciCastID, notInterruptible, uciSpellID = CastInfo.UnitCastingInfo(unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, uciCastID, notInterruptible, uciSpellID, uciCastBarID = CastInfo.UnitCastingInfo(unit)
 		spellID = uciSpellID --or spellID
 		castID = uciCastID --or castID
+		castBarID = castBarID or uciCastBarID
 		local durationObject = UnitCastingDuration(unit)
 		
 --[[
@@ -1778,9 +1762,10 @@ detailsFramework.CastFrameFunctions = {
 
 	UpdateChannelInfo = function(self, unit, ...)
 		local unitID, castID, spellID, castBarID = ...
-		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, uciSpellID, _, numStages = CastInfo.UnitChannelInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, uciSpellID, _, numStages, uciCastBarID = CastInfo.UnitChannelInfo (unit)
 		spellID = uciSpellID --or spellID
 		--castID = uciCastID --or castID
+		castBarID = castBarID or uciCastBarID
 		local durationObject = UnitChannelDuration(unit)
 		
 --[[
@@ -2166,6 +2151,7 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 			--statusbar texture
 			castBar.barTexture = castBar:CreateTexture(nil, "artwork", nil, -6)
 			castBar:SetStatusBarTexture(castBar.barTexture)
+			castBar.Spark:SetPoint("CENTER", castBar.barTexture, "RIGHT")
 
 			--animations fade in and out
 			local fadeOutAnimationHub = detailsFramework:CreateAnimationHub(castBar, detailsFramework.CastFrameFunctions.Animation_FadeOutStarted, detailsFramework.CastFrameFunctions.Animation_FadeOutFinished)

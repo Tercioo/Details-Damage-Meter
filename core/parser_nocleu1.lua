@@ -339,6 +339,14 @@ local addSegment = function(parameterType, session, bIsUpdate)
             --it is in secret lockdown, start a timer to wait until the lockdown drop
             printDebug("combat dropped but secret lockdown detected.")
             Details:Msg("combat dropped but API still secret. Restriction Flag:", restrictionFlag)
+
+            local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
+            local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
+            local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
+            local pvp = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.PvPMatch)
+            local map = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Map)
+
+            Details:Msg("Value is secret and an error will occur, Restrictions in place:", stateCombat, stateEncounter, stateChallengeMode, pvp, map)
             startWaitSecretDropTimer()
             return
         end

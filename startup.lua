@@ -275,7 +275,8 @@ function Details222.StartUp.StartMeUp()
 		end
 
 		--after plugins are loaded and they have registered their icons, reorganize them after the start
-		Details.ToolBar:ReorganizeIcons()
+		local justRefreshIcons = true
+		Details.ToolBar:ReorganizeIcons(justRefreshIcons)
 
 		--refresh skin for other windows
 		if (lowerInstanceId) then

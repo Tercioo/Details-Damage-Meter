@@ -1884,7 +1884,7 @@ local lineScript_Onenter = function(self)
 	end
 
 	local lefttext = self.lineText1
-	if (lefttext:IsTruncated()) then
+	if (lefttext:IsTruncated() and not (detailsFramework.IsAddonApocalypseWow() and InCombatLockdown())) then
 		if (not Details.left_anti_truncate) then
 
 		end

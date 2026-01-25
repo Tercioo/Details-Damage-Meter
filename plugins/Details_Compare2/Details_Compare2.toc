@@ -1,4 +1,4 @@
-## Interface: 110207, 20505
+## Interface: 120000
 ## Title: Details!: Compare 2.0
 ## Notes: Replace the Compare tab in the player breakdown window.
 ## RequiredDeps: Details
