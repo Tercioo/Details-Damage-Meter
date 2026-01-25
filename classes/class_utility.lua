@@ -702,7 +702,9 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 	local total = 0
 	instance.top = 0
 
-	Details:ClearSecretFontStrings(instance)
+	if detailsFramework.IsAddonApocalypseWow() then
+		instance:CheckForSecretsAndAspects()
+	end
 
 	--the main attribute is utility, the sub attribute is the type of utility(cc break, ress, etc)
 	local subAttribute = Details222.OverrideSubAttributeOnNextRefresh or instance.sub_atributo

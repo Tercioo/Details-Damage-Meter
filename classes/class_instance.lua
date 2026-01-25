@@ -612,6 +612,27 @@ local instanceMixins = {
 			Details:Msg("no actor found in line index", index)
 		end
 	end,
+
+	CheckForSecretsAndAspects = function(self)
+		Details:ClearSecretFontStrings(self)
+
+		local lines = self.barras
+		local needRefreshRows = false
+		for i = 1, #lines do
+			local line = lines[i]
+			if line.lineText1:HasAnySecretAspect() or line.lineText1:HasSecretValues() then
+				line.lineText1:SetToDefaults()
+				line.lineText2:SetToDefaults()
+				line.lineText3:SetToDefaults()
+				line.lineText4:SetToDefaults()
+				needRefreshRows = true
+			end
+		end
+
+		if (needRefreshRows) then
+			self:InstanceRefreshRows()
+		end
+	end
 }
 
 function Details:DumpActorInfo(actor)

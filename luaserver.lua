@@ -1051,6 +1051,18 @@ TraitConsts = {
     VIEW_TRAIT_CONFIG_ID = -3,
 }
 
+---@class numberabbreviation_data : table
+---@field breakpoint number
+---@field abbreviation string
+---@field significandDivisor number
+---@field fractionDivisor number
+---@field abbreviationIsGlobal boolean?
+
+---@class numberabbreviation_options : table
+---@field breakpointData table[]?
+---@field locale string?
+---@field config table?
+
 ---@alias spellid number integer each spell in the game has a unique spell id, this id can be used to identify a spell.
 ---@alias unitname string name of a unit
 ---@alias unitguid string unique id of a unit (GUID)

@@ -286,7 +286,9 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local amount = #conteudo
 	local modo = instancia.modo
 
-	Details:ClearSecretFontStrings(instancia)
+	if detailsFramework.IsAddonApocalypseWow() then
+		instancia:CheckForSecretsAndAspects()
+	end
 
 	if (sub_atributo == 5) then
 		--showing resources

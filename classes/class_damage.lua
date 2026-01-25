@@ -1776,7 +1776,7 @@ function Details:ClearSecretFontStrings(instance)
 	end
 end
 
---~refresh
+	--~refresh
 ---@param instanceObject instance
 ---@param combatObject combat
 ---@param bForceUpdate boolean
@@ -1803,7 +1803,9 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 		return Details:HideBarsNotInUse(instanceObject, damageContainer), "", 0, 0
 	end
 
-	Details:ClearSecretFontStrings(instanceObject)
+	if detailsFramework.IsAddonApocalypseWow() then
+		instanceObject:CheckForSecretsAndAspects()
+	end
 
 	--total
 	local total = 0

@@ -229,7 +229,9 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 	local amount = #conteudo
 	local modo = instancia.modo
 
-	Details:ClearSecretFontStrings(instancia)
+	if detailsFramework.IsAddonApocalypseWow() then
+		instancia:CheckForSecretsAndAspects()
+	end
 
 	--pega qual a sub key que ser� usada
 	if (exportar) then

@@ -1463,11 +1463,11 @@ do
 		end
 
 	--print messages
-		function _detalhes:Msg(str, arg1, arg2, arg3, arg4)
+		function _detalhes:Msg(str, arg1, arg2, arg3, arg4, arg5)
 			if (self.__name) then
-				print("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. (str or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+				print("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. (str or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "", arg5 or "")
 			else
-				print(Loc ["STRING_DETAILS1"] .. (str or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+				print(Loc ["STRING_DETAILS1"] .. (str or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "", arg5 or "")
 			end
 		end
 

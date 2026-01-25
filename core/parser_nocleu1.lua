@@ -39,6 +39,8 @@ local bPlayerInCombat = false --based on the event PLAYER_IN_COMBAT_CHANGED
 
 local targetGUID
 
+local restrictionFlag = 0x0
+
 ---@class bparser : table
 ---@field InSecretLockdown fun():boolean
 ---@field ShowTooltip fun(instance:instance, instanceLine:detailsline)
@@ -61,6 +63,14 @@ local print = function(...)
 end
 
 local print = _G.print
+
+local restrictionFlags = {
+    [Enum.AddOnRestrictionType.Combat]        = 0x1,
+    [Enum.AddOnRestrictionType.Encounter]     = 0x2,
+    [Enum.AddOnRestrictionType.ChallengeMode] = 0x4,
+    [Enum.AddOnRestrictionType.PvPMatch]      = 0x8,
+    [Enum.AddOnRestrictionType.Map]           = 0x10,
+}
 
 ---@type bparser
 local bParser = Details222.BParser
@@ -321,11 +331,17 @@ local addSegment = function(parameterType, session, bIsUpdate)
     local blzDamageContainer = C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone)
     local damageActorList = blzDamageContainer.combatSources
 
-    if issecretvalue((damageActorList and damageActorList[1] and damageActorList[1].name) or "") then
-        --it is in secret lockdown, start a timer to wait until the lockdown drop
-        printDebug("combat dropped but secret lockdown detected.")
-        startWaitSecretDropTimer()
-        return
+    if #damageActorList > 0 then
+        ---@type damagemeter_combat_source
+        local source = damageActorList[1]
+        local sourceName = source.name
+        if issecretvalue(sourceName) then
+            --it is in secret lockdown, start a timer to wait until the lockdown drop
+            printDebug("combat dropped but secret lockdown detected.")
+            Details:Msg("combat dropped but API still secret. Restriction Flag:", restrictionFlag)
+            startWaitSecretDropTimer()
+            return
+        end
     end
 
     if not bIsUpdate then
@@ -369,6 +385,16 @@ local addSegment = function(parameterType, session, bIsUpdate)
     for i = 1, #damageActorList do
         ---@type damagemeter_combat_source
         local source = damageActorList[i]
+
+        if issecretvalue(source.name) then
+            local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
+            local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
+            local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
+            local pvp = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.PvPMatch)
+            local map = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Map)
+
+            Details:Msg("Value is secret and an error will occur, Restrictions in place:", stateCombat, stateEncounter, stateChallengeMode, pvp, map)
+        end
 
         ---@type actordamage
         local actor = damageContainer:GetOrCreateActor(source.sourceGUID, source.name, 0x512, true)
@@ -1191,16 +1217,18 @@ local updateWindow = function(instance) --~update
         local session
 
         local sessionType, sessionNumber, sessionTypeParam
+        --/dump C_DamageMeter.GetCombatSessionFromType(1, 0)
 
         if segmentId == -1 then
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Overall, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
             sessionTypeParam = Enum.DamageMeterSessionType.Overall
-            --/dump C_DamageMeter.GetCombatSessionFromType(1, 0)
+
         elseif segmentId == 0 then
             session = C_DamageMeter.GetCombatSessionFromType(Enum.DamageMeterSessionType.Current, damageMeterType)
             sessionType = DAMAGE_METER_SESSIONPARAMETER_TYPE
             sessionTypeParam = Enum.DamageMeterSessionType.Current
+
         else
             ---@type damagemeter_availablecombat_session[]
             local sessions = C_DamageMeter.GetAvailableCombatSessions()
@@ -1260,27 +1288,19 @@ local updateWindow = function(instance) --~update
                     instanceLine.secret_SourceGUID = actorGUID
                     instanceLine.secret_SourceName = actorName
 
-                    ---@class numberabbreviation_data : table
-                    ---@field breakpoint number
-                    ---@field abbreviation string
-                    ---@field significandDivisor number
-                    ---@field fractionDivisor number
-                    ---@field abbreviationIsGlobal boolean?
-
-                    ---@class numberabbreviation_options : table
-                    ---@field breakpointData table[]?
-                    ---@field locale string?
-                    ---@field config table?
-
                     actorName = UnitName(actorName)
-                    instanceLine.lineText11:SetText(actorName) --left text
+                    instanceLine.lineText1:SetText(actorName) --left text
+                    --instanceLine.lineText11:SetText(actorName) --left text
 
                     if instance.use_multi_fontstrings then
-                        instanceLine.lineText12:SetText("") --left right text
-                        instanceLine.lineText13:SetText(AbbreviateNumbers(value, abbreviateSettingsDamage)) --middle right text
+                        --instanceLine.lineText12:SetText("") --left right text
+                        instanceLine.lineText2:SetText("") --left right text
+                        --instanceLine.lineText13:SetText(AbbreviateNumbers(value, abbreviateSettingsDamage)) --middle right text
+                        instanceLine.lineText3:SetText(AbbreviateNumbers(value, abbreviateSettingsDamage)) --middle right text
 
                         local abbrv = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
-                        instanceLine.lineText14:SetText(abbrv) --format("%.1f", abbrv) --right right text
+                        instanceLine.lineText4:SetText(abbrv) --format("%.1f", abbrv) --right right text
+                        --instanceLine.lineText14:SetText(abbrv) --format("%.1f", abbrv) --right right text
                     else
                         --barsShowData
                         local formattedTotal = ""
@@ -1291,15 +1311,18 @@ local updateWindow = function(instance) --~update
                             formattedTotal = AbbreviateNumbers(value, abbreviateSettingsDamage)
                             formattedDPS = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
                             local rightText = format("%s %s%s%s", formattedTotal, barsBrackets[1], formattedDPS, barsBrackets[2])
-                            instanceLine.lineText14:SetText(rightText)
+                            --instanceLine.lineText14:SetText(rightText)
+                            instanceLine.lineText4:SetText(rightText)
 
                         elseif (barsShowData[2]) then --only total
                             formattedTotal = AbbreviateNumbers(value, abbreviateSettingsDamage)
-                            instanceLine.lineText14:SetText(formattedTotal)
+                            --instanceLine.lineText14:SetText(formattedTotal)
+                            instanceLine.lineText4:SetText(formattedTotal)
 
                         elseif (barsShowData[3]) then --only dps
                             formattedDPS = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
-                            instanceLine.lineText14:SetText(formattedDPS)
+                            --instanceLine.lineText14:SetText(formattedDPS)
+                            instanceLine.lineText4:SetText(formattedDPS)
                         end
 
                         --percent not available now
@@ -1359,16 +1382,16 @@ local showFontStringsForPrivateText = function(instance)
         ---@type detailsline
         local line = allInstanceLines[i]
         --clear the regular font string
-        line.lineText1:SetText("")
-        line.lineText2:SetText("")
-        line.lineText3:SetText("")
-        line.lineText4:SetText("")
+        --line.lineText1:SetText("")
+        --line.lineText2:SetText("")
+        --line.lineText3:SetText("")
+        --line.lineText4:SetText("")
 
         --show the secret font strings
-        line.lineText11:SetShown(true)
-        line.lineText12:SetShown(true)
-        line.lineText13:SetShown(true)
-        line.lineText14:SetShown(true)
+        --line.lineText11:SetShown(true)
+        --line.lineText12:SetShown(true)
+        --line.lineText13:SetShown(true)
+        --line.lineText14:SetShown(true)
 
         line.inCombat = bRegenIsDisabled
     end
@@ -1490,6 +1513,7 @@ if detailsFramework.IsAddonApocalypseWow() then
     combatEventFrame:RegisterEvent("ENCOUNTER_START")
     combatEventFrame:RegisterEvent("ENCOUNTER_END")
     combatEventFrame:RegisterEvent("DAMAGE_METER_RESET")
+    combatEventFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
 end
 
 local parserFrame = CreateFrame("frame")
@@ -1550,6 +1574,19 @@ local onDataReset = function()
     end
 end
 
+local updateAllRestrictionFlags = function()
+    C_Timer.After(1, function()
+    restrictionFlag = 0
+    for restrictionType, bitToChange in pairs(restrictionFlags) do
+            local state = C_RestrictedActions.GetAddOnRestrictionState(restrictionType)
+            if state > 0 then
+                restrictionFlag = restrictionFlag + bitToChange
+            end
+        end
+        print("restrictionFlag", restrictionFlag)
+    end)
+end
+
 combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
     if (ev == "PLAYER_LOGIN") then
 
@@ -1561,6 +1598,18 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
 
             end
         end)
+
+    elseif (ev == "ADDON_RESTRICTION_STATE_CHANGED") then
+        local restrictionType, state = ...
+
+        local bitToChange = restrictionFlags[restrictionType]
+        if bitToChange then
+            if state > 0 then
+                restrictionFlag = bit.bor(restrictionFlag, bitToChange)
+            else
+                restrictionFlag = bit.band(restrictionFlag, bit.bnot(bitToChange))
+            end
+        end
 
     elseif (ev == "DAMAGE_METER_RESET") then
         --if bRegenIsDisabled then

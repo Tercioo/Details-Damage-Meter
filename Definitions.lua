@@ -715,7 +715,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field baseframe frame
 ---@field use_multi_fontstrings boolean
 ---@field
----@field
+---@field CheckForSecretsAndAspects fun(self: instance)
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor
 ---@field GetSize fun(instance: instance) : width, height
 ---@field GetInstanceGroup fun() : table
