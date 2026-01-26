@@ -958,10 +958,12 @@
 		local enemiesAmount = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
 		Details:Destroy(Details.arena_enemies)
 
-		for i = 1, enemiesAmount do
-			local enemyName = Details:GetFullName("arena" .. i)
-			if (enemyName) then
-				Details.arena_enemies[enemyName] = "arena" .. i
+		if not detailsFramework.IsAddonApocalypseWow() then
+			for i = 1, enemiesAmount do
+				local enemyName = Details:GetFullName("arena" .. i)
+				if (enemyName) then
+					Details.arena_enemies[enemyName] = "arena" .. i
+				end
 			end
 		end
 	end
@@ -1067,6 +1069,10 @@
 	]]
 
 	function Details:CreateArenaSegment()
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		Details:GetPlayersInArena()
 
 		Details.arena_begun = true
@@ -1114,7 +1120,9 @@
 	local tdebugframe = CreateFrame("Frame", "DetailsParserDebugFrameASD", UIParent)
 
 	if (detailsFramework.IsDragonflightAndBeyond()) then
-		tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		if not detailsFramework.IsAddonApocalypseWow() then
+			tdebugframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		end
 	end
 
 	tdebugframe:SetScript("OnEvent", function(self, event, ...)
@@ -1160,6 +1168,10 @@
 	end
 
 	function Details:StartArenaSegment(...)
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		if (Details.debug) then
 			Details:Msg("(debug) starting a new arena segment.")
 		end
@@ -1188,6 +1200,10 @@
 	end
 
 	function Details:LeftArena()
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		if (Details.debug) then
 			Details:Msg("(debug) player LeftArena().")
 		end
@@ -1223,7 +1239,9 @@
 		--reset the update speed, as it could have changed when the arena started.
 		Details:SetWindowUpdateSpeed(Details.update_speed)
 
-		Details222.ArenaSummary.OnArenaEnd()
+		if not detailsFramework.IsAddonApocalypseWow() then
+			Details222.ArenaSummary.OnArenaEnd()
+		end
 	end
 
 	function Details:FlagActorsOnPvPCombat()

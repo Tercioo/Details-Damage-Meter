@@ -1884,7 +1884,15 @@ local lineScript_Onenter = function(self)
 	end
 
 	local lefttext = self.lineText1
-	if (lefttext:IsTruncated() and not (detailsFramework.IsAddonApocalypseWow() and InCombatLockdown())) then
+
+	local canCheckForTrancation = true
+	if (detailsFramework.IsAddonApocalypseWow()) then
+		if lefttext:HasAnySecretAspect() then
+			canCheckForTrancation = false
+		end
+	end
+
+	if (canCheckForTrancation and lefttext:IsTruncated()) then
 		if (not Details.left_anti_truncate) then
 
 		end
@@ -1944,10 +1952,11 @@ local lineScript_Onmousedown = function(self, button)
 
 	if detailsFramework.IsAddonApocalypseWow() then
 		if Details222.BParser.InSecretLockdown() then
-			return
+			if button == "LeftButton" then
+				return
 			end
+		end
 	end
-
 
 	local lefttext = self.lineText1
 	if (lefttext.untruncated) then

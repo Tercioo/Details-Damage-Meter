@@ -621,11 +621,26 @@ local instanceMixins = {
 		for i = 1, #lines do
 			local line = lines[i]
 			if line.lineText1:HasAnySecretAspect() or line.lineText1:HasSecretValues() then
+				needRefreshRows = true
+			end
+
+			if line.lineText2:HasAnySecretAspect() or line.lineText2:HasSecretValues() then
+				needRefreshRows = true
+			end
+
+			if line.lineText3:HasAnySecretAspect() or line.lineText3:HasSecretValues() then
+				needRefreshRows = true
+			end
+
+			if line.lineText4:HasAnySecretAspect() or line.lineText4:HasSecretValues() then
+				needRefreshRows = true
+			end
+
+			if (needRefreshRows) then
 				line.lineText1:SetToDefaults()
 				line.lineText2:SetToDefaults()
 				line.lineText3:SetToDefaults()
 				line.lineText4:SetToDefaults()
-				needRefreshRows = true
 			end
 		end
 
@@ -634,6 +649,19 @@ local instanceMixins = {
 		end
 	end
 }
+
+function Details:ClearSecretFontStrings(instance)
+	local bars = instance.barras
+	for i = 1, #bars do
+		local thisLine = bars[i]
+		if thisLine.lineText11 then
+			thisLine.lineText11:SetText("")
+			thisLine.lineText12:SetText("")
+			thisLine.lineText13:SetText("")
+			thisLine.lineText14:SetText("")
+		end
+	end
+end
 
 function Details:DumpActorInfo(actor)
 	local tableToDump = Details:GenerateActorInfo(actor)

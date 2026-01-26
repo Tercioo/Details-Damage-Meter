@@ -363,6 +363,10 @@ function ArenaSummary.OnArenaEnd() --~end
         ArenaSummary.LoopTicker:Cancel()
     end
 
+    if detailsFramework.IsAddonApocalypseWow() then
+        return
+    end
+
     local combat = Details:GetCurrentCombat()
     local combatTime = combat:GetCombatTime()
     if (Details.arena_debug) then

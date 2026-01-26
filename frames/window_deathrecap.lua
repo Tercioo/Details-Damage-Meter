@@ -163,6 +163,10 @@ local OpenDetailsDeathRecapAtSegment = function(segment)
 end
 
 function Details.BuildDeathTableFromRecap(recapID)
+    if detailsFramework.IsAddonApocalypseWow() then
+        return
+    end
+
 	local events = DeathRecap_GetEvents(recapID)
 
 	--check if it is a valid recap

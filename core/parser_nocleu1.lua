@@ -41,6 +41,11 @@ local targetGUID
 
 local restrictionFlag = 0x0
 
+local onPvpMatch = false
+local sessionIdAtArenaStart = 0
+
+local currentZoneType = "none"
+
 ---@class bparser : table
 ---@field InSecretLockdown fun():boolean
 ---@field ShowTooltip fun(instance:instance, instanceLine:detailsline)
@@ -64,13 +69,17 @@ end
 
 local print = _G.print
 
-local restrictionFlags = {
-    [Enum.AddOnRestrictionType.Combat]        = 0x1,
-    [Enum.AddOnRestrictionType.Encounter]     = 0x2,
-    [Enum.AddOnRestrictionType.ChallengeMode] = 0x4,
-    [Enum.AddOnRestrictionType.PvPMatch]      = 0x8,
-    [Enum.AddOnRestrictionType.Map]           = 0x10,
-}
+local restrictionFlags
+
+if Enum.AddOnRestrictionType then
+    restrictionFlags = {
+        [Enum.AddOnRestrictionType.Combat]        = 0x1,
+        [Enum.AddOnRestrictionType.Encounter]     = 0x2,
+        [Enum.AddOnRestrictionType.ChallengeMode] = 0x4,
+        [Enum.AddOnRestrictionType.PvPMatch]      = 0x8,
+        [Enum.AddOnRestrictionType.Map]           = 0x10,
+    }
+end
 
 ---@type bparser
 local bParser = Details222.BParser
@@ -132,6 +141,18 @@ local getCurrentSessionId = function()
     return 0
 end
 
+local getSessionDetailsId = function(sessionId)
+    ---@type damagemeter_availablecombat_session[]
+    local sessions = C_DamageMeter.GetAvailableCombatSessions()
+    for i = 1, #sessions do
+        if sessions[i].sessionID == sessionId then
+           local thisSessionName = sessions[i].name
+           local thisSessionId = sessions[i].sessionID
+           return thisSessionName .. thisSessionId
+        end
+    end
+end
+
 local doesSessionExists = function(sessionId)
     ---@type damagemeter_availablecombat_session[]
     local sessions = C_DamageMeter.GetAvailableCombatSessions()
@@ -152,9 +173,15 @@ end
 ---@field endDate string?
 ---@field sessionId number
 ---@field added boolean?
+---@field detailsId string?
+
+local getSession = function(sessionId)
+    return sessionCache[sessionId]
+end
 
 local createAndAddSession = function(sessionId)
-    if not sessionCache[sessionId] then
+    local session = getSession(sessionId)
+    if not session then
         ---@type sessioncache
         local newSession = {
             startTime = GetTime(),
@@ -162,13 +189,19 @@ local createAndAddSession = function(sessionId)
             startDate = date("%H:%M:%S"),
             sessionId = sessionId,
             added = false,
+            detailsId = getSessionDetailsId(sessionId),
         }
         sessionCache[sessionId] = newSession
+    else
+        local timeNow = time()
+        if session.startUnixTime+60 < timeNow then
+            session.startTime = GetTime()
+            session.startUnixTime = timeNow
+            session.startDate = date("%H:%M:%S")
+            session.added = false
+            session.detailsId = getSessionDetailsId(sessionId)
+        end
     end
-end
-
-local getSession = function(sessionId)
-    return sessionCache[sessionId]
 end
 
 local getSessions = function()
@@ -289,19 +322,81 @@ function bParser.DoUpdateOnDetails()
     C_Timer.After(Details.update_speed+0.03, doUpdate)
 end
 
+---@param sessionId number
+---@return boolean hasSources
+local hasSources = function(sessionId)
+    ---@type damagemeter_combat_session
+    local blzDamageContainer = C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone)
+    local damageActorList = blzDamageContainer.combatSources
+    return #damageActorList > 0
+end
+
+---@return boolean
+local doYouHaveASecret = function()
+    local sessionId = getCurrentSessionId()
+    ---@type damagemeter_combat_session
+    local blzDamageContainer = C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone)
+    local damageActorList = blzDamageContainer.combatSources
+
+    if #damageActorList > 0 then
+        for i = 1, #damageActorList do
+            ---@type damagemeter_combat_source
+            local source = damageActorList[i]
+            local sourceName = source.name
+            local sourceGUID = source.sourceGUID
+            local amountDone = source.totalAmount
+            local classFile = source.classFilename
+
+            if issecretvalue(sourceName) or issecretvalue(sourceGUID) or issecretvalue(amountDone) or issecretvalue(classFile) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
 local waitSecretDropTimer
 local startWaitSecretDropTimer = function()
+    if waitSecretDropTimer then
+        waitSecretDropTimer:Cancel()
+        waitSecretDropTimer = nil
+    end
+
     if not waitSecretDropTimer then
-        C_Timer.NewTicker(0.3, function(timerObject)
+        waitSecretDropTimer = C_Timer.NewTicker(0.3, function(timerObject)
+            if InCombatLockdown() then
+                return
+            end
+
             local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
-            local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
+            if stateCombat > 0 then
+                return
+            end
+
+            local hasSecret = doYouHaveASecret()
+            local isFreeToGo = not hasSecret
+
+            if not isFreeToGo then
+                return
+            end
+
             --local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
-            if stateCombat == 0 and stateEncounter == 0 then -- and stateChallengeMode == 0
-                if not InCombatLockdown() then
-                    timerObject:Cancel()
-                    waitSecretDropTimer = nil
-                    L.ParseSegments()
+            --!need to check for m+ plus restrictions
+
+            local _, instanceType = GetInstanceInfo()
+            if (instanceType == "arena") then
+                local pvpMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Map)
+                if pvpMode > 0 then
+                    printDebug("arena is restricted by map.")
+                    --isFreeToGo = false --!change to true in releases
                 end
+            end
+
+            if isFreeToGo then
+                timerObject:Cancel()
+                waitSecretDropTimer = nil
+                L.ParseSegments()
             end
         end)
     end
@@ -323,6 +418,19 @@ local addSegment = function(parameterType, session, bIsUpdate)
         dumpt(session)
     end
 
+    --get all sessions
+    ---@type damagemeter_availablecombat_session[]
+    local sessions = C_DamageMeter.GetAvailableCombatSessions()
+    if #sessions > 0 then
+        for i = 1, #sessions do
+            local thisSession = sessions[i]
+            local thisSessionId = thisSession.sessionID
+            if thisSessionId == sessionId then
+                printDebug("adding segment name:", thisSession.name, GetTime(), thisSession.durationSeconds)
+            end
+        end
+    end
+
     ---@type combat
     local currentCombat
 
@@ -330,27 +438,6 @@ local addSegment = function(parameterType, session, bIsUpdate)
     ---@type damagemeter_combat_session
     local blzDamageContainer = C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone)
     local damageActorList = blzDamageContainer.combatSources
-
-    if #damageActorList > 0 then
-        ---@type damagemeter_combat_source
-        local source = damageActorList[1]
-        local sourceName = source.name
-        if issecretvalue(sourceName) then
-            --it is in secret lockdown, start a timer to wait until the lockdown drop
-            printDebug("combat dropped but secret lockdown detected.")
-            Details:Msg("combat dropped but API still secret. Restriction Flag:", restrictionFlag)
-
-            local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
-            local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
-            local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
-            local pvp = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.PvPMatch)
-            local map = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Map)
-
-            Details:Msg("Value is secret and an error will occur, Restrictions in place:", stateCombat, stateEncounter, stateChallengeMode, pvp, map)
-            startWaitSecretDropTimer()
-            return
-        end
-    end
 
     if not bIsUpdate then
         Details222.StartCombat()
@@ -368,12 +455,10 @@ local addSegment = function(parameterType, session, bIsUpdate)
             currentCombat.totals_grupo[4].interrupt = 0
             currentCombat.totals[4].dispell = 0
             currentCombat.totals_grupo[4].dispell = 0
-
         else
             Details222.StartCombat()
             currentCombat = Details:GetCurrentCombat()
             bIsUpdate = false
-
         end
     end
 
@@ -384,38 +469,38 @@ local addSegment = function(parameterType, session, bIsUpdate)
     --pull deathlog data and parse it
 
     local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-
     local order = Details:GetOrderNumber()
-
-
-
 
     for i = 1, #damageActorList do
         ---@type damagemeter_combat_source
         local source = damageActorList[i]
 
-        if issecretvalue(source.name) then
+        local sourceName = source.name
+        local sourceGUID = source.sourceGUID
+
+        if issecretvalue(sourceName) then
             local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
             local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
             local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
             local pvp = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.PvPMatch)
             local map = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Map)
 
-            Details:Msg("Value is secret and an error will occur, Restrictions in place:", stateCombat, stateEncounter, stateChallengeMode, pvp, map)
+            --PAREI AQUI, SOURCE.NAME IS SECRET, MAS NAO PEGOU O SECRET ALI EM CIMA QUANDO CHECOU O FIRST PLAYER?
+            --adicionei um iterator pra ver se todos os players estao sem segredos
+
+            Details:Msg("(2) Value is secret and an error will occur, Restrictions in place:", stateCombat, stateEncounter, stateChallengeMode, pvp, map)
         end
 
         ---@type actordamage
-        local actor = damageContainer:GetOrCreateActor(source.sourceGUID, source.name, 0x512, true)
+        local actor = damageContainer:GetOrCreateActor(sourceGUID, sourceName, 0x512, true)
 
-        actor.nome = source.name
+        actor.nome = sourceName
         actor.total = source.totalAmount
         actor.classe = source.classFilename
         actor.last_dps = source.amountPerSecond
         actor.specIcon = source.specIconID
-        actor.serial = source.sourceGUID
+        actor.serial = sourceGUID
         actor.grupo = true
-
-
 
         currentCombat.totals[1] = currentCombat.totals[1] + source.totalAmount
         currentCombat.totals_grupo[1] = currentCombat.totals_grupo[1] + source.totalAmount
@@ -612,6 +697,11 @@ local addSegment = function(parameterType, session, bIsUpdate)
         end
     end
 
+    local _, instanceType = GetInstanceInfo()
+    if (instanceType == "arena") then
+        currentCombat.secretArena = true
+    end
+
     if not bIsUpdate then
         if not bCombatEnded then
             Details:SairDoCombate()
@@ -629,6 +719,20 @@ local parseSegments = function()
 
     end
 
+    local hasSecret = doYouHaveASecret()
+    if hasSecret then
+        --debug restriction if there is secret values are found
+        --local stateCombat = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Combat)
+        --local stateEncounter = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Encounter)
+        --local stateChallengeMode = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.ChallengeMode)
+        --local pvp = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.PvPMatch)
+        --local map = C_RestrictedActions.GetAddOnRestrictionState(Enum.AddOnRestrictionType.Map)
+        --Details:Msg("(1) parseSegments => secret found:", stateCombat, stateEncounter, stateChallengeMode, pvp, map)
+
+        startWaitSecretDropTimer()
+        return
+    end
+
     cancelWaitSecretDropTimer()
 
     local parameterType = DAMAGE_METER_SESSIONPARAMETER_ID
@@ -637,7 +741,13 @@ local parseSegments = function()
 
     local sessions = {}
     for sessionId, session in pairs(sessionCache) do
-        table.insert(sessions, {sessionId = sessionId, session = session})
+        local thisSession = C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone)
+        if thisSession then
+            local hasAtLeastOneSource = hasSources(sessionId)
+            if hasAtLeastOneSource then
+                table.insert(sessions, {sessionId = sessionId, session = session, detailsId = getSessionDetailsId(sessionId)})
+            end
+        end
     end
 
     table.sort(sessions, function(a, b)
@@ -651,6 +761,7 @@ local parseSegments = function()
         local sessionId = sessions[i].sessionId
         if not session.added then
             if (addSegment(parameterType, session, false)) then
+                --print("(debug) Segment added:", sessionId, sessions[i].detailsId)
                 needUpdate = true
                 session.added = true
             end
@@ -659,11 +770,33 @@ local parseSegments = function()
                 if C_DamageMeter.GetCombatSessionFromID(sessionId, Enum.DamageMeterType.DamageDone) then
                     if Details:GetCombatWithSessionId(sessionId) then
                         addSegment(parameterType, session, true)
+                        --print("(debug) Segment updated:", sessionId, sessions[i].detailsId)
                     end
                 end
             end
         end
     end
+
+    --[=[
+    if sessionIdAtArenaStart ~= 0 then
+        --get all details segments
+        local combatSegments = Details:GetCombatSegments()
+        for i = 1, #combatSegments do
+            local thisSegment = combatSegments[i]
+            if thisSegment.secretArena and thisSegment.combatSessionId and thisSegment.combatSessionId == sessionIdAtArenaStart then
+                for j = i-1, 1, -1 do
+                    local nextSegment = combatSegments[j]
+                    if nextSegment and nextSegment.secretArena and nextSegment.combatSessionId and nextSegment.combatSessionId > sessionIdAtArenaStart then
+                        
+                        
+                    end
+                end
+            end
+        end
+
+        sessionIdAtArenaStart = 0
+    end
+    --]=]
 
     if needUpdate then
         if not scheduledUpdateObject then
@@ -820,11 +953,13 @@ local getTooltipFrame = function() --~tooltip
     --call a refresh in the scrollBox
     scrollBox:Refresh()
 
+    local defaultColor = {r=0.5, g=0.5, b=0.5, a=1}
+
     ---@param self df_scrollbox
     ---@param data addonapoc_tooltipdata
     function scrollBox:RefreshMe(data)
         --refresh the line appearance
-        local classColor = RAID_CLASS_COLORS[data.class] or {1, 1, 1, 1}
+        local classColor = RAID_CLASS_COLORS[data.class] or defaultColor
         local r, g, b, a = unpack(Details.tooltip.bar_color)
         local rBG, gBG, bBG, aBG = unpack(Details.tooltip.background)
 
@@ -1266,7 +1401,6 @@ local updateWindow = function(instance) --~update
             --combatSources = combatSources.combatSources
 
             local amountOfSources = #combatSources
-
             local topValue = session.maxAmount
             local segmentName = session.name
             local sessionId = session.sessionID
@@ -1277,6 +1411,7 @@ local updateWindow = function(instance) --~update
                 if (instanceLine) then --~refresh
                     ---@type damagemeter_combat_source
                     local source = combatSources[i]
+                    local updateStatusbarColor = true
 
                     instanceLine.lineIndex = i
                     instanceLine.sourceData = source
@@ -1296,7 +1431,22 @@ local updateWindow = function(instance) --~update
                     instanceLine.secret_SourceGUID = actorGUID
                     instanceLine.secret_SourceName = actorName
 
-                    actorName = UnitName(actorName)
+                    local _, instanceType = GetInstanceInfo()
+                    if instanceType == "arena" then
+                        local okey, errortext = pcall(function()
+                            if UnitName(actorName) == nil then
+                                instanceLine.textura:SetVertexColor(detailsFramework:ParseColors(Details.class_colors.ARENA_YELLOW))
+                                updateStatusbarColor = false
+                            else
+                                instanceLine.textura:SetVertexColor(detailsFramework:ParseColors(Details.class_colors.ARENA_GREEN))
+                                actorName = UnitName(actorName)
+                                updateStatusbarColor = false
+                            end
+                        end)
+                    else
+                        actorName = UnitName(actorName)
+                    end
+
                     instanceLine.lineText1:SetText(actorName) --left text
                     --instanceLine.lineText11:SetText(actorName) --left text
 
@@ -1339,8 +1489,6 @@ local updateWindow = function(instance) --~update
                     --instanceLine.lineText13:SetText(value)
                     --instanceLine.lineText14:SetText(totalAmountPerSecond)
 
-
-
                     instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     --apply curve
@@ -1359,11 +1507,13 @@ local updateWindow = function(instance) --~update
                     instanceLine.overlayTexture:SetTexture(overlayTexture)
                     instanceLine.overlayTexture:SetVertexColor(unpack(overlayColor))
 
-                    local classColor = Details.class_colors[classFilename or "UNGROUPPLAYER"]
-                    if (classColor) then
-                        instanceLine.textura:SetVertexColor(classColor[1], classColor[2], classColor[3])
-                    else
-                        instanceLine.textura:SetVertexColor(detailsFramework:ParseColors("brown"))
+                    if updateStatusbarColor then
+                        local classColor = Details.class_colors[classFilename or "UNGROUPPLAYER"]
+                        if (classColor) then
+                            instanceLine.textura:SetVertexColor(classColor[1], classColor[2], classColor[3])
+                        else
+                            instanceLine.textura:SetVertexColor(detailsFramework:ParseColors("brown"))
+                        end
                     end
 
                     linesInUse = linesInUse + 1
@@ -1522,6 +1672,10 @@ if detailsFramework.IsAddonApocalypseWow() then
     combatEventFrame:RegisterEvent("ENCOUNTER_END")
     combatEventFrame:RegisterEvent("DAMAGE_METER_RESET")
     combatEventFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
+    combatEventFrame:RegisterEvent("PVP_MATCH_COMPLETE")
+    combatEventFrame:RegisterEvent("PVP_MATCH_ACTIVE")
+    combatEventFrame:RegisterEvent("PLAYER_DEAD")
+    combatEventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 end
 
 local parserFrame = CreateFrame("frame")
@@ -1536,6 +1690,7 @@ parserFrame:SetScript("OnEvent", function(self, event, ...)
         if sessionId ~= 0 then
             local existingSession = getSession(sessionId)
             if not existingSession then
+                --print("change session detected:", GetTime(), getSessionDetailsId(sessionId))
                 createAndAddSession(sessionId)
 
                 if not isUpdaterRunning() then
@@ -1549,6 +1704,14 @@ parserFrame:SetScript("OnEvent", function(self, event, ...)
     elseif (event == "DAMAGE_METER_CURRENT_SESSION_UPDATED") then
         local sessionId = getCurrentSessionId()
         createAndAddSession(sessionId)
+
+        if onPvpMatch then
+            if sessionIdAtArenaStart == 0 then
+                sessionIdAtArenaStart = sessionId
+            end
+        end
+
+        --print("|cffff1111new session", GetTime(), getSessionDetailsId(sessionId))
 
         if not isUpdaterRunning() then
             if Details:ArePlayersInCombat() then
@@ -1591,7 +1754,7 @@ local updateAllRestrictionFlags = function()
                 restrictionFlag = restrictionFlag + bitToChange
             end
         end
-        print("restrictionFlag", restrictionFlag)
+        --print("restrictionFlag", restrictionFlag)
     end)
 end
 
@@ -1618,6 +1781,9 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
                 restrictionFlag = bit.band(restrictionFlag, bit.bnot(bitToChange))
             end
         end
+
+    elseif (ev == "PLAYER_DEAD") then
+        --print("PLAYER_DEAD", GetTime())
 
     elseif (ev == "DAMAGE_METER_RESET") then
         --if bRegenIsDisabled then
@@ -1648,15 +1814,55 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
 
         end
 
-    elseif (ev == "PLAYER_REGEN_ENABLED") then --left the combat
-        if debug then
+    elseif (ev == "ZONE_CHANGED_NEW_AREA") then
+        local _, newInstanceType = GetInstanceInfo()
 
+        if currentZoneType ~= "arena" and newInstanceType == "arena" then --joined arena
+            --sessionIdAtArenaStart = getCurrentSessionId()
+            --print("ENTERED ARENA, session at entry:", sessionIdAtArenaStart)
+
+        elseif currentZoneType == "arena" and newInstanceType ~= "arena" then --left arena
+            C_Timer.After(2, function()
+                onPvpMatch = false
+                --sessionIdAtArenaStart = 0
+            end)
         end
 
-        printDebug("PLAYER_REGEN_ENABLED fired")
+        currentZoneType = newInstanceType
+
+    elseif (ev == "PVP_MATCH_ACTIVE") then
+        --print("PVP_MATCH_ACTIVE", GetTime())
+        --sessionIdAtArenaStart = getCurrentSessionId()
+        onPvpMatch = true
+
+    elseif (ev == "PVP_MATCH_COMPLETE") then
+        --print("PVP_MATCH_COMPLETE", GetTime())
+
+        local _, instanceType = GetInstanceInfo()
+        if instanceType == "arena" then
+            C_Timer.After(1, function()
+                combatEventFrame:GetScript("OnEvent")(combatEventFrame, "PLAYER_REGEN_ENABLED")
+            end)
+        end
+
+    elseif (ev == "PLAYER_REGEN_ENABLED") then --left the combat ~regen
+        --print("PLAYER_REGEN_ENABLED", GetTime())
+
+        local hasSecret = doYouHaveASecret()
+        if not hasSecret then
+            if debug then
+                print("=> regen enabled, doYouHaveASecret() returned false.")
+            end
+        end
+
+        local _, instanceType = GetInstanceInfo()
+        if instanceType == "arena" then
+            if not C_PvP.IsMatchComplete() then
+                return
+            end
+        end
 
         if IsEncounterInProgress and IsEncounterInProgress() then
-            printDebug("PLAYER_REGEN_ENABLED encounter in progress.")
             return
 
         elseif InCombatLockdown() then
@@ -1704,6 +1910,8 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         end
 
     elseif (ev == "PLAYER_REGEN_DISABLED") then --entered in combat
+        --print("PLAYER_REGEN_DISABLED", GetTime())
+
         bRegenIsDisabled = true
         combatStartTime = GetTime()
         evTime = GetTime()
@@ -1758,16 +1966,12 @@ function bParser.SetSessionCache(t)
 
     local availableCombatSessions = C_DamageMeter.GetAvailableCombatSessions()
 
-
     local latestSession = availableCombatSessions[#availableCombatSessions]
     if latestSession then
         local latestSessionId = latestSession.sessionID
-
-
         for sessionId in pairs(sessionCache) do
             if sessionId > latestSessionId then
                 sessionCache[sessionId] = nil
-
             end
         end
     else

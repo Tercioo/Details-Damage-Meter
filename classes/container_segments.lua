@@ -246,7 +246,7 @@ function segmentClass:AddToOverallData(combatObject)
 	for id, instance in Details:ListInstances() do
 		if (instance:IsEnabled()) then
 			if (instance:GetSegment() == DETAILS_SEGMENTID_OVERALL) then
-				instance:ForceRefresh()
+				instance:ForceRefresh() -- 0 0 0 0 2  (only map is enforcing secret)
 			end
 		end
 	end

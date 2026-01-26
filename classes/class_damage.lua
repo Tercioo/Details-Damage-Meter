@@ -1763,25 +1763,12 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --main refresh function
 
-function Details:ClearSecretFontStrings(instance)
-	local bars = instance.barras
-	for i = 1, #bars do
-		local thisLine = bars[i]
-		if thisLine.lineText11 then
-			thisLine.lineText11:SetText("")
-			thisLine.lineText12:SetText("")
-			thisLine.lineText13:SetText("")
-			thisLine.lineText14:SetText("")
-		end
-	end
-end
-
 	--~refresh
 ---@param instanceObject instance
 ---@param combatObject combat
 ---@param bForceUpdate boolean
 ---@param bExportData boolean
-function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
+function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData) --~refresh
 	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
 
 	---@type actorcontainer

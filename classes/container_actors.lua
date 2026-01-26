@@ -751,15 +751,17 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 							local found = false
 							for i = 1, amountOpponents do
 								local name = Details:GetFullName("arena" .. i)
-								if (name == actorName) then
-									local spec = GetArenaOpponentSpec and GetArenaOpponentSpec(i)
-									if (spec) then
-										local id, name, description, icon, role, class = DetailsFramework.GetSpecializationInfoByID(spec) --thanks pas06
-										actorObject.role = role
-										actorObject.classe = class
-										actorObject.enemy = true
-										actorObject.arena_enemy = true
-										found = true
+								if not detailsFramework.IsAddonApocalypseWow() or not issecretvalue(name) then
+									if (name == actorName) then --will error here?
+										local spec = GetArenaOpponentSpec and GetArenaOpponentSpec(i)
+										if (spec) then
+											local id, name, description, icon, role, class = DetailsFramework.GetSpecializationInfoByID(spec) --thanks pas06
+											actorObject.role = role
+											actorObject.classe = class
+											actorObject.enemy = true
+											actorObject.arena_enemy = true
+											found = true
+										end
 									end
 								end
 							end

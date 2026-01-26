@@ -6695,7 +6695,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--load up data from savedvariables for the character
 		Details222.LoadSavedVariables.CharacterData()
 
-		Details222.BParser.SetSessionCache(Details.damage_meter_sessions)
+		if detailsFramework.IsAddonApocalypseWow() then
+			Details222.BParser.SetSessionCache(Details.damage_meter_sessions)
+		end
 
 		--load up data from saved variables for the account (shared among all the players' characters; this is not the Blizzard account, lol).
 		Details222.LoadSavedVariables.SharedData()

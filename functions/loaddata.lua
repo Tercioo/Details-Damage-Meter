@@ -154,6 +154,12 @@ function Details222.LoadSavedVariables.CombatSegments()
 			currentCharacterData.tabela_historico = nil
 		end
 
+		pcall(function()
+			if C_DamageMeter and C_DamageMeter.ResetAllCombatSessions then
+				C_DamageMeter.ResetAllCombatSessions()
+			end
+		end)
+
 		return
 	else
 		--pet owners cache saved on logout

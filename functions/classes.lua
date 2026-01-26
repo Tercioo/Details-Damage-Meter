@@ -202,6 +202,9 @@ do
 	function Details:GetCLName(id)
 		local name, realm = UnitName(id)
 		if (name) then
+			if issecretvalue and issecretvalue(realm) then
+				--return GetUnitName(id, true)
+			end
 			if (realm and realm ~= "") then
 				name = name .. "-" .. realm
 			end
