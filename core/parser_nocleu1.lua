@@ -44,6 +44,32 @@ local restrictionFlag = 0x0
 local onPvpMatch = false
 local sessionIdAtArenaStart = 0
 
+---@class sessionmythicplus : table
+---@field startTime number
+---@field endTime number?
+---@field startUnixTime number
+---@field endUnixTime number?
+---@field startDate string
+---@field endDate string?
+---@field sessionId number the session id the client was when the mythic+ started
+---@field level number
+---@field mapId number
+---@field isActive boolean whether the mythic+ is currently active or completed
+
+---@type sessionmythicplus
+local mythicPlusInfo = {
+    startTime = 0,
+    endTime = 0,
+    startUnixTime = 0,
+    endUnixTime = 0,
+    startDate = "",
+    endDate = "",
+    sessionId = 0,
+    level = 0,
+    mapId = 0,
+    isActive = false,
+}
+
 local currentZoneType = "none"
 
 ---@class bparser : table
@@ -1676,6 +1702,7 @@ if detailsFramework.IsAddonApocalypseWow() then
     combatEventFrame:RegisterEvent("PVP_MATCH_ACTIVE")
     combatEventFrame:RegisterEvent("PLAYER_DEAD")
     combatEventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    combatEventFrame:RegisterEvent("CHALLENGE_MODE_START")
 end
 
 local parserFrame = CreateFrame("frame")
@@ -1781,6 +1808,23 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
                 restrictionFlag = bit.band(restrictionFlag, bit.bnot(bitToChange))
             end
         end
+
+    elseif (ev == "CHALLENGE_MODE_START") then
+        --print("CHALLENGE_MODE_START", GetTime())
+        mythicPlusInfo.startTime = GetTime()
+        mythicPlusInfo.startUnixTime = time()
+        mythicPlusInfo.startDate = date("%H:%M:%S")
+        mythicPlusInfo.sessionId = getCurrentSessionId()
+        mythicPlusInfo.level = C_ChallengeMode.GetActiveKeystoneInfo()
+        mythicPlusInfo.mapId = C_ChallengeMode.GetActiveChallengeMapID()
+        mythicPlusInfo.isActive = true
+
+    elseif (ev == "CHALLENGE_MODE_COMPLETED") then
+        --print("CHALLENGE_MODE_COMPLETED", GetTime())
+        mythicPlusInfo.endTime = GetTime()
+        mythicPlusInfo.endUnixTime = time()
+        mythicPlusInfo.endDate = date("%H:%M:%S")
+        mythicPlusInfo.isActive = false
 
     elseif (ev == "PLAYER_DEAD") then
         --print("PLAYER_DEAD", GetTime())
