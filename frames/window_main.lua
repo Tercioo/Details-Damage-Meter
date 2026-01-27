@@ -4874,7 +4874,26 @@ function Details:AdjustInLineTextPadding()
 	end
 end
 
--- search key: ~row ~bar ~updatebar
+function Details:InstanceClearTexts(instance)
+	if (instance) then
+		self = instance
+	end
+
+	local lines = instance.barras
+
+	for _, row in ipairs(lines) do
+		row.lineText1:SetText("")
+		row.lineText2:SetText("")
+		row.lineText3:SetText("")
+		row.lineText4:SetText("")
+		row.lineText11:SetText("")
+		row.lineText12:SetText("")
+		row.lineText13:SetText("")
+		row.lineText14:SetText("")
+	end
+end
+
+-- search key: ~row ~bar ~updatebar ~refresh
 function Details:InstanceRefreshRows(instance)
 	if (instance) then
 		self = instance
@@ -5020,12 +5039,19 @@ function Details:InstanceRefreshRows(instance)
 			row.lineText4:SetText("")
 			row.lineText14:SetText("")
 
-			row.lineText2:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
-			row.lineText3:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
-			row.lineText4:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
-			row.lineText12:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
-			row.lineText13:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
-			row.lineText14:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
+			if detailsFramework.IsAddonApocalypseWow() then
+				local spacing = Details.righttext_simple_formatting.alignment_space
+				row.lineText4:SetPoint("right", row.statusbar, "right", 0, self.row_info.text_yoffset)
+				row.lineText3:SetPoint("right", row.statusbar, "right", -spacing, self.row_info.text_yoffset)
+				row.lineText2:SetPoint("right", row.statusbar, "right", -spacing * 2, self.row_info.text_yoffset)
+			else
+				row.lineText2:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
+				row.lineText3:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
+				row.lineText4:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
+				row.lineText12:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
+				row.lineText13:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
+				row.lineText14:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
+			end
 
 			if (no_icon) then
 				row.statusbar:SetPoint("topleft", row, "topleft")

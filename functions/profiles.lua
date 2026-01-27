@@ -855,6 +855,16 @@ local default_profile = {
 		},
 	},
 
+	righttext_simple_formatting = {
+		enabled = true,
+		format_tsp = "%s (%s, %s)",
+		format_ts = "%s (%s)",
+		format_tp = "%s (%s)",
+		use_alignment = false,
+		alignment_space = 60,
+		first_run = false,
+	},
+
 	death_log_colors = {
 		damage = "red",
 		heal = "green",

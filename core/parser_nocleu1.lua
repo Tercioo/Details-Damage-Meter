@@ -1284,6 +1284,7 @@ local abbreviateOptionsDamage =
         abbreviationIsGlobal = false
     },
 }
+Details.abbreviateOptionsDamage = abbreviateOptionsDamage
 
 local abbreviateOptionsDPS =
 {
@@ -1318,6 +1319,7 @@ local abbreviateOptionsDPS =
         abbreviationIsGlobal = false
     },
 }
+Details.abbreviateOptionsDPS = abbreviateOptionsDPS
 
 local abbreviateSettingsDamage
 local abbreviateSettingsDPS
@@ -1476,44 +1478,10 @@ local updateWindow = function(instance) --~update
                     instanceLine.lineText1:SetText(actorName) --left text
                     --instanceLine.lineText11:SetText(actorName) --left text
 
-                    if instance.use_multi_fontstrings then
-                        --instanceLine.lineText12:SetText("") --left right text
-                        instanceLine.lineText2:SetText("") --left right text
-                        --instanceLine.lineText13:SetText(AbbreviateNumbers(value, abbreviateSettingsDamage)) --middle right text
-                        instanceLine.lineText3:SetText(AbbreviateNumbers(value, abbreviateSettingsDamage)) --middle right text
+                    local perCent = nil
+                    local ruleToUse = 2 --total dps
+                    Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(value, abbreviateSettingsDamage), AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS), perCent, ruleToUse)
 
-                        local abbrv = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
-                        instanceLine.lineText4:SetText(abbrv) --format("%.1f", abbrv) --right right text
-                        --instanceLine.lineText14:SetText(abbrv) --format("%.1f", abbrv) --right right text
-                    else
-                        --barsShowData
-                        local formattedTotal = ""
-                        local formattedDPS = ""
-                        local formattedPercent = ""
-
-                        if (barsShowData[1] and barsShowData[2]) then --total and dps
-                            formattedTotal = AbbreviateNumbers(value, abbreviateSettingsDamage)
-                            formattedDPS = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
-                            local rightText = format("%s %s%s%s", formattedTotal, barsBrackets[1], formattedDPS, barsBrackets[2])
-                            --instanceLine.lineText14:SetText(rightText)
-                            instanceLine.lineText4:SetText(rightText)
-
-                        elseif (barsShowData[2]) then --only total
-                            formattedTotal = AbbreviateNumbers(value, abbreviateSettingsDamage)
-                            --instanceLine.lineText14:SetText(formattedTotal)
-                            instanceLine.lineText4:SetText(formattedTotal)
-
-                        elseif (barsShowData[3]) then --only dps
-                            formattedDPS = AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS)
-                            --instanceLine.lineText14:SetText(formattedDPS)
-                            instanceLine.lineText4:SetText(formattedDPS)
-                        end
-
-                        --percent not available now
-                    end
-
-                    --instanceLine.lineText13:SetText(value)
-                    --instanceLine.lineText14:SetText(totalAmountPerSecond)
 
                     instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)
@@ -1625,11 +1593,13 @@ local timerUpdateInterval = 1 --time in seconds
 local timerUpdateObject = nil
 local updateTime = function(timerObject)
     local instance = timerObject.instance
-    local timeString = instance:GetFormattedTimeForTitleBar()
-    if instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL then
-        local attributeText = instance:GetInstanceAttributeText() --this return 'damage done'
-        timeString = timeString .. " " .. attributeText
-        instance:SetTitleBarText(timeString)
+    if instance.attribute_text.show_timer then
+        local timeString = instance:GetFormattedTimeForTitleBar()
+        if instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL then
+            local attributeText = instance:GetInstanceAttributeText() --this return 'damage done'
+            timeString = timeString .. " " .. attributeText
+            instance:SetTitleBarText(timeString)
+        end
     end
 end
 

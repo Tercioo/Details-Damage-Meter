@@ -3,6 +3,16 @@ if not L then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 L = L or {}
+
+
+L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Midnight Right Text: Simple or Aligned"
+L["STRING_SIMPLE_TEXT_FORMAT"] = "Use Simple Text Formatting"
+L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Enable the use of the three rules below."
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = "When the line has information\nabout the total, per second and percent.\n|cFFAAAAAA%s order: total, per second, percent."
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = "When the line has information\nabout the total and per second.\n|cFFAAAAAA%s order: total, per second."
+L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = "When the line has information\nabout the total and percent.\n|cFFAAAAAA%s order: total, percent."
+
+
 L["ABILITY_ID"] = "ability id"
 L["STRING_"] = ""
 L["STRING_ABSORBED"] = "Absorbed"

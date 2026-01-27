@@ -79,6 +79,48 @@
 	---@field ArePlayersInCombat fun(self:details):boolean
 
 
+	function Details:SimpleFormat(fontString2, fontString3, fontString4, total, perSecond, perCent, ruleToUse)
+		if Details.righttext_simple_formatting.enabled then
+			if (ruleToUse == 3) then
+				local string = Details.righttext_simple_formatting.format_tsp
+				fontString4:SetText(string.format(string, total, perSecond, perCent))
+
+			elseif (ruleToUse == 2) then
+				local string = Details.righttext_simple_formatting.format_ts
+				fontString4:SetText(string.format(string, total, perSecond))
+				return
+
+			elseif (ruleToUse == 1) then
+				local string = Details.righttext_simple_formatting.format_tp
+				fontString4:SetText(string.format(string, total, perCent))
+			else -- -1 default to just show total
+				fontString4:SetText(total)
+			end
+
+		elseif (Details.righttext_simple_formatting.use_alignment) then
+			if (ruleToUse == 3) then
+				fontString2:SetText(total)
+				fontString3:SetText(perSecond)
+				fontString4:SetText(perCent)
+
+			elseif (ruleToUse == 2) then
+				fontString2:SetText("")
+				fontString3:SetText(total)
+				fontString4:SetText(perSecond)
+
+			elseif (ruleToUse == 1) then
+				fontString2:SetText("")
+				fontString3:SetText(total)
+				fontString4:SetText(perCent)
+
+			else -- -1 default to just show total
+				fontString2:SetText("")
+				fontString3:SetText("")
+				fontString4:SetText(total)
+			end
+		end
+	end
+
 	local playerRealmName = GetRealmName()
 
 	local gump = Details.gump --details local

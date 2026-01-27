@@ -214,12 +214,12 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
 	--create test bars ~test
         detailsFramework:NewColor("C_OptionsButtonOrange", 0.9999, 0.8196, 0, 1)
         local create_test_bars_func = function()
-            Details.CreateTestBars()
             if (not Details.test_bar_update) then
                 Details:StartTestBarUpdate()
             else
                 Details:StopTestBarUpdate()
             end
+            Details.CreateTestBars()
         end
 
         local fillbars = detailsFramework:NewButton(optionsFrame, _, "$parentCreateExampleBarsButton", nil, 140, 20, create_test_bars_func, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)

@@ -449,7 +449,6 @@ function Details222.StartUp.StartMeUp()
 			end
 		end
 	end
-
 	--check is this is the first run of this version
 	if (Details.is_version_first_run) then
 		if (Details.build_counter == 13096) then
@@ -460,6 +459,20 @@ function Details222.StartUp.StartMeUp()
 		if (lowerInstanceId) then
 			lowerInstanceId = Details:GetInstance(lowerInstanceId)
 			if (lowerInstanceId) then
+				if Details.build_counter >= 14356 then
+					if not Details.righttext_simple_formatting.first_run then
+						Details:Msg("The right text has been converted to a new formatting system. You can customize it in the options window -> Bar Texts.")
+						if lowerInstanceId.use_multi_fontstrings then
+							Details.righttext_simple_formatting.enabled = false
+							Details.righttext_simple_formatting.use_alignment = true
+						else
+							Details.righttext_simple_formatting.enabled = true
+							Details.righttext_simple_formatting.use_alignment = false
+						end
+						Details.righttext_simple_formatting.first_run = true
+					end
+				end
+
 				--check if there's changes in the size of the news string
 				if (false and Details.last_changelog_size ~= #Loc["STRING_VERSION_LOG"]) then
 					Details.last_changelog_size = #Loc["STRING_VERSION_LOG"]

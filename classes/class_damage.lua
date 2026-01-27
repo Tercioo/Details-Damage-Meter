@@ -2554,8 +2554,10 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 		instanceObject:RefreshScrollBar(amount)
 	end
 
-	if (useAnimations) then
-		instanceObject:PerformAnimations(whichRowLine - 1)
+	if not detailsFramework.IsAddonApocalypseWow() then
+		if (useAnimations) then
+			instanceObject:PerformAnimations(whichRowLine - 1)
+		end
 	end
 
 	--beta, hidar barras n�o usadas durante um refresh for�ado
@@ -2569,7 +2571,9 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 
 	Details.LastFullDamageUpdate = Details._tempo
 
-	instanceObject:AutoAlignInLineFontStrings()
+	if not detailsFramework.IsAddonApocalypseWow() then
+		instanceObject:AutoAlignInLineFontStrings()
+	end
 
 	return Details:EndRefresh(instanceObject, total, combatObject, damageContainer) --retorna a tabela que precisa ganhar o refresh
 end
@@ -2841,194 +2845,222 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 
 	--right text
 	if (subAttribute == 1) then --damage done
-		dps = math.floor(dps)
-		local formatedDamage = selectedToKFunction(_, damageTotal)
-		local formatedDps = selectedToKFunction(_, dps)
-		thisLine.ps_text = formatedDps
-
-		if (not bars_show_data[1]) then
-			formatedDamage = ""
-		end
-
-		if (not bars_show_data[2]) then
-			formatedDps = ""
-		end
-
-		if (not bars_show_data[3]) then
-			percentString = ""
+		if detailsFramework.IsAddonApocalypseWow() then
+			local ruleToUse = 2 --total dps
+			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.total, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.total / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
 		else
-			percentString = percentString .. "%"
-		end
+			dps = math.floor(dps)
+			local formatedDamage = selectedToKFunction(_, damageTotal)
+			local formatedDps = selectedToKFunction(_, dps)
+			thisLine.ps_text = formatedDps
 
-		local rightText = formatedDamage .. bars_brackets[1] .. formatedDps .. bars_separator .. percentString .. bars_brackets[2]
-
-		if (bUsingCustomRightText) then
-			thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formatedDamage, formatedDps, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
-		else
-			if (instanceObject.use_multi_fontstrings) then
-				instanceObject:SetInLineTexts(thisLine, formatedDamage, formatedDps, percentString)
-			else
-				thisLine.lineText4:SetText(rightText)
+			if (not bars_show_data[1]) then
+				formatedDamage = ""
 			end
-		end
 
-		if (Details.CurrentDps.CanSortByRealTimeDps()) then
-			percentNumber = math.floor((self.last_dps_realtime / instanceObject.top) * 100)
-		else
-			percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
+			if (not bars_show_data[2]) then
+				formatedDps = ""
+			end
+
+			if (not bars_show_data[3]) then
+				percentString = ""
+			else
+				percentString = percentString .. "%"
+			end
+
+			local rightText = formatedDamage .. bars_brackets[1] .. formatedDps .. bars_separator .. percentString .. bars_brackets[2]
+
+			if (bUsingCustomRightText) then
+				thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formatedDamage, formatedDps, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
+			else
+				if (instanceObject.use_multi_fontstrings) then
+					instanceObject:SetInLineTexts(thisLine, formatedDamage, formatedDps, percentString)
+				else
+					thisLine.lineText4:SetText(rightText)
+				end
+			end
+
+			if (Details.CurrentDps.CanSortByRealTimeDps()) then
+				percentNumber = math.floor((self.last_dps_realtime / instanceObject.top) * 100)
+			else
+				percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
+			end
 		end
 
 	elseif(subAttribute == 2) then --dps
-		local raw_dps = dps
-		dps = math.floor(dps)
-
-		local formated_damage = selectedToKFunction(_, damageTotal)
-		local formated_dps = selectedToKFunction(_, dps)
-		thisLine.ps_text = formated_dps
-
-		local diff_from_topdps
-
-		if (rank > 1) then
-			diff_from_topdps = instanceObject.player_top_dps - raw_dps
-		end
-
-		local rightText
-		if (diff_from_topdps) then
-			local threshold = diff_from_topdps / instanceObject.player_top_dps_threshold * 100
-			if (threshold < 100) then
-				threshold = abs(threshold - 100)
-			else
-				threshold = 5
-			end
-
-			local rr, gg, bb = Details:percent_color( threshold )
-
-			rr, gg, bb = Details:hex(math.floor(rr*255)), Details:hex(math.floor(gg*255)), "28"
-			local color_percent = "" .. rr .. gg .. bb .. ""
-
-			if (not bars_show_data [1]) then
-				formated_dps = ""
-			end
-			if (not bars_show_data [2]) then
-				color_percent = ""
-			else
-				color_percent = bars_brackets[1] .. "|cFFFF4444-|r|cFF" .. color_percent .. selectedToKFunction(_, math.floor(diff_from_topdps)) .. "|r" .. bars_brackets[2]
-			end
-
-			rightText = formated_dps .. color_percent
-
+		if detailsFramework.IsAddonApocalypseWow() then
+			local ruleToUse = -1 --only show total
+			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.total / combatTime, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
 		else
-			local icon = "  |TInterface\\GROUPFRAME\\UI-Group-LeaderIcon:14:14:0:0:16:16:0:16:0:16|t "
-			if (not bars_show_data [1]) then
-				formated_dps = ""
-			end
-			if (not bars_show_data [2]) then
-				icon = ""
+			local raw_dps = dps
+			dps = math.floor(dps)
+
+			local formated_damage = selectedToKFunction(_, damageTotal)
+			local formated_dps = selectedToKFunction(_, dps)
+			thisLine.ps_text = formated_dps
+
+			local diff_from_topdps
+
+			if (rank > 1) then
+				diff_from_topdps = instanceObject.player_top_dps - raw_dps
 			end
 
-			rightText = formated_dps .. icon
-		end
+			local rightText
+			if (diff_from_topdps) then
+				local threshold = diff_from_topdps / instanceObject.player_top_dps_threshold * 100
+				if (threshold < 100) then
+					threshold = abs(threshold - 100)
+				else
+					threshold = 5
+				end
 
-		if (bUsingCustomRightText) then
-			thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formated_dps, formated_damage, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
-		else
-			if (instanceObject.use_multi_fontstrings) then
-				--instance:SetInLineTexts(thisLine, formated_damage, formated_dps, porcentagem)
-				instanceObject:SetInLineTexts(thisLine, rightText)
+				local rr, gg, bb = Details:percent_color( threshold )
+
+				rr, gg, bb = Details:hex(math.floor(rr*255)), Details:hex(math.floor(gg*255)), "28"
+				local color_percent = "" .. rr .. gg .. bb .. ""
+
+				if (not bars_show_data [1]) then
+					formated_dps = ""
+				end
+				if (not bars_show_data [2]) then
+					color_percent = ""
+				else
+					color_percent = bars_brackets[1] .. "|cFFFF4444-|r|cFF" .. color_percent .. selectedToKFunction(_, math.floor(diff_from_topdps)) .. "|r" .. bars_brackets[2]
+				end
+
+				rightText = formated_dps .. color_percent
+
 			else
-				thisLine.lineText4:SetText(rightText)
-			end
-		end
+				local icon = "  |TInterface\\GROUPFRAME\\UI-Group-LeaderIcon:14:14:0:0:16:16:0:16:0:16|t "
+				if (not bars_show_data [1]) then
+					formated_dps = ""
+				end
+				if (not bars_show_data [2]) then
+					icon = ""
+				end
 
-		percentNumber = math.floor((dps/instanceObject.top) * 100)
+				rightText = formated_dps .. icon
+			end
+
+			if (bUsingCustomRightText) then
+				thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formated_dps, formated_damage, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
+			else
+				if (instanceObject.use_multi_fontstrings) then
+					--instance:SetInLineTexts(thisLine, formated_damage, formated_dps, porcentagem)
+					instanceObject:SetInLineTexts(thisLine, rightText)
+				else
+					thisLine.lineText4:SetText(rightText)
+				end
+			end
+
+			percentNumber = math.floor((dps/instanceObject.top) * 100)
+		end
 
 	elseif(subAttribute == 3) then --damage taken
-		local dtps = self.damage_taken / combatTime
-
-		local formated_damage_taken = selectedToKFunction(_, self.damage_taken)
-		local formated_dtps = selectedToKFunction(_, dtps)
-		thisLine.ps_text = formated_dtps
-
-		if (not bars_show_data [1]) then
-			formated_damage_taken = ""
-		end
-		if (not bars_show_data [2]) then
-			formated_dtps = ""
-		end
-		if (not bars_show_data [3]) then
-			percentString = ""
+		if detailsFramework.IsAddonApocalypseWow() then
+			local perCent = nil
+			local ruleToUse = 2 --total dps
+			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.damage_taken, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.damage_taken / combatTime, Details.abbreviateOptionsDPS), perCent, ruleToUse)
 		else
-			percentString = percentString .. "%"
-		end
+			local dtps = self.damage_taken / combatTime
 
-		local rightText = formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. percentString .. bars_brackets[2]
-		if (bUsingCustomRightText) then
-			thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formated_damage_taken, formated_dtps, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
-		else
-			if (instanceObject.use_multi_fontstrings) then
-				instanceObject:SetInLineTexts(thisLine, formated_damage_taken, formated_dtps, percentString)
-			else
-				thisLine.lineText4:SetText(rightText)
+			local formated_damage_taken = selectedToKFunction(_, self.damage_taken)
+			local formated_dtps = selectedToKFunction(_, dtps)
+			thisLine.ps_text = formated_dtps
+
+			if (not bars_show_data [1]) then
+				formated_damage_taken = ""
 			end
-		end
+			if (not bars_show_data [2]) then
+				formated_dtps = ""
+			end
+			if (not bars_show_data [3]) then
+				percentString = ""
+			else
+				percentString = percentString .. "%"
+			end
 
-		percentNumber = math.floor((self.damage_taken/instanceObject.top) * 100)
+			local rightText = formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. percentString .. bars_brackets[2]
+			if (bUsingCustomRightText) then
+				thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formated_damage_taken, formated_dtps, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
+			else
+				if (instanceObject.use_multi_fontstrings) then
+					instanceObject:SetInLineTexts(thisLine, formated_damage_taken, formated_dtps, percentString)
+				else
+					thisLine.lineText4:SetText(rightText)
+				end
+			end
+
+			percentNumber = math.floor((self.damage_taken/instanceObject.top) * 100)
+		end
 
 	elseif(subAttribute == 4) then --friendly fire
-		local formated_friendly_fire = selectedToKFunction(_, self.friendlyfire_total)
-
-		if (not bars_show_data [1]) then
-			formated_friendly_fire = ""
-		end
-		if (not bars_show_data [3]) then
-			percentString = ""
+		if detailsFramework.IsAddonApocalypseWow() then
+			local perCent = nil
+			local ruleToUse = 2 --total dps
+			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.friendlyfire_total, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.friendlyfire_total / combatTime, Details.abbreviateOptionsDPS), perCent, ruleToUse)
 		else
-			percentString = percentString .. "%"
-		end
+			local formated_friendly_fire = selectedToKFunction(_, self.friendlyfire_total)
 
-		local rightText = formated_friendly_fire .. bars_brackets[1] .. percentString ..  bars_brackets[2]
-		if (bUsingCustomRightText) then
-			thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formated_friendly_fire, "", percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
-		else
-			if (instanceObject.use_multi_fontstrings) then
-				instanceObject:SetInLineTexts(thisLine, "", formated_friendly_fire, percentString)
-			else
-				thisLine.lineText4:SetText(rightText)
+			if (not bars_show_data [1]) then
+				formated_friendly_fire = ""
 			end
+			if (not bars_show_data [3]) then
+				percentString = ""
+			else
+				percentString = percentString .. "%"
+			end
+
+			local rightText = formated_friendly_fire .. bars_brackets[1] .. percentString ..  bars_brackets[2]
+			if (bUsingCustomRightText) then
+				thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formated_friendly_fire, "", percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
+			else
+				if (instanceObject.use_multi_fontstrings) then
+					instanceObject:SetInLineTexts(thisLine, "", formated_friendly_fire, percentString)
+				else
+					thisLine.lineText4:SetText(rightText)
+				end
+			end
+			percentNumber = math.floor((self.friendlyfire_total/instanceObject.top) * 100)
 		end
-		percentNumber = math.floor((self.friendlyfire_total/instanceObject.top) * 100)
 
 	elseif(subAttribute == 6) then --enemies
-		local dtps = self.damage_taken / combatTime
-
-		local formatedDamageTaken = selectedToKFunction(_, self.damage_taken)
-		local formatedDtps = selectedToKFunction(_, dtps)
-		thisLine.ps_text = formatedDtps
-
-		if (not bars_show_data[1]) then
-			formatedDamageTaken = ""
-		end
-		if (not bars_show_data[2]) then
-			formatedDtps = ""
-		end
-		if (not bars_show_data[3]) then
-			percentString = ""
+		if detailsFramework.IsAddonApocalypseWow() then
+			local perCent = nil
+			local ruleToUse = 2 --total dps
+			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.damage_taken, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.damage_taken / combatTime, Details.abbreviateOptionsDPS), perCent, ruleToUse)
 		else
-			percentString = percentString .. "%"
-		end
+			local dtps = self.damage_taken / combatTime
 
-		local rightText = formatedDamageTaken .. bars_brackets[1] .. formatedDtps .. bars_separator .. percentString .. bars_brackets[2]
-		if (bUsingCustomRightText) then
-			thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formatedDamageTaken, formatedDtps, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
-		else
-			if (instanceObject.use_multi_fontstrings) then
-				instanceObject:SetInLineTexts(thisLine, formatedDamageTaken, formatedDtps, percentString)
-			else
-				thisLine.lineText4:SetText(rightText)
+			local formatedDamageTaken = selectedToKFunction(_, self.damage_taken)
+			local formatedDtps = selectedToKFunction(_, dtps)
+			thisLine.ps_text = formatedDtps
+
+			if (not bars_show_data[1]) then
+				formatedDamageTaken = ""
 			end
-		end
+			if (not bars_show_data[2]) then
+				formatedDtps = ""
+			end
+			if (not bars_show_data[3]) then
+				percentString = ""
+			else
+				percentString = percentString .. "%"
+			end
 
-		percentNumber = math.floor((self.damage_taken/instanceObject.top) * 100)
+			local rightText = formatedDamageTaken .. bars_brackets[1] .. formatedDtps .. bars_separator .. percentString .. bars_brackets[2]
+			if (bUsingCustomRightText) then
+				thisLine.lineText4:SetText(stringReplace(instanceObject.row_info.textR_custom_text, formatedDamageTaken, formatedDtps, percentString, self, instanceObject:GetCombat(), instanceObject, rightText))
+			else
+				if (instanceObject.use_multi_fontstrings) then
+					instanceObject:SetInLineTexts(thisLine, formatedDamageTaken, formatedDtps, percentString)
+				else
+					thisLine.lineText4:SetText(rightText)
+				end
+			end
+
+			percentNumber = math.floor((self.damage_taken/instanceObject.top) * 100)
+		end
 	end
 
 	--need tooltip update?
@@ -3042,6 +3074,14 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 	end
 
 	classColor_Red, classColor_Green, classColor_Blue = self:GetBarColor()
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		if not percentNumber then
+			if Details.test_bar_update or self.testBar then
+				percentNumber = math.random(20, 100)
+			end
+		end
+	end
 
 	return self:RefreshLineValue(thisLine, instanceObject, previousData, bForceRefresh, percentNumber, bUseAnimations, total, instanceObject.top)
 end

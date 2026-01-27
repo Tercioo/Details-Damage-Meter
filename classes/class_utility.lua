@@ -924,8 +924,10 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 
 	end
 
-	if (bUseAnimations) then
-		instance:PerformAnimations(whichRowLine-1)
+	if not detailsFramework.IsAddonApocalypseWow() then
+		if (bUseAnimations) then
+			instance:PerformAnimations(whichRowLine-1)
+		end
 	end
 
 	if (instance.atributo == 5) then --custom
@@ -983,73 +985,80 @@ function atributo_misc:RefreshLine(instancia, barras_container, whichRowLine, lu
 		return
 	end
 
-	--local porcentagem = meu_total / total * 100
-	local porcentagem = ""
-	if (not percentage_type or percentage_type == 1) then
-		porcentagem = _cstr("%.1f", meu_total / total * 100)
-	elseif (percentage_type == 2) then
-		porcentagem = _cstr("%.1f", meu_total / instancia.top * 100)
-	end
+	local esta_porcentagem
 
-	local esta_porcentagem = _math_floor((meu_total/instancia.top) * 100)
-
-	if (not bars_show_data [1]) then
-		meu_total = ""
-	end
-	if (not bars_show_data [3]) then
-		porcentagem = ""
+	if detailsFramework.IsAddonApocalypseWow() then
+		local ruleToUse = -1 --show only total
+		Details:SimpleFormat(esta_barra.lineText2, esta_barra.lineText3, esta_barra.lineText4, AbbreviateNumbers(meu_total, Details.abbreviateOptionsDamage), nil, nil, ruleToUse)
 	else
-		porcentagem = porcentagem .. "%"
-	end
+		--local porcentagem = meu_total / total * 100
+		local porcentagem = ""
+		if (not percentage_type or percentage_type == 1) then
+			porcentagem = _cstr("%.1f", meu_total / total * 100)
+		elseif (percentage_type == 2) then
+			porcentagem = _cstr("%.1f", meu_total / instancia.top * 100)
+		end
 
-	if (instancia.show_interrupt_casts) then
-		if (sub_atributo == DETAILS_SUBATTRIBUTE_INTERRUPT) then --interrupts
-			--get the interrupt spell for this actor class from libOpenRaid
-			if (LIB_OPEN_RAID_SPELL_INTERRUPT_BYCLASS) then
-				---@type table<spellname, table>
-				local classInterrupts = LIB_OPEN_RAID_SPELL_INTERRUPT_BYCLASS[self.classe]
-				if (classInterrupts) then
-					---@type table<spellname, number> number is the amount of casts
-					local spellCasts = combatObject.amountCasts[self.nome]
-					local amountOfInterruptsCasted = 0
-					--iterating between the spells that are interrupts for this class
-					for spellNameOrId in pairs(classInterrupts) do
-						--if the actor casted this spell
-						if (spellCasts[spellNameOrId]) then
-							amountOfInterruptsCasted = amountOfInterruptsCasted + spellCasts[spellNameOrId]
+		esta_porcentagem = _math_floor((meu_total/instancia.top) * 100)
+
+		if (not bars_show_data [1]) then
+			meu_total = ""
+		end
+		if (not bars_show_data [3]) then
+			porcentagem = ""
+		else
+			porcentagem = porcentagem .. "%"
+		end
+
+		if (instancia.show_interrupt_casts) then
+			if (sub_atributo == DETAILS_SUBATTRIBUTE_INTERRUPT) then --interrupts
+				--get the interrupt spell for this actor class from libOpenRaid
+				if (LIB_OPEN_RAID_SPELL_INTERRUPT_BYCLASS) then
+					---@type table<spellname, table>
+					local classInterrupts = LIB_OPEN_RAID_SPELL_INTERRUPT_BYCLASS[self.classe]
+					if (classInterrupts) then
+						---@type table<spellname, number> number is the amount of casts
+						local spellCasts = combatObject.amountCasts[self.nome]
+						local amountOfInterruptsCasted = 0
+						--iterating between the spells that are interrupts for this class
+						for spellNameOrId in pairs(classInterrupts) do
+							--if the actor casted this spell
+							if (spellCasts[spellNameOrId]) then
+								amountOfInterruptsCasted = amountOfInterruptsCasted + spellCasts[spellNameOrId]
+							end
 						end
-					end
 
-					if (amountOfInterruptsCasted > 0) then
-						meu_total = meu_total .. " / " .. tostring(amountOfInterruptsCasted) .. ""
+						if (amountOfInterruptsCasted > 0) then
+							meu_total = meu_total .. " / " .. tostring(amountOfInterruptsCasted) .. ""
+						end
 					end
 				end
 			end
 		end
-	end
 
-	instancia.show_interrupt_overlaps = true
+		instancia.show_interrupt_overlaps = true
 
-	if (instancia.show_interrupt_overlaps) then
-		if (sub_atributo == DETAILS_SUBATTRIBUTE_INTERRUPT) then --interrupts
-			--get the amount of overlaps for this actor
-			local overlapsAmount = self.interrupt_cast_overlap
-			if (overlapsAmount and overlapsAmount > 0) then
-				meu_total = meu_total .. " / " .. tostring(overlapsAmount) .. ""
-			else
-				meu_total = meu_total .. " / 0"
+		if (instancia.show_interrupt_overlaps) then
+			if (sub_atributo == DETAILS_SUBATTRIBUTE_INTERRUPT) then --interrupts
+				--get the amount of overlaps for this actor
+				local overlapsAmount = self.interrupt_cast_overlap
+				if (overlapsAmount and overlapsAmount > 0) then
+					meu_total = meu_total .. " / " .. tostring(overlapsAmount) .. ""
+				else
+					meu_total = meu_total .. " / 0"
+				end
 			end
 		end
-	end
 
-	local rightText = meu_total .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
-	if (UsingCustomRightText) then
-		esta_barra.lineText4:SetText(_string_replace(instancia.row_info.textR_custom_text, meu_total, "", porcentagem, self, instancia.showing, instancia, rightText))
-	else
-		if (instancia.use_multi_fontstrings) then
-			instancia:SetInLineTexts(esta_barra, "", meu_total, porcentagem)
+		local rightText = meu_total .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+		if (UsingCustomRightText) then
+			esta_barra.lineText4:SetText(_string_replace(instancia.row_info.textR_custom_text, meu_total, "", porcentagem, self, instancia.showing, instancia, rightText))
 		else
-			esta_barra.lineText4:SetText(rightText)
+			if (instancia.use_multi_fontstrings) then
+				instancia:SetInLineTexts(esta_barra, "", meu_total, porcentagem)
+			else
+				esta_barra.lineText4:SetText(rightText)
+			end
 		end
 	end
 

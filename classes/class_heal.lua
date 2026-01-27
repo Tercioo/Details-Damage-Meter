@@ -557,8 +557,10 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 
 	end
 
-	if (use_animations) then
-		instancia:PerformAnimations (whichRowLine - 1)
+	if not detailsFramework.IsAddonApocalypseWow() then
+		if (use_animations) then
+			instancia:PerformAnimations (whichRowLine - 1)
+		end
 	end
 
 	if (instancia.atributo == 5) then --custom
@@ -581,7 +583,9 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 		end
 	end
 
-	instancia:AutoAlignInLineFontStrings()
+	if not detailsFramework.IsAddonApocalypseWow() then
+		instancia:AutoAlignInLineFontStrings()
+	end
 
 	-- showing.need_refresh = false
 	return Details:EndRefresh (instancia, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
@@ -624,6 +628,8 @@ function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lug
 		porcentagem = _cstr ("%.1f", self [keyName] / instancia.top * 100)
 	end
 
+	local combatTime = instancia:GetCombat():GetCombatTime()
+
 	if ((_detalhes.time_type == 2 and self.grupo) or _detalhes.time_type == 3 or (not _detalhes:CaptureGet("heal") and not _detalhes:CaptureGet("aura")) or instancia.segmento == -1) then
 		if (instancia.segmento == -1 and combat_time == 0) then
 			local p = _detalhes.tabela_vigente(2, self.nome)
@@ -665,202 +671,229 @@ function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lug
 
 	else
 		if (sub_atributo == 1) then --mostrando healing done
-
-			hps = _math_floor(hps)
-			local formated_heal = SelectedToKFunction (_, healing_total)
-			local formated_hps = SelectedToKFunction (_, hps)
-			thisLine.ps_text = formated_hps
-
-			if (not bars_show_data [1]) then
-				formated_heal = ""
-			end
-			if (not bars_show_data [2]) then
-				formated_hps = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = 2 --total dps
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(healing_total, Details.abbreviateOptionsDamage), AbbreviateNumbers(hps, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			else
-				porcentagem = porcentagem .. "%"
-			end
+				hps = _math_floor(hps)
+				local formated_heal = SelectedToKFunction (_, healing_total)
+				local formated_hps = SelectedToKFunction (_, hps)
+				thisLine.ps_text = formated_hps
 
-			local rightText = formated_heal .. bars_brackets[1] .. formated_hps .. bars_separator .. porcentagem .. bars_brackets[2]
-			if (UsingCustomRightText) then
-				thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_heal, formated_hps, porcentagem, self, instancia.showing, instancia, rightText))
-			else
-				if (instancia.use_multi_fontstrings) then
-					instancia:SetInLineTexts(thisLine, formated_heal, formated_hps, porcentagem)
-				else
-					thisLine.lineText4:SetText(rightText)
+				if (not bars_show_data [1]) then
+					formated_heal = ""
 				end
+				if (not bars_show_data [2]) then
+					formated_hps = ""
+				end
+				if (not bars_show_data [3]) then
+					porcentagem = ""
+				else
+					porcentagem = porcentagem .. "%"
+				end
+
+				local rightText = formated_heal .. bars_brackets[1] .. formated_hps .. bars_separator .. porcentagem .. bars_brackets[2]
+				if (UsingCustomRightText) then
+					thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_heal, formated_hps, porcentagem, self, instancia.showing, instancia, rightText))
+				else
+					if (instancia.use_multi_fontstrings) then
+						instancia:SetInLineTexts(thisLine, formated_heal, formated_hps, porcentagem)
+					else
+						thisLine.lineText4:SetText(rightText)
+					end
+				end
+				esta_porcentagem = _math_floor((healing_total/instancia.top) * 100)
 			end
-			esta_porcentagem = _math_floor((healing_total/instancia.top) * 100)
 
 		elseif (sub_atributo == 2) then --mostrando hps
-
-			hps = _math_floor(hps)
-			local formated_heal = SelectedToKFunction (_, healing_total)
-			local formated_hps = SelectedToKFunction (_, hps)
-			thisLine.ps_text = formated_hps
-
-			if (not bars_show_data [1]) then
-				formated_hps = ""
-			end
-			if (not bars_show_data [2]) then
-				formated_heal = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = -1 --only show total
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(hps, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
 			else
-				porcentagem = porcentagem .. "%"
-			end
+				hps = _math_floor(hps)
+				local formated_heal = SelectedToKFunction (_, healing_total)
+				local formated_hps = SelectedToKFunction (_, hps)
+				thisLine.ps_text = formated_hps
 
-			local rightText = formated_hps .. bars_brackets[1] .. formated_heal .. bars_separator .. porcentagem .. bars_brackets[2]
-			if (UsingCustomRightText) then
-				thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_hps, formated_heal, porcentagem, self, instancia.showing, instancia, rightText))
-			else
-				if (instancia.use_multi_fontstrings) then
-					instancia:SetInLineTexts(thisLine, formated_hps, formated_heal, porcentagem)
-				else
-					thisLine.lineText4:SetText(rightText)
+				if (not bars_show_data [1]) then
+					formated_hps = ""
 				end
-			end
+				if (not bars_show_data [2]) then
+					formated_heal = ""
+				end
+				if (not bars_show_data [3]) then
+					porcentagem = ""
+				else
+					porcentagem = porcentagem .. "%"
+				end
 
-			esta_porcentagem = _math_floor((hps/instancia.top) * 100)
+				local rightText = formated_hps .. bars_brackets[1] .. formated_heal .. bars_separator .. porcentagem .. bars_brackets[2]
+				if (UsingCustomRightText) then
+					thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_hps, formated_heal, porcentagem, self, instancia.showing, instancia, rightText))
+				else
+					if (instancia.use_multi_fontstrings) then
+						instancia:SetInLineTexts(thisLine, formated_hps, formated_heal, porcentagem)
+					else
+						thisLine.lineText4:SetText(rightText)
+					end
+				end
+
+				esta_porcentagem = _math_floor((hps/instancia.top) * 100)
+			end
 
 		elseif (sub_atributo == 3) then --mostrando overall
-
-			local formated_overheal = SelectedToKFunction (_, self.totalover)
-
-			local percent = self.totalover / (self.totalover + self.total) * 100
-			local overheal_percent = _cstr ("%.1f", percent)
-
-			local rr, gg, bb = _detalhes:percent_color (percent, true)
-			rr, gg, bb = _detalhes:hex (_math_floor(rr*255)), _detalhes:hex (_math_floor(gg*255)), _detalhes:hex (_math_floor(bb*255))
-			overheal_percent = "|cFF" .. rr .. gg .. bb .. overheal_percent .. "|r"
-
-			if (not bars_show_data [1]) then
-				formated_overheal = ""
-			end
-			if (not bars_show_data [3]) then
-				overheal_percent = ""
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = 2 --total dps
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.totalover, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.totalover / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			else
-				overheal_percent = overheal_percent .. "%"
-			end
+				local formated_overheal = SelectedToKFunction (_, self.totalover)
 
-			local rightText = formated_overheal .. bars_brackets[1] .. overheal_percent .. bars_brackets[2]
-			if (UsingCustomRightText) then
-				thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_overheal, "", overheal_percent, self, instancia.showing, instancia, rightText))
-			else
-				if (instancia.use_multi_fontstrings) then
-					instancia:SetInLineTexts(thisLine, "", formated_overheal, overheal_percent)
-				else
-					thisLine.lineText4:SetText(rightText)
+				local percent = self.totalover / (self.totalover + self.total) * 100
+				local overheal_percent = _cstr ("%.1f", percent)
+
+				local rr, gg, bb = _detalhes:percent_color (percent, true)
+				rr, gg, bb = _detalhes:hex (_math_floor(rr*255)), _detalhes:hex (_math_floor(gg*255)), _detalhes:hex (_math_floor(bb*255))
+				overheal_percent = "|cFF" .. rr .. gg .. bb .. overheal_percent .. "|r"
+
+				if (not bars_show_data [1]) then
+					formated_overheal = ""
 				end
-			end
+				if (not bars_show_data [3]) then
+					overheal_percent = ""
+				else
+					overheal_percent = overheal_percent .. "%"
+				end
 
-			esta_porcentagem = _math_floor((self.totalover/instancia.top) * 100)
+				local rightText = formated_overheal .. bars_brackets[1] .. overheal_percent .. bars_brackets[2]
+				if (UsingCustomRightText) then
+					thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_overheal, "", overheal_percent, self, instancia.showing, instancia, rightText))
+				else
+					if (instancia.use_multi_fontstrings) then
+						instancia:SetInLineTexts(thisLine, "", formated_overheal, overheal_percent)
+					else
+						thisLine.lineText4:SetText(rightText)
+					end
+				end
+
+				esta_porcentagem = _math_floor((self.totalover/instancia.top) * 100)
+			end
 
 		elseif (sub_atributo == 4) then --mostrando healing taken
-
-			local formated_healtaken = SelectedToKFunction (_, self.healing_taken)
-
-			if (not bars_show_data [1]) then
-				formated_healtaken = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = 2 --total dps
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.healing_taken, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.healing_taken / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			else
-				porcentagem = porcentagem .. "%"
-			end
+				local formated_healtaken = SelectedToKFunction (_, self.healing_taken)
 
-			local rightText = formated_healtaken .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
-			if (UsingCustomRightText) then
-				thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_healtaken, "", porcentagem, self, instancia.showing, instancia, rightText))
-			else
-				if (instancia.use_multi_fontstrings) then
-					instancia:SetInLineTexts(thisLine, "", formated_healtaken, porcentagem)
-				else
-					thisLine.lineText4:SetText(rightText)
+				if (not bars_show_data [1]) then
+					formated_healtaken = ""
 				end
-			end
+				if (not bars_show_data [3]) then
+					porcentagem = ""
+				else
+					porcentagem = porcentagem .. "%"
+				end
 
-			esta_porcentagem = _math_floor((self.healing_taken/instancia.top) * 100)
+				local rightText = formated_healtaken .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+				if (UsingCustomRightText) then
+					thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_healtaken, "", porcentagem, self, instancia.showing, instancia, rightText))
+				else
+					if (instancia.use_multi_fontstrings) then
+						instancia:SetInLineTexts(thisLine, "", formated_healtaken, porcentagem)
+					else
+						thisLine.lineText4:SetText(rightText)
+					end
+				end
+
+				esta_porcentagem = _math_floor((self.healing_taken/instancia.top) * 100)
+			end
 
 		elseif (sub_atributo == 5) then --mostrando enemy heal
-
-			local formated_enemyheal = SelectedToKFunction (_, self.heal_enemy_amt)
-
-			if (not bars_show_data [1]) then
-				formated_enemyheal = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = 2 --total dps
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.heal_enemy_amt, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.heal_enemy_amt / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			else
-				porcentagem = porcentagem .. "%"
-			end
+				local formated_enemyheal = SelectedToKFunction (_, self.heal_enemy_amt)
 
-			local rightText = formated_enemyheal .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
-			if (UsingCustomRightText) then
-				thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_enemyheal, "", porcentagem, self, instancia.showing, instancia, rightText))
-			else
-				if (instancia.use_multi_fontstrings) then
-					instancia:SetInLineTexts(thisLine, "", formated_enemyheal, porcentagem)
-				else
-					thisLine.lineText4:SetText(rightText)
+				if (not bars_show_data [1]) then
+					formated_enemyheal = ""
 				end
+				if (not bars_show_data [3]) then
+					porcentagem = ""
+				else
+					porcentagem = porcentagem .. "%"
+				end
+
+				local rightText = formated_enemyheal .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+				if (UsingCustomRightText) then
+					thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_enemyheal, "", porcentagem, self, instancia.showing, instancia, rightText))
+				else
+					if (instancia.use_multi_fontstrings) then
+						instancia:SetInLineTexts(thisLine, "", formated_enemyheal, porcentagem)
+					else
+						thisLine.lineText4:SetText(rightText)
+					end
+				end
+				esta_porcentagem = _math_floor((self.heal_enemy_amt/instancia.top) * 100)
 			end
-			esta_porcentagem = _math_floor((self.heal_enemy_amt/instancia.top) * 100)
 
 		elseif (sub_atributo == 6) then --mostrando damage prevented
-
-			local formated_absorbs = SelectedToKFunction (_, self.totalabsorb)
-
-			if (not bars_show_data [1]) then
-				formated_absorbs = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = 2 --total dps
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.totalabsorb, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.totalabsorb / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			else
-				porcentagem = porcentagem .. "%"
-			end
+				local formated_absorbs = SelectedToKFunction (_, self.totalabsorb)
 
-			local rightText = formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
-			if (UsingCustomRightText) then
-				thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing, instancia, rightText))
-			else
-				if (instancia.use_multi_fontstrings) then
-					instancia:SetInLineTexts(thisLine, "", formated_absorbs, porcentagem)
-				else
-					thisLine.lineText4:SetText(rightText)
+				if (not bars_show_data [1]) then
+					formated_absorbs = ""
 				end
+				if (not bars_show_data [3]) then
+					porcentagem = ""
+				else
+					porcentagem = porcentagem .. "%"
+				end
+
+				local rightText = formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+				if (UsingCustomRightText) then
+					thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing, instancia, rightText))
+				else
+					if (instancia.use_multi_fontstrings) then
+						instancia:SetInLineTexts(thisLine, "", formated_absorbs, porcentagem)
+					else
+						thisLine.lineText4:SetText(rightText)
+					end
+				end
+				esta_porcentagem = _math_floor((self.totalabsorb/instancia.top) * 100)
 			end
-			esta_porcentagem = _math_floor((self.totalabsorb/instancia.top) * 100)
 
 		elseif (sub_atributo == 7) then --mostrando cura negada
-
-			local formated_absorbs = SelectedToKFunction (_, self.totaldenied)
-
-			if (not bars_show_data [1]) then
-				formated_absorbs = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = 2 --total dps
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.totaldenied, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.totaldenied / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			else
-				porcentagem = porcentagem .. "%"
-			end
+				local formated_absorbs = SelectedToKFunction (_, self.totaldenied)
 
-			local rightText = formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
-			if (UsingCustomRightText) then
-				thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing, instancia, rightText))
-			else
-				if (instancia.use_multi_fontstrings) then
-					instancia:SetInLineTexts(thisLine, "", formated_absorbs, porcentagem)
-				else
-					thisLine.lineText4:SetText(rightText)
+				if (not bars_show_data [1]) then
+					formated_absorbs = ""
 				end
-			end
-			esta_porcentagem = _math_floor((self.totaldenied/instancia.top) * 100)
+				if (not bars_show_data [3]) then
+					porcentagem = ""
+				else
+					porcentagem = porcentagem .. "%"
+				end
 
+				local rightText = formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+				if (UsingCustomRightText) then
+					thisLine.lineText4:SetText(_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing, instancia, rightText))
+				else
+					if (instancia.use_multi_fontstrings) then
+						instancia:SetInLineTexts(thisLine, "", formated_absorbs, porcentagem)
+					else
+						thisLine.lineText4:SetText(rightText)
+					end
+				end
+				esta_porcentagem = _math_floor((self.totaldenied/instancia.top) * 100)
+			end
 		end
 	end
 
@@ -869,6 +902,14 @@ function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lug
 	end
 
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		if not esta_porcentagem then
+			if Details.test_bar_update or self.testBar then
+				esta_porcentagem = math.random(20, 100)
+			end
+		end
+	end
 
 	return self:RefreshBarra2 (thisLine, instancia, tabela_anterior, forcar, esta_porcentagem, whichRowLine, barras_container, use_animations)
 end
