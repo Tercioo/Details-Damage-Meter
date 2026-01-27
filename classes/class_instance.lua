@@ -498,7 +498,8 @@ local instanceMixins = {
 	---@param attributeId attributeid
 	---@param subAttributeId attributeid
 	---@param modeId modeid
-	SetDisplay = function(instance, segmentId, attributeId, subAttributeId, modeId)
+	---@param quickMode boolean?
+	SetDisplay = function(instance, segmentId, attributeId, subAttributeId, modeId, quickMode)
 		--change the mode of the window if the mode is different
 		---@type modeid
 		local currentModeId = instance:GetMode()
@@ -553,9 +554,11 @@ local instanceMixins = {
 
 					bHasMainAttributeChanged = true
 
-					instance:ChangeIcon()
-					Details:InstanceCall(Details.CheckPsUpdate)
-					Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, attributeId, subAttributeId)
+					if not quickMode then
+					    instance:ChangeIcon()
+						Details:InstanceCall(Details.CheckPsUpdate)
+						Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, attributeId, subAttributeId)
+					end
 				end
 			end
 		end
@@ -563,23 +566,27 @@ local instanceMixins = {
 		if (type(subAttributeId) == "number" and subAttributeId ~= currentSubAttributeId or bHasMainAttributeChanged) then
 			instance.sub_atributo = subAttributeId
 			instance.sub_atributo_last[instance.atributo] = instance.sub_atributo
-			instance:ChangeIcon()
-			Details:InstanceCall(Details.CheckPsUpdate)
-			Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, attributeId, subAttributeId)
+			if not quickMode then
+				instance:ChangeIcon()
+				Details:InstanceCall(Details.CheckPsUpdate)
+				Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, attributeId, subAttributeId)
+			end
 		end
 
-		if (Details.BreakdownWindowFrame:IsShown() and instance == Details.BreakdownWindowFrame.instancia) then
-			---@type combat
-			local combatObject = instance:GetCombat()
-			if (not combatObject or instance.atributo > 4) then
-				Details:CloseBreakdownWindow()
-			else
-				---@type actor
-				local actorObject = Details:GetActorObjectFromBreakdownWindow()
-				if (actorObject) then
-					Details:OpenBreakdownWindow(instance, actorObject, true)
-				else
+		if not quickMode then
+			if (Details.BreakdownWindowFrame:IsShown() and instance == Details.BreakdownWindowFrame.instancia) then
+				---@type combat
+				local combatObject = instance:GetCombat()
+				if (not combatObject or instance.atributo > 4) then
 					Details:CloseBreakdownWindow()
+				else
+					---@type actor
+					local actorObject = Details:GetActorObjectFromBreakdownWindow()
+					if (actorObject) then
+						Details:OpenBreakdownWindow(instance, actorObject, true)
+					else
+						Details:CloseBreakdownWindow()
+					end
 				end
 			end
 		end
@@ -588,9 +595,11 @@ local instanceMixins = {
 		--if there's no combat object to show, freeze the window
 		---@type combat
 		local combatObject = instance:GetCombat()
-		if (not combatObject) then
-			instance:Freeze()
-			return false
+		if not quickMode then
+			if (not combatObject) then
+				instance:Freeze()
+				return false
+			end
 		end
 
 		instance.v_barras = true

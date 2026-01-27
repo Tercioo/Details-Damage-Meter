@@ -333,12 +333,25 @@ local getSourceSpells = function(sessionType, sessionID, damageMeterType, source
     return {maxAmount = 0, combatSpells = {}}
 end
 
+---@param instance instance
+local doTrick = function(instance)
+    local mainDisplay, subDisplay = instance:GetDisplay()
+    local segmentId = nil
+    local modeId = nil
+    local quick = true
+    if (mainDisplay == DETAILS_ATTRIBUTE_DAMAGE) then
+        instance:SetDisplay(segmentId, DETAILS_ATTRIBUTE_HEAL, DETAILS_SUBATTRIBUTE_HEALDONE, modeId, quick)
+        instance:SetDisplay(segmentId, DETAILS_ATTRIBUTE_DAMAGE, subDisplay, modeId, quick)
+    elseif (mainDisplay == DETAILS_ATTRIBUTE_HEAL) then
+        instance:SetDisplay(segmentId, DETAILS_ATTRIBUTE_DAMAGE, DETAILS_SUBATTRIBUTE_DAMAGEDONE, modeId, quick)
+        instance:SetDisplay(segmentId, DETAILS_ATTRIBUTE_HEAL, subDisplay, modeId, quick)
+    end
+end
+
 local doUpdate = function()
-    --Details:InstanceCallDetailsFunc(Details.FadeHandler.Fader, "IN", nil, "barras")
     Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse)
-    --Details:InstanceCallDetailsFunc(Details.AtualizaSoloMode_AfertReset)
-    --Details:InstanceCallDetailsFunc(Details.ResetaGump)
     Details:RefreshMainWindow(-1, true)
+    Details:InstanceCall(doTrick)
 end
 
 local scheduledUpdateObject
@@ -780,8 +793,6 @@ local parseSegments = function()
         return a.sessionId < b.sessionId
     end)
 
-    --when it adds a segment, it is not adding the second one after
-
     for i = 1, #sessions do
         local session = sessions[i].session
         local sessionId = sessions[i].sessionId
@@ -802,27 +813,6 @@ local parseSegments = function()
             end
         end
     end
-
-    --[=[
-    if sessionIdAtArenaStart ~= 0 then
-        --get all details segments
-        local combatSegments = Details:GetCombatSegments()
-        for i = 1, #combatSegments do
-            local thisSegment = combatSegments[i]
-            if thisSegment.secretArena and thisSegment.combatSessionId and thisSegment.combatSessionId == sessionIdAtArenaStart then
-                for j = i-1, 1, -1 do
-                    local nextSegment = combatSegments[j]
-                    if nextSegment and nextSegment.secretArena and nextSegment.combatSessionId and nextSegment.combatSessionId > sessionIdAtArenaStart then
-                        
-                        
-                    end
-                end
-            end
-        end
-
-        sessionIdAtArenaStart = 0
-    end
-    --]=]
 
     if needUpdate then
         if not scheduledUpdateObject then
@@ -1217,27 +1207,13 @@ end)
 ---@field GetAllLines fun(self:details):frame[]
 
 ---hide all lines in the instance and clearup the secret strings
-local clearWindow = function(instance)
+local clearLineSecrets = function(instance)
     ---@type detailsline[]
     local allInstanceLines = instance.barras --instance:GetAllLines()
 
     --cleanup all bars
     for i = 1, #allInstanceLines do
         local instanceLine = allInstanceLines[i]
-        --instanceLine:Hide()
-        --set the text to empty string
-        --instanceLine.lineText1:SetText("")
-        --instanceLine.lineText2:SetText("")
-        --instanceLine.lineText3:SetText("")
-        --instanceLine.lineText4:SetText("")
-        --instanceLine.statusbar:SetMinMaxValues(0, 1)
-        --instanceLine.statusbar:SetValue(0)
-
-        --instanceLine.lineText11:SetText("")
-        --instanceLine.lineText12:SetText("")
-        --instanceLine.lineText13:SetText("")
-        --instanceLine.lineText14:SetText("")
-
         instanceLine.secret_SourceGUID = nil
         instanceLine.secret_SourceName = nil
     end
@@ -1637,12 +1613,10 @@ local startUpdater = function()
 end
 
 local stopUpdaterAndClearWindow = function()
-    --bParser.UnmakeAsOverlay()
-
     if (updaterTicker) then
         updaterTicker:Cancel()
         updaterTicker = nil
-        Details:InstanceCall(clearWindow)
+        Details:InstanceCall(clearLineSecrets)
     end
 
     if (timerUpdateObject) then

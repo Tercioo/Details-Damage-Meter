@@ -2848,6 +2848,7 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 		if detailsFramework.IsAddonApocalypseWow() then
 			local ruleToUse = 2 --total dps
 			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.total, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.total / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
+			percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
 		else
 			dps = math.floor(dps)
 			local formatedDamage = selectedToKFunction(_, damageTotal)
@@ -2891,6 +2892,7 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 		if detailsFramework.IsAddonApocalypseWow() then
 			local ruleToUse = -1 --only show total
 			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.total / combatTime, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
+			percentNumber = math.floor((dps/instanceObject.top) * 100)
 		else
 			local raw_dps = dps
 			dps = math.floor(dps)
@@ -2961,6 +2963,7 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 			local perCent = nil
 			local ruleToUse = 2 --total dps
 			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.damage_taken, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.damage_taken / combatTime, Details.abbreviateOptionsDPS), perCent, ruleToUse)
+			percentNumber = math.floor((self.damage_taken/instanceObject.top) * 100)
 		else
 			local dtps = self.damage_taken / combatTime
 
@@ -2999,6 +3002,7 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 			local perCent = nil
 			local ruleToUse = 2 --total dps
 			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.friendlyfire_total, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.friendlyfire_total / combatTime, Details.abbreviateOptionsDPS), perCent, ruleToUse)
+			percentNumber = math.floor((self.friendlyfire_total/instanceObject.top) * 100)
 		else
 			local formated_friendly_fire = selectedToKFunction(_, self.friendlyfire_total)
 
@@ -3029,6 +3033,7 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 			local perCent = nil
 			local ruleToUse = 2 --total dps
 			Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.damage_taken, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.damage_taken / combatTime, Details.abbreviateOptionsDPS), perCent, ruleToUse)
+			percentNumber = math.floor((self.damage_taken/instanceObject.top) * 100)
 		else
 			local dtps = self.damage_taken / combatTime
 

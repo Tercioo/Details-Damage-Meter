@@ -985,11 +985,12 @@ function atributo_misc:RefreshLine(instancia, barras_container, whichRowLine, lu
 		return
 	end
 
-	local esta_porcentagem
+	local percentNumber
 
 	if detailsFramework.IsAddonApocalypseWow() then
 		local ruleToUse = -1 --show only total
 		Details:SimpleFormat(esta_barra.lineText2, esta_barra.lineText3, esta_barra.lineText4, AbbreviateNumbers(meu_total, Details.abbreviateOptionsDamage), nil, nil, ruleToUse)
+		percentNumber = _math_floor((meu_total/instancia.top) * 100)
 	else
 		--local porcentagem = meu_total / total * 100
 		local porcentagem = ""
@@ -999,7 +1000,7 @@ function atributo_misc:RefreshLine(instancia, barras_container, whichRowLine, lu
 			porcentagem = _cstr("%.1f", meu_total / instancia.top * 100)
 		end
 
-		esta_porcentagem = _math_floor((meu_total/instancia.top) * 100)
+		percentNumber = _math_floor((meu_total/instancia.top) * 100)
 
 		if (not bars_show_data [1]) then
 			meu_total = ""
@@ -1068,7 +1069,7 @@ function atributo_misc:RefreshLine(instancia, barras_container, whichRowLine, lu
 
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 
-	return self:RefreshBarra2(esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, whichRowLine, barras_container, use_animations)
+	return self:RefreshBarra2(esta_barra, instancia, tabela_anterior, forcar, percentNumber, whichRowLine, barras_container, use_animations)
 end
 
 function atributo_misc:RefreshBarra2(esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, whichRowLine, barras_container, use_animations)
