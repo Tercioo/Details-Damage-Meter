@@ -11,7 +11,9 @@ L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Enable the use of the three rules below."
 L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = "When the line has information\nabout the total, per second and percent.\n|cFFAAAAAA%s order: total, per second, percent."
 L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = "When the line has information\nabout the total and per second.\n|cFFAAAAAA%s order: total, per second."
 L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = "When the line has information\nabout the total and percent.\n|cFFAAAAAA%s order: total, percent."
-
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Use Aligned Text"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "The text is aligned in columns, setup the spacing between columns."
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Space Between Columns"
 
 L["ABILITY_ID"] = "ability id"
 L["STRING_"] = ""

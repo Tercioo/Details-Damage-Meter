@@ -2288,8 +2288,8 @@ do
                     Details:RefreshMainWindow(-1, true)
                     afterUpdate()
                 end,
-                name = "Use Alignment",
-                desc = "Use Alignment",
+                name = L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"],
+                desc = L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"],
                 id = "use_alignment_toggle",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
             },
@@ -2305,8 +2305,8 @@ do
                 min = 30,
                 max = 120,
                 step = 1,
-                name = "Space Between",
-                desc = "Space Between",
+                name = L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"],
+                desc = L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"],
                 id = "alignment_space_range",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
             },
