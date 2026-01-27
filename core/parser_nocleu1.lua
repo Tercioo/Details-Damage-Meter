@@ -334,7 +334,7 @@ local getSourceSpells = function(sessionType, sessionID, damageMeterType, source
 end
 
 ---@param instance instance
-local doTrick = function(instance)
+local doTrick = function(instance) --~trick
     local mainDisplay, subDisplay = instance:GetDisplay()
     local segmentId = nil
     local modeId = nil
@@ -1260,7 +1260,6 @@ local abbreviateOptionsDamage =
         abbreviationIsGlobal = false
     },
 }
-Details.abbreviateOptionsDamage = abbreviateOptionsDamage
 
 local abbreviateOptionsDPS =
 {
@@ -1295,7 +1294,6 @@ local abbreviateOptionsDPS =
         abbreviationIsGlobal = false
     },
 }
-Details.abbreviateOptionsDPS = abbreviateOptionsDPS
 
 local abbreviateSettingsDamage
 local abbreviateSettingsDPS
@@ -1303,9 +1301,11 @@ local abbreviateSettingsDPS
 if CreateAbbreviateConfig then
     abbreviateSettingsDamage = CreateAbbreviateConfig(abbreviateOptionsDamage)
     abbreviateSettingsDamage = {config = abbreviateSettingsDamage}
+    Details.abbreviateOptionsDamage = abbreviateSettingsDamage
 
     abbreviateSettingsDPS = CreateAbbreviateConfig(abbreviateOptionsDPS)
     abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
+    Details.abbreviateOptionsDPS = abbreviateSettingsDPS
 end
 
 local tt = GetTime()
@@ -1412,7 +1412,7 @@ local updateWindow = function(instance) --~update
             for i = 1, amountOfSources do
                 ---@type detailsline
                 local instanceLine = allInstanceLines[i]
-                if (instanceLine) then --~refresh
+                if (instanceLine) then
                     ---@type damagemeter_combat_source
                     local source = combatSources[i]
                     local updateStatusbarColor = true
@@ -1449,7 +1449,7 @@ local updateWindow = function(instance) --~update
                         end)
                     else
                         actorName = UnitName(actorName)
-                    end
+                    end --~refresh
 
                     instanceLine.lineText1:SetText(actorName) --left text
                     --instanceLine.lineText11:SetText(actorName) --left text
@@ -1457,7 +1457,6 @@ local updateWindow = function(instance) --~update
                     local perCent = nil
                     local ruleToUse = 2 --total dps
                     Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(value, abbreviateSettingsDamage), AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS), perCent, ruleToUse)
-
 
                     instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)

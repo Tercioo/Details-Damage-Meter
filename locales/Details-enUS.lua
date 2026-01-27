@@ -14,6 +14,11 @@ L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = "When the line has information\nabout the
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Use Aligned Text"
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "The text is aligned in columns, setup the spacing between columns."
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Space Between Columns"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Don't Show Percent"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Only Show Total"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "Separate | by | Pipe"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"] = "Separate [by, Brackets]"
+L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"] = "Total (DPS) Percent"
 
 L["ABILITY_ID"] = "ability id"
 L["STRING_"] = ""

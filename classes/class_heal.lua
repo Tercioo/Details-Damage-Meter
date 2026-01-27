@@ -673,6 +673,7 @@ function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lug
 		if (sub_atributo == 1) then --mostrando healing done
 			if detailsFramework.IsAddonApocalypseWow() then
 				local ruleToUse = 2 --total dps
+				--print(hps, AbbreviateNumbers(hps, Details.abbreviateOptionsDPS))
 				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(healing_total, Details.abbreviateOptionsDamage), AbbreviateNumbers(hps, Details.abbreviateOptionsDPS), nil, ruleToUse)
 				percentNumber = _math_floor((healing_total/instancia.top) * 100)
 			else

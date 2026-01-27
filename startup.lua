@@ -468,7 +468,17 @@ function Details222.StartUp.StartMeUp()
 						else
 							Details.righttext_simple_formatting.enabled = true
 							Details.righttext_simple_formatting.use_alignment = false
+
+							local bars_show_data = lowerInstanceId.row_info.textR_show_data
+							if (not bars_show_data [3]) then --no percent
+								local template = {"%s (%s)", "%s (%s)", "%s"}
+								local profileTable = Details.righttext_simple_formatting
+								profileTable.format_tsp = template[1]
+								profileTable.format_ts = template[2]
+								profileTable.format_tp = template[3]
+							end
 						end
+
 						Details.righttext_simple_formatting.first_run = true
 					end
 				end

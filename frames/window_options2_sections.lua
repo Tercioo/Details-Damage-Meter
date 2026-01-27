@@ -1772,6 +1772,29 @@ do
 			return separatorTable
 		end
 
+        local onSelectRightTextTemplate = function(self, instance, value)
+            local profileTable = Details.righttext_simple_formatting
+            profileTable.format_tsp = value[1]
+            profileTable.format_ts = value[2]
+            profileTable.format_tp = value[3]
+            Details:RefreshMainWindow(-1, true)
+            afterUpdate()
+            self:GetParent():RefreshOptions()
+        end
+
+        local rightTextTemplates = {
+            {value = {"%s (%s, %s)", "%s (%s)", "%s (%s)"}, label = Loc["STRING_OPTIONS_RESET_TO_DEFAULT"], onclick = onSelectRightTextTemplate, icon = ""},
+            {value = {"%s (%s)", "%s (%s)", "%s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"], onclick = onSelectRightTextTemplate, icon = ""},
+            {value = {"%s", "%s", "%s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"], onclick = onSelectRightTextTemplate, icon = ""},
+            {value = {"%s | %s | %s", "%s | %s", "%s | %s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"], onclick = onSelectRightTextTemplate, icon = ""},
+            {value = {"%s [%s, %s]", "%s [%s]", "%s [%s]"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE5"], onclick = onSelectRightTextTemplate, icon = ""},
+            {value = {"%s (%s) %s", "%s (%s)", "%s %s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE6"], onclick = onSelectRightTextTemplate, icon = ""},
+            --{value = {"%s (%s) %s", "%s (%s)", "%s %s"}, label = "Total (DPS) Percent", onclick = onSelectRightTextTemplate, icon = ""},
+        }
+
+        local buildRightTextTemplateMenu = function()
+            return rightTextTemplates
+        end
 
     local buildSection = function(sectionFrame)
         local sectionOptions = {
@@ -2271,6 +2294,20 @@ do
                 name = "",
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE1"],
                 id = "format_tp_textentry",
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+            },
+
+            {type = "label", get = function() return "Select a template:" end, text_template = subSectionTitleTextTemplate,
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+
+            {--templates
+                type = "select",
+                get = function() return rightTextTemplates[1].value end,
+                values = function()
+                    return buildRightTextTemplateMenu()
+                end,
+                name = "",
+                desc = "",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
             },
 
