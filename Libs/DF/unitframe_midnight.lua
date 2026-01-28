@@ -158,6 +158,7 @@ local cleanfunction = function() end
 		ShowHealingPrediction = true, --when casting a healing pass, show the amount of health that spell will heal
 		ShowShields = true, --indicator of the amount of damage absortion the unit has
 		DontSetStatusBarTexture = false,
+		AnimateHealth = true,
 
 		--appearance
 		BackgroundColor = detailsFramework:CreateColorTable (.2, .2, .2, .8),
@@ -189,10 +190,10 @@ local cleanfunction = function() end
 
 			--register events
 			if (unit) then
-				self.currentHealth = UnitHealth(unit)
-				self.currentHealthMax = UnitHealthMax(unit)
-				self.currentHealthMissing = UnitHealthMissing(unit, true)
-				self.currentHealthPercent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
+				--self.currentHealth = UnitHealth(unit)
+				--self.currentHealthMax = UnitHealthMax(unit)
+				--self.currentHealthMissing = UnitHealthMissing(unit, true)
+				--self.currentHealthPercent = UnitHealthPercent(unit, true, CurveConstants.ScaleTo100)
 
 				for _, eventTable in ipairs(self.HealthBarEvents) do
 					local event = eventTable[1]
@@ -231,7 +232,10 @@ local cleanfunction = function() end
 					self:SetScript("OnUpdate", self.OnTick)
 				end
 
+				local animCache = self.Settings.AnimateHealth
+				self.Settings.AnimateHealth = false -- update instantly on setting unit
 				self:PLAYER_ENTERING_WORLD(self.unit, self.displayedUnit)
+				self.Settings.AnimateHealth = animCache
 			else
 				--remove all registered events
 				for _, eventTable in ipairs(self.HealthBarEvents) do
@@ -319,7 +323,7 @@ local cleanfunction = function() end
 		self.currentHealth = health
 		self.currentHealthMissing = calculator:GetMissingHealth()
 		self.currentHealthPercent = UnitHealthPercent(self.displayedUnit, true, CurveConstants.ScaleTo100)
-		self:SetValue(health, updateMaxHealth and Enum.StatusBarInterpolation.Immediate or Enum.StatusBarInterpolation.ExponentialEaseOut)
+		self:SetValue(health, (updateMaxHealth or not self.Settings.AnimateHealth) and Enum.StatusBarInterpolation.Immediate or Enum.StatusBarInterpolation.ExponentialEaseOut)
 
 		if (self.OnHealthChange) then --direct call
 			self.OnHealthChange(self, self.displayedUnit)
@@ -343,7 +347,7 @@ local cleanfunction = function() end
 			self.shieldAbsorbGlow:Show()
 			self.shieldAbsorbGlow:SetAlphaFromBoolean(clamp, 1, 0)
 			
-			self.shieldAbsorbIndicatorBar:SetMinMaxValues(health, self.currentHealthMax) --TODO
+			self.shieldAbsorbIndicatorBar:SetMinMaxValues(health, self.currentHealthMax, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate) --TODO
 			self.shieldAbsorbIndicatorBar:SetValue(absorb)
 			
 			self.nextShieldHook = self.nextShieldHook or 0
@@ -383,7 +387,7 @@ local cleanfunction = function() end
 		self.currentHealth = health
 		self.currentHealthMissing = UnitHealthMissing(self.displayedUnit, true)
 		self.currentHealthPercent = UnitHealthPercent(self.displayedUnit, true, CurveConstants.ScaleTo100)
-		self:SetValue(health, Enum.StatusBarInterpolation.ExponentialEaseOut)
+		self:SetValue(health, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate)
 
 		if (self.OnHealthChange) then --direct call
 			self.OnHealthChange(self, self.displayedUnit)
@@ -413,7 +417,7 @@ local cleanfunction = function() end
 			self.shieldAbsorbGlow:Show()
 			self.shieldAbsorbGlow:SetAlphaFromBoolean(clamp, 1, 0)
 			
-			self.shieldAbsorbIndicatorBar:SetMinMaxValues(0, self.currentHealthMax)
+			self.shieldAbsorbIndicatorBar:SetMinMaxValues(0, self.currentHealthMax, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate)
 			self.shieldAbsorbIndicatorBar:SetValue(absorb)
 			
 			self.nextShieldHook = self.nextShieldHook or 0
@@ -1943,7 +1947,7 @@ detailsFramework.CastFrameFunctions = {
 		local unitID, castID, spellID, interruptedBy, castBarID = ...
 
 		if (self.channeling and castBarID == self.castBarID) then --and castID == self.castID) then
-			if interruptedBy1 ~= nil then
+			if interruptedBy ~= nil then
 				self:UNIT_SPELLCAST_INTERRUPTED(unit, unitID, castID, spellID, interruptedBy, castBarID)
 			else
 				self.Spark:Hide()
