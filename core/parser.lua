@@ -5838,7 +5838,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end)
 
-		if (detailsFramework.ExpansionHasEvoker()) then
+		if (detailsFramework.ExpansionHasEvoker() and not detailsFramework.IsAddonApocalypseWow()) then
 			if (IsInRaid()) then
 				--check if there is only one bombardment evoker in the group
 				local evokerCount = 0
