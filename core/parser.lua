@@ -5594,6 +5594,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details.parser_functions:PLAYER_ENTERING_WORLD ()
+		--refresh title bar for shared media textures
+		Details:InstanceCall(Details.RefreshTitleBar)
+
 		return Details.parser_functions:ZONE_CHANGED_NEW_AREA()
 	end
 

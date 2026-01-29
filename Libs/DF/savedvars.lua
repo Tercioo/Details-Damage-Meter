@@ -12,6 +12,15 @@ local UnitGUID = UnitGUID
 
 ---@alias profileid string the profile id is the name of the profile, by default it has the name "default"
 
+---@class addon_savedvariables : table
+---@field GetCurrentProfileName fun(addonObject: df_addon): profileid
+---@field GetSavedVariables fun(addonObject: df_addon): table
+---@field GetProfile fun(addonObject: df_addon, bCreateIfNotFound?: boolean, profileToCopyFrom?: profile): profile
+---@field SetProfile fun(addonObject: df_addon, profileName: profileid, bCopyFromCurrentProfile?: boolean)
+---@field SaveProfile fun(addonObject: df_addon)
+---@field CreateProfilePanel fun(addonObject: df_addon, frameName: string, parentFrame: frame, options?: table): df_profilepanel
+---@field RefreshProfilePanel fun(profilePanel: df_profilepanel)
+
 --create namespace
 detailsFramework.SavedVars = {}
 

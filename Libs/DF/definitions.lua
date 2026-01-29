@@ -134,7 +134,6 @@ GameCooltipFrame2 = {}
 ---| "switch"
 ---| "slider"
 
-
 ---@class detailsframework
 ---@field dversion number
 ---@field OnLoginSchedules function[]
@@ -148,6 +147,7 @@ GameCooltipFrame2 = {}
 ---@field TimeLine_LineMixin df_timeline_line_mixin
 ---@field TimeLineMixin df_timeline_mixin
 ---@field NameplateBorderMixin df_nameplate_border_mixin
+---@field SavedVars addon_savedvariables
 ---@field RoleTypes roleinfo[]
 ---@field Language df_language
 ---@field Ejc df_ejc

@@ -288,6 +288,9 @@ local cleanfunction = function() end
 		local maxHealth = UnitHealthMax(self.displayedUnit)
 		self:SetMinMaxValues(0, maxHealth)
 		self.currentHealthMax = maxHealth
+		self.currentHealthMissing = maxHealth - (self.currentHealth or 0)
+		self.currentHealthPercent = (self.currentHealth or maxHealth) / maxHealth * 100
+		self.currentHealthPercentMissing = 100 - self.currentHealthPercent
 
 		if (self.OnHealthMaxChange) then --direct call
 			self.OnHealthMaxChange(self, self.displayedUnit)
@@ -305,6 +308,8 @@ local cleanfunction = function() end
 		self.oldHealth = self.currentHealth
 		local health = UnitHealth(self.displayedUnit)
 		self.currentHealth = health
+		self.currentHealthMissing = (self.currentHealthMax or health) - (health or 0)
+		self.currentHealthPercent = (health or self.currentHealthMax) / (self.currentHealthMax or health)  * 100
 		PixelUtil.SetStatusBarValue(self, health)
 
 		if (self.OnHealthChange) then --direct call
@@ -1005,6 +1010,7 @@ detailsFramework.CastFrameFunctions = {
 
 		self.Spark:SetTexture(self.Settings.SparkTexture)
 		self.Spark:SetSize(self.Settings.SparkWidth, self.Settings.SparkHeight)
+		self.Spark:SetPoint("CENTER", self.barTexture, "RIGHT", self.Settings.SparkOffset, 0)
 
 		self.percentText:SetPoint("right", self, "right", -2, 0)
 		self.percentText:SetJustifyH("right")
@@ -1532,6 +1538,7 @@ detailsFramework.CastFrameFunctions = {
 			end
 
 			self.Spark:Show()
+			self.Spark:SetPoint("CENTER", self.barTexture, "RIGHT", self.Settings.SparkOffset, 0)
 			self:Show()
 
 		--update the interrupt cast border
@@ -1693,6 +1700,7 @@ detailsFramework.CastFrameFunctions = {
 			end
 
 			self.Spark:Show()
+			self.Spark:SetPoint("CENTER", self.barTexture, "RIGHT", self.Settings.SparkOffset, 0)
 			self:Show()
 
 		--update the interrupt cast border
@@ -1944,7 +1952,6 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 			--statusbar texture
 			castBar.barTexture = castBar:CreateTexture(nil, "artwork", nil, -6)
 			castBar:SetStatusBarTexture(castBar.barTexture)
-			castBar.Spark:SetPoint("CENTER", castBar.barTexture, "RIGHT")
 
 			--animations fade in and out
 			local fadeOutAnimationHub = detailsFramework:CreateAnimationHub(castBar, detailsFramework.CastFrameFunctions.Animation_FadeOutStarted, detailsFramework.CastFrameFunctions.Animation_FadeOutFinished)
@@ -1988,6 +1995,8 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 		detailsFramework.table.copy(settings, settingsOverride)
 	end
 	castBar.Settings = settings
+	
+	castBar.Spark:SetPoint("CENTER", castBar.barTexture, "RIGHT", castBar.Settings.SparkOffset, 0)
 
 	local hookList = detailsFramework.table.copy({}, detailsFramework.CastFrameFunctions.HookList)
 	castBar.HookList = hookList

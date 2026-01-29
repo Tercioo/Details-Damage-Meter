@@ -1154,6 +1154,8 @@ local default_profile = {
 			tooltip_max_targets = 2,
 			tooltip_max_pets = 2,
 
+			grow_direction = "down",
+
 			--menus_bg_coords = {331/512, 63/512, 109/512, 143/512}, --with gradient on right side
 			menus_bg_coords = {0.309777336120606, 0.924000015258789, 0.213000011444092, 0.279000015258789},
 			menus_bg_color = {.8, .8, .8, 0.2},

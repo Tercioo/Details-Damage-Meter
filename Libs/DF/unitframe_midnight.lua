@@ -90,7 +90,6 @@ local cleanfunction = function() end
 ---@class df_healthbar : statusbar, df_scripthookmixin, df_statusbarmixin
 ---@field unit unit
 ---@field displayedUnit unit
----@field oldHealth number
 ---@field currentHealth number
 ---@field currentHealthMax number
 ---@field nextShieldHook number
@@ -303,51 +302,42 @@ local cleanfunction = function() end
 		end
 	
 		local calculator = self.healCalculator
-		calculator:SetMaximumHealthMode(self.Settings.ShowShields and Enum.UnitMaximumHealthMode.WithAbsorbs or Enum.UnitMaximumHealthMode.Default)
 		UnitGetDetailedHealPrediction(self.displayedUnit, nil, calculator)
 		
-		local maxHealth = calculator:GetMaximumDamageAbsorbs() --calculator:GetMaximumHealth()
-		self:SetMinMaxValues(0, maxHealth, Enum.StatusBarInterpolation.Immediate)
-		self.currentHealthMax = maxHealth
-		
-		if updateMaxHealth then
-			if (self.OnHealthMaxChange) then --direct call
-				self.OnHealthMaxChange(self, self.displayedUnit)
-			else
-				self:RunHooksForWidget("OnHealthMaxChange", self, self.displayedUnit)
-			end
-		end
-		
-		self.oldHealth = self.currentHealth
-		local health = calculator:GetCurrentHealth()
-		self.currentHealth = health
+		calculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.Default)
+		self.currentHealthPercent = calculator:EvaluateCurrentHealthPercent(CurveConstants.ScaleTo100)
+		self.currentHealthMissingPercent = calculator:GetMissingHealthPercent()
+		self.currentHealth = calculator:GetCurrentHealth()
 		self.currentHealthMissing = calculator:GetMissingHealth()
-		self.currentHealthPercent = UnitHealthPercent(self.displayedUnit, true, CurveConstants.ScaleTo100)
-		self:SetValue(health, (updateMaxHealth or not self.Settings.AnimateHealth) and Enum.StatusBarInterpolation.Immediate or Enum.StatusBarInterpolation.ExponentialEaseOut)
+		self.currentHealthMax = calculator:GetMaximumDamageAbsorbs() --calculator:GetMaximumHealth()
+		
+		--switch
+		calculator:SetMaximumHealthMode(self.Settings.ShowShields and Enum.UnitMaximumHealthMode.WithAbsorbs or Enum.UnitMaximumHealthMode.Default)
+		
+		self.currentHealthPercentWithAbsorb = calculator:EvaluateCurrentHealthPercent(CurveConstants.ScaleTo100)
+		self.currentHealthMissingPercentWithAbsorb = calculator:GetMissingHealthPercent()
+		self.currentHealthMissingWithAbsorb = calculator:GetMissingHealth()
+		self.currentHealthMaxWithAbsorb = calculator:GetMaximumDamageAbsorbs() --calculator:GetMaximumHealth()
+		
+		self:SetMinMaxValues(0, self.currentHealthMaxWithAbsorb, Enum.StatusBarInterpolation.Immediate)
 
-		if (self.OnHealthChange) then --direct call
-			self.OnHealthChange(self, self.displayedUnit)
-		else
-			self:RunHooksForWidget("OnHealthChange", self, self.displayedUnit)
-		end
+		self:SetValue(self.currentHealth, (updateMaxHealth or not self.Settings.AnimateHealth) and Enum.StatusBarInterpolation.Immediate or Enum.StatusBarInterpolation.ExponentialEaseOut)
 		
 		if (self.Settings.ShowShields) then
 			local absorb, clamp = calculator:GetDamageAbsorbs()
 			
 			--damage absorbs
 			local unitDamageAbsorb = calculator:GetMaximumDamageAbsorbs() -- this is full life with all?
-			self.currentAbsorb = absorb
-			self.currentAbsorbMaxHealth = unitDamageAbsorb
+			self.currentAbsorb = unitDamageAbsorb
 			self.currentAbsorbClamped = absorb
-			self.currentAbsorbIsClamped = clapmped
-			
+			self.currentAbsorbIsClamped = clamp
 
 			self.shieldAbsorbIndicatorBar:SetAlpha(unitDamageAbsorb)
 			
 			self.shieldAbsorbGlow:Show()
 			self.shieldAbsorbGlow:SetAlphaFromBoolean(clamp, 1, 0)
 			
-			self.shieldAbsorbIndicatorBar:SetMinMaxValues(health, self.currentHealthMax, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate) --TODO
+			self.shieldAbsorbIndicatorBar:SetMinMaxValues(0, self.currentHealthMaxWithAbsorb, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate) --TODO
 			self.shieldAbsorbIndicatorBar:SetValue(absorb)
 			
 			self.nextShieldHook = self.nextShieldHook or 0
@@ -357,12 +347,27 @@ local cleanfunction = function() end
 			end
 		end
 		
-		--GetMaximumHealAbsorbs
-		
+		if updateMaxHealth then
+			if (self.OnHealthMaxChange) then --direct call
+				self.OnHealthMaxChange(self, self.displayedUnit)
+			else
+				self:RunHooksForWidget("OnHealthMaxChange", self, self.displayedUnit)
+			end
+		end
+
+		if (self.OnHealthChange) then --direct call
+			self.OnHealthChange(self, self.displayedUnit)
+		else
+			self:RunHooksForWidget("OnHealthChange", self, self.displayedUnit)
+		end
 	end
 
 	--when the unit max health is changed
 	healthBarMetaFunctions.UpdateMaxHealth = function(self)
+		if not IS_MIDNIGHT_PRE_PATCH then
+			self:UpdateAllHealth(true)
+			return
+		end
 		local maxHealth = UnitHealthMax(self.displayedUnit)
 		self:SetMinMaxValues(0, maxHealth, Enum.StatusBarInterpolation.Immediate)
 		self.currentHealthMax = maxHealth
@@ -377,12 +382,15 @@ local cleanfunction = function() end
 	end
 
 	healthBarMetaFunctions.UpdateHealth = function(self)
+		if not IS_MIDNIGHT_PRE_PATCH then
+			self:UpdateAllHealth(true)
+			return
+		end
 		-- update max health regardless to avoid weird wrong values on UpdateMaxHealth sometimes
 		-- local maxHealth = UnitHealthMax(self.displayedUnit)
 		-- self:SetMinMaxValues(0, maxHealth)
 		-- self.currentHealthMax = maxHealth
 
-		self.oldHealth = self.currentHealth
 		local health = UnitHealth(self.displayedUnit)
 		self.currentHealth = health
 		self.currentHealthMissing = UnitHealthMissing(self.displayedUnit, true)
@@ -398,6 +406,10 @@ local cleanfunction = function() end
 
 	--health and absorbs prediction
 	healthBarMetaFunctions.UpdateHealPrediction = function(self)
+		if not IS_MIDNIGHT_PRE_PATCH then
+			self:UpdateAllHealth(true)
+			return
+		end
 		local calculator = self.healCalculator
 		UnitGetDetailedHealPrediction(self.displayedUnit, nil, calculator)
 		--print(self.displayedUnit, UnitHealth(self.displayedUnit), UnitHealthMax(self.displayedUnit), UnitGetTotalAbsorbs(self.displayedUnit), calculator:GetDamageAbsorbs())
@@ -551,7 +563,15 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 			healthBar.shieldAbsorbIndicatorBar:SetStatusBarTexture(healthBar.shieldAbsorbIndicatorBar.barTexture)
 			healthBar.shieldAbsorbIndicatorBar.barTexture:SetTexture([[Interface\RaidFrame\Shield-Fill]])
 			healthBar.shieldAbsorbIndicatorBar:SetPoint ("topleft", healthBar.barTexture, "topright")
-			healthBar.shieldAbsorbIndicatorBar:SetPoint ("bottomright", healthBar, "bottomright")
+			--healthBar.shieldAbsorbIndicatorBar:SetPoint ("bottomright", healthBar, "bottomright")
+			healthBar.shieldAbsorbIndicatorBar:SetPoint ("bottomleft", healthBar.barTexture, "bottomright")
+			hooksecurefunc(healthBar, 'SetWidth', function(self, w)
+				healthBar.shieldAbsorbIndicatorBar:SetWidth(w)
+			end)
+			hooksecurefunc(healthBar, 'SetSize', function(self, h, w)
+				--healthBar.shieldAbsorbIndicatorBar:SetSize(h, w)
+				healthBar.shieldAbsorbIndicatorBar:SetWidth(w)
+			end)
 			-- not so nice, but works in compatibility
 			healthBar.SetFrameLevelOrig = healthBar.SetFrameLevel
 			healthBar.SetFrameLevel = function(self, level)
@@ -1118,6 +1138,7 @@ detailsFramework.CastFrameFunctions = {
 
 		self.Spark:SetTexture(self.Settings.SparkTexture)
 		self.Spark:SetSize(self.Settings.SparkWidth, self.Settings.SparkHeight)
+		self.Spark:SetPoint("CENTER", self.barTexture, "RIGHT", self.Settings.SparkOffset, 0)
 
 		self.percentText:SetPoint("right", self, "right", -2, 0)
 		self.percentText:SetJustifyH("right")
@@ -1703,6 +1724,7 @@ detailsFramework.CastFrameFunctions = {
 			self:UpdateCastColor()
 
 			self.Spark:Show()
+			self.Spark:SetPoint("CENTER", self.barTexture, "RIGHT", self.Settings.SparkOffset, 0)
 			self:Show()
 
 		--update the interrupt cast border
@@ -1876,6 +1898,7 @@ detailsFramework.CastFrameFunctions = {
 			self:UpdateCastColor()
 
 			self.Spark:Show()
+			self.Spark:SetPoint("CENTER", self.barTexture, "RIGHT", self.Settings.SparkOffset, 0)
 			self:Show()
 
 		--update the interrupt cast border
@@ -2155,7 +2178,6 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 			--statusbar texture
 			castBar.barTexture = castBar:CreateTexture(nil, "artwork", nil, -6)
 			castBar:SetStatusBarTexture(castBar.barTexture)
-			castBar.Spark:SetPoint("CENTER", castBar.barTexture, "RIGHT")
 
 			--animations fade in and out
 			local fadeOutAnimationHub = detailsFramework:CreateAnimationHub(castBar, detailsFramework.CastFrameFunctions.Animation_FadeOutStarted, detailsFramework.CastFrameFunctions.Animation_FadeOutFinished)
@@ -2199,6 +2221,8 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 		detailsFramework.table.copy(settings, settingsOverride)
 	end
 	castBar.Settings = settings
+	
+	castBar.Spark:SetPoint("CENTER", castBar.barTexture, "RIGHT", castBar.Settings.SparkOffset, 0)
 
 	local hookList = detailsFramework.table.copy({}, detailsFramework.CastFrameFunctions.HookList)
 	castBar.HookList = hookList
