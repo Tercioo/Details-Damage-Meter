@@ -1471,11 +1471,6 @@ local updateWindow = function(instance) --~update
                         instanceLine.icone_classe:SetTexCoord(l, r, t, b)
                     end
 
-                    --instanceLine.textura:SetTexture(textureFile)
-                    --instanceLine.background:SetTexture(textureFile2)
-                    --instanceLine.overlayTexture:SetTexture(overlayTexture)
-                    --instanceLine.overlayTexture:SetVertexColor(unpack(overlayColor))
-
                     if updateStatusbarColor then
                         local classColor = Details.class_colors[classFilename or "UNGROUPPLAYER"]
                         if (classColor) then

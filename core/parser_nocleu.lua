@@ -461,6 +461,8 @@ function bParser.UpdateDamageMeterSwap()
         end
         damageMeter:Hide()
 
+        do return end
+
         swappedFrame:SetScript("OnUpdate", nil)
 
         damageMeter:ForEachSessionWindow(function(thisWindow)
@@ -493,8 +495,6 @@ end
 
 function DetailsActionButtonTemplate_OnLoad(self)
     self:RegisterForClicks("AnyUp")
-
-
 end
 
 do return end
