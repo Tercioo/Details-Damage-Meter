@@ -311,6 +311,10 @@
 		frame.fading_out = nil
 		frame.fading_in = true
 
+		if Details.no_fade_animation then
+			totalTime = 0
+		end
+
 		Details.FadeHandler.frames[frame] = {
 			totalTime = totalTime or Details.fade_speed,
 			startAlpha = startAlpha or frame:GetAlpha(),
@@ -324,6 +328,10 @@
 	local startFadeOUTAnimation = function(frame, totalTime, startAlpha, endAlpha, callbackFunc)
 		frame.fading_in = nil
 		frame.fading_out = true
+
+		if Details.no_fade_animation then
+			totalTime = 0
+		end
 
 		Details.FadeHandler.frames[frame] = {
 			totalTime = totalTime or Details.fade_speed,

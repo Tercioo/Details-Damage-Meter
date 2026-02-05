@@ -1165,7 +1165,7 @@ function segmentClass:ResetAllCombatData()
 	Details:RefreshMainWindow(-1) --atualiza todas as instancias
 
 	if detailsFramework.IsAddonApocalypseWow() then
-		C_DamageMeter.ResetAllCombatSessions()
+		Details222.BParser.ResetServerDM()
 	end
 
 	Details:SendEvent("DETAILS_DATA_RESET", nil, nil)

@@ -1763,12 +1763,21 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --main refresh function
 
+local apocalypseRefreshWindow = function(self, instanceObject, combatObject, bForceUpdate, bExportData)
+
+end
+
 	--~refresh
 ---@param instanceObject instance
 ---@param combatObject combat
 ---@param bForceUpdate boolean
 ---@param bExportData boolean
 function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData) --~refresh
+	if detailsFramework.IsAddonApocalypseWow() then
+		--apocalypseRefreshWindow()
+		--return
+	end
+
 	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
 
 	---@type actorcontainer
@@ -1786,13 +1795,21 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 			end
 		end
 
+		--print("|cFFFFAA00Details: No Actors In The Container, Returning!")
+
 		--colocado isso recentemente para fazer as barras de dano sumirem na troca de atributo
 		return Details:HideBarsNotInUse(instanceObject, damageContainer), "", 0, 0
 	end
 
 	if detailsFramework.IsAddonApocalypseWow() then
+		if Details222.BParser.IsServerSideSessionOpen() then
+			--print("|cFFFFAA00Attempt to update when there is a server-side session open. Update aborted.")
+			return
+		end
 		instanceObject:CheckForSecretsAndAspects()
 	end
+
+	--print("-> |cFF00BB11Details: Updating Damage Window!", GetTime())
 
 	--total
 	local total = 0

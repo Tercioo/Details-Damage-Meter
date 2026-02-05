@@ -6182,13 +6182,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (Details.debug) then
 		end
 
-		if detailsFramework.IsAddonApocalypseWow() then
-			pcall(function()
-				if C_DamageMeter and C_DamageMeter.ResetAllCombatSessions then
-					C_DamageMeter.ResetAllCombatSessions()
-				end
-			end)
-		end
+		Details222.BParser.ResetServerDM()
 
 		detailsFramework.Schedules.NewTimer (10, function()
 			Details222.MythicPlus.LogStep("CHALLENGE_MODE_START timer ended, starting the dungeon.")

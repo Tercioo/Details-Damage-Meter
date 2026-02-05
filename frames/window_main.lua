@@ -6833,6 +6833,10 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 								gameCooltip:AddIcon(Details:GetTextureAtlas("small-pin-yellow"), 2, 1)
 								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.25, false, false, statusBarTexture)
 
+								gameCooltip:AddLine("Session:", thisCombat.combatSessionId, 2, "white", "white")
+								gameCooltip:AddIcon(Details:GetTextureAtlas("small-pin-yellow"), 2, 1)
+								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.25, false, false, statusBarTexture)
+
 								local backgroundImage = Details:GetRaidIcon(mapID, EJID, "party")
 								if (backgroundImage and bCanUseBackgroundImage) then
 									gameCooltip:SetWallpaper(2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)

@@ -514,6 +514,8 @@
 			Details:Msg("combat destroyed by:", currentCombat.__destroyedBy)
 		end
 
+		local mapID = C_Map.GetBestMapForUnit("player")
+
 		--flag the addon as 'leaving combat'
 		Details.leaving_combat = true
 		--save the unixtime of the latest combat end
@@ -532,6 +534,8 @@
 
 		--Details222.TimeCapture.StopCombat() --it did not start
 
+		local zoneName, _, difficultyID, _, _, _, _, zoneMapID = GetInstanceInfo()
+
 		--check if this isn't a boss and try to find a boss in the segment
 		if (not currentCombat.is_boss) then
 			--if this is a mythic+ dungeon, do not scan for encounter journal boss names in the actor list
@@ -539,7 +543,6 @@
 
 			--still didn't find the boss
 			if (not currentCombat.is_boss) then
-				local zoneName, _, difficultyID, _, _, _, _, zoneMapID = GetInstanceInfo()
 				local findboss = Details:GetRaidBossFindFunction(zoneMapID)
 				if (findboss) then
 					local bossIndex = findboss()
@@ -580,13 +583,11 @@
 
 		--flag instance type
 		local zoneName, instanceType, difficultyID, difficultyName, _, _, _, zoneMapID = GetInstanceInfo()
-		currentCombat.instance_type = instanceType
+		--currentCombat.instance_type = instanceType
 
 		if (not currentCombat.is_boss and bIsFromEncounterEnd and type(bIsFromEncounterEnd) == "table") then
 			local encounterID, encounterName, difficultyID, raidSize, endStatus = unpack(bIsFromEncounterEnd)
 			if (encounterID) then
-				local mapID = C_Map.GetBestMapForUnit("player")
-
 				if (not mapID) then
 					mapID = 0
 				end
@@ -659,6 +660,9 @@
 				--if is not boss and inside a instance of type party or raid: mark the combat as trash
 				if (not currentCombat.is_mythic_dungeon) then
 					currentCombat.is_trash = true
+					if instanceType == "party" then
+						
+					end
 				end
 			else
 				if (not bInInstance) then
@@ -774,6 +778,7 @@
 		local bShouldForceDiscard = Details222.discardSegment and segmentsTable[1] and true
 
 		local zoneName, zoneType = GetInstanceInfo()
+		--print(" time in combat:", tempo_do_combate >= Details.minimum_combat_time, tempo_do_combate)
 		if (not bShouldForceDiscard and (zoneType == "none" or tempo_do_combate >= Details.minimum_combat_time or not segmentsTable[1])) then
 			--combat accepted
 			Details.tabela_historico:AddCombat(currentCombat) --move a tabela atual para dentro do hist�rico
@@ -828,7 +833,7 @@
 				end
 			end
 		else
-			--print("|cFFFF3333 Details discarded the segment")
+			--print("|cFFFF3300 Details discarded the segment")
 			--combat denied: combat did not pass the filter and cannot be added into the segment history
 			--rewind the data set to the first slot in the segments table
 			showTutorialForDiscardedSegment()

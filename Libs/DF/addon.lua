@@ -103,7 +103,7 @@ local setLogoutLogTable = function(addonObject, logTable)
 end
 
 ---create an addon object
----@param addonName addonname
+---@param addonName addonname toc file name
 ---@param globalSavedVariablesName string
 ---@param savedVarsTemplate table
 ---@return frame

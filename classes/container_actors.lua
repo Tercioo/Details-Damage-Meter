@@ -640,16 +640,17 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 
 			--if the actor is a player
 			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
-
-                    if (not Details.ignore_nicktag) then
-                        local actorNameAmbiguated = Ambiguate(actorName, "none")
-                        local nickname = Details:GetNickname(actorNameAmbiguated, false, true)
-                        if nickname then
-                            if checkValidNickname(nickname, actorName) then
-                                actorObject.displayName = nickname --defaults to player name
-                            end
-                        end
-                    end
+					if not detailsFramework.IsAddonApocalypseWow() then
+						if (not Details.ignore_nicktag) then
+							local actorNameAmbiguated = Ambiguate(actorName, "none")
+							local nickname = Details:GetNickname(actorNameAmbiguated, false, true)
+							if nickname then
+								if checkValidNickname(nickname, actorName) then
+									actorObject.displayName = nickname --defaults to player name
+								end
+							end
+						end
+					end
 
 					--the actor does not have a nickname, use the character name instead
 					if (not actorObject.displayName) then

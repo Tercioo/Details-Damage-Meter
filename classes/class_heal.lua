@@ -1358,12 +1358,19 @@ end
 local background_heal_vs_absorbs = {value = 100, color = {1, 1, 0, .25}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_glass]]}
 
 function healingClass:ToolTip_HealingDone (instance, numero, barra, keydown)
-
 	local owner = self.owner
 	if (owner and owner.classe) then
-		r, g, b = unpack(_detalhes.class_colors [owner.classe])
+		local thisColor = _detalhes.class_colors[owner.classe]
+		if not thisColor then
+			thisColor = _detalhes.class_colors["UNKNOW"]
+		end
+		r, g, b = unpack(thisColor)
 	else
-		r, g, b = unpack(_detalhes.class_colors [self.classe])
+		local thisColor = _detalhes.class_colors[self.classe]
+		if not thisColor then
+			thisColor = _detalhes.class_colors["UNKNOW"]
+		end
+		r, g, b = unpack(thisColor)
 	end
 
 	local combatObject = instance:GetCombat()

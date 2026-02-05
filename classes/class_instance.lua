@@ -595,12 +595,12 @@ local instanceMixins = {
 		--if there's no combat object to show, freeze the window
 		---@type combat
 		local combatObject = instance:GetCombat()
-		if not quickMode then
+		--if not quickMode then
 			if (not combatObject) then
 				instance:Freeze()
 				return false
 			end
-		end
+		--end
 
 		instance.v_barras = true
 		combatObject[attributeId].need_refresh = true
@@ -623,7 +623,7 @@ local instanceMixins = {
 	end,
 
 	CheckForSecretsAndAspects = function(self)
-		Details:ClearSecretFontStrings(self)
+		Details:ClearSecretFontStrings(self) --only affect strings from 11 to 14
 
 		local lines = self.barras
 		local needRefreshRows = false
@@ -647,6 +647,8 @@ local instanceMixins = {
 
 			if (needRefreshRows) then
 				line.lineText1:SetToDefaults()
+				line.lineText1:SetFontObject("GameFontHighlight")
+				line.lineText1:SetText("defaults")
 				line.lineText2:SetToDefaults()
 				line.lineText3:SetToDefaults()
 				line.lineText4:SetToDefaults()

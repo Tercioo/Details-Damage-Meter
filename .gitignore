@@ -70,3 +70,5 @@ parseweb.lua
 /.tmp.drivedownload
 /.continue
 stuff.lua
+core/parser_nocleu2.lua
+player_combatlog_event.txt

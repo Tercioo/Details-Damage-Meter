@@ -1268,26 +1268,28 @@ local segmentTypeToString = {
 		end
 	end
 
-	function Details:HasCombatWithSessionId(sessionId)
+	function Details:HasCombatWithSessionId(combatSessionId)
 		local segmentsTable = Details:GetCombatSegments()
 		for i = 1, #segmentsTable do
+			---@type combat
 			local thisCombat = segmentsTable[i]
-			if (thisCombat.combatSessionId == sessionId) then
+			if (thisCombat.combatSessionId == combatSessionId) then
 				return true
 			end
 		end
 		return false
 	end
 
-	function Details:GetCombatWithSessionId(sessionId)
+	function Details:GetCombatWithSessionId(combatSessionId)
 		local segmentsTable = Details:GetCombatSegments()
 		for i = 1, #segmentsTable do
+			---@type combat
 			local thisCombat = segmentsTable[i]
-			if (thisCombat.combatSessionId == sessionId) then
-				return thisCombat
+			if (thisCombat.combatSessionId == combatSessionId) then
+				return thisCombat, i
 			end
 		end
-		return nil
+		return nil, nil
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1416,9 +1418,10 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 		n = 1 --event counter
 	}
 
-	local zoneName, _, _, _, _, _, _, zoneMapID = GetInstanceInfo()
+	local zoneName, instanceType, _, _, _, _, _, zoneMapID = GetInstanceInfo()
 	combatObject.zoneName = zoneName
 	combatObject.mapId = zoneMapID
+	combatObject.instance_type = instanceType
 
 	--a tabela sem o tempo de inicio � a tabela descartavel do inicio do addon
 	if (bTimeStarted) then

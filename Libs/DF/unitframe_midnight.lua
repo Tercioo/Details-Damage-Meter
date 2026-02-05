@@ -1044,19 +1044,21 @@ detailsFramework.CastFrameFunctions = {
 
 		--can be regular cast or channel
 		OnCastStart = {},
+		
+		OnEvent = {},
 	},
 
 	CastBarEvents = {
-		{"UNIT_SPELLCAST_INTERRUPTED"},
-		{"UNIT_SPELLCAST_DELAYED"},
-		{"UNIT_SPELLCAST_CHANNEL_START"},
-		{"UNIT_SPELLCAST_CHANNEL_UPDATE"},
-		{"UNIT_SPELLCAST_CHANNEL_STOP"},
-		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_START"},
-		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_UPDATE"},
-		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_STOP"},
-		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_INTERRUPTIBLE"},
-		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_NOT_INTERRUPTIBLE"},
+		{"UNIT_SPELLCAST_INTERRUPTED", true},
+		{"UNIT_SPELLCAST_DELAYED", true},
+		{"UNIT_SPELLCAST_CHANNEL_START", true},
+		{"UNIT_SPELLCAST_CHANNEL_UPDATE", true},
+		{"UNIT_SPELLCAST_CHANNEL_STOP", true},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_START", true},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_UPDATE", true},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_STOP", true},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_INTERRUPTIBLE", true},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_NOT_INTERRUPTIBLE", true},
 		{"PLAYER_ENTERING_WORLD"},
 		{"UNIT_SPELLCAST_START", true},
 		{"UNIT_SPELLCAST_STOP", true},
@@ -1455,7 +1457,7 @@ detailsFramework.CastFrameFunctions = {
 		end
 	end,
 
-	--it's triggering several events since it's not registered for the unit with RegisterUnitEvent
+	--it's triggering several events since it's not registered for the unit with RegisterUnitEvent (for some)
 	OnEvent = function(self, event, ...)
 		local arg1 = ...
 		local unit = self.unit
@@ -1474,6 +1476,7 @@ detailsFramework.CastFrameFunctions = {
 		local eventFunc = self [event]
 		if (eventFunc) then
 			eventFunc (self, unit, ...)
+			self:RunHooksForWidget("OnEvent", self, self.unit, event)
 		end
 	end,
 
@@ -1659,8 +1662,7 @@ detailsFramework.CastFrameFunctions = {
 				endTime = startTime + siCastTime
 			end
 		end
-		
-
+]]--
 		--is valid?
 		if (not self:IsValid(unit, name, isTradeSkill, true)) then
 			return
@@ -1674,7 +1676,7 @@ detailsFramework.CastFrameFunctions = {
 			self.numStages = nil
 			self.empStages = nil
 			self:CreateOrUpdateEmpoweredPips()
-]]--
+
 		--setup cast
 			self.casting = true
 			self.channeling = nil
@@ -1742,8 +1744,9 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	CreateOrUpdateEmpoweredPips = function(self, unit, numStages, startTime, endTime)
-		if true then return end
+		--if issecretvalue(startTime) or issecretvalue(self.spellStartTime) then return end
 		unit = unit or self.unit
+		if unit ~= "player" then return end -- some day this might get work for enemy units
 		numStages = numStages or self.numStages
 		startTime = startTime or ((self.spellStartTime or 0) * 1000)
 		endTime = endTime or ((self.spellEndTime or 0) * 1000)
@@ -1768,9 +1771,11 @@ detailsFramework.CastFrameFunctions = {
 				if not stagePip then
 					stagePip = self:CreateTexture(nil, "overlay", nil, 2)
 					stagePip:SetBlendMode("ADD")
-					stagePip:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
-					stagePip:SetTexCoord(11/32,18/32,9/32,23/32)
-					stagePip:SetSize(2, height)
+					--stagePip:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+					--stagePip:SetTexCoord(11/32,18/32,9/32,23/32)
+					stagePip:SetColorTexture(1, 1, 1, 1)
+					--stagePip:SetSize(2, height)
+					PixelUtil.SetSize(stagePip, 2, height)
 					--stagePip = CreateFrame("FRAME", nil, self, "CastingBarFrameStagePipTemplate")
 					self.stagePips[i] = stagePip
 				end
@@ -1780,7 +1785,7 @@ detailsFramework.CastFrameFunctions = {
 				--stagePip:SetPoint("BOTTOM", self, "BOTTOMLEFT", offset, 1)
 				--stagePip.BasePip:SetVertexColor(1, 1, 1, 1)
 				stagePip:SetPoint("CENTER", self, "LEFT", offset, 0)
-				stagePip:SetVertexColor(1, 1, 1, 1)
+				--stagePip:SetVertexColor(1, 1, 1, 1)
 				stagePip:Show()
 			end
 		end
@@ -1788,11 +1793,11 @@ detailsFramework.CastFrameFunctions = {
 
 	UpdateChannelInfo = function(self, unit, ...)
 		local unitID, castID, spellID, castBarID = ...
-		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, uciSpellID, _, numStages, uciCastBarID = CastInfo.UnitChannelInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, uciSpellID, isEmpowered, numStages, uciCastBarID = CastInfo.UnitChannelInfo (unit)
 		spellID = uciSpellID --or spellID
 		--castID = uciCastID --or castID
 		castBarID = castBarID or uciCastBarID
-		local durationObject = UnitChannelDuration(unit)
+		local durationObject = isEmpowered and UnitEmpoweredChannelDuration(unit, self.Settings.ShowEmpoweredDuration) or UnitChannelDuration(unit)
 		
 --[[
 		if spellID and (not name or not texture or not text) then
@@ -1805,7 +1810,7 @@ detailsFramework.CastFrameFunctions = {
 				endTime = startTime + siCastTime
 			end
 		end
-
+]]--
 		--is valid?
 		if (not self:IsValid (unit, name, isTradeSkill, true)) then
 			return
@@ -1818,7 +1823,7 @@ detailsFramework.CastFrameFunctions = {
 				stagePip:Hide()
 			end
 
-			if numStages and numStages > 0 then
+			if numStages and numStages > 0 and unit == "player" then -- some day this might get work for enemy unitsthen
 				self.holdAtMaxTime = GetUnitEmpowerHoldAtMaxTime(self.unit)
 				self.empowered = true
 				self.numStages = numStages
@@ -1848,7 +1853,7 @@ detailsFramework.CastFrameFunctions = {
 				self.curStage = nil
 				self.numStages = nil
 			end
-]]--
+
 		--setup cast
 			self.casting = nil
 			self.channeling = true
@@ -1874,7 +1879,7 @@ detailsFramework.CastFrameFunctions = {
 
 			--self:SetMinMaxValues(self.minValue, self.maxValue)
 			--self:SetValue(self.value)
-			self:SetTimerDuration(durationObject, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.RemainingTime)
+			self:SetTimerDuration(durationObject, Enum.StatusBarInterpolation.Immediate, self.empowered and Enum.StatusBarTimerDirection.ElapsedTime or Enum.StatusBarTimerDirection.RemainingTime)
 
 			if (not self.Settings.DontUpdateAlpha) then
 				self:SetAlpha(1)
@@ -1916,7 +1921,8 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UNIT_SPELLCAST_STOP = function(self, unit, ...)
-		local unitID, castID, spellID, castBarID = ...
+		local unitTarget, castGUID, spellID, castBarID = ...
+		
 		if (castBarID == self.castBarID) then
 			if (self.interrupted) then
 				if (self.Settings.HideSparkOnInterrupt) then
@@ -1931,14 +1937,12 @@ detailsFramework.CastFrameFunctions = {
 			local value = self:GetValue()
 			local minValue, maxValue = self:GetMinMaxValues()
 
-			if (self.interrupted) then
-				if (self.Settings.FillOnInterrupt) then
-					self:SetMinMaxValues(minValue, maxValue)
-					self:SetValue(maxValue)
-				end
-			else
+			if (self.interrupted and self.Settings.FillOnInterrupt) then
 				self:SetMinMaxValues(minValue, maxValue)
 				self:SetValue(maxValue)
+			else
+				self:SetMinMaxValues(minValue, maxValue)
+				self:SetValue(value)
 			end
 
 			self.casting = nil
@@ -2008,21 +2012,61 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UNIT_SPELLCAST_EMPOWER_START = function(self, unit, ...)
+		local unitTarget, castGUID, spellID, castBarID = ...
 		self:UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 	end,
 
 	UNIT_SPELLCAST_EMPOWER_UPDATE = function(self, unit, ...)
+		local unitTarget, castGUID, spellID, castBarID = ...
 		self:UNIT_SPELLCAST_CHANNEL_UPDATE(unit, ...)
 	end,
 
 	UNIT_SPELLCAST_EMPOWER_STOP = function(self, unit, ...)
-		self:UNIT_SPELLCAST_CHANNEL_STOP(unit, ...)
+		local unitID, castGUID, spellID, complete, interruptedBy, castBarID = ...
+
+		if (self.channeling and castBarID == self.castBarID) then --and castID == self.castID) then
+			if interruptedBy ~= nil then
+				self:UNIT_SPELLCAST_INTERRUPTED(unit, unitID, castID, spellID, interruptedBy, castBarID)
+			else
+				if issecretvalue(complete) or not complete then
+					self.Spark:Hide()
+					self.percentText:Hide()
+				end
+				
+				local value = self.durationObject:GetElapsedDuration()
+				local minValue, maxValue = 0, self.durationObject:GetTotalDuration()
+				self:SetMinMaxValues(minValue, maxValue)
+				self:SetValue(value)
+
+				self.casting = nil
+				self.channeling = nil
+				self.finished = true
+				self.castID = nil
+				self.castBarID = nil
+				self.interruptedBy = interruptedBy
+
+				if (not self:HasScheduledHide()) then
+					--check if settings has no fade option or if its parents are not visible
+					if (not self:IsVisible()) then
+						self:Hide()
+
+					elseif (self.Settings.NoFadeEffects) then
+						self:ScheduleToHide (0.3)
+
+					else
+						self:Animation_Flash()
+						self:Animation_FadeOut()
+					end
+				end
+				
+				self:UpdateCastColor()
+			end
+		end
 	end,
 
 	UNIT_SPELLCAST_FAILED = function(self, unit, ...)
 		local unitID, castID, spellID, castBarID = ...
 
-		--if ((self.casting or self.channeling) and castID == self.castID and not self.fadeOut) then
 		if ((self.casting or self.channeling) and castBarID == self.castBarID and not self.fadeOut) then
 			self.casting = nil
 			self.channeling = nil
@@ -2031,9 +2075,11 @@ detailsFramework.CastFrameFunctions = {
 			self.castID = nil
 			self.castBarID = nil
 			self.interruptedBy = nil
-			--local _, maxValue = self:GetMinMaxValues()
-			self:SetMinMaxValues(self.minValue, self.maxValue)
-			self:SetValue(self.maxValue)
+			
+			local value = self.durationObject:GetElapsedDuration()
+			local minValue, maxValue = 0, self.durationObject:GetTotalDuration()
+			self:SetMinMaxValues(minValue, maxValue)
+			self:SetValue(value)
 
 			--set the statusbar color
 			self:UpdateCastColor()
@@ -2058,10 +2104,14 @@ detailsFramework.CastFrameFunctions = {
 			self.castBarID = nil
 			self.interruptedBy = interruptedBy
 
+			local value = self.durationObject:GetElapsedDuration()
+			local minValue, maxValue = 0, self.durationObject:GetTotalDuration()
 			if (self.Settings.FillOnInterrupt) then
-				--local _, maxValue = self:GetMinMaxValues()
-				self:SetMinMaxValues(self.minValue, self.maxValue)
-				self:SetValue(self.maxValue)
+				self:SetMinMaxValues(minValue, maxValue)
+				self:SetValue(maxValue)
+			else
+				self:SetMinMaxValues(minValue, maxValue)
+				self:SetValue(value)
 			end
 
 			if (self.Settings.HideSparkOnInterrupt) then
@@ -2092,10 +2142,14 @@ detailsFramework.CastFrameFunctions = {
 		self.maxValue = endTime --self.spellEndTime - self.spellStartTime
 		--self:SetMinMaxValues(self.minValue, self.maxValue)
 		self.durationObject = durationObject
-		self:SetTimerDuration(durationObject, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.ElapsedTime)
+		self:SetTimerDuration(durationObject, Enum.StatusBarInterpolation.ExponentialEaseOut, Enum.StatusBarTimerDirection.ElapsedTime)
 	end,
 
 	UNIT_SPELLCAST_CHANNEL_UPDATE = function(self, unit, ...)
+		self:UpdateChannelInfo(unit, ...)
+		if true then return end
+		-- seems like the above is more stable. need to investigate why
+		
 		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = CastInfo.UnitChannelInfo (unit)
 		local durationObject = UnitChannelDuration(unit)
 

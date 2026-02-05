@@ -300,8 +300,8 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field GetCoreVersion fun(self: details) : number return the core version, this is used to check API version for scripts and plugins
 ---@field RefreshMainWindow fun(self: details, instance:instance|number?, forceUpdate:boolean?) refresh a window or all main windows if -1 is passed into instance
 ---@field 
----@field GetCombatWithSessionId fun(self: details, combatSessionId: number) : combat|nil
----@field HasCombatWithSessionId fun(self: details, combatSessionId: number) : boolean
+---@field GetCombatWithSessionId fun(self: details, combatSessionId: string) : combat|nil
+---@field HasCombatWithSessionId fun(self: details, combatSessionId: string) : boolean
 ---@field InstanceCallDetailsFunc fun(self: details, func:fun(object:nil, instance:instance, ...), ...) call a function on all opened instances
 ---@field GetItemLevelFromGuid fun(self: details, guid: guid) : number return the item level of the player, if the player is not found, return 0
 ---@field GenerateActorInfo fun(self: details, actor: actor, errorText:string, bIncludeStack:boolean) : table<string, boolean|string|number> generates a table with the main attributes of the actor, this is mainly for debug purposes
@@ -417,7 +417,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field bloodlust number[]? combat time of when the player received a bloodlust/heroism
 ---@field bloodlust_overall number[]? exists only in segments that received a merge, uses time()
 ---@field compressed_charts table store chart data
----@field combatSessionId number
+---@field combatSessionId string
 ---@field 
 ---@field __call table
 ---@field __index table

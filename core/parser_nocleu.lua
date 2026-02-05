@@ -117,6 +117,12 @@ local onEvent = function(event, instance, ...)
     end
 end
 
+--calling on challenge mode start, wipe details data
+
+---Details222.BParser.ResetServerDM
+
+
+
 local swapListener = Details:CreateEventListener()
 swapListener:RegisterEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", onEvent)
 swapListener:RegisterEvent("DETAILS_INSTANCE_CHANGESEGMENT", onEvent)
