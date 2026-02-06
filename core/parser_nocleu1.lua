@@ -24,10 +24,14 @@ local printDebug = function(...)
     end
 end
 
+
 local CONST_MAX_DAMAGEMETER_TYPES = 0
-for k, v in pairs(Enum.DamageMeterType) do
-    if (v > CONST_MAX_DAMAGEMETER_TYPES) then
-        CONST_MAX_DAMAGEMETER_TYPES = v
+
+if Enum and Enum.DamageMeterType then
+    for k, v in pairs(Enum.DamageMeterType) do
+        if (v > CONST_MAX_DAMAGEMETER_TYPES) then
+            CONST_MAX_DAMAGEMETER_TYPES = v
+        end
     end
 end
 
@@ -709,7 +713,7 @@ local addSegment = function(parameterType, session, bIsUpdate, detailsId)
         actor.serial = sourceGUID
         actor.grupo = true
 
-        if source.specIconID then
+        if source.specIconID and not guidCache[source.specIconID] then
             guidCache[source.specIconID] = sourceGUID
         end
 
