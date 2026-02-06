@@ -318,18 +318,21 @@ local guidCache = {}
 ---@field DLC12_Combat_Data table
 
 local lastReset = GetTime()
-local resetOriginal = C_DamageMeter.ResetAllCombatSessions
+local resetOriginal = C_DamageMeter and C_DamageMeter.ResetAllCombatSessions
 local ResetAllCombatSessions = function()
     --print("(debug) reseting Damage Meter data", debugstack())
     resetOriginal()
     latestEncounterSessionId = 0
     latestSessionOpened = nil
 end
-C_DamageMeter.ResetAllCombatSessions = function()
-    --details reset its data first and than reset the blz data
-    if lastReset+1 < GetTime() then
-        Details:ResetSegmentData()
-        lastReset = GetTime()
+
+if C_DamageMeter then
+    C_DamageMeter.ResetAllCombatSessions = function()
+        --details reset its data first and than reset the blz data
+        if lastReset+1 < GetTime() then
+            Details:ResetSegmentData()
+            lastReset = GetTime()
+        end
     end
 end
 
