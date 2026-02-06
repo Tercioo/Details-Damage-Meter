@@ -6735,7 +6735,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	local playerLogin = CreateFrame("frame")
 	playerLogin:RegisterEvent("PLAYER_LOGIN")
 	playerLogin:SetScript("OnEvent", function()
-		Details222.StartUp.StartMeUp()
+		C_Timer.After(0, function()
+			Details222.StartUp.StartMeUp()
+		end)
 		crowdControlSpells = Details.CrowdControlSpellIdsCache
 	end)
 
