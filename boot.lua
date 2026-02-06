@@ -1499,7 +1499,7 @@ do
 			Details.Schedules.After(5, _detalhes.wipe_combat_after_failed_load)
 		end
 
-		Details.failed_to_load = C_Timer.NewTimer(1, function() Details.Schedules.NewTimer(20, _detalhes.WelcomeMsgLogon) end)
+		--Details.failed_to_load = C_Timer.NewTimer(1, function() Details.Schedules.NewTimer(20, _detalhes.WelcomeMsgLogon) end)
 
 	--key binds
 	--[=
