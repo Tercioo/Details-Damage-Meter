@@ -64,11 +64,21 @@ function Details222.StartUp.StartMeUp()
 	end
 
 	if detailsFramework.IsAddonApocalypseWow() then
-		Details.breakdown_spell_tab.spellcontainer_headers["casts"].enabled = false
-		Details.breakdown_spell_tab.spellcontainer_headers["critpercent"].enabled = false
-		Details.breakdown_spell_tab.spellcontainer_headers["hits"].enabled = false
-		Details.breakdown_spell_tab.spellcontainer_headers["castavg"].enabled = false
-		Details.breakdown_spell_tab.spellcontainer_headers["uptime"].enabled = false
+		if (Details.breakdown_spell_tab.spellcontainer_headers["casts"]) then
+			Details.breakdown_spell_tab.spellcontainer_headers["casts"].enabled = false
+		end
+		if (Details.breakdown_spell_tab.spellcontainer_headers["critpercent"]) then
+			Details.breakdown_spell_tab.spellcontainer_headers["critpercent"].enabled = false
+		end
+		if (Details.breakdown_spell_tab.spellcontainer_headers["hits"]) then
+			Details.breakdown_spell_tab.spellcontainer_headers["hits"].enabled = false
+		end
+		if (Details.breakdown_spell_tab.spellcontainer_headers["castavg"]) then
+			Details.breakdown_spell_tab.spellcontainer_headers["castavg"].enabled = false
+		end
+		if (Details.breakdown_spell_tab.spellcontainer_headers["uptime"]) then
+			Details.breakdown_spell_tab.spellcontainer_headers["uptime"].enabled = false
+		end
 	end
 
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
