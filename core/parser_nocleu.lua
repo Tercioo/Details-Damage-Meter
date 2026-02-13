@@ -52,7 +52,7 @@ if detailsFramework.IsAddonApocalypseWow() then
             100, --ress (not supported)
             Enum.DamageMeterType.Interrupts, --interrupts
             Enum.DamageMeterType.Dispels, --dispels
-            100, --deaths (not supported)
+            Enum.DamageMeterType.Deaths, --deaths (not supported)
             100, --dcooldowns (not supported)
             100, --buff uptime (not supported)
             100, --debuff uptime (not supported)
@@ -63,7 +63,7 @@ else
     displayMap = {}
 end
 
-function bParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
+function bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
     local displayType = displayMap[mainDisplay] and displayMap[mainDisplay][subDisplay]
     return displayType
 end
@@ -82,7 +82,7 @@ local onEvent = function(event, instance, ...)
     if event == "DETAILS_INSTANCE_CHANGEATTRIBUTE" then
         local mainDisplay, subDisplay = ...
         if bParser.IsDamageMeterSwapped() then
-            local damageMeterType = bParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
+            local damageMeterType = bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
             if damageMeterType < 100 then
                 if instance.blzWindow then
                     instance.blzWindow:SetDamageMeterType(damageMeterType)
@@ -439,7 +439,7 @@ function bParser.UpdateDamageMeterSwap()
                 DAMAGE_METER_DEFAULT_BAR_SPACING = instance.row_info.spacing
 
                 local mainDisplay, subDisplay = instance:GetDisplay()
-                local damageMeterType = bParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
+                local damageMeterType = bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
                 if damageMeterType < 100 then
                     blzWindow:SetDamageMeterType(damageMeterType)
                 end

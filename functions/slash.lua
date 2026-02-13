@@ -403,6 +403,16 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print("GetTime()", GetTime())
 		print("time()", time())
 
+	elseif (msg == "bdsm") then
+		if detailsFramework.IsAddonApocalypseWow() then
+			local isDamageMeterEnabled = C_CVar.GetCVarBool("damageMeterEnabled")
+			if not isDamageMeterEnabled then
+				C_CVar.SetCVar("damageMeterEnabled", "1")
+			else
+				C_CVar.SetCVar("damageMeterEnabled", "0")
+			end
+		end
+
 	elseif (msg == "copy") then
 		_G.DetailsCopy:Show()
 		_G.DetailsCopy.MyObject.text:HighlightText()

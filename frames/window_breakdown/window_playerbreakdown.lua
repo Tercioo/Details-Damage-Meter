@@ -243,7 +243,7 @@ end
 function Details:GetCombatFromBreakdownWindow()
 	---@type instance
 	local instance = breakdownWindowFrame.instancia
-	return instance:GetCombat()
+	return instance and instance:GetCombat()
 end
 
 ---return the window that requested to open the player breakdown window
@@ -363,9 +363,11 @@ end
 ---@param bIgnoreOverrides boolean|nil
 ---@param mainAttributeOverride number|nil
 ---@param subAttributeOverride number|nil
-function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides, mainAttributeOverride, subAttributeOverride)
+function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown, bIgnoreOverrides, mainAttributeOverride, subAttributeOverride, instanceLine)
 	---@type number, number
 	local mainAttribute, subAttribute = instanceObject:GetDisplay()
+
+	breakdownWindowFrame.instancia = instanceObject --salva a refer�ncia da inst�ncia que pediu o breakdownWindow
 
 	if (not bIgnoreOverrides) then
 		if (mainAttributeOverride) then
@@ -396,7 +398,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 				Details:CloseBreakdownWindow()
 				return
 			end
-			Details.row_singleclick_overwrite[mainAttribute][subAttribute](_, actorObject, instanceObject, bIsShiftKeyDown, bIsControlKeyDown)
+			Details.row_singleclick_overwrite[mainAttribute][subAttribute](_, actorObject, instanceObject, bIsShiftKeyDown, bIsControlKeyDown, instanceLine)
 			return
 		end
 	end
@@ -406,8 +408,10 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 		return
 	end
 
+	local jogadorNome = breakdownWindowFrame.jogadorNome
+
 	--Details.info_jogador armazena o jogador que esta sendo mostrado na janela de detalhes
-	if (breakdownWindowFrame.jogador and breakdownWindowFrame.jogador == actorObject and instanceObject and breakdownWindowFrame.atributo and mainAttribute == breakdownWindowFrame.atributo and subAttribute == breakdownWindowFrame.sub_atributo and not bIsRefresh) then
+	if (breakdownWindowFrame.jogador and jogadorNome and jogadorNome == actorObject.nome and instanceObject and breakdownWindowFrame.atributo and mainAttribute == breakdownWindowFrame.atributo and subAttribute == breakdownWindowFrame.sub_atributo and not bIsRefresh) then
 		if (not breakdownWindowFrame.shownPluginObject) then
 			Details:CloseBreakdownWindow() --clicked in the same player bar, close the window
 			return
@@ -415,7 +419,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	end
 
 	if (not actorObject) then
-		Details:CloseBreakdownWindow()
+		Details:CloseBreakdownWindow() --stopping here.
 		return
 	end
 
@@ -463,11 +467,11 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	breakdownWindowFrame.atributo = mainAttribute --instancia.atributo -> grava o atributo (damage, heal, etc)
 	breakdownWindowFrame.sub_atributo = subAttribute --instancia.sub_atributo -> grava o sub atributo (damage done, dps, damage taken, etc)
 	breakdownWindowFrame.jogador = actorObject --de qual jogador (objeto classe_damage)
-	breakdownWindowFrame.instancia = instanceObject --salva a refer�ncia da inst�ncia que pediu o breakdownWindow
 	breakdownWindowFrame.target_text = Loc ["STRING_TARGETS"] .. ":"
 	breakdownWindowFrame.target_member = "total"
 	breakdownWindowFrame.target_persecond = false
 	breakdownWindowFrame.mostrando = nil
+	breakdownWindowFrame.jogadorNome = actorObject:Name()
 
 	local playerName = breakdownWindowFrame.jogador:Name()
 	local atributo_nome = subAttributes[breakdownWindowFrame.atributo].lista [breakdownWindowFrame.sub_atributo] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] --// nome do atributo // precisa ser o sub atributo correto???
@@ -486,7 +490,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 
 	local serial = actorObject.serial
 	local avatar
-	if (serial ~= "") then
+	if (serial and serial ~= "") then
 		avatar = NickTag:GetNicknameTable(serial)
 	end
 

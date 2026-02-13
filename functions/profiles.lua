@@ -1426,6 +1426,8 @@ local default_global_data = {
 		last_10days_cache_cleanup = 0,
 		recent_players = {},
 
+		appocalypse_mode = 0,
+
 		slashk_dnd = false,
 		slashk_addon = "bigwigs",
 		slashk_addon_first = false,

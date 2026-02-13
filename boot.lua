@@ -68,6 +68,7 @@
 			return Details.gameVersionPrefix .. " " .. Details.build_counter .. " " .. alphaId .. " " .. Details.game_version .. ""
 		end
 
+		Details.DM = C_DamageMeter
 		Details.DefaultTooltipIconSize = 20
 		local isWowApocalypse = (tvs >= 120000)
 
@@ -206,6 +207,7 @@
 		Details222.Mixins = {}
 		Details222.Cache = {}
 		Details222.Perf = {}
+		Details222.Recap = {}
 		Details222.Cooldowns = {}
 		Details222.GarbageCollector = {}
 		Details222.BreakdownWindow = {}
@@ -249,6 +251,125 @@
 		Details222.EncounterJournalDump = {}
 		--aura scanner
 		Details222.AuraScan = {}
+
+		Details222.B = {}
+
+		--simplify and reduce the amount of functions to work with
+		local mainFName = "GetCombatSession"
+
+		---return a segment
+		---@param type string
+		---@param identifier number
+		---@param attribute number
+		---@return damagemeter_combat_session
+		function Details222.B.GetSegment(type, identifier, attribute)
+			local result = Details.DM[(mainFName .. "From" .. type)](identifier, attribute)
+			return result
+		end
+
+		---return a spell container
+		---@param type string
+		---@param identifier number
+		---@param attribute number
+		---@param guid string
+		---@return damagemeter_combat_session_source
+		function Details222.B.GetSpells(type, identifier, attribute, guid)
+			if Details222.B.IsSegmentType(type) then
+				return Details.DM[(mainFName .. "SourceFrom" .. DETAILS_SEGMENTTYPE_TYPE)](identifier, attribute, guid)
+			else
+				return Details.DM[(mainFName .. "SourceFrom" .. type)](identifier, attribute, guid)
+			end
+		end
+
+		---usage: local actorList, amountOfActors, totalAmount, combatTime = Details222.B.GetSegmentInfo(segment)
+		---@param s damagemeter_combat_session
+		---@return damagemeter_combat_source[] actorList
+		---@return number amountOfActors
+		---@return number totalAmount
+		---@return number combatTime
+		function Details222.B.GetSegmentInfo(s)
+			return s.combatSources, #s.combatSources, s.totalAmount, s.durationSeconds
+		end
+
+		---usage: local spellList, amountOfSpells, totalAmount, maxAmount = Details222.B.GetSpellContainerInfo(spellContainer)
+		---@param s damagemeter_combat_session_source
+		---@return damagemeter_combat_spell[] spells
+		---@return number totalSpells
+		---@return number totalAmount
+		---@return number maxAmount
+		function Details222.B.GetSpellContainerInfo(s)
+			return s.combatSpells, #s.combatSpells, s.totalAmount, s.maxAmount
+		end
+
+		---usage: local spellId, total, perSecond, creatureName, overkill, isAvoidable, isDeadly, spellDetails = Details222.B.GetSpellInfo(spell)
+		---@param s damagemeter_combat_spell
+		---@return number spellID
+		---@return number totalAmount
+		---@return number amountPerSecond
+		---@return string creatureName
+		---@return number overkillAmount
+		---@return boolean isAvoidable
+		---@return boolean isDeadly
+		---@return damagemeter_combat_spell_unit_details[] combatSpellDetails
+		function Details222.B.GetSpellDetails(s)
+			return s.spellID, s.totalAmount, s.amountPerSecond, s.creatureName, s.overkillAmount, s.isAvoidable, s.isDeadly, s.combatSpellDetails
+		end
+
+		---usage: local actorName, actorGUID, total, perSecond, icon, class, deathId, deathTime, creatureId, classification, isLocalPlayer = Details222.B.GetActorDetails(actor)
+		---@param s damagemeter_combat_source
+		---@return string actorName
+		---@return string actorGUID
+		---@return number totalAmount
+		---@return number amountPerSecond
+		---@return number specIconID
+		---@return string classFilename
+		---@return number deathRecapID
+		---@return number deathTimeSeconds
+		---@return number sourceCreatureID
+		---@return string classification
+		---@return boolean isLocalPlayer
+		function Details222.B.GetActorDetails(s)
+			return s.name, s.sourceGUID, s.totalAmount, s.amountPerSecond, s.specIconID,
+			s.classFilename, s.deathRecapID, s.deathTimeSeconds, s.sourceCreatureID, s.classification, s.isLocalPlayer
+		end
+
+		function Details222.B.GetAllCombatTypes(type, identifier)
+			local result = {}
+			for i = 0, 10 do
+				local segment = Details222.B.GetSegment(type, identifier, i)
+				if segment then
+					result[#result + 1] = segment
+				end
+			end
+			return result
+		end
+
+		function Details222.B.IsSegmentType(id)
+			if type(id) == "number" and id <= 1 then
+				return true
+			end
+			return false
+		end
+
+		---return the amount of segments available in Details!
+		---usage: local amountOfSegments = Details222.B.GetAmountOfSegments()
+		---@return number
+		function Details222.B.GetAmountOfSegments()
+			return #Details.DM.GetAvailableCombatSessions()
+		end
+
+		---usage: local allSegments = Details222.B.GetAllSegments()
+		function Details222.B.GetAllSegments()
+			return Details.DM.GetAvailableCombatSessions()
+		end
+
+		function Details222.B.GetCombatTime(id)
+			return Details222.B.GetSegment("Type", id, 0).durationSeconds
+		end
+
+		function Details222.B.GetCurrentTime()
+			return Details222.B.GetSegment("Type", 1, 0).durationSeconds
+		end
 
 		---@type instancedifficulty
 		Details222.InstanceDifficulty = {
@@ -529,6 +650,9 @@
 
 		local UnitDebuff = C_UnitAuras and C_UnitAuras.GetDebuffDataByIndex or UnitDebuff
 		Details222.UnitDebuff = UnitDebuff
+
+		local dr = C_DeathRecap
+		Details.DR = dr
 
         if (C_Spell and C_Spell.GetSpellInfo) then
             Details222.GetSpellInfo = function(...)

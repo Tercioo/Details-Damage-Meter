@@ -416,6 +416,9 @@ GameCooltipFrame2 = {}
 ---@field MakeStringFromSpellId fun(self:table, spellId:any) : string return a string with the spell icon and name using escape codes
 ---@field AddClassIconToText fun(self:table, text:string, playerName:string, englishClassName:string, useSpec:boolean?, iconSize:number?) : string wrap 'text' with the class icon of 'playerName' using |T|t scape codes
 ---@field RemoveRealNameFromName fun(self:table, name:string) : string remove the realm name from a name string
+---@field GetSpecInfoFromSpecId fun(self:table, specId:number) : specinfo
+---@field GetSpecInfoFromSpecIcon fun(self:table, specIcon:string) : specinfo
+---@field GetSpecIdFromSpecIcon fun(self:table, specIcon:number) : number?
 
 
 --[=[

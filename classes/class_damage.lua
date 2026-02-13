@@ -5,7 +5,6 @@
 --combat objects has 4 actor containers: damage, healing, energy, utility
 --these containers are indexed within the combat object table: combatObject[1] = damage container, combatObject[2] = healing container, combatObject[3] = energy container, combatObject[4] = utility container
 
-
 --damage object
 	local Details = _G.Details
 	local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
@@ -338,7 +337,11 @@ function Details:GetTextColor(instanceObject, textSide)
 		if (actorClass == "UNKNOW") then
 			return unpack(instanceObject.row_info.fixed_text_color)
 		else
-			return unpack(Details.class_colors[actorClass])
+			if not Details.class_colors[actorClass] then
+				return unpack(instanceObject.row_info.fixed_text_color)
+			else
+				return unpack(Details.class_colors[actorClass])
+			end
 		end
 	else
 		return unpack(instanceObject.row_info.fixed_text_color)
@@ -448,6 +451,7 @@ end
 			damage_taken = alphabetical,
 			--damage_from: table with actor names as keys and boolean true as value
 			damage_from = {},
+			avoidable_damage = {},
 
 			--dps_started: is false until this actor does damage
 			dps_started = false,
@@ -492,6 +496,10 @@ end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --special cases
+
+	function Details:GetActorsFromSegment(container)
+		return container.combatSources, #container.combatSources
+	end
 
 	---calculate real time dps for each actor within the passed table
 	---@param tableWithActors actor[]
@@ -1763,19 +1771,361 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --main refresh function
 
-local apocalypseRefreshWindow = function(self, instanceObject, combatObject, bForceUpdate, bExportData)
+--function Details:Update
 
+---@param combatSources damagemeter_combat_source[]
+local findPlayerPosition = function(combatSources)
+	for i = 1, #combatSources do
+		if combatSources[i].isLocalPlayer then
+			return i, combatSources[i]
+		end
+	end
+	return nil
 end
 
-	--~refresh
+local debugBarVisibility = function(instance)
+	if true then
+		return
+	end
+
+	print("barrasS", instance.barraS[1], instance.barraS[2])
+	print("rows_fit_in_window", instance.rows_fit_in_window)
+
+	local bars = instance.barras
+	for i = 1, #bars do
+		local bar = bars[i]
+		print("bar", i, bar:IsShown(), bar:IsVisible(), bar:GetAlpha())
+	end
+end
+
+---@param self details
+---@param instanceObject instance
+---@param session damagemeter_combat_session
+function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationInSeconds)
+	--> this function is called while in combat when secrets are turned on
+
+	if not instanceObject.barraS[1] then
+		instanceObject:ReajustaGump()
+	end
+
+	---@type damagemeter_combat_source[]
+	local combatSources = session.combatSources
+	if not combatSources or #combatSources == 0 then
+		--review is this is really necessary
+		---@type combat
+		local combatObject = instanceObject:GetCombat()
+		---@type actorcontainer
+		local damageContainer = combatObject[class_type]
+		instanceObject.v_barras = true
+		instanceObject.rows_showing = 0
+		return Details:HideBarsNotInUse(instanceObject, damageContainer, 0.01), "", 0, 0
+	end
+
+    ---@type attributeid, attributeid
+    local mainDisplay, subDisplay = instanceObject:GetDisplay()
+
+	local total = session.totalAmount
+	local topValue = session.maxAmount
+	local amountCombatants = #combatSources
+
+	local whichRowLine = 1
+	local lineContainer = instanceObject.barras
+	local percentageType = instanceObject.row_info.percent_type
+	local barsShowData = instanceObject.row_info.textR_show_data
+	local barsBrackets = instanceObject:GetBarBracket()
+	local barsSeparator = instanceObject:GetBarSeparator()
+	local baseframe = instanceObject.baseframe
+	local useAnimations = Details.is_using_row_animations and(not baseframe.isStretching and not bForceUpdate and not baseframe.isResizing)
+
+	--if (total == 0) then --hello secret my old friend
+	--	total = 0.00000001
+	--end
+
+	local myPos, myTable
+	local following = instanceObject.following.enabled and subDisplay ~= 6
+	local playerIsShown = false
+
+	if (following) then
+		myPos, myTable = findPlayerPosition(combatSources)
+	end
+
+	local combatTime = session.durationSeconds or durationInSeconds or 60
+	--bUsingCustomLeftText = instanceObject.row_info.textL_enable_custom_text
+	--bUsingCustomRightText = instanceObject.row_info.textR_enable_custom_text
+
+	local useTotalBar = false
+	if (instanceObject.total_bar.enabled) then
+		useTotalBar = true
+
+		if (instanceObject.total_bar.only_in_group and (not IsInGroup() and not IsInRaid())) then
+			useTotalBar = false
+		end
+
+		if not total then
+			useTotalBar = false
+		end
+
+		--if (subDisplay > 4) then --enemies, frags, void zones
+		--	useTotalBar = false
+		--end
+	end
+
+	if (subDisplay == 2) then --dps
+		--the top dps using a session would be combatSources[1].amountPerSecond
+		instanceObject.player_top_dps = combatSources[1].amountPerSecond
+		--instanceObject.player_top_dps_threshold = instanceObject.player_top_dps - (instanceObject.player_top_dps * 0.65) --cannot do this due to secrets
+	end
+
+	local totalBarIsShown
+
+	local barsToShow = amountCombatants
+	if (useTotalBar) then
+		barsToShow = barsToShow + 1
+	end
+
+	instanceObject:RefreshScrollBar(barsToShow)
+
+	if (instanceObject.bars_sort_direction == 1) then --top to bottom
+		if (useTotalBar and instanceObject.barraS[1] == 1) then
+			whichRowLine = 2
+			local iterLast = instanceObject.barraS[2]
+			if (iterLast == instanceObject.rows_fit_in_window) then
+				iterLast = iterLast - 1
+			end
+
+			local row1 = lineContainer[1]
+			row1.minha_tabela = nil
+			row1.lineText1:SetText(Loc["STRING_TOTAL"])
+
+			--here it update the total bar
+
+			local totalToUse = total
+			local ruleToUse = 2 --total dps
+			if (subDisplay == 2) then
+				ruleToUse = 1 --total damage
+				totalToUse = total --should be totalPerSecond
+			end
+
+			Details:SimpleFormat(row1.lineText2, row1.lineText3, row1.lineText4, AbbreviateNumbers(totalToUse, Details.abbreviateOptionsDamage), nil, nil, ruleToUse)
+			--percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
+			row1:SetValue(100)
+			local r, g, b = unpack(instanceObject.total_bar.color)
+			row1.textura:SetVertexColor(r, g, b)
+			row1.icone_classe:SetTexture(instanceObject.total_bar.icon)
+			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
+
+			--Details.FadeHandler.Fader(row1, "out")
+			row1:Show()
+			totalBarIsShown = true
+
+			if (following and myPos and myPos+1 > instanceObject.rows_fit_in_window and instanceObject.barraS[2] < myPos+1) then
+				for i = instanceObject.barraS[1], iterLast-1, 1 do
+					if (combatSources[i]) then
+						---@type detailsline
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+				local thisLine = lineContainer[iterLast]
+				Details:UpdateBarApocalypseWow(thisLine, myTable, instanceObject, topValue, myPos)
+			else
+				for i = instanceObject.barraS[1], iterLast, 1 do
+					if (combatSources[i]) then
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+			end
+		else --not use total bar
+			if (following and myPos and (myPos > instanceObject.rows_fit_in_window) and (myPos > instanceObject.barraS[2])) then
+				for i = instanceObject.barraS[1], instanceObject.barraS[2]-1, 1 do
+					if (combatSources[i]) then
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+
+				local thisLine = lineContainer[whichRowLine]
+				Details:UpdateBarApocalypseWow(thisLine, combatSources[myPos], instanceObject, topValue, myPos)
+				whichRowLine = whichRowLine+1
+			else
+				for i = instanceObject.barraS[1], instanceObject.barraS[2], 1 do
+					if (combatSources[i]) then
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+			end
+		end
+
+	elseif(instanceObject.bars_sort_direction == 2) then --bottom to top
+		if (useTotalBar and instanceObject.barraS[1] == 1) then
+			whichRowLine = 2
+			local iter_last = instanceObject.barraS[2]
+			if (iter_last == instanceObject.rows_fit_in_window) then
+				iter_last = iter_last - 1
+			end
+
+			local row1 = lineContainer [1]
+			row1.minha_tabela = nil
+			row1.lineText1:SetText(Loc["STRING_TOTAL"])
+
+			local totalToUse = session.totalAmount
+			local ruleToUse = 2 --total dps
+			if (subDisplay == 2) then
+				ruleToUse = 1 --total damage
+				totalToUse = session.totalAmount
+			end
+
+			Details:SimpleFormat(row1.lineText2, row1.lineText3, row1.lineText4, AbbreviateNumbers(totalToUse, Details.abbreviateOptionsDamage), nil, nil, ruleToUse)
+			--percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
+			row1:SetValue(100)
+			local r, g, b = unpack(instanceObject.total_bar.color)
+			row1.textura:SetVertexColor(r, g, b)
+			row1.icone_classe:SetTexture(instanceObject.total_bar.icon)
+			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
+
+			--Details.FadeHandler.Fader(row1, "out")
+			row1:Show()
+			totalBarIsShown = true
+
+			if (following and myPos and myPos+1 > instanceObject.rows_fit_in_window and instanceObject.barraS[2] < myPos+1) then
+				local thisLine = lineContainer[whichRowLine]
+				Details:UpdateBarApocalypseWow(thisLine, combatSources[myPos], instanceObject, topValue, myPos)
+				whichRowLine = whichRowLine+1
+
+				for i = iter_last-1, instanceObject.barraS[1], -1 do
+					if (combatSources[i]) then
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+			else
+				for i = iter_last, instanceObject.barraS[1], -1 do
+					if (combatSources[i]) then
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+			end
+		else
+			if (following and myPos and myPos > instanceObject.rows_fit_in_window and instanceObject.barraS[2] < myPos) then
+				local thisLine = lineContainer[whichRowLine]
+				Details:UpdateBarApocalypseWow(thisLine, combatSources[myPos], instanceObject, topValue, myPos)
+				whichRowLine = whichRowLine+1
+
+				for i = instanceObject.barraS[2]-1, instanceObject.barraS[1], -1 do
+					if (combatSources[i]) then
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+			else
+				for i = instanceObject.barraS[2], instanceObject.barraS[1], -1 do
+					if (combatSources[i]) then
+						local thisLine = lineContainer[whichRowLine]
+						Details:UpdateBarApocalypseWow(thisLine, combatSources[i], instanceObject, topValue, i)
+						whichRowLine = whichRowLine+1
+					end
+				end
+			end
+		end
+	end
+
+	--beta, hidar barras n�o usadas durante um refresh for�ado
+	--if (bForceUpdate or false) then
+		if (instanceObject.modo == 2) then --group
+			for i = whichRowLine, instanceObject.rows_fit_in_window do
+				instanceObject.barras[i]:Hide()
+				--Details.FadeHandler.Fader(instanceObject.barras [i], "in", Details.fade_speed)
+			end
+		end
+	--end
+
+	Details.LastFullDamageUpdate = Details._tempo
+
+	--debugBarVisibility(instanceObject)
+
+	--return Details:EndRefresh(instanceObject, total, combatObject, damageContainer) --retorna a tabela que precisa ganhar o refresh
+end
+
+function Details:Refresher(instanceObject, combatObject, bForceUpdate, bExportData) --should I use this?
+	if detailsFramework.IsAddonApocalypseWow() then
+		if Details:IsUsingBlizzardAPI() then
+			local session = instanceObject:GetSegmentObject()
+			Details:RefreshWindowAddOnApocalypse(instanceObject, session, session.durationSeconds)
+			return
+		end
+	end
+
+	local healingClass = Details.atributo_healing
+	local energyClass = Details.atributo_energy
+	local miscClass = Details.atributo_misc
+	local customClass = Details.atributo_custom
+
+	--class the class to update based on the attribute being shown from instaceObject.atributo
+	if (instanceObject.atributo == 1) then --damage
+		damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
+	elseif(instanceObject.atributo == 2) then --healing
+		healingClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
+	elseif(instanceObject.atributo == 3) then --energy
+		energyClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
+	elseif(instanceObject.atributo == 4) then --misc
+		miscClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
+	elseif(instanceObject.atributo == 5) then --custom
+		customClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
+	end
+end
+
+local oldapi = select(4, GetBuildInfo()) < 120000
+function Details:IsUsingBlizzardAPI()
+	if oldapi then
+		return false
+	end
+	return Details.appocalypse_mode == 0
+end
+
+function issecred()
+	local a = DetailsBarra_1_1
+	print(issecretvalue(a.sourceData.name), a.sourceData.name)
+end
+
+local lastEventTime = 0
+function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
+	if not bForceUpdate then
+		if lastEventTime ~= Details222.BParser.lastEventTime then
+			lastEventTime = Details222.BParser.lastEventTime
+		else
+			return
+		end
+	else
+		lastEventTime = Details222.BParser.lastEventTime
+	end
+
+	local session = instance:GetSegmentObject()
+	Details:RefreshWindowAddOnApocalypse(instance, session, session.durationSeconds)
+end
+
+do
+--~refresh
 ---@param instanceObject instance
 ---@param combatObject combat
 ---@param bForceUpdate boolean
 ---@param bExportData boolean
-function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData) --~refresh
+function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData) --~refresh  | self is not used
 	if detailsFramework.IsAddonApocalypseWow() then
-		--apocalypseRefreshWindow()
-		--return
+		if Details:IsUsingBlizzardAPI() then
+			--will it double the call because the regular refresh is also running?
+			Details222.BParser.UpdateAppocalypse(instanceObject, bForceUpdate)
+			return
+		end
 	end
 
 	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
@@ -2476,9 +2826,9 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 
 		else
 			if (following and myPos and myPos > instanceObject.rows_fit_in_window and instanceObject.barraS[2] < myPos) then
-				for i = instanceObject.barraS[1], instanceObject.barraS[2]-1, 1 do
-					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine(instanceObject, lineContainer, whichRowLine, i, total, subAttribute, bForceUpdate, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+				for rank = instanceObject.barraS[1], instanceObject.barraS[2]-1, 1 do
+					if (actorTableContent[rank]) then
+						actorTableContent[rank]:RefreshLine(instanceObject, lineContainer, whichRowLine, rank, total, subAttribute, bForceUpdate, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -2593,6 +2943,7 @@ function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, b
 	end
 
 	return Details:EndRefresh(instanceObject, total, combatObject, damageContainer) --retorna a tabela que precisa ganhar o refresh
+end
 end
 
 --self is instance
@@ -2774,11 +3125,160 @@ local classColor_Red, classColor_Green, classColor_Blue
 	end
 end
 
+--~update ~bar ~apocalypse
+---@param instanceLine detailsline
+---@param source damagemeter_combat_source
+---@param instance instance
+---@param topValue number
+---@param rank number
+function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue, rank)
+	local percenNumber = 0
+	local mainDisplay, subDisplay = instance:GetDisplay()
+	instanceLine.statusbar:SetMinMaxValues(0, 100)
+
+	local updateStatusbarColor = true
+	local actorName = source.name --secret
+	local actorGUID = source.sourceGUID --secret
+	local value = source.totalAmount --secret
+	local totalAmountPerSecond = source.amountPerSecond --secret
+	local classFilename = source.classFilename
+	local specIcon = source.specIconID
+	local isPlayer = source.isLocalPlayer
+
+	instanceLine.sessionId = instance:GetNewSegmentId()
+	instanceLine.sessionType = instance:GetSegmentType()
+	instanceLine.lineIndex = instanceLine.row_id
+	instanceLine.sourceData = source
+	instanceLine.actorName = actorName
+	instanceLine.actorGUID = actorGUID
+	instanceLine.classFilename = classFilename
+	instanceLine.damageMeterType = Details222.BParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
+	instanceLine.blzSpecIcon = source.specIconID
+	instanceLine.mainDisplay = mainDisplay
+	instanceLine.subDisplay = subDisplay
+	instanceLine.isPlayer = isPlayer
+	instanceLine.deathTime = source.deathTimeSeconds
+	instanceLine.deathRecapId = source.deathRecapID
+
+	local _, instanceType = GetInstanceInfo()
+	if instanceType == "arena" then
+		local okey, errortext = pcall(function() --Details.PvPPlayers
+			if UnitName(actorName) == nil then
+				instanceLine.textura:SetVertexColor(detailsFramework:ParseColors(Details.class_colors.ARENA_YELLOW))
+				updateStatusbarColor = false
+			else
+				instanceLine.textura:SetVertexColor(detailsFramework:ParseColors(Details.class_colors.ARENA_GREEN))
+				actorName = UnitName(actorName)
+				updateStatusbarColor = false
+			end
+		end)
+	else
+		actorName = UnitName(actorName)
+	end
+
+	if not issecretvalue(actorName) then
+		actorName = actorName or source.name
+	end
+
+	if (instance.row_info.textL_show_number) then
+		instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
+	else
+		instanceLine.lineText1:SetText(actorName) --left text
+	end
+
+	instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
+	instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)
+
+	--[=[
+	if specIcon then
+		instanceLine.icone_classe:SetTexture(specIcon)
+		instanceLine.icone_classe:SetTexCoord(0.1, .9, .1, .9)
+	else
+		local texture, l, r, t, b = Details:GetClassIcon(classFilename or "UNGROUPPLAYER")
+		instanceLine.icone_classe:SetTexture(texture)
+		instanceLine.icone_classe:SetTexCoord(l, r, t, b)
+	end
+	--]=]
+
+	local t = {
+		aID = nil, -- 0
+		spellicon = nil, --0
+		spec = detailsFramework:GetSpecInfoFromSpecIcon(specIcon), --0
+		serial = "",
+		enemy = false,
+		thisSpecIcon = instanceLine.blzSpecIcon,
+	}
+
+	Details.SetClassIcon(t, instanceLine.icone_classe, instance, classFilename)
+
+	if updateStatusbarColor then
+		local classColor = Details.class_colors[classFilename or "UNGROUPPLAYER"]
+		if (classColor) then
+			instanceLine.textura:SetVertexColor(classColor[1], classColor[2], classColor[3])
+		else
+			instanceLine.textura:SetVertexColor(detailsFramework:ParseColors("brown"))
+		end
+	end
+
+	if mainDisplay == DETAILS_ATTRIBUTE_DAMAGE then
+		if (subDisplay == DETAILS_SUBATTRIBUTE_DAMAGEDONE or subDisplay == DETAILS_SUBATTRIBUTE_DAMAGETAKEN) then
+			local ruleToUse = 2 --total dps
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
+			--percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
+
+		elseif (subDisplay == DETAILS_SUBATTRIBUTE_DPS) then
+			local ruleToUse = -1 --only show total
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond), nil, nil, ruleToUse)
+			--percentNumber = math.floor((dps/instanceObject.top) * 100)
+		end
+
+	elseif mainDisplay == DETAILS_ATTRIBUTE_HEAL then
+		if (subDisplay == DETAILS_SUBATTRIBUTE_HEALDONE or subDisplay == DETAILS_SUBATTRIBUTE_OVERHEAL) then
+			local ruleToUse = 2 --total hps
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, ruleToUse)
+			--percentNumber = math.floor((healingTotal/instanceObject.top) * 100)
+		elseif (subDisplay == DETAILS_SUBATTRIBUTE_HPS) then
+			local ruleToUse = -1 --only show total
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, nil, ruleToUse)
+			--percentNumber = math.floor((hps/instanceObject.top) * 100)
+		end
+
+	elseif mainDisplay == DETAILS_ATTRIBUTE_ENERGY then
+
+	elseif mainDisplay == DETAILS_ATTRIBUTE_MISC then
+		if (subDisplay == DETAILS_SUBATTRIBUTE_DISPELL or subDisplay == DETAILS_SUBATTRIBUTE_INTERRUPT) then
+			local ruleToUse = -1 --total
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
+			AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsBuffs), nil, nil, ruleToUse)
+			--percentNumber = math.floor((uptimeTotal/instanceObject.top) * 100)
+
+		elseif (subDisplay == DETAILS_SUBATTRIBUTE_DEATH) then
+			local ruleToUse = -1 --total
+			--print("instanceLine.deathTime is secret:", issecretvalue(instanceLine.deathTime))
+			local timeOfDeath = instanceLine.deathTime
+			if not issecretvalue(instanceLine.deathTime) then
+				timeOfDeath = detailsFramework:IntegerToTimer(instanceLine.deathTime)
+			else
+				--waiting a solution from blizzard
+			end
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
+			timeOfDeath, nil, nil, ruleToUse)
+			instanceLine.statusbar:SetMinMaxValues(0, 100)
+			instanceLine.statusbar:SetValue(100)
+			--percentNumber = math.floor((deathsTotal/instanceObject.top) * 100)
+		end
+	end
+
+	instanceLine:SetAlpha(1)
+	instanceLine:Show()
+	--detailsFramework:DebugVisibility(thisLine)
+end
+
 -- ~atualizar ~barra ~update
 function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, rank, total, subAttribute, bForceRefresh, keyName, combatTime, percentageType, bUseAnimations, bars_show_data, bars_brackets, bars_separator)
 	---@type detailsline
 	local thisLine = lineContainer[whichRowLine]
-
+	--instanceObject, lineContainer, whichRowLine, i
 	if (not thisLine) then
 		print("DEBUG: problema com <instance.thisLine> "..whichRowLine.." "..rank)
 		return
@@ -3293,10 +3793,17 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 end
 
 local setLineTextSize = function(line, instance)
+	local stringLength = line.lineText4:GetStringWidth()
+	if detailsFramework.IsAddonApocalypseWow() then
+		if issecretvalue(stringLength) then
+			return
+		end
+	end
+
 	if (instance.bars_inverted) then
 		line.lineText4:SetSize(instance.cached_bar_width - line.lineText1:GetStringWidth() - 20, 15)
 	else
-		line.lineText1:SetSize(instance.cached_bar_width - line.lineText4:GetStringWidth() - 20, 15)
+		line.lineText1:SetSize(instance.cached_bar_width - stringLength - 20, 15)
 	end
 end
 
@@ -3525,13 +4032,26 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 
 	else
 		if (instance and instance.row_info.use_spec_icons) then
-			if (self.spec and Details.class_specs_coords[self.spec]) then
+			if (self.thisSpecIcon) then
+				local specInfo = detailsFramework:GetSpecInfoFromSpecIcon(self.thisSpecIcon)
+				local specId = specInfo and specInfo.specId
+				if (specId and Details.class_specs_coords[specId]) then
+					texture:SetTexture(instance.row_info.spec_file)
+					texture:SetTexCoord(unpack(Details.class_specs_coords[specId]))
+					texture:SetVertexColor(1, 1, 1)
+				else
+					texture:SetTexture(self.thisSpecIcon)
+					texture:SetTexCoord(.1, .9, .1, .9)
+					texture:SetVertexColor(1, 1, 1)
+				end
+
+			elseif (self.spec and Details.class_specs_coords[self.spec]) then
 				texture:SetTexture(instance.row_info.spec_file)
 				texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
 				texture:SetVertexColor(1, 1, 1)
 			else
 				texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
-				if (not class or class == "" or type(class) ~= "string") then
+				if (not class or class == "" or type(class) ~= "string" or not Details.class_coords[class]) then
 					class = "UNKNOW"
 				end
 				texture:SetTexCoord(unpack(Details.class_coords[class]))
@@ -3539,10 +4059,14 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 			end
 		else
 			texture:SetTexture(instance and instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
-			if (not class) then
+			if (not class or class == "") then
 				class = "UNKNOW"
 			end
-			texture:SetTexCoord(unpack(Details.class_coords[class]))
+			if not Details.class_coords[class] then
+				texture:SetTexCoord(unpack(Details.class_coords["UNKNOW"]))
+			else
+				texture:SetTexCoord(unpack(Details.class_coords[class]))
+			end
 			texture:SetVertexColor(1, 1, 1)
 		end
 	end
@@ -5512,6 +6036,13 @@ function damageClass:MontaInfoDamageDone()
 
 	local attribute, subAttribute = instance:GetDisplay()
 
+	if Details:IsUsingBlizzardAPI() then
+		--tests: 
+		--print(self.__is_adapter)
+		--print(playerName)
+		--print(instance)
+	end
+
 	--guild ranking on a boss
 	--check if is a raid encounter and if is heroic or mythic
 	do
@@ -5555,6 +6086,8 @@ function damageClass:MontaInfoDamageDone()
 	elseif(Details.time_type == 2 or Details.use_realtimedps) then
 		actorCombatTime = breakdownWindowFrame.instancia:GetCombat():GetCombatTime()
 	end
+
+	actorCombatTime = instance:GetCombatTime()
 
 	--actor spells
 	---@type table<string, number>

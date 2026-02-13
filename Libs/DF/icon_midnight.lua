@@ -5,7 +5,7 @@ if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
-if detailsFramework.IsMidnightWow() then return end
+if not detailsFramework.IsMidnightWow() then return end
 
 local unpack = unpack
 local G_CreateFrame = _G.CreateFrame
@@ -171,8 +171,12 @@ detailsFramework.IconMixin = {
         cooldownFrame:SetFrameLevel(iconFrame:GetFrameLevel()+1)
         iconFrame.Cooldown = cooldownFrame
 
+		iconFrame.Cooldown:SetMinimumCountdownDuration(0)
+		iconFrame.Cooldown:SetCountdownAbbrevThreshold(60)
+
 		---@type fontstring
-        iconFrame.CountdownText = cooldownFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+        --iconFrame.CountdownText = cooldownFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+		iconFrame.CountdownText = iconFrame.Cooldown:GetRegions()
         iconFrame.CountdownText:SetPoint("center", iconFrame, "center", 0, 0)
         iconFrame.CountdownText:Hide()
 
@@ -276,30 +280,29 @@ detailsFramework.IconMixin = {
 			iconFrame.Texture:SetTexCoord(unpack(self.options.texcoord))
 
 			if (borderColor) then
-				iconFrame:SetBackdropBorderColor(detailsFramework:ParseColors(borderColor))
+				iconFrame:SetBackdropBorderColor(unpack(borderColor))
 			else
 				iconFrame:SetBackdropBorderColor(0, 0, 0 ,0)
 			end
 
 			--iconFrame.Border:SetColorTexture(0, 0, 0, 1)
 
-			if (startTime) then
+			if (duration) then
 				local now = GetTime()
 
-				iconFrame.timeRemaining = (startTime + duration - now) / (modRate or 1)
-				iconFrame.expirationTime = startTime + duration
+				local durationObject = duration
+
+				iconFrame.timeRemaining = durationObject:GetRemainingDuration()
+				iconFrame.expirationTime = durationObject:GetEndTime()
 				
-				if iconFrame.timeRemaining > 0 then
-					CooldownFrame_Set(iconFrame.Cooldown, startTime, duration, true, true, modRate)
-				end
+
+				local noExpirationTime = durationObject:IsZero()--C_UnitAuras.DoesAuraHaveExpirationTime(auraIconFrame.unitFrame.namePlateUnitToken, i)
+				iconFrame.Cooldown:SetCooldownFromDurationObject(durationObject)
+				iconFrame.Cooldown:SetAlphaFromBoolean(noExpirationTime, 0, 1)
 
 				if (self.options.show_text) then
 					iconFrame.CountdownText:Show()
 
-					local formattedTime = (iconFrame.timeRemaining > 0) and (self.options.decimal_timer and iconFrame.parentIconRow.FormatCooldownTimeDecimal(iconFrame.timeRemaining) or iconFrame.parentIconRow.FormatCooldownTime(iconFrame.timeRemaining)) or ""
-					iconFrame.CountdownText:SetText(formattedTime)
-
-					iconFrame.CountdownText:SetPoint(self.options.text_anchor or "center", iconFrame, self.options.text_rel_anchor or "center", self.options.text_x_offset or 0, self.options.text_y_offset or 0)
 					detailsFramework:SetFontSize(iconFrame.CountdownText, self.options.text_size)
 					detailsFramework:SetFontFace (iconFrame.CountdownText, self.options.text_font)
 					detailsFramework:SetFontOutline (iconFrame.CountdownText, self.options.text_outline)
@@ -341,9 +344,9 @@ detailsFramework.IconMixin = {
 				iconFrame.Desc:Hide()
 			end
 
-			if (count and count > 1 and self.options.stack_text) then
+			if (count and self.options.stack_text) then
 				iconFrame.StackText:Show()
-				iconFrame.StackText:SetText(count)
+				iconFrame.StackText:SetText(C_StringUtil.TruncateWhenZero(count))
 				iconFrame.StackText:SetTextColor(detailsFramework:ParseColors(self.options.stack_text_color))
 				iconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "center", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
 				detailsFramework:SetFontSize(iconFrame.StackText, self.options.stack_text_size)
@@ -380,12 +383,6 @@ detailsFramework.IconMixin = {
 
 			iconFrame.identifierKey = nil -- only used for "specific" add/remove
 
-			--add the spell into the cache
-			self.AuraCache[spellId or -1] = true
-			self.AuraCache[spellName] = true
-			self.AuraCache.canStealOrPurge = self.AuraCache.canStealOrPurge or canStealOrPurge
-			self.AuraCache.hasEnrage = self.AuraCache.hasEnrage or debuffType == "" --yes, enrages are empty-string...
-
 			--show the frame
 			self:Show()
 
@@ -411,50 +408,70 @@ detailsFramework.IconMixin = {
 	---@param deltaTime number
 	OnIconTick = function(self, deltaTime)
 		local now = GetTime()
-		if (self.lastUpdateCooldown + 0.05) <= now then
-			self.timeRemaining = (self.expirationTime - now) / (self.modRate or 1)
-			if self.timeRemaining > 0 then
-				if self.parentIconRow.options.decimal_timer then
-					self.CountdownText:SetText(self.parentIconRow.FormatCooldownTimeDecimal(self.timeRemaining))
-				else
-					self.CountdownText:SetText(self.parentIconRow.FormatCooldownTime(self.timeRemaining))
-				end
-			else
-				self.CountdownText:SetText("")
-			end
+		if (self.lastUpdateCooldown + 0.5) <= now then
+			-- TODO: room for pandemic
 			self.lastUpdateCooldown = now
 		end
 	end,
 
 	FormatCooldownTime = function(thisTime)
-		if (thisTime >= 3600) then
-			thisTime = math.floor(thisTime / 3600) .. "h"
-
-		elseif (thisTime >= 60) then
-			thisTime = math.floor(thisTime / 60) .. "m"
-
-		else
-			thisTime = math.floor(thisTime)
-		end
-		return thisTime
+		local abbreviationData = {
+			breakpointData =
+			{
+				{
+					breakpoint = 3600,
+					abbreviation = "h", 
+					significandDivisor = 60,
+					fractionDivisor = 60,
+					abbreviationIsGlobal = false,
+				},
+				{
+					breakpoint = 60,
+					abbreviation = "m", 
+					significandDivisor = 60,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false,
+				},
+				{
+					breakpoint = 0,
+					abbreviation = "s", 
+					significandDivisor = 1,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false,
+				},
+			}
+		}
+		return AbbreviateNumbers(thisTime, abbreviationData) -- TODO: cleanup
 	end,
 
 	FormatCooldownTimeDecimal = function(formattedTime)
-        if formattedTime < 10 then
-            return ("%.1f"):format(formattedTime)
-
-        elseif formattedTime < 60 then
-            return ("%d"):format(formattedTime)
-
-        elseif formattedTime < 3600 then
-            return ("%d:%02d"):format(formattedTime/60%60, formattedTime%60)
-
-        elseif formattedTime < 86400 then
-            return ("%dh %02dm"):format(formattedTime/(3600), formattedTime/60%60)
-
-        else
-            return ("%dd %02dh"):format(formattedTime/86400, (formattedTime/3600) - (math.floor(formattedTime/86400) * 24))
-        end
+        local abbreviationData = {
+			breakpointData =
+			{
+				{
+					breakpoint = 3600,
+					abbreviation = "h", 
+					significandDivisor = 60,
+					fractionDivisor = 60,
+					abbreviationIsGlobal = false,
+				},
+				{
+					breakpoint = 60,
+					abbreviation = "m", 
+					significandDivisor = 60,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false,
+				},
+				{
+					breakpoint = 0,
+					abbreviation = "s", 
+					significandDivisor = 1,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false,
+				},
+			}
+		}
+		return AbbreviateNumbers(formattedTime, abbreviationData) -- TODO: cleanup
 	end,
 
 	---@param self df_iconrow the parent frame
@@ -478,11 +495,6 @@ detailsFramework.IconMixin = {
 				iconFrame:Hide()
 				iconFrame:ClearAllPoints()
 				iconFrame.identifierKey = nil
-			else
-				self.AuraCache[iconFrame.spellId] = true
-				self.AuraCache[iconFrame.spellName] = true
-				self.AuraCache.canStealOrPurge = self.AuraCache.canStealOrPurge or iconFrame.canStealOrPurge
-				self.AuraCache.hasEnrage = self.AuraCache.hasEnrage or iconFrame.debuffType == "" --yes, enrages are empty-string...
 			end
 		end
 
@@ -493,7 +505,6 @@ detailsFramework.IconMixin = {
 	ClearIcons = function(self, resetBuffs, resetDebuffs)
 		resetBuffs = resetBuffs ~= false
 		resetDebuffs = resetDebuffs ~= false
-		table.wipe(self.AuraCache)
 
 		local iconPool = self.IconPool
 		local iconsActive = 0
@@ -513,10 +524,6 @@ detailsFramework.IconMixin = {
 				iconFrame:ClearAllPoints()
 
 			else
-				self.AuraCache[iconFrame.spellId] = true
-				self.AuraCache[iconFrame.spellName] = true
-				self.AuraCache.canStealOrPurge = self.AuraCache.canStealOrPurge or iconFrame.canStealOrPurge
-				self.AuraCache.hasEnrage = self.AuraCache.hasEnrage or iconFrame.debuffType == "" --yes, enrages are empty-string...
 				iconsActive = iconsActive + 1
 			end
 		end

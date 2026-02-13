@@ -176,8 +176,58 @@ local statusBarBackgroundTable_ForDeathTooltip = {
 --expose in case someone want to customize the death tooltip background
 Details.StatusBarBackgroundTable_ForDeathTooltip = statusBarBackgroundTable_ForDeathTooltip
 
+local damageEventTokens = {
+	SWING_DAMAGE = true,
+	SPELL_DAMAGE = true,
+	SPELL_PERIODIC_DAMAGE = true,
+	SPELL_PERIODIC_HEAL = true,
+	RANGE_DAMAGE = true,
+	ENVIRONMENTAL_DAMAGE = true,
+	DROWNING = true,
+	FALLING = true,
+	FIRE = true,
+	LAVA = true,
+	SLIME = true,
+	FATIGUE = true,
+	SPELL_DRAIN = true,
+}
+
+function Details.ShowDeathTooltip2(instance, lineFrame) --~death
+	Details:FormatCooltipForSpells()
+	local hasRecap, events, maxHealth, link = Details222.Recap.GetRecapInfo(lineFrame.deathRecapId)
+
+	for i = #events, 1, -1 do
+		local ev = events[i]
+		GameCooltip:AddLine(format("%s (%s)", ev.spellName, ev.sourceName), format("-%d", ev.amount), 1, "white", "white")
+		local spellInfo = C_Spell.GetSpellInfo(ev.spellId)
+		GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
+		if i == 1 then
+			GameCooltip:AddStatusBar(0, 1, 1, 1, 1, 1, false)
+		else
+			GameCooltip:AddStatusBar(ev.currentHP/maxHealth*100, 1, 1, .2, 0, 0.8, false)
+		end
+
+		GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_hyanda]])
+	end
+
+	local myPoint = Details.tooltip.anchor_point
+	local anchorPoint = Details.tooltip.anchor_relative
+	local xOffset = Details.tooltip.anchor_offset[1]
+	local yOffset = Details.tooltip.anchor_offset[2]
+
+	GameCooltip:SetOption("FixedWidth", 300)
+	if (Details.tooltip.anchored_to == 1) then
+		GameCooltip:SetHost(lineFrame, myPoint, anchorPoint, xOffset, yOffset)
+	else
+		GameCooltip:SetHost(DetailsTooltipAnchor, myPoint, anchorPoint, xOffset, yOffset)
+	end
+
+	GameCooltip:ShowCooltip()
+end
+
 function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable) --~death
 	local events = deathTable[1]
+	events = detailsFramework.table.reverse(events)
 	local timeOfDeath = deathTable[2]
 	local maxHP = max(deathTable[5], 0.001)
 	local battleress = false
@@ -213,7 +263,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 		end
 
 		local evType = event[1]
-		local spellName, _, spellIcon = _GetSpellInfo(event[2])
+		local spellName, _, spellIcon = _GetSpellInfo(event[2] or 1)
 
 		if (not spellName) then
 			spellName = _G.UNKNOWN
@@ -226,10 +276,14 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 		local amount = event[3]
 		local eventTime = event[4]
 		local source = Details:GetOnlyName(event[6] or "")
-		local eventFrom = event[6]
+		local eventFrom = event[6] or ""
+
+		if not damageEventTokens[evType] then
+			Details:Msg("DeathLog event not registered:", evType, "Please report this to the author.")
+		end
 
 		if (eventTime + 10 > timeOfDeath) then
-			if (type(evType) == "boolean") then
+			if (type(evType) == "boolean" or damageEventTokens[evType]) then
 				--is damage or heal?
 				if (evType) then --bool true
 					--damage
@@ -365,6 +419,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 
 	return true
 end
+Details.ShowDeathTooltipFunction = Details.ShowDeathTooltip
 
 function Details:ToolTipDead(instance, deathTable, barFrame)
 	local gameCooltip = GameCooltip
@@ -411,11 +466,21 @@ local ReportSingleDeathFunc = function(IsCurrent, IsReverse, AmtLines)
 	Details:SendReportLines(t)
 end
 
-function atributo_misc:ReportSingleDeadLine(morte, instancia)
+function atributo_misc:ReportSingleDeadLine(morte, instancia, bIsShiftDown, bIsControlDown, thisLine)
+	---@cast thisLine detailsline
 	local barra = instancia.barras [morte.minha_barra]
 
 	local max_health = morte [5]
 	local time_of_death = morte [2]
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		if (not C_AddOns.IsAddOnLoaded("Blizzard_DeathRecap")) then
+			C_AddOns.LoadAddOn("Blizzard_DeathRecap")
+		end
+		Details:Msg("Opening Blizzard Death Recap with deathRecapId:", thisLine.deathRecapId)
+		DeathRecapFrame:OpenRecap(thisLine.deathRecapId)
+		return
+	end
 
 	do
 		if (not Details.fontstring_len) then
@@ -431,7 +496,10 @@ function atributo_misc:ReportSingleDeadLine(morte, instancia)
 	end
 	local default_len = Details.fontstring_len:GetStringWidth()
 
-	Details:Destroy(reportTable)
+	if reportTable then
+		Details:Destroy(reportTable)
+	end
+
 	local report_array = reportTable
 	report_array[1] = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. morte [6], "", "", ""}
 
@@ -690,6 +758,13 @@ function atributo_misc:UpdateDeathRow(deathTable, whichRowLine, rankPosition, in
 end
 
 function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bIsExport)
+	if detailsFramework.IsAddonApocalypseWow() then
+		if Details:IsUsingBlizzardAPI() then
+			Details222.BParser.UpdateAppocalypse(instance, bIsForceRefresh)
+			return
+		end
+	end
+
 	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
 
 	---@type actorcontainer
@@ -3673,4 +3748,20 @@ atributo_misc.__sub = function(tabela1, tabela2)
 	end
 
 	return tabela1
+end
+
+---usage: local hasRecap, events, maxHealth, link = Details222.Recap.GetRecapInfo(12345)
+---@param id number
+---@return boolean
+---@return deathrecapeventinfo[]
+---@return number
+---@return string
+function Details222.Recap.GetRecapInfo(id)
+    local hasDeathRecap = Details.DR.HasRecapEvents(id)
+    if hasDeathRecap then
+        local thisRecap = Details.DR.GetRecapEvents(id)
+        local maxHealth = Details.DR.GetRecapMaxHealth(id)
+        return true, thisRecap, maxHealth, Details.DR.GetRecapLink(id)
+	end
+	return false
 end

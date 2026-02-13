@@ -1,5 +1,5 @@
 
-local dversion = 668
+local dversion = 672
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -5656,6 +5656,97 @@ DF.SpecListByClass = {
 		1473,
 	},
 }
+
+---> https://wago.tools/db2/ChrSpecialization?page=1&sort%5BID%5D=asc
+local specInformation = {
+	[62] = {specId = 62, name = "Arcane", specIcon = 135932, role = "DAMAGER", classId = 8, className = "MAGE", specIndex = 0, flags = 0x3, primaryStatPriority = 0},
+	[63] = {specId = 63, name = "Fire", specIcon = 135810, role = "DAMAGER", classId = 8, className = "MAGE", specIndex = 1, flags = 0x3, primaryStatPriority = 0},
+	[64] = {specId = 64, name = "Frost", specIcon = 135846, role = "DAMAGER", classId = 8, className = "MAGE", specIndex = 2, flags = 0x3, primaryStatPriority = 0},
+	[65] = {specId = 65, name = "Holy", specIcon = 135920, role = "HEALER", classId = 2, className = "PALADIN", specIndex = 0, flags = 0x5, primaryStatPriority = 1},
+	[66] = {specId = 66, name = "Protection", specIcon = 236264, role = "TANK", classId = 2, className = "PALADIN", specIndex = 1, flags = 0x4, primaryStatPriority = 0},
+	[68] = {specId = 68, name = "Retribution", specIcon = 135873, role = "DAMAGER", classId = 2, className = "PALADIN", specIndex = 2, flags = 0x4, primaryStatPriority = 0},
+	[71] = {specId = 71, name = "Arms", specIcon = 132355, role = "DAMAGER", classId = 1, className = "WARRIOR", specIndex = 0, flags = 0x4, primaryStatPriority = 0},
+	[72] = {specId = 72, name = "Fury", specIcon = 132347, role = "DAMAGER", classId = 1, className = "WARRIOR", specIndex = 1, flags = 0x4, primaryStatPriority = 0},
+	[73] = {specId = 73, name = "Protection", specIcon = 132341, role = "TANK", classId = 1, className = "WARRIOR", specIndex = 2, flags = 0x4, primaryStatPriority = 0},
+	[102] = {specId = 102, name = "Balance", specIcon = 136096, role = "DAMAGER", classId = 11, className = "DRUID", specIndex = 0, flags = 0x3, primaryStatPriority = 0},
+	[103] = {specId = 103, name = "Feral", specIcon = 132115, role = "DAMAGER", classId = 11, className = "DRUID", specIndex = 1, flags = 0x4, primaryStatPriority = 3},
+	[104] = {specId = 104, name = "Guardian", specIcon = 132276, role = "TANK", classId = 11, className = "DRUID", specIndex = 2, flags = 0x4, primaryStatPriority = 3},
+	[105] = {specId = 105, name = "Restoration", specIcon = 136041, role = "HEALER", classId = 11, className = "DRUID", specIndex = 3, flags = 0x3, primaryStatPriority = 0},
+	[250] = {specId = 250, name = "Blood", specIcon = 135770, role = "TANK", classId = 6, className = "DEATHKNIGHT", specIndex = 0, flags = 0x4, primaryStatPriority = 5},
+	[251] = {specId = 251, name = "Frost", specIcon = 135773, role = "DAMAGER", classId = 6, className = "DEATHKNIGHT", specIndex = 1, flags = 0x4, primaryStatPriority = 5},
+	[252] = {specId = 252, name = "Unholy", specIcon = 135775, role = "DAMAGER", classId = 6, className = "DEATHKNIGHT", specIndex = 2, flags = 0x4, primaryStatPriority = 5},
+	[253] = {specId = 253, name = "Beast Mastery", specIcon = 461112, role = "DAMAGER", classId = 3, className = "HUNTER", specIndex = 0, flags = 0x2, primaryStatPriority = 2},
+	[254] = {specId = 254, name = "Marksmanship", specIcon = 236179, role = "DAMAGER", classId = 3, className = "HUNTER", specIndex = 1, flags = 0x2, primaryStatPriority = 2},
+	[255] = {specId = 255, name = "Survival", specIcon = 461113, role = "DAMAGER", classId = 3, className = "HUNTER", specIndex = 2, flags = 0x4, primaryStatPriority = 2},
+	[256] = {specId = 256, name = "Discipline", specIcon = 135940, role = "HEALER", classId = 5, className = "PRIEST", specIndex = 0, flags = 0x3, primaryStatPriority = 0},
+	[257] = {specId = 257, name = "Holy", specIcon = 237542, role = "HEALER", classId = 5, className = "PRIEST", specIndex = 1, flags = 0x3, primaryStatPriority = 0},
+	[258] = {specId = 258, name = "Shadow", specIcon = 136207, role = "DAMAGER", classId = 5, className = "PRIEST", specIndex = 2, flags = 0x3, primaryStatPriority = 0},
+	[259] = {specId = 259, name = "Assassination", specIcon = 236270, role = "DAMAGER", classId = 4, className = "ROGUE", specIndex = 0, flags = 0x4, primaryStatPriority = 3},
+	[260] = {specId = 260, name = "Outlaw", specIcon = 236286, role = "DAMAGER", classId = 4, className = "ROGUE", specIndex = 1, flags = 0x4, primaryStatPriority = 3},
+	[261] = {specId = 261, name = "Subtlety", specIcon = 132320, role = "DAMAGER", classId = 4, className = "ROGUE", specIndex = 2, flags = 0x4, primaryStatPriority = 3},
+	[262] = {specId = 262, name = "Elemental", specIcon = 136048, role = "DAMAGER", classId = 7, className = "SHAMAN", specIndex = 0, flags = 0x4b, primaryStatPriority = 0},
+	[263] = {specId = 263, name = "Enhancement", specIcon = 237581, role = "DAMAGER", classId = 7, className = "SHAMAN", specIndex = 1, flags = 0x104, primaryStatPriority = 2},
+	[264] = {specId = 264, name = "Restoration", specIcon = 136052, role = "HEALER", classId = 7, className = "SHAMAN", specIndex = 2, flags = 0x3, primaryStatPriority = 0},
+	[265] = {specId = 265, name = "Affliction", specIcon = 136145, role = "DAMAGER", classId = 9, className = "WARLOCK", specIndex = 0, flags = 0x43, primaryStatPriority = 0},
+	[266] = {specId = 266, name = "Demonology", specIcon = 136172, role = "DAMAGER", classId = 9, className = "WARLOCK", specIndex = 1, flags = 0x3, primaryStatPriority = 0},
+	[267] = {specId = 267, name = "Destruction", specIcon = 136186, role = "DAMAGER", classId = 9, className = "WARLOCK", specIndex = 2, flags = 0x3, primaryStatPriority = 0},
+	[268] = {specId = 268, name = "Brewmaster", specIcon = 608951, role = "TANK", classId = 10, className = "MONK", specIndex = 0, flags = 0x4, primaryStatPriority = 2},
+	[269] = {specId = 269, name = "Windwalker", specIcon = 608953, role = "DAMAGER", classId = 10, className = "MONK", specIndex = 2, flags = 0x44, primaryStatPriority = 2},
+	[270] = {specId = 270, name = "Mistweaver", specIcon = 608952, role = "HEALER", classId = 10, className = "MONK", specIndex = 1, flags = 0x5, primaryStatPriority = 0},
+	[535] = {specId = 535, name = "Ferocity", specIcon = 236159, role = "DAMAGER", classId = 0, className = "WARRIOR", specIndex = 0, flags = 0x20, primaryStatPriority = 0},
+	[536] = {specId = 536, name = "Cunning", specIcon = 132150, role = "DAMAGER", classId = 0, className = "WARRIOR", specIndex = 2, flags = 0x20, primaryStatPriority = 0},
+	[537] = {specId = 537, name = "Tenacity", specIcon = 132121, role = "TANK", classId = 0, className = "WARRIOR", specIndex = 1, flags = 0x20, primaryStatPriority = 0},
+	[577] = {specId = 577, name = "Havoc", specIcon = 1247264, role = "DAMAGER", classId = 12, className = "DEMONHUNTER", specIndex = 0, flags = 0x44, primaryStatPriority = 3},
+	[581] = {specId = 581, name = "Vengeance", specIcon = 1247265, role = "TANK", classId = 12, className = "DEMONHUNTER", specIndex = 1, flags = 0x4, primaryStatPriority = 3},
+	[1444] = {specId = 1444, name = "Initial", specIcon = 136048, role = "DAMAGER", classId = 7, className = "SHAMAN", specIndex = 4, flags = 0x3, primaryStatPriority = 0},
+	[1446] = {specId = 1446, name = "Initial", specIcon = 132355, role = "DAMAGER", classId = 1, className = "WARRIOR", specIndex = 4, flags = 0x44, primaryStatPriority = 5},
+	[1447] = {specId = 1447, name = "Initial", specIcon = 136096, role = "DAMAGER", classId = 11, className = "DRUID", specIndex = 4, flags = 0x14b, primaryStatPriority = 0},
+	[1448] = {specId = 1448, name = "Initial", specIcon = 461112, role = "DAMAGER", classId = 3, className = "HUNTER", specIndex = 4, flags = 0x42, primaryStatPriority = 2},
+	[1449] = {specId = 1449, name = "Initial", specIcon = 135846, role = "DAMAGER", classId = 8, className = "MAGE", specIndex = 4, flags = 0x43, primaryStatPriority = 0},
+	[1450] = {specId = 1450, name = "Initial", specIcon = 608953, role = "DAMAGER", classId = 10, className = "MONK", specIndex = 4, flags = 0x44, primaryStatPriority = 2},
+	[1451] = {specId = 1451, name = "Initial", specIcon = 135873, role = "DAMAGER", classId = 2, className = "PALADIN", specIndex = 4, flags = 0x44, primaryStatPriority = 5},
+	[1452] = {specId = 1452, name = "Initial", specIcon = 135940, role = "HEALER", classId = 5, className = "PRIEST", specIndex = 4, flags = 0x43, primaryStatPriority = 0},
+	[1453] = {specId = 1453, name = "Initial", specIcon = 236270, role = "DAMAGER", classId = 4, className = "ROGUE", specIndex = 4, flags = 0x44, primaryStatPriority = 3},
+	[1454] = {specId = 1454, name = "Initial", specIcon = 136145, role = "DAMAGER", classId = 9, className = "WARLOCK", specIndex = 4, flags = 0x43, primaryStatPriority = 0},
+	[1455] = {specId = 1455, name = "Initial", specIcon = 135775, role = "DAMAGER", classId = 6, className = "DEATHKNIGHT", specIndex = 4, flags = 0x44, primaryStatPriority = 5},
+	[1456] = {specId = 1456, name = "Initial", specIcon = 1247264, role = "DAMAGER", classId = 12, className = "DEMONHUNTER", specIndex = 4, flags = 0x44, primaryStatPriority = 3},
+	[1465] = {specId = 1465, name = "Initial", specIcon = 4574311, role = "DAMAGER", classId = 13, className = "EVOKER", specIndex = 4, flags = 0x3, primaryStatPriority = 0},
+	[1467] = {specId = 1467, name = "Devastation", specIcon = 4511811, role = "DAMAGER", classId = 13, className = "EVOKER", specIndex = 0, flags = 0x43, primaryStatPriority = 0},
+	[1468] = {specId = 1468, name = "Preservation", specIcon = 4511812, role = "HEALER", classId = 13, className = "EVOKER", specIndex = 1, flags = 0x3, primaryStatPriority = 0},
+	[1473] = {specId = 1473, name = "Augmentation", specIcon = 5198700, role = "DAMAGER", classId = 13, className = "EVOKER", specIndex = 2, flags = 0x3, primaryStatPriority = 0},
+	[1478] = {specId = 1478, name = "Adventurer", specIcon = 2055034, role = "DAMAGER", classId = 14, className = "ROGUE", specIndex = 4, flags = 0x2, primaryStatPriority = 4},
+	[1480] = {specId = 1480, name = "Devourer", specIcon = 7455385, role = "DAMAGER", classId = 12, className = "DEMONHUNTER", specIndex = 2, flags = 0x3, primaryStatPriority = 0},
+}
+
+--make a table where the key is the specIcon and the value is the table from specInformation
+local specIconToInfo = {}
+for specId, info in pairs(specInformation) do
+	specIconToInfo[info.specIcon] = info
+end
+
+---@class specinfo : table
+---@field specId number
+---@field name string
+---@field specIcon number
+---@field role string
+---@field classId number
+---@field className string
+---@field specIndex number
+---@field flags number
+---@field primaryStatPriority number
+
+function DF:GetSpecInfoFromSpecId(specId)
+	return specInformation[specId]
+end
+--~spec
+function DF:GetSpecInfoFromSpecIcon(specIcon)
+	return specIconToInfo[specIcon]
+end
+
+function DF:GetSpecIdFromSpecIcon(specIcon)
+	local info = specIconToInfo[specIcon]
+	return info and info.specId
+end
 
 ---return if the specId is a valid spec, it'll return false for specIds from the tutorial area
 ---@param self table

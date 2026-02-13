@@ -327,7 +327,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field GetRoleIcon fun(self: details, role: role) : string, number, number, number, number return the path to a texture file and the texture coordinates for the given role
 ---@field GetSpecIcon fun(self: details, spec: number, useAlpha: boolean) : string, number, number, number, number return the path to a texture file and the texture coordinates for the given spec
 ---@field GetActiveWindowFromBreakdownWindow fun(self: details) : instance return the window (instance) that requested to open the player breakdown window
----@field OpenBreakdownWindow fun(self: details, instanceObject: instance, actorObject: actor, bFromAttributeChange: boolean?, bIsRefresh: boolean?, bIsShiftKeyDown: boolean?, bIsControlKeyDown: boolean?)
+---@field OpenBreakdownWindow fun(self: details, instanceObject: instance, actorObject: actor, bFromAttributeChange: boolean?, bIsRefresh: boolean?, bIsShiftKeyDown: boolean?, bIsControlKeyDown: boolean?, bIgnoreOverrides:boolean?, mainAttributeOverride:number?, subAttributeOverride:number?)
 ---@field GetActorObjectFromBreakdownWindow fun(self: details) : actor return the actor object that is currently shown in the breakdown window
 ---@field GetDisplayTypeFromBreakdownWindow fun(self: details) : number, number return the attribute and subattribute display type of the breakdown window
 ---@field GetCombatFromBreakdownWindow fun(self: details) : combat return the combat beaing used in the breakdown window
@@ -714,7 +714,13 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field show_interrupt_casts boolean
 ---@field baseframe frame
 ---@field use_multi_fontstrings boolean
+---@field sessionId number the sessionId to use with C_DamageMeter API
+---@field sessionType number the sessionType to use with C_DamageMeter API
+---@field _postponing_switch boolean?
+---@field last_interaction number?
+---@field auto_current boolean?
 ---@field
+---@field GetCombatTime fun(instance: instance) : number get the combat time of the currently showing combat segment
 ---@field CheckForSecretsAndAspects fun(self: instance)
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor
 ---@field GetSize fun(instance: instance) : width, height
@@ -733,6 +739,8 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field RefreshCombat fun(instance: instance)
 ---@field Freeze fun(instance: instance)
 ---@field UnFreeze fun(instance: instance)
+---@field GetAttributeType fun(instance: instance) : number
+---@field GetSources fun(instance: instance) : damagemeter_combat_source[]
 ---@field SetSegment fun(instance: instance, segment: segmentid, force: boolean|nil)
 ---@field SetDisplay fun(instance: instance, segmentId: segmentid?, attributeId: attributeid?, subAttributeId: attributeid?, modeId: modeid?, quickMode:boolean?)
 ---@field GetDisplay fun(instance: instance) : attributeid, attributeid
@@ -740,6 +748,28 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field ResetWindow fun(instance: instance, resetType: number|nil, segmentId: segmentid|nil)
 ---@field RefreshData fun(instance: instance, force: boolean|nil)
 ---@field RefreshWindow fun(instance: instance, force: boolean|nil)
+---@field GetNewSegmentId fun(instance: instance) : number
+---@field SetNewSegmentId fun(instance: instance, sessionId: number, bForceRefresh: boolean?)
+---@field GetSegmentType fun(instance: instance) : number
+---@field SetSegmentType fun(instance: instance, sessionType: number, bForceRefresh: boolean?)
+---@field GetSegmentObject fun(instance: instance) : damagemeter_combat_session
+---@field GetSourceActorFromName fun(instance: instance, name: string) : actor
+
+---@class sessioncache : table
+---@field startTime number
+---@field endTime number?
+---@field startUnixTime number
+---@field endUnixTime number?
+---@field startDate string
+---@field endDate string?
+---@field sessionId number
+---@field added boolean?
+---@field detailsId string?
+---@field sessionName string?
+---@field encounterId number?
+---@field encounterName string?
+---@field encounterData encounterdata?
+---@field alreadyAdded boolean
 
 ---@class trinketdata : table
 ---@field itemName string

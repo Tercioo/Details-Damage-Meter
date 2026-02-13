@@ -195,6 +195,9 @@ _detalhes.instance_defaults = {
 	--row animation when show
 		row_show_animation = {anim = "Fade", options = {}},
 
+		sessionId = 1,
+		sessionType = 1,
+
 		rounded_corner_enabled = false,
 
 		--use one fontstring for each value in the lines, e.g. one fontstring to damage done, another fontstring to dps and another to percent amount

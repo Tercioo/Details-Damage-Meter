@@ -231,7 +231,7 @@ function Details222.CreateAllDisplaysFrame()
 
 				for i = 1, #Details.sub_atributos [attribute].lista do
 					local mainDisplay, subDisplay = attribute, i
-					local damageMeterType = Details222.BParser.GetDamageMeterTypeFromDisplay(mainDisplay, subDisplay)
+					local damageMeterType = Details222.BParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
 					local canAdd = (isApoc and damageMeterType < 100) or (not isApoc)
 
 					if canAdd then

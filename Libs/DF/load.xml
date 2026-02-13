@@ -44,6 +44,7 @@
 	<Include file="unitframe.lua"/>
 	<Include file="unitframe_midnight.lua"/>
 	<Script file="icon.lua"/>
+	<Script file="icon_midnight.lua"/>
 	<Script file="icongeneric.lua"/>
 	<Script file="pictureedit.lua"/>
 	<Script file="auras.lua"/>

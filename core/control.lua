@@ -445,7 +445,9 @@
 
 		--if the window is showing current segment, switch it for the new combat
 		--also if the window has auto current, jump to current segment
-		Details:InstanceCallDetailsFunc(Details.TrocaSegmentoAtual, Details.tabela_vigente.is_boss and true)
+		if not Details:IsUsingBlizzardAPI() then
+			Details:InstanceCallDetailsFunc(Details.TrocaSegmentoAtual, Details.tabela_vigente.is_boss and true)
+		end
 
 		--clear hosts and make the cloud capture stuff
 		Details.host_of = nil
@@ -1734,11 +1736,10 @@
 		Details:HideBarsNotInUse(instancia, showing)
 	end
 
-	function Details:HideBarsNotInUse(instance, showing)
+	function Details:HideBarsNotInUse(instance, showing, speed)
 		if (instance.v_barras) then
-			--print("mostrando", instancia.rows_showing, instancia.rows_created)
 			for barra_numero = instance.rows_showing+1, instance.rows_created do
-				Details.FadeHandler.Fader(instance.barras[barra_numero], "in")
+				Details.FadeHandler.Fader(instance.barras[barra_numero], "in", speed)
 			end
 			instance.v_barras = false
 

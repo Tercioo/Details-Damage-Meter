@@ -304,7 +304,8 @@ local cleanfunction = function() end
 		local calculator = self.healCalculator
 		UnitGetDetailedHealPrediction(self.displayedUnit, nil, calculator)
 		
-		calculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.Default)
+		--calculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.Default)
+		calculator:SetMaximumHealthMode(self.Settings.ShowShields and Enum.UnitMaximumHealthMode.WithAbsorbs or Enum.UnitMaximumHealthMode.Default)
 		self.currentHealthPercent = calculator:EvaluateCurrentHealthPercent(CurveConstants.ScaleTo100)
 		self.currentHealthMissingPercent = calculator:GetMissingHealthPercent()
 		self.currentHealth = calculator:GetCurrentHealth()
@@ -312,7 +313,7 @@ local cleanfunction = function() end
 		self.currentHealthMax = calculator:GetMaximumDamageAbsorbs() --calculator:GetMaximumHealth()
 		
 		--switch
-		calculator:SetMaximumHealthMode(self.Settings.ShowShields and Enum.UnitMaximumHealthMode.WithAbsorbs or Enum.UnitMaximumHealthMode.Default)
+		--calculator:SetMaximumHealthMode(self.Settings.ShowShields and Enum.UnitMaximumHealthMode.WithAbsorbs or Enum.UnitMaximumHealthMode.Default)
 		
 		self.currentHealthPercentWithAbsorb = calculator:EvaluateCurrentHealthPercent(CurveConstants.ScaleTo100)
 		self.currentHealthMissingPercentWithAbsorb = calculator:GetMissingHealthPercent()
@@ -2104,8 +2105,8 @@ detailsFramework.CastFrameFunctions = {
 			self.castBarID = nil
 			self.interruptedBy = interruptedBy
 
-			local value = self.durationObject:GetElapsedDuration()
-			local minValue, maxValue = 0, self.durationObject:GetTotalDuration()
+			local value = self.durationObject and self.durationObject:GetElapsedDuration() or 1
+			local minValue, maxValue = 0,  self.durationObject and self.durationObject:GetTotalDuration() or 1
 			if (self.Settings.FillOnInterrupt) then
 				self:SetMinMaxValues(minValue, maxValue)
 				self:SetValue(maxValue)

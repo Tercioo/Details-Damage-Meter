@@ -270,6 +270,13 @@ end
 --refresh function
 
 function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
+	if detailsFramework.IsAddonApocalypseWow() then
+		if Details:IsUsingBlizzardAPI() then
+			Details222.BParser.UpdateAppocalypse(instancia, forcar)
+			return
+		end
+	end
+
 	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
 
 	local showing = tabela_do_combate [class_type]
