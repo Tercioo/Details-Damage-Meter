@@ -1940,6 +1940,7 @@
 	function Details:CheckForAutoErase(mapId)
 		if (Details.last_instance_id ~= mapId) then
 			Details.tabela_historico:ResetOverallData()
+			Details:Msg("the overall data has been reset.")
 
 			if (Details.segments_auto_erase == 2) then --ask to erase
 				Details:ScheduleTimer("AutoEraseConfirm", 1)
