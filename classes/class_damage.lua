@@ -3230,6 +3230,12 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			local ruleToUse = -1 --only show total
 			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond), nil, nil, ruleToUse)
 			--percentNumber = math.floor((dps/instanceObject.top) * 100)
+
+		elseif (subDisplay == DETAILS_SUBATTRIBUTE_ENEMIES) then
+			local ruleToUse = 2
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
+			--percentNumber = math.floor((dps/instanceObject.top) * 100)
+
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_HEAL then

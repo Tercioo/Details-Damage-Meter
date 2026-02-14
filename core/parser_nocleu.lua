@@ -25,7 +25,7 @@ if detailsFramework.IsAddonApocalypseWow() then
             Enum.DamageMeterType.DamageTaken, --damage taken
             100, --friendly fire (not supported)
             100, --frags (not supported)
-            100, --enemies (not supported)
+            Enum.DamageMeterType.EnemyDamageTaken, --enemies
             100, --void zones (not supported)
             100, --damage taken by spells (not supported)
         },
