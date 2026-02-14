@@ -364,11 +364,11 @@
 		end
 
 		function Details222.B.GetCombatTime(id)
-			return Details222.B.GetSegment("Type", id, 0).durationSeconds
+			return Details222.B.GetSegment("ID", id, 0).durationSeconds
 		end
 
-		function Details222.B.GetCurrentTime()
-			return Details222.B.GetSegment("Type", 1, 0).durationSeconds
+		function Details222.B.GetCurrentTime(segmentType)
+			return Details222.B.GetSegment("Type", segmentType, 0).durationSeconds
 		end
 
 		---@type instancedifficulty

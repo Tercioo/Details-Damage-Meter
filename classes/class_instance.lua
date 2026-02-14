@@ -446,10 +446,21 @@ local instanceMixins = {
 	---@param sessionId number
 	---@param bForceRefresh boolean?
 	SetNewSegmentId = function(instance, sessionId, bForceRefresh)
+		local old = instance:GetNewSegmentId()
+		if sessionId == old then
+			if not bForceRefresh then
+				return
+			end
+		end
+
 		instance.sessionId = sessionId
 		Details222.BParser.lastEventTime = 0
 		if bForceRefresh then
 			instance:RefreshWindow(bForceRefresh)
+		end
+
+		if sessionId ~= old then
+			Details:SendEvent("DETAILS_INSTANCE_CHANGESESSION", nil, instance, instance.sessionType, instance.sessionId)
 		end
 	end,
 
@@ -474,10 +485,22 @@ local instanceMixins = {
 	---@param sessionType number
 	---@param bForceRefresh boolean?
 	SetSegmentType = function(instance, sessionType, bForceRefresh)
+		local old = instance:GetSegmentType()
+		if sessionType == old then
+			if not bForceRefresh then
+				return
+			end
+		end
+
 		instance.sessionType = sessionType
 		Details222.BParser.lastEventTime = 0
+
 		if bForceRefresh then
 			instance:RefreshWindow(bForceRefresh)
+		end
+
+		if sessionType ~= old then
+			Details:SendEvent("DETAILS_INSTANCE_CHANGESESSION", nil, instance, instance.sessionType, instance.sessionId)
 		end
 	end,
 

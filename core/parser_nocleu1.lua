@@ -194,10 +194,10 @@ end
 bParser.WipeStoredSessionIds = wipeStoredSessionIds
 
 local getSegmentCombatTime = function(segmentId)
-    local session = segmentInfoCache[segmentId]
-    if session then
-        local startTime = session.startTime
-        local endTime = session.endTime or GetTime()
+    local segmentCache = segmentInfoCache[segmentId]
+    if segmentCache then
+        local startTime = segmentCache.startTime
+        local endTime = segmentCache.endTime or GetTime()
         return endTime - startTime
     end
     return 0
@@ -207,9 +207,9 @@ local removeSegmentInfoFromCache = function(segmentId)
 end
 
 local getSessionStartAndEndTime = function(segmentId)
-    local info = segmentInfoCache[segmentId]
-    if info then
-        return info.startTime, info.endTime
+    local segmentCache = segmentInfoCache[segmentId]
+    if segmentCache then
+        return segmentCache.startTime, segmentCache.endTime
     end
     return 0, 0
 end
@@ -2190,19 +2190,43 @@ end
 
 local timerUpdateInterval = 1 --time in seconds
 local timerUpdateObject = nil
-local updateTime = function(timerObject)
+local updateTime = function(timerObject) --~update
+    ---@type instance
     local instance = timerObject.instance
     if Details:IsUsingBlizzardAPI() then
         if instance:GetSegmentType() <= 1 then
-            local t = Details222.B.GetCombatTime(instance:GetSegmentType())
-            if not issecretvalue(t) then
-                setTitleText(instance, formatTime(t))
+            local elapsed = Details222.B.GetCurrentTime(instance:GetSegmentType())
+            if elapsed and not issecretvalue(elapsed) then
+                setTitleText(instance, formatTime(elapsed))
+                return
+            else
+                elapsed = getSegmentCombatTime(instance:GetNewSegmentId()) _print(instance:GetNewSegmentId(), elapsed)
+                if elapsed then
+                    setTitleText(instance, formatTime(elapsed))
+                else
+                    setTitleText(instance, "")
+                end
                 return
             end
+        else
+            local elapsed = Details222.B.GetCombatTime(instance:GetNewSegmentId())
+            if elapsed and not issecretvalue(elapsed) then
+                setTitleText(instance, formatTime(elapsed))
+            else
+                setTitleText(instance, "")
+            end
+            return
         end
     end
     setTitleText(instance, instance:GetFormattedTimeForTitleBar())
 end
+
+local updateTimeOnEvent = function(eventName, instance)
+    updateTime({instance=instance})
+end
+local changeSegmentListener = Details:CreateEventListener()
+changeSegmentListener:RegisterEvent("DETAILS_INSTANCE_CHANGESESSION", updateTimeOnEvent)
+changeSegmentListener:RegisterEvent("DETAILS_INSTANCE_OPEN", updateTimeOnEvent)
 
 --this function update the time in settings shown in the window
 local startElapsedTimeUpdate = function()
