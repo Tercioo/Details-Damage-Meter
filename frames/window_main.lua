@@ -2050,8 +2050,14 @@ local lineScript_Onmouseup = function(self, button)
 			if (not self.minha_tabela) then
 				if Details:IsUsingBlizzardAPI() then
 					local instanceLine = self
-					local sessionId = instanceObject:GetNewSegmentId()
-					local sessionType = instanceObject:GetSegmentType()
+
+					if InCombatLockdown() then
+						Details:Msg("Can't open breakdown during combat (blizzard restrictions).")
+						return
+					end
+
+					local newSegmentId = instanceObject:GetNewSegmentId()
+					local segmentType = instanceObject:GetSegmentType()
 					local lineIndex = instanceLine.row_id
 					local sourceData = instanceLine.sourceData
 					local actorName = instanceLine.actorName
@@ -2061,8 +2067,8 @@ local lineScript_Onmouseup = function(self, button)
 					local blzSpecIcon = instanceLine.sourceData.specIconID
 
 					local adapterSettings = {
-						sessionId = sessionId,
-						sessionType = sessionType,
+						sessionId = newSegmentId,
+						sessionType = segmentType,
 						sourceData = sourceData,
 						actorName = actorName,
 						actorGUID = actorGUID,
@@ -2072,6 +2078,7 @@ local lineScript_Onmouseup = function(self, button)
 						mainDisplay = instanceLine.mainDisplay,
 						subDisplay = instanceLine.subDisplay,
 						blzSpecIcon = blzSpecIcon,
+						isPlayer = instanceLine.isPlayer,
 					}
 
 					local adapter = Details:MakeActorAdapter(adapterSettings)

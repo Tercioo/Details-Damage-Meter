@@ -244,6 +244,10 @@
 		local energyClass =		Details.atributo_energy
 		local utilityClass		=	Details.atributo_misc
 
+		if settingsTable.isPlayer then
+			adapter.serial = UnitGUID("player")
+		end
+
 		if (attributeId >= 0 and attributeId <= 3) then
 			if attributeId >= 0 and attributeId <= 1 then
 				adapter.spells = spellContainerClass:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
