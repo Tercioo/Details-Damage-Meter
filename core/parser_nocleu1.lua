@@ -2200,7 +2200,7 @@ local updateTime = function(timerObject) --~update
                 setTitleText(instance, formatTime(elapsed))
                 return
             else
-                elapsed = getSegmentCombatTime(instance:GetNewSegmentId()) _print(instance:GetNewSegmentId(), elapsed)
+                elapsed = getSegmentCombatTime(instance:GetNewSegmentId())
                 if elapsed then
                     setTitleText(instance, formatTime(elapsed))
                 else
