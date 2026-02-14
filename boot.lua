@@ -365,7 +365,10 @@
 
 		function Details222.B.GetSegmentIdFromCurrent()
 			local s = Details222.B.GetAllSegments()
-			return s[#s].sessionID
+			if s[#s] then
+				return s[#s].sessionID
+			end
+			return 1
 		end
 
 		function Details222.B.GetCombatTime(id)
