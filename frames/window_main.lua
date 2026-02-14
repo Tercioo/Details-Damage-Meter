@@ -6753,17 +6753,17 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 
 			local selectExpired = function(_, _, sessionId)
 				instance:SetNewSegmentId(sessionId)
-				instance:SetSegmentType(Enum.DamageMeterSessionType.Expired, bForceRefresh)
+				instance:SetSegmentType(2, bForceRefresh)
 				afterSetSession()
 			end
 			local selectCurrent = function()
-				instance:SetNewSegmentId(1)
-				instance:SetSegmentType(Enum.DamageMeterSessionType.Current, bForceRefresh)
+				--instance:SetNewSegmentId(1)
+				instance:SetSegmentType(1, bForceRefresh)
 				afterSetSession()
 			end
 			local selectOverall = function()
-				instance:SetNewSegmentId(1)
-				instance:SetSegmentType(Enum.DamageMeterSessionType.Overall, bForceRefresh)
+				--instance:SetNewSegmentId(1)
+				instance:SetSegmentType(0, bForceRefresh)
 				afterSetSession()
 			end
 
@@ -6799,9 +6799,9 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 			local sessionId = instance:GetNewSegmentId()
 			local sessionType = instance:GetSegmentType()
 
-			if sessionType == Enum.DamageMeterSessionType.Current then
+			if sessionType == 1 then
 				gameCooltip:SetLastSelected("main", amountLinesAdded + 1)
-			elseif sessionType == Enum.DamageMeterSessionType.Overall then
+			elseif sessionType == 0 then
 				gameCooltip:SetLastSelected("main", amountLinesAdded + 2)
 			else
 				for i, combatSession in ipairs(blzSegments) do

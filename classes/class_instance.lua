@@ -504,6 +504,10 @@ local instanceMixins = {
 		end
 	end,
 
+	GetNewSegmentIdFromCurrent = function(instance)
+		return Details222.B.GetSegmentIdFromCurrent()
+	end,
+
 	---@param instance instance
 	---@return damagemeter_type
 	GetAttributeType = function(instance)

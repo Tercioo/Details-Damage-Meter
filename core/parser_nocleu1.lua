@@ -2190,7 +2190,7 @@ end
 
 local timerUpdateInterval = 1 --time in seconds
 local timerUpdateObject = nil
-local updateTime = function(timerObject) --~update
+local updateTime = function(timerObject) --~update ~time
     ---@type instance
     local instance = timerObject.instance
     if Details:IsUsingBlizzardAPI() then
@@ -2200,7 +2200,7 @@ local updateTime = function(timerObject) --~update
                 setTitleText(instance, formatTime(elapsed))
                 return
             else
-                elapsed = getSegmentCombatTime(instance:GetNewSegmentId())
+                elapsed = getSegmentCombatTime(instance:GetNewSegmentIdFromCurrent()) --'no cache for segment 1'
                 if elapsed then
                     setTitleText(instance, formatTime(elapsed))
                 else

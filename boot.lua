@@ -363,6 +363,11 @@
 			return Details.DM.GetAvailableCombatSessions()
 		end
 
+		function Details222.B.GetSegmentIdFromCurrent()
+			local s = Details222.B.GetAllSegments()
+			return s[#s].sessionID
+		end
+
 		function Details222.B.GetCombatTime(id)
 			return Details222.B.GetSegment("ID", id, 0).durationSeconds
 		end
