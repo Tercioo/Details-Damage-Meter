@@ -278,7 +278,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 		local source = Details:GetOnlyName(event[6] or "")
 		local eventFrom = event[6] or ""
 
-		if not damageEventTokens[evType] then
+		if detailsFramework.IsAddonApocalypseWow() and not damageEventTokens[evType] then
 			Details:Msg("DeathLog event not registered:", evType, "Please report this to the author.")
 		end
 
