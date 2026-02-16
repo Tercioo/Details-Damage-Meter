@@ -2056,6 +2056,10 @@ local lineScript_Onmouseup = function(self, button)
 						return
 					end
 
+					if instanceLine.isTotalBar then
+						return
+					end
+
 					local newSegmentId = instanceObject:GetNewSegmentId()
 					local segmentType = instanceObject:GetSegmentType()
 					local lineIndex = instanceLine.row_id
@@ -4200,7 +4204,7 @@ function gump:NewRow(instancia, index)
 	return gump:CreateNewLine(instancia, index)
 end
 
---search key: ~row ~barra  ~newbar ~createbar ~createrow
+--search key: ~row ~barra  ~newbar ~createbar ~createrow ~bar ~line
 function gump:CreateNewLine(instance, index)
 	--instance = window object, index = row number
 	local baseframe = instance.baseframe
@@ -4307,6 +4311,7 @@ function gump:CreateNewLine(instance, index)
 	---@field sessionType number
 	---@field sessionId number
 	---@field isPlayer boolean?
+	---@field isTotalBar boolean?
 	---@field mainDisplay number
 	---@field subDisplay number
 	---@field actorName string can be secret while in combat

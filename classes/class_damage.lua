@@ -1900,9 +1900,9 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 			--here it update the total bar
 
 			local totalToUse = total
-			local ruleToUse = 2 --total dps
+			local ruleToUse = -1 --total dps
 			if (subDisplay == 2) then
-				ruleToUse = 1 --total damage
+				ruleToUse = -1 --total damage
 				totalToUse = total --should be totalPerSecond
 			end
 
@@ -1915,7 +1915,9 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 
 			--Details.FadeHandler.Fader(row1, "out")
+			row1:SetAlpha(1)
 			row1:Show()
+			row1.isTotalBar = true
 			totalBarIsShown = true
 
 			if (following and myPos and myPos+1 > instanceObject.rows_fit_in_window and instanceObject.barraS[2] < myPos+1) then
@@ -1991,6 +1993,8 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 
 			--Details.FadeHandler.Fader(row1, "out")
 			row1:Show()
+			row1:SetAlpha(1)
+			row1.isTotalBar = true
 			totalBarIsShown = true
 
 			if (following and myPos and myPos+1 > instanceObject.rows_fit_in_window and instanceObject.barraS[2] < myPos+1) then
@@ -3135,6 +3139,9 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	local percenNumber = 0
 	local mainDisplay, subDisplay = instance:GetDisplay()
 	instanceLine.statusbar:SetMinMaxValues(0, 100)
+
+	--total bar does not pass here, because it is handled in the main refresh function, so set this value to false
+	instanceLine.isTotalBar = false
 
 	local updateStatusbarColor = true
 	local actorName = source.name --secret

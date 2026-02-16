@@ -78,6 +78,10 @@
 	---@field UpdateToKFunctions fun(self:details)
 	---@field ArePlayersInCombat fun(self:details):boolean
 
+	---rule 3: show total, dps and percent
+	---rule 2: show total and dps
+	---rule 1: show total and percent
+	---rule -1: show only total
 	function Details:SimpleFormat(fontString2, fontString3, fontString4, total, perSecond, perCent, ruleToUse)
 		if Details.righttext_simple_formatting.enabled then
 			if (ruleToUse == 3) then

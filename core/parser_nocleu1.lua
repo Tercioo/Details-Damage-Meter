@@ -1623,6 +1623,10 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         end
     end
 
+    if instanceLine.isTotalBar then
+        return
+    end
+
     local tooltip = Details:GetTooltip()
     tooltip:ClearAllPoints()
     tooltip:SetPoint("bottomleft", instanceLine, "topleft", 0, 3)
@@ -1651,6 +1655,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     local icon = instanceLine.blzSpecIcon
     local damageMeterType = instanceLine.damageMeterType
     local sourcePlayer = instanceLine.sourceData
+
     local thisGUID = not issecretvalue(sourcePlayer.sourceGUID) and sourcePlayer.sourceGUID
     thisGUID = thisGUID or guidCache[icon]
     local guid = thisGUID or (sourcePlayer.isLocalPlayer and UnitGUID("player"))
