@@ -2100,13 +2100,13 @@ end
 local lastEventTime = 0
 function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
 	if not bForceUpdate then
-		if lastEventTime ~= Details222.BParser.lastEventTime then
-			lastEventTime = Details222.BParser.lastEventTime
+		if instance.lastEventTime ~= Details222.BParser.lastEventTime then
+			instance.lastEventTime = Details222.BParser.lastEventTime
 		else
 			return
 		end
 	else
-		lastEventTime = Details222.BParser.lastEventTime
+		instance.lastEventTime = Details222.BParser.lastEventTime
 	end
 
 	local session = instance:GetSegmentObject()
