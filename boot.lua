@@ -17,12 +17,12 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 14502
-		Details.alpha_build_counter = 14502 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 14600
+		Details.alpha_build_counter = 14600 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 168 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 169 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.gametoc = tvs
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
@@ -256,6 +256,8 @@
 
 		--simplify and reduce the amount of functions to work with
 		local mainFName = "GetCombatSession"
+		local getSegmentFName = mainFName .. "From"
+		local getSpellFname = mainFName .. "SourceFrom"
 
 		---return a segment
 		---@param type string
@@ -263,7 +265,7 @@
 		---@param attribute number
 		---@return damagemeter_combat_session
 		function Details222.B.GetSegment(type, identifier, attribute)
-			local result = Details.DM[(mainFName .. "From" .. type)](identifier, attribute)
+			local result = Details.DM[(getSegmentFName .. type)](identifier, attribute)
 			return result
 		end
 
@@ -275,9 +277,9 @@
 		---@return damagemeter_combat_session_source
 		function Details222.B.GetSpells(type, identifier, attribute, guid)
 			if Details222.B.IsSegmentType(type) then
-				return Details.DM[(mainFName .. "SourceFrom" .. DETAILS_SEGMENTTYPE_TYPE)](identifier, attribute, guid)
+				return Details.DM[(getSpellFname .. DETAILS_SEGMENTTYPE_TYPE)](identifier, attribute, guid)
 			else
-				return Details.DM[(mainFName .. "SourceFrom" .. type)](identifier, attribute, guid)
+				return Details.DM[(getSpellFname .. type)](identifier, attribute, guid)
 			end
 		end
 

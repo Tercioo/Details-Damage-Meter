@@ -880,9 +880,11 @@ end
 
 function Details:GetSegmentObject()
 	if self:GetSegmentType() > 1 then
-		return Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, self:GetNewSegmentId(), self:GetAttributeType())
+		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, self:GetNewSegmentId(), self:GetAttributeType())
+		return s
 	else
-		return Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, self:GetSegmentType(), self:GetAttributeType())
+		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, self:GetSegmentType(), self:GetAttributeType())
+		return s
 	end
 end
 
