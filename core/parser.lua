@@ -5957,7 +5957,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		table.wipe(interruptOverlapCache)
 
-		if (Details.auto_swap_to_dynamic_overall) then
+		if (not detailsFramework:IsAddonApocalypseWow() and Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, true)
 		end
 
@@ -6380,7 +6380,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
-		if (Details.auto_swap_to_dynamic_overall) then
+		if (not detailsFramework:IsAddonApocalypseWow() and Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, false)
 		end
 

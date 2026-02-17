@@ -486,6 +486,7 @@ do
                 name = "Use Dynamic Overall Damage",
                 desc = "When showing Damage Done Overall, swap to Dynamic Overall Damage on entering combat.",
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {type = "blank"},

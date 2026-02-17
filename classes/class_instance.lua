@@ -3081,7 +3081,7 @@ function Details:TrocaTabela(instance, segmentId, attributeId, subAttributeId, f
 		Details:Msg("invalid attribute, switching to damage done.")
 	end
 
-	if (Details.auto_swap_to_dynamic_overall and Details.in_combat and UnitAffectingCombat("player")) then
+	if (not detailsFramework:IsAddonApocalypseWow() and Details.auto_swap_to_dynamic_overall and Details.in_combat and UnitAffectingCombat("player")) then
 		if (segmentId >= 0) then
 			if (attributeId == 5) then
 				local dynamicOverallDataCustomID = Details222.GetCustomDisplayIDByName(Loc["STRING_CUSTOM_DYNAMICOVERAL"])
