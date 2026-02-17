@@ -6756,7 +6756,7 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 
 		Details:AddRoundedCornerToTooltip()
 
-		if Details222.BParser.IsDamageMeterSwapped() or Details.appocalypse_mode == 0 then
+		if detailsFramework.IsAddonApocalypseWow() and Details:IsUsingBlizzardAPI() then
 			local bForceRefresh = true
 			local afterSetSession = function()
 				instance:RefreshWindow(bForceRefresh)
