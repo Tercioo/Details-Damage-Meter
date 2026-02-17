@@ -1627,11 +1627,25 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         return
     end
 
+    local instance = instanceLine:GetInstance()
+    local baseFrame = instance.baseframe
+
     local tooltip = Details:GetTooltip()
-    tooltip:ClearAllPoints()
-    tooltip:SetPoint("bottomleft", instanceLine, "topleft", 0, 3)
-    tooltip:SetPoint("bottomright", instanceLine, "topright", 0, 3)
+
     tooltip:SetClampedToScreen(true)
+    tooltip:ClearAllPoints()
+
+    if (Details.tooltip.anchored_to == 1) then
+        tooltip:SetPoint("bottomleft", instanceLine, "topleft", 0, 3)
+        tooltip:SetPoint("bottomright", instanceLine, "topright", 0, 3)
+    else
+        local myPoint = Details.tooltip.anchor_point
+        local anchorPoint = Details.tooltip.anchor_relative
+        local x_Offset = Details.tooltip.anchor_offset[1]
+        local y_Offset = Details.tooltip.anchor_offset[2]
+        tooltip:SetPoint(myPoint, DetailsTooltipAnchor, anchorPoint, x_Offset, y_Offset)
+        tooltip:SetWidth(baseFrame:GetWidth())
+    end
 
     ---@type attributeid, attributeid
     --local mainDisplay, subDisplay = instance:GetDisplay()
