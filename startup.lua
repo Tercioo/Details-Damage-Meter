@@ -312,7 +312,7 @@ function Details222.StartUp.StartMeUp()
 		--need to refresh wallpaper a few frames or seconds after the game starts
 		function Details:CheckWallpaperAfterStartup()
 			if (not Details.profile_loaded) then
-				Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
+				Details.Schedules.NewTimer(2, Details.CheckWallpaperAfterStartup, Details)
 			end
 
 			for instanceId = 1, Details.instances_amount do
@@ -333,10 +333,10 @@ function Details222.StartUp.StartMeUp()
 			Details.profile_loaded = nil
 		end
 
-		Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
+		Details.Schedules.NewTimer(2, Details.CheckWallpaperAfterStartup, Details)
 	end
 
-	Details.Schedules.NewTimer(5, Details.RefreshAfterStartup, Details)
+	Details.Schedules.NewTimer(1, function() DetailsSwitchPanel:Hide() Details.RefreshAfterStartup(Details) end)
 
 	--start garbage collector
 	Details222.GarbageCollector.lastCollectTime = 0
@@ -506,7 +506,7 @@ function Details222.StartUp.StartMeUp()
 					Details.last_changelog_size = #Loc["STRING_VERSION_LOG"]
 
 					if (Details.auto_open_news_window) then
-						C_Timer.After(5, function()
+						C_Timer.After(1, function()
 							Details.OpenNewsWindow()
 						end)
 					end
@@ -981,6 +981,8 @@ function Details222.StartUp.StartMeUp()
 
 	--all in one window
 	Details222.AllInOneWindow:Initialize()
+
+	Details.__initialized = true
 end
 
 Details.AddOnLoadFilesTime = _G.GetTime()

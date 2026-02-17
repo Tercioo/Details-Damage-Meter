@@ -1027,6 +1027,9 @@ local BGFrame_scripts_onmousedown = function(self, button)
 		end
 
 	elseif (button == "RightButton") then
+		if not Details.__initialized then
+			return
+		end
 		if (self.is_toolbar and not Details.disable_alldisplays_window) then
 			self._instance:ShowAllSwitch()
 		else
@@ -1951,6 +1954,9 @@ local lineScript_Onmousedown = function(self, button)
 	end
 
 	if (button == "RightButton") then
+		if not Details.__initialized then
+			return
+		end
 		return Details.switch:ShowMe(self._instance)
 
 	elseif (button == "LeftButton") then
