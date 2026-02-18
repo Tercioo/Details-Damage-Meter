@@ -2,18 +2,40 @@
 local Details = _G.Details
 local addonName, Details222 = ...
 
+local testTime = 10
+local EDIT_MODE_SESSION =
+{
+	combatSources =
+	{
+		{ totalAmount = 100000; amountPerSecond = 100000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_1; classFilename = "DEATHKNIGHT"; },
+		{ totalAmount = 86000; amountPerSecond = 86000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_3; classFilename = "WARLOCK"; },
+		{ totalAmount = 67000; amountPerSecond = 67000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_7; classFilename = "HUNTER"; },
+		{ totalAmount = 71000; amountPerSecond = 71000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_6; classFilename = "DEMONHUNTER"; },
+		{ totalAmount = 56000; amountPerSecond = 56000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_4; classFilename = "SHAMAN"; },
+		{ totalAmount = 41000; amountPerSecond = 41000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_5; classFilename = "PALADIN"; },
+	};
+	maxAmount = 100;
+    durationSeconds = testTime,
+};
+
 function Details:TestBarsUpdate()
-    local current_combat = Details:GetCombat("current")
-    for index, actor in current_combat[1]:ListActors() do
-        actor.total = actor.total + (actor.total / 100 * math.random(1, 10))
-        actor.total = actor.total - (actor.total / 100 * math.random(1, 10))
+    if Details:IsUsingBlizzardAPI() then
+        local lowerInstanceId = Details:GetLowerInstanceNumber()
+        local instanceObject = Details:GetInstance(lowerInstanceId)
+        Details:RefreshWindowAddOnApocalypse(instanceObject, EDIT_MODE_SESSION, EDIT_MODE_SESSION.durationSeconds)
+    else
+        local current_combat = Details:GetCombat("current")
+        for index, actor in current_combat[1]:ListActors() do
+            actor.total = actor.total + (actor.total / 100 * math.random(1, 10))
+            actor.total = actor.total - (actor.total / 100 * math.random(1, 10))
+        end
+        for index, actor in current_combat[2]:ListActors() do
+            actor.total = actor.total + (actor.total / 100 * math.random(1, 10))
+            actor.total = actor.total - (actor.total / 100 * math.random(1, 10))
+        end
+        current_combat[1].need_refresh = true
+        current_combat[2].need_refresh = true
     end
-    for index, actor in current_combat[2]:ListActors() do
-        actor.total = actor.total + (actor.total / 100 * math.random(1, 10))
-        actor.total = actor.total - (actor.total / 100 * math.random(1, 10))
-    end
-    current_combat[1].need_refresh = true
-    current_combat[2].need_refresh = true
 end
 
 function Details:StartTestBarUpdate()
