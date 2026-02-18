@@ -2768,6 +2768,7 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
 
     elseif (ev == "PLAYER_REGEN_DISABLED") then --entered in combat
         --print("(debug-event) PLAYER_REGEN_DISABLED", GetTime())
+        Details:StopTestBarUpdate()
 
         debugTexts[#debugTexts+1] = {left = "PLAYER_REGEN_DISABLED", right = "true", time = GetTime(), date = date("%H:%M:%S")}
 

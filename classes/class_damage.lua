@@ -3188,7 +3188,12 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	end
 
 	if (instance.row_info.textL_show_number) then
-		instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
+		if issecretvalue(actorName) then
+			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
+		else
+			actorName = detailsFramework:RemoveRealmName(actorName)
+			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
+		end
 	else
 		instanceLine.lineText1:SetText(actorName) --left text
 	end
