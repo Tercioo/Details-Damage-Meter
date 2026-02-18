@@ -64,6 +64,8 @@ function Details222.StartUp.StartMeUp()
 	end
 
 	if detailsFramework.IsAddonApocalypseWow() then
+		Details.auto_swap_to_dynamic_overall = false
+
 		if (Details.breakdown_spell_tab.spellcontainer_headers["casts"]) then
 			Details.breakdown_spell_tab.spellcontainer_headers["casts"].enabled = false
 		end

@@ -212,6 +212,7 @@ GameCooltipFrame2 = {}
 ---@field IsMidnightWow fun():boolean
 ---@field IsNotMidnightWow fun():boolean
 ---@field IsWarWowOrBelow fun():boolean
+---@field IsValidWidgetForBuildMenu fun(self:table, widgetType:string) : boolean check if a widget type is valid to be added in the build menu.
 ---@field IsAddonApocalypseWow fun():boolean
 ---@field CreateHealthBar fun(self:table, parent:frame, name:string, settingsOverride:table) : df_healthbar
 ---@field CreateCastBar fun(self:table, parent:frame, name:string, settingsOverride:table) : df_castbar

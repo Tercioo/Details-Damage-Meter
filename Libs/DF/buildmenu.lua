@@ -115,6 +115,44 @@ detailsFramework.OptionsFrameMixin = {
 
 }
 
+detailsFramework.ValidBuildMenuWidgetTypes = {
+    ["label"] = true,
+    ["select"] = true,
+    ["toggle"] = true,
+    ["range"] = true,
+    ["color"] = true,
+    ["execute"] = true,
+    ["textentry"] = true,
+    ["image"] = true,
+    ["space"] = true,
+    ["blank"] = true,
+    ["fontdropdown"] = true,
+    ["texturedropdown"] = true,
+    ["colordropdown"] = true,
+    ["outlinedropdown"] = true,
+    ["anchordropdown"] = true,
+    ["audiodropdown"] = true,
+    ["dropdown"] = true,
+    ["switch"] = true,
+    ["slider"] = true,
+    ["button"] = true,
+    ["selectfont"] = true,
+    ["selectstatusbartexture"] = true,
+    ["selectcolor"] = true,
+    ["selectoutline"] = true,
+    ["selectanchor"] = true,
+    ["selectaudio"] = true,
+    ["selectframestrata"] = true,
+    ["backgrounddropdown"] = true,
+    ["selectbackgroundtexture"] = true,
+    ["borderdropdown"] = true,
+    ["selectbordertexture"] = true
+}
+
+function detailsFramework:IsValidWidgetForBuildMenu(widgetType)
+    return detailsFramework.ValidBuildMenuWidgetTypes[widgetType] or false
+end
+
 local onWidgetSetInUse = function(widget, widgetTable)
     if (widgetTable.childrenids) then
         widget.childrenids = widgetTable.childrenids
@@ -877,6 +915,10 @@ local parseOptionsTypes = function(menuOptions)
             widgetTable.type = "selectfont"
         elseif (widgetTable.type == "texturedropdown") then
             widgetTable.type = "selectstatusbartexture"
+        elseif (widgetTable.type == "backgrounddropdown") then
+            widgetTable.type = "selectbackgroundtexture"
+        elseif (widgetTable.type == "borderdropdown") then
+            widgetTable.type = "selectbordertexture"
         elseif (widgetTable.type == "colordropdown") then
             widgetTable.type = "selectcolor"
         elseif (widgetTable.type == "outlinedropdown") then
