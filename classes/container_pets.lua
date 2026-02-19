@@ -144,7 +144,11 @@ end
 ---@param petGuid guid
 ---@return boolean
 function petContainer.IsPetInCache(petGuid)
-	if issecretvalue and issecretvalue(petGuid) then return false end
+	if detailsFramework.IsAddonApocalypseWow() then
+		if issecretvalue(petGuid) then
+			return false
+		end
+	end
 	return petContainer.Pets[petGuid] ~= nil
 end
 
@@ -224,7 +228,7 @@ end
 
 function petContainer.PetScan(from)
 	Details222.Profiling.ProfileStart("petContainer.PetScan." .. from)
-	if not detailsFramework.IsAddonApocalypseWow() then
+	if detailsFramework.IsAddonApocalypseWow() then
 		return
 	end
 	if (IsInRaid()) then
@@ -494,7 +498,7 @@ end
 
 local bHasSchedule = false
 function Details:UpdatePets()
-	if not detailsFramework.IsAddonApocalypseWow() then
+	if detailsFramework.IsAddonApocalypseWow() then
 		return
 	end
 	Details222.Profiling.ProfileStart("Details:UpdatePets")
