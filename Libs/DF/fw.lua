@@ -1,5 +1,5 @@
 
-local dversion = 673
+local dversion = 674
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -350,7 +350,9 @@ function DF:GetRoleByClassicTalentTree()
 	local MIN_SPECS = 4
 
 	--put the spec with more talent point to the top
-	table.sort(pointsPerSpec, function(t1, t2) return t1[2] > t2[2] end)
+	table.sort(pointsPerSpec, function(t1, t2)
+		return t1[2] > t2[2]
+	end)
 
 	--get the spec with more points spent
 	local spec = pointsPerSpec[1]

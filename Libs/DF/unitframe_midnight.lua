@@ -1262,7 +1262,11 @@ detailsFramework.CastFrameFunctions = {
 	--handle the interrupt state of the cast
 	--this does not change the cast bar color because this function is called inside the start cast where is already handles the cast color
 	UpdateInterruptState = function(self)
-		--self.BorderShield:Show() -- let this be decided elsewhere?
+		if (self.Settings.ShowShield) then
+			self.BorderShield:Show()
+		else
+			self.BorderShield:Hide()
+		end
 		if self.notInterruptible ~= nil then
 			self.BorderShield:SetAlphaFromBoolean(self.notInterruptible, 1, 0)
 		else
@@ -1571,7 +1575,7 @@ detailsFramework.CastFrameFunctions = {
 		local castBar = self:GetParent()
 		castBar:Show()
 		castBar:SetAlpha(1)
-		--castBar:UpdateInterruptState() -- this should not be needed, as it is set before
+		castBar:UpdateInterruptState() -- animations and alpha are a bit weird sometimes...
 	end,
 
 	--animation calls
