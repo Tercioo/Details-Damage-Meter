@@ -1428,11 +1428,11 @@ detailsFramework.EditorMixin = {
     end,
 
     RegisterObject = function(self, object, localizedLabel, id, profileTable, subTablePath, profileKeyMap, extraOptions, callback, options, refFrame)
-        assert(type(object) == "table", "RegisterObjectToEdit() expects an UIObject on #2 parameter.")
-        assert(object.GetObjectType, "RegisterObjectToEdit() expects an UIObject on #2 parameter.")
-        assert(type(profileTable) == "table", "RegisterObjectToEdit() expects a table on #5 parameter.")
-        assert(type(id) ~= "nil" and type(id) ~= "boolean", "RegisterObjectToEdit() expects an ID on parameter #4.")
-        assert(type(callback) == "function" or callback == nil, "RegisterObjectToEdit() expects a function or nil as the #8 parameter.")
+        assert(type(object) == "table", "editor:RegisterObject() expects an UIObject on #2 parameter.")
+        assert(object.GetObjectType, "editor:RegisterObject() expects an UIObject on #2 parameter.")
+        assert(type(profileTable) == "table", "editor:RegisterObject() expects a table on #5 parameter.")
+        assert(type(id) ~= "nil" and type(id) ~= "boolean", "editor:RegisterObject() expects an ID on parameter #4.")
+        assert(type(callback) == "function" or callback == nil, "editor:RegisterObject() expects a function or nil as the #8 parameter.")
 
         local registeredObjects = self:GetAllRegisteredObjects()
 
@@ -1440,7 +1440,7 @@ detailsFramework.EditorMixin = {
         for i = 1, #registeredObjects do
             local objectRegistered = registeredObjects[i]
             if (objectRegistered.object == object) then
-                error("RegisterObjectToEdit() object already registered.")
+                error("editor:RegisterObject(UIObject) UIObject (param #2) already registered.")
             end
         end
 

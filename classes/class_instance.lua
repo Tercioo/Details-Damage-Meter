@@ -587,6 +587,12 @@ local instanceMixins = {
 	---@param segmentId segmentid
 	---@param bForceChange boolean|nil
 	SetSegment = function(instance, segmentId, bForceChange)
+		if Details:IsUsingBlizzardAPI() then
+			--shutdown SetSegment if using blizzard parser
+			--todo: on swap to details temporarly, this function should be reactivated
+			return
+		end
+
 		Details:StopTestBarUpdate()
 		local currentSegment = instance:GetSegmentId()
 		if (segmentId ~= currentSegment or bForceChange) then
@@ -2797,6 +2803,7 @@ function Details:CheckSwitchToCurrent()
 		instance = instance
 		---@type boolean?
 		local canSwap = false
+
 		if Details:IsUsingBlizzardAPI() then
 			canSwap = instance.ativa and instance.auto_current and instance.baseframe and instance:GetSegmentType() and instance:GetSegmentType() > 1
 		else
