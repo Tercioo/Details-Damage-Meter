@@ -2842,6 +2842,11 @@ function Details:ShowLastBoss()
 		return
 	end
 
+	local segmentType = self:GetSegmentType()
+	if segmentType and segmentType == 0 then
+		return
+	end
+
 	---@type damagemeter_availablecombat_session[]
 	local blzSegments = Details222.B.GetAllSegments()
 	for i = #blzSegments, 1, -1 do
