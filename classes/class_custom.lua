@@ -1139,7 +1139,7 @@
 	end
 
 	function Details:ResetCustomFunctionsCache()
-		Details:Destroy(Details.custom_function_cache)
+		Details:Destroy(Details.custom_function_cache or {})
 	end
 
 	function Details.refresh:r_atributo_custom()
@@ -1229,13 +1229,10 @@
 	end
 
 	if detailsFramework.IsAddonApocalypseWow() then
-		--remove all custom displays from the previous version of the addon, because they are not compatible with 12.x.x and can cause errors.
-		for i = #Details.custom, 1, -1 do
-			table.remove(Details.custom, i)
-		end
 		--make the add default function to not cause errors
 		function Details:AddDefaultCustomDisplays()
 		end
+		Details:ResetCustomFunctionsCache()
 	else
 		function Details:AddDefaultCustomDisplays()
 			local PotionUsed = {
