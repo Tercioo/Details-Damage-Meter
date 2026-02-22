@@ -284,6 +284,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 
 	---change the function which will be called when the button is pressed
 	---callback function will receive the blizzard button as first parameter, click type as second, param1 and param2 as third and fourth
+	---@param self df_button
 	---@param func function
 	---@param param1 any
 	---@param param2 any
@@ -312,6 +313,10 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 		end
 	end
 
+	---set the parameters that will be passed to the callback function when the button is clicked
+	---@param self df_button
+	---@param param1 any
+	---@param param2 any
 	function ButtonMetaFunctions:SetParameters(param1, param2)
 		if (param1 ~= nil) then
 			rawset(self, "param1", param1)
@@ -322,19 +327,24 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	end
 
 	---set the text shown on the button
+	---@param self df_button
 	---@param text string
 	function ButtonMetaFunctions:SetText(text)
 		self.button.text:SetText(text)
 	end
 
-	---set the text shown on the button and truncate it if it's too long
+	---set the text shown on the button and truncate it if it's bigger than maxWidth
+	---@param self df_button
+	---@param text string
+	---@param maxWidth number
 	function ButtonMetaFunctions:SetTextTruncated(text, maxWidth)
 		self.button.text:SetText(text)
 		detailsFramework:TruncateText(self.button.text, maxWidth)
 	end
 
 	---set the color of the button text
-	---@param ... any
+	---@param self df_button
+	---@param ... any color in any format accepted by detailsFramework:ParseColors, for example: "red" -> color name, "1, 0, 0" -> rgb, "1, 0, 0, 1" -> rgba, {1, 0, 0} -> a table rgb, {1, 0, 0, 1} -> a table rgba
 	function ButtonMetaFunctions:SetTextColor(...)
 		local red, green, blue, alpha = detailsFramework:ParseColors(...)
 		self.button.text:SetTextColor(red, green, blue, alpha)
@@ -342,18 +352,21 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	ButtonMetaFunctions.SetFontColor = ButtonMetaFunctions.SetTextColor --alias
 
 	---set the size of the button text
+	---@param self df_button
 	---@param ... number
 	function ButtonMetaFunctions:SetFontSize(...)
 		detailsFramework:SetFontSize(self.button.text, ...)
 	end
 
 	---set the font into the button text
+	---@param self df_button
 	---@param font string
 	function ButtonMetaFunctions:SetFontFace(font)
 		detailsFramework:SetFontFace(self.button.text, font)
 	end
 
-	---comment
+	---set the textures for the button
+	---@param self df_button
 	---@param normalTexture any
 	---@param highlightTexture any
 	---@param pressedTexture any
@@ -397,6 +410,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	end
 
 	---return the texture set into the icon with SetIcon()
+	---@param self df_button
 	---@return number|nil texture
 	function ButtonMetaFunctions:GetIconTexture()
 		if (self.icon) then
@@ -408,7 +422,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 
 	---add an icon to the left of the button text
 	---short method truncates the text: false = do nothing, nil = increate the button width, 1 = decrease the font size, 2 = truncate the text
-	---@param self table
+	---@param self df_button
 	---@param texture any
 	---@param width number|nil
 	---@param height number|nil
@@ -493,6 +507,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 		end
 	end
 
+	---filter mode: "BILLINEAR", "TRILINEAR", "NEAREST"
 	---@param self df_button
 	---@param filterMode texturefilter
 	function ButtonMetaFunctions:SetIconFilterMode(filterMode)
@@ -502,18 +517,21 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	end
 
 	---query if the button is enabled or not
+	---@param self df_button
 	---@return boolean
 	function ButtonMetaFunctions:IsEnabled()
 		return self.button:IsEnabled()
 	end
 
 	---enable the button making it clickable and not grayed out
+	---@param self df_button
 	---@return unknown
 	function ButtonMetaFunctions:Enable()
 		return self.button:Enable()
 	end
 
 	---disable the button making it unclickable and grayed out
+	---@param self df_button
 	---@return unknown
 	function ButtonMetaFunctions:Disable()
 		if (self.color_texture) then
@@ -522,6 +540,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 		return self.button:Disable()
 	end
 
+	---@param self df_button
 	---@param enable boolean
 	function ButtonMetaFunctions:SetEnabled(enable)
 		if (enable) then
@@ -532,24 +551,28 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	end
 
 	---simulate a click on the button
+	---@param self df_button
 	function ButtonMetaFunctions:Exec()
 		local frameWidget = self.widget
 		detailsFramework:CoreDispatch((frameWidget:GetName() or "Button") .. ":Exec()", self.func, frameWidget, "LeftButton", self.param1, self.param2)
 	end
 
 	---simulate a click on the button, but this function is called with a different name
+	---@param self df_button
 	function ButtonMetaFunctions:Click()
 		local frameWidget = self.widget
 		detailsFramework:CoreDispatch((frameWidget:GetName() or "Button") .. ":Click()", self.func, frameWidget, "LeftButton", self.param1, self.param2)
 	end
 
 	---simulate a right click on the button
+	---@param self df_button
 	function ButtonMetaFunctions:RightClick()
 		local frameWidget = self.widget
 		detailsFramework:CoreDispatch((frameWidget:GetName() or "Button") .. ":RightClick()", self.funcright, frameWidget, "RightButton", self.param1, self.param2)
 	end
 
---custom textures
+	---custom textures
+	---@param self df_button
 	function ButtonMetaFunctions:InstallCustomTexture()
 		--function deprecated, now just set a the standard template
 		self:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -558,6 +581,8 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --scripts
 
+	---what happens when the mouse enters the button area
+	---@param button df_button
 	local OnEnter = function(button)
 		local object = button.MyObject
 
@@ -774,6 +799,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 ---receives a table where the keys are settings and the values are the values to set
 ---this is the list of keys the table support:
 ---width, height, icon|table, textcolor, textsize, textfont, textalign, backdrop, backdropcolor, backdropbordercolor, onentercolor, onleavecolor, onenterbordercolor, onleavebordercolor
+---@param self df_button
 ---@param template table|string
 function ButtonMetaFunctions:SetTemplate(template)
 	template = detailsFramework:ParseTemplate(self.type, template)
@@ -932,7 +958,7 @@ end
 	---@field SetTexture fun(self: df_button, normalTexture: any, highlightTexture: any, pressedTexture: any, disabledTexture: any) set the regular button textures
 	---@field SetFontFace fun(self: df_button, font: string) set the button font
 	---@field SetFontSize fun(self: df_button, size: number) set the button font size
-	---@field SetTextColor fun(self: df_button, color: any) set the button text color
+	---@field SetTextColor fun(self: df_button, color: any, g:number?, b:number?, a:number?) set the button text color
 	---@field SetText fun(self: df_button, text: string) set the button text
 	---@field SetTextTruncated fun(self: df_button, text: string, maxWidth: number) set the button text and truncate it if it's too long
 	---@field SetParameters fun(self: df_button, param1: any, param2: any) set the parameters for the button callback function
@@ -1130,7 +1156,7 @@ end
 	end
 
 ------------------------------------------------------------------------------------------------------------
---color picker button
+---color picker button
 	local pickcolorCallback = function(self, red, green, blue, alpha, button)
 		alpha = math.max(0, math.min(1, alpha))
 		button.MyObject.color_texture:SetVertexColor(red, green, blue, alpha)
@@ -1167,7 +1193,6 @@ end
 	---@field __iscolorpicker boolean
 	---@field color_texture texture
 	---@field background_texture texture
-
 	---create a button which opens a color picker when clicked
 	---@param parent table
 	---@param name string|nil
@@ -1337,7 +1362,6 @@ end
 ---@field GetFontString fun(self: df_tabbutton) : fontstring --get the fontstring used to display the tab text
 ---@field IsSelected fun(self: df_tabbutton): boolean --get a boolean representing if the tab is selected
 ---@field Reset fun(self: df_tabbutton) --set all textures to their default values, set the text to an empty string, set the selected state to false
-
 detailsFramework.TabButtonMixin = {
 	---set the text of the tab button
 	---@param self df_tabbutton
@@ -1509,7 +1533,6 @@ detailsFramework.CloseButtonMixin = {
 ---@field OnClick fun(self: df_closebutton)
 ---@field OnEnter fun(self: df_closebutton)
 ---@field OnLeave fun(self: df_closebutton)
-
 ---create a close button which when clicked will hide the parent frame
 ---@param parent frame
 ---@param frameName string|nil
