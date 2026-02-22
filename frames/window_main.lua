@@ -5648,6 +5648,8 @@ function Details:SetWindowAlphaForCombat(enteringInCombat, trueHide, alphaAmount
 	else
 		self.baseframe:Show()
 		self.baseframe:SetAlpha(maxAlpha)
+		self.rowframe:Show()
+		self.rowframe:SetAlpha(maxAlpha)
 
 		self:InstanceAlpha(min(amount, self.color[4]))
 		--this function is passing the same value as the current alpha in the row, so the fader does not pass the alpha > currentValue and hide the bar
@@ -8258,7 +8260,8 @@ function Details:AdjustAlphaByContext(interacting)
 	end
 
 	--mythic+
-	if (self.hide_on_context[8].enabled) then
+	if (self.hide_on_context[8].enabled) then --DetailsRowFrame1 visibility is false, DetailsRowFrame1 is the parent of lines
+		--if ((_G.DetailsMythicPlusFrame and _G.DetailsMythicPlusFrame.IsDoingMythicDungeon) or select(4, GetInstanceInfo()) == "Follower") then
 		if (_G.DetailsMythicPlusFrame and _G.DetailsMythicPlusFrame.IsDoingMythicDungeon) then
 			--player is inside a dungeon mythic+
 			if (not self.hide_on_context[8].inverse) then
