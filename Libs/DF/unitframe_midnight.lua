@@ -1748,6 +1748,16 @@ detailsFramework.CastFrameFunctions = {
 		self:RunHooksForWidget("OnCastStart", self, self.unit, "UNIT_SPELLCAST_START")
 	end,
 
+	GetEmpowerStageColor = function(stage)
+		local stageColors = {
+			[1] = {0.9, 0.23, 0.14, 1}, --e73a23
+			[2] = {1, 0.68, 0, 1}, --ffae00
+			[3] = {0.46, 0.93, 0.27, 1}, --75ec44
+			[4] = {1, 1, 1, 1}, --ffffff
+		}
+		return stage and stageColors[stage] or {1, 1, 1, 1}
+	end,
+
 	CreateOrUpdateEmpoweredPips = function(self, unit, numStages, startTime, endTime)
 		--if issecretvalue(startTime) or issecretvalue(self.spellStartTime) then return end
 		unit = unit or self.unit
@@ -1758,8 +1768,12 @@ detailsFramework.CastFrameFunctions = {
 
 		if not self.empStages or not numStages or numStages <= 0 then
 			self.stagePips = self.stagePips or {}
+			self.stagePipZones = self.stagePipZones or {}
 			for i, stagePip in pairs(self.stagePips) do
 				stagePip:Hide()
+			end
+			for i, stagePipZone in pairs(self.stagePipZones) do
+				stagePipZone:Hide()
 			end
 			return
 		end
@@ -1774,26 +1788,49 @@ detailsFramework.CastFrameFunctions = {
 			if curDuration > -1 then
 				local stagePip = self.stagePips[i]
 				if not stagePip then
-					stagePip = self:CreateTexture(nil, "overlay", nil, 2)
-					stagePip:SetBlendMode("ADD")
-					--stagePip:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
-					--stagePip:SetTexCoord(11/32,18/32,9/32,23/32)
-					stagePip:SetColorTexture(1, 1, 1, 1)
-					--stagePip:SetSize(2, height)
+					stagePip = self:CreateTexture(nil, "artwork", nil, 2)
+					--stagePip:SetBlendMode("ADD")
+					--stagePip:SetColorTexture(1, 1, 1, 1)
+					stagePip:SetColorTexture(0.75, 0.75, 0.75, 1)
 					PixelUtil.SetSize(stagePip, 2, height)
-					--stagePip = CreateFrame("FRAME", nil, self, "CastingBarFrameStagePipTemplate")
 					self.stagePips[i] = stagePip
 				end
 
 				stagePip:ClearAllPoints()
-				--stagePip:SetPoint("TOP", self, "TOPLEFT", offset, -1)
-				--stagePip:SetPoint("BOTTOM", self, "BOTTOMLEFT", offset, 1)
-				--stagePip.BasePip:SetVertexColor(1, 1, 1, 1)
-				stagePip:SetPoint("CENTER", self, "LEFT", offset, 0)
+				stagePip:SetPoint("TOP", self, "TOPLEFT", offset, 0)
+				stagePip:SetPoint("BOTTOM", self, "BOTTOMLEFT", offset, 0)
+				--stagePip:SetPoint("CENTER", self, "LEFT", offset, 0)
 				--stagePip:SetVertexColor(1, 1, 1, 1)
+				--stagePip:SetColorTexture(unpack(self.GetEmpowerStageColor(i)))
 				stagePip:Show()
 			end
 		end
+
+		for i = 1, numStages, 1 do
+			local curPip = self.stagePips[i]
+			local nextPip = self.stagePips[i+1]
+			if curPip:IsShown() then
+				local stagePipZone = self.stagePipZones[i]
+				if not stagePipZone then
+					stagePipZone = self:CreateTexture(nil, "artwork", nil, -7)
+					--stagePipZone:SetBlendMode("ADD")
+					self.stagePipZones[i] = stagePipZone
+				end
+
+				stagePipZone:ClearAllPoints()
+				stagePipZone:SetPoint("TOPLEFT", curPip, "TOP")
+				if nextPip and nextPip:IsShown() then
+					stagePipZone:SetPoint("BOTTOMRIGHT", nextPip, "BOTTOM", 0, 0)
+					stagePipZone:SetColorTexture(unpack(self.GetEmpowerStageColor(i)))
+				else
+					stagePipZone:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0)
+					stagePipZone:SetColorTexture(unpack(self.GetEmpowerStageColor(4)))
+				end
+				
+				stagePipZone:Show()
+			end
+		end
+
 	end,
 
 	UpdateChannelInfo = function(self, unit, ...)
@@ -1824,8 +1861,12 @@ detailsFramework.CastFrameFunctions = {
 		--empowered?
 			self.empStages = {}
 			self.stagePips = self.stagePips or {}
+			self.stagePipZones = self.stagePipZones or {}
 			for i, stagePip in pairs(self.stagePips) do
 				stagePip:Hide()
+			end
+			for i, stagePipZone in pairs(self.stagePipZones) do
+				stagePipZone:Hide()
 			end
 
 			if numStages and numStages > 0 and unit == "player" then -- some day this might get work for enemy unitsthen
