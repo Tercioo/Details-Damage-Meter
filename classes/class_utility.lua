@@ -190,6 +190,7 @@ local damageEventTokens = {
 	SLIME = true,
 	FATIGUE = true,
 	SPELL_DRAIN = true,
+	SPELL_INSTAKILL = true,
 }
 
 function Details.ShowDeathTooltip2(instance, lineFrame) --~death
@@ -198,7 +199,7 @@ function Details.ShowDeathTooltip2(instance, lineFrame) --~death
 
 	for i = #events, 1, -1 do
 		local ev = events[i]
-		GameCooltip:AddLine(format("%s (%s)", ev.spellName, ev.sourceName), format("-%d", ev.amount), 1, "white", "white")
+		GameCooltip:AddLine(format("%s (%s)", ev.spellName, ev.sourceName or UNKNOWN), format("-%d", ev.amount), 1, "white", "white")
 		local spellInfo = C_Spell.GetSpellInfo(ev.spellId)
 		GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
 		if i == 1 then
@@ -306,6 +307,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 						gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s |cFFFFFF00" .. spellName .. "|r(|c" .. damageSourceColor .. eventFrom .. "|r)", "|c" .. damageAmountColor .. "-" .. Details:ToK(amount) .. critOrCrush .. overkill .. " (" .. healthPercent .. "%)", 1, "white", "white")
 					else
 						overkill = ""
+						amount = amount or 99999999
 						gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|c" .. damageSourceColor .. eventFrom .. "|r)", "|c" .. damageAmountColor .. "-" .. Details:ToK(amount) .. critOrCrush .. overkill .. " (" .. healthPercent .. "%)", 1, "white", "white")
 					end
 
