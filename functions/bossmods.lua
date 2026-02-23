@@ -1,6 +1,7 @@
 
 local Details = _G.Details
 local addonName, Details222 = ...
+local detailsFramework = DetailsFramework
 
 --get the total of damage and healing of a phase of an encounter
 function Details:OnCombatPhaseChanged()
@@ -36,6 +37,10 @@ function Details:OnCombatPhaseChanged()
 end
 
 function Details:BossModsLink()
+    if detailsFramework.IsAddonApocalypseWow() then
+        return
+    end
+
     if (_G.DBM) then
         local DBM = _G.DBM
         local DBMCallbackPhase2 = function(event, mod, modId, phase, encounterId, stageTotal)
@@ -96,6 +101,9 @@ end
 
 
 function Details:CreateCallbackListeners()
+    if detailsFramework.IsAddonApocalypseWow() then
+        return
+    end
 
     Details.DBM_timers = {}
 
