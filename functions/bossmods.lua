@@ -41,6 +41,8 @@ function Details:BossModsLink()
         return
     end
 
+    do return end
+
     if (_G.DBM) then
         local DBM = _G.DBM
         local DBMCallbackPhase2 = function(event, mod, modId, phase, encounterId, stageTotal)
@@ -104,6 +106,8 @@ function Details:CreateCallbackListeners()
     if detailsFramework.IsAddonApocalypseWow() then
         return
     end
+
+    do return end
 
     Details.DBM_timers = {}
 
