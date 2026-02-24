@@ -183,7 +183,7 @@ end
 local storeSessionId = function(segmentId)
     storedSessionIds[segmentId] = true
 end
-local wipeStoredSessionIds = function()
+local wipeStoredSegmentsDataIds = function()
     if storedSessionIds then
         table.wipe(storedSessionIds)
     end
@@ -191,7 +191,7 @@ local wipeStoredSessionIds = function()
         table.wipe(segmentInfoCache)
     end
 end
-bParser.WipeStoredSessionIds = wipeStoredSessionIds
+bParser.WipeStoredSessionIds = wipeStoredSegmentsDataIds
 
 local getSegmentCombatTime = function(segmentId)
     local segmentCache = segmentInfoCache[segmentId]
@@ -1058,7 +1058,7 @@ local parseSegmentsAndUpdate = function()
 
     --if not hasSessionInCache then
         Details222.BParser.ResetServerDM()
-        wipeStoredSessionIds()
+        wipeStoredSegmentsDataIds()
     --end
 
     C_Timer.After(2, function()
@@ -2414,6 +2414,23 @@ parserFrame:SetScript("OnEvent", function(self, event, ...) --~event
                 bParser.lastEventTime = GetTime()
                 --if is the same session, verify if session was already added
                 local thisSession = getSegmentInfoFromCache(sessionId)
+
+                if not thisSession then
+                    local identifier = getCurrentCombatIdentifier()
+                    if identifier == 1 then
+                        if getAmountOfSegments() == 1 then
+                            wipeStoredSegmentsDataIds()
+                            local sessionCreated = createAndAddSession(sessionId)
+                            if sessionCreated then
+                                debugTexts[#debugTexts+1] = {left = "SESSION_UPDATED (WeirdID)", right = sessionId, time = GetTime(), date = date("%H:%M:%S")}
+                                latestSessionOpened = sessionId
+                                startUpdater()
+                            end
+                        end
+                    end
+                    return
+                end
+
                 local nextSession = getSegmentInfoFromCache(sessionId+1)
                 if (thisSession.added and not nextSession) then
                     thisSession.added = false
@@ -2475,7 +2492,7 @@ end
 
 --called on DAMAGE_METER_RESET and DETAILS_DATA_RESET
 local onDataReset = function()
-    wipeStoredSessionIds()
+    wipeStoredSegmentsDataIds()
     if Details:ArePlayersInCombat() then
         local sessionId = getCurrentCombatIdentifier()
         if sessionId > 0 then
@@ -2530,7 +2547,7 @@ function bParser.SetSessionCache(t)
             end
         end
     else
-        wipeStoredSessionIds()
+        wipeStoredSegmentsDataIds()
     end
 end
 
