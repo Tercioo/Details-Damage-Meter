@@ -1710,17 +1710,27 @@ function StreamOverlay:UpdateDpsHpsFrameConfig (PluginDisabled)
 end
 
 function StreamOverlay:UpdateDpsHpsFrame()
-	--> low level actor parsing - we can just use Details:GetActor(), but is faster without having to call functions
-	local container = Details.tabela_vigente [screen_frame_attribute]
-	local actor = container._ActorTable [container._NameIndexTable [playerName]]
-
-	if (actor) then
-		screen_frame_text:SetText (format_function (_, actor.total / Details.tabela_vigente:GetCombatTime()))
+	if DetailsFramework.IsAddonApocalypseWow() then
+		local s = C_DamageMeter.GetCombatSessionFromType(1, 0)
+		for i = 1, #s.combatSources do
+			if s.combatSources[i].isLocalPlayer then
+				screen_frame_text:SetText(AbbreviateNumbers(s.combatSources[i].amountPerSecond, Details.abbreviateOptionsDPS))
+				return
+			end
+		end
 	else
-		if (StreamOverlay.db.per_second.attribute_type == 1) then
-			screen_frame_text:SetText ("DPS")
+		--> low level actor parsing - we can just use Details:GetActor(), but is faster without having to call functions
+		local container = Details.tabela_vigente [screen_frame_attribute]
+		local actor = container._ActorTable [container._NameIndexTable [playerName]]
+
+		if (actor) then
+			screen_frame_text:SetText (format_function (_, actor.total / Details.tabela_vigente:GetCombatTime()))
 		else
-			screen_frame_text:SetText ("HPS")
+			if (StreamOverlay.db.per_second.attribute_type == 1) then
+				screen_frame_text:SetText ("DPS")
+			else
+				screen_frame_text:SetText ("HPS")
+			end
 		end
 	end
 end
