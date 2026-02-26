@@ -303,7 +303,7 @@ function Details222.StartUp.StartMeUp()
 
 		--refresh skin for other windows
 		if (lowerInstanceId) then
-			for instanceId = lowerInstanceId + 1, Details:GetNumInstances() do
+			for instanceId = 1, Details:GetNumInstances() do
 				local instance = Details:GetInstance(instanceId)
 				if (instance and instance.baseframe and instance.ativa) then
 					instance:ChangeSkin()
@@ -998,3 +998,4 @@ function Details222.StartUp.StartMeUp()
 end
 
 Details.AddOnLoadFilesTime = _G.GetTime()
+
