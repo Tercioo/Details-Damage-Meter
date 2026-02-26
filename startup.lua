@@ -83,6 +83,8 @@ function Details222.StartUp.StartMeUp()
 		end
 	end
 
+	Details.disable_lock_ungroup_buttons = false
+
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	--row single click, this determines what happen when the user click on a bar
 

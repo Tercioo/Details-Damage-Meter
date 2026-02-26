@@ -960,6 +960,7 @@ detailsFramework.CastFrameFunctions = {
 		Colors = {
 			Casting = detailsFramework:CreateColorTable (1, 0.73, .1, 1),
 			Channeling = detailsFramework:CreateColorTable (1, 0.73, .1, 1),
+			Empowered = detailsFramework:CreateColorTable (1, 0.73, .1, 1),
 			Finished = detailsFramework:CreateColorTable (0, 1, 0, 1),
 			NonInterruptible = detailsFramework:CreateColorTable (.7, .7, .7, 1),
 			Failed = detailsFramework:CreateColorTable (.4, .4, .4, 1),
@@ -1028,6 +1029,9 @@ detailsFramework.CastFrameFunctions = {
 	GetCastColor = function(self)
 		if (not self.canInterrupt) then
 			return self.Colors.NonInterruptible
+			
+		elseif (self.empowered) then
+			return self.Colors.Empowered
 
 		elseif (self.channeling) then
 			return self.Colors.Channeling

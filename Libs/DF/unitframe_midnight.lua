@@ -1090,6 +1090,7 @@ detailsFramework.CastFrameFunctions = {
 		Colors = {
 			Casting = detailsFramework:CreateColorTable (1, 0.73, .1, 1),
 			Channeling = detailsFramework:CreateColorTable (1, 0.73, .1, 1),
+			Empowered = detailsFramework:CreateColorTable (1, 0.73, .1, 1),
 			Finished = detailsFramework:CreateColorTable (0, 1, 0, 1),
 			NonInterruptible = detailsFramework:CreateColorTable (.7, .7, .7, 1),
 			Important = detailsFramework:CreateColorTable (.5, .0, .5, 1),
@@ -1194,6 +1195,12 @@ detailsFramework.CastFrameFunctions = {
 			local c = self.Colors.Channeling
 			if c then
 				r, g, b, a = self.SplitEvaluateColor(self.channeling, c.r, c.g, c.b, c.a, r, g, b, a)
+			end
+		end
+		if (self.empowered ~= nil) then
+			local c = self.Colors.Empowered
+			if c then
+				r, g, b, a = self.SplitEvaluateColor(self.empowered, c.r, c.g, c.b, c.a, r, g, b, a)
 			end
 		end
 		if (self.isImportant ~= nil) then

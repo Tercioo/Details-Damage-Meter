@@ -3199,6 +3199,7 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE"],
                 desc = Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE_DESC"],
+                hidden = true,
             },
 
             {--disable stretch button

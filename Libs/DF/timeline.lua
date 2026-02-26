@@ -967,8 +967,11 @@ detailsFramework.TimeLineMixin = {
 
 	GetTimeUnderMouse = function(self)
 		local bodyWidthUnderMouse = self:GetBodyWidthUnderMouse()
-		local time = bodyWidthUnderMouse / (self.pixelPerSecond * self.currentScale)
-		return time
+		if self.pixelPerSecond then
+			local time = bodyWidthUnderMouse / (self.pixelPerSecond * self.currentScale)
+			return time
+		end
+		return 0
 	end,
 
 	GetBlocksAtTime = function(self, time)
