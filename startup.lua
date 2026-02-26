@@ -237,8 +237,7 @@ function Details222.StartUp.StartMeUp()
 			Details.Schedules.Cancel(Details.scheduled_window_update)
 			Details.scheduled_window_update = nil
 		end
-		Details.scheduled_window_update = Details.Schedules.NewTimer(time or 1, Details.ScheduledWindowUpdate, Details,
-			bIsForced)
+		Details.scheduled_window_update = Details.Schedules.NewTimer(time or 1, Details.ScheduledWindowUpdate, Details, bIsForced)
 	end
 
 	--do the first refresh here, not waiting for the regular refresh schedule to kick in
@@ -249,9 +248,18 @@ function Details222.StartUp.StartMeUp()
 	for instanceId = 1, Details:GetNumInstances() do
 		local instance = Details:GetInstance(instanceId)
 		if (instance:IsEnabled()) then
-			Details.Schedules.NewTimer(1, Details.RefreshBars, Details, instance)
-			Details.Schedules.NewTimer(1, Details.InstanceReset, Details, instance)
-			Details.Schedules.NewTimer(1, Details.InstanceRefreshRows, Details, instance)
+			local r = 5
+
+			local refresh = function()
+				instance:RefreshBars()
+				instance:InstanceReset()
+				instance:InstanceRefreshRows()
+
+				Details:RefreshMainWindow(-1, bForceRefresh)
+				Details:RefreshUpdater()
+			end
+
+			C_Timer.After(r, refresh)
 		end
 	end
 

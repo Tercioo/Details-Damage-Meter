@@ -307,9 +307,9 @@ end
 local enableDamageMeter = function()
     local isDamageMeterEnabled = C_CVar.GetCVarBool("damageMeterEnabled")
     if not isDamageMeterEnabled then
-        C_CVar.SetCVar("damageMeterEnabled", "1")
+        --C_CVar.SetCVar("damageMeterEnabled", "1")
     end
-    damageMeter:Show()
+    --damageMeter:Show()
 end
 
 ---@type table<blzwindow, boolean>
