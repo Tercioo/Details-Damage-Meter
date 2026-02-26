@@ -3130,7 +3130,7 @@ local classColor_Red, classColor_Green, classColor_Blue
 	end
 end
 
---~update ~bar ~apocalypse
+--~update ~bar ~apocalypse ~apoc ãpoc
 ---@param instanceLine detailsline
 ---@param source damagemeter_combat_source
 ---@param instance instance
@@ -3220,6 +3220,9 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 		serial = "",
 		enemy = false,
 		thisSpecIcon = instanceLine.blzSpecIcon,
+		classe = classFilename,
+		GetTextColor = Details.GetTextColor,
+		GetClassColor = Details.GetClassColor,
 	}
 
 	Details.SetClassIcon(t, instanceLine.icone_classe, instance, classFilename)
@@ -3227,7 +3230,8 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	if updateStatusbarColor then
 		local classColor = Details.class_colors[classFilename or "UNGROUPPLAYER"]
 		if (classColor) then
-			instanceLine.textura:SetVertexColor(classColor[1], classColor[2], classColor[3])
+			Details.SetBarColors(t, instanceLine, instance, classColor[1], classColor[2], classColor[3])
+			--instanceLine.textura:SetVertexColor(classColor[1], classColor[2], classColor[3])
 		else
 			instanceLine.textura:SetVertexColor(detailsFramework:ParseColors("brown"))
 		end
