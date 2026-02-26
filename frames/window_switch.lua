@@ -545,7 +545,41 @@ function Details.switch:ShowMe(instancia)
 		if (not Details.switch.segments_blocks) then
 			local segment_switch = function(self, button, segment)
 				if (button == "LeftButton") then
-					Details.switch.current_instancia:TrocaTabela(segment)
+					if detailsFramework.IsAddonApocalypseWow() and Details:IsUsingBlizzardAPI() then
+						local bForceRefresh = true
+						local instance = Details.switch.current_instancia
+
+						--this is a copy from window_main segment selection
+						local afterSetSession = function()
+							instance:RefreshWindow(bForceRefresh)
+						end
+						local selectExpired = function(_, _, sessionId)
+							instance:SetNewSegmentId(sessionId)
+							instance:SetSegmentType(2, bForceRefresh)
+							afterSetSession()
+						end
+						local selectCurrent = function()
+							--instance:SetNewSegmentId(1)
+							instance:SetSegmentType(1, bForceRefresh)
+							afterSetSession()
+						end
+						local selectOverall = function()
+							--instance:SetNewSegmentId(1)
+							instance:SetSegmentType(0, bForceRefresh)
+							afterSetSession()
+						end
+
+						if segment == DETAILS_SEGMENTID_OVERALL then
+							selectOverall()
+						elseif segment == DETAILS_SEGMENTID_CURRENT then
+							selectCurrent()
+						else
+							selectExpired(nil, nil, segment)
+						end
+					else
+						Details.switch.current_instancia:TrocaTabela(segment)
+					end
+
 					Details.switch.CloseMe()
 				elseif (button == "RightButton") then
 					Details.switch.CloseMe()
