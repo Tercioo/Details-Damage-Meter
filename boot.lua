@@ -275,11 +275,11 @@
 		---@param attribute number
 		---@param guid string
 		---@return damagemeter_combat_session_source
-		function Details222.B.GetSpells(type, identifier, attribute, guid)
+		function Details222.B.GetSpells(type, identifier, attribute, guid, x)
 			if Details222.B.IsSegmentType(type) then
-				return Details.DM[(getSpellFname .. DETAILS_SEGMENTTYPE_TYPE)](identifier, attribute, guid)
+				return Details.DM[(getSpellFname .. DETAILS_SEGMENTTYPE_TYPE)](identifier, attribute, guid, x)
 			else
-				return Details.DM[(getSpellFname .. type)](identifier, attribute, guid)
+				return Details.DM[(getSpellFname .. type)](identifier, attribute, guid, x)
 			end
 		end
 

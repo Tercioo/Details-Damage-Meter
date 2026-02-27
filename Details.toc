@@ -162,6 +162,7 @@ classes\custom_damagedone.lua
 classes\custom_healingdone.lua
 
 core\parser_nocleu1.lua
+core\parser_nocleu_tp.lua
 
 frames\window2\header_data.lua
 frames\window2\frames.lua
