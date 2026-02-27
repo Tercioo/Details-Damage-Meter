@@ -1705,6 +1705,11 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "auras") then
 		Details.AuraTracker.Open()
 
+	elseif (msg == "tooltip") then
+		local lower_instance = Details:GetLowerInstanceNumber()
+		local instance = Details:GetInstance(lower_instance)
+		Details:OpenOptionsWindow(instance, nil, 10)
+
 	elseif (msg == "generatespelllist") then
 		Details.GenerateSpecSpellList()
 

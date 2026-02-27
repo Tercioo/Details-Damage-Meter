@@ -1168,6 +1168,15 @@ local default_profile = {
 			line_height = 17,
 
 			show_border_shadow = true, --from spell tooltips from the main window
+
+			--apocalypse
+			show_header = true,
+			show_percent_column = true,
+			show_dps_column = true,
+			show_help = true,
+			show_help_count = 0, --when reaches MAX_TOOLTIP_HELP, set show_help to false
+			apocalypse_width = 300,
+			apocalypse_width_useline = false,
 		},
 
 	--new window system

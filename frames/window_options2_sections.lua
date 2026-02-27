@@ -29,6 +29,7 @@ end
 
 
 local Details = _G.Details
+---@type detailsframework
 local DF = _G.DetailsFramework
 local detailsFramework = DF
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
@@ -4821,6 +4822,87 @@ do
                 desc = Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETY_DESC"],
             },
 
+            {type = "blank"},
+            {type = "label", get = function() return "Midnight Tooltip Settings" end, text_template = subSectionTitleTextTemplate, hidden = not detailsFramework:IsAddonApocalypseWow()},
+
+            {--show header
+                type = "toggle",
+                get = function() return Details.tooltip.show_header end,
+                set = function(self, fixedparam, value)
+                    Details.tooltip.show_header = value
+                    afterUpdate()
+                end,
+                name = "Show Header",
+                desc = "Show header line in the tooltip",
+                hidden = not detailsFramework:IsAddonApocalypseWow(),
+            },
+
+            {--show dps column
+                type = "toggle",
+                get = function() return Details.tooltip.show_dps_column end,
+                set = function(self, fixedparam, value)
+                    Details.tooltip.show_dps_column = value
+                    afterUpdate()
+                end,
+                name = "Show DPS Column",
+                desc = "Show DPS/HPS column in the tooltip",
+                hidden = not detailsFramework:IsAddonApocalypseWow(),
+            },
+
+            {--show percent column
+                type = "toggle",
+                get = function() return Details.tooltip.show_percent_column end,
+                set = function(self, fixedparam, value)
+                    Details.tooltip.show_percent_column = value
+                    afterUpdate()
+                end,
+                name = "Show Percent Column",
+                desc = "Show percentage column in the tooltip",
+                hidden = not detailsFramework:IsAddonApocalypseWow(),
+            },
+
+            {--show help
+                type = "toggle",
+                get = function() return Details.tooltip.show_help end,
+                set = function(self, fixedparam, value)
+                    Details.tooltip.show_help = value
+                    if value then
+                        Details.tooltip.show_help_count = 0
+                    end
+                    afterUpdate()
+                end,
+                name = "Show Help Text",
+                desc = "Show help text at the bottom of the tooltip",
+                hidden = not detailsFramework:IsAddonApocalypseWow(),
+            },
+
+            {--apocalypse width use line
+                type = "toggle",
+                get = function() return Details.tooltip.apocalypse_width_useline end,
+                set = function(self, fixedparam, value)
+                    Details.tooltip.apocalypse_width_useline = value
+                    afterUpdate()
+                end,
+                name = "Match Line Width",
+                desc = "Make the tooltip width match the instance line width",
+                hidden = not detailsFramework:IsAddonApocalypseWow(),
+            },
+
+            {--apocalypse width
+                type = "range",
+                get = function() return Details.tooltip.apocalypse_width or 300 end,
+                set = function(self, fixedparam, value)
+                    Details.tooltip.apocalypse_width = value
+                    afterUpdate()
+                end,
+                min = 230,
+                max = 370,
+                step = 1,
+                name = "Tooltip Width",
+                desc = "Set the width of the midnight tooltip",
+                hidden = not detailsFramework:IsAddonApocalypseWow(),
+                disableif = function() return Details.tooltip.apocalypse_width_useline and true end,
+            },
 
         }
 

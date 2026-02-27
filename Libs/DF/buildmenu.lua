@@ -16,6 +16,7 @@ local _
 ---@field RefreshOptions fun()
 ---@field widget_list table
 ---@field widget_list_by_type table
+---@field widget_to_disable_check table
 ---@field widgetids table
 ---@field GetWidgetById fun(optionsFrame: df_menu, id: string): table this should return a widget from the widgetids table
 
@@ -27,6 +28,8 @@ local _
 ---@field hasLabel any
 ---@field hidden boolean?
 ---@field inline boolean?
+---@field widget table?
+---@field disableif function? a function that returns true or nil, if true the widget get :Disable(), :Enabled() otherwise
 
 ---@class df_menu_label : df_menu_table
 ---@field get function
@@ -838,6 +841,20 @@ local setTextEntryProperties = function(parent, widget, widgetTable, currentXOff
     return maxColumnWidth, maxWidgetWidth
 end
 
+local checkForDisableIF = function(parent)
+    for _, widgetTable in ipairs(parent.widget_to_disable_check) do
+        if widgetTable.disableif then
+            if widgetTable.disableif() == true and widgetTable.widget.Disable then
+                widgetTable.widget:Disable()
+            else
+                if (widgetTable.widget.IsEnabled and not widgetTable.widget:IsEnabled()) then
+                    widgetTable.widget:Enable()
+                end
+            end
+        end
+    end
+end
+
 local onMenuBuilt = function(parent)
     --refresh the options to find children to disable or enable
     if (parent.build_menu_options) then
@@ -869,6 +886,8 @@ local onMenuBuilt = function(parent)
             end
         end
     end
+
+    checkForDisableIF(parent)
 end
 
 local refreshOptions = function(self)
@@ -899,6 +918,8 @@ local refreshOptions = function(self)
             end
         end
     end
+
+    checkForDisableIF(self)
 
     onMenuBuilt(self)
 end
@@ -1012,6 +1033,8 @@ function detailsFramework:SetAsOptionsPanel(frame)
         ["image"] = {},
     }
     frame.widgetids = {}
+    --store widgets which has a disable function (widgetTable.disableif)
+    frame.widget_to_disable_check = {}
     frame.GetWidgetById = getFrameById
 end
 
@@ -1201,6 +1224,25 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
     if (not parent.widget_list) then
         detailsFramework:SetAsOptionsPanel(parent)
     end
+
+    table.wipe(parent.widget_to_disable_check)
+
+    local userValueChangeHook = valueChangeHook
+    local refreshTimer
+    valueChangeHook = function()
+        if userValueChangeHook then
+            userValueChangeHook()
+        end
+        if refreshTimer then
+            return
+        else
+            refreshTimer = C_Timer.NewTimer(0.05, function()
+                refreshTimer = nil
+                parent:RefreshOptions()
+            end)
+        end
+    end
+
     detailsFramework:ClearOptionsPanel(parent)
 
     bHighlightColorOne = true
@@ -1423,6 +1465,14 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     end
                 end
 
+                if widgetTable.disableif then
+                    --isn't setWidgetId already adding the widget to the table?
+                    widgetTable.widget = widgetCreated
+                    table.insert(parent.widget_to_disable_check, widgetTable)
+                else
+                    widgetTable.widget = nil
+                end
+
                 if (extraPaddingY > 0) then
                     currentYOffset = currentYOffset - extraPaddingY
                 end
@@ -1457,7 +1507,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
             end
         end
     end
-    
+
     if (bUseScrollFrame) then
         canvasFrame:GetParent().RefreshOptions = function()
             parent:RefreshOptions()
@@ -1466,6 +1516,8 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
     detailsFramework.RefreshUnsafeOptionsWidgets()
     onMenuBuilt(parent)
+
+    parent:RefreshOptions()
 end
 
 local getDescripttionPhraseID = function(widgetTable, languageAddonId, languageTable)
@@ -1522,6 +1574,22 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
     if (not parent.widget_list) then
         detailsFramework:SetAsOptionsPanel(parent)
+    end
+
+    local userValueChangeHook = valueChangeHook
+    local refreshTimer
+    valueChangeHook = function()
+        if userValueChangeHook then
+            userValueChangeHook()
+        end
+        if refreshTimer then
+            return
+        else
+            refreshTimer = C_Timer.NewTimer(0.1, function()
+                refreshTimer = nil
+                parent:RefreshOptions()
+            end)
+        end
     end
 
     for index, widgetTable in ipairs(menuOptions) do
@@ -1757,6 +1825,11 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 end
             end
 
+            if widgetTable.disableif then
+                widgetTable.widget = widgetCreated
+                table.insert(parent.widget_to_disable_check, widgetTable)
+            end
+
             if (extraPaddingY > 0) then
                 currentYOffset = currentYOffset - extraPaddingY
             end
@@ -1800,6 +1873,8 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
     detailsFramework.RefreshUnsafeOptionsWidgets()
     onMenuBuilt(parent)
+
+    parent:RefreshOptions()
 end
 
 

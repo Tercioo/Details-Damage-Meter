@@ -28,6 +28,8 @@ local tooltipPadding = 1 --space between each line
 local cantStartUpdater = false
 local updaterTicker = nil
 
+local MAX_TOOLTIP_HELP = 30
+
 ---@return detailstooltip
 local getTooltipFrame = function() --~tooltip
     local tooltip = _G["DetailsDLC12TooltipFrame"]
@@ -65,33 +67,49 @@ local getTooltipFrame = function() --~tooltip
     ---@param data table an indexed table with subtables holding the data necessary to refresh each line
     ---@param offset number used to know which line to start showing
     ---@param totalLines number of lines shown in the scroll box
-    local refresFunc = function(self, data, offset, totalLines)
-        --the first line will be used as a header line
-        local headerLine = self:GetLine(1)
-        ---@cast headerLine detailstooltipline
-        --clear font strings
-        for j = 1, 6 do
-            local fontString = headerLine.dataFontStrings[j]
-            fontString:SetText("")
-        end
-        headerLine.SpellName:SetText(data.header[1])
-        headerLine.StatusBar:SetPoint("left", headerLine, "left", 0, 0)
-        headerLine.StatusBar:SetSize(tooltip:GetWidth()-4, tooltipLineHeight)
-        headerLine.StatusBar:SetMinMaxValues(0, 1)
-        headerLine.StatusBar:SetValue(0)
-        headerLine.SpellIcon:ClearAllPoints()
-        headerLine.SpellIcon:SetPoint("left", headerLine, "left", 2, 0)
-        headerLine.SpellIcon:SetTexture([[Interface\WORLDSTATEFRAME\CombatSwords]])
-        headerLine.SpellIcon:SetTexCoord(0, .5, 0, .5)
+    local refresFunc = function(self, data, offset, totalLines) --~refresh
+		local showHeader = Details.tooltip.show_header
+		local showHelp = Details.tooltip.show_help
 
-        for j = #data.header, 2, -1 do
-            local fontString = headerLine.dataFontStrings[#data.header - j + 1]
-            --local fontString = line.dataFontStrings[j]
-            fontString:SetText(data.header[j])
+        local loopStart = showHeader and 2 or 1
+
+        if showHeader then
+            local headerData = data.header
+
+            --the first line will be used as a header line
+            local headerLine = self:GetLine(1)
+            ---@cast headerLine detailstooltipline
+            --clear font strings
+            for j = 1, 6 do
+                local fontString = headerLine.dataFontStrings[j]
+                fontString:SetText("")
+            end
+
+            headerLine.SpellName:SetText(headerData[1])
+            headerLine.StatusBar:SetPoint("left", headerLine, "left", 0, 0)
+            headerLine.StatusBar:SetSize(tooltip:GetWidth()-4, tooltipLineHeight)
+            headerLine.StatusBar:SetMinMaxValues(0, 1)
+            headerLine.StatusBar:SetValue(0)
+            headerLine.SpellIcon:ClearAllPoints()
+            headerLine.SpellIcon:SetPoint("left", headerLine, "left", 2, 0)
+            headerLine.SpellIcon:SetTexture([[Interface\WORLDSTATEFRAME\CombatSwords]])
+            headerLine.SpellIcon:SetTexCoord(0, .5, 0, .5)
+
+            local fontStringIndex = 1
+            for j = #headerData, 2, -1 do
+                --all headers are always passed, but data might be missing for some of them, so we check if there is data to show for each header column
+                if headerData[j] and headerData[j] ~= "" then
+                    --if there is data for this header column, show it, otherwise leave it blank
+                    local fontString = headerLine.dataFontStrings[fontStringIndex]
+                    fontString:SetText(headerData[j])
+                    fontStringIndex = fontStringIndex + 1
+                end
+            end
         end
 
-        for i = 2, totalLines do
-            local index = (i-1) + offset
+        local nextLine = loopStart
+        for i = loopStart, totalLines do
+            local index = i - loopStart + 1 + offset
             local thisData = data[index]
             if (thisData) then
                 local line = self:GetLine(i)
@@ -99,6 +117,7 @@ local getTooltipFrame = function() --~tooltip
                 --update the line with the data
                 line.SpellName:SetText(thisData.name)
                 line.SpellIcon:SetTexture(thisData.icon)
+                line.SpellIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
                 line.StatusBar:SetMinMaxValues(0, tooltip.maxAmount)
                 line.StatusBar:SetValue(thisData.amount)
                 line.StatusBar:SetPoint("left", line, "left", tooltipLineHeight, 0)
@@ -114,11 +133,38 @@ local getTooltipFrame = function() --~tooltip
 
                 local fontStringIndex = 1
                 for j = dataAmount, 1, -1 do
-                    local fontString = line.dataFontStrings[fontStringIndex]
-                    fontString:SetText(thisData.texts[j])
-                    fontStringIndex = fontStringIndex + 1
+                    --if data is an empty string, skip it: when the data is invalid or user choise to not show
+                    if thisData.texts[j] and thisData.texts[j] ~= "" then
+                        local fontString = line.dataFontStrings[fontStringIndex]
+                        fontString:SetText(thisData.texts[j])
+                        fontStringIndex = fontStringIndex + 1
+                    end
                 end
+
+                nextLine = i + 1
             end
+        end
+
+        if showHelp and nextLine <= totalLines then
+            --show an extra line with the text "/details tooltip for options"
+            local line = self:GetLine(nextLine)
+            ---@cast line detailstooltipline
+            line.SpellName:SetText("/details tooltip for options")
+
+            --clear font strings so only the help text shows
+            for j = 1, 6 do
+                local fontString = line.dataFontStrings[j]
+                fontString:SetText("")
+            end
+
+            local fontString = line.dataFontStrings[1]
+            fontString:SetText(Details.tooltip.show_help_count .. " / " .. MAX_TOOLTIP_HELP)
+
+            --set up the status bar for the help line
+            line.StatusBar:SetMinMaxValues(0, 1)
+            line.StatusBar:SetValue(1)
+            line.StatusBar:SetPoint("left", line, "left", tooltipLineHeight, 0)
+            line.StatusBar:SetSize(tooltip:GetWidth() - tooltipLineHeight - 4, tooltipLineHeight)
         end
     end
 
@@ -354,8 +400,9 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     if (Details.tooltip.anchored_to == 1) then
         local instanceLineWidth = instanceLine:GetWidth()
         local addedPadding = 0
-        if (instanceLineWidth < 300) then
-            local diff = 300 - instanceLineWidth
+        local tooltipWidth = Details.tooltip.apocalypse_width_useline and instanceLineWidth or (Details.tooltip.apocalypse_width or 300)
+        if (instanceLineWidth < tooltipWidth) then
+            local diff = tooltipWidth - instanceLineWidth
             addedPadding = diff / 2
         end
         tooltip:SetPoint("bottomleft", instanceLine, "topleft", -addedPadding, 3)
@@ -502,12 +549,22 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         return
     end
 
-    local amountOfSpellsToShow = min(#sourceSpells.combatSpells, tooltipAmountOfLines)
+    local extraTooltipLines = (Details.tooltip.show_header and 1 or 0) + (Details.tooltip.show_help and 1 or 0)
+    local maxSpellLines = max(0, tooltipAmountOfLines - extraTooltipLines)
+    local amountOfSpellsToShow = min(#sourceSpells.combatSpells, maxSpellLines)
     local maxAmount = sourceSpells.maxAmount
     local totalAmount = sourceSpells.totalAmount
 
     tooltip:SetMaxAmount(maxAmount)
-    tooltip:SetHeight((amountOfSpellsToShow+1) * (tooltipLineHeight+1) + 4)
+    local totalVisibleLines = amountOfSpellsToShow + extraTooltipLines
+    tooltip:SetHeight((totalVisibleLines * (tooltipLineHeight + tooltipPadding)) + 4)
+
+    if Details.tooltip.show_help then
+        Details.tooltip.show_help_count = Details.tooltip.show_help_count + 1
+        if Details.tooltip.show_help_count >= MAX_TOOLTIP_HELP then
+            Details.tooltip.show_help = false
+        end
+    end
 
 --[=[
 ["combatSpells"] =  {
@@ -707,7 +764,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         ---@class addonapoc_tooltipdata
         ---@field name string
         ---@field icon number
-        ---@field texts number[]
+        ---@field texts (string|number)[]
         ---@field amount number
 
         --
@@ -732,22 +789,29 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             return curve:Evaluate(spellAmount)
         end)
 
+		local showDPS = Details.tooltip.show_dps_column
+		local showPercent = Details.tooltip.show_percent_column
+
+        local thisAmount = AbbreviateNumbers(spellAmount, Details.abbreviateOptionsDamage) or ""
+        local thisDPS = showDPS and AbbreviateNumbers(dps, Details.abbreviateOptionsDPS) or ""
+
         if not success then
             ---@type addonapoc_tooltipdata
             local data = {
                 name = leftText,
                 icon = spellInfo.iconID,
-                texts = {AbbreviateNumbers(spellAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(dps, Details.abbreviateOptionsDPS)},
+                texts = {thisAmount, thisDPS},
                 amount = spellAmount,
             }
             tooltipData[#tooltipData + 1] = data
 
         else
+            local thisPercent = showPercent and format("%.1f%%", percent) or ""
             ---@type addonapoc_tooltipdata
             local data = {
                 name = leftText,
                 icon = spellInfo.iconID,
-                texts = {AbbreviateNumbers(spellAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(dps, Details.abbreviateOptionsDPS), format("%.1f%%", percent)},
+                texts = {thisAmount, thisDPS, thisPercent},
                 amount = spellAmount,
             }
             couldGetPercent = true
@@ -763,11 +827,9 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         --Details:AddTooltipBackgroundStatusbar_Secret(spellAmount, maxAmount)
     end
 
-    if not couldGetPercent then
-        tooltipData.header = {"Spell Name", "Amount", "DPS"}
-    else
-        tooltipData.header = {"Spell Name", "Amount", "DPS", "%"}
-    end
+    local showDPS = Details.tooltip.show_dps_column
+    local showPercent = Details.tooltip.show_percent_column and couldGetPercent
+    tooltipData.header = {"Spell Name", "Amount", showDPS and "DPS" or "", showPercent and "%" or ""}
 
     tooltipData.class = instanceLine.sourceData.classFilename
     tooltipData.specIcon = instanceLine.sourceData.specIconID
@@ -775,5 +837,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     tooltip.ScrollBox:RefreshMe(tooltipData)
     tooltip.showTime = GetTime()
     tooltip:Show()
+
+    GameCooltip:Hide()
 end
 
