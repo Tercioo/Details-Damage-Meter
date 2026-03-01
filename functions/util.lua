@@ -499,6 +499,10 @@
 
 	Details.FadeHandler.OnUpdateFrame = CreateFrame("frame", "DetailsFadeFrameOnUpdate", UIParent)
 	Details.FadeHandler.OnUpdateFrame:SetScript("OnUpdate", function(self, deltaTime)
+		if (not Details.FadeHandler or not Details.FadeHandler.frames) then
+			return
+		end
+		
 		for frame, frameSettings in pairs(Details.FadeHandler.frames) do
 			local totalTime = frameSettings.totalTime
 			local initAlpha = frameSettings.startAlpha
