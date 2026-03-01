@@ -954,18 +954,16 @@ function Details222.StartUp.StartMeUp()
 		_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Custom
 	end
 
+	
 	Details.InitializeSpellBreakdownTab()
-
 	pcall(Details222.ClassCache.MakeCache)
 
-	if (time() > 1740761826 + 31622400) then
-		wipe(Details)
-		return
-	end
+	--here was a code of the Details! Doomsday!
+
 
 	Details:BuildSpecsNameCache()
-
 	Details222.Cache.DoMaintenance()
+
 
 	function Details:InstallOkey()
 		return true
