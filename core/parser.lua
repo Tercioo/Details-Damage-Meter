@@ -5461,10 +5461,18 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		parser:WipeSourceCache()
 		Details.listener:UnregisterEvent("UNIT_FLAGS")
 
+		local was_in_instance = _is_in_instance
+
 		_is_in_instance = false
 
 		if (zoneType == "party" or zoneType == "raid") then
 			_is_in_instance = true
+		end
+
+		--if player just left an instance (alive, not as a ghost from dying), clear last_instance_id
+		--so re-entering even the same dungeon triggers an overall reset
+		if (was_in_instance and not _is_in_instance and not UnitIsDeadOrGhost("player")) then
+			Details.last_instance_id = 0
 		end
 
 		if (Details.last_zone_type ~= zoneType) then
