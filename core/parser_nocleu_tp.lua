@@ -134,7 +134,11 @@ local getTooltipFrame = function() --~tooltip
                 local fontStringIndex = 1
                 for j = dataAmount, 1, -1 do
                     --if data is an empty string, skip it: when the data is invalid or user choise to not show
-                    if thisData.texts[j] and thisData.texts[j] ~= "" then
+                    if not issecretvalue(thisData.texts[j]) and thisData.texts[j] and thisData.texts[j] ~= "" then
+                        local fontString = line.dataFontStrings[fontStringIndex]
+                        fontString:SetText(thisData.texts[j])
+                        fontStringIndex = fontStringIndex + 1
+                    else
                         local fontString = line.dataFontStrings[fontStringIndex]
                         fontString:SetText(thisData.texts[j])
                         fontStringIndex = fontStringIndex + 1
@@ -790,47 +794,43 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             return curve:Evaluate(spellAmount)
         end)
 
+        --need three outputs: amount, dps and percent
+
 		local showDPS = Details.tooltip.show_dps_column
 		local showPercent = Details.tooltip.show_percent_column
+        local canShowPercent = showPercent and not issecretvalue(totalAmount)
+        couldGetPercent = couldGetPercent or canShowPercent
 
         local thisAmount = AbbreviateNumbers(spellAmount, Details.abbreviateOptionsDamage) or ""
-        local thisDPS = showDPS and AbbreviateNumbers(dps, Details.abbreviateOptionsDPS) or ""
+        local thisDPS = showDPS and AbbreviateNumbers(dps, Details.abbreviateOptionsDPS)
+        local thisPercent = canShowPercent and format("%.1f%%", spellAmount / totalAmount * 100)
 
-        if not success then
-            ---@type addonapoc_tooltipdata
-            local data = {
-                name = leftText,
-                icon = spellInfo.iconID,
-                texts = {thisAmount, thisDPS},
-                amount = spellAmount,
-            }
-            tooltipData[#tooltipData + 1] = data
-
-        else
-            local thisPercent = showPercent and format("%.1f%%", percent) or ""
-            ---@type addonapoc_tooltipdata
-            local data = {
-                name = leftText,
-                icon = spellInfo.iconID,
-                texts = {thisAmount, thisDPS, thisPercent},
-                amount = spellAmount,
-            }
-            couldGetPercent = true
-            tooltipData[#tooltipData + 1] = data
+        local dataToShow = {thisAmount} --amount done is always shown
+        if thisDPS then
+            dataToShow[#dataToShow + 1] = thisDPS
+        end
+        if thisPercent then
+            dataToShow[#dataToShow + 1] = thisPercent
         end
 
-        --GameCooltip:AddLine(spellInfo.name, spellAmount)
-
-        --local iconSize = Details.DefaultTooltipIconSize
-        --local icon_border = Details.tooltip.icon_border_texcoord
-
-        --GameCooltip:AddIcon(spellInfo.iconID, nil, nil, iconSize, iconSize, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
-        --Details:AddTooltipBackgroundStatusbar_Secret(spellAmount, maxAmount)
+        tooltipData[#tooltipData + 1] = {
+            name = leftText,
+            icon = spellInfo.iconID,
+            texts = dataToShow,
+            amount = spellAmount,
+        }
     end
 
     local showDPS = Details.tooltip.show_dps_column
     local showPercent = Details.tooltip.show_percent_column and couldGetPercent
-    tooltipData.header = {"Spell Name", "Amount", showDPS and "DPS" or "", showPercent and "%" or ""}
+
+    if showDPS and not showPercent then
+        tooltipData.header = {"Spell Name", "Amount", "DPS"}
+    elseif showDPS and showPercent then
+        tooltipData.header = {"Spell Name", "Amount", "DPS", "%"}
+    elseif not showDPS and showPercent then
+        tooltipData.header = {"Spell Name", "Amount", "%"}
+    end
 
     tooltipData.class = instanceLine.sourceData.classFilename
     tooltipData.specIcon = instanceLine.sourceData.specIconID

@@ -954,16 +954,11 @@ function Details222.StartUp.StartMeUp()
 		_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Custom
 	end
 
-	
 	Details.InitializeSpellBreakdownTab()
 	pcall(Details222.ClassCache.MakeCache)
 
-	--here was a code of the Details! Doomsday!
-
-
 	Details:BuildSpecsNameCache()
 	Details222.Cache.DoMaintenance()
-
 
 	function Details:InstallOkey()
 		return true
