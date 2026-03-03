@@ -42,6 +42,7 @@ local getTooltipFrame = function() --~tooltip
     tooltip = CreateFrame("frame", "DetailsDLC12TooltipFrame", UIParent)
     tooltip:Hide()
     tooltip:EnableMouse(true)
+    tooltip:SetFrameStrata("TOOLTIP")
 
     tooltip:SetScript("OnLeave", function(self)
         self:Hide()
