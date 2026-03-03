@@ -28,6 +28,7 @@ if detailsFramework.IsAddonApocalypseWow() then
             Enum.DamageMeterType.EnemyDamageTaken, --enemies
             100, --void zones (not supported)
             100, --damage taken by spells (not supported)
+            Enum.DamageMeterType.AvoidableDamageTaken, -- avoidable damage taken
         },
         [2] = {
             Enum.DamageMeterType.HealingDone, --healing done

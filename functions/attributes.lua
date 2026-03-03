@@ -16,6 +16,7 @@ do
 		--[[global]] DETAILS_SUBATTRIBUTE_ENEMIES = 6
 		--[[global]] DETAILS_SUBATTRIBUTE_VOIDZONES = 7
 		--[[global]] DETAILS_SUBATTRIBUTE_BYSPELLS = 8
+		--[[global]] DETAILS_SUBATTRIBUTE_AVOIDABLE = 9
 
 	--[[global]] DETAILS_ATTRIBUTE_HEAL = 2
 	
@@ -92,7 +93,7 @@ do
 		
 		--[[ DAMAGE ]]
 			dano = 1,	--identifier
-			[1] = 8,	-- sub attributes 
+			[1] = 9,	-- sub attributes 
 		
 		--[[ HEALING ]]
 			cura = 2,	--identifier
@@ -133,6 +134,7 @@ do
 			enemies = 6,
 			voidzones = 7,
 			damage_taken_by_spells = 8,
+			avoidable_damage_taken = 9,
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], 
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"],
@@ -142,6 +144,7 @@ do
 				Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES"],
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS"],
 				Loc ["STRING_ATTRIBUTE_DAMAGE_BYSPELL"],
+				DAMAGE_METER_TYPE_AVOIDABLE_DAMAGE_TAKEN,
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0, .125, 0, 1}},
@@ -152,8 +155,9 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0.625, .75, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.75, 0.875, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0.875, 1, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\avoidable_damage_taken.png", {0, 1, 0, 1}},
 			},
-			internal = {"total", "last_dps", "damage_taken", "friendlyfire_total", "frags", "enemies", "voidzones", "damage_taken_by_spells"}
+			internal = {"total", "last_dps", "damage_taken", "friendlyfire_total", "frags", "enemies", "voidzones", "damage_taken_by_spells", "avoidable_damage_taken"}
 		},
 
 		{
