@@ -3253,6 +3253,9 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
 			--percentNumber = math.floor((dps/instanceObject.top) * 100)
 
+		elseif (subDisplay == DETAILS_SUBATTRIBUTE_AVOIDABLE) then
+			local ruleToUse = 2 --total dps
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_HEAL then
