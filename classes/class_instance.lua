@@ -2836,6 +2836,15 @@ end
 
 ---@param self instance
 function Details:ShowLastBoss()
+	local _, instanceType = GetInstanceInfo()
+	if instanceType ~= "raid" then
+		return
+	end
+
+	if not self.auto_current then
+		return
+	end
+
 	local currentSession = self:GetSegmentObject()
 	local encounterName = currentSession and currentSession.name or ""
 	if encounterName:find("%(!") then
