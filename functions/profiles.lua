@@ -614,6 +614,54 @@ local default_profile = {
 		[1473] = {384/512, 448/512, 256/512, 320/512}, -- Augmentation
 	},
 
+	--spec coords for TBC/Classic, reset with: /run Details.class_classic_specs_coords = nil
+	class_classic_specs_coords = {
+		-- Warrior
+		[161] = { 448 / 512, 512 / 512, 192 / 512, 256 / 512 }, -- warrior Arms
+		[164] = { 0, 64 / 512, 256 / 512, 320 / 512 }, -- warrior Fury
+		[163] = { 64 / 512, 128 / 512, 256 / 512, 320 / 512 }, -- warrior Protection
+
+		-- Paladin
+		[382] = { 0, 64 / 512, 128 / 512, 192 / 512 },         -- paladin Holy
+		[383] = { 64 / 512, 128 / 512, 128 / 512, 192 / 512 }, -- paladin Protection
+		[381] = { (128 / 512) + 0.001953125, 192 / 512, 128 / 512, 192 / 512 }, -- paladin Retribution
+
+		-- Hunter
+		[361] = { 448 / 512, 512 / 512, 0, 64 / 512 }, -- hunter bm
+		[363] = { 0, 64 / 512, 64 / 512, 128 / 512 }, -- hunter marks
+		[362] = { 64 / 512, 128 / 512, 64 / 512, 128 / 512 }, -- hunter survival
+
+		-- Rogue
+		[182] = { 384 / 512, 448 / 512, 128 / 512, 192 / 512 }, -- rogue assassination
+		[181] = { 448 / 512, 512 / 512, 128 / 512, 192 / 512 }, -- rogue combat
+		[183] = { 0, 64 / 512, 192 / 512, 256 / 512 }, -- rogue subtlety
+
+		-- Priest
+		[201] = { 192 / 512, 256 / 512, 128 / 512, 192 / 512 },      -- priest discipline
+		[202] = { 256 / 512, 320 / 512, 128 / 512, 192 / 512 },      -- priest holy
+		[203] = { (320 / 512) + (0.001953125 * 4), 384 / 512, 128 / 512, 192 / 512 }, -- priest shadow
+
+		-- Shaman
+		[261] = { 64 / 512, 128 / 512, 192 / 512, 256 / 512 }, -- shaman elemental
+		[263] = { 128 / 512, 192 / 512, 192 / 512, 256 / 512 }, -- shaman enhancement
+		[262] = { 192 / 512, 256 / 512, 192 / 512, 256 / 512 }, -- shaman restoration
+
+		-- Mage
+		[81] = { (128 / 512) + 0.001953125, 192 / 512, 64 / 512, 128 / 512 }, -- mage arcane
+		[41] = { 192 / 512, 256 / 512, 64 / 512, 128 / 512 }, -- mage fire
+		[61] = { 256 / 512, 320 / 512, 64 / 512, 128 / 512 }, -- mage frost
+
+		-- Warlock
+		[302] = { 256 / 512, 320 / 512, 192 / 512, 256 / 512 }, -- warlock aff
+		[303] = { 320 / 512, 384 / 512, 192 / 512, 256 / 512 }, -- warlock demo
+		[301] = { 384 / 512, 448 / 512, 192 / 512, 256 / 512 }, -- warlock destro
+
+		-- Druid
+		[283] = { 192 / 512, 256 / 512, 0, 64 / 512 }, -- druid balance
+		[281] = { 256 / 512, 320 / 512, 0, 64 / 512 }, -- druid feral
+		[282] = { 384 / 512, 448 / 512, 0, 64 / 512 }, -- druid restoration
+	},
+
 	window2_data = {},
 
 	--class icons and colors
@@ -1187,6 +1235,13 @@ local default_profile = {
 }
 
 Details.default_profile = default_profile
+
+---return the spec coords table for the current game version
+---@param spec number
+---@return table
+function Details:GetSpecCoords(spec)
+	return DetailsFramework.IsTimewalkWoW() and Details.class_classic_specs_coords[spec] or Details.class_specs_coords[spec]
+end
 
 -- aqui fica as propriedades do jogador que n�o ser�o armazenadas no profile
 local default_player_data = {

@@ -763,9 +763,9 @@
 			else
 				if (instanceObject.row_info.use_spec_icons) then
 					local specId = (self.spec and self.spec ~= 0 and self.spec) or (self.my_actor.spec and self.my_actor.spec ~= 0 and self.my_actor.spec)
-					if (specId and _detalhes.class_specs_coords[specId]) then
+					if (specId and Details:GetSpecCoords(specId)) then
 						thisBar.icone_classe:SetTexture(instanceObject.row_info.spec_file)
-						thisBar.icone_classe:SetTexCoord(unpack(Details.class_specs_coords[specId]))
+						thisBar.icone_classe:SetTexCoord(unpack(Details:GetSpecCoords(specId)))
 					else
 						thisBar.icone_classe:SetTexture([[Interface\AddOns\Details\images\classes_small]])
 						thisBar.icone_classe:SetTexCoord(unpack(Details.class_coords[self.classe]))

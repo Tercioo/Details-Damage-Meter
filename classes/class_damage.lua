@@ -4000,9 +4000,9 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 	elseif(class == "UNGROUPPLAYER") then
 		if (self.spec) then
 			if (instance and instance.row_info.use_spec_icons) then
-				if (self.spec and Details.class_specs_coords[self.spec]) then
+				if (self.spec and Details:GetSpecCoords(self.spec)) then
 					texture:SetTexture(instance.row_info.spec_file)
-					texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
+					texture:SetTexCoord(unpack(Details:GetSpecCoords(self.spec)))
 					texture:SetVertexColor(1, 1, 1)
 					return
 				end
@@ -4060,9 +4060,9 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 			if (self.thisSpecIcon) then
 				local specInfo = detailsFramework:GetSpecInfoFromSpecIcon(self.thisSpecIcon)
 				local specId = specInfo and specInfo.specId
-				if (specId and Details.class_specs_coords[specId]) then
+				if (specId and Details:GetSpecCoords(specId)) then
 					texture:SetTexture(instance.row_info.spec_file)
-					texture:SetTexCoord(unpack(Details.class_specs_coords[specId]))
+					texture:SetTexCoord(unpack(Details:GetSpecCoords(specId)))
 					texture:SetVertexColor(1, 1, 1)
 				else
 					texture:SetTexture(self.thisSpecIcon)
@@ -4070,9 +4070,9 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 					texture:SetVertexColor(1, 1, 1)
 				end
 
-			elseif (self.spec and Details.class_specs_coords[self.spec]) then
+			elseif (self.spec and Details:GetSpecCoords(self.spec)) then
 				texture:SetTexture(instance.row_info.spec_file)
-				texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
+				texture:SetTexCoord(unpack(Details:GetSpecCoords(self.spec)))
 				texture:SetVertexColor(1, 1, 1)
 			else
 				texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])

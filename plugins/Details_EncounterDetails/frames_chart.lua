@@ -451,7 +451,7 @@ function encounterDetails:CreatePhaseIndicators(chartPanel, phaseTooltip)
 
                 if (spec) then
                     tooltipBar.icon.texture = [[Interface\AddOns\Details\images\spec_icons_normal]]
-                    tooltipBar.icon.texcoord = encounterDetails.class_specs_coords[spec]
+                    tooltipBar.icon.texcoord = Details:GetSpecCoords(spec)
 
                 elseif (class) then
                     tooltipBar.icon.texture = [[Interface\AddOns\Details\images\classes_small_alpha]]
@@ -499,7 +499,7 @@ function encounterDetails:CreatePhaseIndicators(chartPanel, phaseTooltip)
 
                 if (spec) then
                     tooltipBar.icon.texture = [[Interface\AddOns\Details\images\spec_icons_normal]]
-                    tooltipBar.icon.texcoord = encounterDetails.class_specs_coords[spec]
+                    tooltipBar.icon.texcoord = Details:GetSpecCoords(spec)
 
                 elseif (class) then
                     tooltipBar.icon:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]])

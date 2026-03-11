@@ -2225,8 +2225,8 @@ local iconFrame_OnEnter = function(self)
 			local specId, specName, specDescription, specIcon, specRole, specClass = DetailsFramework.GetSpecializationInfoByID(spec or 0) --thanks pas06
 			local specL, specR, specT, specB
 			if (specId) then
-				if (Details.class_specs_coords[specId]) then
-					specL, specR, specT, specB = unpack(Details.class_specs_coords[specId])
+				if (Details:GetSpecCoords(specId)) then
+					specL, specR, specT, specB = unpack(Details:GetSpecCoords(specId))
 				end
 			end
 

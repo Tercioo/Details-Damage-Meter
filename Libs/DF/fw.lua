@@ -320,48 +320,50 @@ local roleBySpecTextureName = {
 	DeathKnightUnholy = "DAMAGER",
 }
 
----classic, tbc and wotlk role guesser based on the weights of each talent tree
----@return string
-function DF:GetRoleByClassicTalentTree()
+---returns the talent tab with the most points spent as {name, pointsSpent, fileName, specId}
+---@return table|nil
+local function calculatePlayersSpecByPointsInTree()
 	if (not DF.IsTimewalkWoW()) then
-		return "NONE"
+		return nil
 	end
 
-	--amount of tabs existing
 	local numTabs = GetNumTalentTabs() or 3
-
-	--store the background textures for each tab
 	local pointsPerSpec = {}
 
 	for i = 1, (MAX_TALENT_TABS or 3) do
 		if (i <= numTabs) then
-			--tab information
-			local id, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
+			local specId, name, description, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
 			if DF.IsClassicWow() and not fileName then
 				--On pre 1.15.3
-                name, iconTexture, pointsSpent, fileName = id, name, description, iconTexture
+                name, iconTexture, pointsSpent, fileName = specId, name, description, iconTexture
 			end
 			if (name) then
-				table.insert(pointsPerSpec, {name, pointsSpent, fileName})
+				table.insert(pointsPerSpec, {name, pointsSpent, fileName, specId})
 			end
 		end
 	end
 
-	local MIN_SPECS = 4
-
-	--put the spec with more talent point to the top
 	table.sort(pointsPerSpec, function(t1, t2)
 		return t1[2] > t2[2]
 	end)
 
-	--get the spec with more points spent
-	local spec = pointsPerSpec[1]
-	if (spec and spec[2] >= MIN_SPECS) then
-		local specName = spec[1]
-		local spentPoints = spec[2]
-		local specTexture = spec[3]
+	return pointsPerSpec[1]
+end
 
-		local role = roleBySpecTextureName[specTexture]
+---return the specId of the talent tree with the most points spent
+---@return number|nil
+function DF.GetCharacterSpecIdInClassic()
+	local spec = calculatePlayersSpecByPointsInTree()
+	return spec and spec[4]
+end
+
+---classic, tbc and wotlk role guesser based on the weights of each talent tree
+---@return string
+function DF:GetRoleByClassicTalentTree()
+	local MIN_SPECS = 4
+	local spec = calculatePlayersSpecByPointsInTree()
+	if (spec and spec[2] >= MIN_SPECS) then
+		local role = roleBySpecTextureName[spec[3]]
 		return role or "NONE"
 	end
 	return "DAMAGER"
@@ -421,7 +423,7 @@ function DF.UnitGroupRolesAssigned(unitId, bUseSupport, specId)
     end
 
     if (role == "NONE") then
-        if (GetSpecialization) then
+        if (GetSpecialization and not DF.IsTimewalkWoW()) then
             if (UnitIsUnit(unitId, "player")) then
                 local specializationIndex = GetSpecialization() or 0
                 local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
@@ -1630,9 +1632,9 @@ function DF:AddClassIconToText(text, playerName, englishClassName, useSpec, icon
 		end
 	end
 
-	if (spec and Details.class_specs_coords[spec]) then --if spec is valid, the user has Details! installed
+	if (spec and Details:GetSpecCoords(spec)) then --if spec is valid, the user has Details! installed
 		local specString = ""
-		local L, R, T, B = unpack(Details.class_specs_coords[spec])
+		local L, R, T, B = unpack(Details:GetSpecCoords(spec))
 		if (L) then
 			specString = "|TInterface\\AddOns\\Details\\images\\spec_icons_normal:" .. size .. ":" .. size .. ":0:0:512:512:" .. (L * 512) .. ":" .. (R * 512) .. ":" .. (T * 512) .. ":" .. (B * 512) .. "|t"
 			return specString .. " " .. text

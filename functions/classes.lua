@@ -379,9 +379,9 @@ do
 	function Details:AddClassOrSpecIcon(thisString, class, spec, iconSize, useAlphaIcons)
 		iconSize = iconSize or 16
 
-		if (spec and Details.class_specs_coords[spec]) then
+		if (spec and Details:GetSpecCoords(spec)) then
 			local specString = ""
-			local L, R, T, B = unpack(Details.class_specs_coords[spec])
+			local L, R, T, B = unpack(Details:GetSpecCoords(spec))
 			if (L) then
 				if (useAlphaIcons) then
 					specString = "|TInterface\\AddOns\\Details\\images\\spec_icons_normal_alpha:" .. iconSize .. ":" .. iconSize .. ":0:0:512:512:" .. (L * 512) .. ":" .. (R * 512) .. ":" .. (T * 512) .. ":" .. (B * 512) .. "|t"

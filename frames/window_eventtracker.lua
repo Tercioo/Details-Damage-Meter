@@ -478,7 +478,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 
 		local get_player_icon = function(spec, class)
 			if (spec) then
-				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack(Details.class_specs_coords [spec])
+				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack(Details:GetSpecCoords(spec))
 			elseif (class) then
 				return [[Interface\AddOns\Details\images\classes_small]], unpack(Details.class_coords [class])
 			else

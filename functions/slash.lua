@@ -1339,7 +1339,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local y = -50
 		local allspecs = {}
 
-		for a, b in pairs(Details.class_specs_coords) do
+		for a, b in pairs(DetailsFramework.IsTimewalkWoW() and Details.class_classic_specs_coords or Details.class_specs_coords) do
 			table.insert(allspecs, a)
 		end
 
