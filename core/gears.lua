@@ -1210,7 +1210,7 @@ Details.specToRole = {
 }
 
 --oldschool talent tree
-if (DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow()) then
+if (DetailsFramework.IsWotLKWow() or DetailsFramework.IsCataWow() or DetailsFramework.IsClassicWow() or DetailsFramework.IsTBCWow()) then
 	local talentWatchClassic = CreateFrame("frame")
 	talentWatchClassic:RegisterEvent("CHARACTER_POINTS_CHANGED")
 	talentWatchClassic:RegisterEvent("SPELLS_CHANGED")
