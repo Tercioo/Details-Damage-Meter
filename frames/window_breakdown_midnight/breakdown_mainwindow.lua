@@ -41,7 +41,7 @@ local UIParent = UIParent
 ---@field CreateSectionScroll fun(windowFrame:detailsbreakdownmidnight_window, sectionId:number, parent:frame, name:string, width:number, height:number, title:string, data:table):detailsbreakdownmidnight_sectionscroll
 ---@field BuildSectionLayout fun(windowFrame:detailsbreakdownmidnight_window, windowPadding:number, contentTop:number, contentWidth:number, contentHeight:number):df_framecontainer
 ---@field RefreshSectionPoints fun(windowFrame:detailsbreakdownmidnight_window)
----@field ResetSectionSizes fun(windowFrame:detailsbreakdownmidnight_window)
+---@field ResetSectionSizes fun(windowFrame:detailsbreakdownmidnight_window, dontRefresh:boolean?)
 ---@field OpenApocalypseBreakdown fun(windowIndex:number, instance:instance, segmentType:number, segmentId:number, attributeId:number, actorObject:actor):detailsbreakdownmidnight_window
 ---@field CreateMainPanel fun(windowIndex:number, parentFrame:frame?):detailsbreakdownmidnight_window
 ---@field GetProfile fun():detailsbreakdownmidnight_profile
@@ -233,6 +233,7 @@ function breakdownMidnight.CreateBreakdownWindow(windowIndex, parentFrame)
 
     windowFrame.bIsBuilt = true
     breakdownMidnight.BreakdownWindows[index] = windowFrame
+
     return windowFrame
 end
 
@@ -283,6 +284,18 @@ function breakdownMidnight.OpenApocalypseBreakdown(windowIndex, instance, segmen
         windowFrame = breakdownMidnight.CreateBreakdownWindow(index)
     end
 
+    local headersWidth = breakdownMidnight.GetProfile().headers_width
+    local hasSavedColumnData = false
+    for _, sectionWidths in pairs(headersWidth) do
+        if (type(sectionWidths) == "table" and next(sectionWidths)) then
+            hasSavedColumnData = true
+            break
+        end
+    end
+    if (not hasSavedColumnData) then
+        breakdownMidnight.ResetSectionSizes(windowFrame, true)
+    end
+
     if segmentId == -1 then
         segmentType = 0
     elseif (segmentId == 0) then
@@ -302,6 +315,7 @@ function breakdownMidnight.OpenApocalypseBreakdown(windowIndex, instance, segmen
 
     windowFrame:Show()
     windowFrame:RefreshAllScrolls()
+
     return windowFrame
 end
 

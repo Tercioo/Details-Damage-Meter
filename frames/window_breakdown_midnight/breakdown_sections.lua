@@ -441,7 +441,8 @@ function breakdownMidnight.RefreshSectionPoints(windowFrame)
 end
 
 ---@param windowFrame detailsbreakdownmidnight_window
-function breakdownMidnight.ResetSectionSizes(windowFrame)
+---@param dontRefresh boolean
+function breakdownMidnight.ResetSectionSizes(windowFrame, dontRefresh)
     local profile = breakdownMidnight.GetProfile()
     local defaultSettings = sections.defaultSettings
 
@@ -466,5 +467,7 @@ function breakdownMidnight.ResetSectionSizes(windowFrame)
     profile.headers_width = {}
 
     breakdownMidnight.RefreshSectionPoints(windowFrame)
-    windowFrame:RefreshAllScrolls()
+    if not dontRefresh then
+        windowFrame:RefreshAllScrolls()
+    end
 end

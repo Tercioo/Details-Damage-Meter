@@ -79,20 +79,6 @@ local getActorSpells = function(actorObject)
             amount = spellAmount,
         }
 
-        --[[ there is no targets data atm
-            for targetName, total in pairs(spellTable.targets) do
-                local targetData = {
-                    unitName = targetName,
-                    unitClassFilename = "",
-                    classification = "",
-                    isPet = false,
-                    isMob = false,
-                    amount = total,
-                    specIconID = 0,
-                }
-                spellData.targets[#spellData.targets + 1] = targetData
-            end
-        --]]
         spellData[#spellData + 1] = data
     end
 
@@ -285,7 +271,7 @@ function breakdownMidnight.GenerateTargetsData(windowFrame)
     local headerData = {
         {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0},
         {key="rank", text="#", width=false, align="center", canSort=true, dataType="number", offset=0},
-        {key="name", text="Target Name", width=150, align="left", canSort=true, dataType="string", offset=0},
+        {key="name", text="Target Name", width=180, align="left", canSort=true, dataType="string", offset=0},
         {key="amount", text="Amount", width=false, align="left", canSort=true, dataType="number", offset=0},
         --{key="dps", text="DPS", width=false, align="right", canSort=true, dataType="number", offset=0},
         --{key="percent", text="Percent", width=false, align="right", canSort=true, dataType="number", offset=0},
@@ -458,8 +444,8 @@ function breakdownMidnight.GenerateSegmentData(windowFrame)
 
     local headerData = {
         {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0},
-        {key="elapsed", text="", width=55, align="left", canSort=true, dataType="string", offset=0},
-        {key="name", text="Name", width=170, align="left", canSort=true, dataType="string", offset=0},
+        {key="elapsed", text="", width=34, align="left", canSort=true, dataType="string", offset=0},
+        {key="name", text="Name", width=137, align="left", canSort=true, dataType="string", offset=0},
     }
 
     return segmentData, headerData
