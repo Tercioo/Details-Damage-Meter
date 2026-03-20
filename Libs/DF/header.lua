@@ -50,7 +50,9 @@ local wipe = wipe
 ---@field ResetColumnHeaderBackdrop fun(self: df_headerframe, columnHeader: df_headercolumnframe)
 ---@field SetBackdropColorForSelectedColumnHeader fun(self: df_headerframe, columnHeader: df_headercolumnframe)
 ---@field ClearColumnHeader fun(self: df_headerframe, columnHeader: df_headercolumnframe)
+---@field DoesColumnExists fun(self: df_headerframe, columnId: number) : boolean
 ---@field GetNextHeader fun(self: df_headerframe) : df_headercolumnframe internal use only
+---@field GetHeaderTableByIndex fun(self: df_headerframe, columnId: number) : df_headercolumndata
 ---@field SetColumnSettingChangedCallback fun(self: df_headerframe, func: function) : boolean
 ---@field ResetFramesToHeaderAlignment fun(self: df_headerframe)
 ---@field GetFramesFromHeaderAlignment fun(self: df_headerframe) : table
@@ -136,6 +138,8 @@ detailsFramework.HeaderFunctions = {
 
 				if (columnHeader.columnAlign == "right") then
 					offset = columnHeader:GetWidth()
+				elseif (columnHeader.columnAlign == "center") then
+					offset = columnHeader:GetWidth() / 2
 				end
 
 				if (uiObject:GetObjectType() == "FontString") then
@@ -230,7 +234,16 @@ detailsFramework.HeaderMixin = {
 	---@param columnId number
 	---@return number
 	GetColumnWidth = function(self, columnId)
+		assert(self.HeaderTable[columnId], "Header:GetColumnWidth(): 'columnId' does not exist in the HeaderTable.")
 		return self.HeaderTable[columnId].width
+	end,
+
+	GetHeaderTableByIndex = function(self, columnId)
+		return self.HeaderTable[columnId]
+	end,
+
+	DoesColumnExists = function(self, columnId)
+		return self.HeaderTable[columnId] ~= nil
 	end,
 
 	---get header table
@@ -453,10 +466,24 @@ detailsFramework.HeaderMixin = {
 			detailsFramework:SetFontOutline(columnHeader.Text, self.options.text_shadow)
 
 			--point
-			if (not columnData.icon) then
-				columnHeader.Text:SetPoint("left", columnHeader, "left", self.options.padding, 0)
+			local textAlign = columnData.align or "left"
+			columnHeader.Text:ClearAllPoints()
+
+			if (textAlign == "center") then
+				columnHeader.Text:SetJustifyH("center")
+				columnHeader.Text:SetPoint("center", columnHeader, "center", 0, 0)
+
+			elseif (textAlign == "right") then
+				columnHeader.Text:SetJustifyH("right")
+				columnHeader.Text:SetPoint("right", columnHeader, "right", -self.options.padding, 0)
+
 			else
-				columnHeader.Text:SetPoint("left", columnHeader.Icon, "right", self.options.padding, 0)
+				columnHeader.Text:SetJustifyH("left")
+				if (not columnData.icon) then
+					columnHeader.Text:SetPoint("left", columnHeader, "left", self.options.padding, 0)
+				else
+					columnHeader.Text:SetPoint("left", columnHeader.Icon, "right", self.options.padding, 0)
+				end
 			end
 
 			columnHeader.Text:Show()

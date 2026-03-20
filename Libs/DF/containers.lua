@@ -34,6 +34,8 @@ local childResizerOptionBySide = {
 ---@field rightResizer framecontainerresizer
 ---@field cornerResizers framecontainerresizer[]
 ---@field sideResizers framecontainerresizer[]
+---@field LeftResizeGrip df_resizergrip
+---@field RightResizeGrip df_resizergrip
 ---@field components table<frame, boolean>
 ---@field moverFrame frame
 ---@field movableChildren table<frame, boolean>
@@ -46,6 +48,8 @@ local childResizerOptionBySide = {
 ---@field OnResizerMouseUp fun(resizerButton: button, mouseButton: string)
 ---@field HideResizer fun(frameContainer: df_framecontainer)
 ---@field ShowResizer fun(frameContainer: df_framecontainer)
+---@field HideResizeGrips fun(frameContainer: df_framecontainer)
+---@field ShowResizeGrips fun(frameContainer: df_framecontainer)
 ---@field OnInitialize fun(frameContainer: df_framecontainer)
 ---@field SetResizeLocked fun(frameContainer: df_framecontainer, isLocked: boolean)
 ---@field SetMovableLocked fun(frameContainer: df_framecontainer, isLocked: boolean)
@@ -165,9 +169,28 @@ detailsFramework.FrameContainerMixin = {
             frameContainer:HideResizer()
             frameContainer:SetResizable(false)
         else
-            frameContainer:ShowResizer()
             frameContainer:SetResizable(true)
         end
+
+        if frameContainer.options.show_resize_grips then
+            frameContainer:SetResizable(true)
+            frameContainer:ShowResizeGrips()
+        else
+            frameContainer:HideResizeGrips()
+            if frameContainer.options.is_locked then
+                frameContainer:ShowResizer()
+                frameContainer:SetResizable(false)
+            end
+        end
+    end,
+
+    ShowResizeGrips = function(frameContainer) --internal
+        frameContainer.LeftResizeGrip:Show()
+        frameContainer.RightResizeGrip:Show()
+    end,
+    HideResizeGrips = function(frameContainer) --internal
+        frameContainer.LeftResizeGrip:Hide()
+        frameContainer.RightResizeGrip:Hide()
     end,
 
     ---check if the framecontainer can be moved and show or hide the mover
@@ -344,9 +367,7 @@ detailsFramework.FrameContainerMixin = {
         frameContainer:CheckResizeLockedState()
         frameContainer:CheckMovableLockedState()
 
-
-        frameContainer:SetResizeBounds(50, 50, 1000, 1000) --new versions has this method
-
+        frameContainer:SetResizeBounds(50, 50, 1920, 1440) --new versions has this method
     end,
 
     ---run when the container has its size changed
@@ -1183,6 +1204,7 @@ local frameContainerOptions = {
     use_bottom_resizer = false,
     use_left_resizer = false,
     use_right_resizer = false,
+    show_resize_grips = false,
 }
 
 ---create a frame container, which is a frame that envelops another frame, and can be moved, resized, etc.
@@ -1208,6 +1230,29 @@ function DF:CreateFrameContainer(parent, options, frameName)
     frameContainer:CreateResizers()
     frameContainer:CreateMover()
     frameContainer:BuildOptionsTable(frameContainerOptions, options)
+
+    local resizeGripOptions = {
+        width = 32,
+        height = 32,
+        use_default_scripts = true,
+        should_mirror_left_texture = true,
+        normal_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]],
+        highlight_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]],
+        pushed_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]],
+    }
+
+    local leftResizer, rightResizer = detailsFramework:CreateResizeGrips(frameContainer, resizeGripOptions)
+    if options.show_resize_grips then
+        leftResizer:Show()
+        rightResizer:Show()
+        frameContainer:SetResizable(true)
+    else
+        leftResizer:Hide()
+        rightResizer:Hide()
+    end
+
+    frameContainer.LeftResizeGrip = leftResizer
+    frameContainer.RightResizeGrip = rightResizer
 
     frameContainer:OnInitialize()
 

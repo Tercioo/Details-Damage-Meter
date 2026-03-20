@@ -73,7 +73,7 @@ local refreshSegmentsSection = function(self, data, offset, totalLines)
             line.Texts[2]:SetText(segmentName)
 
             if (not issecretvalue(segmentName)) then
-                local columnWidth = line:GetWidth() - 62
+                local columnWidth = header:GetColumnWidth(3) - 2
                 detailsFramework:TruncateText(line.Texts[2], columnWidth)
             end
             line:AddFrameToHeaderAlignment(line.Texts[2])

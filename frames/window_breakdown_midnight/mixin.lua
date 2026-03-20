@@ -50,35 +50,35 @@ breakdownMidnight.lineButtonMixin = {
 breakdownMidnight.windowFrameMixin = {
     ---example: local playerScroll = windowFrame:GetPlayerScroll()
     ---@param windowFrame detailsbreakdownmidnight_window
-    ---@return df_scrollbox
+    ---@return detailsbreakdownmidnight_sectionscroll
     GetPlayerScroll = function(windowFrame)
         return windowFrame.PlayerScroll
     end,
 
     ---example: local segmentScroll = windowFrame:GetSegmentScroll()
     ---@param windowFrame detailsbreakdownmidnight_window
-    ---@return df_scrollbox
+    ---@return detailsbreakdownmidnight_sectionscroll
     GetSegmentScroll = function(windowFrame)
         return windowFrame.SegmentScroll
     end,
 
     ---example: local spellScroll = windowFrame:GetSpellScroll()
     ---@param windowFrame detailsbreakdownmidnight_window
-    ---@return df_scrollbox
+    ---@return detailsbreakdownmidnight_sectionscroll
     GetSpellScroll = function(windowFrame)
         return windowFrame.SpellScroll
     end,
 
     ---example: local spellDetailsScroll = windowFrame:GetSpellDetailsScroll()
     ---@param windowFrame detailsbreakdownmidnight_window
-    ---@return df_scrollbox
+    ---@return detailsbreakdownmidnight_sectionscroll
     GetSpellDetailsScroll = function(windowFrame)
         return windowFrame.SpellDetailsScroll
     end,
 
     ---example: local targetsScroll = windowFrame:GetTargetsScroll()
     ---@param windowFrame detailsbreakdownmidnight_window
-    ---@return df_scrollbox
+    ---@return detailsbreakdownmidnight_sectionscroll
     GetTargetsScroll = function(windowFrame)
         return windowFrame.TargetsScroll
     end,
@@ -86,7 +86,7 @@ breakdownMidnight.windowFrameMixin = {
     ---example: local scrollFrame = windowFrame:GetScrollForSectionId(breakdownMidnight.Enums.SectionIds.Spells)
     ---@param windowFrame detailsbreakdownmidnight_window
     ---@param sectionId number
-    ---@return df_scrollbox?
+    ---@return detailsbreakdownmidnight_sectionscroll
     GetScrollForSectionId = function(windowFrame, sectionId)
         local sectionIds = breakdownMidnight.Enums.SectionIds
         if (sectionId == sectionIds.Spells) then
@@ -224,28 +224,24 @@ breakdownMidnight.windowFrameMixin = {
     ---@param windowFrame detailsbreakdownmidnight_window
     RefreshAllScrolls = function(windowFrame)
         --show all players
-        if (windowFrame.PlayerScroll) then
-            windowFrame.PlayerScroll:RefreshMe()
-        end
+        local playerScroll = windowFrame:GetPlayerScroll()
+        playerScroll:RefreshMe()
 
         --show all available segments
-        if (windowFrame.SegmentScroll) then
-            windowFrame.SegmentScroll:RefreshMe()
-        end
+        local segmentScroll = windowFrame:GetSegmentScroll()
+        segmentScroll:RefreshMe()
 
         --show all spells for the player in question
-        if (windowFrame.SpellScroll) then
-            windowFrame.SpellScroll:RefreshMe()
-        end
+        local spellScroll = windowFrame:GetSpellScroll()
+        spellScroll:RefreshMe()
+
+        local targetsScroll = windowFrame:GetTargetsScroll()
+        targetsScroll:RefreshMe()
 
         --show details for the selected spell
-        if (windowFrame.SpellDetailsScroll) then
+        local spellDetailsScroll = windowFrame:GetSpellDetailsScroll()
+        if (spellDetailsScroll) then
            --windowFrame.SpellDetailsScroll:Refresh()
-        end
-
-        --show all targets which the player hit
-        if (windowFrame.TargetsScroll) then
-            --windowFrame.TargetsScroll:Refresh()
         end
     end,
 

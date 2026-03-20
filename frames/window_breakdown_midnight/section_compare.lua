@@ -34,12 +34,17 @@ local refreshCompareSection = function(self, data, offset, totalLines)
         end
 
         line:AddFrameToHeaderAlignment(line.IconFrame)
-        
-        local secondColumnWidth = header:GetColumnWidth(2) or 0
-        local thirdColumnWidth = header:GetColumnWidth(3) or 0
-        line.StatusBar:SetWidth(secondColumnWidth + thirdColumnWidth + header.options.reziser_width * 2)
+
+        local statusBarWidth = 0
+        if header:DoesColumnExists(2) then
+            statusBarWidth = statusBarWidth + header:GetColumnWidth(2)
+        end
+        if header:DoesColumnExists(3) then
+            statusBarWidth = statusBarWidth + header:GetColumnWidth(3)
+        end
+        line.StatusBar:SetWidth(statusBarWidth + header.options.reziser_width * 2)
         line.StatusBar:SetStatusBarTexture(self:GetWindow():GetStatusBarTexture())
-        
+
         line.Texts[1]:SetText(firstText)
         line:AddFrameToHeaderAlignment(line.Texts[1])
 

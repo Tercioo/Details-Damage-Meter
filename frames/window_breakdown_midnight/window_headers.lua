@@ -10,8 +10,8 @@ local breakdownMidnight = Details222.BreakdownWindowMidnight
 ---@class detailsbreakdownmidnight : table
 ---@field OnHeaderColumnOptionChanged fun(headerFrame: detailsbreakdownmidnight_header, optionName: string, columnName: string, value: any)
 ---@field OnHeaderColumnClick fun(headerFrame: detailsbreakdownmidnight_header, columnHeader: df_headercolumnframe)
----@field CreateSectionHeader fun(windowFrame: detailsbreakdownmidnight_window, parent: frame, sectionId: number, scrollFrame: detailsbreakdownmidnight_sectionscroll, headerLabels: string[]?) : detailsbreakdownmidnight_header
----@field UpdateSectionHeader fun(windowFrame: detailsbreakdownmidnight_window, sectionId: number, headerLabels: string[])
+---@field CreateSectionHeader fun(windowFrame: detailsbreakdownmidnight_window, parent: frame, sectionId: number, scrollFrame: detailsbreakdownmidnight_sectionscroll, headerData: table?) : detailsbreakdownmidnight_header
+---@field UpdateSectionHeader fun(windowFrame: detailsbreakdownmidnight_window, sectionId: number, headerData: table)
 
 ---@class detailsbreakdownmidnight_header : df_headerframe
 ---@field ScrollOwner detailsbreakdownmidnight_sectionscroll
@@ -43,14 +43,11 @@ local isAnyHeaderColumnResizing = function(headerFrame)
     return false
 end
 
----@return table<number, table<string, number>>
+---@return table
 local getHeadersWidthTable = function()
     local profile = breakdownMidnight.GetProfile()
     local headersWidth = profile.headers_width
-    if not headersWidth then
-        profile.headers_width = {}
-        headersWidth = profile.headers_width
-    end
+    assert(type(headersWidth) == "table", "breakdown profile.headers_width must be initialized in profiles.lua")
     return headersWidth
 end
 
@@ -77,6 +74,7 @@ end
 ---@param newWidth number
 local saveHeaderWidth = function(sectionId, columnKey, newWidth)
     local headersWidth = getHeadersWidthTable()
+
     local sectionWidths = headersWidth[sectionId]
 
     if (type(sectionWidths) ~= "table") then
@@ -87,140 +85,65 @@ local saveHeaderWidth = function(sectionId, columnKey, newWidth)
     sectionWidths[columnKey] = newWidth
 end
 
----@param sectionId number
----@param columnLabel string
----@param columnIndex number
----@return string
-local getColumnKey = function(sectionId, columnLabel, columnIndex)
-    local sectionIds = breakdownMidnight.Enums.SectionIds
-    --for spell and player sections, first column is icon, second is rank and third is name
-    if (sectionId == sectionIds.Spells or sectionId == sectionIds.Players) then
-        if (columnIndex == 1) then
-            return "icon"
-
-        elseif (columnIndex == 2) then
-            return "rank"
-
-        elseif (columnIndex == 3) then
-            return "name"
-        end
-    end
-
-    --segment section columns are icon, elapsed and name
-    if (sectionId == sectionIds.Segments) then
-        if (columnIndex == 1) then
-            return "icon"
-
-        elseif (columnIndex == 2) then
-            return "elapsed"
-
-        elseif (columnIndex == 3) then
-            return "name"
-        end
-    end
-
-    local normalized = columnLabel:lower()
-    if (normalized == "name" or normalized == "spell name" or normalized == "player name" or normalized == "segment name") then
-        return "name"
-
-    elseif (normalized == "amount" or normalized == "total") then
-        return "amount"
-
-    elseif (normalized == "dps" or normalized == "ps") then
-        return "dps"
-
-    elseif (normalized == "%") then
-        return "percent"
-    end
-
-    return "value" .. columnIndex
-end
-
----@param sectionId number
----@return boolean
-local shouldAddIconAndRankColumns = function(sectionId)
-    local sectionIds = breakdownMidnight.Enums.SectionIds
-    return sectionId == sectionIds.Spells or sectionId == sectionIds.Players
-end
-
 ---@param columnKey string
 ---@return number
 local getDefaultWidthForColumnKey = function(columnKey)
     if (columnKey == "icon") then
         return 22
-
     elseif (columnKey == "rank") then
         return 20
-
-    elseif (columnKey == "elapsed") then
-        return 55
-
-    elseif (columnKey == "name") then
-        return 190
     end
 
     return 70
 end
 
 ---@param sectionId number
----@param headerLabels string[]?
----@return string[]
-local buildLabelsForSection = function(sectionId, headerLabels)
-    local hasHeaderLabels = headerLabels and #headerLabels > 0
-    local baseLabels = hasHeaderLabels and headerLabels or {"Name"}
-
-    if (not shouldAddIconAndRankColumns(sectionId)) then
-        local labels = {}
-        for i = 1, #baseLabels do
-            labels[#labels+1] = baseLabels[i]
-        end
-        return labels
-    end
-
-    local labels = {"", "#"}
-    for i = 1, #baseLabels do
-        labels[#labels+1] = baseLabels[i]
-    end
-
-    return labels
-end
-
----@param sectionId number
----@param columnLabel string
----@param columnIndex number
+---@param headerData table
 ---@return table
-local buildHeaderColumnData = function(sectionId, columnLabel, columnIndex)
-    local key = getColumnKey(sectionId, columnLabel, columnIndex)
-    local isNameColumn = key == "name"
-    local isAmountColumn = key == "amount"
-    local savedWidth = getSavedHeaderWidth(sectionId, key)
-
-    return {
-        name = key,
-        key = key,
-        text = columnLabel,
-        width = savedWidth or getDefaultWidthForColumnKey(key),
-        align = "left",
-        canSort = true,
-        selected = isAmountColumn or nil,
-        dataType = isAmountColumn and "number" or "string",
-        order = isNameColumn and "ASC" or "DESC",
-        offset = 0,
-    }
-end
-
----@param sectionId number
----@param headerLabels string[]?
----@return table
-local buildHeaderTable = function(sectionId, headerLabels)
-    local labels = buildLabelsForSection(sectionId, headerLabels)
-
+local buildHeaderTableFromData = function(sectionId, headerData)
     local headerTable = {}
-    for i = 1, #labels do
-        headerTable[#headerTable+1] = buildHeaderColumnData(sectionId, labels[i], i)
+
+    for i = 1, #headerData do
+        local columnData = headerData[i]
+        if (columnData.usable ~= false) then
+            local key = columnData.key
+            assert(type(key) == "string" and key ~= "", "headerData column must have a valid key")
+            local isAmountColumn = key == "amount"
+            local isNameColumn = key == "name"
+            local savedWidth = getSavedHeaderWidth(sectionId, key)
+
+            local width = columnData.width
+            if (width == false) then
+                width = getDefaultWidthForColumnKey(key)
+            elseif (type(width) ~= "number" or width <= 0) then
+                width = getDefaultWidthForColumnKey(key)
+            end
+
+            headerTable[#headerTable+1] = {
+                name = key,
+                key = key,
+                text = columnData.text or "",
+                width = savedWidth or width,
+                align = columnData.align or "left",
+                canSort = columnData.canSort ~= false,
+                selected = columnData.selected or (isAmountColumn and true or nil),
+                dataType = columnData.dataType or (isAmountColumn and "number" or "string"),
+                order = columnData.order or (isNameColumn and "ASC" or "DESC"),
+                offset = columnData.offset or 0,
+                columnSpan = columnData.columnSpan,
+            }
+        end
     end
 
     return headerTable
+end
+
+---@param sectionId number
+---@param headerData table
+---@return table
+local buildHeaderTable = function(sectionId, headerData)
+    assert(type(headerData) == "table" and type(headerData[1]) == "table", "headerData must be an array of column tables")
+    return buildHeaderTableFromData(sectionId, headerData)
 end
 
 ---@param headerFrame detailsbreakdownmidnight_header
@@ -254,9 +177,9 @@ end
 ---@param parent frame
 ---@param sectionId number
 ---@param scrollFrame detailsbreakdownmidnight_sectionscroll
----@param headerLabels string[]?
+---@param headerData table?
 ---@return detailsbreakdownmidnight_header
-function breakdownMidnight.CreateSectionHeader(windowFrame, parent, sectionId, scrollFrame, headerLabels)
+function breakdownMidnight.CreateSectionHeader(windowFrame, parent, sectionId, scrollFrame, headerData)
     local headerOptions = {
         padding = 2,
         header_height = 14,
@@ -269,7 +192,7 @@ function breakdownMidnight.CreateSectionHeader(windowFrame, parent, sectionId, s
         text_color = {1, 1, 1, 0.823},
     }
 
-    local headerTable = buildHeaderTable(sectionId, headerLabels)
+    local headerTable = buildHeaderTable(sectionId, headerData)
     local header = detailsFramework:CreateHeader(parent, headerTable, headerOptions)
     ---@cast header detailsbreakdownmidnight_header
 
@@ -285,14 +208,14 @@ end
 
 ---@param windowFrame detailsbreakdownmidnight_window
 ---@param sectionId number
----@param headerLabels string[]
-function breakdownMidnight.UpdateSectionHeader(windowFrame, sectionId, headerLabels)
+---@param headerData table
+function breakdownMidnight.UpdateSectionHeader(windowFrame, sectionId, headerData)
     local scrollFrame = windowFrame:GetScrollForSectionId(sectionId)
 
     if (not scrollFrame or not scrollFrame.Header) then
         return
     end
 
-    local headerTable = buildHeaderTable(sectionId, headerLabels)
+    local headerTable = buildHeaderTable(sectionId, headerData)
     scrollFrame.Header:SetHeaderTable(headerTable)
 end

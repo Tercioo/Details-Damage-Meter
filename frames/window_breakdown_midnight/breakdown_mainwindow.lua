@@ -40,24 +40,27 @@ local UIParent = UIParent
 ---@field CreateSectionFrame fun(parent:frame, sectionName:string, sectionKey:string, settings:detailsbreakdownmidnight_sectionsetting):frame
 ---@field CreateSectionScroll fun(windowFrame:detailsbreakdownmidnight_window, sectionId:number, parent:frame, name:string, width:number, height:number, title:string, data:table):detailsbreakdownmidnight_sectionscroll
 ---@field BuildSectionLayout fun(windowFrame:detailsbreakdownmidnight_window, windowPadding:number, contentTop:number, contentWidth:number, contentHeight:number):df_framecontainer
+---@field RefreshSectionPoints fun(windowFrame:detailsbreakdownmidnight_window)
+---@field ResetSectionSizes fun(windowFrame:detailsbreakdownmidnight_window)
 ---@field OpenApocalypseBreakdown fun(windowIndex:number, instance:instance, segmentType:number, segmentId:number, attributeId:number, actorObject:actor):detailsbreakdownmidnight_window
 ---@field CreateMainPanel fun(windowIndex:number, parentFrame:frame?):detailsbreakdownmidnight_window
 ---@field GetProfile fun():detailsbreakdownmidnight_profile
 ---@field PlayerSectionInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
 ---@field SegmentScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
 ---@field SpellScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
+---@field TargetsScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
 local breakdownMidnight = {}
 Details222.BreakdownWindowMidnight = breakdownMidnight
 
 ---@class detailsbreakdownmidnight_window : df_roundedpanel
 ---@field windowIndex number
 ---@field MainContainer df_framecontainer
----@field PlayerScroll df_scrollbox
----@field SegmentScroll df_scrollbox
----@field SpellScroll df_scrollbox
----@field SpellDetailsScroll df_scrollbox
----@field TargetsScroll df_scrollbox
----@field ComparisonScroll df_scrollbox
+---@field PlayerScroll detailsbreakdownmidnight_sectionscroll
+---@field SegmentScroll detailsbreakdownmidnight_sectionscroll
+---@field SpellScroll detailsbreakdownmidnight_sectionscroll
+---@field SpellDetailsScroll detailsbreakdownmidnight_sectionscroll
+---@field TargetsScroll detailsbreakdownmidnight_sectionscroll
+---@field ComparisonScroll detailsbreakdownmidnight_sectionscroll
 ---@field PlayerContainer frame
 ---@field SegmentContainer frame
 ---@field SpellContainer frame
@@ -73,7 +76,7 @@ Details222.BreakdownWindowMidnight = breakdownMidnight
 ---@field targetsData table
 ---@field comparisonData table
 ---@field instance instance
----@field currentActorObject actor?
+---@field currentActorObject damagemeter_combat_source
 ---@field currentSegmentType number
 ---@field currentSegmentId number
 ---@field currentAttributeId number
@@ -84,14 +87,14 @@ Details222.BreakdownWindowMidnight = breakdownMidnight
 ---@field GetCurrentSegmentType fun(windowFrame: detailsbreakdownmidnight_window):number?
 ---@field GetIndex fun(windowFrame: detailsbreakdownmidnight_window):number
 ---@field GetInstance fun(windowFrame: detailsbreakdownmidnight_window):instance
----@field GetPlayerObject fun(windowFrame: detailsbreakdownmidnight_window):actor?
----@field GetPlayerScroll fun(windowFrame: detailsbreakdownmidnight_window):df_scrollbox
+---@field GetPlayerObject fun(windowFrame: detailsbreakdownmidnight_window):damagemeter_combat_source?
+---@field GetPlayerScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
 ---@field GetSegment fun(windowFrame: detailsbreakdownmidnight_window):table
----@field GetSegmentScroll fun(windowFrame: detailsbreakdownmidnight_window):df_scrollbox
----@field GetSpellDetailsScroll fun(windowFrame: detailsbreakdownmidnight_window):df_scrollbox
----@field GetSpellScroll fun(windowFrame: detailsbreakdownmidnight_window):df_scrollbox
+---@field GetSegmentScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
+---@field GetSpellDetailsScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
+---@field GetSpellScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
 ---@field GetStatusBarTexture fun(windowFrame: detailsbreakdownmidnight_window):string
----@field GetTargetsScroll fun(windowFrame: detailsbreakdownmidnight_window):df_scrollbox
+---@field GetTargetsScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
 ---@field GetTitleText fun(windowFrame: detailsbreakdownmidnight_window):fontstring
 ---@field RefreshAllScrolls fun(windowFrame: detailsbreakdownmidnight_window)
 ---@field SetCurrentAttributeId fun(windowFrame: detailsbreakdownmidnight_window, attributeId: number)
@@ -130,8 +133,8 @@ Details222.BreakdownWindowMidnight = breakdownMidnight
 
 breakdownMidnight.BreakdownWindows = breakdownMidnight.BreakdownWindows or {}
 
-local CONST_WINDOW_WIDTH = 920
-local CONST_WINDOW_HEIGHT = 610
+local CONST_WINDOW_WIDTH = 1100
+local CONST_WINDOW_HEIGHT = 640
 local CONST_WINDOW_PADDING = 5
 
 function breakdownMidnight.GetProfile()
@@ -213,6 +216,12 @@ function breakdownMidnight.CreateBreakdownWindow(windowIndex, parentFrame)
 
     local closeButton = detailsFramework:CreateCloseButton(windowFrame, "DetailsBreakdownMidnightCloseButton" .. index)
     closeButton:SetPoint("topright", windowFrame, "topright", -CONST_WINDOW_PADDING, -CONST_WINDOW_PADDING)
+
+    local resetButton = detailsFramework:CreateButton(windowFrame, function()
+        breakdownMidnight.ResetSectionSizes(windowFrame)
+    end, 20, 20, "reset layout", nil, nil, nil, nil, "DetailsBreakdownMidnightResetSizeButton" .. index)
+    resetButton:SetPoint("right", closeButton, "left", -2, 0)
+    resetButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 
     local sectionOptions = breakdownMidnight.Sections or {}
     local contentTop = sectionOptions.contentTop or 30

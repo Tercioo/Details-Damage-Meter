@@ -932,7 +932,7 @@ local checkForDisableIF = function(parent)
             if widgetTable.disableif() == true and widgetTable.widget.Disable then
                 widgetTable.widget:Disable()
             else
-                if (widgetTable.widget.IsEnabled and not widgetTable.widget:IsEnabled()) then
+                if rawget(widgetTable.widget, "lockdown") or (widgetTable.widget.IsEnabled and not widgetTable.widget:IsEnabled()) then
                     widgetTable.widget:Enable()
                 end
             end

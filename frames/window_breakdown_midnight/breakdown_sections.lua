@@ -38,19 +38,18 @@ sections.lineHeight = 20
 sections.genericIcon = [[Interface\Icons\INV_Misc_QuestionMark]]
 sections.refreshFunctions = sections.refreshFunctions or {}
 sections.defaultSettings = {
-    players = {width = 285, height = 270, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
-    segments = {width = 285, height = 270, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
-    spells = {width = 285, height = 550, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
+    players = {width = 200, height = 360, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
+    segments = {width = 200, height = 240, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
+    spells = {width = 618+28, height = 360, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
     spelldetails = {width = 285, height = 270, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
-    targets = {width = 285, height = 270, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
-    compare = {width = 285, height = 194, resizeTopBorder = false, resizeBottomBorder = false, resizeLeftBorder = false, resizeRightBorder = false},
+    targets = {width = 618, height = 240, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
+    compare = {width = 240, height = 270, resizeTopBorder = false, resizeBottomBorder = false, resizeLeftBorder = false, resizeRightBorder = false},
 }
 
 local colorStrip = {
     {0.1, 0.1, 0.1, 0.5},
     {0.17, 0.17, 0.17, 0.5}
 }
-
 
 ---@param sectionKey string
 ---@param width number
@@ -103,7 +102,7 @@ end
 ---@param self df_scrollbox
 ---@param index number
 ---@return button
-local createLine = function(self, index)
+local createLine = function(self, index) --~line
     local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
     ---@cast line detailsbreakdownmidnight_line
 
@@ -120,6 +119,7 @@ local createLine = function(self, index)
     line.StatusBar:SetStatusBarColor(1, 0.82, 0, 0.5)
     line.StatusBar:SetMinMaxValues(0, 100)
     line.StatusBar:SetValue(0)
+    line.StatusBar:EnableMouse(false)
 
     line.IconFrame = CreateFrame("frame", "$parentIconFrame", line.StatusBar)
     line.IconFrame:SetSize(sections.lineHeight, sections.lineHeight)
@@ -142,10 +142,9 @@ local createLine = function(self, index)
     highlight:SetAllPoints()
     highlight:SetColorTexture(1, 1, 1, 0.1)
 
-
-    line.Highlight = line.StatusBar:CreateTexture("$parentHighlight", "highlight")
+    line.Highlight = line:CreateTexture("$parentHighlight", "highlight")
     line.Highlight:SetAllPoints()
-    line.Highlight:SetColorTexture(1, 1, 1, 0.1)
+    line.Highlight:SetColorTexture(1, 1, 1, 0.15)
 
     line.SelectedTexture = line.StatusBar:CreateTexture("$parentSelectedTexture", "artwork")
     line.SelectedTexture:SetAllPoints()
@@ -192,7 +191,11 @@ function breakdownMidnight.CreateSectionScroll(windowFrame, sectionId, parent, n
 
     Mixin(scrollBox, breakdownMidnight.scrollBarMixin)
 
-    local header = breakdownMidnight.CreateSectionHeader(windowFrame, parent, sectionId, scrollBox, {title})
+    local initialHeaderData = {
+        {key = "name", text = title, width = 120, align = "left", canSort = true, dataType = "string", offset = 0},
+    }
+
+    local header = breakdownMidnight.CreateSectionHeader(windowFrame, parent, sectionId, scrollBox, initialHeaderData)
     header:ClearAllPoints()
     header:SetPoint("topleft", parent, "topleft", 0, 0)
     header:SetPoint("topright", parent, "topright", 0, 0)
@@ -264,7 +267,6 @@ function breakdownMidnight.CreateMainContainer(parent, containerName, width, hei
     local options = {
         width = width,
         height = height,
-        is_locked = true,
         is_movement_locked = true,
         can_move_children = false,
         can_resize_children = true,
@@ -276,6 +278,8 @@ function breakdownMidnight.CreateMainContainer(parent, containerName, width, hei
         use_bottom_resizer = false,
         use_left_resizer = false,
         use_right_resizer = false,
+        is_locked = true,
+        show_resize_grips = false,
     }
 
     local container = detailsFramework:CreateFrameContainer(parent, options, containerName)
@@ -317,12 +321,12 @@ function breakdownMidnight.BuildSectionLayout(windowFrame, windowPadding, conten
     local defaultSettings = sections.defaultSettings
 
     local mainContainer = breakdownMidnight.CreateMainContainer(windowFrame, "$parentMainContainer", contentWidth, contentHeight)
+    mainContainer:ClearAllPoints()
     mainContainer:SetPoint("topleft", windowFrame, "topleft", windowPadding, -contentTop)
     windowFrame.MainContainer = mainContainer
 
     --top left, select which player to show in the breakdown
     local playerContainer = breakdownMidnight.CreateSectionFrame(mainContainer, "$parentPlayersContainer", "players", defaultSettings.players)
-    playerContainer:SetPoint("topleft", mainContainer, "topleft", 1, -1)
     mainContainer:RegisterChild(playerContainer)
     mainContainer:SetChildResizerSides(playerContainer, {left = false, right = false, top = false, bottom = true})
     windowFrame.PlayerContainer = playerContainer
@@ -331,53 +335,136 @@ function breakdownMidnight.BuildSectionLayout(windowFrame, windowPadding, conten
 
     --bottom left, show the segments available
     local segmentContainer = breakdownMidnight.CreateSectionFrame(mainContainer, "$parentSegmentsContainer", "segments", defaultSettings.segments)
-    segmentContainer:SetPoint("topleft", playerContainer, "bottomleft", 0, -sections.sectionSpacing)
-    segmentContainer:SetPoint("bottomleft", mainContainer, "bottomleft", 0, 1)
     mainContainer:RegisterChild(segmentContainer)
     mainContainer:SetChildResizerSides(segmentContainer, {left = false, right = false, top = false, bottom = false})
     windowFrame.SegmentContainer = segmentContainer
     windowFrame.SegmentScroll = breakdownMidnight.CreateSectionScroll(windowFrame, sectionIds.Segments, segmentContainer, "$parentSegmentScroll", defaultSettings.segments.width, defaultSettings.segments.height, "Segments", windowFrame.segmentData)
     breakdownMidnight.SegmentScrollInit(segmentContainer, windowFrame)
 
-    local canChangeWidth = false
-    local onSizeChanged = function(changedSection)
-        if (canChangeWidth) then
-            return
+    --playerContainer:HookScript("OnSizeChanged", onSizeChanged)
+    local onSegmentsSizeChanged = function()
+        local segmentScroll = windowFrame:GetSegmentScroll()
+        local header = segmentScroll:GetHeader()
+        if header:DoesColumnExists(2) then --wait the first refresh
+            local headerTable = header:GetHeaderTable()
+            local firstColumnWidth = header:GetColumnWidth(1)
+            local secondColumnWidth = header:GetColumnWidth(2)
+            local headerPadding = header.options.padding or 0
+            local segmentWidth = segmentContainer:GetWidth()
+
+            local calculatedThirdColumnWidth = math.max(16, math.floor(segmentWidth - firstColumnWidth - secondColumnWidth - (headerPadding * 2) - 2))
+            headerTable[3].width = calculatedThirdColumnWidth
+            header:SetHeaderTable(headerTable)
+
+            local headersWidth = breakdownMidnight.GetProfile().headers_width
+            headersWidth[sectionIds.Segments] = headersWidth[sectionIds.Segments] or {}
+            headersWidth[sectionIds.Segments].name = calculatedThirdColumnWidth
+
+            windowFrame.SegmentScroll:RefreshMe()
         end
-
-        local targetSection = changedSection == playerContainer and segmentContainer or playerContainer
-
-        canChangeWidth = true
-        targetSection:SetWidth(changedSection:GetWidth())
-        canChangeWidth = false
     end
+    segmentContainer:HookScript("OnSizeChanged", onSegmentsSizeChanged)
 
-    playerContainer:HookScript("OnSizeChanged", onSizeChanged)
-    segmentContainer:HookScript("OnSizeChanged", onSizeChanged)
+    local onPlayersSizeChanged = function()
+        local playerScroll = windowFrame:GetPlayerScroll()
+        local header = playerScroll:GetHeader()
+        if header:DoesColumnExists(2) then --wait the first refresh
+            local headerTable = header:GetHeaderTable()
+            local firstColumnWidth = header:GetColumnWidth(1)
+            local secondColumnWidth = header:GetColumnWidth(2)
+            local headerPadding = header.options.padding or 0
+            local playerWidth = playerContainer:GetWidth()
+
+            local calculatedThirdColumnWidth = math.max(16, math.floor(playerWidth - firstColumnWidth - secondColumnWidth - (headerPadding * 2) - 2))
+            headerTable[3].width = calculatedThirdColumnWidth
+            header:SetHeaderTable(headerTable)
+
+            local headersWidth = breakdownMidnight.GetProfile().headers_width
+            headersWidth[sectionIds.Players] = headersWidth[sectionIds.Players] or {}
+            headersWidth[sectionIds.Players].name = calculatedThirdColumnWidth
+
+            windowFrame.PlayerScroll:RefreshMe()
+        end
+    end
+    playerContainer:HookScript("OnSizeChanged", onPlayersSizeChanged)
 
     --center, show the spells used by the selected player in the selected segment
     local sectionSpellsFrame = breakdownMidnight.CreateSectionFrame(mainContainer, "$parentSpellsContainer", "spells", defaultSettings.spells)
-    sectionSpellsFrame:SetPoint("topleft", playerContainer, "topright", 2, 0)
     mainContainer:RegisterChild(sectionSpellsFrame)
-    mainContainer:SetChildResizerSides(sectionSpellsFrame, {left = true, right = true, top = false, bottom = true})
+    mainContainer:SetChildResizerSides(sectionSpellsFrame, {left = true, right = true, top = false, bottom = false})
     windowFrame.SpellContainer = sectionSpellsFrame
     windowFrame.SpellScroll = breakdownMidnight.CreateSectionScroll(windowFrame, sectionIds.Spells, sectionSpellsFrame, "$parentSpellScroll", defaultSettings.spells.width, defaultSettings.spells.height, "Spell Damage", windowFrame.spellData)
     breakdownMidnight.SpellScrollInit(sectionSpellsFrame, windowFrame)
 
     local targetsContainer = breakdownMidnight.CreateSectionFrame(mainContainer, "$parentTargetsContainer", "targets", defaultSettings.targets)
-    targetsContainer:SetPoint("topright", mainContainer, "topright", -1, -1)
     mainContainer:RegisterChild(targetsContainer)
-    mainContainer:SetChildResizerSides(targetsContainer, {left = false, right = false, top = false, bottom = true})
+    mainContainer:SetChildResizerSides(targetsContainer, {left = true, right = false, top = false, bottom = false})
     windowFrame.TargetsContainer = targetsContainer
     windowFrame.TargetsScroll = breakdownMidnight.CreateSectionScroll(windowFrame, sectionIds.Targets, targetsContainer, "$parentTargetsScroll", defaultSettings.targets.width, defaultSettings.targets.height, "Targets", windowFrame.targetsData)
+    breakdownMidnight.TargetsScrollInit(targetsContainer, windowFrame)
 
     local comparisonContainer = breakdownMidnight.CreateSectionFrame(mainContainer, "$parentComparisonContainer", "compare", defaultSettings.compare)
-    comparisonContainer:SetPoint("topleft", sectionSpellsFrame, "bottomleft", 0, -sections.sectionSpacing)
-    comparisonContainer:SetPoint("bottom", mainContainer, "bottom", 0, 1)
     mainContainer:RegisterChild(comparisonContainer)
     mainContainer:SetChildResizerSides(comparisonContainer, {left = false, right = false, top = false, bottom = false})
     windowFrame.ComparisonContainer = comparisonContainer
     windowFrame.ComparisonScroll = breakdownMidnight.CreateSectionScroll(windowFrame, sectionIds.Compare, comparisonContainer, "$parentComparisonScroll", defaultSettings.compare.width, defaultSettings.compare.height, "Comparison", windowFrame.comparisonData)
 
+    breakdownMidnight.RefreshSectionPoints(windowFrame)
     return mainContainer
+end
+
+---@param windowFrame detailsbreakdownmidnight_window
+function breakdownMidnight.RefreshSectionPoints(windowFrame)
+    local mainContainer = windowFrame.MainContainer
+    local playerContainer = windowFrame.PlayerContainer
+    local segmentContainer = windowFrame.SegmentContainer
+    local spellContainer = windowFrame.SpellContainer
+    local targetsContainer = windowFrame.TargetsContainer
+    local comparisonContainer = windowFrame.ComparisonContainer
+
+    playerContainer:ClearAllPoints()
+    playerContainer:SetPoint("topleft", mainContainer, "topleft", 1, -1)
+
+    segmentContainer:ClearAllPoints()
+    segmentContainer:SetPoint("topleft", playerContainer, "bottomleft", 0, -sections.sectionSpacing)
+    segmentContainer:SetPoint("bottomleft", mainContainer, "bottomleft", 0, 1)
+
+    spellContainer:ClearAllPoints()
+    spellContainer:SetPoint("topleft", playerContainer, "topright", 2, 0)
+
+    targetsContainer:ClearAllPoints()
+    targetsContainer:SetPoint("topleft", segmentContainer, "topright", 2, 0)
+    targetsContainer:SetPoint("bottom", mainContainer, "bottom", 0, 1)
+
+    comparisonContainer:ClearAllPoints()
+    comparisonContainer:SetPoint("topright", mainContainer, "topright", -1, -1)
+end
+
+---@param windowFrame detailsbreakdownmidnight_window
+function breakdownMidnight.ResetSectionSizes(windowFrame)
+    local profile = breakdownMidnight.GetProfile()
+    local defaultSettings = sections.defaultSettings
+
+    local sectionFrameByKey = {
+        players = windowFrame.PlayerContainer,
+        segments = windowFrame.SegmentContainer,
+        spells = windowFrame.SpellContainer,
+        targets = windowFrame.TargetsContainer,
+        compare = windowFrame.ComparisonContainer,
+    }
+
+    for sectionKey, sectionFrame in pairs(sectionFrameByKey) do
+        local sectionDefaults = defaultSettings[sectionKey]
+        if (sectionFrame and sectionDefaults) then
+            local profileSectionSettings = profile[sectionKey]
+            profileSectionSettings.width = sectionDefaults.width
+            profileSectionSettings.height = sectionDefaults.height
+            sectionFrame:SetSize(sectionDefaults.width, sectionDefaults.height)
+        end
+    end
+
+    profile.headers_width = {}
+
+    breakdownMidnight.RefreshSectionPoints(windowFrame)
+    windowFrame:RefreshAllScrolls()
 end

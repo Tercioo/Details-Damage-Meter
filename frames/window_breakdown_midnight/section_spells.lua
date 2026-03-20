@@ -102,7 +102,7 @@ local refreshSpellsSection = function(self, data, offset, totalLines)
         sortDataBySelectedColumn(self, data)
     end
 
-    local header = self.Header
+    local header = self:GetHeader()
 
     if #data == 0 then
         self.NoDataPanel:Show()
@@ -150,7 +150,7 @@ local refreshSpellsSection = function(self, data, offset, totalLines)
             line.StatusBar:SetMinMaxValues(0, thisData.maxAmount)
             line.StatusBar:SetValue(thisData.amount)
 
-            line:AlignWithHeader(self.Header, "left")
+            line:AlignWithHeader(header, "left")
         end
     end
 
@@ -234,8 +234,11 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
 
         windowFrame:SetCurrentAttributeId(attributeId)
         local playerScroll = windowFrame:GetPlayerScroll()
+        local spellScroll = windowFrame:GetSpellScroll()
+        local targetsScroll = windowFrame:GetTargetsScroll()
         playerScroll:RefreshMe()
         spellScroll:RefreshMe()
+        targetsScroll:RefreshMe()
 
         --if there is no data in the spell scroll, try to click the first line of the player scroll
         local data = spellScroll:GetData()

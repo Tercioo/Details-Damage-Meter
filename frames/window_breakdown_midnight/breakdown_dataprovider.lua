@@ -106,30 +106,7 @@ local getActorSpells = function(actorObject)
     return spellData, header
 end
 
---[=[
-["combatSpells"] =  {
-   [1] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "HUNTER",
-         ["amount"] = 0,
-         ["unitName"] = "Hvi-Azralon",
-         ["specIconID"] = 461112,
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "",
-      ["amountPerSecond"] = 1230.6256103516,
-      ["totalAmount"] = 15165,
-      ["isAvoidable"] = false,
-      ["spellID"] = 0,
-   },
-},
---]=]
-
-local getSourceTargets = function(sourceSpells, classFileName)
+local getEDT = function(sourceSpells, classFileName)
     local targetData = {}
     local totalAmount = sourceSpells.totalAmount
     local maxAmount = sourceSpells.maxAmount
@@ -152,8 +129,23 @@ local getSourceTargets = function(sourceSpells, classFileName)
         targetData[#targetData + 1] = data
     end
 
-    local header = {"Target Name", "Amount"}
-    return targetData, header
+    local headerData = {
+        --align is the columnAlign key in the columnHeader
+        --text is the localize string shown in the header
+        --if width is false, use the default width
+        {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0}, --icon
+        {key="rank", text="#", width=false, align="center", canSort=true, dataType="number", offset=0}, --rank
+        {key="name", text="From Player", width=170, align="left", canSort=true, dataType="string", offset=0}, --spell name
+        {key="amount", text="Amount", width=false, align="right", canSort=true, dataType="number", offset=0}, --amount
+        --{key="dps", text="DPS", width=false, align="right", canSort=true, dataType="number", offset=0}, --dps
+        --{key="percent", text="Percent", width=false, align="right", canSort=true, dataType="number", offset=0, usable=false}, --percent
+    }
+
+    return targetData, headerData
+end
+
+local getTargets = function()
+
 end
 
 ---@param sourceSpells damagemeter_combat_session_source
@@ -234,14 +226,72 @@ local getSourceSpells = function(sourceSpells, classFileName)
         end
     end
 
-    local header
+    local headerData = {
+        --align is the columnAlign key in the columnHeader
+        --text is the localize string shown in the header
+        --if width is false, use the default width
+        {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0}, --icon
+        {key="rank", text="#", width=false, align="center", canSort=true, dataType="number", offset=0}, --rank
+        {key="name", text="Spell Name", width=190, align="left", canSort=true, dataType="string", offset=0}, --spell name
+        {key="amount", text="Amount", width=false, align="center", canSort=true, dataType="number", offset=0}, --amount
+        {key="dps", text="DPS", width=false, align="center", canSort=true, dataType="number", offset=0}, --dps
+        {key="percent", text="Percent", width=false, align="center", canSort=true, dataType="number", offset=0, usable=true}, --percent
+    }
+
     if not couldGetPercent then
-        header = {"Spell Name", "Amount", "DPS"}
-    else
-        header = {"Spell Name", "Amount", "DPS", "%"}
+        headerData[6].usable = false
     end
 
-    return spellData, header
+    return spellData, headerData
+end
+
+---@param windowFrame detailsbreakdownmidnight_window
+function breakdownMidnight.GenerateTargetsData(windowFrame)
+    local segmentId = windowFrame:GetCurrentSegmentId()
+    local segmentType = windowFrame:GetCurrentSegmentType()
+    local attributeId = windowFrame:GetCurrentAttributeId()
+    local actor = windowFrame:GetPlayerObject()
+
+    local actors = Details222.B.GetSegment(segmentType <= 1 and "Type" or "ID", segmentType <= 1 and segmentType or segmentId, 10)
+    --dumpt(actors)
+    local targets = {}
+    for i = 1, #actors.combatSources do
+        local thisActor = actors.combatSources[i]
+        local id = thisActor.sourceCreatureID
+        if not issecretvalue(id) then
+            local t = segmentType <= 1
+            local sourceSpells = Details222.B.GetSpells(t and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, t and segmentType or segmentId, 10, nil, id)
+            local result = sourceSpells.combatSpells
+            for j = 1, #result do
+                local thisResult = result[j]
+                local spellDetails = thisResult.combatSpellDetails
+                local playerName = spellDetails.unitName
+                if playerName == actor.name then
+                    local percent = thisResult.totalAmount / thisActor.totalAmount * 100
+                    local data = {
+                        icon = spellDetails.specIconID,
+                        name = thisActor.name,
+                        texts = {AbbreviateNumbers(thisResult.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(thisResult.amountPerSecond, Details.abbreviateOptionsDPS), string.format("%.1f%%", percent)},
+                        amount = thisResult.totalAmount,
+                        data = thisResult,
+                        maxAmount = 1,
+                    }
+                    targets[#targets+1] = data
+                end
+            end
+        end
+    end
+
+    local headerData = {
+        {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0},
+        {key="rank", text="#", width=false, align="center", canSort=true, dataType="number", offset=0},
+        {key="name", text="Target Name", width=150, align="left", canSort=true, dataType="string", offset=0},
+        {key="amount", text="Amount", width=false, align="left", canSort=true, dataType="number", offset=0},
+        --{key="dps", text="DPS", width=false, align="right", canSort=true, dataType="number", offset=0},
+        --{key="percent", text="Percent", width=false, align="right", canSort=true, dataType="number", offset=0},
+    }
+
+    return targets, headerData
 end
 
 ---@param windowFrame detailsbreakdownmidnight_window
@@ -266,6 +316,15 @@ function breakdownMidnight.GenerateSpellData(windowFrame)
                     break
                 end
             end
+
+            local headerData = {
+                {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0}, --icon
+                {key="rank", text="#", width=false, align="center", canSort=true, dataType="number", offset=0}, --rank
+                {key="name", text="Source", width=170, align="left", canSort=true, dataType="string", offset=0}, --spell name
+                {key="time", text="Time", width=false, align="right", canSort=true, dataType="number", offset=0}, --time
+                {key="amount", text="Amount", width=false, align="right", canSort=true, dataType="number", offset=0}, --amount
+                {key="critical", text="Critical", width=false, align="left", canSort=true, dataType="string", offset=0}, --critical
+            }
 
             local hasRecap, events, maxHealth, link = Details222.Recap.GetRecapInfo(actor.deathRecapID)
             if hasRecap then
@@ -301,17 +360,18 @@ function breakdownMidnight.GenerateSpellData(windowFrame)
                         local data = {
                             icon = spellIcon,
                             name = spellName .. " (" .. sourceName .. ")", --as the first data is time
-                            texts = {format("%.1f", eventTime - timeOfDeath) .. "s", format("-%d", amount), critical and "Critical" or ""},
-                            amount = amount,
+                            texts = {format("%.1f", eventTime - timeOfDeath) .. "s", format("-%s", Details:comma_value(amount)), critical and "Critical" or ""},
+                            amount = healthPercent,
                             data = event,
-                            maxAmount = maxHealth,
+                            maxAmount = 100,
                         }
                         spells[#spells + 1] = data
                     end
                 end
-                return spells, {"Source", "Time", "Amount", "Critical"}, false
+
+                return spells, headerData, false
             end
-            return {}, {"Source", "Time", "Amount", "Critical"}, false
+            return {}, headerData, false
         else
 
             local guid = actor.sourceGUID
@@ -329,7 +389,7 @@ function breakdownMidnight.GenerateSpellData(windowFrame)
                 if (Details222.BParser.IsNotADude(actor) and not issecretvalue(actor.sourceCreatureID)) then
                     local sourceSpells = Details222.B.GetSpells(t and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, t and segmentType or segmentId, attributeId, nil, actor.sourceCreatureID)
                     if attributeId == 10 then
-                        spells, header = getSourceTargets(sourceSpells, actor.classFilename)
+                        spells, header = getEDT(sourceSpells, actor.classFilename)
                     end
                 end
             end
@@ -345,21 +405,23 @@ function breakdownMidnight.GeneratePlayerData(windowFrame)
     local attributeId = windowFrame:GetCurrentAttributeId()
 
     local playerList = Details222.B.GetSegment(segmentType <= 1 and "Type" or "ID", segmentType <= 1 and segmentType or segmentId, attributeId)
+    local headerData = {
+        {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0},
+        {key="rank", text="#", width=false, align="center", canSort=true, dataType="number", offset=0},
+        {key="name", text="Name", width=150, align="left", canSort=true, dataType="string", offset=0},
+    }
+
     ---@cast playerList damagemeter_combat_session
     if not playerList then
-        return Details222.B.GetEmptySegment(), {"Name"}
+        return Details222.B.GetEmptySegment(), headerData
     end
 
-    return playerList, {"Name"}
+    return playerList, headerData
 end
 
 ---@param durationSeconds number?
 ---@return string
 local formatElapsedTime = function(durationSeconds)
-    if (type(durationSeconds) ~= "number" or durationSeconds <= 0) then
-        return "00:00"
-    end
-
     local totalSeconds = math.floor(durationSeconds)
     local minutes = math.floor(totalSeconds / 60)
     local seconds = totalSeconds % 60
@@ -394,5 +456,11 @@ function breakdownMidnight.GenerateSegmentData(windowFrame)
         icon = "",
     })
 
-    return segmentData, {"", "", "Name"}
+    local headerData = {
+        {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0},
+        {key="elapsed", text="", width=55, align="left", canSort=true, dataType="string", offset=0},
+        {key="name", text="Name", width=170, align="left", canSort=true, dataType="string", offset=0},
+    }
+
+    return segmentData, headerData
 end
