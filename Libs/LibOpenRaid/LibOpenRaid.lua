@@ -75,7 +75,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 175
+local CONST_LIB_VERSION = 176
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -3164,10 +3164,17 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
         diagnosticComm("SendPlayerKeystoneInfoToParty| " .. dataToSend) --debug
     end
 
+    local toGuildCooldown = 0
     function openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToGuild()
         if (LIB_OPEN_RAID_MYTHIC_PLUS_DND) then
             return
         end
+
+        if (toGuildCooldown > GetTime()) then
+            return
+        end
+
+        toGuildCooldown = GetTime()+20
         local dataToSend = getKeystoneInfoToComm()
         openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_GUILD)
         diagnosticComm("SendPlayerKeystoneInfoToGuild| " .. dataToSend) --debug

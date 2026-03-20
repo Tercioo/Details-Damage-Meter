@@ -1527,6 +1527,17 @@ local default_global_data = {
 
 	frame_background_color = {0.0549, 0.0549, 0.0549, 0.934},
 
+	breakdown_midnight = {
+		players = {width = 200, height = 296},
+		segments = {width = 200, height = 228},
+		spells = {width = 464, height = 398},
+		targets = {width = 300, height = 170},
+		spelldetails = {width = 231, height = 261},
+		compare = {width = 231, height = 261},
+		headers_width = {},
+		headers_shown = {},
+	},
+
 --/run Details.breakdown_spell_tab.spellcontainer_height = 311 --352
 	--breakdown spell tab
 	breakdown_spell_tab = {

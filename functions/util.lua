@@ -163,7 +163,7 @@
 		local sessionType = instance:GetSegmentType()
 		local mainDisplay, subDisplay = instance:GetDisplay()
 		---@type damagemeter_combat_source
-		local sourceData = instance:GetSourceActorFromName(actorName)
+		local sourceData = instance:GetSourceActorFromName(actorName) --attempt to index local 'sourceData' (a nil value) after finish a dungeon
 		local actorGUID = sourceData.sourceGUID
 		local classFilename = sourceData.classFilename
 		local damageMeterType = instance:GetAttributeType()

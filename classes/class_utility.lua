@@ -228,7 +228,11 @@ end
 
 function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable) --~death
 	local events = deathTable[1]
-	events = detailsFramework.table.reverse(events)
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		events = detailsFramework.table.reverse(events)
+	end
+
 	local timeOfDeath = deathTable[2]
 	local maxHP = max(deathTable[5], 0.001)
 	local battleress = false

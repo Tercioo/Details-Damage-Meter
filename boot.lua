@@ -259,6 +259,15 @@
 		local getSegmentFName = mainFName .. "From"
 		local getSpellFname = mainFName .. "SourceFrom"
 
+		function Details222.B.GetEmptySegment()
+			return {
+				combatSources = {},
+				totalAmount = 0,
+				maxAmount = 0,
+				durationSeconds = 0,
+			}
+		end
+
 		---return a segment
 		---@param type string
 		---@param identifier number
@@ -1166,6 +1175,10 @@ do
 				}
 		end
 
+		Details.HealingPotions = {
+			[1262857] = true
+		}
+
 		--[[global]] DETAILS_MODE_GROUP = 2
 		--[[global]] DETAILS_MODE_ALL = 3
 
@@ -1258,6 +1271,21 @@ do
 			current_standard = Loc ["STRING_CURRENTFIGHT"],
 			past = Loc ["STRING_FIGHTNUMBER"]
 		}
+
+		Details.ApocalypseAttributeNames = {
+			[Enum.DamageMeterType.DamageDone] = DAMAGE_METER_TYPE_DAMAGE_DONE,
+			[Enum.DamageMeterType.Dps] = DAMAGE_METER_TYPE_DPS,
+			[Enum.DamageMeterType.HealingDone] = DAMAGE_METER_TYPE_HEALING_DONE,
+			[Enum.DamageMeterType.Hps] = DAMAGE_METER_TYPE_HPS,
+			[Enum.DamageMeterType.Absorbs] = DAMAGE_METER_TYPE_ABSORBS,
+			[Enum.DamageMeterType.Interrupts] = DAMAGE_METER_TYPE_INTERRUPTS,
+			[Enum.DamageMeterType.Dispels] = DAMAGE_METER_TYPE_DISPELS,
+			[Enum.DamageMeterType.DamageTaken] = DAMAGE_METER_TYPE_DAMAGE_TAKEN,
+			[Enum.DamageMeterType.AvoidableDamageTaken] = DAMAGE_METER_TYPE_AVOIDABLE_DAMAGE_TAKEN,
+			[Enum.DamageMeterType.Deaths] = DAMAGE_METER_TYPE_DEATHS,
+			[Enum.DamageMeterType.EnemyDamageTaken] = DAMAGE_METER_TYPE_ENEMY_DAMAGE_TAKEN,
+		};
+
 
 		Details._detalhes_props["modo_nome"] = {
 				[_detalhes._detalhes_props["MODO_ALONE"]] = Loc ["STRING_MODE_SELF"],
@@ -1505,7 +1533,7 @@ do
                                 if (tooltipData.hyperlink) then
                                     local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
                                     itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
-                                    expacID, setID, isCraftingReagent = GetItemInfo(tooltipData.hyperlink)
+                                    expacID, setID, isCraftingReagent = C_Item.GetItemInfo(tooltipData.hyperlink)
 
                                     local itemInfo = {
                                         itemName = itemName,

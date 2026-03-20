@@ -719,6 +719,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field _postponing_switch boolean?
 ---@field last_interaction number?
 ---@field auto_current boolean?
+---@field tempId number
 ---@field
 ---@field GetCombatTime fun(instance: instance) : number get the combat time of the currently showing combat segment
 ---@field CheckForSecretsAndAspects fun(self: instance)

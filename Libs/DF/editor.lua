@@ -50,7 +50,8 @@ local _
 ---@class df_editor_attribute
 ---@field key string?
 ---@field label string?
----@field widget string
+---@field widget string?
+---@field type string?
 ---@field default any?
 ---@field minvalue number?
 ---@field maxvalue number?
@@ -89,6 +90,7 @@ local attributes = {
             widget = "selectstatusbartexture",
             default = "",
             setter = function(widget, value) widget:SetTexture(value) end,
+            is_default = true,
         },
         {
             key = "width",
@@ -96,7 +98,8 @@ local attributes = {
             widget = "range",
             minvalue = 5,
             maxvalue = 120,
-            setter = function(widget, value) widget:SetWidth(value) end
+            setter = function(widget, value) widget:SetWidth(value) end,
+            is_default = true,
         },
         {
             key = "height",
@@ -104,13 +107,15 @@ local attributes = {
             widget = "range",
             minvalue = 5,
             maxvalue = 120,
-            setter = function(widget, value) widget:SetHeight(value) end
+            setter = function(widget, value) widget:SetHeight(value) end,
+            is_default = true,
         },
         {
             key = "vertexcolor",
             label = "Color",
             widget = "color",
-            setter = function(widget, value) widget:SetVertexColor(unpack(value)) end
+            setter = function(widget, value) widget:SetVertexColor(unpack(value)) end,
+            is_default = true,
         },
         {
             key = "alpha",
@@ -119,7 +124,8 @@ local attributes = {
             minvalue = 0,
             maxvalue = 1,
             usedecimals = true,
-            setter = function(widget, value) widget:SetAlpha(value) end
+            setter = function(widget, value) widget:SetAlpha(value) end,
+            is_default = true,
         },
 
         {widget = "blank"},
@@ -127,7 +133,8 @@ local attributes = {
             key = "anchor",
             label = "Anchor",
             widget = "anchordropdown",
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
         {
             key = "anchoroffsetx",
@@ -135,7 +142,8 @@ local attributes = {
             widget = "range",
             minvalue = -120,
             maxvalue = 120,
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
         {
             key = "anchoroffsety",
@@ -143,7 +151,8 @@ local attributes = {
             widget = "range",
             minvalue = -120,
             maxvalue = 120,
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
     },
 
@@ -154,6 +163,7 @@ local attributes = {
             widget = "textentry",
             default = "font string text",
             setter = function(widget, value) widget:SetText(value) end,
+            is_default = true,
         },
         {
             key = "size",
@@ -161,7 +171,8 @@ local attributes = {
             widget = "range",
             minvalue = 5,
             maxvalue = 120,
-            setter = function(widget, value) widget:SetFont(widget:GetFont(), value, select(3, widget:GetFont())) end
+            setter = function(widget, value) widget:SetFont(widget:GetFont(), value, select(3, widget:GetFont())) end,
+            is_default = true,
         },
         {
             key = "font",
@@ -170,13 +181,15 @@ local attributes = {
             setter = function(widget, value)
                 local font = LibStub:GetLibrary("LibSharedMedia-3.0"):Fetch("font", value)
                 widget:SetFont(font, select(2, widget:GetFont()))
-            end
+            end,
+            is_default = true,
         },
         {
             key = "color",
             label = "Color",
             widget = "color",
-            setter = function(widget, value) widget:SetTextColor(unpack(value)) end
+            setter = function(widget, value) widget:SetTextColor(unpack(value)) end,
+            is_default = true,
         },
         {
             key = "alpha",
@@ -185,20 +198,23 @@ local attributes = {
             minvalue = 0,
             maxvalue = 1,
             usedecimals = true,
-            setter = function(widget, value) widget:SetAlpha(value) end
+            setter = function(widget, value) widget:SetAlpha(value) end,
+            is_default = true,
         },
         {widget = "blank"},
         {
             key = "shadow",
             label = "Draw Shadow",
             widget = "toggle",
-            setter = function(widget, value) widget:SetShadowColor(widget:GetShadowColor(), select(2, widget:GetShadowColor()), select(3, widget:GetShadowColor()), value and 0.5 or 0) end
+            setter = function(widget, value) widget:SetShadowColor(widget:GetShadowColor(), select(2, widget:GetShadowColor()), select(3, widget:GetShadowColor()), value and 0.5 or 0) end,
+            is_default = true,
         },
         {
             key = "shadowcolor",
             label = "Shadow Color",
             widget = "color",
-            setter = function(widget, value) widget:SetShadowColor(unpack(value)) end
+            setter = function(widget, value) widget:SetShadowColor(unpack(value)) end,
+            is_default = true,
         },
         {
             key = "shadowoffsetx",
@@ -206,7 +222,8 @@ local attributes = {
             widget = "range",
             minvalue = -10,
             maxvalue = 10,
-            setter = function(widget, value) widget:SetShadowOffset(value, select(2, widget:GetShadowOffset())) end
+            setter = function(widget, value) widget:SetShadowOffset(value, select(2, widget:GetShadowOffset())) end,
+            is_default = true,
         },
         {
             key = "shadowoffsety",
@@ -214,20 +231,23 @@ local attributes = {
             widget = "range",
             minvalue = -10,
             maxvalue = 10,
-            setter = function(widget, value) widget:SetShadowOffset(widget:GetShadowOffset(), value) end
+            setter = function(widget, value) widget:SetShadowOffset(widget:GetShadowOffset(), value) end,
+            is_default = true,
         },
         {
             key = "outline",
             label = "Outline",
             widget = "outlinedropdown",
-            setter = function(widget, value) widget:SetFont(widget:GetFont(), select(2, widget:GetFont()), value) end
+            setter = function(widget, value) widget:SetFont(widget:GetFont(), select(2, widget:GetFont()), value) end,
+            is_default = true,
         },
         {widget = "blank"},
         {
             key = "anchor",
             label = "Anchor",
             widget = "anchordropdown",
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
         {
             key = "anchoroffsetx",
@@ -235,7 +255,8 @@ local attributes = {
             widget = "range",
             minvalue = -120,
             maxvalue = 120,
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
         {
             key = "anchoroffsety",
@@ -243,7 +264,8 @@ local attributes = {
             widget = "range",
             minvalue = -120,
             maxvalue = 120,
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
         {
             key = "rotation",
@@ -252,7 +274,8 @@ local attributes = {
             usedecimals = true,
             minvalue = 0,
             maxvalue = math.pi*2,
-            setter = function(widget, value) widget:SetRotation(value) end
+            setter = function(widget, value) widget:SetRotation(value) end,
+            is_default = true,
         },
         {
             key = "scale",
@@ -261,7 +284,8 @@ local attributes = {
             usedecimals = true,
             minvalue = 0.65,
             maxvalue = 2.5,
-            setter = function(widget, value) widget:SetScale(value) end
+            setter = function(widget, value) widget:SetScale(value) end,
+            is_default = true,
         },
     },
 
@@ -272,7 +296,8 @@ local attributes = {
             widget = "range",
             minvalue = 5,
             maxvalue = 800,
-            setter = function(widget, value) widget:SetWidth(value) end
+            setter = function(widget, value) widget:SetWidth(value) end,
+            is_default = true,
         },
         {
             key = "height",
@@ -280,7 +305,8 @@ local attributes = {
             widget = "range",
             minvalue = 5,
             maxvalue = 600,
-            setter = function(widget, value) widget:SetHeight(value) end
+            setter = function(widget, value) widget:SetHeight(value) end,
+            is_default = true,
         },
         --alpha
         {
@@ -290,14 +316,16 @@ local attributes = {
             minvalue = 0,
             maxvalue = 1,
             usedecimals = true,
-            setter = function(widget, value) widget:SetAlpha(value) end
+            setter = function(widget, value) widget:SetAlpha(value) end,
+            is_default = true,
         },
         --frame strata
         {
             key = "framestrata",
             label = "Frame Strata",
             widget = "selectframestrata",
-            setter = function(widget, value) widget:SetFrameStrata(value) end
+            setter = function(widget, value) widget:SetFrameStrata(value) end,
+            is_default = true,
         },
 
         {widget = "blank"},
@@ -305,7 +333,8 @@ local attributes = {
             key = "anchor",
             label = "Anchor",
             widget = "anchordropdown",
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
         {
             key = "anchoroffsetx",
@@ -313,7 +342,8 @@ local attributes = {
             widget = "range",
             minvalue = -400,
             maxvalue = 400,
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
         {
             key = "anchoroffsety",
@@ -321,7 +351,8 @@ local attributes = {
             widget = "range",
             minvalue = -300,
             maxvalue = 300,
-            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end
+            setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
+            is_default = true,
         },
     },
 }
@@ -1058,8 +1089,10 @@ detailsFramework.EditorMixin = {
         local objectType = object:GetObjectType()
         local attributeList
 
-        --get options and extra options
+        --options for the editor, e.g. text_template, use_colon, etc.
         local editingOptions = self:GetEditingOptions()
+
+        --extra options for this object
         local extraOptions = self:GetExtraOptions()
 
         --get the attribute list for the object type
@@ -1081,7 +1114,7 @@ detailsFramework.EditorMixin = {
             local attributeListWithExtraOptions = {}
 
             --only add the blank space if there's attributes before the extra options
-            if (#attributeList > 0) then
+            if (#attributeList > 0) then --#editingOptions is always zero
                 for i = 1, #attributeList do
                     attributeListWithExtraOptions[#attributeListWithExtraOptions+1] = attributeList[i]
                 end
@@ -1102,14 +1135,15 @@ detailsFramework.EditorMixin = {
         for i = 1, #attributeList do
             local option = attributeList[i]
 
-            if (option.widget == "blank") then
+            local widgetType = option.widget or option.type
+
+            if (widgetType == "blank") then
                 menuOptions[#menuOptions+1] = {type = "blank"}
             else
                 --get the key to be used on profile table
                 local profileKey = profileMap[option.key] or option.key
                 if profileKey then
                     local value
-
                     --if the key contains a dot or a bracket, it means it's a table path, example: "text_settings[1].width"
                     if (profileKey and (profileKey:match("%.") or profileKey:match("%["))) then --profileKey is a number
                         value = detailsFramework.table.getfrompath(profileTable, profileKey)
@@ -1117,9 +1151,14 @@ detailsFramework.EditorMixin = {
                         value = profileTable[profileKey]
                     end
 
+                    --if you're seeing an option shown without being in the 'profileKeyMap' and 'extraOptions', 
+                    --it's because the profileTable has a key with the same name of the automatic options in 'attributes'
+                    --see: 'local attributes = {'
+                    --example: 'texture' is a profileKey within the Texture attributes, hence if the profile table has a 'texture' key, the option will appear
+                    --update: this is not the case anymore as the default value isn't used anymore
                     --if no value is found, attempt to get a default
                     if (type(value) == "nil") then
-                        value = option.default
+                        --value = option.default --won't show options automatically
                     end
 
                     local bHasValue = type(value) ~= "nil"
@@ -1145,17 +1184,17 @@ detailsFramework.EditorMixin = {
                         end
 
                         local optionTable = {
-                            type = option.widget,
+                            type = widgetType,
                             name = option.label,
-                            get = function() return value end,
+                            get = function() return value end, --need to get the value directly from the profile table
                             set = function(widget, fixedValue, newValue, ...)
                                 --color is a table with 4 indexes for each color plus alpha
-                                if (option.widget == "range" or option.widget == "slider") then
+                                if (widgetType == "range" or widgetType == "slider") then
                                     if (not option.usedecimals) then
                                         newValue = math.floor(newValue)
                                     end
 
-                                elseif (option.widget == "color") then
+                                elseif (widgetType == "color") then
                                     --calor callback sends the red color in the fixedParameter slot
                                     local r, g, b, alpha = fixedValue, newValue, ...
                                     --need to use the same table from the profile table
@@ -1246,7 +1285,27 @@ detailsFramework.EditorMixin = {
         local options_slider_template = self.options.slider_template
         local options_text_template = self.options.text_template
 
+        --remove any blank spaces at the start of the menu
+        while (true) do
+            local option = menuOptions[1]
+            if (option and option.type == "blank") then
+                table.remove(menuOptions, 1)
+            else
+                break
+            end
+        end
+
+        --search for two blanks in a row and remove one of them
+        for i = #menuOptions, 2, -1 do
+            local option = menuOptions[i]
+            local previousOption = menuOptions[i-1]
+            if (option and previousOption and option.type == "blank" and previousOption.type == "blank") then
+                table.remove(menuOptions, i)
+            end
+        end
+
         --~build ~menu ~volatile
+        menuOptions.no_refresh_on_change = true --the editor .get functions just return a value instead of getting the value from the profile
         detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, 2, -2, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template)
 
         if (editingOptions.can_move) then

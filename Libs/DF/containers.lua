@@ -8,8 +8,16 @@ local _
 local DF = detailsFramework
 
 local CreateFrame = CreateFrame
-local wipe = wipe
-local unpack = unpack
+local GetCursorPosition = GetCursorPosition
+local IsMouseButtonDown = IsMouseButtonDown
+local childResizerThickness = 4
+local childMinimumSize = 20
+local childResizerOptionBySide = {
+    top = "use_top_child_resizer",
+    bottom = "use_bottom_child_resizer",
+    left = "use_left_child_resizer",
+    right = "use_right_child_resizer",
+}
 
 ---@class df_framecontainer : frame, dfframecontainermixin, df_optionsmixin
 ---@field bIsSizing boolean
@@ -29,6 +37,9 @@ local unpack = unpack
 ---@field components table<frame, boolean>
 ---@field moverFrame frame
 ---@field movableChildren table<frame, boolean>
+---@field childResizers table<frame, table<string, button>>
+---@field childResizerSideOverrides table<frame, table<string, boolean>>
+---@field activeChildResizeState table|nil
 ---@field settingChangedCallback fun(frameContainer: df_framecontainer, settingName: string, settingValue: any)
 ---@field OnSizeChanged fun(frameContainer: df_framecontainer)
 ---@field OnResizerMouseDown fun(resizerButton: button, mouseButton: string)
@@ -43,8 +54,18 @@ local unpack = unpack
 ---@field CreateMover fun(frameContainer: df_framecontainer)
 ---@field CreateResizers fun(frameContainer: df_framecontainer)
 ---@field RegisterChildForDrag fun(frameContainer: df_framecontainer, child: frame)
----@field UnregisterChildForDrag fun(frameContainer: df_framecontainer, child: frame)
+---@field RegisterChild fun(frameContainer: df_framecontainer, child: frame)
+---@field UnregisterChild fun(frameContainer: df_framecontainer, child: frame)
 ---@field RefreshChildrenState fun(frameContainer: df_framecontainer)
+---@field GetChildRelativeRect fun(frameContainer: df_framecontainer, child: frame): table|nil
+---@field SetChildRelativeRect fun(frameContainer: df_framecontainer, child: frame, left: number, top: number, width: number, height: number)
+---@field GetChildrenForResize fun(frameContainer: df_framecontainer, child: frame, resizeSide: string): table
+---@field CreateChildResizers fun(frameContainer: df_framecontainer, child: frame)
+---@field IsChildResizerSideEnabled fun(frameContainer: df_framecontainer, child: frame, resizeSide: string): boolean
+---@field SetChildResizersShown fun(frameContainer: df_framecontainer, child: frame, shouldShow: boolean)
+---@field SetChildResizerSides fun(frameContainer: df_framecontainer, child: frame, sideSettings: table|nil)
+---@field OnChildResizerMouseDown fun(resizerButton: button, mouseButton: string)
+---@field OnChildResizerMouseUp fun(resizerButton: button, mouseButton: string)
 ---@field OnChildDragStart fun(frameContainer: df_framecontainer, child: frame)
 ---@field OnChildDragStop fun(frameContainer: df_framecontainer, child: frame)
 ---@field SetSettingChangedCallback fun(frameContainer: df_framecontainer, callback: fun(frameContainer: df_framecontainer, settingName: string, settingValue: any))
@@ -331,34 +352,564 @@ detailsFramework.FrameContainerMixin = {
     ---run when the container has its size changed
     ---@param frameContainer df_framecontainer
     OnSizeChanged = function(frameContainer)
-        ---@type frame[]
+        local oldWidth = frameContainer.currentWidth or 0
+        local oldHeight = frameContainer.currentHeight or 0
+        local newWidth = frameContainer:GetWidth() or oldWidth
+        local newHeight = frameContainer:GetHeight() or oldHeight
+
+        if (oldWidth <= 0 or oldHeight <= 0) then
+            frameContainer.currentWidth = newWidth
+            frameContainer.currentHeight = newHeight
+            frameContainer:SendSettingChangedCallback("width", frameContainer.currentWidth)
+            frameContainer:SendSettingChangedCallback("height", frameContainer.currentHeight)
+            return
+        end
+
+        local widthDifference = newWidth / oldWidth
+        local heightDifference = newHeight / oldHeight
+        local containerLeft = frameContainer:GetLeft()
+        local containerTop = frameContainer:GetTop()
         local children = {frameContainer:GetChildren()}
-        ---@type number
         local childrenAmount = #children
 
-        --get the container size before its size was changed and calculate the percent of the difference between the old size and the new size
-        --adding +1 to the width and height difference to prevent the child from shrinking to 0, so it is scaled by 1
-        ---@type number
-        local widthDifference = 1 + (frameContainer:GetWidth() - frameContainer.currentWidth) / frameContainer.currentWidth
-        ---@type number
-        local heightDifference = 1 + (frameContainer:GetHeight() - frameContainer.currentHeight) / frameContainer.currentHeight
+        if (not containerLeft or not containerTop) then
+            frameContainer.currentWidth = newWidth
+            frameContainer.currentHeight = newHeight
+            frameContainer:SendSettingChangedCallback("width", frameContainer.currentWidth)
+            frameContainer:SendSettingChangedCallback("height", frameContainer.currentHeight)
+            return
+        end
 
         for i = 1, childrenAmount do
-            ---@type frame
             local child = children[i]
-            --if the child is a component, skip it
             if (not frameContainer.components[child]) then
-                child:SetWidth(child:GetWidth() * widthDifference)
-                child:SetHeight(child:GetHeight() * heightDifference)
+                local childLeft = child:GetLeft()
+                local childTop = child:GetTop()
+                local childWidth = child:GetWidth() or 0
+                local childHeight = child:GetHeight() or 0
+
+                if (childLeft and childTop and childWidth > 0 and childHeight > 0) then
+                    local relativeX = childLeft - containerLeft
+                    local relativeY = containerTop - childTop
+
+                    local newChildWidth = childWidth * widthDifference
+                    local newChildHeight = childHeight * heightDifference
+                    local newRelativeX = relativeX * widthDifference
+                    local newRelativeY = relativeY * heightDifference
+
+                    local maxX = math.max(0, newWidth - newChildWidth)
+                    local maxY = math.max(0, newHeight - newChildHeight)
+                    newRelativeX = math.min(math.max(newRelativeX, 0), maxX)
+                    newRelativeY = math.min(math.max(newRelativeY, 0), maxY)
+
+                    child:ClearAllPoints()
+                    child:SetPoint("topleft", frameContainer, "topleft", newRelativeX, -newRelativeY)
+                    child:SetWidth(newChildWidth)
+                    child:SetHeight(newChildHeight)
+                end
             end
         end
 
-        --update the current size of the container
-        frameContainer.currentWidth = frameContainer:GetWidth()
-        frameContainer.currentHeight = frameContainer:GetHeight()
+        frameContainer.currentWidth = newWidth
+        frameContainer.currentHeight = newHeight
 
         frameContainer:SendSettingChangedCallback("width", frameContainer.currentWidth)
         frameContainer:SendSettingChangedCallback("height", frameContainer.currentHeight)
+    end,
+
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
+    ---@return table|nil
+    GetChildRelativeRect = function(frameContainer, child)
+        local containerLeft = frameContainer:GetLeft()
+        local containerTop = frameContainer:GetTop()
+        local childLeft = child:GetLeft()
+        local childTop = child:GetTop()
+        local childWidth = child:GetWidth()
+        local childHeight = child:GetHeight()
+
+        if (not containerLeft or not containerTop or not childLeft or not childTop or not childWidth or not childHeight) then
+            return nil
+        end
+
+        local left = childLeft - containerLeft
+        local top = containerTop - childTop
+        local right = left + childWidth
+        local bottom = top + childHeight
+
+        return {
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
+            width = childWidth,
+            height = childHeight,
+        }
+    end,
+
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
+    ---@param left number
+    ---@param top number
+    ---@param width number
+    ---@param height number
+    SetChildRelativeRect = function(frameContainer, child, left, top, width, height)
+        child:ClearAllPoints()
+        child:SetPoint("topleft", frameContainer, "topleft", left, -top)
+        child:SetWidth(width)
+        child:SetHeight(height)
+    end,
+
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
+    ---@param resizeSide string
+    ---@return table
+    GetChildrenForResize = function(frameContainer, child, resizeSide)
+        local childRect = frameContainer:GetChildRelativeRect(child)
+        if (not childRect) then
+            return {}
+        end
+
+        local candidateChildren = {}
+        local nearestDistance
+        local distanceTolerance = 0.75
+
+        local isRangeOverlap = function(aStart, aEnd, bStart, bEnd)
+            return aStart < bEnd and aEnd > bStart
+        end
+
+        for sibling in pairs(frameContainer.movableChildren) do
+            if (sibling ~= child and sibling:IsShown()) then
+                local siblingRect = frameContainer:GetChildRelativeRect(sibling)
+                if (siblingRect) then
+                    local isCandidate = false
+                    local distance = 0
+
+                    if (resizeSide == "left") then
+                        if (isRangeOverlap(childRect.top, childRect.bottom, siblingRect.top, siblingRect.bottom) and siblingRect.right <= childRect.left + 0.5) then
+                            distance = childRect.left - siblingRect.right
+                            isCandidate = true
+                        end
+                    elseif (resizeSide == "right") then
+                        if (isRangeOverlap(childRect.top, childRect.bottom, siblingRect.top, siblingRect.bottom) and siblingRect.left >= childRect.right - 0.5) then
+                            distance = siblingRect.left - childRect.right
+                            isCandidate = true
+                        end
+                    elseif (resizeSide == "top") then
+                        if (isRangeOverlap(childRect.left, childRect.right, siblingRect.left, siblingRect.right) and siblingRect.bottom <= childRect.top + 0.5) then
+                            distance = childRect.top - siblingRect.bottom
+                            isCandidate = true
+                        end
+                    elseif (resizeSide == "bottom") then
+                        if (isRangeOverlap(childRect.left, childRect.right, siblingRect.left, siblingRect.right) and siblingRect.top >= childRect.bottom - 0.5) then
+                            distance = siblingRect.top - childRect.bottom
+                            isCandidate = true
+                        end
+                    end
+
+                    if (isCandidate) then
+                        if (distance < 0) then
+                            distance = 0
+                        end
+
+                        if (not nearestDistance or distance < nearestDistance) then
+                            nearestDistance = distance
+                        end
+
+                        candidateChildren[#candidateChildren+1] = {
+                            child = sibling,
+                            rect = siblingRect,
+                            distance = distance,
+                        }
+                    end
+                end
+            end
+        end
+
+        if (not nearestDistance) then
+            return {}
+        end
+
+        local nearestChildren = {}
+        for i = 1, #candidateChildren do
+            local childData = candidateChildren[i]
+            if (math.abs(childData.distance - nearestDistance) <= distanceTolerance) then
+                nearestChildren[#nearestChildren+1] = childData
+            end
+        end
+
+        return nearestChildren
+    end,
+
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
+    CreateChildResizers = function(frameContainer, child)
+        if (frameContainer.childResizers[child]) then
+            return
+        end
+
+        local createResizer = function(resizeSide)
+            local resizer = CreateFrame("button", nil, child)
+            resizer.frameContainer = frameContainer
+            resizer.ownerChild = child
+            resizer.resizeSide = resizeSide
+            resizer:SetFrameStrata(frameContainer:GetFrameStrata())
+            resizer:SetFrameLevel(child:GetFrameLevel() + 20)
+            resizer:EnableMouse(true)
+            resizer:RegisterForClicks("LeftButtonDown", "LeftButtonUp")
+
+            resizer:SetNormalTexture([[Interface\Buttons\WHITE8X8]])
+            resizer:SetHighlightTexture([[Interface\Buttons\WHITE8X8]])
+            resizer:SetPushedTexture([[Interface\Buttons\WHITE8X8]])
+            resizer:GetNormalTexture():SetColorTexture(1, 1, 1, 0.25)
+            resizer:GetHighlightTexture():SetColorTexture(detailsFramework:ParseColors("aqua"))
+            resizer:GetPushedTexture():SetColorTexture(1, 1, 1, 0.85)
+
+            resizer:SetScript("OnMouseDown", detailsFramework.FrameContainerMixin.OnChildResizerMouseDown)
+            resizer:SetScript("OnMouseUp", detailsFramework.FrameContainerMixin.OnChildResizerMouseUp)
+
+            if (resizeSide == "left") then
+                resizer:SetWidth(childResizerThickness)
+                resizer:SetPoint("topleft", child, "topleft", -2, 0)
+                resizer:SetPoint("bottomleft", child, "bottomleft", -2, 0)
+            elseif (resizeSide == "right") then
+                resizer:SetWidth(childResizerThickness)
+                resizer:SetPoint("topright", child, "topright", 2, 0)
+                resizer:SetPoint("bottomright", child, "bottomright", 2, 0)
+            elseif (resizeSide == "top") then
+                resizer:SetHeight(childResizerThickness)
+                resizer:SetPoint("topleft", child, "topleft", 0, 2)
+                resizer:SetPoint("topright", child, "topright", 0, 2)
+            else
+                resizer:SetHeight(childResizerThickness)
+                resizer:SetPoint("bottomleft", child, "bottomleft", 0, -2)
+                resizer:SetPoint("bottomright", child, "bottomright", 0, -2)
+            end
+
+            resizer:Hide()
+            return resizer
+        end
+
+        frameContainer.childResizers[child] = {
+            left = createResizer("left"),
+            right = createResizer("right"),
+            top = createResizer("top"),
+            bottom = createResizer("bottom"),
+        }
+    end,
+
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
+    ---@param resizeSide string
+    ---@return boolean
+    IsChildResizerSideEnabled = function(frameContainer, child, resizeSide)
+        local sideOptionName = childResizerOptionBySide[resizeSide]
+        if (not sideOptionName) then
+            return false
+        end
+
+        local childSideOverrides = frameContainer.childResizerSideOverrides[child]
+        if (childSideOverrides and childSideOverrides[resizeSide] ~= nil) then
+            return childSideOverrides[resizeSide]
+        end
+
+        return frameContainer.options[sideOptionName] and true or false
+    end,
+
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
+    ---@param shouldShow boolean
+    SetChildResizersShown = function(frameContainer, child, shouldShow)
+        if (shouldShow and not frameContainer.childResizers[child]) then
+            frameContainer:CreateChildResizers(child)
+        end
+
+        local childResizers = frameContainer.childResizers[child]
+        if (not childResizers) then
+            return
+        end
+
+        for resizeSide, resizer in pairs(childResizers) do
+            local canUseSideResizer = frameContainer:IsChildResizerSideEnabled(child, resizeSide)
+
+            if (shouldShow and canUseSideResizer) then
+                resizer:Show()
+            else
+                resizer:Hide()
+                if (frameContainer.activeChildResizeState and frameContainer.activeChildResizeState.resizer == resizer) then
+                    resizer:SetScript("OnUpdate", nil)
+                    frameContainer.activeChildResizeState = nil
+                end
+            end
+        end
+    end,
+
+    ---set per-child side settings for child resizers; keys can be top, bottom, left, right
+    ---or their option aliases (use_top_child_resizer, use_bottom_child_resizer, use_left_child_resizer, use_right_child_resizer)
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
+    ---@param sideSettings table|nil
+    SetChildResizerSides = function(frameContainer, child, sideSettings)
+        assert(type(child) == "table" and child.GetObjectType, "SetChildResizerSides expects a frame as the child parameter.")
+        assert(frameContainer.movableChildren[child], "SetChildResizerSides expects a registered child frame. Register with 'RegisterChild' before setting child resizer sides.")
+        assert(type(sideSettings) == "table", "SetChildResizerSides expects the sideSettings parameter to be a table.")
+
+        local childSideOverrides = {}
+        local hasOverride = false
+
+        for resizeSide, sideOptionName in pairs(childResizerOptionBySide) do
+            local sideEnabled = sideSettings[resizeSide]
+            if (sideEnabled == nil) then
+                sideEnabled = sideSettings[sideOptionName]
+            end
+
+            if (type(sideEnabled) == "boolean") then
+                childSideOverrides[resizeSide] = sideEnabled
+                hasOverride = true
+            end
+        end
+
+        if (hasOverride) then
+            frameContainer.childResizerSideOverrides[child] = childSideOverrides
+        else
+            frameContainer.childResizerSideOverrides[child] = nil
+        end
+
+        local canShowResizers = frameContainer.options.can_resize_children and not frameContainer.options.can_move_children
+        frameContainer:SetChildResizersShown(child, canShowResizers)
+    end,
+
+    ---@param resizerButton button
+    ---@param mouseButton string
+    OnChildResizerMouseDown = function(resizerButton, mouseButton)
+        if (mouseButton ~= "LeftButton") then
+            return
+        end
+
+        ---@type df_framecontainer
+        local frameContainer = resizerButton.frameContainer
+        local child = resizerButton.ownerChild
+        local resizeSide = resizerButton.resizeSide
+        if (not frameContainer or not child or not resizeSide) then
+            return
+        end
+
+        if (frameContainer.options.can_move_children or not frameContainer.options.can_resize_children) then
+            return
+        end
+
+        if (not frameContainer:IsChildResizerSideEnabled(child, resizeSide)) then
+            return
+        end
+
+        if (frameContainer.activeChildResizeState) then
+            return
+        end
+
+        local childRect = frameContainer:GetChildRelativeRect(child)
+        local containerLeft = frameContainer:GetLeft()
+        local containerTop = frameContainer:GetTop()
+        if (not childRect or not containerLeft or not containerTop) then
+            return
+        end
+
+        local neighborChildren = frameContainer:GetChildrenForResize(child, resizeSide)
+        local mouseX, mouseY = DF:GetCursorPosition()
+
+        local startCursorRelativeX = mouseX - containerLeft
+        local startCursorRelativeY = containerTop - mouseY
+
+        frameContainer.activeChildResizeState = {
+            resizer = resizerButton,
+            child = child,
+            resizeSide = resizeSide,
+            childStartRect = childRect,
+            neighborChildren = neighborChildren,
+            startCursorRelativeX = startCursorRelativeX,
+            startCursorRelativeY = startCursorRelativeY,
+            minSize = childMinimumSize,
+        }
+
+        resizerButton:SetScript("OnUpdate", function(thisResizer)
+            local resizeState = frameContainer.activeChildResizeState
+
+            if (not resizeState or resizeState.resizer ~= thisResizer) then
+                thisResizer:SetScript("OnUpdate", nil)
+                return
+            end
+
+            if (IsMouseButtonDown and not IsMouseButtonDown("LeftButton")) then
+                thisResizer:SetScript("OnUpdate", nil)
+                frameContainer.activeChildResizeState = nil
+                return
+            end
+
+            if (frameContainer.options.can_move_children or not frameContainer.options.can_resize_children) then
+                thisResizer:SetScript("OnUpdate", nil)
+                frameContainer.activeChildResizeState = nil
+                return
+            end
+
+            if (not frameContainer:IsChildResizerSideEnabled(resizeState.child, resizeState.resizeSide)) then
+                thisResizer:SetScript("OnUpdate", nil)
+                frameContainer.activeChildResizeState = nil
+                return
+            end
+
+            local currentContainerLeft = frameContainer:GetLeft()
+            local currentContainerTop = frameContainer:GetTop()
+            local containerWidth = frameContainer:GetWidth() or 0
+            local containerHeight = frameContainer:GetHeight() or 0
+
+            if (not currentContainerLeft or not currentContainerTop) then
+                return
+            end
+
+            local currentCursorX, currentCursorY = DF:GetCursorPosition()
+            local currentCursorRelativeX = currentCursorX - currentContainerLeft
+            local currentCursorRelativeY = currentContainerTop - currentCursorY
+
+            local deltaX = currentCursorRelativeX - resizeState.startCursorRelativeX
+            local deltaY = currentCursorRelativeY - resizeState.startCursorRelativeY
+
+            local startRect = resizeState.childStartRect
+            local side = resizeState.resizeSide
+            local minSize = resizeState.minSize
+            local newChildLeft = startRect.left
+            local newChildTop = startRect.top
+            local newChildWidth = startRect.width
+            local newChildHeight = startRect.height
+
+            local neighborChildren = resizeState.neighborChildren or {}
+
+            if (side == "right") then
+                local targetRight = startRect.right + deltaX
+                local minRight = startRect.left + minSize
+                local maxRight = containerWidth
+
+                for i = 1, #neighborChildren do
+                    local neighborRect = neighborChildren[i].rect
+                    maxRight = math.min(maxRight, neighborRect.right - minSize)
+                end
+
+                if (maxRight < minRight) then
+                    maxRight = minRight
+                end
+
+                local newRight = math.min(math.max(targetRight, minRight), maxRight)
+                newChildWidth = newRight - startRect.left
+
+                frameContainer:SetChildRelativeRect(child, newChildLeft, newChildTop, newChildWidth, newChildHeight)
+
+                for i = 1, #neighborChildren do
+                    local neighborData = neighborChildren[i]
+                    local neighborRect = neighborData.rect
+                    local newNeighborLeft = newRight
+                    local newNeighborWidth = neighborRect.right - newNeighborLeft
+                    frameContainer:SetChildRelativeRect(neighborData.child, newNeighborLeft, neighborRect.top, newNeighborWidth, neighborRect.height)
+                end
+
+            elseif (side == "left") then
+                local targetLeft = startRect.left + deltaX
+                local minLeft = 0
+                local maxLeft = startRect.right - minSize
+
+                for i = 1, #neighborChildren do
+                    local neighborRect = neighborChildren[i].rect
+                    minLeft = math.max(minLeft, neighborRect.left + minSize)
+                end
+
+                if (maxLeft < minLeft) then
+                    minLeft = maxLeft
+                end
+
+                local newLeft = math.min(math.max(targetLeft, minLeft), maxLeft)
+                newChildLeft = newLeft
+                newChildWidth = startRect.right - newLeft
+
+                frameContainer:SetChildRelativeRect(child, newChildLeft, newChildTop, newChildWidth, newChildHeight)
+
+                for i = 1, #neighborChildren do
+                    local neighborData = neighborChildren[i]
+                    local neighborRect = neighborData.rect
+                    local newNeighborWidth = newLeft - neighborRect.left
+                    frameContainer:SetChildRelativeRect(neighborData.child, neighborRect.left, neighborRect.top, newNeighborWidth, neighborRect.height)
+                end
+
+            elseif (side == "bottom") then
+                local targetBottom = startRect.bottom + deltaY
+                local minBottom = startRect.top + minSize
+                local maxBottom = containerHeight
+
+                for i = 1, #neighborChildren do
+                    local neighborRect = neighborChildren[i].rect
+                    maxBottom = math.min(maxBottom, neighborRect.bottom - minSize)
+                end
+
+                if (maxBottom < minBottom) then
+                    maxBottom = minBottom
+                end
+
+                local newBottom = math.min(math.max(targetBottom, minBottom), maxBottom)
+                newChildHeight = newBottom - startRect.top
+
+                frameContainer:SetChildRelativeRect(child, newChildLeft, newChildTop, newChildWidth, newChildHeight)
+
+                for i = 1, #neighborChildren do
+                    local neighborData = neighborChildren[i]
+                    local neighborRect = neighborData.rect
+                    local newNeighborTop = newBottom
+                    local newNeighborHeight = neighborRect.bottom - newNeighborTop
+                    frameContainer:SetChildRelativeRect(neighborData.child, neighborRect.left, newNeighborTop, neighborRect.width, newNeighborHeight)
+                end
+
+            elseif (side == "top") then
+                local targetTop = startRect.top + deltaY
+                local minTop = 0
+                local maxTop = startRect.bottom - minSize
+
+                for i = 1, #neighborChildren do
+                    local neighborRect = neighborChildren[i].rect
+                    minTop = math.max(minTop, neighborRect.top + minSize)
+                end
+
+                if (maxTop < minTop) then
+                    minTop = maxTop
+                end
+
+                local newTop = math.min(math.max(targetTop, minTop), maxTop)
+                newChildTop = newTop
+                newChildHeight = startRect.bottom - newTop
+
+                frameContainer:SetChildRelativeRect(child, newChildLeft, newChildTop, newChildWidth, newChildHeight)
+
+                for i = 1, #neighborChildren do
+                    local neighborData = neighborChildren[i]
+                    local neighborRect = neighborData.rect
+                    local newNeighborHeight = newTop - neighborRect.top
+                    frameContainer:SetChildRelativeRect(neighborData.child, neighborRect.left, neighborRect.top, neighborRect.width, newNeighborHeight)
+                end
+            end
+        end)
+    end,
+
+    ---@param resizerButton button
+    ---@param mouseButton string
+    OnChildResizerMouseUp = function(resizerButton, mouseButton)
+        if (mouseButton ~= "LeftButton") then
+            return
+        end
+
+        ---@type df_framecontainer
+        local frameContainer = resizerButton.frameContainer
+        if (not frameContainer) then
+            return
+        end
+
+        resizerButton:SetScript("OnUpdate", nil)
+        if (frameContainer.activeChildResizeState and frameContainer.activeChildResizeState.resizer == resizerButton) then
+            frameContainer.activeChildResizeState = nil
+        end
     end,
 
     OnChildDragStop = function(child)
@@ -370,34 +921,165 @@ detailsFramework.FrameContainerMixin = {
     OnChildDragStart = function(child)
         ---@type df_framecontainer
         local frameContainer = child:GetParent()
+        if (not frameContainer or not frameContainer.movableChildren[child]) then
+            return
+        end
 
-        ---get the coordinates for the frame container, which is called 'boundingBox' for convenience
-        ---@type objectcoordinates
-        local boundingBox = detailsFramework:GetObjectCoordinates(frameContainer)
+        local containerLeft = frameContainer:GetLeft()
+        local containerTop = frameContainer:GetTop()
+        local childLeft = child:GetLeft()
+        local childTop = child:GetTop()
+        if (not containerLeft or not containerTop or not childLeft or not childTop) then
+            return
+        end
 
-        child:StartMoving()
+        local childWidth = child:GetWidth() or 0
+        local childHeight = child:GetHeight() or 0
+        local containerWidth = frameContainer:GetWidth() or 0
+        local containerHeight = frameContainer:GetHeight() or 0
+        local maxX = math.max(0, containerWidth - childWidth)
+        local maxY = math.max(0, containerHeight - childHeight)
 
-        --save the current point of the child, so it can be restored if the child is dragged outside the container
-        local childPoints = {}
-        for pointIndex = 1, child:GetNumPoints() do
-            childPoints[pointIndex] = {child:GetPoint(pointIndex)}
+        local initialX = math.min(math.max(childLeft - containerLeft, 0), maxX)
+        local initialY = math.min(math.max(containerTop - childTop, 0), maxY)
+
+        child:ClearAllPoints()
+        child:SetPoint("topleft", frameContainer, "topleft", initialX, -initialY)
+
+        local snappedChildLeft = containerLeft + initialX
+        local snappedChildTop = containerTop - initialY
+
+        local cursorX, cursorY = DF:GetCursorPosition()
+
+        local grabOffsetX = cursorX - snappedChildLeft
+        local grabOffsetY = snappedChildTop - cursorY
+
+        local lastValidX = initialX
+        local lastValidY = initialY
+
+        local isOverlappingSibling = function(candidateX, candidateY)
+            local thisLeft = candidateX
+            local thisRight = candidateX + childWidth
+            local thisTop = candidateY
+            local thisBottom = candidateY + childHeight
+
+            local currentContainerLeft = frameContainer:GetLeft()
+            local currentContainerTop = frameContainer:GetTop()
+            if (not currentContainerLeft or not currentContainerTop) then
+                return false
+            end
+
+            for sibling in pairs(frameContainer.movableChildren) do
+                if (sibling ~= child and sibling:IsShown()) then
+                    local siblingLeft = sibling:GetLeft()
+                    local siblingTop = sibling:GetTop()
+                    if (siblingLeft and siblingTop) then
+                        local siblingWidth = sibling:GetWidth() or 0
+                        local siblingHeight = sibling:GetHeight() or 0
+
+                        local siblingX = siblingLeft - currentContainerLeft
+                        local siblingY = currentContainerTop - siblingTop
+                        local siblingRight = siblingX + siblingWidth
+                        local siblingBottom = siblingY + siblingHeight
+
+                        local bNoHorizontalOverlap = (thisRight <= siblingX) or (thisLeft >= siblingRight)
+                        local bNoVerticalOverlap = (thisBottom <= siblingY) or (thisTop >= siblingBottom)
+                        if (not bNoHorizontalOverlap and not bNoVerticalOverlap) then
+                            return true
+                        end
+                    end
+                end
+            end
+
+            return false
+        end
+
+        local getClosestNonOverlappingPosition = function(startX, startY, targetX, targetY)
+            if (isOverlappingSibling(startX, startY)) then
+                return startX, startY
+            end
+
+            local bestX = startX
+            local bestY = startY
+            local low = 0
+            local high = 1
+
+            for i = 1, 12 do
+                local mid = (low + high) * 0.5
+                local testX = startX + (targetX - startX) * mid
+                local testY = startY + (targetY - startY) * mid
+
+                if (isOverlappingSibling(testX, testY)) then
+                    high = mid
+                else
+                    bestX = testX
+                    bestY = testY
+                    low = mid
+                end
+            end
+
+            return bestX, bestY
+        end
+
+        local getSlidingPosition = function(startX, startY, targetX, targetY)
+            local xFirstX, xFirstY = getClosestNonOverlappingPosition(startX, startY, targetX, startY)
+            xFirstX, xFirstY = getClosestNonOverlappingPosition(xFirstX, xFirstY, xFirstX, targetY)
+
+            local yFirstX, yFirstY = getClosestNonOverlappingPosition(startX, startY, startX, targetY)
+            yFirstX, yFirstY = getClosestNonOverlappingPosition(yFirstX, yFirstY, targetX, yFirstY)
+
+            local xFirstDistance = math.abs(xFirstX - startX) + math.abs(xFirstY - startY)
+            local yFirstDistance = math.abs(yFirstX - startX) + math.abs(yFirstY - startY)
+
+            if (xFirstDistance >= yFirstDistance) then
+                return xFirstX, xFirstY
+            end
+
+            return yFirstX, yFirstY
         end
 
         child:SetScript("OnUpdate", function(self)
-            ---@type objectcoordinates
-            local childPos = detailsFramework:GetObjectCoordinates(self)
-            --check if the borders of the rectangle 'rec' collided with the borders of the rectangle 'bbox'
-            if ((childPos.left < boundingBox.left or childPos.right > boundingBox.right) or (childPos.top > boundingBox.top or childPos.bottom < boundingBox.bottom)) then
-                child:ClearAllPoints()
-                for pointIndex = 1, #childPoints do
-                    child:SetPoint(unpack(childPoints[pointIndex]))
+            local currentContainerLeft = frameContainer:GetLeft()
+            local currentContainerTop = frameContainer:GetTop()
+            if (not currentContainerLeft or not currentContainerTop) then
+                return
+            end
+
+            local currentScale = frameContainer:GetEffectiveScale()
+            if (not currentScale or currentScale <= 0) then
+                currentScale = 1
+            end
+
+            local currentCursorX, currentCursorY = GetCursorPosition()
+            currentCursorX = currentCursorX / currentScale
+            currentCursorY = currentCursorY / currentScale
+
+            local currentContainerWidth = frameContainer:GetWidth() or 0
+            local currentContainerHeight = frameContainer:GetHeight() or 0
+            local currentMaxX = math.max(0, currentContainerWidth - childWidth)
+            local currentMaxY = math.max(0, currentContainerHeight - childHeight)
+
+            local candidateX = currentCursorX - currentContainerLeft - grabOffsetX
+            local candidateY = currentContainerTop - currentCursorY - grabOffsetY
+            candidateX = math.min(math.max(candidateX, 0), currentMaxX)
+            candidateY = math.min(math.max(candidateY, 0), currentMaxY)
+
+            if (isOverlappingSibling(candidateX, candidateY)) then
+                candidateX, candidateY = getSlidingPosition(lastValidX, lastValidY, candidateX, candidateY)
+                if (isOverlappingSibling(candidateX, candidateY)) then
+                    candidateX = lastValidX
+                    candidateY = lastValidY
+                else
+                    lastValidX = candidateX
+                    lastValidY = candidateY
                 end
             else
-                wipe(childPoints)
-                for pointIndex = 1, child:GetNumPoints() do
-                    childPoints[pointIndex] = {child:GetPoint(pointIndex)}
-                end
+                lastValidX = candidateX
+                lastValidY = candidateY
             end
+
+            self:ClearAllPoints()
+            self:SetPoint("topleft", frameContainer, "topleft", candidateX, -candidateY)
         end)
     end,
 
@@ -405,37 +1087,59 @@ detailsFramework.FrameContainerMixin = {
     ---@param frameContainer df_framecontainer
     RefreshChildrenState = function(frameContainer)
         frameContainer:EnableMouse(true)
-        if (frameContainer.options.can_move_children) then
-            for child, _ in pairs(frameContainer.movableChildren) do
+        local canMoveChildren = frameContainer.options.can_move_children
+        local canResizeChildren = frameContainer.options.can_resize_children and not canMoveChildren
+
+        if (canMoveChildren) then
+            for child in pairs(frameContainer.movableChildren) do
                 child:EnableMouse(true)
                 child:SetMovable(true)
                 child:RegisterForDrag("LeftButton")
                 child:SetScript("OnDragStart", detailsFramework.FrameContainerMixin.OnChildDragStart)
                 child:SetScript("OnDragStop", detailsFramework.FrameContainerMixin.OnChildDragStop)
+                frameContainer:SetChildResizersShown(child, false)
             end
         else
-            for child, _ in pairs(frameContainer.movableChildren) do
+            for child in pairs(frameContainer.movableChildren) do
                 child:EnableMouse(false)
                 child:SetMovable(false)
                 child:RegisterForDrag("")
                 child:SetScript("OnDragStart", nil)
                 child:SetScript("OnDragStop", nil)
+
+                if (canResizeChildren) then
+                    frameContainer:SetChildResizersShown(child, true)
+                else
+                    frameContainer:SetChildResizersShown(child, false)
+                end
             end
+        end
+
+        if (not canResizeChildren and frameContainer.activeChildResizeState) then
+            local activeResizer = frameContainer.activeChildResizeState.resizer
+            if (activeResizer) then
+                activeResizer:SetScript("OnUpdate", nil)
+            end
+            frameContainer.activeChildResizeState = nil
         end
     end,
 
     ---@param frameContainer df_framecontainer
     ---@param child frame
-    RegisterChildForDrag = function(frameContainer, child)
+    RegisterChild = function(frameContainer, child)
         frameContainer.movableChildren[child] = true
-        frameContainer:RefreshChildrenState()
         child:SetFrameStrata(frameContainer:GetFrameStrata())
-        child:SetFrameLevel(frameContainer:GetFrameLevel() + 1)
+        child:SetFrameLevel(frameContainer:GetFrameLevel() + 10)
+        frameContainer:CreateChildResizers(child)
+        frameContainer:RefreshChildrenState()
     end,
 
     ---@param frameContainer df_framecontainer
     ---@param child frame
-    UnregisterChildForDrag = function(frameContainer, child)
+    UnregisterChild = function(frameContainer, child)
+        frameContainer:SetChildResizersShown(child, false)
+        frameContainer.childResizers[child] = nil
+        frameContainer.childResizerSideOverrides[child] = nil
         frameContainer.movableChildren[child] = nil
         frameContainer:RefreshChildrenState()
     end,
@@ -463,9 +1167,14 @@ local frameContainerOptions = {
     --default settings
     width = 300,
     height = 150,
-    is_locked = true, --can or not be resized
-    is_movement_locked = true, --can or not be moved
-    can_move_children = true,
+    is_locked = true, --can the container be resized
+    is_movement_locked = true, --can the container be moved
+    can_move_children = false, --can move children with drag and drop
+    can_resize_children = false, --can resize children with side resizers
+    use_top_child_resizer = true,
+    use_bottom_child_resizer = true,
+    use_left_child_resizer = true,
+    use_right_child_resizer = true,
     use_topleft_resizer = false,
     use_topright_resizer = false,
     use_bottomleft_resizer = false,
@@ -486,10 +1195,15 @@ function DF:CreateFrameContainer(parent, options, frameName)
     local frameContainer = CreateFrame("frame", frameName or ("$parentFrameContainer" .. math.random(10000, 99999)), parent, "BackdropTemplate")
     frameContainer.components = {}
     frameContainer.movableChildren = {}
+    frameContainer.childResizers = {}
+    frameContainer.childResizerSideOverrides = {}
+    frameContainer.activeChildResizeState = nil
     frameContainer:EnableMouse(false)
 
     detailsFramework:Mixin(frameContainer, detailsFramework.FrameContainerMixin)
     detailsFramework:Mixin(frameContainer, detailsFramework.OptionsFunctions)
+
+    frameContainer.RegisterChildForDrag = detailsFramework.FrameContainerMixin.RegisterChild
 
     frameContainer:CreateResizers()
     frameContainer:CreateMover()
@@ -505,8 +1219,7 @@ function DF:CreateFrameContainer(parent, options, frameName)
 end
 
 
-
-
+--this is a function to test the frame container
 function DF:CreateFrameContainerTest(parent, options, frameName)
     local container = DF:CreateFrameContainer(parent, options, frameName)
     container:SetSize(400, 400)
@@ -517,12 +1230,14 @@ function DF:CreateFrameContainerTest(parent, options, frameName)
     local verticalLastBox = nil
     for i = 1, 4 do
         local lastBox = nil
-        for o = 1, 4 do
+        for o = 1, 2 do
             local frame = CreateFrame("frame", "$parentFrame" .. i .. o, container, "BackdropTemplate")
-            container:RegisterChildForDrag(frame)
+            container:RegisterChild(frame)
+
+            frame:EnableMouse(true)
 
             frame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-            frame:SetBackdropColor(0, 0, 0, 0.5)
+            frame:SetBackdropColor(.4, .40, .40, 0.5)
             frame:SetBackdropBorderColor(1, 1, 1, 0.5)
             frame:SetSize(98, 98)
             if (lastBox) then
@@ -545,18 +1260,6 @@ function DF:CreateFrameContainerTest(parent, options, frameName)
     C_Timer.After(2, function()
         --container:SetResizeLocked(true)
     end)
+
+    return container
 end
-
---C_Timer.After(2, function()
---    DetailsFramework:CreateFrameContainerTest(UIParent)
---end)
-
---[=[
-    /run DetailsFramework:CreateFrameContainerTest(UIParent)
-
-    C_Timer.After(2, function()
-        DetailsFramework:CreateFrameContainerTest(UIParent)
-    end)   
-   
-   
---]=]

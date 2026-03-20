@@ -2102,13 +2102,32 @@ function issecred()
 	print(issecretvalue(a.sourceData.name), a.sourceData.name)
 end
 
+--verify if blizzard created a non-reason segment and messed up with the instance lines
+--non-reason happens when their sessionId internally flips and doesn't trigger an event
+local hasEntropy = function(instance)
+	local lines = instance:GetAllLines()
+	if lines[1] and lines[1]:IsShown() then
+		local segmentType = instance:GetSegmentType()
+		if segmentType == 1 then
+			local a, b = instance:GetDisplay()
+			if a == 1 and (b == 1 or b == 2) then
+				if Details222.BParser.IsClean() then
+					return true
+				end
+			end
+		end
+	end
+end
+
 local lastEventTime = 0
 function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
 	if not bForceUpdate then
 		if instance.lastEventTime ~= Details222.BParser.lastEventTime then
 			instance.lastEventTime = Details222.BParser.lastEventTime
 		else
-			return
+			if not hasEntropy(instance) then
+				return
+			end
 		end
 	else
 		instance.lastEventTime = Details222.BParser.lastEventTime

@@ -316,7 +316,7 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtarg
 		return reportData
 	end
 
-	container:RegisterChildForDrag(targetScrollFrame)
+	container:RegisterChild(targetScrollFrame)
 
 	targetScrollFrame.DontHideChildrenOnPreRefresh = false
 	tabFrame.TargetScrollFrame = targetScrollFrame

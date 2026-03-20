@@ -100,6 +100,17 @@ function Details:InstanceCall(func, ...)
 	end
 end
 
+---call a method on all enabled instances
+---@param func string
+---@vararg any
+function Details:InstanceCallMethod(func, ...)
+	for index, instance in ipairs(Details.tabela_instancias) do
+		if (instance:IsAtiva()) then
+			instance[func](instance, ...)
+		end
+	end
+end
+
 ---run a function on all enabled instances
 ---@param func function
 ---@vararg any
@@ -442,6 +453,9 @@ local instanceMixins = {
 	---@param instance instance
 	---@return number
 	GetNewSegmentId = function(instance)
+		if instance.tempId > 0 then
+			return instance.tempId
+		end
 		instance.sessionId = instance.sessionId or 1
 		return instance.sessionId
 	end,
@@ -450,6 +464,8 @@ local instanceMixins = {
 	---@param sessionId number
 	---@param bForceRefresh boolean?
 	SetNewSegmentId = function(instance, sessionId, bForceRefresh)
+		instance:ResetTempSegment()
+
 		Details:StopTestBarUpdate()
 
 		local old = instance:GetNewSegmentId()
@@ -483,14 +499,28 @@ local instanceMixins = {
 	---@param instance instance
 	---@return number
 	GetSegmentType = function(instance)
+		if instance.tempId > 0 then
+			return 2
+		end
 		instance.sessionType = instance.sessionType or 1
 		return instance.sessionType
+	end,
+
+	ShowValidSegment = function(instance)
+		if Details:IsUsingBlizzardAPI() then
+			local segmentType = instance:GetSegmentType()
+			if segmentType == 1 then
+				
+			end
+		end
 	end,
 
 	---@param instance instance
 	---@param sessionType number
 	---@param bForceRefresh boolean?
 	SetSegmentType = function(instance, sessionType, bForceRefresh)
+		instance:ResetTempSegment()
+
 		Details:StopTestBarUpdate()
 
 		local old = instance:GetSegmentType()
@@ -510,6 +540,13 @@ local instanceMixins = {
 		if sessionType ~= old then
 			Details:SendEvent("DETAILS_INSTANCE_CHANGESESSION", nil, instance, instance.sessionType, instance.sessionId)
 		end
+	end,
+
+	SetTempSegment = function(instance, segmentId)
+		instance.tempId = segmentId
+	end,
+	ResetTempSegment = function(instance)
+		instance.tempId = -1
 	end,
 
 	GetNewSegmentIdFromCurrent = function(instance)
@@ -555,8 +592,6 @@ local instanceMixins = {
 			end
 		--end
 	end,
-
-	---------END OF SESSION
 
 	---return the mais attribute id and the sub attribute
 	---@param instance instance
@@ -899,11 +934,15 @@ function Details:GetSegment()
 end
 
 function Details:GetSegmentObject()
+	local attribute = self:GetAttributeType()
+	if attribute == 100 then
+		attribute = 0
+	end
 	if self:GetSegmentType() > 1 then
-		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, self:GetNewSegmentId(), self:GetAttributeType())
+		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, self:GetNewSegmentId(), attribute)
 		return s
 	else
-		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, self:GetSegmentType(), self:GetAttributeType())
+		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, self:GetSegmentType(), attribute)
 		return s
 	end
 end
@@ -1409,6 +1448,7 @@ end
 	function Details:AtivarInstancia (temp, all)
 		self.ativa = true
 		DetailsFramework:Mixin(self, instanceMixins)
+		self:ResetTempSegment()
 
 		self.cached_bar_width = self.cached_bar_width or 0
 
@@ -2836,9 +2876,13 @@ end
 
 ---@param self instance
 function Details:ShowLastBoss()
+	if InCombatLockdown() then
+		return
+	end
+
 	local _, instanceType = GetInstanceInfo()
 	if instanceType ~= "raid" then
-		return
+		--return --perhaps
 	end
 
 	if not self.auto_current then
@@ -2852,7 +2896,7 @@ function Details:ShowLastBoss()
 	end
 
 	local segmentType = self:GetSegmentType()
-	if segmentType and segmentType == 0 then
+	if segmentType == 0 then
 		return
 	end
 

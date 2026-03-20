@@ -2058,8 +2058,8 @@ local lineScript_Onmouseup = function(self, button)
 					local instanceLine = self
 
 					if InCombatLockdown() then
-						Details:Msg("Can't open breakdown during combat (blizzard restrictions).")
-						return
+						--Details:Msg("Can't open breakdown during combat (blizzard restrictions).")
+						--return
 					end
 
 					if instanceLine.isTotalBar then
@@ -2091,20 +2091,19 @@ local lineScript_Onmouseup = function(self, button)
 						isPlayer = instanceLine.isPlayer,
 					}
 
-					local adapter = Details:MakeActorAdapter(adapterSettings)
-
 					if instanceObject:IsShowingDeathLog() then
 						if issecretvalue(actorName) then
 							Details.ShowDeathTooltip2(instanceObject, self)
 						else
-							Details:OpenBreakdownWindow(instanceObject, adapter, nil, nil, bIsShiftDown, bIsControlDown, nil, nil, nil, self)
+							--local adapter = Details:MakeActorAdapter(adapterSettings)
+							--Details:OpenBreakdownWindow(instanceObject, adapter, nil, nil, bIsShiftDown, bIsControlDown, nil, nil, nil, self)
 						end
 						return
 					end
 
-					if InCombatLockdown() then
-						return
-					end
+					local windowIndex = 1
+					Details.OpenApocalypseBreakdown(windowIndex, instanceObject, segmentType, newSegmentId, damageMeterType, instanceLine.sourceData)
+					do return end
 
 					Details:OpenBreakdownWindow(instanceObject, adapter, nil, nil, bIsShiftDown, bIsControlDown, nil, nil, nil, self)
 					return

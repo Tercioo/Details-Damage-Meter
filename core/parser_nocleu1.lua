@@ -123,6 +123,7 @@ local currentZoneType = "none"
 ---@field UpdateDamageMeterAppearance fun(blzWindow:blzwindow)
 ---@field UpdateAllDamageMeterWindowsAppearance fun()
 ---@field SetSessionCache fun(t:table)
+---@field IsClean fun():boolean
 ---@field WipeStoredSessionIds fun()
 ---@field IsServerSideSessionOpen fun(sessionId:number?):boolean if the sessionId is nil, checks the current session
 ---@field WaitServerDropCombat fun(callback:function)
@@ -156,7 +157,7 @@ end
 local bParser = Details222.BParser
 bParser.lastEventTime = 0
 
-
+local segmentbyType = "Type"
 
 function bParser.InSecretLockdown()
     return bRegenIsDisabled
@@ -619,6 +620,14 @@ local hasAnyActor = function(sessionId)
     end
 
     return false, 0
+end
+
+function bParser.IsClean()
+    local segment = Details222.B.GetSegment(segmentbyType, 1, 0)
+    if segment and segment.combatSources then
+        return #segment.combatSources < 1
+    end
+    return false
 end
 
 local doesSessionHasSources = function(session)
@@ -2320,6 +2329,7 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
     elseif (ev == "PLAYER_REGEN_DISABLED") then --entered in combat
         --print("(debug-event) PLAYER_REGEN_DISABLED", GetTime())
         Details:StopTestBarUpdate()
+        Details:InstanceCallMethod("ResetTempSegment")
 
         debugTexts[#debugTexts+1] = {left = "PLAYER_REGEN_DISABLED", right = "true", time = GetTime(), date = date("%H:%M:%S")}
 

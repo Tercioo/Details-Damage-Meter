@@ -549,7 +549,7 @@ function spellsTab.CreateGenericContainers(tabFrame) --~create ~generic ~createg
 	DF:ReskinSlider(genericScrollFrameLeft)
 	genericScrollFrameLeft:SetBackdrop({})
 	genericScrollFrameLeft:SetAllPoints()
-    leftContainer:RegisterChildForDrag(genericScrollFrameLeft)
+    leftContainer:RegisterChild(genericScrollFrameLeft)
     leftContainer.ScrollFrame = genericScrollFrameLeft
 	genericScrollFrameLeft.DontHideChildrenOnPreRefresh = false
 	tabFrame.GenericScrollFrameLeft = genericScrollFrameLeft
@@ -560,7 +560,7 @@ function spellsTab.CreateGenericContainers(tabFrame) --~create ~generic ~createg
 	DF:ReskinSlider(genericScrollFrameRight)
 	genericScrollFrameRight:SetBackdrop({})
 	genericScrollFrameRight:SetAllPoints()
-    rightContainer:RegisterChildForDrag(genericScrollFrameRight)
+    rightContainer:RegisterChild(genericScrollFrameRight)
     rightContainer.ScrollFrame = genericScrollFrameRight
 	genericScrollFrameRight.DontHideChildrenOnPreRefresh = false
 	tabFrame.GenericScrollFrameRight = genericScrollFrameRight

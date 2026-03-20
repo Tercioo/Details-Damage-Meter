@@ -411,7 +411,7 @@ GameCooltipFrame2 = {}
 ---@field GetRoleTCoordsAndTexture fun(self:table, roleID:number) : number, number, number, number, string
 ---@field AddColorToText fun(self:table, text:string, color:any) : string wrap text with a color
 ---@field AddClassColorToText fun(self:table, text:string, className:class|number) : string wrap text with a class color
----@field MakeDraggable fun(self:table, frame:frame) : nil
+---@field MakeDraggable fun(self:table, frame:frame, profileTable:table?) profile table is a table to save the position
 ---@field GetClassTCoordsAndTexture fun(self:table, class:string|number) : number, number, number, number, string return the class icon texture coordinates and texture file path
 ---@field GetClassColorByClassId fun(self:table, classId:number) : number, number, number return the class color by classId
 ---@field MakeStringFromSpellId fun(self:table, spellId:any) : string return a string with the spell icon and name using escape codes

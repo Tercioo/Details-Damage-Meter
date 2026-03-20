@@ -277,7 +277,7 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 	phaseScrollFrame:SetBackdrop({})
 	phaseScrollFrame:SetAllPoints()
 
-	container:RegisterChildForDrag(phaseScrollFrame)
+	container:RegisterChild(phaseScrollFrame)
 
 	phaseScrollFrame.DontHideChildrenOnPreRefresh = false
 	tabFrame.PhaseScrollFrame = phaseScrollFrame

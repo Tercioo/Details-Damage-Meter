@@ -117,7 +117,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	--texture
 	local gmember_texture = function(_object)
 		return _object._texture:GetTexture()
-	end	
+	end
 	--font size
 	local gmember_textsize = function(_object)
 		local _, fontsize = _object.textleft:GetFont()
@@ -132,7 +132,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	local gmember_textcolor = function(_object)
 		return _object.textleft:GetTextColor()
 	end
-	--alpha 
+	--alpha
 	local gmember_alpha= function(_object)
 		return _object:GetAlpha()
 	end
@@ -155,23 +155,23 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	BarMetaFunctions.GetMembers ["textfont"] = gmember_textfont --alias
 	BarMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
 	BarMetaFunctions.GetMembers ["alpha"] = gmember_alpha
-	
+
 	BarMetaFunctions.__index = function(_table, _member_requested)
 
 		local func = BarMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
-		
+
 		local fromMe = rawget (_table, _member_requested)
 		if (fromMe) then
 			return fromMe
 		end
-		
+
 		return BarMetaFunctions [_member_requested]
 	end
-	
-	
+
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -223,7 +223,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		_object.statusbar:SetStatusBarColor(_value1, _value2, _value3, _value4)
 		_object._texture.original_colors = {_value1, _value2, _value3, _value4}
 		_object.timer_texture:SetVertexColor(_value1, _value2, _value3, _value4)
-		
+
 		_object.timer_textureR:SetVertexColor(_value1, _value2, _value3, _value4)
 
 		return _object._texture:SetVertexColor(_value1, _value2, _value3, _value4)
@@ -311,11 +311,11 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		DF:SetFontOutline (_object.textleft, _value)
 		return DF:SetFontOutline (_object.textright, _value)
 	end
-	--alpha 
+	--alpha
 	local smember_alpha= function(_object, _value)
 		return _object:SetAlpha(_value)
 	end
-	
+
 	BarMetaFunctions.SetMembers = BarMetaFunctions.SetMembers or {}
 	BarMetaFunctions.SetMembers["tooltip"] = smember_tooltip
 	BarMetaFunctions.SetMembers["shown"] = smember_shown
@@ -338,9 +338,9 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	BarMetaFunctions.SetMembers["shadow"] = smember_outline
 	BarMetaFunctions.SetMembers["outline"] = smember_outline --alias
 	BarMetaFunctions.SetMembers["alpha"] = smember_alpha
-	
+
 	BarMetaFunctions.__newindex = function(_table, _key, _value)
-	
+
 		local func = BarMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
@@ -359,8 +359,8 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	function BarMetaFunctions:Hide()
 		self.statusbar:Hide()
 	end
-	
-	
+
+
 --return color
 	function BarMetaFunctions:GetVertexColor()
 		return self._texture:GetVertexColor()
@@ -375,7 +375,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		self.statusbar:SetValue(value)
 		self.div:SetPoint("left", self.statusbar, "left", value * (self.statusbar:GetWidth()/100) - 16, 0)
 	end
-	
+
 --set point
 	function BarMetaFunctions:SetPoint(v1, v2, v3, v4, v5)
 		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
@@ -385,7 +385,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		end
 		return self.widget:SetPoint(v1, v2, v3, v4, v5)
 	end
-	
+
 --set sizes
 	function BarMetaFunctions:SetSize(w, h)
 		if (w) then
@@ -400,7 +400,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	function BarMetaFunctions:SetTexture(texture)
 		self._texture:SetTexture(texture)
 	end
-	
+
 --set texts
 	function BarMetaFunctions:SetLeftText (text)
 		self.textleft:SetText(text)
@@ -408,16 +408,16 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	function BarMetaFunctions:SetRightText (text)
 		self.textright:SetText(text)
 	end
-	
+
 --set color
 	function BarMetaFunctions:SetColor (r, g, b, a)
 		r, g, b, a = DF:ParseColors(r, g, b, a)
-		
+
 		self._texture:SetVertexColor(r, g, b, a)
 		self.statusbar:SetStatusBarColor(r, g, b, a)
 		self._texture.original_colors = {r, g, b, a}
 	end
-	
+
 --set icons
 	function BarMetaFunctions:SetIcon (texture, ...)
 		self._icon:SetTexture(texture)
@@ -447,7 +447,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 	function BarMetaFunctions:GetTooltip()
 		return rawget (self, "have_tooltip")
 	end
-	
+
 -- frame levels
 	function BarMetaFunctions:GetFrameLevel()
 		return self.statusbar:GetFrameLevel()
@@ -472,12 +472,12 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 			self.statusbar:SetFrameStrata(strata)
 		end
 	end
-	
+
 --container
 	function BarMetaFunctions:SetContainer (container)
 		self.container = container
 	end
-	
+
 ------------------------------------------------------------------------------------------------------------
 --scripts
 
@@ -487,31 +487,31 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		if (kill) then
 			return
 		end
-		
+
 		frame.MyObject.background:Show()
-		
-		if (frame.MyObject.have_tooltip) then 
+
+		if (frame.MyObject.have_tooltip) then
 			GameCooltip2:Reset()
 			GameCooltip2:AddLine(frame.MyObject.have_tooltip)
 			GameCooltip2:ShowCooltip(frame, "tooltip")
 		end
 
 	end
-	
+
 	local OnLeave = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnLeave", frame, capsule)
 		if (kill) then
 			return
 		end
-		
+
 		frame.MyObject.background:Hide()
-		
-		if (frame.MyObject.have_tooltip) then 
+
+		if (frame.MyObject.have_tooltip) then
 			GameCooltip2:ShowMe(false)
 		end
 	end
-	
+
 	local OnHide = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnHide", frame, capsule)
@@ -519,7 +519,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 			return
 		end
 	end
-	
+
 	local OnShow = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnShow", frame, capsule)
@@ -555,7 +555,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 			frame.MyObject.container.isMoving = false
 		end
 	end
-	
+
 ------------------------------------------------------------------------------------------------------------
 --timer
 
@@ -604,7 +604,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		else
 			self.t:SetWidth(self.total_size * abs(pct-1))
 		end
-		
+
 		--right text
 		self.remaining = self.remaining - elapsed
 		if (self.MyObject.RightTextIsTimer) then
@@ -620,7 +620,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 			self.MyObject:OnTimerEnd()
 		end
 	end
-	
+
 	function BarMetaFunctions:SetTimer (tempo, end_at)
 		if (end_at) then
 			self.statusbar.tempo = end_at - tempo
@@ -689,7 +689,7 @@ end
 local build_statusbar = function(self)
 
 	self:SetSize(300, 14)
-	
+
 	self.background = self:CreateTexture("$parent_background", "BACKGROUND")
 	self.background:Hide()
 	self.background:SetAllPoints()
@@ -712,27 +712,27 @@ local build_statusbar = function(self)
 	self.texture = self:CreateTexture("$parent_statusbarTexture", "ARTWORK")
 	self.texture:SetSize(300, 14)
 	self.texture:SetTexture([[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
-	
+
 	self:SetStatusBarTexture(self.texture)
-	
+
 	self.icontexture = self:CreateTexture("$parent_icon", "OVERLAY")
 	self.icontexture:SetSize(14, 14)
 	self.icontexture:SetPoint("LEFT", self, "LEFT")
-	
+
 	self.sparkmouseover = self:CreateTexture("$parent_sparkMouseover", "OVERLAY")
 	self.sparkmouseover:SetSize(32, 32)
 	self.sparkmouseover:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
 	self.sparkmouseover:SetBlendMode("ADD")
 	self.sparkmouseover:SetPoint("LEFT", self, "RIGHT", -16, -1)
 	self.sparkmouseover:Hide()
-	
+
 	self.sparktimer = self:CreateTexture("$parent_sparkTimer", "OVERLAY")
 	self.sparktimer:SetSize(32, 32)
 	self.sparktimer:SetPoint("LEFT", self.timertexture, "RIGHT", -16, -1)
 	self.sparktimer:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
 	self.sparktimer:SetBlendMode("ADD")
 	self.sparktimer:Hide()
-	
+
 	self.lefttext = self:CreateFontString("$parent_TextLeft", "OVERLAY", "GameFontHighlight")
 	self.lefttext:SetJustifyH("LEFT")
 	self.lefttext:SetPoint("LEFT", self.icontexture, "RIGHT", 3, 0)
@@ -742,7 +742,7 @@ local build_statusbar = function(self)
 	self.righttext:SetJustifyH("LEFT")
 	DF:SetFontSize(self.righttext, 10)
 	self.righttext:SetPoint("RIGHT", self, "RIGHT", -3, 0)
-	
+
 	DetailsFrameworkNormalBar_OnCreate (self)
 end
 
@@ -761,25 +761,25 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 	elseif (not container) then
 		container = parent
 	end
-	
+
 	if (name:find("$parent")) then
 		local parentName = DF:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
-	
+
 	local BarObject = {type = "bar", dframework = true}
-	
+
 	if (member) then
 		parent [member] = BarObject
 	end
-	
+
 	if (parent.dframework) then
 		parent = parent.widget
 	end
 	if (container.dframework) then
 		container = container.widget
-	end	
-	
+	end
+
 	value = value or 0
 	w = w or 150
 	h = h or 14
@@ -789,19 +789,19 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		BarObject.locked = false
 
 	BarObject.container = container
-	
+
 	--create widgets
 		BarObject.statusbar = CreateFrame("statusbar", name, parent)
 		DF:Mixin(BarObject.statusbar, DF.WidgetFunctions)
-		
+
 		build_statusbar (BarObject.statusbar)
-		
+
 		BarObject.widget = BarObject.statusbar
-		
+
 		if (not APIBarFunctions) then
 			APIBarFunctions = true
 			local idx = getmetatable(BarObject.statusbar).__index
-			for funcName, funcAddress in pairs(idx) do 
+			for funcName, funcAddress in pairs(idx) do
 				if (not BarMetaFunctions [funcName]) then
 					BarMetaFunctions [funcName] = function(object, ...)
 						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")
@@ -810,7 +810,7 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 				end
 			end
 		end
-		
+
 		BarObject.statusbar:SetHeight(h)
 		BarObject.statusbar:SetWidth(w)
 		BarObject.statusbar:SetFrameLevel(parent:GetFrameLevel()+1)
@@ -821,10 +821,10 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		BarObject.timer_texture = _G [name .. "_timerTexture"]
 		BarObject.timer_texture:SetWidth(w)
 		BarObject.timer_texture:SetHeight(h)
-		
+
 		BarObject.timer_textureR = _G [name .. "_timerTextureR"]
 		BarObject.timer_textureR:Hide()
-		
+
 		BarObject._texture = _G [name .. "_statusbarTexture"]
 		BarObject.background = _G [name .. "_background"]
 		BarObject._icon = _G [name .. "_icon"]
@@ -832,7 +832,7 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		BarObject.textright = _G [name .. "_TextRight"]
 		BarObject.div = _G [name .. "_sparkMouseover"]
 		BarObject.div_timer = _G [name .. "_sparkTimer"]
-	
+
 	--hooks
 		BarObject.HookList = {
 			OnEnter = {},
@@ -843,14 +843,14 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 			OnMouseUp = {},
 			OnTimerEnd = {},
 		}
-	
+
 		BarObject.statusbar:SetScript("OnEnter", OnEnter)
 		BarObject.statusbar:SetScript("OnLeave", OnLeave)
 		BarObject.statusbar:SetScript("OnHide", OnHide)
 		BarObject.statusbar:SetScript("OnShow", OnShow)
 		BarObject.statusbar:SetScript("OnMouseDown", OnMouseDown)
 		BarObject.statusbar:SetScript("OnMouseUp", OnMouseUp)
-		
+
 	--set class
 		setmetatable(BarObject, BarMetaFunctions)
 
@@ -858,6 +858,6 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		if (texture_name) then
 			smember_texture (BarObject, texture_name)
 		end
-		
+
 	return BarObject
 end --endd

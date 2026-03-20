@@ -377,6 +377,13 @@ function bParser.HideTooltip_Hook(instanceLine, mouse)
     end
 end
 
+function bParser.GetSerial(sourcePlayer, icon)
+    local thisSerial = not issecretvalue(sourcePlayer.sourceGUID) and sourcePlayer.sourceGUID or nil
+    thisSerial = thisSerial or bParser.guidCache[icon] or nil
+    local guid = thisSerial or (sourcePlayer.isLocalPlayer and UnitGUID("player")) or nil
+    return guid
+end
+
 --~tooltip
 ---@param instanceLine detailsline
 function bParser.ShowTooltip_Hook(instanceLine, mouse)
@@ -467,9 +474,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         ["sourceGUID"] = "Player-3209-0514457A",
     ]=]
 
-    local thisGUID = not issecretvalue(sourcePlayer.sourceGUID) and sourcePlayer.sourceGUID
-    thisGUID = thisGUID or bParser.guidCache[icon]
-    local guid = thisGUID or (sourcePlayer.isLocalPlayer and UnitGUID("player"))
+    local guid = bParser.GetSerial(sourcePlayer, icon)
     local hasSourceSpells = false
 
     if damageMeterType == 9 then
@@ -491,22 +496,10 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         end
         return
     else
-        if guid then
-            if Details222.B.IsSegmentType(sessionType) then
-                sourceSpells = Details222.B.GetSpells("Type", sessionType, damageMeterType, guid, sourcePlayer.sourceCreatureID)
-                hasSourceSpells = true
-            else
-                sourceSpells = Details222.B.GetSpells("ID", sessionId, damageMeterType, guid, sourcePlayer.sourceCreatureID)
-                hasSourceSpells = true
-            end
-        elseif (bParser.IsNotADude(sourcePlayer)) then
-            if Details222.B.IsSegmentType(sessionType) then
-                sourceSpells = Details222.B.GetSpells("Type", sessionType, damageMeterType, nil, sourcePlayer.sourceCreatureID)
-                hasSourceSpells = true
-            else
-                sourceSpells = Details222.B.GetSpells("ID", sessionId, damageMeterType, nil, sourcePlayer.sourceCreatureID)
-                hasSourceSpells = true
-            end
+        local creature = not issecretvalue(sourcePlayer.sourceCreatureID) and sourcePlayer.sourceCreatureID
+        if guid or creature then
+            sourceSpells = Details222.B.GetSpells(sessionType <= 1 and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, sessionType <= 1 and sessionType or sessionId, damageMeterType, guid, creature)
+            hasSourceSpells = true
         end
     end
 
