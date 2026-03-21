@@ -429,50 +429,13 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         tooltip:SetWidth(tooltipWidth)
     end
 
-    ---@type attributeid, attributeid
-    --local mainDisplay, subDisplay = instance:GetDisplay()
-
-    --fragile: Handle with care!
-    --local sourceGUID = instanceLine.secret_SourceGUID
-    --local actorName = instanceLine.secret_SourceName
-
-    ---@type damagemeter_type
-    --local damageMeterType = bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
-    --local spells = GetSpells(DAMAGE_METER_SESSIONPARAMETER_TYPE, 0, 0, sourceGUID)
-    --local blzDamageContainer = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, Enum.DamageMeterSessionType.Current, Enum.DamageMeterType.DamageDone)
-    --local firstCombatant = blzDamageContainer.combatSources[1]
-    --local spells = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, 1, 0, UnitGUID("player"))
-
-    local sourceSpells
+    local sourceSpells, targets
 
     local sessionType = instanceLine.sessionType
     local sessionId = instanceLine.sessionId
     local icon = instanceLine.blzSpecIcon
     local damageMeterType = instanceLine.damageMeterType
     local sourcePlayer = instanceLine.sourceData
-
-    --[=[
-        ["classFilename"] = "", --no secret
-        ["deathRecapID"] = 0,
-        ["amountPerSecond"] = 273.32142857143,
-        ["sourceCreatureID"] = 225976,
-        ["name"] = "Normal Tank Dummy",
-        ["classification"] = "normal", --no secret
-        ["deathTimeSeconds"] = 0,
-        ["totalAmount"] = 7653,
-        ["isLocalPlayer"] = false,
-
-        ["classFilename"] = "HUNTER",
-        ["deathRecapID"] = 0,
-        ["amountPerSecond"] = 273.32142857143,
-        ["specIconID"] = 236179,
-        ["name"] = "Tiranaa",
-        ["classification"] = "", --no secret
-        ["deathTimeSeconds"] = 0,
-        ["totalAmount"] = 7653,
-        ["isLocalPlayer"] = true,
-        ["sourceGUID"] = "Player-3209-0514457A",
-    ]=]
 
     local guid = bParser.GetSerial(sourcePlayer, icon)
     local hasSourceSpells = false
@@ -500,6 +463,9 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         if guid or creature then
             sourceSpells = Details222.B.GetSpells(sessionType <= 1 and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, sessionType <= 1 and sessionType or sessionId, damageMeterType, guid, creature)
             hasSourceSpells = true
+            if not issecretvalue(sourcePlayer.name) then
+                targets = Details222.BreakdownWindowMidnight.LoadTargets(sessionType, sessionId, sourcePlayer.name)
+            end
         end
     end
 
@@ -549,13 +515,14 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     end
 
     local extraTooltipLines = (Details.tooltip.show_header and 1 or 0) + (Details.tooltip.show_help and 1 or 0)
-    local maxSpellLines = max(0, tooltipAmountOfLines - extraTooltipLines)
+    local targetLineCount = (targets and #targets > 0) and (#targets + 1) or 0
+    local maxSpellLines = max(0, tooltipAmountOfLines - extraTooltipLines - targetLineCount)
     local amountOfSpellsToShow = min(#sourceSpells.combatSpells, maxSpellLines)
     local maxAmount = sourceSpells.maxAmount
     local totalAmount = sourceSpells.totalAmount
 
     tooltip:SetMaxAmount(maxAmount)
-    local totalVisibleLines = amountOfSpellsToShow + extraTooltipLines
+    local totalVisibleLines = min(tooltipAmountOfLines, amountOfSpellsToShow + targetLineCount + extraTooltipLines)
     tooltip:SetHeight((totalVisibleLines * (tooltipLineHeight + tooltipPadding)) + 4)
 
     if Details.tooltip.show_help then
@@ -564,167 +531,6 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             Details.tooltip.show_help = false
         end
     end
-
---[=[
-["combatSpells"] =  {
-   [1] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "",
-      ["amountPerSecond"] = 181.95422363281,
-      ["totalAmount"] = 7903,
-      ["isAvoidable"] = false,
-      ["spellID"] = 193455,
-   },
-   [2] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "",
-      ["amountPerSecond"] = 113.34438323975,
-      ["totalAmount"] = 4923,
-      ["isAvoidable"] = false,
-      ["spellID"] = 75,
-   },
-   [3] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "",
-      ["amountPerSecond"] = 74.27360534668,
-      ["totalAmount"] = 3226,
-      ["isAvoidable"] = false,
-      ["spellID"] = 389839,
-   },
-   [4] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "",
-      ["amountPerSecond"] = 57.650684356689,
-      ["totalAmount"] = 2504,
-      ["isAvoidable"] = false,
-      ["spellID"] = 217200,
-   },
-   [5] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "CatTwo",
-      ["amountPerSecond"] = 56.246257781982,
-      ["totalAmount"] = 2443,
-      ["isAvoidable"] = false,
-      ["spellID"] = 6603,
-   },
-   [6] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "CatTwo",
-      ["amountPerSecond"] = 52.746692657471,
-      ["totalAmount"] = 2291,
-      ["isAvoidable"] = false,
-      ["spellID"] = 17253,
-   },
-   [7] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "",
-      ["amountPerSecond"] = 40.843578338623,
-      ["totalAmount"] = 1774,
-      ["isAvoidable"] = false,
-      ["spellID"] = 404884,
-   },
-   [8] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "CatTwo",
-      ["amountPerSecond"] = 32.900489807129,
-      ["totalAmount"] = 1429,
-      ["isAvoidable"] = false,
-      ["spellID"] = 34026,
-   },
-   [9] =  {
-      ["overkillAmount"] = 0,
-      ["combatSpellDetails"] =  {
-         ["isPet"] = false,
-         ["unitClassFilename"] = "",
-         ["amount"] = 0,
-         ["unitName"] = "",
-         ["isMob"] = false,
-         ["classification"] = "",
-      },
-      ["isDeadly"] = false,
-      ["creatureName"] = "CatTwo",
-      ["amountPerSecond"] = 17.520835876465,
-      ["totalAmount"] = 761,
-      ["isAvoidable"] = false,
-      ["spellID"] = 201754,
-   },
-},
-["totalAmount"] = 27254,
-["maxAmount"] = 7903,
-
-]=]
 
     local couldGetPercent = false
     --for i = amountOfSpellsToShow, 1, -1 do
@@ -766,9 +572,6 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         ---@field texts (string|number)[]
         ---@field amount number
 
-        --
-        --print(issecretvalue(creatureName), "creatureName", creatureName)
-
         local leftText = ""
         if issecretvalue(creatureName) then
             if instanceLine.classFilename == "HUNTER" then
@@ -787,8 +590,6 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             curve:AddPoint(totalAmount, 100.0)
             return curve:Evaluate(spellAmount)
         end)
-
-        --need three outputs: amount, dps and percent
 
 		local showDPS = Details.tooltip.show_dps_column
 		local showPercent = Details.tooltip.show_percent_column
@@ -813,6 +614,31 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             texts = dataToShow,
             amount = spellAmount,
         }
+    end
+
+    if targets and #targets > 0 then
+        local showDPS = Details.tooltip.show_dps_column
+        local showPercent = Details.tooltip.show_percent_column and couldGetPercent
+
+
+        local targetHeaderTexts = {"Amount"}
+        if showDPS then
+            targetHeaderTexts[#targetHeaderTexts + 1] = "DPS"
+        end
+        if showPercent then
+            targetHeaderTexts[#targetHeaderTexts + 1] = "%"
+        end
+
+        tooltipData[#tooltipData + 1] = {
+            name = "Targets",
+            icon = [[Interface\WORLDSTATEFRAME\CombatSwords]],
+            texts = targetHeaderTexts,
+            amount = 0,
+        }
+
+        for i = 1, #targets do
+            tooltipData[#tooltipData + 1] = targets[i]
+        end
     end
 
     local showDPS = Details.tooltip.show_dps_column

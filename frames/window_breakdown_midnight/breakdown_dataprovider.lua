@@ -231,13 +231,7 @@ local getSourceSpells = function(sourceSpells, classFileName)
     return spellData, headerData
 end
 
----@param windowFrame detailsbreakdownmidnight_window
-function breakdownMidnight.GenerateTargetsData(windowFrame)
-    local segmentId = windowFrame:GetCurrentSegmentId()
-    local segmentType = windowFrame:GetCurrentSegmentType()
-    local attributeId = windowFrame:GetCurrentAttributeId()
-    local actor = windowFrame:GetPlayerObject()
-
+function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName)
     local actors = Details222.B.GetSegment(segmentType <= 1 and "Type" or "ID", segmentType <= 1 and segmentType or segmentId, 10)
     --dumpt(actors)
     local targets = {}
@@ -252,7 +246,7 @@ function breakdownMidnight.GenerateTargetsData(windowFrame)
                 local thisResult = result[j]
                 local spellDetails = thisResult.combatSpellDetails
                 local playerName = spellDetails.unitName
-                if playerName == actor.name then
+                if playerName == actorName then
                     local percent = thisResult.totalAmount / thisActor.totalAmount * 100
                     local data = {
                         icon = spellDetails.specIconID,
@@ -267,6 +261,16 @@ function breakdownMidnight.GenerateTargetsData(windowFrame)
             end
         end
     end
+    return targets
+end
+
+---@param windowFrame detailsbreakdownmidnight_window
+function breakdownMidnight.GenerateTargetsData(windowFrame)
+    local segmentId = windowFrame:GetCurrentSegmentId()
+    local segmentType = windowFrame:GetCurrentSegmentType()
+    local attributeId = windowFrame:GetCurrentAttributeId()
+    local actor = windowFrame:GetPlayerObject()
+    local targets = breakdownMidnight.LoadTargets(segmentType, segmentId, actor.name)
 
     local headerData = {
         {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0},
