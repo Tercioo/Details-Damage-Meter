@@ -1809,29 +1809,42 @@ function Details:BaseFrameSnap()
 					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
 
 						if (lado_reverso == 1) then --a esquerda
-							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
+							--check if it is already anchored
+							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
+							if not (parent and parent == instancia_alvo.baseframe) then
+								instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
+							end
 
 						elseif (lado_reverso == 2) then --em baixo
-
 							local statusbar_y_mod = 0
 							if (not instancia_alvo.show_statusbar) then
 								statusbar_y_mod = -14
 							end
 
-							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
+							--check if it is already anchored
+							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
+							if not (parent and parent == instancia_alvo.baseframe) then
+								instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
+							end
 
 						elseif (lado_reverso == 3) then --a direita
-							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
+							--check if it is already anchored
+							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
+							if not (parent and parent == instancia_alvo.baseframe) then
+								instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
+							end
 
 						elseif (lado_reverso == 4) then --em cima
-
 							local statusbar_y_mod = 0
 							if (not instancia.show_statusbar) then
 								statusbar_y_mod = 14
 							end
 
-							instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-
+							--check if it is already anchored
+							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
+							if not (parent and parent == instancia_alvo.baseframe) then
+								instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+							end
 						end
 					end
 				end
