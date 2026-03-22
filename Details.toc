@@ -111,6 +111,8 @@ frames\window_breakdown_midnight\section_spelldetails.lua
 frames\window_breakdown_midnight\section_targets.lua
 frames\window_breakdown_midnight\section_compare.lua
 
+frames\window_segmentselection_midnight.lua
+
 frames\window_breakdown\window_playerbreakdown.lua
 frames\window_breakdown\window_playerbreakdown_list.lua
 frames\window_breakdown\window_playerbreakdown_compare.lua

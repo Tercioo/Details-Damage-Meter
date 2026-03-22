@@ -131,8 +131,8 @@
 			[225985] = true, --dornogal
 			[225976] = true, --dornogal
 			[225984] = true, --dornogal
-			
 		}
+
 
 		---@type details_storage_feature
 		---@diagnostic disable-next-line: missing-fields
@@ -253,6 +253,18 @@
 		Details222.AuraScan = {}
 
 		Details222.B = {}
+
+		Details222.Apocalypse = {
+			TypeDetails = 0,
+			TypeGame = 1,
+			segmentType = 1,
+			GetType = function()
+				return Details222.Apocalypse.segmentType
+			end,
+			SetType = function(newType)
+				Details222.Apocalypse.segmentType = newType
+			end
+		}
 
 		--simplify and reduce the amount of functions to work with
 		local mainFName = "GetCombatSession"
@@ -388,6 +400,12 @@
 
 		function Details222.B.GetCurrentTime(segmentType)
 			return Details222.B.GetSegment("Type", segmentType, 0).durationSeconds
+		end
+
+		function Details:BleachFontString(fontString)
+			fontString:SetToDefaults()
+			fontString:SetFontObject("GameFontHighlight")
+			fontString:SetText("")
 		end
 
 		---@type instancedifficulty

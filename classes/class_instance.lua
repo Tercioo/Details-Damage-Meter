@@ -447,6 +447,7 @@ local instanceMixins = {
 	---@param instance instance
 	---@param segmentId segmentid
 	SetSegmentId = function(instance, segmentId)
+		Details222.Apocalypse.SetType(Details222.Apocalypse.TypeDetails)
 		instance.segmento = segmentId
 	end,
 
@@ -467,6 +468,8 @@ local instanceMixins = {
 		instance:ResetTempSegment()
 
 		Details:StopTestBarUpdate()
+
+		Details222.Apocalypse.SetType(Details222.Apocalypse.TypeGame)
 
 		local old = instance:GetNewSegmentId()
 		if sessionId == old then
@@ -522,6 +525,8 @@ local instanceMixins = {
 		instance:ResetTempSegment()
 
 		Details:StopTestBarUpdate()
+
+		Details222.Apocalypse.SetType(Details222.Apocalypse.TypeGame)
 
 		local old = instance:GetSegmentType()
 		if sessionType == old then

@@ -8,6 +8,8 @@ end
 local unpack = unpack
 
 local CreateFrame = CreateFrame
+local GetScreenWidth = GetScreenWidth
+local GetScreenHeight = GetScreenHeight
 local defaultRed, defaultGreen, defaultBlue = detailsFramework:GetDefaultBackdropColor()
 local defaultColorTable = {.98, .98, .98, 1}
 local defaultBorderColorTable = {.2, .2, .2, .5}
@@ -758,5 +760,63 @@ function detailsFramework:AddRoundedCornersToFrame(frame, preset)
             end
         end
     end
+end
+
+---clamp a frame currently positioned on screen and return offset corrections to keep it inside the screen bounds
+---@param frame frame
+---@param offsetX number?
+---@param offsetY number?
+---@return number
+---@return number
+function detailsFramework:ClampToScreen(frame, offsetX, offsetY)
+    frame = frame and frame.widget or frame
+    assert(frame and frame.GetCenter and frame.GetWidth and frame.GetHeight, "ClampToScreen(frame, offsetX, offsetY): frame must be a frame object.")
+
+    local bHadXPositionOutOfScreen = false
+    local bHadYPositionOutOfScreen = false
+
+    if (not offsetX) then
+        local centerX = frame:GetCenter()
+        if (centerX) then
+            local screenWidth = GetScreenWidth()
+            local halfScreenWidth = frame:GetWidth() / 2
+
+            if (centerX + halfScreenWidth > screenWidth) then
+                local moveLeftOffset = (centerX + halfScreenWidth) - screenWidth
+                offsetX = -moveLeftOffset
+                bHadXPositionOutOfScreen = true
+
+            elseif (centerX - halfScreenWidth < 0) then
+                local moveRightOffset = centerX - halfScreenWidth
+                offsetX = moveRightOffset * -1
+                bHadXPositionOutOfScreen = true
+            end
+        end
+    end
+
+    if (not offsetY) then
+        local _, centerY = frame:GetCenter()
+        if (centerY) then
+            local screenHeight = GetScreenHeight()
+            local halfScreenHeight = frame:GetHeight() / 2
+
+            if (centerY + halfScreenHeight > screenHeight) then
+                local moveDownOffset = (centerY + halfScreenHeight) - screenHeight
+                offsetY = -moveDownOffset
+                bHadYPositionOutOfScreen = true
+
+            elseif (centerY - halfScreenHeight < 0) then
+                local moveUpOffset = centerY - halfScreenHeight
+                offsetY = moveUpOffset * -1
+                bHadYPositionOutOfScreen = true
+            end
+        end
+    end
+
+    if (bHadXPositionOutOfScreen or bHadYPositionOutOfScreen) then
+        return self:ClampToScreen(frame, bHadXPositionOutOfScreen and offsetX or 0, bHadYPositionOutOfScreen and offsetY or 0)
+    end
+
+    return offsetX or 0, offsetY or 0
 end
 

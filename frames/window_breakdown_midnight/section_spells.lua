@@ -130,10 +130,20 @@ local refreshSpellsSection = function(self, data, offset, totalLines)
             line:AddFrameToHeaderAlignment(line.Texts[1])
 
             line.Texts[2]:SetText(thisData.name)
+
             if not issecretvalue(thisData.name) then
-                detailsFramework:TruncateText(line.Texts[2], thirdColumnWidth)
-                line:AddFrameToHeaderAlignment(line.Texts[2])
+                Details:BleachFontString(line.Texts[2])
+                breakdownMidnight.SetupFontString(line, line.Texts[2])
+
+                line.Texts[2]:SetText(thisData.name)
+
+                local width = line.Texts[2]:GetStringWidth()
+                if not issecretvalue(width) then
+                    detailsFramework:TruncateText(line.Texts[2], thirdColumnWidth)
+                end
             end
+            line.Texts[2]:Show()
+            line:AddFrameToHeaderAlignment(line.Texts[2])
 
             for textIndex = 3, #line.Texts do
                 local value = thisData.texts[textIndex - 2]

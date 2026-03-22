@@ -198,6 +198,7 @@ _detalhes.instance_defaults = {
 		sessionId = 1,
 		sessionType = 1,
 		tempId = -1,
+		SegmentType = 1,
 
 		rounded_corner_enabled = false,
 

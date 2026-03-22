@@ -9,6 +9,8 @@ GetSpecializationInfo
 
 --start funtion
 function Details222.StartUp.StartMeUp()
+	---@type details
+	local Details = Details
 	if (Details.AndIWillNeverStop) then
 		return
 	end
@@ -425,9 +427,10 @@ function Details222.StartUp.StartMeUp()
 	Details.Schedules.NewTimer(10, Details.ShowDelayMsg, Details)
 
 	--send instance open event for each instance opened
-	for id, instancia in Details:ListInstances() do
-		if (instancia.ativa) then
-			Details:SendEvent("DETAILS_INSTANCE_OPEN", nil, instancia)
+	for id, instance in Details:ListInstances() do
+		---@cast instance instance
+		if (instance.ativa) then
+			Details:SendEvent("DETAILS_INSTANCE_OPEN", nil, instance)
 		end
 	end
 
@@ -454,9 +457,10 @@ function Details222.StartUp.StartMeUp()
 
 	--display the version right after the startup, this will fade out after a few seconds
 	function Details:AnnounceVersion()
-		for index, instancia in Details:ListInstances() do
-			if (instancia.ativa) then
-				Details.FadeHandler.Fader(instancia._version, "in", 0.1)
+		for index, instance in Details:ListInstances() do
+			---@cast instance instance
+			if (instance.ativa) then
+				Details.FadeHandler.Fader(instance._version, "in", 0.1)
 			end
 		end
 	end

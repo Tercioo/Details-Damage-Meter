@@ -2061,6 +2061,7 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 	--return Details:EndRefresh(instanceObject, total, combatObject, damageContainer) --retorna a tabela que precisa ganhar o refresh
 end
 
+--[=[
 function Details:Refresher(instanceObject, combatObject, bForceUpdate, bExportData) --should I use this?
 	if detailsFramework.IsAddonApocalypseWow() then
 		if Details:IsUsingBlizzardAPI() then
@@ -2088,6 +2089,7 @@ function Details:Refresher(instanceObject, combatObject, bForceUpdate, bExportDa
 		customClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData)
 	end
 end
+--]=]
 
 local oldapi = select(4, GetBuildInfo()) < 120000
 function Details:IsUsingBlizzardAPI()

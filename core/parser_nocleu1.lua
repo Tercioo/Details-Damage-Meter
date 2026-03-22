@@ -1492,6 +1492,7 @@ local updateWindow = function(instance) --~update
         return
     end
 
+    do return end
     ---@type attributeid, attributeid
     local mainDisplay, subDisplay = instance:GetDisplay()
 

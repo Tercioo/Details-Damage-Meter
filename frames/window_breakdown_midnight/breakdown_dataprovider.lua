@@ -375,6 +375,12 @@ function breakdownMidnight.GenerateSpellData(windowFrame)
                 spells, header = getSourceSpells(sourceSpells, actor.classFilename)
                 isDude = true
 
+                --for k,v in pairs(spells) do
+                --    for k,v in pairs(v) do
+                --        print(k,v)
+                --    end
+                --end
+
             elseif not guid then
                 if (Details222.BParser.IsNotADude(actor) and not issecretvalue(actor.sourceCreatureID)) then
                     local sourceSpells = Details222.B.GetSpells(t and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, t and segmentType or segmentId, attributeId, nil, actor.sourceCreatureID)

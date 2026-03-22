@@ -45,6 +45,7 @@ local UIParent = UIParent
 ---@field OpenApocalypseBreakdown fun(windowIndex:number, instance:instance, segmentType:number, segmentId:number, attributeId:number, actorObject:actor):detailsbreakdownmidnight_window
 ---@field CreateMainPanel fun(windowIndex:number, parentFrame:frame?):detailsbreakdownmidnight_window
 ---@field GetProfile fun():detailsbreakdownmidnight_profile
+---@field SetupFontString fun(line:detailsbreakdownmidnight_line, fontString:fontstring)
 ---@field PlayerSectionInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
 ---@field SegmentScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
 ---@field SpellScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)

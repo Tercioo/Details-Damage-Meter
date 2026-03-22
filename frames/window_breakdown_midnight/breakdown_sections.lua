@@ -98,6 +98,13 @@ local getSectionLineAmountForSection = function(sectionId, sectionHeight)
     return lineAmount
 end
 
+function breakdownMidnight.SetupFontString(line, fontString)
+    fontString:SetFontObject("GameFontNormal")
+    fontString:SetJustifyH("LEFT")
+    fontString:SetTextColor(1, 1, 1, 0.9)
+    detailsFramework:SetFontSize(fontString, 10)
+    fontString:SetParent(line.StatusBar)
+end
 
 ---@param self df_scrollbox
 ---@param index number
@@ -155,9 +162,7 @@ local createLine = function(self, index) --~line
     local textAmount = 6
     for textIndex = 1, textAmount do
         local textFontString = line.StatusBar:CreateFontString("$parentText" .. textIndex, "overlay", "GameFontNormal")
-        textFontString:SetJustifyH("LEFT")
-        textFontString:SetTextColor(1, 1, 1, 0.9)
-        detailsFramework:SetFontSize(textFontString, 10)
+        breakdownMidnight.SetupFontString(line, textFontString)
         line.Texts[textIndex] = textFontString
     end
 

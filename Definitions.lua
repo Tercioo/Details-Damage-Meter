@@ -1106,6 +1106,14 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field ContextManager contextmanager
 ---@field AllInOneWindow details_allinonewindow
 ---@field BParser bparser
+---@field Apocalypse addon_apocalypse
+
+---@class addon_apocalypse:table
+---@field TypeDetails number
+---@field TypeGame number
+---@field segmentType number
+---@field GetType fun() : number
+---@field SetType fun(newType: number)
 
 ---@class profile_breakdown_settings : table
 ---@field font_size number

@@ -6732,10 +6732,20 @@ local wallpaperColor = {1, 1, 1, 0.5}
 
 -- search key: ~segments
 local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
-	local gameCooltip = GameCooltip
-
 	---@type instance
 	local instance = allInOneWindowFrame or parameters_table[1]
+
+	if detailsFramework.IsAddonApocalypseWow() then
+		local frame = Details222.SegmentSelectionMidnight.Show(instance)
+		frame:ClearAllPoints()
+		frame:SetPoint("bottom", self, "top", 0, 5)
+		local x, y = detailsFramework:ClampToScreen(frame)
+		frame:SetPoint("bottom", self, "top", x, y)
+		return
+	end
+
+	local gameCooltip = GameCooltip
+
 	parameters_table[2] = parameters_table[2] or 0
 	parameters_table[2] = parameters_table[2] + deltaTime
 
