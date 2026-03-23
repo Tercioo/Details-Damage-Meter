@@ -427,14 +427,20 @@ end
 function breakdownMidnight.GenerateSegmentData(windowFrame)
     local segments = Details222.B.GetAllSegments()
     segments = detailsFramework.table.reverse(segments) --show the latest segment first
-
     local segmentData = {}
     for i = 1, #segments do
         local segment = segments[i]
+        local combatTime = segment.durationSeconds
+        if not combatTime then
+            local combatObject = Details:GetTwinCombat(segment.sessionID)
+			if combatObject then
+				combatTime = combatObject:GetCombatTime()
+            end
+        end
         segmentData[i] = {
             sessionID = segment.sessionID,
             name = segment.name,
-            elapsed = formatElapsedTime(segment.durationSeconds),
+            elapsed = combatTime and formatElapsedTime(combatTime) or 1,
             icon = segment.icon,
         }
     end

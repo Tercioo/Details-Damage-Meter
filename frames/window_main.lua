@@ -6764,17 +6764,22 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 					sessionName = DAMAGE_METER_COMBAT_NUMBER:format(sessionId)
 				end
 
-				local icon
+				local icon, combatTime
 				local combatObject = Details:GetTwinCombat(sessionId)
 				if combatObject then
+					combatTime = combatObject:GetCombatTime()
 					local segmentIcon, zoneIcon = combatObject:GetCombatIcon()
 					if segmentIcon then
 						icon = segmentIcon
 					end
 				end
 
-				local tm = combatSession.durationSeconds
-				gameCooltip:AddLine(sessionName, detailsFramework:IntegerToTimer(tm), 1, "white")
+				local tm = combatSession.durationSeconds or combatTime
+				if tm > 600 then
+					tm = combatTime or "??"
+				end
+
+				gameCooltip:AddLine(sessionName, tm and detailsFramework:IntegerToTimer(tm) or "nil", 1, "white")
 				gameCooltip:AddMenu(1, selectExpired, sessionId)
 				gameCooltip:AddIcon(icon or Details:GetTextureAtlas("segment-icon-current"), "main", "left")
 
