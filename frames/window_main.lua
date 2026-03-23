@@ -6775,8 +6775,8 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 				end
 
 				local tm = combatSession.durationSeconds or combatTime
-				if tm > 600 then
-					tm = combatTime or "??"
+				if tm and tm > 600 and combatTime then
+					tm = combatTime
 				end
 
 				gameCooltip:AddLine(sessionName, tm and detailsFramework:IntegerToTimer(tm) or "nil", 1, "white")
