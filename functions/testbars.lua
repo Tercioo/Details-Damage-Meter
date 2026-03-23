@@ -22,6 +22,7 @@ function Details:TestBarsUpdate()
     if Details:IsUsingBlizzardAPI() then
         local lowerInstanceId = Details:GetLowerInstanceNumber()
         local instanceObject = Details:GetInstance(lowerInstanceId)
+        instanceObject:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
         Details:RefreshWindowAddOnApocalypse(instanceObject, EDIT_MODE_SESSION, EDIT_MODE_SESSION.durationSeconds)
     else
         local current_combat = Details:GetCombat("current")

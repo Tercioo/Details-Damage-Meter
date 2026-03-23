@@ -255,14 +255,18 @@
 		Details222.B = {}
 
 		Details222.Apocalypse = {
+			ServerInCombat = false,
 			TypeDetails = 0,
 			TypeGame = 1,
 			segmentType = 1,
-			GetType = function()
+			GetType = function() --addon wide segment type
 				return Details222.Apocalypse.segmentType
 			end,
 			SetType = function(newType)
 				Details222.Apocalypse.segmentType = newType
+			end,
+			IsServerInCombat = function()
+				return Details222.Apocalypse.ServerInCombat
 			end
 		}
 

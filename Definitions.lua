@@ -317,6 +317,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field GetOverallCombat fun(self: details) : combat return the overall combat
 ---@field SetCurrentCombat fun(self: details, combatObject: combat) set the current active combat
 ---@field GetCurrentCombat fun(self: details) : combat return the current active combat
+---@field GetTwinCombat fun(self: details, twinIdentifier:number) : combat?
 ---@field ResetSegmentData fun(self: details) reset all segments inclusing overall data
 ---@field ResetSegmentOverallData fun(self: details) reset only the overall data
 ---@field UpdateBreakdownPlayerList fun(self: details) update the player list in the breakdown window
@@ -418,6 +419,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field bloodlust_overall number[]? exists only in segments that received a merge, uses time()
 ---@field compressed_charts table store chart data
 ---@field combatSessionId string
+---@field twinIdentifier number
 ---@field 
 ---@field __call table
 ---@field __index table
@@ -458,6 +460,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field PhaseData table
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field
+---@field GetTwinCombat fun(self: combat, twinIdentifier:number) : combat?
 ---@field GetPlayerDeaths fun(self: combat, actorName: string) : table[] return a table with subtable containing the death information of the specified actor
 ---@field GetCrowdControlSpells fun(self: combat, actorName: string) : table<spellid, number> return the amount of casts of crowd control spell by an actor
 ---@field GetCCCastAmount fun(self: combat, actorName: string) : number returns the number of crowd control casts made by the specified actor
@@ -720,7 +723,11 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field last_interaction number?
 ---@field auto_current boolean?
 ---@field tempId number
+---@field apocalypseSourceType number
 ---@field
+---@field GetApocalypseSourceType fun(instance: instance) : number
+---@field SetApocalypseSourceType fun(instance: instance, sourceType: number)
+---@field IsShowingDeathLog fun(instance: instance) : boolean
 ---@field GetCombatTime fun(instance: instance) : number get the combat time of the currently showing combat segment
 ---@field CheckForSecretsAndAspects fun(self: instance)
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor

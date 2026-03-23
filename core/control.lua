@@ -932,6 +932,29 @@
 		--issue: invalidCombat will be just floating around in memory if not destroyed
 	end --end of leaving combat function
 
+	if detailsFramework.IsAddonApocalypseWow() then
+		local getSegment = C_DamageMeter.GetCombatSessionFromType
+		local serverInCombat = false
+		C_Timer.NewTicker(0, function()
+			local thisSegment = getSegment(1, 6)
+			if thisSegment then
+				if issecretvalue(thisSegment.totalAmount) then
+					if not serverInCombat then
+						Details:SendEvent("SERVER_COMBAT_STARTED")
+					end
+					serverInCombat = true
+					Details222.Apocalypse.ServerInCombat = true
+				else
+					if serverInCombat then
+						Details:SendEvent("SERVER_COMBAT_ENDED")
+					end
+					serverInCombat = false
+					Details222.Apocalypse.ServerInCombat = false
+				end
+			end
+		end)
+	end
+
 	--~arena
 	---@class arena_ally : table
 	---@field role string

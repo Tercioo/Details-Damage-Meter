@@ -28,7 +28,7 @@ Details222.SegmentSelectionMidnight = segmentSelectionMidnight
 ---@field TitleText fontstring
 ---@field Lines segmentframeline[]
 ---@field dataFor "blizzard"|"details"
----@field Refresh fun(self:segmentframelist, rows:table)
+---@field Refresh fun(self:segmentframelist, rows:table):number
 ---@field GetLine fun(self:segmentframelist, index:number):segmentframeline
 ---@field HideAllLines fun(self:segmentframelist)
 
@@ -55,6 +55,16 @@ local lineTopOffset = 26
 local hideDelay = 0.4
 local defaultStatusBarColor = {0.1, 0.42, 0.6, 0.25}
 local overallAndCurrentStatusBarColor = {.5, 0.5, 0.5, 0.25}
+local frameTopOffset = 6
+
+---@param linesInUse number
+---@return number
+local calculateMainFrameHeight = function(linesInUse)
+    local visibleLines = math.max(linesInUse or 0, 0)
+    local lineSpacing = math.max(visibleLines - 1, 0) * linePadding
+    local linesContentHeight = lineTopOffset + (visibleLines * lineHeight) + lineSpacing
+    return frameTopOffset + linesContentHeight
+end
 
 local mainSegmentFrame
 
@@ -96,8 +106,11 @@ local mainFrameMixin = {
         assert(type(leftData) == "table", "Left provider must return a table.")
         assert(type(rightData) == "table", "Right provider must return a table.")
 
-        self.LeftPanel:Refresh(leftData)
-        self.RightPanel:Refresh(rightData)
+        local linesInUseLeft = self.LeftPanel:Refresh(leftData)
+        local linesInUseRight = self.RightPanel:Refresh(rightData)
+
+        local mainFrameHeight = calculateMainFrameHeight(math.max(linesInUseLeft, linesInUseRight))
+        self:SetHeight(mainFrameHeight)
     end,
 
     CloseFrame = function(self)
@@ -106,7 +119,7 @@ local mainFrameMixin = {
 }
 
 ---@param line segmentframeline
-local onClickLine = function(line) --~click
+local onClickLine = function(line) --~click õnclick ~onclick
     local panel = line:GetParent()
     local mainFrame = panel:GetParent()
     local sourceType = line.dataFor
@@ -206,9 +219,21 @@ local generateGameSegmentData = function() --~data
             sessionName = DAMAGE_METER_COMBAT_NUMBER:format(segment.sessionID or 0)
         end
 
+        local icon = Details:GetTextureAtlas("segment-icon-current")
         local maxDurationForThisName = maxDurationByName[segmentName] or 0
+        local combatObject = Details:GetTwinCombat(segment.sessionID)
+        --print("combat", combatObject, segment.sessionID)
+        if combatObject then
+            local segmentIcon, zoneIcon = combatObject:GetCombatIcon()
+            --print(1,segmentIcon, zoneIcon)
+            if segmentIcon then
+                --print(2)
+
+                icon = segmentIcon
+            end
+        end
         data[#data + 1] = {
-            icon = Details:GetTextureAtlas("segment-icon-current"),
+            icon = icon,
             statusbarColor = defaultStatusBarColor,
             leftText = sessionName,
             rightText = formatElapsedTime(segment.durationSeconds),
@@ -341,11 +366,15 @@ end
 ---@param panel segmentframelist
 ---@param rowData table
 ---@return boolean
-local isRowSelected = function(panel, rowData)
+local isLineSelected = function(panel, rowData)
     local mainFrame = panel:GetParent()
     local instance = mainFrame:GetInstance()
 
     if panel.dataFor == "blizzard" then
+        if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeDetails then
+            return false
+        end
+
         local selectedSegmentType = instance:GetSegmentType()
         if rowData.segmentId == -1 then
             return selectedSegmentType == 0
@@ -358,7 +387,10 @@ local isRowSelected = function(panel, rowData)
         end
 
     elseif panel.dataFor == "details" then
-        return rowData.segmentId == instance:GetSegmentType()
+        if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeGame then
+            return false
+        end
+        return rowData.segmentId == instance:GetSegmentId()
     end
 
     return false
@@ -395,9 +427,16 @@ local createSegmentFrame = function(parent, title, dataFor) --~frame
     for i = 1, lineAmount do
         local line = createLine(panel, i)
 
-        if dataFor == "details" then
-            line:EnableMouse(false)
-            line.DisabledFrame:Show()
+        if dataFor == "details" then --~disabled ~disable
+            if Details222.Apocalypse.IsServerInCombat() then
+                line:EnableMouse(false)
+                line.DisabledFrame:Show()
+            else
+                line:EnableMouse(true)
+                line.DisabledFrame:Hide()
+                line:EnableMouse(false)
+                line.DisabledFrame:Show()
+            end
         else
             line:EnableMouse(true)
             line.DisabledFrame:Hide()
@@ -408,11 +447,12 @@ local createSegmentFrame = function(parent, title, dataFor) --~frame
 
     ---@param data table
     function panel:Refresh(data) --~refresh
-        local lineIndex = lineAmount
+        local lineIndex = math.min(#data, lineAmount)
 
         self:HideAllLines()
         local statusBarTexture = self:GetParent():GetStatusBarTexture()
         local leftTextMaxWidth = frameWidth - 55
+        local linesInUse = 0
 
         for i = 1, lineAmount do
             local thisData = data[i]
@@ -435,7 +475,7 @@ local createSegmentFrame = function(parent, title, dataFor) --~frame
                 line.StatusBar:SetStatusBarColor(unpack(statusBarColor))
                 line.StatusBar:SetValue(percent or 0)
 
-                if isRowSelected(self, thisData) then
+                if isLineSelected(self, thisData) then
                     line.SelectedTexture:Show()
                 else
                     line.SelectedTexture:Hide()
@@ -445,8 +485,12 @@ local createSegmentFrame = function(parent, title, dataFor) --~frame
                 line.dataFor = self.dataFor
                 lineIndex = lineIndex - 1
                 line:Show()
+
+                linesInUse = linesInUse + 1
             end
         end
+
+        return linesInUse
     end
 
     return panel

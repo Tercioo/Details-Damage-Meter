@@ -998,6 +998,7 @@ local addSegment = function(parameterType, session, bIsUpdate, detailsId)
     currentCombat:SetDate(session.startDate, session.endDate)
     currentCombat:SetStartTime(session.startTime)
     currentCombat:SetEndTime(session.endTime)
+    currentCombat.twinIdentifier = identifier
     currentCombat.combatSessionId = detailsId
 
     local encounterInfo = Details.encounter_table
@@ -1450,7 +1451,7 @@ end
 ---@field GetFormattedTimeForTitleBar fun(self:instance):string return a formatted string containing the elapsed time of the combat shown in the instance
 ---@field InstanceCall fun(self:details, function:fun(instance:instance), ...:any?)
 ---@field GetAllLines fun(self:details):frame[]
----@field IsUsingBlizzardAPI fun(self:details):boolean
+---@field IsUsingBlizzardAPI fun(self:details, instance:instance?):boolean
 
 ---hide all lines in the instance and clearup the secret strings
 local clearLineSecrets = function(instance)

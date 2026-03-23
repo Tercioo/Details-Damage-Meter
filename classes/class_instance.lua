@@ -193,6 +193,8 @@ end
 
 --instance class prototype/mixin
 local instanceMixins = {
+	apocalypseSourceType = detailsFramework.IsAddonApocalypseWow() and Details222.Apocalypse.TypeGame or Details222.Apocalypse.TypeDetails,
+
 	---check if the instance is the lower instance id
 	---@param instance instance
 	---@return boolean
@@ -325,7 +327,7 @@ local instanceMixins = {
 		local combatObject = instance:GetCombat()
 
 		--check if the combat object exists, if not, freeze the window
-		if (not combatObject and not Details:IsUsingBlizzardAPI()) then
+		if (not combatObject and not Details:IsUsingBlizzardAPI(instance)) then
 			if (not instance.freezed) then
 				return instance:Freeze()
 			end
@@ -333,7 +335,7 @@ local instanceMixins = {
 		end
 
 		--debug: check if the if combatObject has been destroyed
-		if (combatObject.__destroyed and not Details:IsUsingBlizzardAPI()) then
+		if (combatObject.__destroyed and not Details:IsUsingBlizzardAPI(instance)) then
 			Details:Msg("a deleted combat object was found refreshing a window, please report this bug on discord:")
 			Details:Msg("combat destroyed by:", combatObject.__destroyedBy)
 			local bForceChange = true
@@ -447,7 +449,7 @@ local instanceMixins = {
 	---@param instance instance
 	---@param segmentId segmentid
 	SetSegmentId = function(instance, segmentId)
-		Details222.Apocalypse.SetType(Details222.Apocalypse.TypeDetails)
+		instance:SetApocalypseSourceType(Details222.Apocalypse.TypeDetails)
 		instance.segmento = segmentId
 	end,
 
@@ -469,7 +471,7 @@ local instanceMixins = {
 
 		Details:StopTestBarUpdate()
 
-		Details222.Apocalypse.SetType(Details222.Apocalypse.TypeGame)
+		instance:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
 
 		local old = instance:GetNewSegmentId()
 		if sessionId == old then
@@ -510,12 +512,20 @@ local instanceMixins = {
 	end,
 
 	ShowValidSegment = function(instance)
-		if Details:IsUsingBlizzardAPI() then
+		if Details:IsUsingBlizzardAPI(instance) then
 			local segmentType = instance:GetSegmentType()
 			if segmentType == 1 then
-				
+
 			end
 		end
+	end,
+
+	GetApocalypseSourceType = function(instance)
+		return instance.apocalypseSourceType
+	end,
+
+	SetApocalypseSourceType = function(instance, sourceType)
+		instance.apocalypseSourceType = sourceType
 	end,
 
 	---@param instance instance
@@ -526,7 +536,7 @@ local instanceMixins = {
 
 		Details:StopTestBarUpdate()
 
-		Details222.Apocalypse.SetType(Details222.Apocalypse.TypeGame)
+		instance:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
 
 		local old = instance:GetSegmentType()
 		if sessionType == old then
@@ -575,7 +585,7 @@ local instanceMixins = {
 	---@param instance instance
 	---@return number
 	GetCombatTime = function(instance)
-		if Details:IsUsingBlizzardAPI() then
+		if Details:IsUsingBlizzardAPI(instance) then
 			local thisSegment = instance:GetSegmentObject()
 			return thisSegment.durationSeconds or 60
 		else
@@ -627,7 +637,7 @@ local instanceMixins = {
 	---@param segmentId segmentid
 	---@param bForceChange boolean|nil
 	SetSegment = function(instance, segmentId, bForceChange)
-		if Details:IsUsingBlizzardAPI() then
+		if Details:IsUsingBlizzardAPI(instance) then
 			--shutdown SetSegment if using blizzard parser
 			--todo: on swap to details temporarly, this function should be reactivated
 			return
@@ -852,6 +862,23 @@ local instanceMixins = {
 		end
 	end
 }
+
+if detailsFramework.IsAddonApocalypseWow() then
+	local serverCombatListener = Details:CreateEventListener()
+	serverCombatListener:RegisterEvent("SERVER_COMBAT_STARTED", function(eventName, combatObject)
+		for _, instance in ipairs(Details:GetAllInstances()) do
+			if instance:IsEnabled() then
+				if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeDetails then
+					instance:SetSegmentType(1, true)
+					print("swapping")
+				end
+			end
+		end
+	end)
+	serverCombatListener:RegisterEvent("SERVER_COMBAT_ENDED", function(eventName, combatObject)
+		--do nothing
+	end)
+end
 
 function Details:ClearSecretFontStrings(instance)
 	local bars = instance.barras
@@ -2862,7 +2889,7 @@ function Details:CheckSwitchToCurrent()
 		---@type boolean?
 		local canSwap = false
 
-		if Details:IsUsingBlizzardAPI() then
+		if Details:IsUsingBlizzardAPI(instance) then
 			canSwap = instance.ativa and instance.auto_current and instance.baseframe and instance:GetSegmentType() and instance:GetSegmentType() > 1
 		else
 			canSwap = instance.ativa and instance.auto_current and instance.baseframe and instance.segmento > 0
@@ -2878,7 +2905,7 @@ function Details:CheckSwitchToCurrent()
 				--instance._postponing_switch = Details:ScheduleTimer("PostponeSwitchToCurrent", 1, instance)
 				instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, Details, instance)
 			else
-				if Details:IsUsingBlizzardAPI() then
+				if Details:IsUsingBlizzardAPI(instance) then
 					instance:SetSegmentType(1, true)
 					--instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
 					instance._postponing_switch = nil
@@ -2930,24 +2957,28 @@ function Details:ShowLastBoss()
 	end
 end
 
-function Details:Freeze(instancia)
-	if (not instancia) then
-		instancia = self
+function Details:Freeze(instance)
+	if (not instance) then
+		instance = self
+	end
+
+	if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeGame then
+		return
 	end
 
 	if (not Details.initializing) then
-		instancia:ResetaGump()
-		Details.FadeHandler.Fader(instancia, "in", nil, "barras")
+		instance:ResetaGump()
+		Details.FadeHandler.Fader(instance, "in", nil, "barras")
 	end
 
-	instancia:InstanceMsg(Loc ["STRING_FREEZE"], [[Interface\CHARACTERFRAME\Disconnect-Icon]], "silver")
+	instance:InstanceMsg(Loc ["STRING_FREEZE"], [[Interface\CHARACTERFRAME\Disconnect-Icon]], "silver")
 
 	--instancia.freeze_icon:Show()
 	--instancia.freeze_texto:Show()
 	--local width = instancia:GetSize()
 	--instancia.freeze_texto:SetWidth(width-64)
 
-	instancia.freezed = true
+	instance.freezed = true
 end
 
 function Details:UnFreeze(instancia)

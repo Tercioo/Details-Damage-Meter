@@ -1271,6 +1271,30 @@ local segmentTypeToString = {
 		end
 	end
 
+	function classCombat:GetTwinCombat(twinIdentifier)
+		local segmentsTable = Details:GetCombatSegments()
+		for i = 1, #segmentsTable do
+			---@type combat
+			local thisCombat = segmentsTable[i]
+			if (thisCombat.twinIdentifier == twinIdentifier) then
+				return thisCombat
+			end
+		end
+		return nil
+	end
+
+	function Details:GetTwinCombat(twinIdentifier)
+		local segmentsTable = Details:GetCombatSegments()
+		for i = 1, #segmentsTable do
+			---@type combat
+			local thisCombat = segmentsTable[i]
+			if (thisCombat.twinIdentifier == twinIdentifier) then
+				return thisCombat
+			end
+		end
+		return nil
+	end
+
 	function Details:HasCombatWithSessionId(combatSessionId)
 		local segmentsTable = Details:GetCombatSegments()
 		for i = 1, #segmentsTable do

@@ -765,13 +765,13 @@ end
 
 function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bIsExport)
 	if detailsFramework.IsAddonApocalypseWow() then
-		if Details:IsUsingBlizzardAPI() then
+		if Details:IsUsingBlizzardAPI(instance) then
 			Details222.BParser.UpdateAppocalypse(instance, bIsForceRefresh)
 			return
 		end
 	end
 
-	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
+	--if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
 
 	---@type actorcontainer
 	local utilityActorContainer = combatObject[class_type]

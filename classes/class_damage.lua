@@ -2092,11 +2092,12 @@ end
 --]=]
 
 local oldapi = select(4, GetBuildInfo()) < 120000
-function Details:IsUsingBlizzardAPI()
+function Details:IsUsingBlizzardAPI(instance)
 	if oldapi then
 		return false
 	end
-	return Details.appocalypse_mode == 0
+	return Details222.Apocalypse.ShouldUseGameData(instance)
+	--return Details.appocalypse_mode == 0
 end
 
 function issecred()
@@ -2139,6 +2140,35 @@ function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
 	Details:RefreshWindowAddOnApocalypse(instance, session, session.durationSeconds)
 end
 
+function Details222.Apocalypse.ShouldUseGameData(instance)
+	if detailsFramework.IsAddonApocalypseWow() then
+		if not instance then
+			return Details.appocalypse_mode == 0
+		end
+
+		if Details222.Apocalypse.IsServerInCombat() then
+			return true
+		end
+
+		if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeGame then
+			return true
+
+		elseif instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeDetails then
+			if InCombatLockdown() then
+				instance:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
+				return true
+			else
+				return false
+			end
+		else
+			instance:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
+			return true
+		end
+	else
+		return false
+	end
+end
+
 do
 --~refresh
 ---@param instanceObject instance
@@ -2147,14 +2177,14 @@ do
 ---@param bExportData boolean
 function damageClass:RefreshWindow(instanceObject, combatObject, bForceUpdate, bExportData) --~refresh  | self is not used
 	if detailsFramework.IsAddonApocalypseWow() then
-		if Details:IsUsingBlizzardAPI() then
+		if Details:IsUsingBlizzardAPI(instanceObject) then
 			--will it double the call because the regular refresh is also running?
 			Details222.BParser.UpdateAppocalypse(instanceObject, bForceUpdate)
 			return
 		end
 	end
 
-	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
+	--if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
 
 	---@type actorcontainer
 	local damageContainer = combatObject[class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
@@ -6082,7 +6112,7 @@ function damageClass:MontaInfoDamageDone()
 
 	local attribute, subAttribute = instance:GetDisplay()
 
-	if Details:IsUsingBlizzardAPI() then
+	if Details:IsUsingBlizzardAPI(instance) then
 		--tests: 
 		--print(self.__is_adapter)
 		--print(playerName)

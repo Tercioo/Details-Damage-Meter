@@ -53,6 +53,8 @@
 			["COMBAT_MYTHICDUNGEON_END"] = {},
 			["COMBAT_MYTHICDUNGEON_CONTINUE"] = {},
 			["COMBAT_MYTHICPLUS_OVERALL_READY"] = {},
+			["SERVER_COMBAT_STARTED"] = {},
+			["SERVER_COMBAT_ENDED"] = {},
 
 		--area
 			["ZONE_TYPE_CHANGED"] = {},
@@ -132,6 +134,8 @@ local common_events = {
 	["UNIT_TALENTS"] = true,
 	["PLAYER_TARGET"] = true,
 	["DETAILS_PROFILE_APPLYED"] = true,
+	["SERVER_COMBAT_STARTED"] = true,
+	["SERVER_COMBAT_ENDED"] = true,
 
 }
 

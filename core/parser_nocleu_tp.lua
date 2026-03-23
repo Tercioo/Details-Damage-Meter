@@ -438,8 +438,10 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         return
     end
 
+    local instance = instanceLine:GetInstance()
+
     if not bParser.InSecretLockdown() then
-        if not Details:IsUsingBlizzardAPI() then
+        if not Details:IsUsingBlizzardAPI(instance) then
             return
         end
     end
@@ -448,7 +450,6 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         return
     end
 
-    local instance = instanceLine:GetInstance()
     local baseFrame = instance.baseframe
 
     local tooltip = Details:GetTooltip()

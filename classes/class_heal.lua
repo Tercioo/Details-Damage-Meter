@@ -191,8 +191,8 @@ function healingClass:ContainerRefreshHps (container, combat_time)
 	return total
 end
 
-function healingClass:ReportSingleDamagePreventedLine (actor, instancia)
-	local barra = instancia.barras [actor.minha_barra]
+function healingClass:ReportSingleDamagePreventedLine (actor, instance)
+	local barra = instance.barras [actor.minha_barra]
 
 	local reportar = {"Details!: " .. actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"]}
 	for i = 2, GameCooltip:GetNumLines()-2 do
@@ -206,38 +206,38 @@ function healingClass:ReportSingleDamagePreventedLine (actor, instancia)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
-function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
+function healingClass:RefreshWindow (instance, tabela_do_combate, forcar, exportar)
 	if detailsFramework.IsAddonApocalypseWow() then
-		if Details:IsUsingBlizzardAPI() then
-			Details222.BParser.UpdateAppocalypse(instancia, forcar)
+		if Details:IsUsingBlizzardAPI(instance) then
+			Details222.BParser.UpdateAppocalypse(instance, forcar)
 			return
 		end
 	end
 
-	if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
+	--if not Details222.UpdateIsAllowed() then return end --temporary stop updates in th new dlc
 
 	local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura
 
 	--n�o h� barras para mostrar -- not have something to show
 	if (#showing._ActorTable < 1) then --n�o h� barras para mostrar
 		--colocado isso recentemente para fazer as barras de dano sumirem na troca de atributo
-		return _detalhes:HideBarsNotInUse(instancia, showing), "", 0, 0
+		return _detalhes:HideBarsNotInUse(instance, showing), "", 0, 0
 	end
 
 	--total
 	local total = 0
 	--top actor #1
-	instancia.top = 0
+	instance.top = 0
 
 	local using_cache = false
 
-	local sub_atributo = instancia.sub_atributo --o que esta sendo mostrado nesta inst�ncia
+	local sub_atributo = instance.sub_atributo --o que esta sendo mostrado nesta inst�ncia
 	local conteudo = showing._ActorTable
 	local amount = #conteudo
-	local modo = instancia.modo
+	local modo = instance.modo
 
 	if detailsFramework.IsAddonApocalypseWow() then
-		instancia:CheckForSecretsAndAspects()
+		instance:CheckForSecretsAndAspects()
 	end
 
 	--pega qual a sub key que ser� usada
@@ -263,9 +263,9 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 			keyName = exportar.key
 			modo = exportar.modo
 		end
-	elseif (instancia.atributo == 5) then --custom
+	elseif (instance.atributo == 5) then --custom
 		keyName = "custom"
-		total = tabela_do_combate.totals [instancia.customName]
+		total = tabela_do_combate.totals [instance.customName]
 	else
 		if (sub_atributo == 1) then --healing DONE
 			keyName = "total"
@@ -284,19 +284,19 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 		end
 	end
 
-	if (instancia.atributo == 5) then --custom
+	if (instance.atributo == 5) then --custom
 		--faz o sort da categoria e retorna o amount corrigido
 		amount = _detalhes:ContainerSortHeal (conteudo, amount, keyName)
 
 		--grava o total
-		instancia.top = conteudo[1][keyName]
+		instance.top = conteudo[1][keyName]
 
-	elseif (instancia.modo == modo_ALL or sub_atributo == 5 or sub_atributo == 7) then --mostrando ALL
+	elseif (instance.modo == modo_ALL or sub_atributo == 5 or sub_atributo == 7) then --mostrando ALL
 
 		amount = _detalhes:ContainerSortHeal (conteudo, amount, keyName)
 
 		if (sub_atributo == 2) then --hps
-			local combat_time = instancia.showing:GetCombatTime()
+			local combat_time = instance.showing:GetCombatTime()
 			total = healingClass:ContainerRefreshHps (conteudo, combat_time)
 		else
 			--pega o total ja aplicado na tabela do combate
@@ -304,11 +304,11 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 		end
 
 		--grava o total
-		instancia.top = conteudo[1][keyName]
+		instance.top = conteudo[1][keyName]
 
-	elseif (instancia.modo == modo_GROUP) then --mostrando GROUP
+	elseif (instance.modo == modo_GROUP) then --mostrando GROUP
 
-		if (_detalhes.in_combat and instancia.segmento == 0 and not exportar) then
+		if (_detalhes.in_combat and instance.segmento == 0 and not exportar) then
 			using_cache = true
 		end
 
@@ -316,12 +316,12 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 			conteudo = _detalhes.cache_healing_group
 
 			if (sub_atributo == 2) then --hps
-				local combat_time = instancia.showing:GetCombatTime()
+				local combat_time = instance.showing:GetCombatTime()
 				healingClass:ContainerRefreshHps (conteudo, combat_time)
 			end
 
 			if (#conteudo < 1) then
-				return _detalhes:HideBarsNotInUse(instancia, showing), "", 0, 0
+				return _detalhes:HideBarsNotInUse(instance, showing), "", 0, 0
 			end
 
 			_detalhes:ContainerSortHeal (conteudo, nil, keyName)
@@ -329,7 +329,7 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 			if (conteudo[1][keyName] < 1) then
 				amount = 0
 			else
-				instancia.top = conteudo[1][keyName]
+				instance.top = conteudo[1][keyName]
 				amount = #conteudo
 			end
 
@@ -339,7 +339,7 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 
 		else
 			if (sub_atributo == 2) then --hps
-				local combat_time = instancia.showing:GetCombatTime()
+				local combat_time = instance.showing:GetCombatTime()
 				healingClass:ContainerRefreshHps (conteudo, combat_time)
 			end
 
@@ -353,7 +353,7 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 						amount = index - 1
 						break
 					elseif (index == 1) then --esse IF aqui, precisa mesmo ser aqui? n�o daria pra pega-lo com uma chave [1] nad grupo == true?
-						instancia.top = conteudo[1][keyName]
+						instance.top = conteudo[1][keyName]
 					end
 
 					total = total + player[keyName]
@@ -371,25 +371,25 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 	showing:remapear()
 
 	if (exportar) then
-		return total, keyName, instancia.top, amount
+		return total, keyName, instance.top, amount
 	end
 
 	if (amount < 1) then --n�o h� barras para mostrar
-		instancia:EsconderScrollBar()
-		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
+		instance:EsconderScrollBar()
+		return _detalhes:EndRefresh (instance, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
 	end
 
 	--estra mostrando ALL ent�o posso seguir o padr�o correto? primeiro, atualiza a scroll bar...
-	instancia:RefreshScrollBar (amount)
+	instance:RefreshScrollBar (amount)
 
 	--depois faz a atualiza��o normal dele atrav�s dos iterators
 	local whichRowLine = 1
-	local barras_container = instancia.barras --evita buscar N vezes a key .barras dentro da inst�ncia
-	local percentage_type = instancia.row_info.percent_type
-	local bars_show_data = instancia.row_info.textR_show_data
-	local bars_brackets = instancia:GetBarBracket()
-	local bars_separator = instancia:GetBarSeparator()
-	local baseframe = instancia.baseframe
+	local barras_container = instance.barras --evita buscar N vezes a key .barras dentro da inst�ncia
+	local percentage_type = instance.row_info.percent_type
+	local bars_show_data = instance.row_info.textR_show_data
+	local bars_brackets = instance:GetBarBracket()
+	local bars_separator = instance:GetBarSeparator()
+	local baseframe = instance.baseframe
 
 	local use_animations = _detalhes.is_using_row_animations and (not baseframe.isStretching and not forcar and not baseframe.isResizing)
 
@@ -398,7 +398,7 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 	end
 
 	local myPos
-	local following = instancia.following.enabled
+	local following = instance.following.enabled
 
 	if (following) then
 		if (using_cache) then
@@ -414,95 +414,95 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 		end
 	end
 
-	local combat_time = instancia.showing:GetCombatTime()
-	UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
-	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
+	local combat_time = instance.showing:GetCombatTime()
+	UsingCustomLeftText = instance.row_info.textL_enable_custom_text
+	UsingCustomRightText = instance.row_info.textR_enable_custom_text
 
 	local use_total_bar = false
-	if (instancia.total_bar.enabled) then
+	if (instance.total_bar.enabled) then
 		use_total_bar = true
 
-		if (instancia.total_bar.only_in_group and (not IsInGroup() and not IsInRaid())) then
+		if (instance.total_bar.only_in_group and (not IsInGroup() and not IsInRaid())) then
 			use_total_bar = false
 		end
 	end
 
-	if (instancia.bars_sort_direction == 1) then --top to bottom
+	if (instance.bars_sort_direction == 1) then --top to bottom
 
-		if (use_total_bar and instancia.barraS[1] == 1) then
+		if (use_total_bar and instance.barraS[1] == 1) then
 
 			whichRowLine = 2
-			local iter_last = instancia.barraS[2]
-			if (iter_last == instancia.rows_fit_in_window) then
+			local iter_last = instance.barraS[2]
+			if (iter_last == instance.rows_fit_in_window) then
 				iter_last = iter_last - 1
 			end
 
 			local row1 = barras_container [1]
 			row1.minha_tabela = nil
 			row1.lineText1:SetText(Loc ["STRING_TOTAL"])
-			if (instancia.use_multi_fontstrings) then
-				instancia:SetInLineTexts(row1, "", _detalhes:ToK2 (total), _detalhes:ToK (total / combat_time))
+			if (instance.use_multi_fontstrings) then
+				instance:SetInLineTexts(row1, "", _detalhes:ToK2 (total), _detalhes:ToK (total / combat_time))
 			else
 				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			end
 
 			row1:SetValue(100)
-			local r, g, b = unpack(instancia.total_bar.color)
+			local r, g, b = unpack(instance.total_bar.color)
 			row1.textura:SetVertexColor(r, g, b)
 
-			row1.icone_classe:SetTexture(instancia.total_bar.icon)
+			row1.icone_classe:SetTexture(instance.total_bar.icon)
 			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 
 			Details.FadeHandler.Fader(row1, "out")
 
-			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos+1) then
-				for i = instancia.barraS[1], iter_last-1, 1 do --vai atualizar s� o range que esta sendo mostrado
+			if (following and myPos and myPos+1 > instance.rows_fit_in_window and instance.barraS[2] < myPos+1) then
+				for i = instance.barraS[1], iter_last-1, 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 
-				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+				conteudo[myPos]:RefreshLine(instance, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 				whichRowLine = whichRowLine+1
 			else
 
-				for i = instancia.barraS[1], iter_last, 1 do --vai atualizar s� o range que esta sendo mostrado
+				for i = instance.barraS[1], iter_last, 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 			end
 
 		else
-			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --vai atualizar s� o range que esta sendo mostrado
+			if (following and myPos and myPos > instance.rows_fit_in_window and instance.barraS[2] < myPos) then
+				for i = instance.barraS[1], instance.barraS[2]-1, 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 
-				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+				conteudo[myPos]:RefreshLine(instance, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 				whichRowLine = whichRowLine+1
 			else
-				for i = instancia.barraS[1], instancia.barraS[2], 1 do --vai atualizar s� o range que esta sendo mostrado
+				for i = instance.barraS[1], instance.barraS[2], 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 			end
 		end
 
-	elseif (instancia.bars_sort_direction == 2) then --bottom to top
+	elseif (instance.bars_sort_direction == 2) then --bottom to top
 
-		if (use_total_bar and instancia.barraS[1] == 1) then
+		if (use_total_bar and instance.barraS[1] == 1) then
 
 			whichRowLine = 2
-			local iter_last = instancia.barraS[2]
-			if (iter_last == instancia.rows_fit_in_window) then
+			local iter_last = instance.barraS[2]
+			if (iter_last == instance.rows_fit_in_window) then
 				iter_last = iter_last - 1
 			end
 
@@ -510,52 +510,52 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 			row1.minha_tabela = nil
 			row1.lineText1:SetText(Loc ["STRING_TOTAL"])
 			--
-			if (instancia.use_multi_fontstrings) then
-				instancia:SetInLineTexts(row1, "", _detalhes:ToK2(total), _detalhes:ToK(total / combat_time))
+			if (instance.use_multi_fontstrings) then
+				instance:SetInLineTexts(row1, "", _detalhes:ToK2(total), _detalhes:ToK(total / combat_time))
 			else
 				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			end
 
 			row1:SetValue(100)
-			local r, g, b = unpack(instancia.total_bar.color)
+			local r, g, b = unpack(instance.total_bar.color)
 			row1.textura:SetVertexColor(r, g, b)
 
-			row1.icone_classe:SetTexture(instancia.total_bar.icon)
+			row1.icone_classe:SetTexture(instance.total_bar.icon)
 			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 
 			Details.FadeHandler.Fader(row1, "out")
 
-			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos+1) then
-				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+			if (following and myPos and myPos+1 > instance.rows_fit_in_window and instance.barraS[2] < myPos+1) then
+				conteudo[myPos]:RefreshLine(instance, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 				whichRowLine = whichRowLine+1
-				for i = iter_last-1, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
+				for i = iter_last-1, instance.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 			else
-				for i = iter_last, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
+				for i = iter_last, instance.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 			end
 		else
-			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+			if (following and myPos and myPos > instance.rows_fit_in_window and instance.barraS[2] < myPos) then
+				conteudo[myPos]:RefreshLine(instance, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 				whichRowLine = whichRowLine+1
-				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
+				for i = instance.barraS[2]-1, instance.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 			else
-				for i = instancia.barraS[2], instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
+				for i = instance.barraS[2], instance.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+						conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -566,11 +566,11 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 
 	if not detailsFramework.IsAddonApocalypseWow() then
 		if (use_animations) then
-			instancia:PerformAnimations (whichRowLine - 1)
+			instance:PerformAnimations (whichRowLine - 1)
 		end
 	end
 
-	if (instancia.atributo == 5) then --custom
+	if (instance.atributo == 5) then --custom
 		--zerar o .custom dos Actors
 		for index, player in ipairs(conteudo) do
 			if (player.custom > 0) then
@@ -583,19 +583,19 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 
 	--beta, hidar barras n�o usadas durante um refresh for�ado
 	if (forcar) then
-		if (instancia.modo == 2) then --group
-			for i = whichRowLine, instancia.rows_fit_in_window  do
-				Details.FadeHandler.Fader(instancia.barras [i], "in", Details.fade_speed)
+		if (instance.modo == 2) then --group
+			for i = whichRowLine, instance.rows_fit_in_window  do
+				Details.FadeHandler.Fader(instance.barras [i], "in", Details.fade_speed)
 			end
 		end
 	end
 
 	if not detailsFramework.IsAddonApocalypseWow() then
-		instancia:AutoAlignInLineFontStrings()
+		instance:AutoAlignInLineFontStrings()
 	end
 
 	-- showing.need_refresh = false
-	return Details:EndRefresh (instancia, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
+	return Details:EndRefresh (instance, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
 
 end
 
