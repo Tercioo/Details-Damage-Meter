@@ -843,7 +843,7 @@ local segmentTypeToString = {
 		--dungeon or raid
 		local instanceType = self.instance_type
 
-		if (instanceType == "party") then
+		if (instanceType == "party" or instanceType == "scenario") then
 			if (self.is_dungeon_overall) then
 				--self.combat_type = DETAILS_SEGMENTTYPE_DUNGEON_OVERALL
 				return DETAILS_SEGMENTTYPE_DUNGEON_OVERALL

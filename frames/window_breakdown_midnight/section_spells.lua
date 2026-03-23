@@ -134,7 +134,8 @@ local refreshSpellsSection = function(self, data, offset, totalLines)
             if not issecretvalue(thisData.name) then
                 Details:BleachFontString(line.Texts[2])
                 breakdownMidnight.SetupFontString(line, line.Texts[2])
-
+                line.Texts[2]:SetParent(line.StatusBar)
+                line.Texts[2]:SetDrawLayer("artwork")
                 line.Texts[2]:SetText(thisData.name)
 
                 local width = line.Texts[2]:GetStringWidth()

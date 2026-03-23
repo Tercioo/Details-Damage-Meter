@@ -158,6 +158,10 @@ local onClickLine = function(line) --~click õnclick ~onclick
 
     elseif sourceType == "details" then
         instance:SetSegmentId(rowData.segmentId)
+        Details.no_fade_animation = true
+        Details:UpdateCombatObjectInUse(instance)
+        Details:RefreshMainWindow(instance, true)
+        Details.no_fade_animation = false
     end
 
     --mainFrame:CloseFrame()
@@ -222,13 +226,9 @@ local generateGameSegmentData = function() --~data
         local icon = Details:GetTextureAtlas("segment-icon-current")
         local maxDurationForThisName = maxDurationByName[segmentName] or 0
         local combatObject = Details:GetTwinCombat(segment.sessionID)
-        --print("combat", combatObject, segment.sessionID)
         if combatObject then
             local segmentIcon, zoneIcon = combatObject:GetCombatIcon()
-            --print(1,segmentIcon, zoneIcon)
             if segmentIcon then
-                --print(2)
-
                 icon = segmentIcon
             end
         end
@@ -434,8 +434,8 @@ local createSegmentFrame = function(parent, title, dataFor) --~frame
             else
                 line:EnableMouse(true)
                 line.DisabledFrame:Hide()
-                line:EnableMouse(false)
-                line.DisabledFrame:Show()
+                --line:EnableMouse(false)
+                --line.DisabledFrame:Show()
             end
         else
             line:EnableMouse(true)
