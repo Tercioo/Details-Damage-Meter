@@ -998,6 +998,10 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		return
 	end
 
+	if true then
+		return
+	end
+
 	if (CONST_DEBUG_MODE) then
 		Details222.MythicPlus.Level = Details222.MythicPlus.Level or 2
 	end
