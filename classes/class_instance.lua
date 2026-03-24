@@ -1930,80 +1930,80 @@ function Details:agrupar_janelas(lados)
 		if (esta_instancia) then
 			instancia.baseframe:ClearAllPoints()
 			esta_instancia = Details.tabela_instancias [esta_instancia]
+			---@cast esta_instancia instance
+			if esta_instancia:IsEnabled() then
+				instancia:SetWindowScale (esta_instancia.window_scale)
 
-			instancia:SetWindowScale (esta_instancia.window_scale)
+				if (lado == 3) then --direita
+					--mover frame
+					instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
+					instancia.baseframe:SetPoint("RIGHT", esta_instancia.baseframe, "LEFT", -Details.grouping_horizontal_gap, 0)
+					instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "BOTTOMLEFT", -Details.grouping_horizontal_gap, 0)
 
-			if (lado == 3) then --direita
-				--mover frame
-				instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("RIGHT", esta_instancia.baseframe, "LEFT", -Details.grouping_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "BOTTOMLEFT", -Details.grouping_horizontal_gap, 0)
+					local _, height = esta_instancia:GetSize()
+					instancia:SetSize(nil, height)
 
-				local _, height = esta_instancia:GetSize()
-				instancia:SetSize(nil, height)
+					--salva o snap
+					self.snap [3] = esta_instancia.meu_id
+					esta_instancia.snap [1] = self.meu_id
 
-				--salva o snap
-				self.snap [3] = esta_instancia.meu_id
-				esta_instancia.snap [1] = self.meu_id
+				elseif (lado == 4) then --cima
+					--mover frame
 
-			elseif (lado == 4) then --cima
-				--mover frame
+					local statusbar_y_mod = 0
+					if (not esta_instancia.show_statusbar) then
+						statusbar_y_mod = 14
+					end
 
-				local statusbar_y_mod = 0
-				if (not esta_instancia.show_statusbar) then
-					statusbar_y_mod = 14
+					instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+					instancia.baseframe:SetPoint("TOP", esta_instancia.baseframe, "BOTTOM", 0, -34 + statusbar_y_mod)
+					instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "BOTTOMRIGHT", 0, -34 + statusbar_y_mod)
+
+					local _, height = esta_instancia:GetSize()
+					instancia:SetSize(nil, height)
+
+					--salva o snap
+					self.snap [4] = esta_instancia.meu_id
+					esta_instancia.snap [2] = self.meu_id
+
+				elseif (lado == 1) then --esquerda
+					--mover frame
+
+					instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
+					instancia.baseframe:SetPoint("LEFT", esta_instancia.baseframe, "RIGHT", Details.grouping_horizontal_gap, 0)
+					instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
+
+					local _, height = esta_instancia:GetSize()
+					instancia:SetSize(nil, height)
+
+					--salva o snap
+					self.snap [1] = esta_instancia.meu_id
+					esta_instancia.snap [3] = self.meu_id
+
+				elseif (lado == 2) then --baixo
+					--mover frame
+
+					local statusbar_y_mod = 0
+					if (not instancia.show_statusbar) then
+						statusbar_y_mod = -14
+					end
+
+					instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+					instancia.baseframe:SetPoint("BOTTOM", esta_instancia.baseframe, "TOP", 0, 34 + statusbar_y_mod)
+					instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "TOPRIGHT", 0, 34 + statusbar_y_mod)
+
+					local _, height = esta_instancia:GetSize()
+					instancia:SetSize(nil, height)
+
+					--salva o snap
+					self.snap [2] = esta_instancia.meu_id
+					esta_instancia.snap [4] = self.meu_id
+
+					if (not esta_instancia.ativa) then
+						esta_instancia:AtivarInstancia()
+					end
 				end
-
-				instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint("TOP", esta_instancia.baseframe, "BOTTOM", 0, -34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "BOTTOMRIGHT", 0, -34 + statusbar_y_mod)
-
-				local _, height = esta_instancia:GetSize()
-				instancia:SetSize(nil, height)
-
-				--salva o snap
-				self.snap [4] = esta_instancia.meu_id
-				esta_instancia.snap [2] = self.meu_id
-
-			elseif (lado == 1) then --esquerda
-				--mover frame
-
-				instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("LEFT", esta_instancia.baseframe, "RIGHT", Details.grouping_horizontal_gap, 0)
-				instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
-
-				local _, height = esta_instancia:GetSize()
-				instancia:SetSize(nil, height)
-
-				--salva o snap
-				self.snap [1] = esta_instancia.meu_id
-				esta_instancia.snap [3] = self.meu_id
-
-			elseif (lado == 2) then --baixo
-				--mover frame
-
-				local statusbar_y_mod = 0
-				if (not instancia.show_statusbar) then
-					statusbar_y_mod = -14
-				end
-
-				instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint("BOTTOM", esta_instancia.baseframe, "TOP", 0, 34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "TOPRIGHT", 0, 34 + statusbar_y_mod)
-
-				local _, height = esta_instancia:GetSize()
-				instancia:SetSize(nil, height)
-
-				--salva o snap
-				self.snap [2] = esta_instancia.meu_id
-				esta_instancia.snap [4] = self.meu_id
-
 			end
-
-			if (not esta_instancia.ativa) then
-				esta_instancia:AtivarInstancia()
-			end
-
 		end
 	end
 
