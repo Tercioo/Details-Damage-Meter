@@ -249,7 +249,9 @@ function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName)
                 if playerName == actorName then
                     local percent = thisResult.totalAmount / thisActor.totalAmount * 100
                     local data = {
-                        icon = spellDetails.specIconID,
+                        icon = [[Interface\COMMON\friendship-FistHuman]],
+                        iconcoords = {0, 1, 0, 1},
+                        iconsize = 16,
                         name = thisActor.name,
                         texts = {AbbreviateNumbers(thisResult.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(thisResult.amountPerSecond, Details.abbreviateOptionsDPS), string.format("%.1f%%", percent)},
                         amount = thisResult.totalAmount,
