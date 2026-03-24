@@ -1805,6 +1805,10 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 	--> this function is called while in combat when secrets are turned on
 
 	if not instanceObject.barraS[1] then
+		--if not instanceObject.baseframe then
+		--	local baseframe = _G["DetailsBaseFrame" .. instanceObject:GetId()]
+		--	instanceObject.baseframe = baseframe
+		--end
 		instanceObject:ReajustaGump()
 	end
 

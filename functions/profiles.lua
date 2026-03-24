@@ -1533,7 +1533,7 @@ local default_global_data = {
 		spells = {width = 464, height = 398},
 		targets = {width = 300, height = 170},
 		spelldetails = {width = 231, height = 261},
-		compare = {width = 231, height = 261},
+		compare = {width = 231, height = 200},
 		headers_width = {},
 		headers_shown = {},
 	},
