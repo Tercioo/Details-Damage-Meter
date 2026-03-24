@@ -1822,6 +1822,11 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 		return Details:HideBarsNotInUse(instanceObject, damageContainer, 0.01), "", 0, 0
 	end
 
+	local attributeId = instanceObject:GetAttributeType()
+	if attributeId == 9 then
+		combatSources = detailsFramework.table.reverse(combatSources)
+	end
+
     ---@type attributeid, attributeid
     local mainDisplay, subDisplay = instanceObject:GetDisplay()
 

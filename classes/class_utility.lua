@@ -200,8 +200,10 @@ function Details.ShowDeathTooltip2(instance, lineFrame) --~death
 	for i = #events, 1, -1 do
 		local ev = events[i]
 		GameCooltip:AddLine(format("%s (%s)", ev.spellName or UNKNOWN, ev.sourceName or UNKNOWN), format("-%d", ev.amount), 1, "white", "white")
-		local spellInfo = C_Spell.GetSpellInfo(ev.spellId)
-		GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
+		if ev.spellId then
+			local spellInfo = C_Spell.GetSpellInfo(ev.spellId)
+			GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
+		end
 		if i == 1 then
 			GameCooltip:AddStatusBar(0, 1, 1, 1, 1, 1, false)
 		else
