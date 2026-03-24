@@ -28,6 +28,7 @@ local tooltipFontStringPadding = 6 --space between each font string horizontally
 local tooltipPadding = 1 --space between each line
 local cantStartUpdater = false
 local updaterTicker = nil
+local amountOfTargetLines = 3
 
 local MAX_TOOLTIP_HELP = 30
 
@@ -507,6 +508,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         if guid or creature then
             sourceSpells = Details222.B.GetSpells(sessionType <= 1 and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, sessionType <= 1 and sessionType or sessionId, damageMeterType, guid, creature)
             hasSourceSpells = true
+
             if not issecretvalue(sourcePlayer.name) then
                 targets = Details222.BreakdownWindowMidnight.LoadTargets(sessionType, sessionId, sourcePlayer.name)
             end
@@ -559,7 +561,9 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     end
 
     local extraTooltipLines = (Details.tooltip.show_help and 1 or 0)
-    local targetLineCount = (targets and #targets > 0) and (#targets + 2) or 0
+    --local targetLineCount = (targets and #targets > 0) and (#targets + 2) or 0
+    local targetLineCount = (targets and #targets > 0) and (min(#targets, amountOfTargetLines) + 2) or 0
+
     local headerLineCount = Details.tooltip.show_header and 1 or 0
     local maxSpellLines = max(0, tooltipAmountOfLines - extraTooltipLines - targetLineCount - headerLineCount)
     local amountOfSpellsToShow = min(#sourceSpells.combatSpells, maxSpellLines)
@@ -688,7 +692,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             isHeader = true,
         }
 
-        for i = 1, #targets do
+        for i = 1, min(#targets, amountOfTargetLines) do
             tooltipData[#tooltipData + 1] = targets[i]
         end
     end
