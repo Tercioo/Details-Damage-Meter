@@ -1218,21 +1218,31 @@ do
 		}
 
 		LIB_OPEN_RAID_MYTHIC_PLUS_CURRENT_SEASON = { --mapIds
-			2830, --Path of the Eco-Dome - Eco-Dome Al'dani
-			2287, --Path of the Sinful Soul - Halls of Atonement
-			2773, --Path of the Circuit Breaker - Operation: Floodgate
-			2662, --Path of the Arathi Flagship - The Dawnbreaker
-			2649, --Path of the Light's Reverence - Priory of the Sacred Flame
-			2660, --Path of the Ruined City - Ara-Kara, City of Echoes
-			2441, --Path of the Streetwise Merchant - Tazavesh, the Veiled Market
-
-			--1763, --atal'dazar (development debug)
+			2805, --Path of the Windrunners - Windrunner Spire
+			2811, --Path of Devoted Magistry - Magisters' Terrace
+			2874, --Path of Cavernous Depths - Maisara Caverns
+			2915, --Path of the Fractured Core - Nexus-Point Xenas
+			2526, --Path of the Draconic Diploma - Algeth'ar Academy
+			1753, --Path of Dark Dereliction - Seat of the Triumvirate
+			1209, --Path of the Skies - Skyreach
+			658,  --Path of Unyielding Blight - Pit of Saron
 		}
 
 		---@alias teleporter_spellid number
 		---@type table<teleporter_spellid, number|boolean>
 		LIB_OPEN_RAID_MYTHIC_PLUS_TELEPORT_SPELLS = { --spellId, mapId
-			--11.2 /dump GetInstanceInfo()
+			--12.0.1
+			[1254400] = 2805, --Path of the Windrunners - Windrunner Spire
+			[1254572] = 2811, --Path of Devoted Magistry - Magisters' Terrace
+			[1254559] = 2874, --Path of Cavernous Depths - Maisara Caverns
+			[1254563] = 2915, --Path of the Fractured Core - Nexus-Point Xenas
+			[393273] = 2526, --Path of the Draconic Diploma - Algeth'ar Academy
+			[1254551] = 1753, --Path of Dark Dereliction - Seat of the Triumvirate
+			[159898] = 1209, --Path of the Skies - Skyreach
+			[1254555] = 658,  --Path of Unyielding Blight - Pit of Saron
+
+			--deprecated
+			--11.2 /dump GetInstanceInfo()			
 			[1237215] = 2830, --Path of the Eco-Dome - Eco-Dome Al'dani
 			[354465] = 2287, --Path of the Sinful Soul - Halls of Atonement
 			[1216786] = 2773, --Path of the Circuit Breaker - Operation: Floodgate
@@ -1240,8 +1250,7 @@ do
 			[445444] = 2649, --Path of the Light's Reverence - Priory of the Sacred Flame
 			[445417] = 2660, --Path of the Ruined City - Ara-Kara, City of Echoes
 			[367416] = 2441, --Path of the Streetwise Merchant - Tazavesh, the Veiled Market
-
-			--deprecated
+			--old
 			[1226482] = true, --Path of the Full House - Liberation of Undermine
 			[1239155] = true, --Path of the All-Devouring - Manaforge Omega
 			[424153] = true, --Path of Ancient Horrors - Black Rook Hold
@@ -1264,7 +1273,7 @@ do
 			[354462] = true, --Path of the Courageous - The Necrotic Wake
 			[159899] = true, --Path of the Crescent Moon - Shadowmoon Burial Grounds
 			[159900] = true, --Path of the Dark Rail - Grimrail Depot
-			[393273] = true, --Path of the Draconic Diploma - Algeth'ar Academy
+			--[393273] = true, --Path of the Draconic Diploma - Algeth'ar Academy
 			[410078] = true, --Path of the Earth-Warder - Neltharion's Lair
 			[373262] = true, --Path of the Fallen Guardian - Karazhan
 			[445443] = true, --Path of the Fallen Stormriders - The Rookery
@@ -1293,7 +1302,7 @@ do
 			[131225] = true, --Path of the Setting Sun - Gate of the Setting Sun.
 			[131206] = true, --Path of the Shado-Pan - Shado-Pan Monastery
 			[373190] = true, --Path of the Sire - Castle Nathria
-			[159898] = true, --Path of the Skies - Skyreach
+			--[159898] = true, --Path of the Skies - Skyreach
 			[354469] = true, --Path of the Stone Warden - Sanguine Depths
 			[131205] = true, --Path of the Stout Brew - Stormstout Brewery
 			[183835] = true, --Path of the Templar - ??
@@ -1315,6 +1324,16 @@ do
 
 		--zoneName, challengeMapId, timeLimit, texture, textureBackground, mapId, teleportSpellId
 		LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO = {
+			--12.0.1
+			[161] = {"Skyreach", 161, 1680, 1042064, 1041989, 1209, 159898},
+			[239] = {"Seat of the Triumvirate", 239, 2040, 1718526, 1718205, 1753, 1254551},
+			[402] = {"Algeth'ar Academy", 402, 1740, 4746641, 4742939, 2526, 393273},
+			[556] = {"Pit of Saron", 556, 1800, 336391, 5912544, 658, 1254555},
+			[557] = {"Windrunner Spire", 557, 2010, 7464936, 1537281, 2805, 1254400},
+			[558] = {"Magisters' Terrace", 558, 2040, 7467178, 5912539, 2811, 1254572},
+			[559] = {"Nexus-Point Xenas", 559, 1800, 7570495, 4742932, 2915, 1254563},
+			[560] = {"Maisara Caverns", 560, 1980, 7478535, 1616920, 2874, 1254559},
+			--old
 			[2] = {"Temple of the Jade Serpent", 2, 1800, 632363, 632283, 960},
 			[56] = {"Stormstout Brewery", 56, 2700, 632362, 632282, 961},
 			[57] = {"Gate of the Setting Sun", 57, 2700, 632357, 632277, 962},
@@ -1324,7 +1343,7 @@ do
 			[76] = {"Scholomance", 76, 3300, 136355, 608254, 1007},
 			[77] = {"Scarlet Halls", 77, 2700, 643268, 643265, 1001},
 			[78] = {"Scarlet Monastery", 78, 2700, 136354, 608253, 1004},
-			[161] = {"Skyreach", 161, 3400, 1042064, 1041989, 1209},
+			--[161] = {"Skyreach", 161, 3400, 1042064, 1041989, 1209},
 			[163] = {"Bloodmaul Slag Mines", 163, 1800, 1042059, 1041984, 1175},
 			[164] = {"Auchindoun", 164, 3300, 1042057, 1041982, 1182},
 			[165] = {"Shadowmoon Burial Grounds", 165, 1980, 1042063, 1041988, 1176},
@@ -1344,7 +1363,7 @@ do
 			[227] = {"Return to Karazhan: Lower", 227, 2520, 1537287, 1537281, 1651},
 			[233] = {"Cathedral of Eternal Night", 233, 2100, 1616925, 1616920, 1677},
 			[234] = {"Return to Karazhan: Upper", 234, 2100, 1537287, 1537281, 1651},
-			[239] = {"Seat of the Triumvirate", 239, 2100, 1718526, 1718205, 1753},
+			--[239] = {"Seat of the Triumvirate", 239, 2100, 1718526, 1718205, 1753},
 			[244] = {"Atal'Dazar", 244, 1800, 1778896, 1778890, 1763, 424187},
 			[245] = {"Freehold", 245, 1800, 1778897, 1778891, 1754},
 			[246] = {"Tol Dagor", 246, 2160, 2178737, 2177730, 1771},
@@ -1370,7 +1389,7 @@ do
 			[399] = {"Ruby Life Pools", 399, 1800, 4746639, 4742937, 2521},
 			[400] = {"The Nokhud Offensive", 400, 2400, 4746636, 4742934, 2516},
 			[401] = {"The Azure Vault", 401, 2250, 4746634, 4742932, 2515},
-			[402] = {"Algeth'ar Academy", 402, 1920, 4746641, 4742939, 2526},
+			--[402] = {"Algeth'ar Academy", 402, 1920, 4746641, 4742939, 2526},
 			[403] = {"Uldaman: Legacy of Tyr", 403, 2100, 4746642, 4742940, 2451},
 			[404] = {"Neltharus", 404, 1980, 4746640, 4742938, 2519},
 			[405] = {"Brackenhide Hollow", 405, 2100, 4746635, 4742933, 2520},

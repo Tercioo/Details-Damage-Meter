@@ -75,7 +75,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 176
+local CONST_LIB_VERSION = 177
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -3174,7 +3174,7 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRa
             return
         end
 
-        toGuildCooldown = GetTime()+20
+        toGuildCooldown = GetTime() + 10
         local dataToSend = getKeystoneInfoToComm()
         openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_GUILD)
         diagnosticComm("SendPlayerKeystoneInfoToGuild| " .. dataToSend) --debug
