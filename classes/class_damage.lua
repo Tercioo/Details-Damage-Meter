@@ -2133,6 +2133,7 @@ end
 
 local lastEventTime = 0
 function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
+	---@cast instance instance
 	if not bForceUpdate then
 		if instance.lastEventTime ~= Details222.BParser.lastEventTime then
 			instance.lastEventTime = Details222.BParser.lastEventTime
