@@ -5845,6 +5845,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end)
 
+		Details:InstanceCallMethod("SwapToUserSegment_Apocalypse")
+
 		if (detailsFramework.ExpansionHasEvoker() and not detailsFramework.IsAddonApocalypseWow()) then
 			if (IsInRaid()) then
 				--check if there is only one bombardment evoker in the group
@@ -6356,6 +6358,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (difficultyID == 8) then
 			Details:SendEvent("COMBAT_MYTHICDUNGEON_END")
 		end
+
+		Details:InstanceCallMethod("DoAutomation", "COMBAT_MYTHICDUNGEON_END")
 
 		Details222.MythicPlus.LogStep("===== Mythic+ Finished =====")
 	end

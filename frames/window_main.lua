@@ -6731,25 +6731,27 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 
 		Details:AddRoundedCornerToTooltip()
 
-		if detailsFramework.IsAddonApocalypseWow() and Details:IsUsingBlizzardAPI() then
+		if detailsFramework.IsAddonApocalypseWow() then -- and Details:IsUsingBlizzardAPI()
 			local bForceRefresh = true
 			local afterSetSession = function()
 				instance:RefreshWindow(bForceRefresh)
 			end
 
+			local bByUser = true
+
 			local selectExpired = function(_, _, sessionId)
 				instance:SetNewSegmentId(sessionId)
-				instance:SetSegmentType(2, bForceRefresh)
+				instance:SetSegmentType(2, bForceRefresh, bByUser)
 				afterSetSession()
 			end
 			local selectCurrent = function()
 				--instance:SetNewSegmentId(1)
-				instance:SetSegmentType(1, bForceRefresh)
+				instance:SetSegmentType(1, bForceRefresh, bByUser)
 				afterSetSession()
 			end
 			local selectOverall = function()
 				--instance:SetNewSegmentId(1)
-				instance:SetSegmentType(0, bForceRefresh)
+				instance:SetSegmentType(0, bForceRefresh, bByUser)
 				afterSetSession()
 			end
 

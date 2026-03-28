@@ -5716,8 +5716,6 @@ do
                 name = Details:AddRoleIcon("", "TANK", 18),
             },
 
-            {type = "blank"},
-
             {--switch after a wipe
                 type = "select",
                 get = function()
@@ -5813,6 +5811,20 @@ do
                 desc = Loc ["STRING_OPTIONS_MENU_ALPHALEAVE_DESC"],
             },
 
+            {type = "blank"},
+            {type = "label", get = function() return "Mythic Plus" end, text_template = subSectionTitleTextTemplate},
+
+            {--auto swap to overall after mythic plus
+                type = "toggle",
+                get = function() return currentInstance.automation.overall_mythic_plus end,
+                set = function(self, fixedparam, value)
+                    currentInstance.automation.overall_mythic_plus = value
+                    afterUpdate()
+                end,
+                name = "Overall After Mythic+",
+                desc = "Change to overall data when the mythic plus dungeon is completed.", --localize-me
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+            },
         }
 
         sectionFrame.sectionOptions = sectionOptions

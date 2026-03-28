@@ -194,6 +194,7 @@ end
 --instance class prototype/mixin
 local instanceMixins = {
 	apocalypseSourceType = detailsFramework.IsAddonApocalypseWow() and Details222.Apocalypse.TypeGame or Details222.Apocalypse.TypeDetails,
+	overallByUser = false, --true when the user selected overall data, false when Details! set to overall
 
 	---check if the instance is the lower instance id
 	---@param instance instance
@@ -206,6 +207,33 @@ local instanceMixins = {
 	---@return boolean
 	IsInteracting = function(instance)
 		return instance.is_interacting
+	end,
+
+	DoAutomation = function(self, event)
+		local automation = self.automation
+		local mythicPlus = automation.overall_mythic_plus
+
+		if event == "COMBAT_MYTHICDUNGEON_END" then
+			if mythicPlus then
+				local forceRefresh = true
+				local byUser = false
+				local sourceType = self:GetApocalypseSourceType()
+
+				if sourceType == Details222.Apocalypse.TypeGame then
+					if self:GetSegmentType() ~= 0 then
+						self:SetSegmentType(0, forceRefresh, byUser)
+					end
+
+				elseif sourceType == Details222.Apocalypse.TypeDetails then
+					if self:GetSegment() ~= DETAILS_SEGMENTID_OVERALL then
+						self:SetSegmentId(DETAILS_SEGMENTID_OVERALL)
+						self:RefreshCombat()
+						Details:UpdateCombatObjectInUse(self)
+						Details:RefreshMainWindow(self, forceRefresh)
+					end
+				end
+			end
+		end
 	end,
 
 	---check if the instance is enabled
@@ -439,6 +467,28 @@ local instanceMixins = {
 		return modeId
 	end,
 
+	SwapToUserSegment_Apocalypse = function(instance)
+		if detailsFramework.IsAddonApocalypseWow() then
+			if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeDetails then
+				instance:SetSegmentType(instance.sessionType_user, true, true)
+				if instance.sessionType_user > 1 then
+					instance:SetNewSegmentId(instance.sessionId_user, true, true)
+				end
+			elseif instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeGame then
+				if instance:GetSegmentType() ~= instance.sessionType_user then
+					instance:SetSegmentType(instance.sessionType_user, true, true)
+					if instance.sessionType_user > 1 then
+						instance:SetNewSegmentId(instance.sessionId_user, true, true)
+					end
+				else
+					if instance:GetNewSegmentId() ~= instance.sessionId_user then
+						instance:SetNewSegmentId(instance.sessionId_user, true, true)
+					end
+				end
+			end
+		end
+	end,
+
 	---return the segmentId
 	---@param instance instance
 	---@return segmentid
@@ -448,9 +498,13 @@ local instanceMixins = {
 
 	---@param instance instance
 	---@param segmentId segmentid
-	SetSegmentId = function(instance, segmentId)
+	---@param bByUser boolean?
+	SetSegmentId = function(instance, segmentId, bByUser)
 		instance:SetApocalypseSourceType(Details222.Apocalypse.TypeDetails)
 		instance.segmento = segmentId
+		if bByUser then
+			instance.segmento_user = segmentId
+		end
 	end,
 
 	---@param instance instance
@@ -466,12 +520,17 @@ local instanceMixins = {
 	---@param instance instance
 	---@param sessionId number
 	---@param bForceRefresh boolean?
-	SetNewSegmentId = function(instance, sessionId, bForceRefresh)
+	---@param bByUser boolean?
+	SetNewSegmentId = function(instance, sessionId, bForceRefresh, bByUser)
 		instance:ResetTempSegment()
 
 		Details:StopTestBarUpdate()
 
 		instance:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
+
+		if bByUser then
+			instance.sessionId_user = sessionId
+		end
 
 		local old = instance:GetNewSegmentId()
 		if sessionId == old then
@@ -531,12 +590,19 @@ local instanceMixins = {
 	---@param instance instance
 	---@param sessionType number
 	---@param bForceRefresh boolean?
-	SetSegmentType = function(instance, sessionType, bForceRefresh)
+	---@param bByUser boolean?
+	SetSegmentType = function(instance, sessionType, bForceRefresh, bByUser)
 		instance:ResetTempSegment()
 
 		Details:StopTestBarUpdate()
-
 		instance:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
+
+		if bByUser then
+			if sessionType == 0 then
+				instance.overallByUser = true
+			end
+			instance.sessionType_user = sessionType
+		end
 
 		local old = instance:GetSegmentType()
 		if sessionType == old then
@@ -628,7 +694,10 @@ local instanceMixins = {
 	end,
 
 	SetSegmentFromCooltip = function(_, instance, segmentId, bForceChange)
+		---@cast instance instance
 		Details:StopTestBarUpdate()
+		local byUser = true
+		instance:SetSegmentId(segmentId, byUser)
 		return instance:SetSegment(segmentId, bForceChange)
 	end,
 

@@ -195,12 +195,22 @@ _detalhes.instance_defaults = {
 	--row animation when show
 		row_show_animation = {anim = "Fade", options = {}},
 
+		segmento = 0,
+		segmento_user = 0,
 		sessionId = 1,
+		sessionId_user = 1,
 		sessionType = 1,
+		sessionType_user = 1,
 		tempId = -1,
 		SegmentType = 1,
 
 		rounded_corner_enabled = false,
+
+		overallByUser = false,
+
+		automation = {
+			overall_mythic_plus = true,
+		},
 
 		--use one fontstring for each value in the lines, e.g. one fontstring to damage done, another fontstring to dps and another to percent amount
 		use_multi_fontstrings = true,

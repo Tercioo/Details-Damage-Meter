@@ -553,19 +553,20 @@ function Details.switch:ShowMe(instancia)
 						local afterSetSession = function()
 							instance:RefreshWindow(bForceRefresh)
 						end
+						local bByUser = true
 						local selectExpired = function(_, _, sessionId)
 							instance:SetNewSegmentId(sessionId)
-							instance:SetSegmentType(2, bForceRefresh)
+							instance:SetSegmentType(2, bForceRefresh, bByUser)
 							afterSetSession()
 						end
 						local selectCurrent = function()
 							--instance:SetNewSegmentId(1)
-							instance:SetSegmentType(1, bForceRefresh)
+							instance:SetSegmentType(1, bForceRefresh, bByUser)
 							afterSetSession()
 						end
 						local selectOverall = function()
 							--instance:SetNewSegmentId(1)
-							instance:SetSegmentType(0, bForceRefresh)
+							instance:SetSegmentType(0, bForceRefresh, bByUser)
 							afterSetSession()
 						end
 
@@ -577,6 +578,9 @@ function Details.switch:ShowMe(instancia)
 							selectExpired(nil, nil, segment)
 						end
 					else
+						local forceUpdate = false
+						local bByUser = true
+						Details.switch.current_instancia:SetSegment(segment, forceUpdate, bByUser)
 						Details.switch.current_instancia:TrocaTabela(segment)
 					end
 

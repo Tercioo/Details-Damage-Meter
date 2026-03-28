@@ -56,6 +56,7 @@ local hideDelay = 0.4
 local defaultStatusBarColor = {0.1, 0.42, 0.6, 0.25}
 local overallAndCurrentStatusBarColor = {.5, 0.5, 0.5, 0.25}
 local frameTopOffset = 6
+local byUser = true
 
 ---@param linesInUse number
 ---@return number
@@ -135,16 +136,16 @@ local onClickLine = function(line) --~click õnclick ~onclick
         end
 
         local selectExpired = function(sessionId)
-            instance:SetNewSegmentId(sessionId)
-            instance:SetSegmentType(2, bForceRefresh)
+            instance:SetNewSegmentId(sessionId, byUser)
+            instance:SetSegmentType(2, bForceRefresh, byUser)
             afterSetSession()
         end
         local selectCurrent = function()
-            instance:SetSegmentType(1, bForceRefresh)
+            instance:SetSegmentType(1, bForceRefresh, byUser)
             afterSetSession()
         end
         local selectOverall = function()
-            instance:SetSegmentType(0, bForceRefresh)
+            instance:SetSegmentType(0, bForceRefresh, byUser)
             afterSetSession()
         end
 
@@ -157,7 +158,7 @@ local onClickLine = function(line) --~click õnclick ~onclick
         end
 
     elseif sourceType == "details" then
-        instance:SetSegmentId(rowData.segmentId)
+        instance:SetSegmentId(rowData.segmentId, byUser)
         Details.no_fade_animation = true
         Details:UpdateCombatObjectInUse(instance)
         Details:RefreshMainWindow(instance, true)
