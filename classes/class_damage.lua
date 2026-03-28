@@ -2138,7 +2138,9 @@ function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
 			instance.lastEventTime = Details222.BParser.lastEventTime
 		else
 			if not hasEntropy(instance) then
-				return
+				if not instance.baseframe.isStretching then
+					return
+				end
 			end
 		end
 	else
