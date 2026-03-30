@@ -134,6 +134,23 @@ local getTargets = function()
 
 end
 
+local petNameColor = "FFCCBBBB"
+
+local formatPetName = function(petName, spellName, ownerName)
+	local bUseAlphaIcons = true
+	local specIcon = nil
+	local iconSize = 14
+
+	if (petName:len() == 0) then
+		return Details:AddClassOrSpecIcon(spellName, "PET", specIcon, iconSize, bUseAlphaIcons)
+	end
+
+	petName = Details:AddClassOrSpecIcon(petName, "PET", specIcon, iconSize, bUseAlphaIcons)
+
+	return spellName .. " |c" .. petNameColor .. petName .. "|r"
+end
+
+
 ---@param sourceSpells damagemeter_combat_session_source
 ---@param classFileName string
 local getSourceSpells = function(sourceSpells, classFileName)
@@ -169,13 +186,19 @@ local getSourceSpells = function(sourceSpells, classFileName)
         local leftText = ""
         if issecretvalue(creatureName) then
             if classFileName == "HUNTER" then
-                leftText = spellInfo.name .. " (|cFFAAAAAA" .. creatureName .. "|r)"
+                leftText = spellInfo.name .. " (|c" .. petNameColor .. creatureName .. "|r)"
             else
                 leftText = spellInfo.name
             end
         else
-            leftText = spellInfo.name .. (creatureName and creatureName ~= "" and " (|cFFAAAAAA" .. creatureName .. "|r)" or "")
+            if creatureName and creatureName ~= "" then
+                leftText = formatPetName(creatureName, spellInfo.name, unitName)
+            else
+                leftText = spellInfo.name
+            end
+            --leftText = spellInfo.name .. (creatureName and creatureName ~= "" and " (|cFFAAAAAA" .. creatureName .. "|r)" or "")
         end
+
         --local result = DurationObject:EvaluateElapsedPercent(curve [, modifier])
 
         local success, percent = pcall(function()

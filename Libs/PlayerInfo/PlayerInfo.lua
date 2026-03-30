@@ -1137,7 +1137,7 @@ do
         for backpackId = 0, 4 do
             for slotId = 1, GetContainerNumSlots(backpackId) do
                 local itemId = GetContainerItemID(backpackId, slotId)
-                if (itemId == LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID or itemId == 180653) then
+                if (itemId == 151086 or itemId == 180653) then
                     local itemLink = GetContainerItemLink(backpackId, slotId)
                     local destroyedItemLink = itemLink:gsub("|", "")
                     local _, _, _, mythicPlusMapID = strsplit(":", destroyedItemLink)

@@ -110,6 +110,7 @@ frames\window_breakdown_midnight\section_segments.lua
 frames\window_breakdown_midnight\section_spelldetails.lua
 frames\window_breakdown_midnight\section_targets.lua
 frames\window_breakdown_midnight\section_compare.lua
+frames\window_breakdown_midnight\options.lua
 
 frames\window_segmentselection_midnight.lua
 

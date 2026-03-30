@@ -724,9 +724,15 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field auto_current boolean?
 ---@field tempId number
 ---@field apocalypseSourceType number
+---@field overallByUser boolean
+---@field sessionType_user number
+---@field sessionId_user number
+---@field segmento_user number
+---@field lastEventTime number
 ---@field
 ---@field GetApocalypseSourceType fun(instance: instance) : number
 ---@field SetApocalypseSourceType fun(instance: instance, sourceType: number)
+---@field SwapToUserSegment_Apocalypse fun(instance: instance)
 ---@field IsShowingDeathLog fun(instance: instance) : boolean
 ---@field GetCombatTime fun(instance: instance) : number get the combat time of the currently showing combat segment
 ---@field CheckForSecretsAndAspects fun(self: instance)
@@ -742,11 +748,12 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field IsLowerInstance fun(instance: instance) : boolean
 ---@field IsEnabled fun(instance: instance) : boolean
 ---@field GetId fun(instance: instance) : instanceid
----@field SetSegmentId fun(instance: instance, segment: segmentid) set the segmentId for the instance and nothing else, use 'SetSegment' for a full update
+---@field SetSegmentId fun(instance: instance, segment: segmentid, bByUser: boolean?) set the segmentId for the instance and nothing else, use 'SetSegment' for a full update
 ---@field GetSegmentId fun(instance: instance) : segmentid
 ---@field RefreshCombat fun(instance: instance)
 ---@field Freeze fun(instance: instance)
 ---@field UnFreeze fun(instance: instance)
+---@field DoAutomation fun(instance: instance, event:string)
 ---@field GetAttributeType fun(instance: instance) : number
 ---@field GetSources fun(instance: instance) : damagemeter_combat_source[]
 ---@field SetSegment fun(instance: instance, segment: segmentid, force: boolean|nil)
@@ -757,9 +764,9 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field RefreshData fun(instance: instance, force: boolean|nil)
 ---@field RefreshWindow fun(instance: instance, force: boolean|nil)
 ---@field GetNewSegmentId fun(instance: instance) : number
----@field SetNewSegmentId fun(instance: instance, sessionId: number, bForceRefresh: boolean?)
+---@field SetNewSegmentId fun(instance: instance, sessionId: number, bForceRefresh: boolean?, bByUser: boolean?)
 ---@field GetSegmentType fun(instance: instance) : number
----@field SetSegmentType fun(instance: instance, sessionType: number, bForceRefresh: boolean?)
+---@field SetSegmentType fun(instance: instance, sessionType: number, bForceRefresh: boolean?, bByUser: boolean?)
 ---@field GetSegmentObject fun(instance: instance) : damagemeter_combat_session
 ---@field GetSourceActorFromName fun(instance: instance, name: string) : actor
 

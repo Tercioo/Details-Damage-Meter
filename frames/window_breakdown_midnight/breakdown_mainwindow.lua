@@ -28,6 +28,7 @@ local UIParent = UIParent
 ---@field Enums detailsbreakdownmidnight_enums
 ---@field Sections detailsbreakdownmidnight_sections
 ---@field BreakdownWindows detailsbreakdownmidnight_window[]
+---@field GetBreakdownWindows fun():detailsbreakdownmidnight_window[]
 ---@field GetBreakdownWindow fun(windowIndex:number, shouldNotError:boolean?):detailsbreakdownmidnight_window
 ---@field CreateBreakdownWindow fun(windowIndex:number, parentFrame:frame?):detailsbreakdownmidnight_window
 ---@field HasFrameBeenCreated fun(windowIndex:number):boolean
@@ -43,13 +44,20 @@ local UIParent = UIParent
 ---@field RefreshSectionPoints fun(windowFrame:detailsbreakdownmidnight_window)
 ---@field ResetSectionSizes fun(windowFrame:detailsbreakdownmidnight_window, dontRefresh:boolean?)
 ---@field OpenApocalypseBreakdown fun(windowIndex:number, instance:instance, segmentType:number, segmentId:number, attributeId:number, actorObject:actor):detailsbreakdownmidnight_window
+---@field RefreshApocalypseBreakdown fun(windowIndex:number):detailsbreakdownmidnight_window
 ---@field CreateMainPanel fun(windowIndex:number, parentFrame:frame?):detailsbreakdownmidnight_window
 ---@field GetProfile fun():detailsbreakdownmidnight_profile
+---@field ApplyLineTextSettings fun(fontString:fontstring)
+---@field ApplyLineTextSettingsToLine fun(line:detailsbreakdownmidnight_line)
+---@field ApplyLineTextSettingsToAllLines fun()
+---@field ApplySectionFrameSettings fun(sectionFrame:detailsbreakdownmidnight_sectionframe)
+---@field ApplySectionFrameSettingsToAllSections fun()
 ---@field SetupFontString fun(line:detailsbreakdownmidnight_line, fontString:fontstring)
----@field PlayerSectionInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
----@field SegmentScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
----@field SpellScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
----@field TargetsScrollInit fun(sectionFrame:frame, windowFrame:detailsbreakdownmidnight_window)
+---@field PlayerSectionInit fun(sectionFrame:detailsbreakdownmidnight_sectionframe, windowFrame:detailsbreakdownmidnight_window)
+---@field SegmentScrollInit fun(sectionFrame:detailsbreakdownmidnight_sectionframe, windowFrame:detailsbreakdownmidnight_window)
+---@field SpellScrollInit fun(sectionFrame:detailsbreakdownmidnight_sectionframe, windowFrame:detailsbreakdownmidnight_window)
+---@field TargetsScrollInit fun(sectionFrame:detailsbreakdownmidnight_sectionframe, windowFrame:detailsbreakdownmidnight_window)
+---@field OpenOptions fun()
 local breakdownMidnight = {}
 Details222.BreakdownWindowMidnight = breakdownMidnight
 
@@ -163,6 +171,12 @@ function breakdownMidnight.GetBreakdownWindow(windowIndex, shouldNotError)
     return windowFrame
 end
 
+---return all cached breakdown windows
+---@return detailsbreakdownmidnight_window[]
+function breakdownMidnight.GetBreakdownWindows()
+    return breakdownMidnight.BreakdownWindows
+end
+
 ---create and cache a breakdown window and its scroll sections
 ---@param windowIndex number
 ---@param parentFrame frame?
@@ -208,7 +222,7 @@ function breakdownMidnight.CreateBreakdownWindow(windowIndex, parentFrame)
     table.insert(UISpecialFrames, panelName)
 
     local titleIcon = detailsFramework:CreateTexture(windowFrame, "DetailsBreakdownMidnightTitleIcon" .. index, 24, 24, "artwork")
-    titleIcon:SetPoint("topleft", windowFrame, "topleft", CONST_WINDOW_PADDING, -8)
+    titleIcon:SetPoint("topleft", windowFrame, "topleft", CONST_WINDOW_PADDING, -5)
     windowFrame.TitleIcon = titleIcon
 
     local titleText = detailsFramework:CreateLabel(windowFrame, Loc["STRING_PLAYER_DETAILS"] or "Breakdown", 12, "DETAILS_HEADER_YELLOW")
@@ -219,10 +233,24 @@ function breakdownMidnight.CreateBreakdownWindow(windowIndex, parentFrame)
     closeButton:SetPoint("topright", windowFrame, "topright", -CONST_WINDOW_PADDING, -CONST_WINDOW_PADDING)
 
     local resetButton = detailsFramework:CreateButton(windowFrame, function()
-        breakdownMidnight.ResetSectionSizes(windowFrame)
-    end, 20, 20, "reset layout", nil, nil, nil, nil, "DetailsBreakdownMidnightResetSizeButton" .. index)
+        --breakdownMidnight.ResetSectionSizes(windowFrame)
+        breakdownMidnight.OpenOptions()
+
+    end, 80, 16, "options", nil, nil, nil, nil, "DetailsBreakdownMidnightResetSizeButton" .. index)
     resetButton:SetPoint("right", closeButton, "left", -2, 0)
     resetButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+
+    --scale bar
+	local scaleBar = detailsFramework:CreateScaleBar(windowFrame, Details.player_details_window)
+    scaleBar:SetHeight(16)
+	scaleBar.label:AdjustPointsOffset(-3, 1)
+	scaleBar.label:SetTextColor{0.8902, 0.7294, 0.0157, 1}
+	scaleBar.label:SetIgnoreParentAlpha(true)
+    scaleBar:ClearAllPoints()
+    scaleBar:SetPoint("right", resetButton, "left", -4, 0)
+    scaleBar.label:ClearAllPoints()
+    scaleBar.label:SetPoint("right", scaleBar, "left", -2, 0)
+	windowFrame:SetScale(Details.player_details_window.scale)
 
     local sectionOptions = breakdownMidnight.Sections or {}
     local contentTop = sectionOptions.contentTop or 30
@@ -297,6 +325,10 @@ function breakdownMidnight.OpenApocalypseBreakdown(windowIndex, instance, segmen
         breakdownMidnight.ResetSectionSizes(windowFrame, true)
     end
 
+    windowFrame:SetColor(unpack(Details.frame_background_color))
+
+    breakdownMidnight.ApplySectionFrameSettingsToAllSections()
+
     if segmentId == -1 then
         segmentType = 0
     elseif (segmentId == 0) then
@@ -318,6 +350,28 @@ function breakdownMidnight.OpenApocalypseBreakdown(windowIndex, instance, segmen
     windowFrame:RefreshAllScrolls()
 
     return windowFrame
+end
+
+---refresh an existing apocalypse breakdown panel using its current context
+---@param windowIndex number
+---@return detailsbreakdownmidnight_window
+function breakdownMidnight.RefreshApocalypseBreakdown(windowIndex)
+    local index = getWindowIndex(windowIndex)
+    local windowFrame = breakdownMidnight.GetBreakdownWindow(index)
+
+    local instance = windowFrame:GetInstance()
+    local segmentType = windowFrame:GetCurrentSegmentType()
+    local segmentId = windowFrame:GetCurrentSegmentId()
+    local attributeId = windowFrame:GetCurrentAttributeId()
+    local actorObject = windowFrame:GetPlayerObject()
+
+    assert(instance, "instance is missing for breakdown window " .. index)
+    assert(type(segmentType) == "number", "segmentType is missing for breakdown window " .. index)
+    assert(type(segmentId) == "number", "segmentId is missing for breakdown window " .. index)
+    assert(type(attributeId) == "number", "attributeId is missing for breakdown window " .. index)
+    assert(actorObject, "actorObject is missing for breakdown window " .. index)
+
+    return breakdownMidnight.OpenApocalypseBreakdown(index, instance, segmentType, segmentId, attributeId, actorObject)
 end
 
 function breakdownMidnight.SetTitle(windowFrame)

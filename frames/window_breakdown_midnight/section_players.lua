@@ -124,6 +124,11 @@ local refreshFunc = function(self, data, offset, totalLines)
             line.StatusBar:SetMinMaxValues(0, maxAmount)
             line.StatusBar:SetValue(thisData.totalAmount)
 
+            local classColor = RAID_CLASS_COLORS[thisData.classFilename]
+            if classColor then
+                line.StatusBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b)
+            end
+
             line:AddFrameToHeaderAlignment(line.IconFrame)
             line:AddFrameToHeaderAlignment(line.Texts[1])
             line:AddFrameToHeaderAlignment(line.Texts[2])
@@ -138,6 +143,7 @@ local refreshFunc = function(self, data, offset, totalLines)
     header.refreshColumn = nil
 end
 
+---@param sectionFrame detailsbreakdownmidnight_sectionframe
 ---@param windowFrame detailsbreakdownmidnight_window
 function breakdownMidnight.PlayerSectionInit(sectionFrame, windowFrame)
     local playerScroll = windowFrame.PlayerScroll

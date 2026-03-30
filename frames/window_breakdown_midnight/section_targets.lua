@@ -59,7 +59,7 @@ local refreshTargetsSection = function(self, data, offset, totalLines)
     header.refreshColumn = nil
 end
 
----@param sectionFrame frame
+---@param sectionFrame detailsbreakdownmidnight_sectionframe
 ---@param windowFrame detailsbreakdownmidnight_window
 function breakdownMidnight.TargetsScrollInit(sectionFrame, windowFrame)
     local targetsScroll = windowFrame.TargetsScroll

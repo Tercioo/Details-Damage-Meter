@@ -77,7 +77,6 @@ local sortDataBySelectedColumn = function(scrollBox, data)
     end)
 end
 
-
 local iconOnEnter = function(self)
     local spellId = self.data.spellID
     if spellId then
@@ -96,7 +95,7 @@ end
 ---@param data table
 ---@param offset number
 ---@param totalLines number
-local refreshSpellsSection = function(self, data, offset, totalLines)
+local refreshFunc = function(self, data, offset, totalLines)
     local windowFrame = self:GetWindow()
     if (offset == 0 and windowFrame:GetCurrentAttributeId() ~= 9) then
         sortDataBySelectedColumn(self, data)
@@ -188,6 +187,7 @@ local assignSpellRank = function(spellData)
     end
 end
 
+---@param sectionFrame detailsbreakdownmidnight_sectionframe
 ---@param windowFrame detailsbreakdownmidnight_window
 function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     local spellScroll = windowFrame.SpellScroll
@@ -336,4 +336,4 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     frame:SetPoint("bottom", spellScroll, "bottom", 0, 1)
 end
 
-sections.refreshFunctions[breakdownMidnight.Enums.SectionIds.Spells] = refreshSpellsSection
+sections.refreshFunctions[breakdownMidnight.Enums.SectionIds.Spells] = refreshFunc

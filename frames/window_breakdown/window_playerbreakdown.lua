@@ -297,8 +297,10 @@ end
 
 function Details:SetWindowColor(r, g, b, a)
 	--SetColor implemented by rounded corners
-	breakdownWindowFrame:SetColor(r, g, b, a)
-	breakdownSideMenu:SetColor(r, g, b, a)
+	if breakdownWindowFrame.SetColor then
+		breakdownWindowFrame:SetColor(r, g, b, a)
+		breakdownSideMenu:SetColor(r, g, b, a)
+	end
 
 	if (DetailsOptionsWindow) then
 		DetailsOptionsWindow:SetColor(r, g, b, a)
@@ -315,6 +317,13 @@ function Details:SetWindowColor(r, g, b, a)
 
 	if (DetailsSpellBreakdownOptionsPanel) then
 		DetailsSpellBreakdownOptionsPanel:SetColor(r, g, b, a)
+	end
+
+	if (Details222.BreakdownWindowMidnight) then
+		local allWindows = Details222.BreakdownWindowMidnight.GetBreakdownWindows()
+		for _, thisWindow in ipairs(allWindows) do
+			thisWindow:SetColor(r, g, b, a)
+		end
 	end
 
 	for idx, frame in ipairs(Details222.RegisteredFramesToColor) do

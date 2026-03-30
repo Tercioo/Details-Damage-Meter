@@ -1588,6 +1588,7 @@ local default_global_data = {
 		genericcontainer_right_height = 460,
 
 		spellbar_background_alpha = 0.92,
+		section_background_color = {0.1, 0.1, 0.1, 0.4},
 
 		spellcontainer_headers = {}, --store information about active headers and their sizes (spells)
 		targetcontainer_headers = {}, --store information about active headers and their sizes (target)

@@ -1,4 +1,5 @@
 
+local Details = _G.Details
 local addonName, Details222 = ...
 
 ---@type detailsframework
@@ -18,6 +19,11 @@ local breakdownMidnight = Details222.BreakdownWindowMidnight
 ---@field genericIcon string
 ---@field defaultSettings table<string, detailsbreakdownmidnight_sectionsetting>
 ---@field refreshFunctions table<number, function>
+---@field createdLines table<detailsbreakdownmidnight_line, boolean>
+---@field createdSections table<detailsbreakdownmidnight_sectionframe, boolean>
+
+---@class detailsbreakdownmidnight_sectionframe : frame
+---@field BackgroundTexture texture
 
 ---@class detailsbreakdownmidnight_sectionsetting
 ---@field width number
@@ -37,6 +43,8 @@ sections.headerHeight = 20
 sections.lineHeight = 20
 sections.genericIcon = [[Interface\Icons\INV_Misc_QuestionMark]]
 sections.refreshFunctions = sections.refreshFunctions or {}
+sections.createdLines = sections.createdLines or setmetatable({}, {__mode = "k"})
+sections.createdSections = sections.createdSections or setmetatable({}, {__mode = "k"})
 sections.defaultSettings = {
     players = {width = 200, height = 360, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
     segments = {width = 200, height = 240, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
@@ -61,7 +69,7 @@ local saveSectionSizeToProfile = function(sectionKey, width, height)
     sectionSettings.height = height
 end
 
----@param sectionFrame frame
+---@param sectionFrame detailsbreakdownmidnight_sectionframe
 ---@param sectionKey string
 ---@param settings detailsbreakdownmidnight_sectionsetting
 local restoreSectionSizeFromProfile = function(sectionFrame, sectionKey, settings)
@@ -98,11 +106,51 @@ local getSectionLineAmountForSection = function(sectionId, sectionHeight)
     return lineAmount
 end
 
+---@param fontString fontstring
+function breakdownMidnight.ApplyLineTextSettings(fontString)
+    detailsFramework:SetFontColor(fontString, Details.breakdown_general.font_color)
+    detailsFramework:SetFontSize(fontString, Details.breakdown_general.font_size)
+    detailsFramework:SetFontOutline(fontString, Details.breakdown_general.font_outline)
+    detailsFramework:SetFontFace(fontString, Details.breakdown_general.font_face)
+end
+
+---@param line detailsbreakdownmidnight_line
+function breakdownMidnight.ApplyLineTextSettingsToLine(line)
+    local textTable = line and line.Texts
+    if (not textTable) then
+        return
+    end
+
+    for textIndex = 1, #textTable do
+        local fontString = textTable[textIndex]
+        if (fontString and fontString.IsObjectType and fontString:IsObjectType("FontString")) then
+            breakdownMidnight.ApplyLineTextSettings(fontString)
+        end
+    end
+end
+
+function breakdownMidnight.ApplyLineTextSettingsToAllLines()
+    for line in pairs(sections.createdLines) do
+        breakdownMidnight.ApplyLineTextSettingsToLine(line)
+    end
+end
+
+---@param sectionFrame detailsbreakdownmidnight_sectionframe
+function breakdownMidnight.ApplySectionFrameSettings(sectionFrame)
+    local backgroundTexture = sectionFrame.BackgroundTexture
+    backgroundTexture:SetColorTexture(unpack(Details.breakdown_spell_tab.section_background_color))
+end
+
+function breakdownMidnight.ApplySectionFrameSettingsToAllSections()
+    for sectionFrame in pairs(sections.createdSections) do
+        breakdownMidnight.ApplySectionFrameSettings(sectionFrame)
+    end
+end
+
 function breakdownMidnight.SetupFontString(line, fontString)
     fontString:SetFontObject("GameFontNormal")
     fontString:SetJustifyH("LEFT")
-    fontString:SetTextColor(1, 1, 1, 0.9)
-    detailsFramework:SetFontSize(fontString, 10)
+    breakdownMidnight.ApplyLineTextSettings(fontString)
     fontString:SetParent(line.StatusBar)
 end
 
@@ -174,6 +222,8 @@ local createLine = function(self, index) --~line
         line:AddFrameToHeaderAlignment(line.Texts[textIndex])
     end
 
+    sections.createdLines[line] = true
+
     return line
 end
 
@@ -189,7 +239,8 @@ end
 function breakdownMidnight.CreateSectionScroll(windowFrame, sectionId, parent, name, width, height, title, data)
     local lineAmount = getSectionLineAmountForSection(sectionId, height)
 
-    local scrollBox = detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width, height - sections.headerHeight - 2, lineAmount, sections.lineHeight)
+    local noBackdrop = true
+    local scrollBox = detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width, height - sections.headerHeight - 2, lineAmount, sections.lineHeight, nil, nil, nil, noBackdrop)
     ---@cast scrollBox detailsbreakdownmidnight_sectionscroll
     scrollBox.sectionId = sectionId
     scrollBox.HideScrollBar = true
@@ -295,13 +346,19 @@ end
 ---@param sectionName string
 ---@param sectionKey string
 ---@param settings detailsbreakdownmidnight_sectionsetting
----@return frame
+---@return detailsbreakdownmidnight_sectionframe
 function breakdownMidnight.CreateSectionFrame(parent, sectionName, sectionKey, settings)
+    ---@type detailsbreakdownmidnight_sectionframe
     local sectionFrame = CreateFrame("frame", sectionName, parent)
 
     restoreSectionSizeFromProfile(sectionFrame, sectionKey, settings)
-    detailsFramework:ApplyStandardBackdrop(sectionFrame)
-    sectionFrame.__background:SetVertexColor(0.08, 0.08, 0.08, 0.5)
+
+    --section backgroundTexture
+    local backgroundTexture = sectionFrame:CreateTexture("$parentBackground", "background")
+    backgroundTexture:SetAllPoints()
+    sectionFrame.BackgroundTexture = backgroundTexture
+    breakdownMidnight.ApplySectionFrameSettings(sectionFrame)
+    sections.createdSections[sectionFrame] = true
 
     sectionFrame:HookScript("OnSizeChanged", function(thisFrame)
         local width = thisFrame:GetWidth()
