@@ -2134,6 +2134,13 @@ end
 local lastEventTime = 0
 function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
 	---@cast instance instance
+
+	--check if the window is showing a pluging, if yes do not update
+	local mode = instance:GetMode()
+	if mode == DETAILS_MODE_RAID then
+		return
+	end
+
 	if not bForceUpdate then
 		if instance.lastEventTime ~= Details222.BParser.lastEventTime then
 			instance.lastEventTime = Details222.BParser.lastEventTime
