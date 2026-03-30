@@ -20,6 +20,7 @@ local _unpack = unpack
 local _math_floor = math.floor
 local _math_abs = math.abs
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+local isClassicWow = detailsFramework.IsTimewalkWoW()
 
 
 
@@ -36,7 +37,7 @@ local _
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation
 local _UnitDetailedThreatSituation
 
-if (detailsFramework.IsTimewalkWoW()) then
+if (isClassicWow) then
 	_UnitDetailedThreatSituation = function(source, target)
 		local isTanking, status, threatpct, rawthreatpct, threatvalue = UnitDetailedThreatSituation(source, target)
 
@@ -313,7 +314,7 @@ local function CreatePluginFrames (data)
 		[25165] = 45256, -- Lady Sacrolash: Confounding Blow
 	}
 	local FindGougeSpellForUnit = function(unitId)
-		if not detailsFramework.IsAddonApocalypseWow() then
+		if isClassicWow then
 			local npcId = _detalhes:GetNpcIdFromGuid(UnitGUID(unitId))
 			return gougeSpells[npcId]
 		end
@@ -667,6 +668,36 @@ local function CreatePluginFrames (data)
 
 			--> pre build player list
 			if (_IsInRaid()) then
+                if (isClassicWow) then
+                    if (not ThreatMeter.saveddata.only_my_group) then
+                    for i = 1, _GetNumGroupMembers(), 1 do
+                        local thisplayer_name = GetUnitName ("raid"..i, true)
+                        local role = _UnitGroupRolesAssigned (thisplayer_name)
+                        local _, class = UnitClass (thisplayer_name)
+                        local t = {thisplayer_name, 0, false, role, class, 0, 0}
+                        ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                        ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+                    end
+                else
+                    for i = 1, 4, 1 do
+                        local thisplayer_name = GetUnitName ("party"..i, true)
+                        if (thisplayer_name) then
+                            local role = _UnitGroupRolesAssigned (thisplayer_name)
+                            local _, class = UnitClass (thisplayer_name)
+                            local t = {thisplayer_name, 0, false, role, class, 0, 0}
+                            ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                            ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+                        end
+                    end
+
+                    local thisplayer_name = GetUnitName ("player", true)
+                    local role = _UnitGroupRolesAssigned (thisplayer_name)
+                    local _, class = UnitClass (thisplayer_name)
+                    local t = {thisplayer_name, 0, false, role, class, 0, 0}
+                    ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                    ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+                end
+            else
 				for i = 1, _GetNumGroupMembers(), 1 do
 					local thisplayer_name = GetUnitName ("raid"..i, true)
 					local role = _UnitGroupRolesAssigned (thisplayer_name)
@@ -675,6 +706,7 @@ local function CreatePluginFrames (data)
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				end
+            end
 
 			elseif (_IsInGroup()) then
 				for i = 1, _GetNumGroupMembers()-1, 1 do
@@ -684,6 +716,14 @@ local function CreatePluginFrames (data)
 					local t = {thisplayer_name, 0, false, role, class, 0, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
+
+                    if (isClassicWow and ThreatMeter.saveddata.show_party_pets and UnitExists ("partypet" .. i)) then
+                        local thispet_name = GetUnitName ("partypet" .. i, true) .. " *PET*"
+                        local role = "DAMAGER"
+                        local t = {thispet_name, 0, false, role, class, 0, 0}
+                        ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+                        ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
+                    end
 				end
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
@@ -692,6 +732,13 @@ local function CreatePluginFrames (data)
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 
+                if (isClassicWow and ThreatMeter.saveddata.show_party_pets and UnitExists ("pet")) then
+					local thispet_name = GetUnitName ("pet", true) .. " *PET*"
+					local role = "DAMAGER"
+					local t = {thispet_name, 0, false, role, class, 0, 0}
+					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+					ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
+				end
 			else
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
@@ -821,6 +868,24 @@ local build_options_panel = function()
 
 	}
 
+    --Only show pet options on classic, since the option is not possible on retail
+    if not detailsFramework.IsAddonApolcalpyseWow() then
+        menu[#menu+1] = {
+            type = "toggle",
+            get = function() return ThreatMeter.saveddata.show_party_pets end,
+            set = function(self, fixedparam, value) ThreatMeter.saveddata.show_party_pets = value end,
+            desc = "If this is enabled, you will see pets while in a party but not while in a raid",
+            name = "Show pets in party"
+        }
+        menu[#menu+1] = {
+            type = "toggle",
+            get = function() return ThreatMeter.saveddata.only_my_group end,
+            set = function(self, fixedparam, value) ThreatMeter.saveddata.only_my_group = value end,
+            desc = "If this is enabled, you will only see members in your group while in a raid",
+            name = "Show only my group"
+        }
+    end
+
 	local options_text_template = detailsFramework:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
 	local options_dropdown_template = detailsFramework:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 	local options_switch_template = detailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
@@ -902,6 +967,8 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeter.saveddata.hide_pull_bar = ThreatMeter.saveddata.hide_pull_bar or false
 				ThreatMeter.saveddata.absolute_mode = ThreatMeter.saveddata.absolute_mode or false
 				ThreatMeter.saveddata.disable_gouge = ThreatMeter.saveddata.disable_gouge or false
+                ThreatMeter.saveddata.show_party_pets = ThreatMeter.saveddata.show_party_pets or false
+                ThreatMeter.saveddata.only_my_group = ThreatMeter.saveddata.only_my_group or false
 
 				ThreatMeter.saveddata.playSound = ThreatMeter.saveddata.playSound or false
 				ThreatMeter.saveddata.playSoundFile = ThreatMeter.saveddata.playSoundFile or "Details Threat Warning Volume 3"
