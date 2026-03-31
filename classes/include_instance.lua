@@ -184,6 +184,10 @@ _detalhes.instance_defaults = {
 			show_timer_bg = true, --show the timer within battleground, the timer is the elapsed battleground time
 			show_timer_arena = true, ---show the timer within arena, the timer is the elapsed time of the arena match
 		},
+
+		--don't show tooltip when mouse over the bars
+		line_no_tooltip = false,
+
 		--attribute icon size
 		attribute_icon_size = 0,
 	--auto hide window borders statusbar main menu

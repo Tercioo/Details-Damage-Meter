@@ -1874,6 +1874,10 @@ local barra_backdrop_onleave = {
 
 --@self: instance line (row)
 local lineScript_Onenter = function(self)
+	if self._instance.line_no_tooltip then
+		return
+	end
+
 	self.mouse_over = true
 	OnEnterMainWindow(self._instance, self)
 
@@ -1924,6 +1928,10 @@ local lineScript_Onenter = function(self)
 end
 
 local lineScript_Onleave = function(self)
+	if self._instance.line_no_tooltip then
+		return
+	end
+
 	self.mouse_over = false
 	OnLeaveMainWindow(self._instance, self)
 
@@ -3746,35 +3754,19 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 	instancia.freeze_texto:SetPoint("left", instancia.freeze_icon, "right", -18, 0)
 	instancia.freeze_texto:SetTextColor(1, 1, 1)
 	instancia.freeze_texto:Hide()
-
 	--details version
-		instancia._version = baseframe:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
-		instancia._version:SetTextColor(1, 1, 1)
-		instancia._version:SetText("this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button.") --deprecated
-		instancia._version:Hide()
-		if (not Details222.PrivateInstanceText) then
-			local f = CreateFrame("frame")
-			Details222.PrivateInstanceText = f:CreateFontString(nil, "overlay", "GameFontNormal")
-			Details222.PrivateInstanceText:SetFont("Interface\\AddOns\\Details\\Fonts\\Accidental Presidency.ttf", 10, "NONE")
-			Details222.PrivateInstanceText:SetTextColor(1, 1, 1, 0.5)
-			Details222.PrivateInstanceText:SetText("")
-			--Details222.PrivateInstanceText:SetText(authorInfo.Support..("/"..authorInfo.Name..""):gsub("^%s$", ""))
-			Details222.PrivateInstanceText:SetPoint("bottomleft", baseframe, "bottomleft", 2, 2)
-			Details222.PrivateInstanceText:Hide()hooksecurefunc(commentador, "FollowUnit", function()
-				C_Timer.After(180, function()Details222.PrivateInstanceText:Show()end)
-			end)hooksecurefunc(commentador, "FollowPlayer", function()
-				C_Timer.After(180, function()Details222.PrivateInstanceText:Show()end)
-			end)
-		end
+	instancia._version = baseframe:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
+	instancia._version:SetTextColor(1, 1, 1)
+	instancia._version:SetText("this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button.") --deprecated
+	instancia._version:Hide()
 
 	--wallpaper
 	baseframe.wallpaper = baseframe:CreateTexture(nil, "overlay")
 	baseframe.wallpaper:Hide()
-
 	--alert frame
 	baseframe.alert = CreateAlertFrame(baseframe, instancia)
 
--- resizers & lock button ~lock ------------------------------------------------------------------------------------------------------------------------------------------------------------
+	-- resizers & lock button ~lock ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--right resizer
 		baseframe.resize_direita = CreateFrame("button", "Details_Resize_Direita"..ID, baseframe)

@@ -437,6 +437,10 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
 
     local instance = instanceLine:GetInstance()
 
+    if instance.line_no_tooltip then
+        return
+    end
+
     if not bParser.InSecretLockdown() then
         if not Details:IsUsingBlizzardAPI(instance) then
             return
