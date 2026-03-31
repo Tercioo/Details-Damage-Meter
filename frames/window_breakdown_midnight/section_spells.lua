@@ -238,6 +238,8 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     local latestButton = nil
     local spacing = 4
     local buttonSize = 22
+    local quickMenuBottomOffset = 1
+    local quickMenuTargetsPadding = 2
 
     local buttonOnClick = function(self)
         local attributeId = self.attributeId
@@ -332,8 +334,55 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     local children = {frame:GetChildren()}
     local amountOfButtons = #children
     local totalWidth = amountOfButtons * buttonSize + ((amountOfButtons - 1) * spacing)
+
+    local updateVisibleLines = function(bottomOffset)
+        local scrollHeight = spellScroll:GetHeight()
+        if (scrollHeight <= 0) then
+            return
+        end
+
+        -- reserve room for the quick attribute menu at the bottom of the spells area
+        local reservedHeight = bottomOffset + buttonSize + 1
+        local lineStep = (sections.lineHeight or 20) + 1
+        local availableHeight = math.max(0, scrollHeight - reservedHeight)
+        local desiredLines = math.max(1, math.floor(availableHeight / lineStep))
+        desiredLines = math.min(desiredLines, spellScroll:GetNumFramesCreated())
+
+        local currentLines = spellScroll:GetNumFramesShown()
+        if (currentLines ~= desiredLines) then
+            spellScroll:SetNumFramesShown(desiredLines)
+            spellScroll:Refresh()
+        end
+    end
+
+    local updateAttributeMenuAnchor = function()
+        local bottomOffset = quickMenuBottomOffset
+
+        local targetsScroll = windowFrame:GetTargetsScroll()
+        if (targetsScroll) then --all windowFrame has a target scroll, but this maybe called before the scroll gets created.
+            local targetsHeader = targetsScroll:GetHeader()
+            local spellScrollBottom = spellScroll:GetBottom()
+            local targetsHeaderTop = targetsHeader:GetTop()
+            if (spellScrollBottom and targetsHeaderTop) then
+                local currentMenuBottom = spellScrollBottom + quickMenuBottomOffset
+                local desiredMenuBottom = targetsHeaderTop + quickMenuTargetsPadding
+                if (currentMenuBottom < desiredMenuBottom) then
+                    bottomOffset = bottomOffset + math.ceil(desiredMenuBottom - currentMenuBottom)
+                end
+            end
+        end
+
+        frame:ClearAllPoints()
+        frame:SetPoint("bottom", spellScroll, "bottom", 0, bottomOffset)
+        updateVisibleLines(bottomOffset)
+    end
+
+    spellScroll.UpdateAttributeMenuAnchor = updateAttributeMenuAnchor
+    sectionFrame:HookScript("OnShow", updateAttributeMenuAnchor)
+    sectionFrame:HookScript("OnSizeChanged", updateAttributeMenuAnchor)
+
     frame:SetSize(totalWidth, buttonSize)
-    frame:SetPoint("bottom", spellScroll, "bottom", 0, 1)
+    updateAttributeMenuAnchor()
 end
 
 sections.refreshFunctions[breakdownMidnight.Enums.SectionIds.Spells] = refreshFunc

@@ -424,6 +424,11 @@ function breakdownMidnight.BuildSectionLayout(windowFrame, windowPadding, conten
 
             windowFrame.SegmentScroll:RefreshMe()
         end
+
+        local spellScroll = windowFrame:GetSpellScroll()
+        if (spellScroll.UpdateAttributeMenuAnchor) then
+            spellScroll.UpdateAttributeMenuAnchor()
+        end
     end
     segmentContainer:HookScript("OnSizeChanged", onSegmentsSizeChanged)
 
@@ -446,6 +451,11 @@ function breakdownMidnight.BuildSectionLayout(windowFrame, windowPadding, conten
             headersWidth[sectionIds.Players].name = calculatedThirdColumnWidth
 
             windowFrame.PlayerScroll:RefreshMe()
+        end
+
+        local spellScroll = windowFrame:GetSpellScroll()
+        if (spellScroll.UpdateAttributeMenuAnchor) then
+            spellScroll.UpdateAttributeMenuAnchor()
         end
     end
     playerContainer:HookScript("OnSizeChanged", onPlayersSizeChanged)
@@ -500,6 +510,11 @@ function breakdownMidnight.RefreshSectionPoints(windowFrame)
 
     comparisonContainer:ClearAllPoints()
     comparisonContainer:SetPoint("topright", mainContainer, "topright", -1, -1)
+
+    local spellScroll = windowFrame:GetSpellScroll()
+    if (spellScroll.UpdateAttributeMenuAnchor) then
+        spellScroll.UpdateAttributeMenuAnchor()
+    end
 end
 
 ---@param windowFrame detailsbreakdownmidnight_window

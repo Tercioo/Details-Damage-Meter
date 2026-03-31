@@ -139,6 +139,7 @@ Details222.BreakdownWindowMidnight = breakdownMidnight
 ---@field GetHeader fun(scroll: detailsbreakdownmidnight_sectionscroll):detailsbreakdownmidnight_header
 ---@field GetWindow fun(scroll: detailsbreakdownmidnight_sectionscroll):detailsbreakdownmidnight_window
 ---@field UpdateScrollLineAmount fun(scroll: detailsbreakdownmidnight_sectionscroll)
+---@field UpdateAttributeMenuAnchor fun()? only for spell scroll
 
 breakdownMidnight.BreakdownWindows = breakdownMidnight.BreakdownWindows or {}
 
