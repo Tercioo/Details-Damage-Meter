@@ -17,6 +17,8 @@ local L = {}
 local debugMode = false
 local debugTime = GetTime()
 local debugTexts = {}
+local cantStartUpdater = nil
+local updaterTicker
 
 local printDebug = function(...)
     if debugMode then
@@ -1745,49 +1747,61 @@ end
 
 local setTitleText = function(instance, timeString)
     if instance.attribute_text.show_timer then
-        if instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL then
-            local attributeText = instance:GetInstanceAttributeText() --this return the title, like 'damage done'
-            timeString = timeString .. " " .. attributeText
-            instance:SetTitleBarText(timeString)
-        end
+        local attributeText = instance:GetInstanceAttributeText() --this return the title, like 'damage done'
+        timeString = format("%s %s", timeString, attributeText)
+        instance:SetTitleBarText(timeString)
     end
 end
 
 local timerUpdateInterval = 1 --time in seconds
-local timerUpdateObject = nil
+local timerUpdateObject = nil --the C_Timer.NewTicker object that will update the time in the window every X seconds
 local updateTime = function(timerObject) --~update ~time
+    local elapsedTime = 0
     ---@type instance
     local instance = timerObject.instance
     if Details:IsUsingBlizzardAPI() then
-        if instance:GetSegmentType() <= 1 then
-            local elapsed = Details222.B.GetCurrentTime(instance:GetSegmentType())
-            if elapsed and not issecretvalue(elapsed) then
-                setTitleText(instance, formatTime(elapsed))
-                return
-            else
-                elapsed = getSegmentCombatTime(instance:GetNewSegmentIdFromCurrent()) --'no cache for segment 1'
-                if elapsed then
-                    setTitleText(instance, formatTime(elapsed))
-                else
-                    setTitleText(instance, "")
-                end
-                return
-            end
+        if Details222.IsPTR1205() then
+
         else
-            local elapsed = Details222.B.GetCombatTime(instance:GetNewSegmentId())
-            if elapsed and not issecretvalue(elapsed) then
-                setTitleText(instance, formatTime(elapsed))
+            local segmentType = instance:GetSegmentType()
+            if segmentType >= 1 then
+                local allSegments = Details222.B.GetAllSegments()
+                if segmentType == 1 then
+                    elapsedTime = allSegments[#allSegments].durationSeconds
+                else
+                    local segmentId = instance:GetNewSegmentId()
+                    for i = 1, #allSegments do
+                        local thisSegment = allSegments[i]
+                        if thisSegment.sessionID == segmentId then
+                            elapsedTime = thisSegment.durationSeconds
+                            break
+                        end
+                    end
+                end
             else
-                setTitleText(instance, "")
+                elapsedTime = C_DamageMeter.GetSessionDurationSeconds(0)
             end
-            return
         end
+    else
+        local combat = instance:GetCombat()
+        elapsedTime = combat:GetCombatTime()
     end
-    setTitleText(instance, instance:GetFormattedTimeForTitleBar())
+
+    if issecretvalue(elapsedTime) then
+        setTitleText(instance, elapsedTime)
+    else
+        local timeFormatted = formatTime(elapsedTime)
+        setTitleText(instance, timeFormatted)
+    end
 end
 
 local updateTimeOnEvent = function(eventName, instance)
-    updateTime({instance=instance})
+    local lowerInstanceId = Details:GetLowerInstanceNumber()
+    if lowerInstanceId then
+        if instance:GetId() == lowerInstanceId then
+            updateTime({instance=instance})
+        end
+    end
 end
 local changeSegmentListener = Details:CreateEventListener()
 changeSegmentListener:RegisterEvent("DETAILS_INSTANCE_CHANGESESSION", updateTimeOnEvent)
@@ -2329,7 +2343,7 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
             end
         end
 
-    elseif (ev == "PLAYER_REGEN_DISABLED") then --entered in combat
+    elseif (ev == "PLAYER_REGEN_DISABLED") then --entered in combat ~regen
         --print("(debug-event) PLAYER_REGEN_DISABLED", GetTime())
         Details:StopTestBarUpdate()
         Details:InstanceCallMethod("ResetTempSegment")

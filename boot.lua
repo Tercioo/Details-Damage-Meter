@@ -98,6 +98,13 @@
 			end
 		end
 
+		function Details222.IsPTR1205()
+			local _, _, _, a = GetBuildInfo()
+			if a >= 120005 then
+				return true
+			end
+		end
+
 		--namespace color
 		Details222.ColorScheme = {
 			["gradient-background"] = {0.1215, 0.1176, 0.1294, 0.8},
@@ -315,6 +322,10 @@
 			end
 		end
 
+		function Details222.B.GetCombatTime(type)
+			return C_DamageMeter.GetSessionDurationSeconds(type)
+		end
+
 		---usage: local actorList, amountOfActors, totalAmount, combatTime = Details222.B.GetSegmentInfo(segment)
 		---@param s damagemeter_combat_session
 		---@return damagemeter_combat_source[] actorList
@@ -411,6 +422,10 @@
 
 		function Details222.B.GetCurrentTime(segmentType)
 			return Details222.B.GetSegment("Type", segmentType, 0).durationSeconds
+		end
+
+		function Details222.B.GetOverallTime()
+			return  C_DamageMeter.GetSessionDurationSeconds(0)
 		end
 
 		function Details:BleachFontString(fontString)
