@@ -238,40 +238,37 @@ local getDetailsSegmentIdFromSegment = function(sessionId)
 end
 
 local language = GetLocale()
-
+local useAsianAbbreviations = language == "zhCN" or language == "zhTW" or language == "koKR"
 
 local abbreviateOptionsDamage =
 {
     {
         breakpoint = 1000000000,
-        abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
+        abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
         significandDivisor = 10000000,
         fractionDivisor = 100,
-        --abbreviationIsGlobal = false
+        abbreviationIsGlobal = useAsianAbbreviations
     },
     {
         breakpoint = 1000000,
-        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
-        abbreviation = "M",
+        abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
         significandDivisor = 10000,
         fractionDivisor = 100,
-        abbreviationIsGlobal = false
+        abbreviationIsGlobal = useAsianAbbreviations
     },
     {
         breakpoint = 10000,
-        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
-        abbreviation = "K",
+        abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
         significandDivisor = 1000,
         fractionDivisor = 1,
-        abbreviationIsGlobal = false,
+        abbreviationIsGlobal = useAsianAbbreviations,
     },
     {
         breakpoint = 1000,
-        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
-        abbreviation = "K",
+        abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
         significandDivisor = 100,
         fractionDivisor = 10,
-        abbreviationIsGlobal = false,
+        abbreviationIsGlobal = useAsianAbbreviations,
     },
     {
         breakpoint = 1,
@@ -286,26 +283,24 @@ local abbreviateOptionsDPS =
 {
     {
         breakpoint = 1000000000,
-        abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
+        abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
         significandDivisor = 10000000,
         fractionDivisor = 100,
-        abbreviationIsGlobal = false
+        abbreviationIsGlobal = useAsianAbbreviations
     },
     {
         breakpoint = 1000000,
-        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
-        abbreviation = "M",
+        abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
         significandDivisor = 10000,
         fractionDivisor = 100,
-        abbreviationIsGlobal = false
+        abbreviationIsGlobal = useAsianAbbreviations
     },
     {
         breakpoint = 1000,
-        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
-        abbreviation = "K",
+        abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
         significandDivisor = 100,
         fractionDivisor = 10,
-        abbreviationIsGlobal = false,
+        abbreviationIsGlobal = useAsianAbbreviations,
     },
     {
         breakpoint = 1,
@@ -1702,6 +1697,10 @@ local showFontStringsForPrivateText = function(instance)
 end
 
 local formatTime = function(elapsedTime)
+    if not elapsedTime then
+        return ""
+    end
+
     local minutes = math.floor(elapsedTime / 60)
     local seconds = math.floor(elapsedTime % 60)
     local timeString = string.format("%02d:%02d", minutes, seconds)
@@ -1767,7 +1766,7 @@ local updateTime = function(timerObject) --~update ~time
             if segmentType >= 1 then
                 local allSegments = Details222.B.GetAllSegments()
                 if segmentType == 1 then
-                    elapsedTime = allSegments[#allSegments].durationSeconds
+                    elapsedTime = allSegments[#allSegments] and allSegments[#allSegments].durationSeconds
                 else
                     local segmentId = instance:GetNewSegmentId()
                     for i = 1, #allSegments do
