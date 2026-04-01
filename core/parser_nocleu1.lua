@@ -1792,6 +1792,12 @@ local updateTime = function(timerObject) --~update ~time
     if issecretvalue(elapsedTime) then
         setTitleText(instance, elapsedTime)
     else
+        if (elapsedTime > 1800 and instance:GetSegmentType() > 0) then
+            local detailsCombat = Details:GetTwinCombat(instance:GetNewSegmentId())
+            if detailsCombat then
+                elapsedTime = detailsCombat:GetCombatTime()
+            end
+        end
         local timeFormatted = formatTime(elapsedTime)
         setTitleText(instance, timeFormatted)
     end
