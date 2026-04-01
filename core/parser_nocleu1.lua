@@ -1747,6 +1747,9 @@ end
 local setTitleText = function(instance, timeString)
     if instance.attribute_text.show_timer then
         local attributeText = instance:GetInstanceAttributeText() --this return the title, like 'damage done'
+        if instance:GetSegmentType() == 0 then
+            attributeText = _G["DAMAGE_METER_OVERALL_SESSION"] .. " " .. attributeText
+        end
         timeString = format("%s %s", timeString, attributeText)
         instance:SetTitleBarText(timeString)
     end
