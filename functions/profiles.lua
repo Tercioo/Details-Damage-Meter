@@ -172,25 +172,26 @@ end
 
 function Details:CreatePanicWarning()
 	Details.instance_load_failed = CreateFrame("frame", "DetailsPanicWarningFrame", UIParent,"BackdropTemplate")
-	Details.instance_load_failed:SetHeight(80)
+	Details.instance_load_failed:SetHeight(130)
 	--tinsert(UISpecialFrames, "DetailsPanicWarningFrame")
 	Details.instance_load_failed.text = Details.instance_load_failed:CreateFontString(nil, "overlay", "GameFontNormal")
 	Details.instance_load_failed.text:SetPoint("center", Details.instance_load_failed, "center")
 	Details.instance_load_failed.text:SetTextColor(1, 0.6, 0)
 	Details.instance_load_failed:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-	Details.instance_load_failed:SetBackdropColor(1, 0, 0, 0.2)
+	Details.instance_load_failed:SetBackdropColor(0.7, 0.3, 0.3, 0.9)
 	Details.instance_load_failed:SetPoint("topleft", UIParent, "topleft", 0, -250)
 	Details.instance_load_failed:SetPoint("topright", UIParent, "topright", 0, -250)
 end
 
 local safe_load = function(func, param1, ...)
-	local okey, errortext = pcall(func, param1, ...)
-	if (not okey) then
+	--local okey, errortext = pcall(func, param1, ...)
+	local okey, errortext = xpcall(func, geterrorhandler(), param1, ...)
+	if (false and not okey) then
 		if (not Details.instance_load_failed) then
 			Details:CreatePanicWarning()
 		end
 		Details.do_not_save_skins = true
-		Details.instance_load_failed.text:SetText("Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: " .. errortext .. "")
+		Details.instance_load_failed.text:SetText("Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: " .. errortext)
 	end
 	return okey
 end

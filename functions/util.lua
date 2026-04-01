@@ -1588,7 +1588,12 @@ end
 
 	--font outline
 	function Details:SetFontOutline (fontString, outline)
+		if outline == nil then
+			outline = ""
+		end
+
 		local fonte, size = fontString:GetFont()
+
 		if (outline) then
 			if (type(outline) == "boolean" and outline) then
 				outline = "OUTLINE"
@@ -1609,6 +1614,7 @@ end
 			end
 		end
 
+		outline = outline or ""
 		fontString:SetFont(fonte, size, outline)
 	end
 

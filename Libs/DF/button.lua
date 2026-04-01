@@ -918,6 +918,7 @@ end
 
 	local createButtonWidgets = function(self)
 		self:SetSize(100, 20)
+		self:SetPushedTextOffset(0, 0)
 
 		self.text = self:CreateFontString("$parent_Text", "ARTWORK", "GameFontNormal")
 		self.text:SetJustifyH("CENTER")

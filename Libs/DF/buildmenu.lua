@@ -30,6 +30,7 @@ local _
 ---@field inline boolean?
 ---@field widget table?
 ---@field disableif function? a function that returns true or nil, if true the widget get :Disable(), :Enabled() otherwise
+---@field tags string[] optional tags that help the search bar to find the option
 
 ---@class df_menu_label : df_menu_table
 ---@field get function

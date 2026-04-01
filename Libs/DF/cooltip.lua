@@ -260,6 +260,20 @@ function DF:CreateCoolTip()
 		roundness = 8,
 	}
 
+	local parseFont = function(font)
+		local fontFile = SharedMedia:Fetch("font", font)
+		if fontFile then
+			return fontFile
+		end
+
+		local isFontObejct = type(font) == "table" and _G[font] and _G[font].GetFont and _G[font]:GetFont()
+		if isFontObejct then
+			return _G[font]:GetFont()
+		end
+
+		return font
+	end
+
 	--create frames, self is frame1 or frame2
 	local createTooltipFrames = function(self)
 		self:SetSize(500, 500)
@@ -1114,7 +1128,10 @@ function DF:CreateCoolTip()
 					menuButton.leftText:SetFont(fontFace, fontSize, fontFlags)
 				end
 			else
-				menuButton.leftText:SetFont(gameCooltip.defaultFont, leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow)
+				--if Details222.IsPTR() then
+				--	print (gameCooltip.defaultFont, leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow)
+				--end
+				menuButton.leftText:SetFont(parseFont(gameCooltip.defaultFont), leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow or "")
 			end
 
 			--text shadow color
@@ -1225,7 +1242,7 @@ function DF:CreateCoolTip()
 					menuButton.rightText:SetFont(fontFace, fontSize, fontFlags)
 				end
 			else
-				menuButton.rightText:SetFont(gameCooltip.defaultFont, rightTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, rightTextSettings[8] or gameCooltip.OptionsTable.TextShadow)
+				menuButton.rightText:SetFont(parseFont(gameCooltip.defaultFont), rightTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, rightTextSettings[8] or gameCooltip.OptionsTable.TextShadow or "")
 			end
 
 			--text shadow color

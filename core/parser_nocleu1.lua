@@ -235,6 +235,7 @@ local getDetailsSegmentIdFromSegment = function(sessionId)
     end
 end
 
+local language = GetLocale()
 
 
 local abbreviateOptionsDamage =
