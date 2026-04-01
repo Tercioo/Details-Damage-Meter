@@ -5341,7 +5341,8 @@ function Details:InstanceRefreshRows(instance)
 		end
 
 		if detailsFramework.IsAddonApocalypseWow() then
-			Details222.Apocalypse.UpdatePlayerNameLength(self, row)
+			local forceUpdate = true
+			Details222.Apocalypse.UpdatePlayerNameLength(self, row, forceUpdate)
 		end
 	end
 

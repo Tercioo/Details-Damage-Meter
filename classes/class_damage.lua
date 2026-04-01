@@ -3224,9 +3224,12 @@ if detailsFramework.IsAddonApocalypseWow() then
 	end)
 end
 
-local dealWithPlayerName = function(instance, line)
-	if InCombatLockdown() and line.lineText1.__playerNameUpdated then
-		return
+local dealWithPlayerName = function(instance, line, forceUpdate)
+	if InCombatLockdown() and line.lineText1.__playerNameUpdated and not forceUpdate then
+		local baseFrame = instance.baseframe
+		if not baseFrame.isStretching and not baseFrame.isResizing then
+			return
+		end
 	end
 
 	dummyText:SetFont(instance.row_info.font_face_file, instance.row_info.font_size, "")
@@ -3260,6 +3263,15 @@ local dealWithPlayerName = function(instance, line)
 end
 
 Details222.Apocalypse.UpdatePlayerNameLength = dealWithPlayerName
+
+function Details222.Apocalypse.UpdateInstancePlayerNameLength(instance)
+	local allLines = instance:GetAllLines()
+	for _, line in ipairs(allLines) do
+		---@cast line detailsline
+		local forceUpdate = true
+		dealWithPlayerName(instance, line, forceUpdate)
+	end
+end
 
 --~update ~bar ~apocalypse ~apoc ãpoc
 ---@param instanceLine detailsline
@@ -3312,11 +3324,27 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			end
 		end)
 	else
-		actorName = UnitName(actorName)
+		--actorName = UnitName(actorName)
 	end
 
 	if not issecretvalue(actorName) then
-		actorName = actorName or source.name
+		if actorName then
+			actorName = detailsFramework:RemoveRealmName(actorName)
+		else
+			actorName = source.name
+			if not issecretvalue(actorName) then
+				actorName = detailsFramework:RemoveRealmName(actorName)
+			end
+		end
+	else
+		if specIcon then
+			actorName = UnitName(actorName)
+			if actorName == nil then
+				actorName = source.name
+			end
+		else
+			actorName = source.name
+		end
 	end
 
 	dealWithPlayerName(instance, instanceLine)
@@ -3325,7 +3353,6 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 		if issecretvalue(actorName) then
 			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
 		else
-			actorName = detailsFramework:RemoveRealmName(actorName)
 			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
 		end
 	else
