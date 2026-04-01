@@ -2020,6 +2020,39 @@ do
             },
 
             {type = "blank"}, --22
+            {type = "label", get = function() return Loc ["STRING_OPTIONS_PLAYERNAME"] end, text_template = subSectionTitleTextTemplate,
+            hidden = not detailsFramework.IsAddonApocalypseWow()},
+
+            {--automatic player name length
+                type = "toggle",
+                get = function() return currentInstance.row_info.playername_size_auto end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "row_info", "playername_size_auto", value)
+                    afterUpdate()
+                    Details:RefreshMainWindow(-1, true)
+                end,
+                name = Loc ["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"],
+                desc = Loc ["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"],
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+            },
+
+            {--player name length
+                type = "range",
+                get = function() return currentInstance.row_info.playername_size end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "row_info", "playername_size", value)
+                    afterUpdate()
+                    Details:RefreshMainWindow(-1, true)
+                end,
+                min = 50,
+                max = 130,
+                step = 1,
+                name = Loc ["STRING_OPTIONS_PLAYERNAME_WIDTH"],
+                desc = Loc ["STRING_OPTIONS_PLAYERNAME_WIDTH"],
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+            },
+
+            {type = "blank", hidden = detailsFramework.IsAddonApocalypseWow()},
 
             {--show total --23
                 type = "toggle",

@@ -278,6 +278,9 @@ _detalhes.instance_defaults = {
 				textR_outline_small_color = {0, 0, 0, 1},
         	-- left text offset
 				textL_offset = 0,
+			-- player name sizing
+				playername_size_auto = true,
+				playername_size = 80,
 		  	-- text y offset
 				text_yoffset = 0,
 			--bar height

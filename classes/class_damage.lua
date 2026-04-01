@@ -3203,6 +3203,64 @@ local classColor_Red, classColor_Green, classColor_Blue
 	end
 end
 
+local dummyFrameForText = CreateFrame("frame", nil, UIParent)
+local dummyText = dummyFrameForText:CreateFontString(nil, "overlay", "GameFontNormal")
+
+if detailsFramework.IsAddonApocalypseWow() then
+	dummyFrameForText:SetSize(100, 100)
+	dummyFrameForText:RegisterEvent("PLAYER_REGEN_DISABLED")
+
+	dummyFrameForText:SetScript("OnEvent", function(self, event)
+		Details:InstanceCall(function(instance)
+			if instance:IsEnabled() then
+				---@cast instance instance
+				local allLines = instance:GetAllLines()
+				for _, line in ipairs(allLines) do
+					---@cast line detailsline
+					line.lineText1.__playerNameUpdated = nil
+				end
+			end
+		end)
+	end)
+end
+
+local dealWithPlayerName = function(instance, line)
+	if InCombatLockdown() and line.lineText1.__playerNameUpdated then
+		return
+	end
+
+	dummyText:SetFont(instance.row_info.font_face_file, instance.row_info.font_size, "")
+	dummyText:SetText("MMM")
+	local textHeight = dummyText:GetStringHeight()
+	local lineHeight = instance.row_info.height
+	local lineWidth = instance.baseframe:GetWidth()
+	local yOffset = -math.max((lineHeight - textHeight) / 2, 0)
+
+	line.lineText1:ClearAllPoints()
+	line.lineText1:SetPoint("topleft", line.icone_classe, "topright", 2, yOffset)
+
+	local playerNameWidth = 0
+
+	if instance.row_info.playername_size_auto then
+		local minWidth = lineWidth - lineHeight - 2 - (dummyText:GetStringWidth()*2) - 14 --lineHeight is the width of the icon; -2 is the space between the icon and the text; dummy text is the damageDone and DPS space.
+		line.lineText1:SetWidth(minWidth)
+		playerNameWidth = minWidth
+	else
+		line.lineText1:SetWidth(instance.row_info.playername_size)
+		playerNameWidth = instance.row_info.playername_size
+	end
+	line.lineText1:SetHeight(lineHeight*2)
+
+	line.lineText1:SetNonSpaceWrap(true)
+	line.lineText1:SetWordWrap(false)
+	line.lineText1:SetJustifyH("LEFT")
+	line.lineText1:SetJustifyV("TOP")
+
+	line.lineText1.__playerNameUpdated = true
+end
+
+Details222.Apocalypse.UpdatePlayerNameLength = dealWithPlayerName
+
 --~update ~bar ~apocalypse ~apoc ãpoc
 ---@param instanceLine detailsline
 ---@param source damagemeter_combat_source
@@ -3260,6 +3318,8 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	if not issecretvalue(actorName) then
 		actorName = actorName or source.name
 	end
+
+	dealWithPlayerName(instance, instanceLine)
 
 	if (instance.row_info.textL_show_number) then
 		if issecretvalue(actorName) then
