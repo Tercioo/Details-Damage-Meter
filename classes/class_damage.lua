@@ -1812,6 +1812,9 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 		instanceObject:ReajustaGump()
 	end
 
+	local baseframe = instanceObject.baseframe
+	baseframe.reportData = session
+
 	---@type damagemeter_combat_source[]
 	local combatSources = session.combatSources
 	if not combatSources or #combatSources == 0 then

@@ -13,7 +13,7 @@ local _table_remove = table.remove --lua local
 local _string_len = string.len --lua local
 local _unpack = unpack --lua local
 local _cstr = string.format --lua local
-local _SendChatMessage = SendChatMessage --wow api locals
+local _SendChatMessage = SendChatMessage or C_ChatInfo.SendChatMessage --wow api locals
 local _UnitExists = UnitExists --wow api locals
 local _UnitName = UnitName --wow api locals
 local _UnitIsPlayer = UnitIsPlayer --wow api locals
@@ -3880,6 +3880,203 @@ local function GetDpsHps (_thisActor, key)
 	end
 end
 
+---@param self instance
+function Details:SendApocalypseReport()
+	local baseframe = self.baseframe
+	local reportData = baseframe.reportData
+	if (reportData) then
+		local totalAmount = reportData.totalAmount
+		if (issecretvalue(totalAmount)) then
+			Details:Msg("Report data is secret, try after combat.")
+			return
+		end
+
+		local reportLines = {}
+		for i, data in ipairs(reportData.combatSources) do
+			local name = data.name
+			local total = data.totalAmount
+			local percent = format("%.1f%%", totalAmount > 0 and (total / totalAmount) * 100 or 0)
+			reportLines[#reportLines+1] = {name = name, total = total, percent = percent, result = ""}
+		end
+
+        local attributeText = self:GetInstanceAttributeText() --this return the title, like 'damage done'
+        if self:GetSegmentType() == 0 then
+            attributeText = _G["DAMAGE_METER_OVERALL_SESSION"] .. " " .. attributeText
+        end
+
+		local reportTitle = "Details! " .. attributeText .. " Report"
+		local fontSize = select(2, FCF_GetChatWindowInfo(1))
+
+		local dummyFontString = Details.fontstring_len
+		if (not dummyFontString) then
+			Details.fontstring_len = Details.listener:CreateFontString(nil, "background", "GameFontNormal")
+			dummyFontString = Details.fontstring_len
+		end
+
+		local font, size, flags = dummyFontString:GetFont()
+		dummyFontString:SetFont(font, fontSize, flags)
+		dummyFontString:SetText("DEFAULT NAME")
+		local biggest_len = dummyFontString:GetStringWidth()
+
+		local formatFunc = Details:GetCurrentToKFunction()
+		for index, reportLine in ipairs(reportData) do
+			local total = reportLine.total
+			if total > 10000 then
+				total = formatFunc(_, total)
+			end
+			Details.fontstring_len:SetText(total)
+			local len = Details.fontstring_len:GetStringWidth()
+			if (len > biggest_len) then
+				biggest_len = len
+			end
+		end
+
+		if (biggest_len > 130) then
+			biggest_len = 130
+		end
+
+		for index, reportLine in ipairs(reportLines) do
+			local name = reportLine.name
+			local total = reportLine.total
+			local percent = reportLine.percent
+
+			name = name .. " "
+			Details.fontstring_len:SetText(name)
+			local len = Details.fontstring_len:GetStringWidth()
+
+			while (len < biggest_len) do
+				name = name .. "."
+				Details.fontstring_len:SetText(name)
+				len = Details.fontstring_len:GetStringWidth()
+			end
+
+			reportLine.result = index .. ". " .. name .. " " .. percent
+		end
+
+		local toWho = Details.report_where
+
+		--build the final flat lines table: title first, then each formatted result
+		local lines = {reportTitle}
+		for _, reportLine in ipairs(reportLines) do
+			lines[#lines + 1] = reportLine.result
+		end
+
+		--Details:DelayUpdateReportWindowRecentlyReported()
+
+		if (Details.report_where == "COPY") then
+			--dumpt(lines)
+			Details:SendReportTextWindow(lines)
+			return
+		end
+
+		local channel = toWho:find("CHANNEL")
+		local isBtag = toWho:find("REALID")
+
+		local sendReportChannel = function(timerObject)
+			_SendChatMessage(timerObject.Arg1, timerObject.Arg2, timerObject.Arg3, timerObject.Arg4)
+		end
+
+		local sendReportBnet = function(timerObject)
+			BNSendWhisper(timerObject.Arg1, timerObject.Arg2)
+		end
+
+		local delay = 200
+
+		if (channel) then
+			channel = toWho:gsub((".*|"), "")
+
+			for i = 1, #lines do
+				if (channel == "Trade") then
+					channel = "Trade - City"
+				end
+
+				local channelName = GetChannelName(channel)
+				local timer = C_Timer.NewTimer(i * delay / 1000, sendReportChannel)
+				timer.Arg1 = lines[i]
+				timer.Arg2 = "CHANNEL"
+				timer.Arg3 = nil
+				timer.Arg4 = channelName
+			end
+
+			return
+
+		elseif (isBtag) then
+			local bnetAccountID = toWho:gsub((".*|"), "")
+			bnetAccountID = tonumber(bnetAccountID)
+
+			for i = 1, #lines do
+				local timer = C_Timer.NewTimer(i * delay / 1000, sendReportBnet)
+				timer.Arg1 = bnetAccountID
+				timer.Arg2 = lines[i]
+			end
+
+			return
+
+		elseif (toWho == "WHISPER") then
+			local target = Details.report_to_who
+
+			if (not target or target == "") then
+				Details:Msg(Loc["STRING_REPORT_INVALIDTARGET"])
+				return
+			end
+
+			for i = 1, #lines do
+				local timer = C_Timer.NewTimer(i * delay / 1000, sendReportChannel)
+				timer.Arg1 = lines[i]
+				timer.Arg2 = toWho
+				timer.Arg3 = nil
+				timer.Arg4 = target
+			end
+			return
+
+		elseif (toWho == "WHISPER2") then
+			toWho = "WHISPER"
+
+			local target
+			if (_UnitExists("target")) then
+				if (_UnitIsPlayer("target")) then
+					local targetName, realm = _UnitName("target")
+					if (realm and realm ~= "") then
+						targetName = targetName .. "-" .. realm
+					end
+					target = targetName
+				else
+					Details:Msg(Loc["STRING_REPORT_INVALIDTARGET"])
+					return
+				end
+			else
+				Details:Msg(Loc["STRING_REPORT_INVALIDTARGET"])
+				return
+			end
+
+			for i = 1, #lines do
+				local timer = C_Timer.NewTimer(i * delay / 1000, sendReportChannel)
+				timer.Arg1 = lines[i]
+				timer.Arg2 = toWho
+				timer.Arg3 = nil
+				timer.Arg4 = target
+			end
+
+			return
+		end
+
+		if (toWho == "RAID" or toWho == "PARTY") then
+			if (GetNumGroupMembers(LE_PARTY_CATEGORY_INSTANCE) > 0) then
+				toWho = "INSTANCE_CHAT"
+			end
+		end
+
+		for i = 1, #lines do
+			local timer = C_Timer.NewTimer(i * delay / 1000, sendReportChannel)
+			timer.Arg1 = lines[i]
+			timer.Arg2 = toWho
+			timer.Arg3 = nil
+			timer.Arg4 = nil
+		end
+
+	end
+end
+
 -- table sent to report func / f1: format value1 / f2: format value2
 -- report_table = a table header: {"report results for:"}
 -- data = table with {{value1 (string), value2 ( the value)} , {value1 (string), value2 ( the value)}}
@@ -4123,7 +4320,7 @@ function Details:monta_relatorio (este_relatorio, custom)
 		amt = math.min (amt, container_amount or 0)
 		local raw_data_to_report = {}
 
-		for i = 1, container_amount do
+		for i = 1, container_amount do --is nil
 			local actor = container [i]
 			if (actor) then
 				-- get the total

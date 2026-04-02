@@ -3,6 +3,7 @@ local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 
 local Details = _G.Details
 local gump = Details.gump
+local detailsFramework = DetailsFramework
 local _
 
 --details API functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -203,7 +204,11 @@ local _
 			local bIsCustom = true
 			Details.janela_report.enviar:SetScript("OnClick", function() self:monta_relatorio(param2, bIsCustom) end)
 		else
-			Details.janela_report.enviar:SetScript("OnClick", function() self:monta_relatorio(param2) end)
+			if detailsFramework.IsAddonApocalypseWow() then
+				Details.janela_report.enviar:SetScript("OnClick", function() self:SendApocalypseReport() end)
+			else
+				Details.janela_report.enviar:SetScript("OnClick", function() self:monta_relatorio(param2) end)
+			end
 		end
 
 		if (Details.janela_report.ativa) then 
@@ -914,6 +919,43 @@ local createDropdown = function(thisFrame)
 		local sendButtonLabel = window.enviar:CreateFontString(nil, "overlay", "GameFontNormal")
 		sendButtonLabel:SetPoint("center", 0, 0)
 		sendButtonLabel:SetText(Loc ["STRING_REPORTFRAME_SEND"])
+
+		window.enviar:HookScript("OnMouseDown", function(self, mouseButton)
+			if (mouseButton ~= "LeftButton") then
+				return
+			end
+
+			local point, relativeTo, relativePoint, xOffset, yOffset = self:GetPoint(1)
+			if (not point) then
+				return
+			end
+
+			self.buttonPoint = point
+			self.buttonRelativeTo = relativeTo
+			self.buttonRelativePoint = relativePoint
+			self.buttonXOffset = xOffset
+			self.buttonYOffset = yOffset
+
+			self:ClearAllPoints()
+			self:SetPoint(point, relativeTo, relativePoint, xOffset + 1, yOffset - 1)
+		end)
+
+		window.enviar:HookScript("OnMouseUp", function(self)
+			if (not self.buttonPoint) then
+				return
+			end
+
+			self:ClearAllPoints()
+			self:SetPoint(self.buttonPoint, self.buttonRelativeTo, self.buttonRelativePoint, self.buttonXOffset, self.buttonYOffset)
+
+			self.buttonPoint = nil
+			self.buttonRelativeTo = nil
+			self.buttonRelativePoint = nil
+			self.buttonXOffset = nil
+			self.buttonYOffset = nil
+		end)
+
+		
 
 		Details.FadeHandler.Fader(window, 1)
 		gump:CreateFlashAnimation(window)
