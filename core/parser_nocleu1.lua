@@ -1792,6 +1792,25 @@ local updateTime = function(timerObject) --~update ~time
     if issecretvalue(elapsedTime) then
         setTitleText(instance, elapsedTime)
     else
+        if elapsedTime == nil then
+            if instance:GetSegmentType() == 1 then
+                local combat = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, 1, 0)
+                if combat then
+                    elapsedTime = combat.durationSeconds
+                    if elapsedTime then
+                        if issecretvalue(elapsedTime) then
+                            setTitleText(instance, elapsedTime)
+                            return
+                        end
+                    end
+                end
+            end
+        end
+
+        if elapsedTime == nil then
+            elapsedTime = 1
+        end
+
         if (elapsedTime > 1800 and instance:GetSegmentType() > 0) then
             local detailsCombat = Details:GetTwinCombat(instance:GetNewSegmentId())
             if detailsCombat then
