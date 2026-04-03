@@ -1,4 +1,5 @@
 
+
 --data for the burning crusade expansion
 
 local versionString, revision, launchDate, gameVersion = GetBuildInfo()
@@ -133,12 +134,8 @@ LIB_OPEN_RAID_HEALING_POTIONS = {
 }
 
 LIB_OPEN_RAID_MELEE_SPECS = {
-	[251] = "DEATHKNIGHT",
-	[252] = "DEATHKNIGHT",
-	[577] = "DEMONHUNTER",
 	[103] = "DRUID",
 	--[255] = "Survival", --not in the list due to the long interrupt time
-	[269] = "MONK",
 	[70] = "PALADIN",
 	[259] = "ROGUE",
 	[260] = "ROGUE",
@@ -170,14 +167,11 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[15487] = {class = "PRIEST", specs = {258}, cooldown = 45, silence = 4, talent = false, cooldownWithTalent = 30, cooldownTalentId = 23137, type = 6, charges = 1}, --Silence (shadow) Last Word Talent to reduce cooldown in 15 seconds
 	[1766] = {class = "ROGUE", specs = {259, 260, 261}, cooldown = 15, silence = 5, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Kick
 	[96231] = {class = "PALADIN", specs = {66, 70}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Rebuke (protection and retribution)
-	[116705] = {class = "MONK", specs = {268, 269}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Spear Hand Strike (brewmaster and windwalker)
 	[57994] = {class = "SHAMAN", specs = {262, 263, 264}, cooldown = 12, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Wind Shear
-	[47528] = {class = "DEATHKNIGHT", specs = {250, 251, 252}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Mind Freeze
 	[106839] = {class = "DRUID", specs = {103, 104}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Skull Bash (feral, guardian)
 	[78675] = {class = "DRUID", specs = {102}, cooldown = 60, silence = 8, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Solar Beam (balance)
 	[147362] = {class = "HUNTER", specs = {253, 254}, cooldown = 24, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Counter Shot (beast mastery, marksmanship)
 	[187707] = {class = "HUNTER", specs = {255}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Muzzle (survival)
-	[183752] = {class = "DEMONHUNTER", specs = {577, 581}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Disrupt
 	[19647] = {class = "WARLOCK", specs = {265, 266, 267}, cooldown = 24, silence = 6, talent = false, cooldownWithTalent = false, cooldownTalentId = false, pet = 417, type = 6, charges = 1}, --Spell Lock (pet felhunter ability)
 	[89766] = {class = "WARLOCK", specs = {266}, cooldown = 30, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, pet = 17252, type = 6, charges = 1}, --Axe Toss (pet felguard ability)
 
@@ -268,30 +262,6 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[8143] = 	{cooldown = 60, 	duration = 10, 		specs = {262,263,264}, 	talent =false, charges = 1, class = "SHAMAN", type = 5}, --Tremor Totem
 	[192077] = 	{cooldown = 120, 	duration = 15, 		specs = {262,263,264}, 	talent =21966, charges = 1, class = "SHAMAN", type = 5}, --Wind Rush Totem (talent)
 	
-	--monk
-	-- 268 - Brewmaster
-	-- 269 - Windwalker
-	-- 270 - Restoration
-
-	[132578] = 	{cooldown = 180, 	duration = 25, 		specs = {268}, 			talent =false, charges = 1, class = "MONK", type = 1}, --Invoke Niuzao, the Black Ox
-	[115080] = 	{cooldown = 180, 	duration = false, 	specs = {268,269,270}, 	talent =false, charges = 1, class = "MONK", type = 1}, --Touch of Death
-	[115203] = 	{cooldown = 420, 	duration = 15, 		specs = {268}, 			talent =false, charges = 1, class = "MONK", type = 2}, --Fortifying Brew
-	[115176] = 	{cooldown = 300, 	duration = 8, 		specs = {268}, 			talent =false, charges = 1, class = "MONK", type = 2}, --Zen Meditation
-	[115399] = 	{cooldown = 120, 	duration = false, 	specs = {268}, 			talent =19992, charges = 1, class = "MONK", type = 2}, --Black Ox brew (talent)
-	[122278] = 	{cooldown = 120, 	duration = 10, 		specs = {268,269,270}, 	talent =20175, charges = 1, class = "MONK", type = 2}, --Dampen Harm (talent)
-	[137639] = 	{cooldown = 90, 	duration = 15, 		specs = {269}, 			talent =false, charges = 1, class = "MONK", type = 1}, --Storm, Earth, and Fire
-	[123904] = 	{cooldown = 120, 	duration = 24, 		specs = {269}, 			talent =false, charges = 1, class = "MONK", type = 1}, --Invoke Xuen, the White Tiger
-	[152173] = 	{cooldown = 90, 	duration = 12, 		specs = {269}, 			talent =21191, charges = 1, class = "MONK", type = 1}, --Serenity (talent)
-	[122470] = 	{cooldown = 90, 	duration = 6, 		specs = {269}, 			talent =false, charges = 1, class = "MONK", type = 2}, --Touch of Karma
-	[322118] = 	{cooldown = 180, 	duration = 25, 		specs = {270}, 			talent =false, charges = 1, class = "MONK", type = 4}, --Invoke Yulon, the Jade serpent
-	[243435] = 	{cooldown = 90, 	duration = 15, 		specs = {269,270}, 		talent =false, charges = 1, class = "MONK", type = 2}, --Fortifying Brew
-	[122783] = 	{cooldown = 90, 	duration = 6, 		specs = {269,270}, 		talent =20173, charges = 1, class = "MONK", type = 2}, --Diffuse Magic (talent)
-	[116849] = 	{cooldown = 120, 	duration = 12, 		specs = {270}, 			talent =false, charges = 1, class = "MONK", type = 3}, --Life Cocoon
-	[115310] = 	{cooldown = 180, 	duration = false, 	specs = {270}, 			talent =false, charges = 1, class = "MONK", type = 4}, --Revival
-	[197908] = 	{cooldown = 90, 	duration = 10, 		specs = {270}, 			talent =22166, charges = 1, class = "MONK", type = 5}, --Mana tea (talent)
-	[116844] = 	{cooldown = 45, 	duration = 5, 		specs = {268,269,270}, 	talent =19995, charges = 1, class = "MONK", type = 5}, --Ring of peace (talent)
-	[119381] = 	{cooldown = 50, 	duration = 3, 		specs = {268,269,270}, 	talent =false, charges = 1, class = "MONK", type = 5}, --Leg Sweep
-	
 	--hunter
 	-- 253 - Beast Mastery
 	-- 254 - Marksmenship
@@ -337,50 +307,10 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[319454] = 	{cooldown = 300, 	duration = 45, 		specs = {102,103,104,105}, 	talent =18577, charges = 1, class = "DRUID", type = 5}, --Heart of the Wild (talent)
 	[102793] = 	{cooldown = 60, 	duration = 10, 		specs = {102,103,104,105}, 	talent =false, charges = 1, class = "DRUID", type = 5}, --Ursol's Vortex
 
-	--death knight
-	-- 252 - Unholy
-	-- 251 - Frost
-	-- 252 - Blood
-
-	[275699] = 	{cooldown = 90, 	duration = 15, 		specs = {252}, 			talent =false, charges = 1, class = "DEATHKNIGHT", type = 1}, --Apocalypse
-	[42650] = 	{cooldown = 480, 	duration = 30, 		specs = {252}, 			talent =false, charges = 1, class = "DEATHKNIGHT", type = 1}, --Army of the Dead
-	[49206] = 	{cooldown = 180, 	duration = 30, 		specs = {252}, 			talent =22110, charges = 1, class = "DEATHKNIGHT", type = 1}, --Summon Gargoyle (talent)
-	[207289] = 	{cooldown = 78, 	duration = 12, 		specs = {252}, 			talent =22538, charges = 1, class = "DEATHKNIGHT", type = 1}, --Unholy Assault (talent)
-	[48743] = 	{cooldown = 120, 	duration = 15, 		specs = {250,251,252}, 	talent =23373, charges = 1, class = "DEATHKNIGHT", type = 2}, --Death Pact (talent)
-	[48707] = 	{cooldown = 60, 	duration = 10, 		specs = {250,251,252}, 	talent =23373, charges = 1, class = "DEATHKNIGHT", type = 2}, --Anti-magic Shell
-	[152279] = 	{cooldown = 120, 	duration = 5, 		specs = {251}, 			talent =22537, charges = 1, class = "DEATHKNIGHT", type = 1}, --Breath of Sindragosa (talent)
-	[47568] = 	{cooldown = 120, 	duration = 20, 		specs = {251}, 			talent =false, charges = 1, class = "DEATHKNIGHT", type = 1}, --Empower Rune Weapon
-	[279302] = 	{cooldown = 120, 	duration = 10, 		specs = {251}, 			talent =22535, charges = 1, class = "DEATHKNIGHT", type = 1}, --Frostwyrm's Fury (talent)
-	[49028] = 	{cooldown = 120, 	duration = 8, 		specs = {250}, 			talent =false, charges = 1, class = "DEATHKNIGHT", type = 1}, --Dancing Rune Weapon
-	[55233] = 	{cooldown = 90, 	duration = 10, 		specs = {250}, 			talent =false, charges = 1, class = "DEATHKNIGHT", type = 2}, --Vampiric Blood
-	[48792] = 	{cooldown = 120, 	duration = 8, 		specs = {250,251,252}, 	talent =false, charges = 1, class = "DEATHKNIGHT", type = 2}, --Icebound Fortitude
-	[51052] = 	{cooldown = 120, 	duration = 10, 		specs = {250,251,252}, 	talent =false, charges = 1, class = "DEATHKNIGHT", type = 4}, --Anti-magic Zone
-	[219809] = 	{cooldown = 60, 	duration = 8, 		specs = {250}, 			talent =23454, charges = 1, class = "DEATHKNIGHT", type = 2}, --Tombstone (talent)
-	[108199] = 	{cooldown = 120, 	duration = false, 	specs = {250}, 			talent =false, charges = 1, class = "DEATHKNIGHT", type = 5}, --Gorefiend's Grasp
-	[207167] = 	{cooldown = 60, 	duration = 5, 		specs = {251}, 			talent =22519, charges = 1, class = "DEATHKNIGHT", type = 5}, --Blinding Sleet (talent)
-	[108194] = 	{cooldown = 45, 	duration = 4, 		specs = {251,252}, 		talent =22520, charges = 1, class = "DEATHKNIGHT", type = 5}, --Asphyxiate (talent)
-	[221562] = 	{cooldown = 45, 	duration = 5, 		specs = {250}, 			talent =false, charges = 1, class = "DEATHKNIGHT", type = 5}, --Asphyxiate
-	[212552] = 	{cooldown = 60, 	duration = 4, 		specs = {250,251,252}, 	talent =19228, charges = 1, class = "DEATHKNIGHT", type = 5}, --Wraith walk (talent)
-
 	--demon hunter
 	-- 577 - Havoc
 	-- 581 - Vengance
 
-	[191427] = 	{cooldown = 240, 	duration = 30, 		specs = {577}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
-	[198589] = 	{cooldown = 60, 	duration = 10, 		specs = {577}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 2}, --Blur
-	[196555] = 	{cooldown = 120, 	duration = 5, 		specs = {577}, 			talent =21865, charges = 1, class = "DEMONHUNTER", type = 2}, --Netherwalk (talent)
-	[187827] = 	{cooldown = 180, 	duration = 15, 		specs = {581}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 2}, --Metamorphosis
-	[196718] = 	{cooldown = 180, 	duration = 8, 		specs = {577}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 4}, --Darkness
-	[188501] = 	{cooldown = 30, 	duration = 10, 		specs = {577,581}, 		talent =false, charges = 1, class = "DEMONHUNTER", type = 5}, --Spectral Sight
-	[179057] = 	{cooldown = 60, 	duration = 2, 		specs = {577}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 5}, --Chaos Nova
-	[211881] = 	{cooldown = 30, 	duration = 4, 		specs = {577}, 			talent =22767, charges = 1, class = "DEMONHUNTER", type = 5}, --Fel Eruption (talent)
-	[320341] = 	{cooldown = 90, 	duration = false, 	specs = {581}, 			talent =21902, charges = 1, class = "DEMONHUNTER", type = 1}, --Bulk Extraction (talent)
-	[204021] = 	{cooldown = 60, 	duration = 10, 		specs = {581}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 2}, --Fiery Brand
-	[263648] = 	{cooldown = 30, 	duration = 12, 		specs = {581}, 			talent =22768, charges = 1, class = "DEMONHUNTER", type = 2}, --Soul Barrier (talent)
-	[207684] = 	{cooldown = 90, 	duration = 12, 		specs = {581}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Misery
-	[202137] = 	{cooldown = 60, 	duration = 8, 		specs = {581}, 			talent =false, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Silence
-	[202138] = 	{cooldown = 90, 	duration = 6, 		specs = {581}, 			talent =22511, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Chains (talent)
-	
 	--mage
 	-- 62 - Arcane
 	-- 63 - Fire
@@ -465,19 +395,6 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[1468] = {};
 --it is not transmitted to other clients
 LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[331866] = {cooldown = 0,	class = "COVENANT|VENTHYR"}, --Agent of Chaos
-	[334693] = {cooldown = 0,	class = "DEAHTKNIGHT"}, --Absolute Zero
-	[221562] = {cooldown = 45,	class = "DEATHKNIGHT"}, --Asphyxiate
-	[47528] = {cooldown = 15,	class = "DEATHKNIGHT"}, --Mind Freeze
-	[207167] = {cooldown = 60,	class = "DEATHKNIGHT"}, --Blinding Sleet
-	[91807] = {cooldown = 0,	class = "DEATHKNIGHT"}, --Shambling Rush
-	[108194] = {cooldown = 45,	class = "DEATHKNIGHT"}, --Asphyxiate
-	[211881] = {cooldown = 30,	class = "DEMONHUNTER"}, --Fel Eruption
-	[200166] = {cooldown = 0,	class = "DEMONHUNTER"}, --Metamorphosis
-	[217832] = {cooldown = 45,	class = "DEMONHUNTER"}, --Imprison
-	[183752] = {cooldown = 15,	class = "DEMONHUNTER"}, --Disrupt
-	[207685] = {cooldown = 0,	class = "DEMONHUNTER"}, --Sigil of Misery
-	[179057] = {cooldown = 45,	class = "DEMONHUNTER"}, --Chaos Nova
-	[221527] = {cooldown = 45,	class = "DEMONHUNTER"}, --Imprison with detainment talent
 	[339] = {cooldown = 0,		class = "DRUID"}, --Entangling Roots
 	[102359] = {cooldown = 30,	class = "DRUID"}, --Mass Entanglement
 	[93985] = {cooldown = 0,	class = "DRUID"}, --Skull Bash
@@ -492,8 +409,6 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[61391] = {cooldown = 0,	class = "DRUID"}, --Typhoon
 	[163505] = {cooldown = 0,	class = "DRUID"}, --Rake
 	[50259] = {cooldown = 0,	class = "DRUID"}, --Dazed
-	[372245] = {cooldown = 0,	class = "EVOKER"}, --Terror of the Skies
-	[360806] = {cooldown = 15,	class = "EVOKER"}, --Sleep Walk
 	[162480] = {cooldown = 0,	class = "HUNTER"}, --Steel Trap
 	[187707] = {cooldown = 15,	class = "HUNTER"}, --Muzzle
 	[147362] = {cooldown = 24,	class = "HUNTER"}, --Counter Shot
@@ -522,12 +437,6 @@ LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
 	[61305] = {cooldown = 0,	class = "MAGE"}, --Polymorph
 	[28272] = {cooldown = 0,	class = "MAGE"}, --Polymorph
 	[2139] = {cooldown = 24,	class = "MAGE"}, --Counterspell
-	[198909] = {cooldown = 0,	class = "MONK"}, --Song of Chi-Ji
-	[119381] = {cooldown = 60,	class = "MONK"}, --Leg Sweep
-	[107079] = {cooldown = 120,	class = "MONK"}, --Quaking Palm
-	[116706] = {cooldown = 0,	class = "MONK"}, --Disable
-	[115078] = {cooldown = 45,	class = "MONK"}, --Paralysis
-	[116705] = {cooldown = 15,	class = "MONK"}, --Spear Hand Strike
 	[31935] = {cooldown = 15,	class = "PALADIN"}, --Avenger's Shield
 	[20066] = {cooldown = 15,	class = "PALADIN"}, --Repentance
 	[217824] = {cooldown = 0,	class = "PALADIN"}, --Shield of Virtue
