@@ -414,6 +414,7 @@ LIB_OPEN_RAID_CROWDCONTROL = {
 	[6770] = {cooldown = 0,		class = "ROGUE"}, --Sap
 	[2094] = {cooldown = 120,	class = "ROGUE"}, --Blind
 	[408] = {cooldown = 20,		class = "ROGUE"}, --Kidney Shot
+	[8643] = {cooldown = 20,	class = "ROGUE"}, --Kidney Shot
 	[1776] = {cooldown = 20,	class = "ROGUE"}, --Gouge
 	[1833] = {cooldown = 0,		class = "ROGUE"}, --Cheap Shot
 	[5484] = {cooldown = 40,	class = "WARLOCK"}, --Howl of Terror
