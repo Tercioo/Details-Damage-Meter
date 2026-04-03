@@ -240,81 +240,84 @@ end
 local language = GetLocale()
 local useAsianAbbreviations = language == "zhCN" or language == "zhTW" or language == "koKR"
 
-local abbreviateOptionsDamage =
-{
-    {
-        breakpoint = 1000000000,
-        abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
-        significandDivisor = 10000000,
-        fractionDivisor = 100,
-        abbreviationIsGlobal = useAsianAbbreviations
-    },
-    {
-        breakpoint = 1000000,
-        abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
-        significandDivisor = 10000,
-        fractionDivisor = 100,
-        abbreviationIsGlobal = useAsianAbbreviations
-    },
-    {
-        breakpoint = 10000,
-        abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
-        significandDivisor = 1000,
-        fractionDivisor = 1,
-        abbreviationIsGlobal = useAsianAbbreviations,
-    },
-    {
-        breakpoint = 1000,
-        abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
-        significandDivisor = 100,
-        fractionDivisor = 10,
-        abbreviationIsGlobal = useAsianAbbreviations,
-    },
-    {
-        breakpoint = 1,
-        abbreviation = "",
-        significandDivisor = 1,
-        fractionDivisor = 1,
-        abbreviationIsGlobal = false
-    },
-}
+local SECOND_NUMBER_CAP_NO_SPACE = "億"
+local FIRST_NUMBER_CAP_NO_SPACE = "萬"
 
-local abbreviateOptionsDPS =
-{
+if detailsFramework.IsAddonApocalypseWow() then
+    local abbreviateOptionsDamage =
     {
-        breakpoint = 1000000000,
-        abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
-        significandDivisor = 10000000,
-        fractionDivisor = 100,
-        abbreviationIsGlobal = useAsianAbbreviations
-    },
-    {
-        breakpoint = 1000000,
-        abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
-        significandDivisor = 10000,
-        fractionDivisor = 100,
-        abbreviationIsGlobal = useAsianAbbreviations
-    },
-    {
-        breakpoint = 1000,
-        abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
-        significandDivisor = 100,
-        fractionDivisor = 10,
-        abbreviationIsGlobal = useAsianAbbreviations,
-    },
-    {
-        breakpoint = 1,
-        abbreviation = "",
-        significandDivisor = 1,
-        fractionDivisor = 1,
-        abbreviationIsGlobal = false
-    },
-}
+        {
+            breakpoint = 1000000000,
+            abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
+            significandDivisor = 10000000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 1000000,
+            abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
+            significandDivisor = 10000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 10000,
+            abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+            significandDivisor = 1000,
+            fractionDivisor = 1,
+            abbreviationIsGlobal = useAsianAbbreviations,
+        },
+        {
+            breakpoint = 1000,
+            abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+            significandDivisor = 100,
+            fractionDivisor = 10,
+            abbreviationIsGlobal = useAsianAbbreviations,
+        },
+        {
+            breakpoint = 1,
+            abbreviation = "",
+            significandDivisor = 1,
+            fractionDivisor = 1,
+            abbreviationIsGlobal = false
+        },
+    }
 
-local abbreviateSettingsDamage
-local abbreviateSettingsDPS
+    local abbreviateOptionsDPS =
+    {
+        {
+            breakpoint = 1000000000,
+            abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
+            significandDivisor = 10000000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 1000000,
+            abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
+            significandDivisor = 10000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 1000,
+            abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+            significandDivisor = 100,
+            fractionDivisor = 10,
+            abbreviationIsGlobal = useAsianAbbreviations,
+        },
+        {
+            breakpoint = 1,
+            abbreviation = "",
+            significandDivisor = 1,
+            fractionDivisor = 1,
+            abbreviationIsGlobal = false
+        },
+    }
 
-if CreateAbbreviateConfig then
+    local abbreviateSettingsDamage
+    local abbreviateSettingsDPS
+
     abbreviateSettingsDamage = CreateAbbreviateConfig(abbreviateOptionsDamage)
     abbreviateSettingsDamage = {config = abbreviateSettingsDamage}
     Details.abbreviateOptionsDamage = abbreviateSettingsDamage
@@ -323,8 +326,6 @@ if CreateAbbreviateConfig then
     abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
     Details.abbreviateOptionsDPS = abbreviateSettingsDPS
 end
-
-
 
 --debug function
 local showActiveRestrictions = function()
@@ -1625,7 +1626,7 @@ local updateWindow = function(instance) --~update
 
                     local perCent = nil
                     local ruleToUse = 2 --total dps
-                    Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(value, abbreviateSettingsDamage), AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS), perCent, ruleToUse)
+                    Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(value, Details.abbreviateOptionsDamage), AbbreviateNumbers(totalAmountPerSecond, Details.abbreviateOptionsDPS), perCent, ruleToUse)
 
                     instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)

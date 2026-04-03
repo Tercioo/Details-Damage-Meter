@@ -892,6 +892,87 @@
 
 	--krKR by @yuk6196 (http://wow.curseforge.com/profiles/yuk6196)
 	function Details:UseEastAsianNumericalSystem()
+		if detailsFramework.IsAddonApocalypseWow() then
+			local abbreviateOptionsDamage = {
+				{
+					breakpoint = 1000000000,
+					abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
+					significandDivisor = 10000000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = true
+				},
+				{
+					breakpoint = 100000000,
+					abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+					significandDivisor = 1000000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = true
+				},
+				{
+					breakpoint = 10000,
+					abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+					significandDivisor = 100,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = true,
+				},
+				{
+					breakpoint = 1000,
+					abbreviation = "",
+					significandDivisor = 1,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false,
+				},
+				{
+					breakpoint = 1,
+					abbreviation = "",
+					significandDivisor = 1,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false
+				},
+			}
+
+			local abbreviateOptionsDPS = {
+				{
+					breakpoint = 1000000000,
+					abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
+					significandDivisor = 10000000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = true
+				},
+				{
+					breakpoint = 100000000,
+					abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
+					significandDivisor = 1000000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = true
+				},
+				{
+					breakpoint = 10000,
+					abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
+					significandDivisor = 100,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = true,
+				},
+				{
+					breakpoint = 1,
+					abbreviation = "",
+					significandDivisor = 1,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false
+				},
+			}
+
+			local abbreviateSettingsDamage
+			local abbreviateSettingsDPS
+
+			abbreviateSettingsDamage = CreateAbbreviateConfig(abbreviateOptionsDamage)
+			abbreviateSettingsDamage = {config = abbreviateSettingsDamage}
+			Details.abbreviateOptionsDamage = abbreviateSettingsDamage
+
+			abbreviateSettingsDPS = CreateAbbreviateConfig(abbreviateOptionsDPS)
+			abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
+			Details.abbreviateOptionsDPS = abbreviateSettingsDPS
+		end
 
 		--try to auto detect the language
 		local symbol_1K, symbol_10K, symbol_1B
@@ -1070,6 +1151,92 @@
 	end
 
 	function Details:UseWestNumericalSystem()
+		if detailsFramework.IsAddonApocalypseWow() then
+			local useAsianAbbreviations = false
+
+			local abbreviateOptionsDamage =
+			{
+				{
+					breakpoint = 1000000000,
+					abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
+					significandDivisor = 10000000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = useAsianAbbreviations
+				},
+				{
+					breakpoint = 1000000,
+					abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
+					significandDivisor = 10000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = useAsianAbbreviations
+				},
+				{
+					breakpoint = 10000,
+					abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+					significandDivisor = 1000,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = useAsianAbbreviations,
+				},
+				{
+					breakpoint = 1000,
+					abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+					significandDivisor = 100,
+					fractionDivisor = 10,
+					abbreviationIsGlobal = useAsianAbbreviations,
+				},
+				{
+					breakpoint = 1,
+					abbreviation = "",
+					significandDivisor = 1,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false
+				},
+			}
+
+			local abbreviateOptionsDPS =
+			{
+				{
+					breakpoint = 1000000000,
+					abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
+					significandDivisor = 10000000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = useAsianAbbreviations
+				},
+				{
+					breakpoint = 1000000,
+					abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
+					significandDivisor = 10000,
+					fractionDivisor = 100,
+					abbreviationIsGlobal = useAsianAbbreviations
+				},
+				{
+					breakpoint = 1000,
+					abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+					significandDivisor = 100,
+					fractionDivisor = 10,
+					abbreviationIsGlobal = useAsianAbbreviations,
+				},
+				{
+					breakpoint = 1,
+					abbreviation = "",
+					significandDivisor = 1,
+					fractionDivisor = 1,
+					abbreviationIsGlobal = false
+				},
+			}
+
+			local abbreviateSettingsDamage
+			local abbreviateSettingsDPS
+
+			abbreviateSettingsDamage = CreateAbbreviateConfig(abbreviateOptionsDamage)
+			abbreviateSettingsDamage = {config = abbreviateSettingsDamage}
+			Details.abbreviateOptionsDamage = abbreviateSettingsDamage
+
+			abbreviateSettingsDPS = CreateAbbreviateConfig(abbreviateOptionsDPS)
+			abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
+			Details.abbreviateOptionsDPS = abbreviateSettingsDPS
+		end
+
 		--short numbers
 		function Details:ToK (numero)
 			if (numero > 999999999) then

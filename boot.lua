@@ -306,6 +306,7 @@
 		function Details222.B.GetSegment(type, identifier, attribute)
 			if attribute < 0 then
 				local result = Details222.BParser.GetCustomDataForWindow(nil, attribute, type, identifier)
+				return result
 			else
 				local result = Details.DM[(getSegmentFName .. type)](identifier, attribute)
 				return result
