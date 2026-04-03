@@ -395,6 +395,7 @@ LIB_OPEN_RAID_CROWDCONTROL = {
 	[33786] = {cooldown = 0,	class = "DRUID"}, --Cyclone
 	[22570] = {cooldown = 0,	class = "DRUID"}, --Maim
 	[5211] = {cooldown = 60,	class = "DRUID"}, --Mighty Bash
+	[9005] = {cooldown = 0,		class = "DRUID"}, --Pounce
 	[45334] = {cooldown = 0,	class = "DRUID"}, --Immobilized
 	[1513] = {cooldown = 0,		class = "HUNTER"}, --Scare Beast
 	[3355] = {cooldown = 30,	class = "HUNTER"}, --Freezing Trap
@@ -403,6 +404,7 @@ LIB_OPEN_RAID_CROWDCONTROL = {
 	[28271] = {cooldown = 0,	class = "MAGE"}, --Polymorph (Pig)
 	[28272] = {cooldown = 0,	class = "MAGE"}, --Polymorph (Turtle)
 	[122] = {cooldown = 0,		class = "MAGE"}, --Frost Nova
+	[33395] = {cooldown = 25,	class = "MAGE"}, --Freeze (Water Elemental)
 	[31661] = {cooldown = 45,	class = "MAGE"}, --Dragon's Breath
 	[853] = {cooldown = 60,		class = "PALADIN"}, --Hammer of Justice
 	[20066] = {cooldown = 15,	class = "PALADIN"}, --Repentance
@@ -420,7 +422,9 @@ LIB_OPEN_RAID_CROWDCONTROL = {
 	[6789] = {cooldown = 45,	class = "WARLOCK"}, --Death Coil
 	[30283] = {cooldown = 60,	class = "WARLOCK"}, --Shadowfury
 	[5246] = {cooldown = 90,	class = "WARRIOR"}, --Intimidating Shout
-	[20549] = {cooldown = 45,	class = "RACIAL"}, --War Stomp (Tauren)
+	[5530] = {cooldown = 0,		class = "WARRIOR"}, --Mace Stun Effect
+	[34510] = {cooldown = 0,	class = "GENERAL"}, --Stun (Deep Thunder)
+	[20549] = {cooldown = 120,	class = "RACIAL"}, --War Stomp (Tauren)
 }
 
 --[=[
