@@ -3286,6 +3286,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	local percenNumber = 0
 	local mainDisplay, subDisplay = instance:GetDisplay()
 	instanceLine.statusbar:SetMinMaxValues(0, 100)
+	local attributeId = instance:GetAttributeType()
 
 	--total bar does not pass here, because it is handled in the main refresh function, so set this value to false
 	instanceLine.isTotalBar = false
@@ -3430,6 +3431,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			local ruleToUse = -1 --only show total
 			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, nil, ruleToUse)
 			--percentNumber = math.floor((hps/instanceObject.top) * 100)
+
+		elseif (attributeId == DETAILS_SUBATTRIBUTE_HEALPOTION) then
+			local ruleToUse = 3 --total hps percent
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), source.percent, ruleToUse)
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_ENERGY then

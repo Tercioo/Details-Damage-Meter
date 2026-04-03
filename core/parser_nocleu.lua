@@ -38,7 +38,7 @@ if detailsFramework.IsAddonApocalypseWow() then
             100, --healing taken (not supported)
             100, --healing enemy (not supported)
             100, --healing prevented (not supported)
-            Enum.DamageMeterType.Absorbs, --healing absorbed
+            100, --healing absorbed
         },
         [3] = {
             100, --resources (not supported)
@@ -66,6 +66,10 @@ end
 
 function bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
     local displayType = displayMap[mainDisplay] and displayMap[mainDisplay][subDisplay]
+    --handle nich cases
+    if (mainDisplay == 2 and subDisplay == 8) then --heal potions
+        displayType = -10
+    end
     return displayType
 end
 
@@ -118,10 +122,118 @@ local onEvent = function(event, instance, ...)
     end
 end
 
---calling on challenge mode start, wipe details data
+function Details222.BParser.IsCustomAttribute(attributeId)
+    if attributeId == -10 then --potion usage
+        return true
+    end
+    return false
+end
 
----Details222.BParser.ResetServerDM
+---@param instance instance
+---@param attributeId attributeid
+---@param sourcePlayer damagemeter_combat_source
+function Details222.BParser.GetCustomDataForTooltip(instance, attributeId, sourcePlayer)
+    if Details222.BParser.IsCustomAttribute(attributeId) then --potion usage
+        return sourcePlayer.spells
+    end
+end
 
+---@param instance instance
+---@param attributeId attributeid
+function Details222.BParser.GetCustomDataForWindow(instance, attributeId)
+    if Details222.BParser.IsCustomAttribute(attributeId) then
+        if attributeId == -10 then --potion usage
+            local session = {
+                combatSources = {},
+                maxAmount = 0,
+                totalAmount = 0,
+                durationSeconds = 1,
+            }
+
+            local combat
+            local segmentType, segmentId = instance:GetSegmentType(), instance:GetNewSegmentId()
+            if segmentType > 1 then
+                combat = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, segmentId, 2)
+                segmentType = segmentType
+            else
+                combat = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, segmentType, 2)
+                segmentType = segmentType
+            end
+
+            for i = 1, #combat.combatSources do
+                local source = combat.combatSources[i]
+                local spells = Details222.BParser.GetSpells(segmentType, segmentId, 2, source.sourceGUID, source.isLocalPlayer)
+                local potionsUsed = {}
+                for j = 1, #spells.combatSpells do
+                    local thisSpell = spells.combatSpells[j]
+                    local spellId = thisSpell.spellID
+                    if spellId == DETAILS_HEALTH_POTION1_ID or spellId == DETAILS_HEALTH_POTION2_ID or spellId == DETAILS_HEALTH_POTION3_ID or spellId == DETAILS_HEALTHSTONE_ID then
+                        potionsUsed[#potionsUsed+1] = thisSpell
+                    end
+                end
+
+                if #potionsUsed > 0 then
+                    local actor = {
+                        name = source.name,
+                        sourceGUID = source.sourceGUID,
+                        sourceFlags = source.sourceFlags,
+                        isLocalPlayer = source.isLocalPlayer,
+                        classFilename = source.classFilename,
+                        specIconID = source.specIconID,
+                        deathRecapID = source.deathRecapID,
+                        deathTimeSeconds = source.deathTimeSeconds,
+                        sourceCreatureID = source.sourceCreatureID,
+                        classification = source.classification,
+                        percent = 0,
+                        maxAmount = 0,
+                        totalAmount = 0,
+                    }
+                    session.combatSources[#session.combatSources+1] = actor
+                    --session.totalAmount = session.totalAmount + potion.totalAmount
+
+                    --get the total amount and max amount for this actor
+                    local totalAmount = 0
+                    local maxAmount = 0
+                    for _, potion in ipairs(potionsUsed) do
+                        if potion.totalAmount > maxAmount then
+                            maxAmount = potion.totalAmount
+                        end
+                        totalAmount = totalAmount + potion.totalAmount
+                    end
+
+                    actor.maxAmount = maxAmount
+                    actor.totalAmount = totalAmount
+                    actor.amountPerSecond = totalAmount / combat.durationSeconds
+
+                    session.totalAmount = session.totalAmount + actor.totalAmount
+
+                    local spellSources = {
+                        combatSpells = detailsFramework.table.copy({}, potionsUsed),
+                        maxAmount = actor.maxAmount,
+                        totalAmount = actor.totalAmount,
+                    }
+
+                    actor.spells = spellSources
+                end
+            end
+
+            --update percent for each player that found a potion used
+            for i = 1, #session.combatSources do
+                local source = session.combatSources[i]
+                if source.maxAmount > session.maxAmount then
+                    session.maxAmount = source.maxAmount
+                end
+
+                if session.totalAmount > 0 then
+                    source.percent = (source.totalAmount / session.totalAmount) * 100
+                    source.percent = format("%.1f%%", source.percent)
+                end
+            end
+
+            return session
+        end
+    end
+end
 
 
 local swapListener = Details:CreateEventListener()

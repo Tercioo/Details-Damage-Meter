@@ -507,6 +507,11 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             end
         end
         return
+
+    elseif (damageMeterType < 0) then
+        sourceSpells = Details222.BParser.GetCustomDataForTooltip(instance, damageMeterType, sourcePlayer)
+        --dumpt(sourceSpells)
+        hasSourceSpells = true
     else
         local creature = not issecretvalue(sourcePlayer.sourceCreatureID) and sourcePlayer.sourceCreatureID
         if guid or creature then

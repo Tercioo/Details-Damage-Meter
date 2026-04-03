@@ -1035,15 +1035,22 @@ function Details:GetSegment()
 end
 
 function Details:GetSegmentObject()
-	local attribute = self:GetAttributeType()
-	if attribute == 100 then
-		attribute = 0
+	local attributeId = self:GetAttributeType()
+	if attributeId == 100 then
+		attributeId = 0
 	end
+
+	if Details222.BParser.IsCustomAttribute(attributeId) then
+		--custom attribute
+		local data = Details222.BParser.GetCustomDataForWindow(self, attributeId)
+		return data
+	end
+
 	if self:GetSegmentType() > 1 then
-		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, self:GetNewSegmentId(), attribute)
+		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, self:GetNewSegmentId(), attributeId)
 		return s
 	else
-		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, self:GetSegmentType(), attribute)
+		local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, self:GetSegmentType(), attributeId)
 		return s
 	end
 end

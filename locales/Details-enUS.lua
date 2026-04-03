@@ -9,6 +9,8 @@ L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
 L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
 L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"
 
+L["STRING_ATTRIBUTE_HEAL_POTIONS"] = "Potions"
+
 
 L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Midnight Right Text: Simple or Aligned"
 L["STRING_SIMPLE_TEXT_FORMAT"] = "Use Simple Text Formatting"

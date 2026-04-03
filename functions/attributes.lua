@@ -27,6 +27,7 @@ do
 		--[[global]] DETAILS_SUBATTRIBUTE_HEALENEMY = 5
 		--[[global]] DETAILS_SUBATTRIBUTE_HEALPREVENTED = 6
 		--[[global]] DETAILS_SUBATTRIBUTE_HEALABSORBED = 7
+		--[[global]] DETAILS_SUBATTRIBUTE_HEALPOTION = -10
 	
 	--[[global]] DETAILS_ATTRIBUTE_ENERGY = 3
 	
@@ -97,7 +98,7 @@ do
 		
 		--[[ HEALING ]]
 			cura = 2,	--identifier
-			[2] = 7,	-- sub attributes 
+			[2] = 8,	-- sub attributes 
 		
 		--[[ ENERGY ]]
 			e_energy = 3,--identifier
@@ -169,6 +170,7 @@ do
 			heal_enemy_amt = 5,
 			totalabsorb = 6,
 			totaldenied = 7,
+			healpotions = 8,
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_HEAL_DONE"],
 				Loc ["STRING_ATTRIBUTE_HEAL_HPS"],
@@ -177,8 +179,9 @@ do
 				Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"],
 				Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"],
 				Loc ["STRING_ATTRIBUTE_HEAL_ABSORBED"],
+				Loc ["STRING_ATTRIBUTE_HEAL_POTIONS"], --8
 			},
-		
+
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {0, .125, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.125, .25, 0, 1}},
@@ -187,8 +190,9 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.5, 0.625, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {0.625, 0.75, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {0.75, 0.75+.125, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\healpotion_icon.png", {0, 1, 0, 1}},
 			},
-			internal = {"total", "last_hps", "totalover", "healing_taken", "heal_enemy_amt", "totalabsorb", "totaldenied"}
+			internal = {"total", "last_hps", "totalover", "healing_taken", "heal_enemy_amt", "totalabsorb", "totaldenied", "healpotions"}
 		},
 		
 		{
