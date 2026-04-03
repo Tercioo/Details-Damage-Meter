@@ -166,14 +166,10 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[2139] = {class = "MAGE", specs = {62, 63, 64}, cooldown = 24, silence = 6, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Counterspell
 	[15487] = {class = "PRIEST", specs = {258}, cooldown = 45, silence = 4, talent = false, cooldownWithTalent = 30, cooldownTalentId = 23137, type = 6, charges = 1}, --Silence (shadow) Last Word Talent to reduce cooldown in 15 seconds
 	[1766] = {class = "ROGUE", specs = {259, 260, 261}, cooldown = 15, silence = 5, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Kick
-	[96231] = {class = "PALADIN", specs = {66, 70}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Rebuke (protection and retribution)
-	[57994] = {class = "SHAMAN", specs = {262, 263, 264}, cooldown = 12, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Wind Shear
-	[106839] = {class = "DRUID", specs = {103, 104}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Skull Bash (feral, guardian)
-	[78675] = {class = "DRUID", specs = {102}, cooldown = 60, silence = 8, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Solar Beam (balance)
-	[147362] = {class = "HUNTER", specs = {253, 254}, cooldown = 24, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Counter Shot (beast mastery, marksmanship)
-	[187707] = {class = "HUNTER", specs = {255}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Muzzle (survival)
-	[19647] = {class = "WARLOCK", specs = {265, 266, 267}, cooldown = 24, silence = 6, talent = false, cooldownWithTalent = false, cooldownTalentId = false, pet = 417, type = 6, charges = 1}, --Spell Lock (pet felhunter ability)
-	[89766] = {class = "WARLOCK", specs = {266}, cooldown = 30, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, pet = 17252, type = 6, charges = 1}, --Axe Toss (pet felguard ability)
+	[16979] = {class = "DRUID", specs = {103, 104}, cooldown = 15, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Feral Charge
+	[5211] = {class = "DRUID", specs = {103, 104}, cooldown = 60, silence = 2, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Mighty Bash
+	[8042] = {class = "SHAMAN", specs = {262, 263, 264}, cooldown = 8, silence = 2, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Earth Shock
+	[28730] = {class = "RACIAL", specs = {0}, cooldown = 120, silence = 2, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Arcane Torrent (Blood Elf)
 
 	--paladin
 	-- 65 - Holy
@@ -393,99 +389,38 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[1468] = {};
 
 --list of all crowd control spells
 --it is not transmitted to other clients
-LIB_OPEN_RAID_CROWDCONTROL = { --copied from retail
-	[331866] = {cooldown = 0,	class = "COVENANT|VENTHYR"}, --Agent of Chaos
+LIB_OPEN_RAID_CROWDCONTROL = {
 	[339] = {cooldown = 0,		class = "DRUID"}, --Entangling Roots
-	[102359] = {cooldown = 30,	class = "DRUID"}, --Mass Entanglement
-	[93985] = {cooldown = 0,	class = "DRUID"}, --Skull Bash
 	[2637] = {cooldown = 0,		class = "DRUID"}, --Hibernate
-	[5211] = {cooldown = 60,	class = "DRUID"}, --Mighty Bash
-	[99] = {cooldown = 30,		class = "DRUID"}, --Incapacitating Roar
-	[127797] = {cooldown = 0,	class = "DRUID"}, --Ursol's Vortex
-	[203123] = {cooldown = 0,	class = "DRUID"}, --Maim
-	[45334] = {cooldown = 0,	class = "DRUID"}, --Immobilized
 	[33786] = {cooldown = 0,	class = "DRUID"}, --Cyclone
-	[236748] = {cooldown = 30,	class = "DRUID"}, --Intimidating Roar
-	[61391] = {cooldown = 0,	class = "DRUID"}, --Typhoon
-	[163505] = {cooldown = 0,	class = "DRUID"}, --Rake
-	[50259] = {cooldown = 0,	class = "DRUID"}, --Dazed
-	[162480] = {cooldown = 0,	class = "HUNTER"}, --Steel Trap
-	[187707] = {cooldown = 15,	class = "HUNTER"}, --Muzzle
-	[147362] = {cooldown = 24,	class = "HUNTER"}, --Counter Shot
-	[190927] = {cooldown = 6,	class = "HUNTER"}, --Harpoon
-	[117526] = {cooldown = 45,	class = "HUNTER"}, --Binding Shot
-	[24394] = {cooldown = 0,	class = "HUNTER"}, --Intimidation
-	[117405] = {cooldown = 0,	class = "HUNTER"}, --Binding Shot
-	[19577] = {cooldown = 60,	class = "HUNTER"}, --Intimidation
+	[22570] = {cooldown = 0,	class = "DRUID"}, --Maim
+	[5211] = {cooldown = 60,	class = "DRUID"}, --Mighty Bash
+	[45334] = {cooldown = 0,	class = "DRUID"}, --Immobilized
 	[1513] = {cooldown = 0,		class = "HUNTER"}, --Scare Beast
 	[3355] = {cooldown = 30,	class = "HUNTER"}, --Freezing Trap
-	[203337] = {cooldown = 30,	class = "HUNTER"}, --Freezing trap with diamond ice talent
-	[31661] = {cooldown = 45,	class = "MAGE"}, --Dragon's Breath
-	[161353] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[277787] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[157981] = {cooldown = 30,	class = "MAGE"}, --Blast Wave
-	[82691] = {cooldown = 0,	class = "MAGE"}, --Ring of Frost
+	[19386] = {cooldown = 30,	class = "HUNTER"}, --Wyvern Sting
 	[118] = {cooldown = 0,		class = "MAGE"}, --Polymorph
-	[161354] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[157997] = {cooldown = 25,	class = "MAGE"}, --Ice Nova
-	[391622] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[28271] = {cooldown = 0,	class = "MAGE"}, --Polymorph
+	[28271] = {cooldown = 0,	class = "MAGE"}, --Polymorph (Pig)
+	[28272] = {cooldown = 0,	class = "MAGE"}, --Polymorph (Turtle)
 	[122] = {cooldown = 0,		class = "MAGE"}, --Frost Nova
-	[277792] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[61721] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[126819] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[61305] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[28272] = {cooldown = 0,	class = "MAGE"}, --Polymorph
-	[2139] = {cooldown = 24,	class = "MAGE"}, --Counterspell
-	[31935] = {cooldown = 15,	class = "PALADIN"}, --Avenger's Shield
-	[20066] = {cooldown = 15,	class = "PALADIN"}, --Repentance
-	[217824] = {cooldown = 0,	class = "PALADIN"}, --Shield of Virtue
-	[105421] = {cooldown = 0,	class = "PALADIN"}, --Blinding Light
-	[10326] = {cooldown = 15,	class = "PALADIN"}, --Turn Evil
+	[31661] = {cooldown = 45,	class = "MAGE"}, --Dragon's Breath
 	[853] = {cooldown = 60,		class = "PALADIN"}, --Hammer of Justice
-	[96231] = {cooldown = 15,	class = "PALADIN"}, --Rebuke
-	[205364] = {cooldown = 30,	class = "PRIEST"}, --Dominate Mind
-	[64044] = {cooldown = 45,	class = "PRIEST"}, --Psychic Horror
-	[226943] = {cooldown = 0,	class = "PRIEST"}, --Mind Bomb
-	[15487] = {cooldown = 45,	class = "PRIEST"}, --Silence
+	[20066] = {cooldown = 15,	class = "PALADIN"}, --Repentance
 	[605] = {cooldown = 0,		class = "PRIEST"}, --Mind Control
 	[8122] = {cooldown = 45,	class = "PRIEST"}, --Psychic Scream
-	[200200] = {cooldown = 60,	class = "PRIEST"}, --Holy Word: Chastise
 	[9484] = {cooldown = 0,		class = "PRIEST"}, --Shackle Undead
-	[200196] = {cooldown = 60,	class = "PRIEST"}, --Holy Word: Chastise
 	[6770] = {cooldown = 0,		class = "ROGUE"}, --Sap
 	[2094] = {cooldown = 120,	class = "ROGUE"}, --Blind
-	[1766] = {cooldown = 15,	class = "ROGUE"}, --Kick
-	[427773] = {cooldown = 0,	class = "ROGUE"}, --Blind
 	[408] = {cooldown = 20,		class = "ROGUE"}, --Kidney Shot
 	[1776] = {cooldown = 20,	class = "ROGUE"}, --Gouge
 	[1833] = {cooldown = 0,		class = "ROGUE"}, --Cheap Shot
-	[211015] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[269352] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[277778] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[64695] = {cooldown = 0,	class = "SHAMAN"}, --Earthgrab
-	[57994] = {cooldown = 12,	class = "SHAMAN"}, --Wind Shear
-	[197214] = {cooldown = 40,	class = "SHAMAN"}, --Sundering
-	[118905] = {cooldown = 0,	class = "SHAMAN"}, --Static Charge
-	[277784] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[309328] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[211010] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[210873] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[211004] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[51514] = {cooldown = 30,	class = "SHAMAN"}, --Hex
-	[305485] = {cooldown = 30,	class = "SHAMAN"}, --Lightning Lasso
-	[89766] = {cooldown = 30,	class = "WARLOCK"}, --Axe Toss (pet felguard ability)
-	[6789] = {cooldown = 45,	class = "WARLOCK"}, --Mortal Coil
-	[118699] = {cooldown = 0,	class = "WARLOCK"}, --Fear
-	[710] = {cooldown = 0,		class = "WARLOCK"}, --Banish
-	[212619] = {cooldown = 60,	class = "WARLOCK"}, --Call Felhunter
-	[19647] = {cooldown = 24,	class = "WARLOCK"}, --Spell Lock
-	[30283] = {cooldown = 60,	class = "WARLOCK"}, --Shadowfury
 	[5484] = {cooldown = 40,	class = "WARLOCK"}, --Howl of Terror
-	[6552] = {cooldown = 15,	class = "WARRIOR"}, --Pummel
-	[132168] = {cooldown = 0,	class = "WARRIOR"}, --Shockwave
-	[132169] = {cooldown = 0,	class = "WARRIOR"}, --Storm Bolt
+	[5782] = {cooldown = 0,		class = "WARLOCK"}, --Fear
+	[710] = {cooldown = 0,		class = "WARLOCK"}, --Banish
+	[6789] = {cooldown = 45,	class = "WARLOCK"}, --Death Coil
+	[30283] = {cooldown = 60,	class = "WARLOCK"}, --Shadowfury
 	[5246] = {cooldown = 90,	class = "WARRIOR"}, --Intimidating Shout
+	[20549] = {cooldown = 45,	class = "RACIAL"}, --War Stomp (Tauren)
 }
 
 --[=[
@@ -518,88 +453,30 @@ elseif (GetBuildInfo():match ("%d") == "3") then
 
 else
 	LIB_OPEN_RAID_SPELL_CUSTOM_NAMES = {
-		[44461] = {name = GetSpellInfo(44461) .. " (" .. L["STRING_EXPLOSION"] .. ")"}, --Living Bomb (explosion)
-		[59638] = {name = GetSpellInfo(59638) .. " (" .. L["STRING_MIRROR_IMAGE"] .. ")"}, --Mirror Image's Frost Bolt (mage)
-		[88082] = {name = GetSpellInfo(88082) .. " (" .. L["STRING_MIRROR_IMAGE"] .. ")"}, --Mirror Image's Fireball (mage)
-		[94472] = {name = GetSpellInfo(94472) .. " (" .. L["STRING_CRITICAL_ONLY"] .. ")"}, --Atonement critical hit (priest)
 		[33778] = {name = GetSpellInfo(33778) .. " (" .. L["STRING_BLOOM"] .. ")"}, --lifebloom (bloom)
-		[121414] = {name = GetSpellInfo(121414) .. " (" .. L["STRING_GLAIVE"] .. " #1)"}, --glaive toss (hunter)
-		[120761] = {name = GetSpellInfo(120761) .. " (" .. L["STRING_GLAIVE"] .. " #2)"}, --glaive toss (hunter)
-		[212739] = {name = GetSpellInfo(212739) .. " (" .. L["STRING_MAINTARGET"] .. ")"}, --DK Epidemic
-		[215969] = {name = GetSpellInfo(215969) .. " (" .. L["STRING_AOE"] .. ")"}, --DK Epidemic
-		[70890] = {name = GetSpellInfo(70890) .. " (" .. L["STRING_SHADOW"] .. ")"}, --DK Scourge Strike
-		[55090] = {name = GetSpellInfo(55090) .. " (" .. L["STRING_PHYSICAL"] .. ")"}, --DK Scourge Strike
-		[49184] = {name = GetSpellInfo(49184) .. " (" .. L["STRING_MAINTARGET"] .. ")"}, --DK Howling Blast
-		[237680] = {name = GetSpellInfo(237680) .. " (" .. L["STRING_AOE"] .. ")"}, --DK Howling Blast
-		[228649] = {name = GetSpellInfo(228649) .. " (" .. L["STRING_PASSIVE"] .. ")"}, --Monk Mistweaver Blackout kick - Passive Teachings of the Monastery
-		[339538] = {name = GetSpellInfo(224266) .. " (" .. L["STRING_TEMPLAR_VINDCATION"] .. ")"}, --
-		[343355] = {name = GetSpellInfo(343355)  .. " (" .. L["STRING_PROC"] .. ")"}, --shadow priest's void bold proc
-
-		--shadowlands trinkets
-		[345020] = {name = GetSpellInfo(345020) .. " ("  .. L["STRING_TRINKET"] .. ")"},
 	}
 end
 
 --interrupt list using proxy from cooldown list
 --this list should be expansion and combatlog safe
 LIB_OPEN_RAID_SPELL_INTERRUPT = {
-	[6552] = LIB_OPEN_RAID_COOLDOWNS_INFO[6552], --Pummel
+	[6552] = LIB_OPEN_RAID_COOLDOWNS_INFO[6552], --Pummel (Warrior)
 
-	[2139] = LIB_OPEN_RAID_COOLDOWNS_INFO[2139], --Counterspell
+	[2139] = LIB_OPEN_RAID_COOLDOWNS_INFO[2139], --Counterspell (Mage)
 
-	[15487] = LIB_OPEN_RAID_COOLDOWNS_INFO[15487], --Silence (shadow) Last Word Talent to reduce cooldown in 15 seconds
+	[15487] = LIB_OPEN_RAID_COOLDOWNS_INFO[15487], --Silence (Priest shadow)
 
-	[1766] = LIB_OPEN_RAID_COOLDOWNS_INFO[1766], --Kick
+	[1766] = LIB_OPEN_RAID_COOLDOWNS_INFO[1766], --Kick (Rogue)
 
-	[96231] = LIB_OPEN_RAID_COOLDOWNS_INFO[96231], --Rebuke (protection and retribution)
+	[16979] = LIB_OPEN_RAID_COOLDOWNS_INFO[16979], --Feral Charge (Druid feral)
 
-	[116705] = LIB_OPEN_RAID_COOLDOWNS_INFO[116705], --Spear Hand Strike (brewmaster and windwalker)
+	[8042] = LIB_OPEN_RAID_COOLDOWNS_INFO[8042], --Earth Shock (Shaman)
 
-	[57994] = LIB_OPEN_RAID_COOLDOWNS_INFO[57994], --Wind Shear
-
-	[47528] = LIB_OPEN_RAID_COOLDOWNS_INFO[47528], --Mind Freeze
-
-	[106839] = LIB_OPEN_RAID_COOLDOWNS_INFO[106839], --Skull Bash (feral, guardian)
-	[78675] = LIB_OPEN_RAID_COOLDOWNS_INFO[78675], --Solar Beam (balance)
-
-	[147362] = LIB_OPEN_RAID_COOLDOWNS_INFO[147362], --Counter Shot (beast mastery, marksmanship)
-	[187707] = LIB_OPEN_RAID_COOLDOWNS_INFO[187707], --Muzzle (survival)
-
-	[183752] = LIB_OPEN_RAID_COOLDOWNS_INFO[183752], --Disrupt
-
-	[19647] = LIB_OPEN_RAID_COOLDOWNS_INFO[19647], --Spell Lock (pet felhunter ability)
-	[89766] = LIB_OPEN_RAID_COOLDOWNS_INFO[89766], --Axe Toss (pet felguard ability)
+	[28730] = LIB_OPEN_RAID_COOLDOWNS_INFO[28730], --Arcane Torrent (Blood Elf racial)
 }
 
 --override list of spells with more than one effect, example: multiple types of polymorph
 LIB_OPEN_RAID_SPELL_DEFAULT_IDS = {
-	--stampeding roar (druid)
-	[106898] = 77761,
-	[77764] = 77761, --"Uncategorized" on wowhead, need to test if still exists
-	--spell lock (warlock pet)
-	[119910] = 19647, --"Uncategorized" on wowhead
-	[132409] = 19647, --"Uncategorized" on wowhead
-	--[115781] = 19647, --optical blast used by old talent observer, still a thing?
-	--[251523] = 19647, --wowhead list this spell as sibling spell
-	--[251922] = 19647, --wowhead list this spell as sibling spell
-	--axe toss (warlock pet)
-	[119914] = 89766, --"Uncategorized" on wowhead
-	[347008] = 89766, --"Uncategorized" on wowhead
-	--hex (shaman)
-	[210873] = 51514, --Compy
-	[211004] = 51514, --Spider
-	[211010] = 51514, --Snake
-	[211015] = 51514, --Cockroach
-	[269352] = 51514, --Skeletal Hatchling
-	[277778] = 51514, --Zandalari Tendonripper
-	[277784] = 51514, --Wicker Mongrel
-	[309328] = 51514, --Living Honey
-	--typhoon
-	--[61391] = 132469,
-	--metamorphosis
-	[191427] = 200166,
-	--187827 vengeance need to test these spellIds
-	--191427 havoc
 }
 --need to add mass dispell (32375)
 
