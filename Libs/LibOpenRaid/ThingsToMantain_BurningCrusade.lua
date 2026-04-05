@@ -170,6 +170,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[5211] = {class = "DRUID", specs = {103, 104}, cooldown = 60, silence = 2, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Mighty Bash
 	[8042] = {class = "SHAMAN", specs = {262, 263, 264}, cooldown = 8, silence = 2, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Earth Shock
 	[28730] = {class = "RACIAL", specs = {0}, cooldown = 120, silence = 2, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Arcane Torrent (Blood Elf)
+	[19647] = {class = "WARLOCK", specs = {265, 266, 267}, cooldown = 24, silence = 6, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Spell Lock (Felhunter)
 
 	--paladin
 	-- 65 - Holy
@@ -421,6 +422,7 @@ LIB_OPEN_RAID_CROWDCONTROL = {
 	[5782] = {cooldown = 0,		class = "WARLOCK"}, --Fear
 	[710] = {cooldown = 0,		class = "WARLOCK"}, --Banish
 	[6789] = {cooldown = 45,	class = "WARLOCK"}, --Death Coil
+	[19647] = {cooldown = 24,	class = "WARLOCK"}, --Spell Lock (Felhunter)
 	[30283] = {cooldown = 60,	class = "WARLOCK"}, --Shadowfury
 	[5246] = {cooldown = 90,	class = "WARRIOR"}, --Intimidating Shout
 	[5530] = {cooldown = 0,		class = "WARRIOR"}, --Mace Stun Effect
@@ -478,6 +480,8 @@ LIB_OPEN_RAID_SPELL_INTERRUPT = {
 	[8042] = LIB_OPEN_RAID_COOLDOWNS_INFO[8042], --Earth Shock (Shaman)
 
 	[28730] = LIB_OPEN_RAID_COOLDOWNS_INFO[28730], --Arcane Torrent (Blood Elf racial)
+
+	[19647] = LIB_OPEN_RAID_COOLDOWNS_INFO[19647], --Spell Lock (Felhunter)
 }
 
 --override list of spells with more than one effect, example: multiple types of polymorph
