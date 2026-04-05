@@ -698,6 +698,7 @@ local instanceMixins = {
 		Details:StopTestBarUpdate()
 		local byUser = true
 		instance:SetSegmentId(segmentId, byUser)
+		bForceChange = true
 		return instance:SetSegment(segmentId, bForceChange)
 	end,
 
@@ -714,12 +715,12 @@ local instanceMixins = {
 
 		Details:StopTestBarUpdate()
 		local currentSegment = instance:GetSegmentId()
+
 		if (segmentId ~= currentSegment or bForceChange) then
 			--check if the instance is frozen
 			if (instance.freezed) then
 				instance:UnFreeze()
 			end
-
 			instance.segmento = segmentId
 			instance:RefreshCombat()
 			Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmentId)

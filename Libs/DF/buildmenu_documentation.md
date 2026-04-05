@@ -33,6 +33,12 @@ Registered keys and practical meaning
 	is true) or when current column exceeds the height threshold (when false).
 - space: accepted alias, normalized to blank.
 - blank: spacing row / empty row.
+- group: visual container that draws a background/border behind member widgets.
+	The group entry itself does not consume a layout row. Other widget entries
+	reference the group by setting widgetTable.group = "groupName". After the
+	build loop, applyGroupFrames() computes a bounding box over all member
+	widgets and positions the group frame behind them. Supports both plain
+	color-texture and BackdropTemplate appearances.
 
 - fontdropdown: accepted alias, normalized to selectfont.
 - texturedropdown: accepted alias, normalized to selectstatusbartexture.
@@ -479,6 +485,71 @@ Context for this section
 	input options, prepare panel state, and keep widgets synchronized after build.
 - They do not create option semantics by themselves; instead, they orchestrate
 	how already-created widgets are updated, grouped, and looked up.
+
+getOrCreateGroupFrame(parent, groupName, widgetTable, isVolatile, indexTable)
+Purpose
+- Creates or reuses a BackdropTemplate frame that acts as the visual background
+	container for a group of widgets.
+Parameters
+- parent: the options panel frame.
+- groupName: string identifier matching the group= field on member widgets.
+- widgetTable: the df_menu_group descriptor (carries color, UseBackdrop, etc.).
+- isVolatile: when true, reuses frames from parent.widget_list_by_type["group"]
+	pool using indexTable counters.
+- indexTable: volatile pool index table (nil for non-volatile builds).
+Behavior
+- In volatile mode, retrieves the next frame from the pool or creates a new one
+	on cache miss, then advances the pool counter.
+- In non-volatile mode, always creates a new frame.
+- Creates a backgroundTexture child (background layer, all-points) for plain
+	color mode.
+- Sets groupFrame.groupName, resets frame level to parent level, clears anchors,
+	and hides the frame (it will be shown later by applyGroupFrames).
+- Applies visual style based on widgetTable:
+	- If UseBackdrop is set: calls SetBackdrop() with the provided table, applies
+		BackgroundColor and BackdropBorderColor, and hides the plain texture.
+	- Otherwise: clears backdrop, applies color via SetColorTexture on the
+		backgroundTexture, and shows it.
+Returns
+- The created or reused group frame.
+Why it matters
+- Separates frame lifecycle management from the post-build layout pass. The
+	group frame is invisible until applyGroupFrames positions and sizes it.
+
+applyGroupFrames(parent, menuOptions)
+Purpose
+- Post-build pass that positions all group frames and reparents member widgets
+	into their group.
+Behavior
+- First pass: collects group definitions (type == "group" with a .widget
+	back-reference) into groupFrames and groupSettings maps keyed by name.
+- Second pass: collects member widgets (type ~= "group" with a .group field and
+	a .widget back-reference) into groupWidgets map keyed by group name.
+- For each group with at least one member:
+	- Computes a bounding box over all member widget frames.
+	- Uses getRegionBounds() helper to safely handle both regular frames and
+		FontStrings (labels), which may not have valid bounds from GetLeft/GetTop
+		before the first render pass.
+	- For non-label widgets, also includes the hasLabel companion label in the
+		bounding box computation.
+	- If widgetTable.width or widgetTable.height is set, uses those values
+		instead of the computed dimensions (but still uses the computed top-left
+		anchor position).
+	- Anchors the group frame to the parent at the computed position with a 4
+		pixel padding margin.
+	- Shows the group frame.
+	- Reparents all member widget frames (and their hasLabel companions) to the
+		group frame. Sets their frame level above the group background. Guards
+		SetFrameLevel with a type check to avoid errors on FontStrings.
+- Groups with no members are hidden.
+Called from
+- Both BuildMenu and BuildMenuVolatile, after the main widget-creation loop
+	completes.
+Why it matters
+- This is the core of the group feature: it turns independent widget entries
+	into visually grouped sets by computing layout from their actual screen
+	positions. The two-pass approach (collect then compute) allows group
+	definitions and member widgets to appear in any order in menuOptions.
 
 checkForDisableIF(parent)
 Purpose
@@ -1700,6 +1771,26 @@ Minimal example:
 - blank (or space alias): vertical spacer row, no widget construction.
 - breakline: forces next column / wrap behavior depending on scrollframe mode.
 
+10) group
+- Typical fields: type, name, color, UseBackdrop, BackgroundColor,
+	BackdropBorderColor, width, height, padding, id.
+- Notes:
+	- The group entry does not create a visible widget row; it reserves a
+		background frame that is positioned after the build loop by
+		applyGroupFrames().
+	- Other widget entries reference the group via group = "groupName".
+	- Any widget type (label, toggle, range, select, color, execute, textentry)
+		can be a group member.
+	- color sets the plain background color when UseBackdrop is nil.
+	- UseBackdrop is a Blizzard backdrop table (e.g. with edgeFile, bgFile,
+		edgeSize, insets); when set, the frame uses SetBackdrop instead of the
+		plain color texture.
+	- BackgroundColor and BackdropBorderColor are only used when UseBackdrop is
+		set.
+	- width and height override the auto-computed dimensions if provided.
+		The top-left anchor position is still computed automatically.
+	- padding adds extra pixels between the group border and the member widgets.
+
 ---------------------------------------------------------------------
 E) Search-oriented best practices for widget fields
 ---------------------------------------------------------------------
@@ -1772,6 +1863,34 @@ Breakline row (column break marker inside menuOptions):
 	-- with use_scrollframe = true, breakline always starts a new column.
 	-- without use_scrollframe, breakline also forces wrapping even if current
 	-- column still has vertical space.
+
+Group with plain background color:
+
+	local menuOptions = {
+		-- define the group (this does not create a visible row)
+		{type = "group", name = "displayGroup", color = {0, 0, 0, 0.4}},
+		-- label header inside the group
+		{type = "label", get = function() return "Display Settings" end, text_template = subSectionTitleTextTemplate, group = "displayGroup"},
+		-- widgets referencing the group
+		{type = "toggle", name = "Show Bars", get = GetA, set = SetA, group = "displayGroup"},
+		{type = "range", name = "Scale", get = GetB, set = SetB, min = 0.5, max = 2, step = 0.1, usedecimals = true, group = "displayGroup"},
+	}
+
+Group with BackdropTemplate border:
+
+	local menuOptions = {
+		{type = "group", name = "advancedGroup",
+			UseBackdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = {left = 4, right = 4, top = 4, bottom = 4}},
+			BackgroundColor = {0, 0, 0, 0.8},
+			BackdropBorderColor = {1, 1, 1, 0.6},
+		},
+		{type = "toggle", name = "Debug Mode", get = GetC, set = SetC, group = "advancedGroup"},
+		{type = "toggle", name = "Verbose Logging", get = GetD, set = SetD, group = "advancedGroup"},
+	}
+
+Group with fixed width and height:
+
+	{type = "group", name = "fixedGroup", color = {0.1, 0.1, 0.1, 0.5}, width = 300, height = 120}
 
 =====================================================================
 End of Part 8

@@ -1824,10 +1824,12 @@ local updateTime = function(timerObject) --~update ~time
 end
 
 local updateTimeOnEvent = function(eventName, instance)
-    local lowerInstanceId = Details:GetLowerInstanceNumber()
-    if lowerInstanceId then
-        if instance:GetId() == lowerInstanceId then
-            updateTime({instance=instance})
+    if detailsFramework.IsAddonApocalypseWow() then
+        local lowerInstanceId = Details:GetLowerInstanceNumber()
+        if lowerInstanceId then
+            if instance:GetId() == lowerInstanceId then
+                updateTime({instance=instance})
+            end
         end
     end
 end

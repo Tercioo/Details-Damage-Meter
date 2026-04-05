@@ -115,6 +115,17 @@ local _
 ---@field texture_width number
 ---@field texture_height number
 
+---@class df_menu_group : df_menu_table
+---@field type string "group"
+---@field name string the name identifier for this group
+---@field color table {red, green, blue, alpha} background color
+---@field UseBackdrop table? optional backdrop properties table, if set the frame uses SetBackdrop instead of a plain texture
+---@field BackgroundColor table? {r, g, b, a} used with UseBackdrop for the backdrop background color
+---@field BackdropBorderColor table? {r, g, b, a} used with UseBackdrop for the backdrop border color
+---@field width number? optional fixed width for the group frame
+---@field height number? optional fixed height for the group frame
+---@field padding number? optional padding to add around the group frame, this is used to give more space between the group border and the widgets inside it
+
 detailsFramework.OptionsFrameMixin = {
 
 }
@@ -150,7 +161,8 @@ detailsFramework.ValidBuildMenuWidgetTypes = {
     ["backgrounddropdown"] = true,
     ["selectbackgroundtexture"] = true,
     ["borderdropdown"] = true,
-    ["selectbordertexture"] = true
+    ["selectbordertexture"] = true,
+    ["group"] = true
 }
 
 function detailsFramework:IsValidWidgetForBuildMenu(widgetType)
@@ -1101,6 +1113,12 @@ function detailsFramework:ClearOptionsPanel(frame)
             frame.widget_list[i].hasLabel:SetText("")
         end
     end
+    --hide group frames
+    if frame.widget_list_by_type and frame.widget_list_by_type["group"] then
+        for i = 1, #frame.widget_list_by_type["group"] do
+            frame.widget_list_by_type["group"][i]:Hide()
+        end
+    end
     table.wipe(frame.widgetids)
 end
 
@@ -1109,14 +1127,15 @@ function detailsFramework:SetAsOptionsPanel(frame)
     frame.RefreshOptions = refreshOptions
     frame.widget_list = {}
     frame.widget_list_by_type = {
-        ["dropdown"] = {}, -- "select"
-        ["switch"] = {}, -- "toggle"
-        ["slider"] = {}, -- "range"
+        ["dropdown"] = {}, --"select"
+        ["switch"] = {}, --"toggle"
+        ["slider"] = {}, --"range"
         ["color"] = {}, --
-        ["button"] = {}, -- "execute"
+        ["button"] = {}, --"execute"
         ["textentry"] = {}, --
         ["label"] = {}, --"text"
         ["image"] = {},
+        ["group"] = {},
     }
     frame.widgetids = {}
     --store widgets which has a disable function (widgetTable.disableif)
@@ -1125,6 +1144,234 @@ function detailsFramework:SetAsOptionsPanel(frame)
 end
 
 local widgetsToDisableOnCombat = {}
+
+---get or create a group frame from the pool for volatile menus, or create a new one for static menus
+---@param parent frame the parent frame for the group frame
+---@param groupName string the group identifier
+---@param widgetTable df_menu_group the widget table with group settings
+---@param isVolatile boolean if true, use the pool from parent.widget_list_by_type.group
+---@param indexTable table? the volatile index table with pool counters
+---@return frame groupFrame
+local getOrCreateGroupFrame = function(parent, groupName, widgetTable, isVolatile, indexTable)
+    local groupFrame
+
+    if isVolatile then
+        local poolIndex = indexTable["group"]
+        groupFrame = parent.widget_list_by_type["group"][poolIndex]
+        if not groupFrame then
+            groupFrame = CreateFrame("frame", nil, parent, "BackdropTemplate")
+            groupFrame.backgroundTexture = groupFrame:CreateTexture(nil, "background")
+            groupFrame.backgroundTexture:SetAllPoints()
+            table.insert(parent.widget_list_by_type["group"], groupFrame)
+        end
+        indexTable["group"] = poolIndex + 1
+    else
+        groupFrame = CreateFrame("frame", nil, parent, "BackdropTemplate")
+        groupFrame.backgroundTexture = groupFrame:CreateTexture(nil, "background")
+        groupFrame.backgroundTexture:SetAllPoints()
+        table.insert(parent.widget_list_by_type["group"], groupFrame)
+    end
+
+    groupFrame.groupName = groupName
+    groupFrame:SetFrameLevel(parent:GetFrameLevel())
+    groupFrame:ClearAllPoints()
+    groupFrame:Hide()
+
+    local color = widgetTable.color or {0, 0, 0, 0.3}
+
+    if widgetTable.UseBackdrop then
+        groupFrame:SetBackdrop(widgetTable.UseBackdrop)
+        groupFrame:Show()
+        groupFrame.backgroundTexture:Hide()
+
+        local bgColor = widgetTable.BackgroundColor or color
+        groupFrame:SetBackdropColor(bgColor[1] or 0, bgColor[2] or 0, bgColor[3] or 0, bgColor[4] or 1)
+
+        local borderColor = widgetTable.BackdropBorderColor or {0.3, 0.3, 0.3, 0.8}
+        groupFrame:SetBackdropBorderColor(borderColor[1] or 0.3, borderColor[2] or 0.3, borderColor[3] or 0.3, borderColor[4] or 0.8)
+    else
+        groupFrame:SetBackdrop(nil)
+        groupFrame.backgroundTexture:SetColorTexture(color[1] or 0, color[2] or 0, color[3] or 0, color[4] or 0.3)
+        groupFrame.backgroundTexture:Show()
+    end
+
+    return groupFrame
+end
+
+---after the build loop, compute group frame positions and reparent widgets
+---@param parent frame
+---@param menuOptions table
+local applyGroupFrames = function(parent, menuOptions)
+    --search for groups definitions and group members
+    ---@type table<string, frame>
+    local groupFrames = {}
+    ---@type table<string, df_menu_group>
+    local groupSettings = {}
+    ---@type table<string, table[]>
+    local groupWidgets = {}
+
+    for _, widgetTable in ipairs(menuOptions) do
+        if widgetTable.type == "group" and widgetTable.widget then
+            groupFrames[widgetTable.name] = widgetTable.widget
+            groupSettings[widgetTable.name] = widgetTable
+        end
+    end
+
+    --no groups found
+    if not next(groupFrames) then
+        return
+    end
+
+    --collect widgets that belong to each group
+    for _, widgetTable in ipairs(menuOptions) do
+        if widgetTable.group and widgetTable.type ~= "group" and widgetTable.widget then
+            if not groupWidgets[widgetTable.group] then
+                groupWidgets[widgetTable.group] = {}
+            end
+            table.insert(groupWidgets[widgetTable.group], widgetTable)
+        end
+    end
+
+    ---get the bounding box of a region, returns left, right, top, bottom or nil
+    ---for fontstrings (labels), uses GetStringWidth/GetStringHeight + anchor to compute bounds
+    ---@param region any
+    ---@return number|nil, number|nil, number|nil, number|nil
+    local getRegionBounds = function(region)
+        local left = region:GetLeft()
+        local right = region:GetRight()
+        local top = region:GetTop()
+        local bottom = region:GetBottom()
+
+        --fontstrings may not have valid bounds yet, attempt to compute from anchor and string size
+        if not left or not right or not top or not bottom then
+            if region.GetStringWidth then
+                local strWidth = region:GetStringWidth()
+                local strHeight = region:GetStringHeight()
+                if strWidth and strHeight and strWidth > 0 and strHeight > 0 then
+                    local numPoints = region:GetNumPoints()
+                    if numPoints and numPoints > 0 then
+                        local point, relativeTo, relativePoint, xOfs, yOfs = region:GetPoint(1)
+                        if relativeTo then
+                            local refLeft = relativeTo:GetLeft()
+                            local refTop = relativeTo:GetTop()
+                            if refLeft and refTop then
+                                left = refLeft + (xOfs or 0)
+                                top = refTop + (yOfs or 0)
+                                right = left + strWidth
+                                bottom = top - strHeight
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        return left, right, top, bottom
+    end
+
+    --for each group, compute where the topleft and bottomright is
+    for groupName, groupFrame in pairs(groupFrames) do
+        local members = groupWidgets[groupName]
+        if not members or #members == 0 then
+            --no widgets reference this group, hide it
+            groupFrame:Hide()
+        else
+            local settings = groupSettings[groupName]
+
+            --find bounding box by examining all widget frames
+            local topY = -math.huge --highest Y (least negative in WoW coords)
+            local bottomY = math.huge --lowest Y (most negative)
+            local leftX = math.huge --leftmost X
+            local rightX = -math.huge --rightmost X
+
+            for _, memberTable in ipairs(members) do
+                local widget = memberTable.widget
+                local frame = widget.widget or widget
+
+                --get the widget frame's bounding box
+                local widgetLeft, widgetRight, widgetTop, widgetBottom = getRegionBounds(frame)
+
+                if widgetLeft and widgetRight and widgetTop and widgetBottom then
+                    --also check the label if it exists (non-label widgets like toggles, sliders, etc.)
+                    local labelLeft, labelRight, labelTop, labelBottom
+                    if widget.hasLabel then
+                        local labelFrame = widget.hasLabel.widget or widget.hasLabel
+                        labelLeft, labelRight, labelTop, labelBottom = getRegionBounds(labelFrame)
+                    end
+
+                    local effectiveLeft = widgetLeft
+                    local effectiveRight = widgetRight
+                    local effectiveTop = widgetTop
+                    local effectiveBottom = widgetBottom
+
+                    if labelLeft and labelLeft < effectiveLeft then
+                        effectiveLeft = labelLeft
+                    end
+                    if labelRight and labelRight > effectiveRight then
+                        effectiveRight = labelRight
+                    end
+                    if labelTop and labelTop > effectiveTop then
+                        effectiveTop = labelTop
+                    end
+                    if labelBottom and labelBottom < effectiveBottom then
+                        effectiveBottom = labelBottom
+                    end
+
+                    if effectiveLeft < leftX then
+                        leftX = effectiveLeft
+                    end
+                    if effectiveRight > rightX then
+                        rightX = effectiveRight
+                    end
+                    if effectiveTop > topY then
+                        topY = effectiveTop
+                    end
+                    if effectiveBottom < bottomY then
+                        bottomY = effectiveBottom
+                    end
+                end
+            end
+
+            if topY ~= -math.huge and bottomY ~= math.huge then
+                --get parent absolute position for relative anchoring
+                local parentLeft = parent:GetLeft() or 0
+                local parentTop = parent:GetTop() or 0
+
+                local relLeft = leftX - parentLeft - 4
+                local relTop = -(topY - parentTop) - 4
+
+                --compute dimensions: use fixed width/height from settings if provided
+                local computedWidth = (rightX - leftX) + 8
+                local computedHeight = (topY - bottomY) + 8
+
+                local finalWidth = settings.width or computedWidth
+                local finalHeight = settings.height or computedHeight
+                local padding = settings.padding or 0
+
+                groupFrame:SetPoint("topleft", parent, "topleft", relLeft - (padding), -relTop + (padding))
+                groupFrame:SetSize(finalWidth + (padding * 2), finalHeight + (padding * 2))
+                groupFrame:Show()
+
+                --reparent member widgets to the group frame so they render on top of the background
+                for _, memberTable in ipairs(members) do
+                    local widget = memberTable.widget
+                    local frame = widget.widget or widget
+                    frame:SetParent(groupFrame)
+
+                    --only set frame level on actual frames, not fontstrings
+                    if frame.SetFrameLevel then
+                        frame:SetFrameLevel(groupFrame:GetFrameLevel() + 2)
+                    end
+
+                    if widget.hasLabel then
+                        local labelFrame = widget.hasLabel.widget or widget.hasLabel
+                        labelFrame:SetParent(groupFrame)
+                    end
+                end
+            end
+        end
+    end
+end
 
 local getMenuWidgetVolative = function(parent, widgetType, indexTable)
     local widgetObject
@@ -1301,6 +1548,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
         color = 1,
         button = 1,
         textentry = 1,
+        group = 1,
     }
 
     parseOptionsTypes(menuOptions)
@@ -1322,6 +1570,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
             end
 
             local extraPaddingY = 0
+            local jumpToNextLine = true --if true the Y offset is increased
 
             if (not widgetTable.novolatile) then
                 --step a line
@@ -1478,48 +1727,59 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     amountLineWidgetAdded = amountLineWidgetAdded + 1
                 end --end loop
 
+                --group type: create/reuse the group frame, it does not advance the Y offset
+                if (widgetTable.type == "group") then
+                    ---@cast widgetTable df_menu_group
+                    local groupFrame = getOrCreateGroupFrame(parent, widgetTable.name, widgetTable, true, widgetIndexes)
+                    widgetCreated = groupFrame
+                    setWidgetId(parent, widgetTable, groupFrame)
+                    jumpToNextLine = false
+                end
+
                 if (widgetTable.nocombat) then
                     table.insert(widgetsToDisableOnCombat, widgetCreated)
                 end
 
-                if (not widgetTable.inline) then
-                    if (widgetTable.spacement) then
-                        currentYOffset = currentYOffset - 30
-                    else
-                        currentYOffset = currentYOffset - 20
-                    end
-                end
-
-                widgetTable.widget = widgetCreated
-                if widgetTable.disableif then
-                    table.insert(parent.widget_to_disable_check, widgetTable)
-                end
-
-                if (extraPaddingY > 0) then
-                    currentYOffset = currentYOffset - extraPaddingY
-                end
-
-                if (bUseScrollFrame) then
-                    if (widgetTable.type == "breakline") then
-                        biggestColumnHeight = math.min(currentYOffset, biggestColumnHeight)
-                        currentYOffset = yOffset
-
-                        if (bAlignAsPairs) then
-                            currentXOffset = currentXOffset + nAlignAsPairsLength + (widgetWidth or maxWidgetWidth) + nAlignAsPairsSpacing
+                if jumpToNextLine then
+                    if (not widgetTable.inline) then
+                        if (widgetTable.spacement) then
+                            currentYOffset = currentYOffset - 30
                         else
-                            currentXOffset = currentXOffset + maxColumnWidth + 20
+                            currentYOffset = currentYOffset - 20
                         end
-
-                        amountLineWidgetAdded = 0
-                        maxColumnWidth = 0
-                        maxWidgetWidth = 0
                     end
-                else
-                    if (widgetTable.type == "breakline" or currentYOffset < height) then
-                        currentYOffset = yOffset
-                        currentXOffset = currentXOffset + maxColumnWidth + 20
-                        amountLineWidgetAdded = 0
-                        maxColumnWidth = 0
+
+                    if (extraPaddingY > 0) then
+                        currentYOffset = currentYOffset - extraPaddingY
+                    end
+
+                    widgetTable.widget = widgetCreated
+                    if widgetTable.disableif then
+                        table.insert(parent.widget_to_disable_check, widgetTable)
+                    end
+
+                    if (bUseScrollFrame) then
+                        if (widgetTable.type == "breakline") then
+                            biggestColumnHeight = math.min(currentYOffset, biggestColumnHeight)
+                            currentYOffset = yOffset
+
+                            if (bAlignAsPairs) then
+                                currentXOffset = currentXOffset + nAlignAsPairsLength + (widgetWidth or maxWidgetWidth) + nAlignAsPairsSpacing
+                            else
+                                currentXOffset = currentXOffset + maxColumnWidth + 20
+                            end
+
+                            amountLineWidgetAdded = 0
+                            maxColumnWidth = 0
+                            maxWidgetWidth = 0
+                        end
+                    else
+                        if (widgetTable.type == "breakline" or currentYOffset < height) then
+                            currentYOffset = yOffset
+                            currentXOffset = currentXOffset + maxColumnWidth + 20
+                            amountLineWidgetAdded = 0
+                            maxColumnWidth = 0
+                        end
                     end
                 end
 
@@ -1540,6 +1800,8 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
     onMenuBuilt(parent)
 
     parent:RefreshOptions()
+
+    applyGroupFrames(parent, menuOptions)
 end
 
 local getDescripttionPhraseID = function(widgetTable, languageAddonId, languageTable)
@@ -1630,6 +1892,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
             end
 
             local extraPaddingY = 0
+            local jumpToNextLine = true
 
             if (widgetTable.type == "blank") then
                 --do nothing
@@ -1653,6 +1916,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 table.insert(parent.widget_list, label)
                 table.insert(parent.widget_list_by_type.label, label)
 
+                widgetCreated = label
                 amountLineWidgetAdded = amountLineWidgetAdded + 1
 
             elseif (widgetTable.type:find("select")) then
@@ -1844,22 +2108,23 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
                 --store the widget created into the overall table and the widget by type
                 table.insert(parent.widget_list, image)
-                table.insert(parent.widget_list_by_type.textentry, image)
+                table.insert(parent.widget_list_by_type.image, image)
 
                 widgetCreated = image
                 amountLineWidgetAdded = amountLineWidgetAdded + 1
             end
 
-            if (widgetTable.nocombat) then
-                table.insert(widgetsToDisableOnCombat, widgetCreated)
+            --group type: create the group frame, it does not advance the Y offset
+            if (widgetTable.type == "group") then
+                ---@cast widgetTable df_menu_group
+                local groupFrame = getOrCreateGroupFrame(parent, widgetTable.name, widgetTable, false, nil)
+                widgetCreated = groupFrame
+                setWidgetId(parent, widgetTable, groupFrame)
+                jumpToNextLine = false
             end
 
-            if (not widgetTable.inline) then
-                if (widgetTable.spacement) then
-                    currentYOffset = currentYOffset - 30
-                else
-                    currentYOffset = currentYOffset - 20
-                end
+            if (widgetTable.nocombat) then
+                table.insert(widgetsToDisableOnCombat, widgetCreated)
             end
 
             widgetTable.widget = widgetCreated
@@ -1867,31 +2132,41 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 table.insert(parent.widget_to_disable_check, widgetTable)
             end
 
-            if (extraPaddingY > 0) then
-                currentYOffset = currentYOffset - extraPaddingY
-            end
-
-            if (bUseScrollFrame) then
-                if (widgetTable.type == "breakline") then
-                    biggestColumnHeight = math.min(currentYOffset, biggestColumnHeight)
-                    currentYOffset = yOffset
-
-                    if (bAlignAsPairs) then
-                        currentXOffset = currentXOffset + nAlignAsPairsLength + (widgetWidth or maxWidgetWidth) + nAlignAsPairsSpacing
+            if jumpToNextLine then
+                if (not widgetTable.inline) then
+                    if (widgetTable.spacement) then
+                        currentYOffset = currentYOffset - 30
                     else
-                        currentXOffset = currentXOffset + maxColumnWidth + 20
+                        currentYOffset = currentYOffset - 20
                     end
-
-                    amountLineWidgetAdded = 0
-                    maxColumnWidth = 0
-                    maxWidgetWidth = 0
                 end
-            else
-                if (widgetTable.type == "breakline" or currentYOffset < height) then
-                    currentYOffset = yOffset
-                    currentXOffset = currentXOffset + maxColumnWidth + 20
-                    amountLineWidgetAdded = 0
-                    maxColumnWidth = 0
+
+                if (extraPaddingY > 0) then
+                    currentYOffset = currentYOffset - extraPaddingY
+                end
+
+                if (bUseScrollFrame) then
+                    if (widgetTable.type == "breakline") then
+                        biggestColumnHeight = math.min(currentYOffset, biggestColumnHeight)
+                        currentYOffset = yOffset
+
+                        if (bAlignAsPairs) then
+                            currentXOffset = currentXOffset + nAlignAsPairsLength + (widgetWidth or maxWidgetWidth) + nAlignAsPairsSpacing
+                        else
+                            currentXOffset = currentXOffset + maxColumnWidth + 20
+                        end
+
+                        amountLineWidgetAdded = 0
+                        maxColumnWidth = 0
+                        maxWidgetWidth = 0
+                    end
+                else
+                    if (widgetTable.type == "breakline" or currentYOffset < height) then
+                        currentYOffset = yOffset
+                        currentXOffset = currentXOffset + maxColumnWidth + 20
+                        amountLineWidgetAdded = 0
+                        maxColumnWidth = 0
+                    end
                 end
             end
         end --no widget.hidden
@@ -1912,6 +2187,8 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
     onMenuBuilt(parent)
 
     parent:RefreshOptions()
+
+    applyGroupFrames(parent, menuOptions)
 end
 
 

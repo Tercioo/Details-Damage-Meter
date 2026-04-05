@@ -6693,7 +6693,7 @@ local iconLoreCoords = {30/512, 355/512, 45/512, 290/512}
 --overlay color for the encounter journal "icon lore" image of the instance
 local wallpaperColor = {1, 1, 1, 0.5}
 
--- search key: ~segments
+-- search key: ~segments ~segment
 local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 	---@type instance
 	local instance = allInOneWindowFrame or parameters_table[1]
