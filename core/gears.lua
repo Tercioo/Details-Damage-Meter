@@ -950,6 +950,12 @@ function ilvl_core:Loop()
 		return
 	end
 
+	if detailsFramework.IsAddonApocalypseWow() then
+		if issecretvalue(guid) then
+			return
+		end
+	end
+
 	--if already inspecting or the actor is in the list of trusted actors
 	if (inspecting [guid] or Details.trusted_characters [guid]) then
 		return

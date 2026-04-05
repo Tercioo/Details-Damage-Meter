@@ -191,6 +191,7 @@ local damageEventTokens = {
 	FATIGUE = true,
 	SPELL_DRAIN = true,
 	SPELL_INSTAKILL = true,
+	DAMAGE_SPLIT = true,
 }
 
 function Details.ShowDeathTooltip2(instance, lineFrame) --~death
