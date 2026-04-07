@@ -413,6 +413,8 @@ local CreatePluginFrames = function()
 				addedPlayersAmount = addedPlayersAmount + 1
 				local line = self:GetLine(i)
 				if (line) then
+					local playerInfo = GetPlayerInfo(playerTable.UnitNameRealm)
+
 					addedLinesAmount = addedLinesAmount + 1
 					local thisPlayerInfo = playersInfoData[playerTable.UnitNameRealm]
 					if (thisPlayerInfo) then
@@ -435,6 +437,8 @@ local CreatePluginFrames = function()
 					local thisPlayerGearInfo = playersGearData[playerTable.UnitNameRealm]
 					if (thisPlayerGearInfo) then
 						line.RepairStatus:SetText(thisPlayerGearInfo.durability .. "%")
+					elseif (playerInfo and playerInfo.durability) then
+						line.RepairStatus:SetText(playerInfo.durability .. "%")
 					else
 						line.RepairStatus:SetText("")
 					end
@@ -445,6 +449,11 @@ local CreatePluginFrames = function()
 
 					if (playerTable.Spec) then
 						local texture, L, R, T, B = Details:GetSpecIcon(playerTable.Spec)
+						line.SpecIcon:SetTexture(texture)
+						line.SpecIcon:SetTexCoord(L, R, T, B)
+
+					elseif playerInfo and playerInfo.specId and playerInfo.specId > 0 then
+						local texture, L, R, T, B = Details:GetSpecIcon(playerInfo.specId)
 						line.SpecIcon:SetTexture(texture)
 						line.SpecIcon:SetTexCoord(L, R, T, B)
 					else
@@ -473,7 +482,14 @@ local CreatePluginFrames = function()
 					end
 
 					line.PlayerName.text = playerTable.Name
-					line.ItemLevel.text = floor(playerTable.ILevel and playerTable.ILevel.ilvl or 0)
+
+					local itemLevel = playerTable.ILevel and playerTable.ILevel.ilvl or 0
+					if itemLevel > 0 then
+						line.ItemLevel.text = floor(itemLevel)
+					else
+						itemLevel = playerInfo and playerInfo.itemLevel and playerInfo.itemLevel > 0 and playerInfo.itemLevel or 0
+						line.ItemLevel.text = itemLevel > 0 and floor(itemLevel) or ""
+					end
 
 					local foodInfo = playerTable.Food
 					if (foodInfo) then
@@ -506,7 +522,17 @@ local CreatePluginFrames = function()
 					--line.DetailsIndicator.texture = playerTable.UseDetails and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
 
 					--mythic+ score
-					line.MythicPlusIndicator.text = playerTable.MythicPlusScore and playerTable.MythicPlusScore > 0 and playerTable.MythicPlusScore or ""
+					local mRanting = playerTable.MythicPlusScore and playerTable.MythicPlusScore > 0 and playerTable.MythicPlusScore or ""
+					if (mRanting ~= "" and mRanting ~= 0) then
+						line.MythicPlusIndicator.text = mRanting
+					else
+						local keystoneInfo = playerInfo and playerInfo.keystoneInfo
+						if (keystoneInfo and keystoneInfo.rating and keystoneInfo.rating > 0) then
+							line.MythicPlusIndicator.text = keystoneInfo.rating
+						else
+							line.MythicPlusIndicator.text = ""
+						end
+					end
 				end
 			end
 		end
