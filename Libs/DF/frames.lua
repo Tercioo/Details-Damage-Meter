@@ -113,7 +113,9 @@ detailsFramework.RoundedCornerPanelMixin = {
         local centerBlock = self:CreateTexture(nil, "border", nil, 0)
         centerBlock:SetPoint("topleft", self.CornerTextures["TopLeft"], "bottomleft", 0, 0)
         centerBlock:SetPoint("bottomleft", self.CornerTextures["BottomLeft"], "topleft", 0, 0)
-        centerBlock:SetPoint("topright", self.CornerTextures["BottomRight"], "topright", 0, 0)
+        --centerBlock:SetPoint("topright", self.CornerTextures["BottomRight"], "topright", 0, 0)
+        --centerBlock:SetPoint("bottomright", self.CornerTextures["BottomRight"], "topright", 0, 0)
+        centerBlock:SetPoint("topright", self.CornerTextures["TopRight"], "bottomright", 0, 0)
         centerBlock:SetPoint("bottomright", self.CornerTextures["BottomRight"], "topright", 0, 0)
         centerBlock:SetColorTexture(unpack(defaultColorTable))
 

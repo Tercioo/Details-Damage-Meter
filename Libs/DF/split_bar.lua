@@ -1,7 +1,7 @@
 
 local DF = _G ["DetailsFramework"]
 if (not DF or not DetailsFrameworkCanLoad) then
-	return 
+	return
 end
 
 local _
@@ -10,7 +10,6 @@ local rawget = rawget --lua local
 local setmetatable = setmetatable --lua local
 local _unpack = unpack --lua local
 local type = type --lua local
-local _math_floor = math.floor --lua local
 
 local maxStatusBarValue = 100000000
 
@@ -56,30 +55,30 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 		end
 	end
 
-	SplitBarMetaFunctions.__add = function(v1, v2) 
+	SplitBarMetaFunctions.__add = function(v1, v2)
 		if (type(v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v + v2
-			v1.spark:SetPoint("left", v1.statusbar, "left", value * (v1.statusbar:GetWidth()/100) - 18, 0)
+			v1.spark:SetPoint("left", v1.statusbar, "left", v * (v1.statusbar:GetWidth()/100) - 18, 0)
 			v1.statusbar:SetValue(v)
 		else
 			local v = v2.statusbar:GetValue()
 			v = v + v1
-			v2.spark:SetPoint("left", v2.statusbar, "left", value * (v2.statusbar:GetWidth()/100) - 18, 0)
+			v2.spark:SetPoint("left", v2.statusbar, "left", v * (v2.statusbar:GetWidth()/100) - 18, 0)
 			v2.statusbar:SetValue(v)
 		end
 	end
 
-	SplitBarMetaFunctions.__sub = function(v1, v2) 
+	SplitBarMetaFunctions.__sub = function(v1, v2)
 		if (type(v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v - v2
-			v1.spark:SetPoint("left", v1.statusbar, "left", value * (v1.statusbar:GetWidth()/100) - 18, 0)
+			v1.spark:SetPoint("left", v1.statusbar, "left", v * (v1.statusbar:GetWidth()/100) - 18, 0)
 			v1.statusbar:SetValue(v)
 		else
 			local v = v2.statusbar:GetValue()
 			v = v - v1
-			v2.spark:SetPoint("left", v2.statusbar, "left", value * (v2.statusbar:GetWidth()/100) - 18, 0)
+			v2.spark:SetPoint("left", v2.statusbar, "left", v * (v2.statusbar:GetWidth()/100) - 18, 0)
 			v2.statusbar:SetValue(v)
 		end
 	end
@@ -134,7 +133,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	--texture
 	local gmember_texture = function(_object)
 		return _object.texture:GetTexture()
-	end	
+	end
 	--font size
 	local gmember_textsize = function(_object)
 		local _, fontsize = _object.textleft:GetFont()
@@ -149,7 +148,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	local gmember_textcolor = function(_object)
 		return _object.textleft:GetTextColor()
 	end
-	
+
 	SplitBarMetaFunctions.GetMembers = SplitBarMetaFunctions.GetMembers or {}
 	SplitBarMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
 	SplitBarMetaFunctions.GetMembers ["shown"] = gmember_shown
@@ -169,19 +168,19 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	SplitBarMetaFunctions.GetMembers ["textsize"] = gmember_textsize --alias
 	SplitBarMetaFunctions.GetMembers ["textfont"] = gmember_textfont --alias
 	SplitBarMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
-	
+
 	SplitBarMetaFunctions.__index = function(_table, _member_requested)
 
 		local func = SplitBarMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
-		
+
 		local fromMe = rawget (_table, _member_requested)
 		if (fromMe) then
 			return fromMe
 		end
-		
+
 		return SplitBarMetaFunctions [_member_requested]
 	end
 
@@ -237,7 +236,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	--left color
 	local smember_lcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors(_value)
-		
+
 		_object.statusbar:SetStatusBarColor(_value1, _value2, _value3, _value4)
 		_object.texture.original_colors = {_value1, _value2, _value3, _value4}
 		return _object.texture:SetVertexColor(_value1, _value2, _value3, _value4)
@@ -320,7 +319,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	SplitBarMetaFunctions.SetMembers ["textsize"] = smember_textsize --alias
 	SplitBarMetaFunctions.SetMembers ["textfont"] = smember_textfont --alias
 	SplitBarMetaFunctions.SetMembers ["textcolor"] = smember_textcolor --alias
-	
+
 	SplitBarMetaFunctions.__newindex = function(_table, _key, _value)
 		local func = SplitBarMetaFunctions.SetMembers [_key]
 		if (func) then
@@ -351,7 +350,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 		self.statusbar:SetValue(value)
 		self.spark:SetPoint("left", self.statusbar, "left", value * (self.statusbar:GetWidth()/100) - 18, 0)
 	end
-	
+
 -- setpoint
 	function SplitBarMetaFunctions:SetPoint(v1, v2, v3, v4, v5)
 		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
@@ -361,7 +360,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 		end
 		return self.widget:SetPoint(v1, v2, v3, v4, v5)
 	end
-	
+
 -- sizes
 	function SplitBarMetaFunctions:SetSize(w, h)
 		if (w) then
@@ -371,7 +370,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 			self.statusbar:SetHeight(h)
 		end
 	end
-	
+
 -- texture
 	function SplitBarMetaFunctions:SetTexture(texture)
 		self.rightTexture:SetTexture(texture)
@@ -381,7 +380,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	function SplitBarMetaFunctions:SetBackgroundTexture(texture)
 		self.background:SetTexture(texture)
 	end
-	
+
 -- texts
 	function SplitBarMetaFunctions:SetLeftText (text)
 		self.textleft:SetText(text)
@@ -389,7 +388,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	function SplitBarMetaFunctions:SetRightText (text)
 		self.textright:SetText(text)
 	end
-	
+
 -- colors
 	function SplitBarMetaFunctions:SetLeftColor (r, g, b, a)
 		r, g, b, a = DF:ParseColors(r, g, b, a)
@@ -415,7 +414,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	function SplitBarMetaFunctions:GetRightColor()
 		return self.rightTexture:GetVertexColor()
 	end
-	
+
 -- icons
 	function SplitBarMetaFunctions:SetLeftIcon (texture, ...)
 		self.iconleft:SetTexture(texture)
@@ -443,7 +442,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	function SplitBarMetaFunctions:GetTooltip()
 		return rawget (self, "have_tooltip")
 	end
-	
+
 -- frame levels
 	function SplitBarMetaFunctions:GetFrameLevel()
 		return self.statusbar:GetFrameLevel()
@@ -572,14 +571,14 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 		if (kill) then
 			return
 		end
-		
+
 		if (frame.MyObject.have_tooltip) then
 			GameCooltip2:Reset()
 			GameCooltip2:AddLine(frame.MyObject.have_tooltip)
 			GameCooltip2:ShowCooltip(frame, "tooltip")
 		end
 	end
-	
+
 	local OnLeave = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnLeave", frame, capsule)
@@ -587,11 +586,11 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 			return
 		end
 
-		if (frame.MyObject.have_tooltip) then 
+		if (frame.MyObject.have_tooltip) then
 			DF.popup:ShowMe(false)
 		end
 	end
-	
+
 	local OnHide = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnHide", frame, capsule)
@@ -599,7 +598,7 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 			return
 		end
 	end
-	
+
 	local OnShow = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnShow", frame, capsule)
@@ -607,14 +606,14 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 			return
 		end
 	end
-	
+
 	local OnMouseDown = function(frame, button)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnMouseDown", frame, button, capsule)
 		if (kill) then
 			return
 		end
-		
+
 		if (not frame.MyObject.container.isLocked and frame.MyObject.container:IsMovable()) then
 			if (not frame.isLocked and frame:IsMovable()) then
 				frame.MyObject.container.isMoving = true
@@ -622,20 +621,20 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 			end
 		end
 	end
-	
+
 	local OnMouseUp = function(frame, button)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget("OnMouseUp", frame, button, capsule)
 		if (kill) then
 			return
 		end
-		
+
 		if (frame.MyObject.container.isMoving) then
 			frame.MyObject.container:StopMovingOrSizing()
 			frame.MyObject.container.isMoving = false
 		end
 	end
-	
+
 	local OnSizeChanged = function(statusbar)
 		statusbar.MyObject.spark:SetPoint("left", statusbar, "left", statusbar:GetValue() * (statusbar:GetWidth()/100) - 18, 0)
 		statusbar.MyObject.rightTexture:SetWidth(statusbar:GetWidth() - statusbar.MyObject.texture:GetWidth())
@@ -658,7 +657,7 @@ end
 local build_statusbar = function(self)
 
 	self:SetSize(300, 14)
-	
+
 	self.background = self:CreateTexture("$parent_StatusBarBackground", "BACKGROUND")
 	self.background:SetPoint("topright", self, "topright")
 	self.background:SetPoint("bottomright", self, "bottomright")
@@ -666,7 +665,7 @@ local build_statusbar = function(self)
 	self.background:SetPoint("bottomleft", self, "bottomleft")
 	self.background:SetTexture([[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
 	self.background:SetVertexColor(.3, .3, .3, 1)
-	
+
 	--this is the left texture and it grows to the right, it is embed within the bar by SetStatusBarTexture
 	self.texture = self:CreateTexture("$parent_StatusBarTexture", "ARTWORK", nil, 1)
 	self.texture:Hide()
@@ -681,26 +680,26 @@ local build_statusbar = function(self)
 	self.rightTexture:SetPoint("topright", self, "topright")
 	self.rightTexture:SetPoint("bottomright", self, "bottomright")
 	self.rightTexture:SetVertexColor(1, 0, 0)
-	
+
 	self.lefticon = self:CreateTexture("$parent_IconLeft", "OVERLAY")
 	self.lefticon:SetSize(14, 14)
 	self.lefticon:SetPoint("LEFT", self, "LEFT")
-	
+
 	self.righticon = self:CreateTexture("$parent_IconRight", "OVERLAY")
 	self.righticon:SetSize(14, 14)
 	self.righticon:SetPoint("RIGHT", self, "RIGHT")
-	
+
 	self.spark = self:CreateTexture("$parent_Spark", "OVERLAY")
 	self.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
 	self.spark:SetBlendMode("ADD")
 	self.spark:SetSize(32, 32)
 	self.spark:SetPoint("LEFT", self, "RIGHT", -17, -1)
-	
+
 	self.lefttext = self:CreateFontString("$parent_TextLeft", "OVERLAY", "GameFontHighlight")
 	DF:SetFontSize(self.lefttext, 10)
 	self.lefttext:SetJustifyH("left")
 	self.lefttext:SetPoint("LEFT", self.lefticon, "RIGHT", 3, 0)
-	
+
 	self.righttext = self:CreateFontString("$parent_TextRight", "OVERLAY", "GameFontHighlight")
 	DF:SetFontSize(self.righttext, 10)
 	self.righttext:SetJustifyH("right")
@@ -714,7 +713,7 @@ end
 
 
 function DF:NewSplitBar (parent, container, name, member, w, h)
-	
+
 	if (not name) then
 		name = "DetailsFrameworkSplitbar" .. DF.SplitBarCounter
 		DF.SplitBarCounter = DF.SplitBarCounter + 1
@@ -725,18 +724,18 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 	if (not container) then
 		container = parent
 	end
-	
+
 	if (name:find("$parent")) then
 		local parentName = DF:GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
-	
+
 	local SplitBarObject = {type = "barsplit", dframework = true}
 
 	if (member) then
 		parent [member] = SplitBarObject
 	end
-	
+
 	if (parent.dframework) then
 		parent = parent.widget
 	end
@@ -749,17 +748,17 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		SplitBarObject.locked = false
 		SplitBarObject.container = container
 		SplitBarObject.currentValue = 0.5
-	
+
 	--create widgets
 		SplitBarObject.statusbar = CreateFrame("statusbar", name, parent, "BackdropTemplate")
 		build_statusbar (SplitBarObject.statusbar)
 		SplitBarObject.spark = SplitBarObject.statusbar.spark
 		SplitBarObject.widget = SplitBarObject.statusbar
-		
+
 		if (not APISplitBarFunctions) then
 			APISplitBarFunctions = true
 			local idx = getmetatable(SplitBarObject.statusbar).__index
-			for funcName, funcAddress in pairs(idx) do 
+			for funcName, funcAddress in pairs(idx) do
 				if (not SplitBarMetaFunctions [funcName]) then
 					SplitBarMetaFunctions [funcName] = function(object, ...)
 						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")
@@ -768,23 +767,23 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 				end
 			end
 		end
-		
+
 		SplitBarObject.statusbar:SetHeight(h or 200)
 		SplitBarObject.statusbar:SetWidth(w or 14)
 		SplitBarObject.statusbar:SetValue(0.5)
-		
+
 		SplitBarObject.statusbar.MyObject = SplitBarObject
-		
+
 		SplitBarObject.textleft = _G [name .. "_TextLeft"]
 		SplitBarObject.textright = _G [name .. "_TextRight"]
-		
+
 		SplitBarObject.iconleft = _G [name .. "_IconLeft"]
 		SplitBarObject.iconright = _G [name .. "_IconRight"]
-		
+
 		SplitBarObject.background = _G [name .. "_StatusBarBackground"]
 		SplitBarObject.texture = _G [name .. "_StatusBarTexture"]
 		SplitBarObject.rightTexture = _G [name .. "_StatusBarTextureRight"]
-	
+
 	--hooks
 	SplitBarObject.HookList = {
 		OnEnter = {},
@@ -795,7 +794,7 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		OnMouseUp = {},
 		OnSizeChanged = {},
 	}
-	
+
 	SplitBarObject.statusbar:SetScript("OnEnter", OnEnter)
 	SplitBarObject.statusbar:SetScript("OnLeave", OnLeave)
 	SplitBarObject.statusbar:SetScript("OnHide", OnHide)
@@ -803,8 +802,8 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 	SplitBarObject.statusbar:SetScript("OnMouseDown", OnMouseDown)
 	SplitBarObject.statusbar:SetScript("OnMouseUp", OnMouseUp)
 	SplitBarObject.statusbar:SetScript("OnSizeChanged", OnSizeChanged)
-		
+
 	setmetatable(SplitBarObject, SplitBarMetaFunctions)
-	
+
 	return SplitBarObject
 end

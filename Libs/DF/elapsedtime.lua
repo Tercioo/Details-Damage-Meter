@@ -48,6 +48,7 @@ local elapsedtime_frame_options = {
 ---@field GetLabel fun(self:df_elapsedtime, index:number):fontstring
 ---@field Reset fun(self:df_elapsedtime)
 ---@field Refresh fun(self:df_elapsedtime, elapsedTime:number, scale:number)
+---@field SetFontOptions fun(self:df_elapsedtime, font:string?, size:number?, color:number[]?, outline:string?)
 detailsFramework.TimeLineElapsedTimeFunctions = {
 	--get a label and update its appearance
 	GetLabel = function(self, index)
@@ -80,6 +81,25 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 		return label
 	end,
 
+	SetFontOptions = function(self, font, size, color, outline)
+		if (font) then
+			self.options.text_font = font
+		end
+		if (size) then
+			self.options.text_size = size
+		end
+		if (color) then
+			self.options.text_color = color
+		end
+		if (outline) then
+			self.options.text_outline = outline
+		end
+
+		if self.elapsedTime and self.scale then
+			self:Refresh(self.elapsedTime, self.scale)
+		end
+	end,
+
 	Reset = function(self)
 		for i = 1, #self.labels do
 			self.labels[i]:Hide()
@@ -104,6 +124,9 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 
 		local distance = self.options.distance --pixels between each segment
 		local minDistance = self.options.distance_min --min pixels between each segment
+
+		self.elapsedTime = elapsedTime
+		self.scale = scale
 
 		--scale the distance between each label showing the time with the parent's scale
 		distance = distance * scale
@@ -132,6 +155,8 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 }
 
 ---@class df_elapsedtime : frame, df_elapsedtime_mixin, df_optionsmixin
+---@field scale number
+---@field elapsedTime number
 ---@field labels table<number, df_elapsedtime_label>
 ---@field scrollChild frame
 

@@ -3243,7 +3243,11 @@ local dealWithPlayerName = function(instance, line, forceUpdate)
 	local yOffset = -math.max((lineHeight - textHeight) / 2, 0)
 
 	line.lineText1:ClearAllPoints()
-	line.lineText1:SetPoint("topleft", line.icone_classe, "topright", 2, yOffset)
+	if (instance.row_info.no_icon) then
+		line.lineText1:SetPoint("topleft", line, "topleft", 2 + instance.row_info.textL_offset, yOffset)
+	else
+		line.lineText1:SetPoint("topleft", line.icone_classe, "topright", 2 + instance.row_info.textL_offset, yOffset)
+	end
 
 	local playerNameWidth = 0
 
