@@ -133,8 +133,31 @@ end
 ---@param attributeId attributeid
 ---@param sourcePlayer damagemeter_combat_source
 function Details222.BParser.GetCustomDataForTooltip(instance, attributeId, sourcePlayer)
-    if Details222.BParser.IsCustomAttribute(attributeId) then --potion usage
-        return sourcePlayer.spells
+    if Details222.BParser.IsCustomAttribute(attributeId) then --can be potion usage
+        if attributeId == -10 then --potion usage
+            local serial = Details222.BParser.GetSerial(sourcePlayer)
+            ---@type damagemeter_unit_spells
+            local spells = {
+                maxAmount = 0,
+                totalAmount = 0,
+                combatSpells = {},
+            }
+            if not serial then
+                return spells
+            end
+            local t = Details222.B.GetSpells(instance:GetSegmentType() <= 1 and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, instance:GetSegmentType() <= 1 and instance:GetSegmentType() or instance:GetNewSegmentId(), 2, serial)
+            for k, v in pairs(t.combatSpells) do
+                local spellId = v.spellID
+                if not issecretvalue(spellId) and (spellId == DETAILS_HEALTH_POTION1_ID or spellId == DETAILS_HEALTH_POTION2_ID or spellId == DETAILS_HEALTH_POTION3_ID or spellId == DETAILS_HEALTHSTONE_ID) then
+                    spells.combatSpells[#spells.combatSpells + 1] = v
+                    spells.totalAmount = spells.totalAmount + v.totalAmount
+                    if v.totalAmount > spells.maxAmount then
+                        spells.maxAmount = v.totalAmount
+                    end
+                end
+            end
+            return spells
+        end
     end
 end
 
@@ -167,7 +190,7 @@ function Details222.BParser.GetCustomDataForWindow(instance, attributeId)
                 for j = 1, #spells.combatSpells do
                     local thisSpell = spells.combatSpells[j]
                     local spellId = thisSpell.spellID
-                    if spellId == DETAILS_HEALTH_POTION1_ID or spellId == DETAILS_HEALTH_POTION2_ID or spellId == DETAILS_HEALTH_POTION3_ID or spellId == DETAILS_HEALTHSTONE_ID then
+                    if not issecretvalue(spellId) and (spellId == DETAILS_HEALTH_POTION1_ID or spellId == DETAILS_HEALTH_POTION2_ID or spellId == DETAILS_HEALTH_POTION3_ID or spellId == DETAILS_HEALTHSTONE_ID) then
                         potionsUsed[#potionsUsed+1] = thisSpell
                     end
                 end

@@ -423,7 +423,7 @@ end
 
 function bParser.GetSerial(sourcePlayer, icon)
     local thisSerial = not issecretvalue(sourcePlayer.sourceGUID) and sourcePlayer.sourceGUID or nil
-    thisSerial = thisSerial or bParser.guidCache[icon] or nil
+    thisSerial = thisSerial or bParser.guidCache[icon or sourcePlayer.specIconID] or nil
     local guid = thisSerial or (sourcePlayer.isLocalPlayer and UnitGUID("player")) or nil
     return guid
 end
