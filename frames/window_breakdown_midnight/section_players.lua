@@ -111,7 +111,11 @@ local refreshFunc = function(self, data, offset, totalLines)
             if not issecretvalue(name) then
                 name = detailsFramework:RemoveRealmName(name)
             else
-                name = UnitName(name) or name
+                if Details222.IsTOCBiggerOrEqualTo(120005) then
+                    name = Ambiguate(name, "none")
+                else
+                    name = UnitName(name) or name
+                end
             end
 
             line.Texts[2]:SetText(name)
