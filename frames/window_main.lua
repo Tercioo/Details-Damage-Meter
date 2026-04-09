@@ -2161,7 +2161,6 @@ end
 -- ~talent ~icon
 --code for when hovering over the class/spec icon in the player bar
 local iconFrame_OnEnter = function(self)
-	local actor = self.row.minha_tabela
 	---@type detailsline
 	local instanceLine = self.row
 	local actor = instanceLine.minha_tabela
@@ -2312,7 +2311,6 @@ local iconFrame_OnEnter = function(self)
 				end
 			end
 
-			local actorName = actor:GetName()
 			local actorName = actor.nome
 			local RaiderIO = _G.RaiderIO
 
