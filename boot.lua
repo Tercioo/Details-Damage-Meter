@@ -104,9 +104,16 @@
 			end
 		end
 
+		Details222.IsTOCBiggerOrEqualTo = function(tocNumber)
+			if tvs >= tocNumber then
+				return true
+			end
+		end
+
 		function Details222.IsPTR1205()
 			local _, _, _, a = GetBuildInfo()
 			if a >= 120005 then
+			if tvs >= 120005 then
 				return true
 			end
 		end

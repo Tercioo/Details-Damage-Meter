@@ -3346,9 +3346,13 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 		end
 	else
 		if specIcon then
-			actorName = UnitName(actorName)
-			if actorName == nil then
-				actorName = source.name
+			if Details222.IsTOCBiggerOrEqualTo(120005) then
+				actorName = Ambiguate(source.name, "none")
+			else
+				actorName = UnitName(actorName)
+				if actorName == nil then
+					actorName = source.name
+				end
 			end
 		else
 			actorName = source.name
