@@ -2136,8 +2136,8 @@ DetailsAPI = DetailsAPI or {}
 ---@param profileKey string --the name of the profile to be exported
 ---@return string --the encoded profile string that can be imported by other users
 function DetailsAPI:ExportProfile(profileKey)
-    local p = Details:ExportCurrentProfile(profileKey)
-	return p
+    local profileString = Details:ExportCurrentProfile(profileKey)
+	return profileString
 end
 
 ---@param profileString string --the encoded profile string to be imported
@@ -2152,25 +2152,29 @@ end
 ---@param profileString string --the profile string to decode
 ---@return table --the decoded profile data as a table
 function DetailsAPI:DecodeProfileString(profileString)
-    local dataTable = Details:DecompressData(profileString, "print")
-	return dataTable
+    local profileTable = Details:DecompressData(profileString, "print")
+	return profileTable
 end
 
----@param profileKey string -- profileKey of an existing profile
-function DetailsAPI:SetProfile(profileKey)
-	Details:ApplyProfile(profileKey)
+---@param profileName string -- profileKey of an existing profile
+function DetailsAPI:SetProfile(profileName)
+	Details:ApplyProfile(profileName)
 end
 
 ---@return table<string, boolean>  -- a table of all available profile keys in the format [profileKey] = true
 function DetailsAPI:GetProfileKeys()
-    local p = Details:GetProfileList()
-	return p
+    local profileList = Details:GetProfileList()
+    local profileKeys = {}
+    for index, key in ipairs(profileList) do
+        profileKeys[key] = true
+    end
+    return profileKeys
 end
 
 ---@return string --the profileKey of the currently active profile
 function DetailsAPI:GetCurrentProfileKey()
-    local p = Details:GetCurrentProfileName()
-	return p
+    local currentProfileName = Details:GetCurrentProfileName()
+	return currentProfileName
 end
 
 function DetailsAPI:OpenConfig()
