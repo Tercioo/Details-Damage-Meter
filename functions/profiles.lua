@@ -1531,7 +1531,7 @@ local default_global_data = {
 	breakdown_midnight = {
 		players = {width = 200, height = 296},
 		segments = {width = 200, height = 228},
-		spells = {width = 464, height = 398},
+		spells = {width = 464, height = 400},
 		targets = {width = 300, height = 170},
 		spelldetails = {width = 231, height = 261},
 		compare = {width = 231, height = 200},
@@ -1985,12 +1985,14 @@ local exportProfileBlacklist = {
 }
 
 --transform the current profile into a string which can be shared in the internet
-function Details:ExportCurrentProfile()
+---@param self details
+---@param profileName string|nil if passing nil it export the current profile
+function Details:ExportCurrentProfile(profileName)
 	--save the current profile
 	Details:SaveProfile()
 
 	--data saved inside the profile
-	local profileObject = Details:GetProfile (Details:GetCurrentProfileName())
+	local profileObject = Details:GetProfile(profileName or Details:GetCurrentProfileName(), false)
 	if (not profileObject) then
 		Details:Msg("fail to get the current profile.")
 		return false
