@@ -403,8 +403,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print("GetTime()", GetTime())
 		print("time()", time())
 
-	elseif (msg == "bdsm") then
+	elseif (msg == "blizzard" or msg == "bdsm") then
 		if detailsFramework.IsAddonApocalypseWow() then
+			if msg == "bdsm" then
+				print("This command changed to /details blizzard")
+				return
+			end
 			local isDamageMeterEnabled = C_CVar.GetCVarBool("damageMeterEnabled")
 			if not isDamageMeterEnabled then
 				C_CVar.SetCVar("damageMeterEnabled", "1")
@@ -2673,6 +2677,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				---@field runId number
 
 				local openScoreBoardAtRunId = function(button)
+					if not DetailsMythicPlus then
+						Details:Msg(Loc["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"])
+						return
+					end
 					local dfButton = button.MyObject
 					local runId = dfButton.runId
 					if (runId) then
