@@ -2683,7 +2683,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					end
 					local dfButton = button.MyObject
 					local runId = dfButton.runId
-					if (runId) then
+					if (DetailsMythicPlus and runId) then
 						DetailsMythicPlus.Open(runId)
 					end
 				end
