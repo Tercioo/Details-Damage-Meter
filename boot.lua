@@ -2178,7 +2178,7 @@ function DetailsAPI:GetCurrentProfileKey()
 end
 
 function DetailsAPI:OpenConfig()
-    Details.OpenOptionsWindow()
+    Details_OpenDefaultOptionsWindow()
 end
 
 function DetailsAPI:CloseConfig()
