@@ -2150,7 +2150,7 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 		--transfer instance data to the new created profile
 		profileObject.instances = DetailsFramework.table.copy({}, profileData.instances)
 
-		Details:ApplyProfile (newProfileName)
+		Details:ApplyProfile (newProfileName, overwriteExisting)
 
 		--reset automation settings (due to user not knowing why some windows are disappearing)
 		for instanceId, instance in Details:ListInstances() do
