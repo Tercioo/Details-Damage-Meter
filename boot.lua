@@ -2186,3 +2186,11 @@ function DetailsAPI:CloseConfig()
         DetailsPluginContainerWindow:Hide()
     end
 end
+
+---return a ready only table with which profile is assigned to other characters of the account.
+---@param self details
+---@return table<charname, profilekey> --a table in the format [charName] = profileKey
+function DetailsAPI:GetProfileAssignments()
+	local result = DetailsFramework.table.copy({}, _detalhes_global.__char_profiles)
+	return result
+end
