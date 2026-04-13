@@ -869,7 +869,7 @@ local build_options_panel = function()
 	}
 
     --Only show pet options on classic, since the option is not possible on retail
-    if not detailsFramework.IsAddonApolcalpyseWow() then
+    if not detailsFramework.IsAddonApocalpyseWow() then
         menu[#menu+1] = {
             type = "toggle",
             get = function() return ThreatMeter.saveddata.show_party_pets end,
