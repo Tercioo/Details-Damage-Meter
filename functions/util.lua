@@ -148,7 +148,7 @@
 			local sourceData = sources[i]
 			local actorName = sourceData.name
 			---@type adaptersettings
-			local adapterSettings = Details:MakeSettingsForAdapter(instance, actorName)
+			local adapterSettings = Details:MakeSettingsForAdapter(instance, actorName, sourceData)
 			local adapter = Details:MakeActorAdapter(adapterSettings)
 			table.insert(adapters, adapter)
 		end
@@ -158,12 +158,13 @@
 	---@param instance instance
 	---@param actorName string
 	---@return adaptersettings
-	function Details:MakeSettingsForAdapter(instance, actorName)
+	function Details:MakeSettingsForAdapter(instance, actorName, sourceData)
 		local sessionId = instance:GetNewSegmentId()
 		local sessionType = instance:GetSegmentType()
 		local mainDisplay, subDisplay = instance:GetDisplay()
 		---@type damagemeter_combat_source
-		local sourceData = instance:GetSourceActorFromName(actorName) --attempt to index local 'sourceData' (a nil value) after finish a dungeon
+		sourceData = sourceData or instance:GetSourceActorFromName(actorName) --attempt to index local 'sourceData' (a nil value) after finish a dungeon
+		actorName = actorName or sourceData.name
 		local actorGUID = sourceData.sourceGUID
 		local classFilename = sourceData.classFilename
 		local damageMeterType = instance:GetAttributeType()

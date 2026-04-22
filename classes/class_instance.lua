@@ -665,10 +665,15 @@ local instanceMixins = {
 	---@return damagemeter_combat_source
 	GetSourceActorFromName = function(instance, actorName)
 		--if not issecretvalue(actorName) then
+			local foundSecret = false
 			local sources = instance:GetSources()
 			for i = 1, #sources do
-				if sources[i].name == actorName then
-					return sources[i]
+				if not issecretvalue(sources[i].name) then
+					if sources[i].name == actorName then
+						return sources[i]
+					end
+				else
+					foundSecret = true
 				end
 			end
 		--end

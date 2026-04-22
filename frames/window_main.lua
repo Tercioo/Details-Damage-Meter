@@ -2169,8 +2169,11 @@ local iconFrame_OnEnter = function(self)
 
 	if not actor then
 		if instanceLine.sourceData and not Details222.Apocalypse.IsServerInCombat() then
+			if issecretvalue(instanceLine.sourceData.name) then
+				return
+			end
 			local instance = Details:GetInstance(instanceLine.instance_id)
-			local settingsTable = Details:MakeSettingsForAdapter(instance, instanceLine.sourceData.name)
+			local settingsTable = Details:MakeSettingsForAdapter(instance, nil, instanceLine.sourceData)
 			local adapter = Details:MakeActorAdapter(settingsTable)
 			actor = adapter
 		end
