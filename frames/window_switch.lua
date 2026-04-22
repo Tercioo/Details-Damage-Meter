@@ -274,45 +274,55 @@ function Details222.CreateAllDisplaysFrame()
 				y = -8
 			end
 
-			--prepare for scripts
 			allDisplaysFrame.x = x
-			allDisplaysFrame.y = -8
-			allDisplaysFrame.buttons [Details.atributos[0]+1] = {}
 
-			local title_icon = allDisplaysFrame:CreateTexture(nil, "overlay")
-			local texture, l, r, t, b = Details:GetAttributeIcon (Details.atributos[0]+1)
-			title_icon:SetTexture([[Interface\AddOns\Details\images\icons]])
-			title_icon:SetTexCoord(412/512, 441/512, 43/512, 79/512)
-			title_icon:SetVertexColor(.7, .6, .5, 1)
-			title_icon:SetSize(16, 16)
-			local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-			title_str:SetPoint("left", title_icon, "right", 2, 0)
-			title_str:SetText("Scripts")
+			if not isApoc then
+				--prepare for scripts
+				allDisplaysFrame.y = -8
+				allDisplaysFrame.buttons [Details.atributos[0]+1] = {}
 
-			title_icon:SetPoint("topleft", allDisplaysFrame.x, allDisplaysFrame.y)
-			allDisplaysFrame.y = allDisplaysFrame.y - 20
-			allDisplaysFrame.title_custom = title_icon
+				local title_icon = allDisplaysFrame:CreateTexture(nil, "overlay")
+				local texture, l, r, t, b = Details:GetAttributeIcon (Details.atributos[0]+1)
+				title_icon:SetTexture([[Interface\AddOns\Details\images\icons]])
+				title_icon:SetTexCoord(412/512, 441/512, 43/512, 79/512)
+				title_icon:SetVertexColor(.7, .6, .5, 1)
+				title_icon:SetSize(16, 16)
+				local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+				title_str:SetPoint("left", title_icon, "right", 2, 0)
+				title_str:SetText("Scripts")
+
+				title_icon:SetPoint("topleft", allDisplaysFrame.x, allDisplaysFrame.y)
+				allDisplaysFrame.y = allDisplaysFrame.y - 20
+				allDisplaysFrame.title_custom = title_icon
+			end
 
 			allDisplaysFrame.already_built = true
 
 			--prepare for plugins
-				allDisplaysFrame.buttons[6] = {}
-				local title_icon = allDisplaysFrame:CreateTexture(nil, "overlay")
-				title_icon:SetTexture([[Interface\AddOns\Details\images\modo_icones]])
-				title_icon:SetTexCoord(32/256*3, 32/256*4, 0, 1)
-				title_icon:SetSize(16, 16)
+			allDisplaysFrame.buttons[6] = {}
+			local title_icon = allDisplaysFrame:CreateTexture(nil, "overlay")
+			title_icon:SetTexture([[Interface\AddOns\Details\images\modo_icones]])
+			title_icon:SetTexCoord(32/256*3, 32/256*4, 0, 1)
+			title_icon:SetSize(16, 16)
 
-				local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-				title_str:SetPoint("left", title_icon, "right", 2, 0)
-				title_str:SetText(Loc["STRING_OPTIONS_PLUGINS"])
+			local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+			title_str:SetPoint("left", title_icon, "right", 2, 0)
+			title_str:SetText(Loc["STRING_OPTIONS_PLUGINS"])
+			if isApoc then
+				title_icon:SetPoint("topleft", allDisplaysFrame.x, -8)
+			else
 				title_icon:SetPoint("topleft", allDisplaysFrame.x + 130, -8)
-				allDisplaysFrame.title_scripts = title_icon
-		end
+			end
+
+			allDisplaysFrame.title_scripts = title_icon
+		end --end of building frames
 
 		--update scripts
 		local custom_index = Details.atributos[0]+1
-		for _, button in ipairs(allDisplaysFrame.buttons [custom_index]) do
-			button:Hide()
+		if not isApoc then
+			for _, button in ipairs(allDisplaysFrame.buttons [custom_index]) do
+				button:Hide()
+			end
 		end
 
 		local button_index = 1
@@ -348,7 +358,12 @@ function Details222.CreateAllDisplaysFrame()
 		--update plugins
 			local script_index = Details.atributos[0]+2
 			local button_index = 1
-			allDisplaysFrame.x = allDisplaysFrame.x + 130
+			
+			if not isApoc then
+				allDisplaysFrame.x = allDisplaysFrame.x + 130
+			else
+				allDisplaysFrame.x = allDisplaysFrame.x
+			end
 			allDisplaysFrame.y = -28
 
 			for _, button in ipairs(allDisplaysFrame.buttons[script_index]) do
@@ -405,6 +420,10 @@ function Details222.CreateAllDisplaysFrame()
 		allDisplaysFrame.cursor_x, allDisplaysFrame.cursor_y = floor(cursorX), floor(cursorY)
 		allDisplaysFrame:SetScript("OnUpdate", on_update_all_switch)
 		allDisplaysFrame:SetScale(Details.all_switch_config.scale)
+
+		if isApoc then
+			allDisplaysFrame:SetWidth(490)
+		end
 	end)
 
 end

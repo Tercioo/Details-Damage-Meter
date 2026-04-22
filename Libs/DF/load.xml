@@ -51,6 +51,7 @@
 	<Script file="auras.lua"/>
 	<Script file="tabcontainer.lua"/>
 	<Script file="editor.lua"/>
+	<Script file="anchorsystem.lua"/>
 	<Script file="keybind.lua"/>
 	<Script file="packtable.lua"/>
 </Ui>

@@ -112,7 +112,9 @@ frames\window_breakdown_midnight\section_targets.lua
 frames\window_breakdown_midnight\section_compare.lua
 frames\window_breakdown_midnight\options.lua
 
-frames\window_segmentselection_midnight.lua
+frames\segments\window_segmentselection.lua
+frames\segments\segments_dataprovider.lua
+frames\segments\segments_functions.lua
 
 frames\window_breakdown\window_playerbreakdown.lua
 frames\window_breakdown\window_playerbreakdown_list.lua
@@ -206,6 +208,7 @@ core\gears.lua
 core\windows.lua
 core\meta.lua
 core\network.lua
+core\inspect.lua
 
 core\parser.lua
 

@@ -835,6 +835,11 @@ local getPlayerInfo = function(playerName)
 
         if (gameVersionHasMythicPlus()) then
             thisPlayerInfo.keystoneInfo = CopyTable(keystoneTablePrototype)
+
+            local summary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(playerName)
+            if (summary and summary.currentSeasonScore) then
+            	thisPlayerInfo.keystoneInfo.rating = summary.currentSeasonScore
+            end
         end
 
         playerInfoDatabase[playerName] = thisPlayerInfo

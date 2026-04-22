@@ -1,0 +1,12 @@
+## Interface: 120001
+## Interface-Mists: 50503
+## Title: Player Info
+## Notes: Show information about players in your group.
+## Version: #@project-version@
+## IconTexture: Interface\AddOns\Details\images\minimap
+## AddonCompartmentFunc: Details_OpenDefaultOptionsWindow
+
+## X-Curse-Project-ID: 61284
+## X-Wago-ID: qv63A7Gb
+
+PlayerInfo.lua

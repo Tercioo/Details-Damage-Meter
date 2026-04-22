@@ -21,6 +21,10 @@ local petContainer = Details222.PetContainer
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --API
 
+function Details:GetSavedSegments()
+	return Details.apocalypse_savedsegments
+end
+
 --reset only the overall data
 function Details:ResetSegmentOverallData()
 	return segmentClass:ResetOverallData()
@@ -1175,4 +1179,8 @@ end
 function Details.refresh:r_historico(este_historico)
 	setmetatable(este_historico, segmentClass)
 	--este_historico.__index = historico
+end
+
+function Details222.Segments.Compress(combatObject)
+	
 end

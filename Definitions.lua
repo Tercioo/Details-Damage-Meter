@@ -288,6 +288,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field container_type table<containertype, string> [containertype] = "damage" or "heal" or "energy" or "utility"
 ---@field TextureAtlas table<atlasname, df_atlasinfo>
 ---@field playername string
+---@field apocalypse_savedsegments savedsegment[]
 ---@field damage_meter_type number
 ---@field breakdown_general profile_breakdown_settings
 ---@field DefaultTooltipIconSize number default size of the icons in the tooltip, this also dictates the size of each line in the tooltip
@@ -300,6 +301,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field GetCoreVersion fun(self: details) : number return the core version, this is used to check API version for scripts and plugins
 ---@field RefreshMainWindow fun(self: details, instance:instance|number?, forceUpdate:boolean?) refresh a window or all main windows if -1 is passed into instance
 ---@field 
+---@field GetSavedSegments fun(self: details) : savedsegment[] return a table with all segments that got saved
 ---@field GetCombatWithSessionId fun(self: details, combatSessionId: string) : combat|nil
 ---@field HasCombatWithSessionId fun(self: details, combatSessionId: string) : boolean
 ---@field InstanceCallDetailsFunc fun(self: details, func:fun(object:nil, instance:instance, ...), ...) call a function on all opened instances
@@ -653,10 +655,12 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field augmentedSpellsContainer spellcontainer
 ---@field last_dps number
 ---@field last_dps_realtime number
+---@field damage_from_players table[]
 
 ---@class actorheal : actor
 ---@field healing_taken number amount of healing the actor took during the segment
 ---@field totalover number amount of healing that was overhealed
+---@field healpotion number amount of healing done by heal potions
 ---@field totalabsorb number amount of healing that was absorbed
 ---@field totalabsorb_ps number amount of healing that was absorbed
 ---@field heal_enemy_amt number amount of healing done to enemies this included enemy to enemy heals
@@ -785,6 +789,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field encounterName string?
 ---@field encounterData encounterdata?
 ---@field alreadyAdded boolean
+---@field playerCasts table<number, number>
 
 ---@class trinketdata : table
 ---@field itemName string

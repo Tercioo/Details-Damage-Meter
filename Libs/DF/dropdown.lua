@@ -961,7 +961,9 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						thisOptionFrame.label:SetFont(thisOption.font, 10.5)
 
 					else
-						thisOptionFrame.label:SetFont("GameFontHighlightSmall", 10.5)
+						thisOptionFrame.label:SetFontObject("GameFontHighlightSmall")
+						local font, _, flags = thisOptionFrame.label:GetFont()
+						thisOptionFrame.label:SetFont(font, 10.5, flags)
 					end
 
 					if (currentText and currentText == thisOption.label) then

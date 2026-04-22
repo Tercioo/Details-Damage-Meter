@@ -77,6 +77,7 @@ function healingClass:NovaTabela (serial, nome, link)
 		totalover = alphabetical,
 		totalabsorb = alphabetical,
 		totaldenied = alphabetical,
+		healpotion = alphabetical,
 		custom = 0,
 
 		total_without_pet = alphabetical,
@@ -281,6 +282,8 @@ function healingClass:RefreshWindow (instance, tabela_do_combate, forcar, export
 			keyName = "totalabsorb"
 		elseif (sub_atributo == 7) then --heal absorb
 			keyName = "totaldenied"
+		elseif (sub_atributo == 8) then --potions (midnight and above)
+			keyName = "healpotion"
 		end
 	end
 
@@ -909,6 +912,13 @@ function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lug
 				end
 				percentNumber = _math_floor((self.totaldenied/instancia.top) * 100)
 			end
+
+		elseif (sub_atributo == 8) then --mostrando potion usage
+			if detailsFramework.IsAddonApocalypseWow() then
+				local ruleToUse = 2 --total dps
+				Details:SimpleFormat(thisLine.lineText2, thisLine.lineText3, thisLine.lineText4, AbbreviateNumbers(self.healpotion, Details.abbreviateOptionsDamage), AbbreviateNumbers(self.healpotion / combatTime, Details.abbreviateOptionsDPS), nil, ruleToUse)
+				percentNumber = _math_floor((self.healpotion/instancia.top) * 100)
+			end
 		end
 	end
 
@@ -926,7 +936,8 @@ function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lug
 		end
 	end
 
-	return self:RefreshBarra2 (thisLine, instancia, tabela_anterior, forcar, percentNumber, whichRowLine, barras_container, use_animations)
+	self:RefreshBarra2 (thisLine, instancia, tabela_anterior, forcar, percentNumber, whichRowLine, barras_container, use_animations)
+	return
 end
 
 function healingClass:RefreshBarra2 (thisLine, instancia, tabela_anterior, forcar, esta_porcentagem, whichRowLine, barras_container, use_animations)
@@ -941,7 +952,8 @@ function healingClass:RefreshBarra2 (thisLine, instancia, tabela_anterior, forca
 				Details.FadeHandler.Fader(thisLine, "out")
 			end
 
-			return self:RefreshBarra(thisLine, instancia)
+			self:RefreshBarra(thisLine, instancia)
+			return
 		else
 			return
 		end
@@ -2782,6 +2794,8 @@ end
 		overallActor.total = overallActor.total + actorObject.total
 		overallActor.totalover = overallActor.totalover + actorObject.totalover
 
+		overallActor.healpotion = overallActor.healpotion + actorObject.healpotion
+
 		--healing done by shields
 		overallActor.totalabsorb = overallActor.totalabsorb + actorObject.totalabsorb
 
@@ -2915,6 +2929,8 @@ healingClass.__add = function(tabela1, tabela2)
 	--total de cura negada
 		tabela1.totaldenied = tabela1.totaldenied + tabela2.totaldenied
 
+		tabela1.healpotion = tabela1.healpotion + tabela2.healpotion
+
 	--total sem pets
 		tabela1.total_without_pet = tabela1.total_without_pet + tabela2.total_without_pet
 		tabela1.totalover_without_pet = tabela1.totalover_without_pet + tabela2.totalover_without_pet
@@ -3023,6 +3039,8 @@ healingClass.__sub = function(tabela1, tabela2)
 		tabela1.heal_enemy_amt = tabela1.heal_enemy_amt - tabela2.heal_enemy_amt
 	--total de cura negada
 		tabela1.totaldenied = tabela1.totaldenied - tabela2.totaldenied
+
+		tabela1.healpotion = tabela1.healpotion - tabela2.healpotion
 
 	--total sem pets
 		tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet

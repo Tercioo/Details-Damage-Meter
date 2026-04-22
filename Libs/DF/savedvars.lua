@@ -58,8 +58,24 @@ function detailsFramework.SavedVars.GetSavedVariables(addonObject)
                 savedVariablesTable = {}
             end
 
+            --ensure profile_ids exists
+            if not savedVariablesTable.profile_ids then
+                savedVariablesTable.profile_ids = {}
+            end
+            if not savedVariablesTable.profiles then
+                savedVariablesTable.profiles = {}
+            end
+
             --set the table to be global savedVariables
             _G[addonObject.__savedGlobalVarsName] = savedVariablesTable
+        end
+
+        --ensure profile_ids exists (in case the saved variables was created before the implementation of profile_ids)
+        if not savedVariablesTable.profile_ids then
+            savedVariablesTable.profile_ids = {}
+        end
+        if not savedVariablesTable.profiles then
+            savedVariablesTable.profiles = {}
         end
 
 		return savedVariablesTable

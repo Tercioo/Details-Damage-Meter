@@ -409,6 +409,8 @@ GameCooltipFrame2 = {}
 ---@field GetRoleIconAndCoords fun(self:table, role:string) : string, number, number, number, number return the texture path and texcoords for a role
 ---@field AddRoleIconToText fun(self:table, text:string, role:string, size:number?) : string add a role icon to a text using escape codes
 ---@field GetRoleTCoordsAndTexture fun(self:table, roleID:number) : number, number, number, number, string
+---@field RemoveColorCodes fun(self:table, text:string) : string remove color codes from a text string
+---@field RemoveTextureCodes fun(self:table, text:string) : string remove texture codes from a text string
 ---@field AddColorToText fun(self:table, text:string, color:any) : string wrap text with a color
 ---@field AddClassColorToText fun(self:table, text:string, className:class|number) : string wrap text with a class color
 ---@field MakeDraggable fun(self:table, frame:frame, profileTable:table?) profile table is a table to save the position
@@ -418,7 +420,7 @@ GameCooltipFrame2 = {}
 ---@field AddClassIconToText fun(self:table, text:string, playerName:string, englishClassName:string, useSpec:boolean?, iconSize:number?) : string wrap 'text' with the class icon of 'playerName' using |T|t scape codes
 ---@field RemoveRealNameFromName fun(self:table, name:string) : string remove the realm name from a name string
 ---@field GetSpecInfoFromSpecId fun(self:table, specId:number) : specinfo
----@field GetSpecInfoFromSpecIcon fun(self:table, specIcon:string) : specinfo
+---@field GetSpecInfoFromSpecIcon fun(self:table, specIcon:number) : specinfo
 ---@field GetSpecIdFromSpecIcon fun(self:table, specIcon:number) : number?
 
 

@@ -76,41 +76,6 @@ local doFullAuraUpdate = function()
     Details.AuraTracker.RefreshScrollData()
 end
 
-local doIncrementalAuraUpdate = function(aurasUpdated)
-    for _, auraInstanceId in ipairs(aurasUpdated) do
-        local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", auraInstanceId)
-        if (auraInfo.isHelpful) then
-            Details.AuraTracker.buff[auraInstanceId] = auraInfo
-        else
-            Details.AuraTracker.debuff[auraInstanceId] = auraInfo
-        end
-    end
-    Details.AuraTracker.RefreshScrollData()
-end
-
-local doAddedAuraUpdate = function(aurasAdded)
-    for _, auraInfo in ipairs(aurasAdded) do
-        if (auraInfo.isHelpful) then
-            Details.AuraTracker.buff[auraInfo.auraInstanceID] = auraInfo
-        else
-            Details.AuraTracker.debuff[auraInfo.auraInstanceID] = auraInfo
-        end
-    end
-    Details.AuraTracker.RefreshScrollData()
-end
-
-local doRemovedAuraUpdate = function(aurasRemoved)
-    for _, auraInstanceId in ipairs(aurasRemoved) do
-        if (Details.AuraTracker.buff[auraInstanceId]) then
-            Details.AuraTracker.buff[auraInstanceId] = nil
-
-        elseif (Details.AuraTracker.debuff[auraInstanceId]) then
-            Details.AuraTracker.debuff[auraInstanceId] = nil
-        end
-    end
-    Details.AuraTracker.RefreshScrollData()
-end
-
 function Details.AuraTracker.OnShowAuraTrackerFrame(auraTrackerFrame)
     doFullAuraUpdate()
     auraTrackerFrame.EventFrame:RegisterUnitEvent("UNIT_AURA", "player")

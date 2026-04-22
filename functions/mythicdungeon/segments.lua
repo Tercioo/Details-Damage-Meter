@@ -372,6 +372,25 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
 
     local bHasObject = false
     Details:SendEvent("COMBAT_MYTHICPLUS_OVERALL_READY", bHasObject, newCombat)
+
+    --assuming `Details222.MythicPlus.ElapsedTime` is only available at the end of the run, so if is nil, the run did not finished
+    if detailsFramework.IsAddonApocalypseWow() and Details222.MythicPlus.ElapsedTime then
+        C_Timer.After(1, function()
+            if Details222.MythicPlus.LastSegmentSaveTime then
+                if (GetTime() - Details222.MythicPlus.LastSegmentSaveTime < 5) then
+                    return
+                end
+            end
+
+            Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> AddOverallAsSegment() called.")
+            local overallSegment = Details222.BParser.AddOverallAsSegment()
+            overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
+            overallSegment:SetEndTime(GetTime())
+            Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
+            Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> SaveSegment() called.")
+            Details222.MythicPlus.LastSegmentSaveTime = GetTime()
+        end)
+    end
 end
 
 --this function merges trash segments after all bosses of the mythic dungeon are defeated

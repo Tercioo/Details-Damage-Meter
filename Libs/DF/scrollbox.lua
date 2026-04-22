@@ -986,3 +986,626 @@ function detailsFramework:CreateCanvasScrollBox(parent, child, name, options)
 
 	return canvasScrollBox
 end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~scrollbox
+
+---@class df_scrollbox : scrollframe, df_sortmixin, df_scrollboxmixin
+---@field data table
+---@field Header df_headerframe?
+---@field LineAmount number
+---@field LineHeight number
+---@field IsFauxScroll boolean?
+---@field HideScrollBar boolean?
+---@field Frames frame[]
+---@field ReajustNumFrames boolean?
+---@field DontHideChildrenOnPreRefresh boolean
+---@field refresh_func fun(self:df_scrollbox, data:table, offset:number, numlines:number)
+---@field Refresh fun(self:df_scrollbox)
+---@field CreateLineFunc fun(self:df_scrollbox, index:number)?
+---@field CreateLine fun(self:df_scrollbox, func:function)
+---@field SetData fun(self:df_scrollbox, data:table)
+---@field GetData fun(self:df_scrollbox): table
+---@field OnSetData fun(self:df_scrollbox, data:table)? if exists, this function is called after the SetData with the same parameters
+---@field ScrollBar statusbar
+---@field RefreshMe fun(...:any) virtual, implement if the data need to be manipulated, must call :SetData() and :Refresh()
+
+---create a scrollbox with the methods :Refresh() :SetData() :CreateLine()
+---@param parent table
+---@param name string
+---@param refreshFunc function
+---@param data table
+---@param width number
+---@param height number
+---@param lineAmount number
+---@param lineHeight number
+---@param createLineFunc function?
+---@param autoAmount boolean?
+---@param noScroll boolean?
+---@param noBackdrop boolean?
+---@return df_scrollbox
+function detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width, height, lineAmount, lineHeight, createLineFunc, autoAmount, noScroll, noBackdrop)
+	--create the scrollframe, it is the base of the scrollbox
+	---@type df_scrollbox
+	local scroll = CreateFrame("scrollframe", name, parent, "FauxScrollFrameTemplate, BackdropTemplate")
+
+	--apply the standard background color
+	if (not noBackdrop) then
+		detailsFramework:ApplyStandardBackdrop(scroll)
+	end
+
+	scroll:SetSize(width, height)
+	scroll.LineAmount = lineAmount
+	scroll.LineHeight = lineHeight
+	scroll.IsFauxScroll = true
+	scroll.HideScrollBar = noScroll
+	scroll.Frames = {}
+	scroll.ReajustNumFrames = autoAmount
+	scroll.CreateLineFunc = createLineFunc
+	scroll.DontHideChildrenOnPreRefresh = false
+
+	detailsFramework:Mixin(scroll, detailsFramework.SortFunctions)
+	detailsFramework:Mixin(scroll, detailsFramework.ScrollBoxFunctions)
+
+	scroll.refresh_func = refreshFunc
+	scroll.data = data
+
+	scroll:SetScript("OnVerticalScroll", scroll.OnVerticalScroll)
+	scroll:SetScript("OnSizeChanged", detailsFramework.ScrollBoxFunctions.OnSizeChanged)
+
+	return scroll
+end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~listbox
+
+local simple_list_box_ResetWidgets = function(self)
+	for _, widget in ipairs(self.widgets) do
+		widget:Hide()
+	end
+	self.nextWidget = 1
+end
+
+local simple_list_box_onenter = function(self, capsule)
+	self:GetParent().options.onenter (self, capsule, capsule.value)
+end
+
+local simple_list_box_onleave = function(self, capsule)
+	self:GetParent().options.onleave (self, capsule, capsule.value)
+	GameTooltip:Hide()
+end
+
+local simple_list_box_GetOrCreateWidget = function(self)
+	local index = self.nextWidget
+	local widget = self.widgets [index]
+	if (not widget) then
+		widget = detailsFramework:CreateButton(self, function()end, self.options.width, self.options.row_height, "", nil, nil, nil, nil, nil, nil, detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+		widget:SetHook("OnEnter", simple_list_box_onenter)
+		widget:SetHook("OnLeave", simple_list_box_onleave)
+		widget.textcolor = self.options.textcolor
+		widget.textsize = self.options.text_size
+		widget.onleave_backdrop = self.options.backdrop_color
+
+		widget.XButton = detailsFramework:CreateButton(widget, function()end, 16, 16)
+		widget.XButton:SetPoint("topright", widget.widget, "topright")
+		widget.XButton:SetIcon ([[Interface\BUTTONS\UI-Panel-MinimizeButton-Up]], 16, 16, "overlay", nil, nil, 0, -4, 0, false)
+		widget.XButton.icon:SetDesaturated(true)
+
+		if (not self.options.show_x_button) then
+			widget.XButton:Hide()
+		end
+
+		table.insert(self.widgets, widget)
+	end
+	self.nextWidget = self.nextWidget + 1
+	return widget
+end
+
+local simple_list_box_RefreshWidgets = function(self)
+	self:ResetWidgets()
+	local amt = 0
+	for value, _ in pairs(self.list_table) do
+		local widget = self:GetOrCreateWidget()
+		widget:SetPoint("topleft", self, "topleft", 1, -self.options.row_height * (self.nextWidget-2) - 4)
+		widget:SetPoint("topright", self, "topright", -1, -self.options.row_height * (self.nextWidget-2) - 4)
+
+		widget:SetClickFunction(self.func, value)
+
+		if (self.options.show_x_button) then
+			widget.XButton:SetClickFunction(self.options.x_button_func, value)
+			widget.XButton.value = value
+			widget.XButton:Show()
+		else
+			widget.XButton:Hide()
+		end
+
+		widget.value = value
+
+		if (self.options.icon) then
+			if (type(self.options.icon) == "string" or type(self.options.icon) == "number") then
+				local coords = type(self.options.iconcoords) == "table" and self.options.iconcoords or {0, 1, 0, 1}
+				widget:SetIcon (self.options.icon, self.options.row_height - 2, self.options.row_height - 2, "overlay", coords)
+
+			elseif (type(self.options.icon) == "function") then
+				local icon = self.options.icon (value)
+				if (icon) then
+					local coords = type(self.options.iconcoords) == "table" and self.options.iconcoords or {0, 1, 0, 1}
+					widget:SetIcon (icon, self.options.row_height - 2, self.options.row_height - 2, "overlay", coords)
+				end
+			end
+		else
+			widget:SetIcon ("", self.options.row_height, self.options.row_height)
+		end
+
+		if (self.options.text) then
+			if (type(self.options.text) == "function") then
+				local text = self.options.text (value)
+				if (text) then
+					widget:SetText(text)
+				else
+					widget:SetText("")
+				end
+			else
+				widget:SetText(self.options.text or "")
+			end
+		else
+			widget:SetText("")
+		end
+
+		widget.value = value
+
+		local r, g, b, a = detailsFramework:ParseColors(self.options.backdrop_color)
+		widget:SetBackdropColor(r, g, b, a)
+
+		widget:Show()
+		amt = amt + 1
+	end
+	if (amt == 0) then
+		self.EmptyLabel:Show()
+	else
+		self.EmptyLabel:Hide()
+	end
+end
+
+local simplelistbox_default_options = {
+	height = 400,
+	row_height = 16,
+	width = 230,
+	icon = false,
+	text = "",
+	text_size = 10,
+	textcolor = "wheat",
+
+	backdrop_color = {1, 1, 1, .5},
+	panel_border_color = {0, 0, 0, 0.5},
+
+	onenter = function(self, capsule)
+		if (capsule) then
+			capsule.textcolor = "white"
+		end
+	end,
+	onleave = function(self, capsule)
+		if (capsule) then
+			capsule.textcolor = self:GetParent().options.textcolor
+		end
+		GameTooltip:Hide()
+	end,
+}
+
+local simple_list_box_SetData = function(self, t)
+	self.list_table = t
+end
+
+function detailsFramework:CreateSimpleListBox(parent, name, title, emptyText, listTable, onClick, options)
+	local scroll = CreateFrame("frame", name, parent, "BackdropTemplate")
+
+	scroll.ResetWidgets = simple_list_box_ResetWidgets
+	scroll.GetOrCreateWidget = simple_list_box_GetOrCreateWidget
+	scroll.Refresh = simple_list_box_RefreshWidgets
+	scroll.SetData = simple_list_box_SetData
+	scroll.nextWidget = 1
+	scroll.list_table = listTable
+
+	scroll.func = function(self, button, value)
+		detailsFramework:QuickDispatch(onClick, value)
+		scroll:Refresh()
+	end
+	scroll.widgets = {}
+
+	detailsFramework:ApplyStandardBackdrop(scroll)
+
+	scroll.options = options or {}
+	self.table.deploy(scroll.options, simplelistbox_default_options)
+
+	if (scroll.options.x_button_func) then
+		local original_X_function = scroll.options.x_button_func
+		scroll.options.x_button_func = function(self, button, value)
+			detailsFramework:QuickDispatch(original_X_function, value)
+			scroll:Refresh()
+		end
+	end
+
+	scroll:SetBackdropBorderColor(unpack(scroll.options.panel_border_color))
+
+	scroll:SetSize(scroll.options.width + 2, scroll.options.height)
+
+	local name = detailsFramework:CreateLabel(scroll, title, 12, "silver")
+	name:SetTemplate(detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
+	name:SetPoint("bottomleft", scroll, "topleft", 0, 2)
+	scroll.Title = name
+
+	local emptyLabel = detailsFramework:CreateLabel(scroll, emptyText, 12, "gray")
+	emptyLabel:SetAlpha(.6)
+	emptyLabel:SetSize(scroll.options.width-10, scroll.options.height)
+	emptyLabel:SetPoint("center", 0, 0)
+	emptyLabel:Hide()
+	emptyLabel.align = "center"
+	scroll.EmptyLabel = emptyLabel
+
+	return scroll
+end
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--simple data scroll
+
+detailsFramework.DataScrollFunctions = {
+	RefreshScroll = function(self, data, offset, totalLines)
+		local filter = self.Filter
+		local currentData = {}
+		if (type(filter) == "string" and filter ~= "") then
+			for i = 1, #data do
+				for o = 1, #data[i] do
+					if (data[i][o]:find(filter)) then
+						table.insert(currentData, data[i])
+						break
+					end
+				end
+			end
+		else
+			currentData = data
+		end
+
+		if (self.SortAlphabetical) then
+			table.sort (currentData, function(t1, t2) return t1[1] < t2[1] end)
+		end
+
+		--update the scroll
+		for i = 1, totalLines do
+			local index = i + offset
+			local thisData = currentData [index]
+			if (thisData) then
+				local line = self:GetLine (i)
+				line:Update (index, thisData)
+			end
+		end
+	end,
+
+	CreateLine = function(self, index)
+		--create a new line
+		local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
+		line.Update = self.options.update_line_func
+
+		--set its parameters
+		line:SetPoint("topleft", self, "topleft", 1, -((index-1) * (self.options.line_height+1)) - 1)
+		line:SetSize(self.options.width - 2, self.options.line_height)
+		line:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
+
+		line:SetScript("OnEnter",	self.options.on_enter)
+		line:SetScript("OnLeave",	self.options.on_leave)
+		line:SetScript("OnClick",	self.options.on_click)
+
+		line:SetBackdrop(self.options.backdrop)
+		line:SetBackdropColor(unpack(self.options.backdrop_color))
+		line:SetBackdropBorderColor(unpack(self.options.backdrop_border_color))
+
+		local title = detailsFramework:CreateLabel(line, "", detailsFramework:GetTemplate("font", self.options.title_template))
+		local date = detailsFramework:CreateLabel(line, "", detailsFramework:GetTemplate("font", self.options.title_template))
+		local text = detailsFramework:CreateLabel(line, "", detailsFramework:GetTemplate("font", self.options.text_tempate))
+
+		title.textsize = 14
+		date.textsize = 14
+		text:SetSize(self.options.width - 20, self.options.line_height)
+		text:SetJustifyV ("top")
+
+		--setup anchors
+		if (self.options.show_title) then
+			title:SetPoint("topleft", line, "topleft", 2, 0)
+			date:SetPoint("topright", line, "topright", -2, 0)
+			text:SetPoint("topleft", title, "bottomleft", 0, -4)
+		else
+			text:SetPoint("topleft", line, "topleft", 2, 0)
+		end
+
+		line.Title = title
+		line.Date = date
+		line.Text = text
+
+		line.backdrop_color = self.options.backdrop_color or {.1, .1, .1, .3}
+		line.backdrop_color_highlight = self.options.backdrop_color_highlight or {.3, .3, .3, .5}
+
+		return line
+	end,
+
+	LineOnEnter = function(self)
+		self:SetBackdropColor(unpack(self.backdrop_color_highlight))
+	end,
+	LineOnLeave = function(self)
+		self:SetBackdropColor(unpack(self.backdrop_color))
+	end,
+
+	OnClick = function(self)
+
+	end,
+
+	UpdateLine = function(line, lineIndex, data)
+		local parent = line:GetParent()
+
+		if (parent.options.show_title) then
+			line.Title.text = data [2] or ""
+			line.Date.text = data [3] or ""
+			line.Text.text = data [4] or ""
+		else
+			line.Text.text = data [2] or ""
+		end
+
+		if (line:GetParent().OnUpdateLineHook) then
+			detailsFramework:CoreDispatch((line:GetName() or "ScrollBoxDataScrollUpdateLineHook") .. ":UpdateLineHook()", line:GetParent().OnUpdateLineHook, line, lineIndex, data)
+		end
+	end,
+}
+
+local default_datascroll_options = {
+	width = 400,
+	height = 700,
+	line_amount = 10,
+	line_height = 20,
+
+	show_title = true,
+
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	backdrop_color = {0, 0, 0, 0.2},
+	backdrop_color_highlight = {.2, .2, .2, 0.4},
+	backdrop_border_color = {0.1, 0.1, 0.1, .2},
+
+	title_template = "ORANGE_FONT_TEMPLATE",
+	text_tempate = "OPTIONS_FONT_TEMPLATE",
+
+	create_line_func = detailsFramework.DataScrollFunctions.CreateLine,
+	update_line_func = detailsFramework.DataScrollFunctions.UpdateLine,
+	refresh_func = detailsFramework.DataScrollFunctions.RefreshScroll,
+	on_enter = detailsFramework.DataScrollFunctions.LineOnEnter,
+	on_leave = detailsFramework.DataScrollFunctions.LineOnLeave,
+	on_click =  detailsFramework.DataScrollFunctions.OnClick,
+
+	data = {},
+}
+
+--[=[
+	Create a scroll frame to show text in an organized way
+	Functions in the options table can be overritten to customize the layout
+	@parent = the parent of the frame
+	@name = the frame name to use in the CreateFrame call
+	@options = options table to override default values from the table above
+--]=]
+function detailsFramework:CreateDataScrollFrame (parent, name, options)
+	--call the mixin with a dummy table to built the default options before the frame creation
+	--this is done because CreateScrollBox needs parameters at creation time
+	local optionsTable = {}
+	detailsFramework.OptionsFunctions.BuildOptionsTable (optionsTable, default_datascroll_options, options)
+	optionsTable = optionsTable.options
+
+	--scroll frame
+	local newScroll = detailsFramework:CreateScrollBox (parent, name, optionsTable.refresh_func, optionsTable.data, optionsTable.width, optionsTable.height, optionsTable.line_amount, optionsTable.line_height)
+	detailsFramework:ReskinSlider(newScroll)
+
+	detailsFramework:Mixin(newScroll, detailsFramework.OptionsFunctions)
+	detailsFramework:Mixin(newScroll, detailsFramework.LayoutFrame)
+
+	newScroll:BuildOptionsTable (default_datascroll_options, options)
+
+	--create the scrollbox lines
+	for i = 1, newScroll.options.line_amount do
+		newScroll:CreateLine (newScroll.options.create_line_func)
+	end
+
+	newScroll:Refresh()
+
+	return newScroll
+end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---boss selector
+
+---@class df_bossscrollselector : df_scrollbox
+---@field options df_bossscrollselector_options
+---@field callback function
+---@field callback_args any[]
+---@field SetCallback fun(self:df_bossscrollselector, callback:function, ...)
+
+---@class df_bossscrollselector_options : table
+---@field width number
+---@field height number
+---@field line_height number
+---@field line_amount number
+---@field show_icon boolean
+---@field show_name boolean
+---@field name_size number
+---@field name_color any
+---@field icon_coords table
+---@field icon_size table
+
+---@class df_bossscrollselector_line : button
+---@field index number
+---@field bossId number
+---@field bossIcon texture
+---@field bossName fontstring
+---@field bossRaidName fontstring
+---@field selectedInidicator texture
+
+---@type df_bossscrollselector_options
+local bossSelectorDefaultOptions = {
+	width = 200,
+	height = 400,
+	line_height = 40,
+	line_amount = 10,
+	show_icon = true,
+	icon_coords = {0, 1, 0, 1},
+	icon_size = {70, 36},
+	show_name = false,
+	name_size = 10,
+	name_color = "wheat",
+}
+
+detailsFramework.BossScrollSelectorMixin = {
+	---@param self df_bossscrollselector
+	---@param index number
+	---@return frame
+	CreateLine = function(self, index)
+		---@type df_bossscrollselector_line
+		local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
+
+		line:SetPoint("topleft", self, "topleft", 1, -((index-1) * (self.options.line_height+1)) - 1)
+		line:SetSize(self.options.width - 2, self.options.line_height)
+		line:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+		detailsFramework:ApplyStandardBackdrop(line)
+
+		--line:SetScript("OnEnter", onEnterBossLine)
+		--line:SetScript("OnLeave", onLeaveBossLine)
+
+		line.index = index
+
+		local selectedInidicator = line:CreateTexture(nil, "border")
+		selectedInidicator:SetPoint("topleft", line, "topleft", 1, -1)
+		selectedInidicator:SetPoint("bottomright", line, "bottomright", -1, 1)
+		selectedInidicator:SetColorTexture(1, 1, 1, 0.4)
+		selectedInidicator:Hide()
+		line.selectedInidicator = selectedInidicator
+
+		--boss icon
+		local bossIcon = line:CreateTexture("$parentIcon", "overlay")
+		bossIcon:SetSize(self.options.line_height + 30, self.options.line_height-4)
+		bossIcon:SetPoint("left", line, "left", 2, 0)
+		line.bossIcon = bossIcon
+
+		local bossName = line:CreateFontString(nil, "overlay", "GameFontNormal")
+		local bossRaid = line:CreateFontString(nil, "overlay", "GameFontNormal")
+		bossName:SetPoint("left", bossIcon, "right", -8, 6)
+		bossRaid:SetPoint("topleft", bossName, "bottomleft", 0, -2)
+		detailsFramework:SetFontSize(bossName, 10)
+		detailsFramework:SetFontSize(bossRaid, 9)
+		detailsFramework:SetFontColor(bossRaid, "silver")
+
+		detailsFramework:CreateHighlightTexture(line)
+
+		line.bossName = bossName
+		line.bossRaidName = bossRaid
+
+		return line
+	end,
+
+	---@param self df_bossscrollselector
+	---@param data df_encounterinfo[]
+	---@param offset number
+	---@param totalLines number
+	Refresh = function(self, data, offset, totalLines)
+		--update boss scroll
+		for i = 1, totalLines do
+			local index = i + offset
+			local thisData = data[index]
+			if (thisData) then
+				---@type df_bossscrollselector_line
+				---@diagnostic disable-next-line: assign-type-mismatch
+				local line = self:GetLine(i)
+
+				local instanceId = thisData.instanceId
+				---@type df_instanceinfo
+				local instanceData = detailsFramework.Ejc.GetInstanceInfo(instanceId)
+
+				local bossName = thisData.name
+				local bossRaidName = instanceData.name
+				local bossIcon = thisData.creatureIcon
+				local bossIconCoords = thisData.creatureIconCoords
+				local bossId = thisData.journalEncounterId
+
+				--update the line
+				line.bossName:SetText(bossName)
+				line.bossName:SetPoint("left", line.bossIcon, "right", -8, 6)
+				detailsFramework:TruncateText(line.bossName, 130)
+				line.bossRaidName:SetText(bossRaidName)
+				detailsFramework:TruncateText(line.bossRaidName, 130)
+
+				line.bossIcon:SetTexture(bossIcon)
+				line.bossIcon:SetSize(unpack(self.options.icon_size))
+				line.bossIcon:SetTexCoord(unpack(bossIconCoords))
+
+				line.bossIcon:SetPoint("left", line, "left", 2, 0)
+				line.bossName:Show()
+				line.bossRaidName:Show()
+
+				line.bossId = bossId
+				line.index = index
+				line:Show()
+			end
+		end
+	end,
+
+	SetCallback = function(self, callback, ...)
+		self.callback_args = {...}
+		self.callback = callback
+
+		local function onClick(line)
+			callback(line.index, unpack(self.callback_args))
+		end
+
+		local allLines = self:GetLines()
+		for index, line in ipairs(allLines) do
+			line:SetScript("OnClick", onClick)
+		end
+	end
+}
+
+---create a scrollbox with a list of bosses from an instance
+---@param instanceId any accept instanceId, ejInstanceId or instanceName
+---@param parent uiobject
+---@param name string|nil
+---@param options df_bossscrollselector_options?
+---@param callback function? the function to call when a boss is clicked
+---@param ... any additional arguments to pass to the callback
+---@return df_bossscrollselector
+function detailsFramework:CreateBossScrollSelectorForInstance(instanceId, parent, name, options, callback, ...)
+	local refreshFunc = detailsFramework.BossScrollSelectorMixin.Refresh
+	local createLineFunc = detailsFramework.BossScrollSelectorMixin.CreateLine
+
+	---@type df_encounterinfo[]
+	local arrayOfBosses = detailsFramework.Ejc.GetAllEncountersFromInstance(instanceId)
+
+	options = options or {}
+	---@cast options df_bossscrollselector_options
+	detailsFramework.table.deploy(options, bossSelectorDefaultOptions)
+
+	---@type df_bossscrollselector
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local bossScrollFrame = detailsFramework:CreateScrollBox(parent, name, refreshFunc, arrayOfBosses, options.width, options.height, options.line_amount, options.line_amount)
+	bossScrollFrame.options = options
+	bossScrollFrame.SetCallback = detailsFramework.BossScrollSelectorMixin.SetCallback
+
+	--create the scrollbox lines
+	for i = 1, options.line_amount do
+		bossScrollFrame:CreateLine(createLineFunc)
+	end
+
+	if (callback) then
+		bossScrollFrame:SetCallback(callback, ...)
+	end
+
+	detailsFramework:ReskinSlider(bossScrollFrame)
+	detailsFramework:ApplyStandardBackdrop(bossScrollFrame)
+
+	bossScrollFrame:Refresh()
+	return bossScrollFrame
+end

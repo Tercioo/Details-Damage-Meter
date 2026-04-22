@@ -201,7 +201,8 @@ detailsFramework.IconMixin = {
 			iconFrame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
 			iconFrame:SetBackdropBorderColor(0, 0, 0, 0)
 			iconFrame:EnableMouse(false)
-			iconFrame.Cooldown:SetHideCountdownNumbers(self.options.surpress_blizzard_cd_timer)
+			--iconFrame.Cooldown:SetHideCountdownNumbers(self.options.surpress_blizzard_cd_timer)
+			iconFrame.Cooldown:SetHideCountdownNumbers(not self.options.show_text)
 			iconFrame.Cooldown.noCooldownCount = self.options.surpress_tulla_omni_cc
 			iconFrame.CountdownText:ClearAllPoints()
 			iconFrame.CountdownText:SetPoint(self.options.text_anchor or "center", iconFrame, self.options.text_rel_anchor or "center", self.options.text_x_offset or 0, self.options.text_y_offset or 0)
@@ -301,6 +302,7 @@ detailsFramework.IconMixin = {
 				iconFrame.Cooldown:SetAlphaFromBoolean(noExpirationTime, 0, 1)
 
 				if (self.options.show_text) then
+					iconFrame.Cooldown:SetHideCountdownNumbers(false)
 					iconFrame.CountdownText:Show()
 
 					detailsFramework:SetFontSize(iconFrame.CountdownText, self.options.text_size)
@@ -315,6 +317,7 @@ detailsFramework.IconMixin = {
 					end
 
 				else
+					iconFrame.Cooldown:SetHideCountdownNumbers(true)
 					iconFrame:SetScript("OnUpdate", nil)
 					iconFrame.CountdownText:Hide()
 				end
@@ -322,7 +325,7 @@ detailsFramework.IconMixin = {
 				iconFrame.Cooldown:SetReverse(self.options.cooldown_reverse)
 				iconFrame.Cooldown:SetDrawSwipe(self.options.cooldown_swipe_enabled)
 				iconFrame.Cooldown:SetEdgeTexture(self.options.cooldown_edge_texture)
-				iconFrame.Cooldown:SetHideCountdownNumbers(self.options.surpress_blizzard_cd_timer)
+				--iconFrame.Cooldown:SetHideCountdownNumbers(self.options.surpress_blizzard_cd_timer)
 				iconFrame.Cooldown:Show()
 			else
 				iconFrame.timeRemaining = nil
@@ -654,7 +657,7 @@ local default_icon_row_options = {
 	anchor = {side = 6, x = 2, y = 0},
 	grow_direction = 1, --1 = to right 2 = to left
 	center_alignment = false, --if true if will align the icons with grow_direction and then set the iconRow width to match the length used by all icons
-	surpress_blizzard_cd_timer = false,
+	--surpress_blizzard_cd_timer = false,
 	surpress_tulla_omni_cc = false,
 	on_tick_cooldown_update = true,
 	decimal_timer = false,

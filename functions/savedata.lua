@@ -147,4 +147,14 @@ function Details:SaveConfig()
 	_detalhes_database.last_realversion = Details.realversion --core number
 	_detalhes_database.last_version = Details.userversion --version
 	_detalhes_global.got_first_run = true
+
+	pcall(function()
+		--save the profile assigned to the character
+		_detalhes_global.__char_profiles = _detalhes_global.__char_profiles or {}
+		local realmName = GetRealmName()
+		local charName = UnitName("player")
+		_detalhes_global.__char_profiles[charName .. "-" .. realmName] = Details:GetCurrentProfileName()
+		--local charGUID = UnitGUID("player")
+		--_detalhes_global.__char_profiles[charGUID] = Details:GetCurrentProfileName()
+	end)
 end

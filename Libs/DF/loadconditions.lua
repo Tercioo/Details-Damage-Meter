@@ -14,7 +14,6 @@ local type = type
 local floor = math.floor
 local loadstring = loadstring ---@diagnostic disable-line
 local CreateFrame = CreateFrame ---@diagnostic disable-line
-local UnitIsUnit = UnitIsUnit ---@diagnostic disable-line
 local UnitClass = UnitClass ---@diagnostic disable-line
 local GetInstanceInfo = GetInstanceInfo ---@diagnostic disable-line
 local C_ChallengeMode = C_ChallengeMode ---@diagnostic disable-line
@@ -135,7 +134,7 @@ function detailsFramework:CreateLoadFilterParser(callback)
 	local filterFrame = CreateFrame("frame")
 
 	if IS_WOW_PROJECT_MAINLINE then
-		filterFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+		filterFrame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
 		filterFrame:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED")
 		filterFrame:RegisterEvent("CHALLENGE_MODE_START")
 	else
@@ -204,11 +203,6 @@ function detailsFramework:CreateLoadFilterParser(callback)
 		elseif (event == "PLAYER_SPECIALIZATION_CHANGED") then
 			if (loadConditionsFrame and loadConditionsFrame:IsShown()) then
 				loadConditionsFrame:Refresh()
-			end
-
-			local unit = ...
-			if (not unit or not UnitIsUnit("player", unit)) then
-				return
 			end
 
 		elseif (event == "PLAYER_ROLES_ASSIGNED") then

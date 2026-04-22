@@ -1189,6 +1189,7 @@ local default_profile = {
 
 Details.default_profile = default_profile
 
+
 -- aqui fica as propriedades do jogador que n�o ser�o armazenadas no profile
 local default_player_data = {
 		coach = {
@@ -1196,6 +1197,8 @@ local default_player_data = {
 			welcome_panel_pos = {},
 			last_coach_name = false,
 		},
+
+		apocalypse_savedsegments = {},
 
 		arena_data_headers = {},
 		arena_data_compressed = {}, --store data for arena the character did
@@ -1394,6 +1397,7 @@ local default_global_data = {
 
 	--profile pool
 		__profiles = {},
+		__char_profiles = {}, --table<name or guid> = profile name
 		latest_news_saw = "",
 		always_use_profile = false,
 		always_use_profile_name = "",
@@ -1926,7 +1930,7 @@ function Details:RestoreState_CurrentMythicDungeonRun()
 				print("D! (debug) mythic level isn't equal.", mythicLevel, savedTable.level)
 			end
 		else
-			print("D! (debug) zone name or zone Id isn't the same:", zoneName, savedTable.dungeon_name, currentZoneID, savedTable.dungeon_zone_id)
+			--print("D! (debug) zone name or zone Id isn't the same:", zoneName, savedTable.dungeon_name, currentZoneID, savedTable.dungeon_zone_id)
 		end
 
 		--mythic run is over

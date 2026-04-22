@@ -48,7 +48,7 @@ sections.createdSections = sections.createdSections or setmetatable({}, {__mode 
 sections.defaultSettings = {
     players = {width = 200, height = 360, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
     segments = {width = 200, height = 240, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
-    spells = {width = 618+28, height = 360, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
+    spells = {width = 646, height = 366, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
     spelldetails = {width = 285, height = 270, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
     targets = {width = 618, height = 240, resizeTopBorder = true, resizeBottomBorder = true, resizeLeftBorder = true, resizeRightBorder = true},
     compare = {width = 240, height = 270, resizeTopBorder = false, resizeBottomBorder = false, resizeLeftBorder = false, resizeRightBorder = false},

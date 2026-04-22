@@ -725,6 +725,7 @@ detailsFramework.PowerFrameFunctions = {
 		if (not issecretvalue(self.currentPowerMax) and self.currentPowerMax == 0 and self.Settings.HideIfNoPower) then
 			self:Hide()
 		else
+			self:Show()
 			self:SetAlpha(self.currentPowerMax)
 		end
 	end,

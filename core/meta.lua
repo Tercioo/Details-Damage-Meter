@@ -446,6 +446,183 @@ local classTypeUtility = Details.atributos.misc
 		end
 	end
 
+	--keys to skip during deep copy, these are runtime-only fields cleared by the c_ functions and CleanupSegment
+	--from CleanupSegment: owner (actor reference, causes duplication), minha_barra (UI bar reference)
+	--from c_container_combatentes: need_refresh (runtime flag), funcao_de_criacao (function, also caught by type filter)
+	--from c_container_combatentes_index: _NameIndexTable (rebuild cache)
+	--from c_atributo_damage/heal/energy/misc: links (runtime reference), minha_barra (UI bar reference)
+	--from CleanupSegment: TimeData (emptied to {})
+	local deepCopySkipKeys = {
+		["owner"] = true,
+		["minha_barra"] = true,
+		["need_refresh"] = true,
+		["_NameIndexTable"] = true,
+		["links"] = true,
+		["TimeData"] = true,
+		["funcao_de_criacao"] = true, --function, but skip by name as well for safety
+	}
+
+	---deep copy a table, keeping only pure Lua types (table, number, string, boolean)
+	---metatables, functions, userdata, threads and runtime-only fields are all stripped out
+	---@param source table
+	---@param seen table? internal table to track circular references
+	---@return table
+	local function deepCopyClean(source, seen)
+		seen = seen or {}
+
+		--avoid circular references
+		if (seen[source]) then
+			return seen[source]
+		end
+
+		local copy = {}
+		seen[source] = copy
+
+		for key, value in pairs(source) do
+			local keyType = type(key)
+			local valueType = type(value)
+
+			--skip keys that aren't pure lua types
+			if (keyType == "string" or keyType == "number" or keyType == "boolean") then
+				--skip metamethod keys (__index, __call, __add, __sub, etc.)
+				if (keyType == "string" and (key:sub(1, 2) == "__" or deepCopySkipKeys[key])) then
+					--do nothing, skip metamethod and runtime-only fields
+
+				elseif (valueType == "table") then
+					copy[key] = deepCopyClean(value, seen)
+
+				elseif (valueType == "number" or valueType == "string" or valueType == "boolean") then
+					copy[key] = value
+
+				--skip functions, userdata, threads, nil
+				end
+			end
+		end
+
+		return copy
+	end
+
+	---create a clean deep copy of a combat object, suitable for CBOR serialization
+	---the result contains only pure Lua types: table, number, string, boolean
+	---@param combatObject combat
+	---@return table
+	function Details222.Segments.MakeCleanSegmentCopy(combatObject)
+		local cleanCopy = deepCopyClean(combatObject)
+		return cleanCopy
+	end
+
+	function Details222.Segments.CleanupSegment(combatObject)
+		Details.clear:c_combate(combatObject)
+		combatObject.TimeData = {}
+
+		for classType, actorContainer in ipairs(combatObject) do
+			---@cast actorContainer actorcontainer
+			Details.clear:c_container_combatentes(actorContainer)
+			Details.clear:c_container_combatentes_index(actorContainer)
+
+			local actorTable = actorContainer._ActorTable
+			for actorIndex = #actorTable, 1, -1 do
+				local actorObject = actorTable[actorIndex]
+				---@cast actorObject actor
+				actorObject.minha_barra = nil
+				actorObject.owner = nil
+
+				for funcName in pairs(Details222.Mixins.ActorMixin) do
+					actorObject[funcName] = nil
+				end
+
+				if (classType == classTypeDamage) then
+					Details.clear:c_atributo_damage(actorObject)
+
+				elseif (classType == classTypeHeal) then
+					Details.clear:c_atributo_heal(actorObject)
+
+				elseif (classType == classTypeEnergy) then
+					Details.clear:c_atributo_energy(actorObject)
+
+				elseif (classType == classTypeUtility) then
+					Details.clear:c_atributo_misc(actorObject)
+				end
+			end
+		end
+
+	end
+
+	function Details222.Segments.RestoreSegment(combatObject)
+		--retore the call "combat()" functionality
+		combatObject.__call = Details.call_combate
+		local bIsInInstance = IsInInstance()
+
+		---@cast combatObject combat
+
+		--set the metatable, __call and __index
+		Details.refresh:r_combate(combatObject)
+
+		--ghost container (container for custom displays, this is not a real container)
+		if (combatObject[5]) then
+			Details.refresh:r_container_combatentes(combatObject[5])
+		end
+
+		local damageActorContainer = combatObject[classTypeDamage]
+		local healActorContainer = combatObject[classTypeHeal]
+		local resourcesActorContainer = combatObject[classTypeEnergy]
+		local utilityActorContainer = combatObject[classTypeUtility]
+
+		--recupera a meta e indexes dos 4 container
+		Details.refresh:r_container_combatentes(damageActorContainer)
+		Details.refresh:r_container_combatentes(healActorContainer)
+		Details.refresh:r_container_combatentes(resourcesActorContainer)
+		Details.refresh:r_container_combatentes(utilityActorContainer)
+
+		for classType = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
+			local actorContainer = combatObject[classType]
+			local actorTable = actorContainer._ActorTable
+			for i = 1, #actorTable do
+				---@type actor
+				local actorObject = actorTable[i]
+				local actorName = actorObject.nome
+
+				--set back the display name (isn't saved with the object)
+				if (bIsInInstance and Details.remove_realm_from_name) then
+					actorObject.displayName = actorName:gsub(("%-.*"), "")
+				elseif (Details.remove_realm_from_name) then
+					actorObject.displayName = actorName:gsub(("%-.*"), "")
+				else
+					actorObject.displayName = actorName
+				end
+
+				if (classType == classTypeDamage) then
+					Details.refresh:r_atributo_damage(actorObject)
+
+				elseif (classType == classTypeHeal) then
+					Details.refresh:r_atributo_heal(actorObject)
+
+				elseif (classType == classTypeEnergy) then
+					classEnergy:r_onlyrefresh_shadow (actorObject)
+
+				elseif (classType == classTypeUtility) then
+					classUtility:r_onlyrefresh_shadow (actorObject)
+				end
+			end
+		end
+
+		--link pets to owners
+		for class_type = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
+			local actorContainer = combatObject[class_type]
+			local actorTable = actorContainer._ActorTable
+			for i = 1, #actorTable do
+				---@type actor
+				local actorObject = actorTable[i]
+				if (actorObject.ownerName) then --name of the pet owner
+					actorObject.owner = combatObject(class_type, actorObject.ownerName)
+					--technically, if the owner isn't found, this is an orphan and it could be removed from the combat
+				end
+			end
+		end
+
+		return combatObject
+	end
+
 	--limpa indexes e metatables
 	function Details:PrepareTablesForSave()
 		Details.clear_ungrouped = true

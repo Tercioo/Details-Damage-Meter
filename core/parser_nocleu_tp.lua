@@ -517,6 +517,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         if guid or creature then
             sourceSpells = Details222.B.GetSpells(sessionType <= 1 and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, sessionType <= 1 and sessionType or sessionId, damageMeterType, guid, creature)
             hasSourceSpells = true
+            --dumpt(sourceSpells)
 
             if not issecretvalue(sourcePlayer.name) then
                 targets = Details222.BreakdownWindowMidnight.LoadTargets(sessionType, sessionId, sourcePlayer.name)

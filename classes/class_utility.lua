@@ -700,7 +700,7 @@ function atributo_misc:UpdateDeathRow(deathTable, whichRowLine, rankPosition, in
 	end
 
 	local bUseCustomLeftText = instanceObject.row_info.textL_enable_custom_text
-
+	--attempt to index field '_NameIndexTable' (a nil value)
 	local actorObject = instanceObject:GetCombat():GetContainer(DETAILS_ATTRIBUTE_MISC):GetActor(playerName)
 	if (actorObject) then
 		actorObject:SetBarLeftText(thisRow, instanceObject, false, false, false, bUseCustomLeftText)

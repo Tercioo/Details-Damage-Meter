@@ -186,6 +186,7 @@ core\gears.lua
 core\windows.lua
 core\meta.lua
 core\network.lua
+core\inspect.lua
 
 core\parser.lua
 
