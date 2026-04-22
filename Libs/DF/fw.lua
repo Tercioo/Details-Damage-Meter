@@ -1,5 +1,5 @@
 
-local dversion = 717
+local dversion = 718
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1420,6 +1420,23 @@ end
 ---@return string, number
 function DF:RemoveRealName(name)
 	return name:gsub(("%-.*"), "")
+end
+
+---set the font face, size and flags of a font
+---@param fontString fontstring
+---@param fontface string?
+---@param size number?
+---@param flags string?
+function DF:SetFont(fontString, fontface, size, flags)
+	if fontface then
+		DF:SetFontFace(fontString, fontface)
+	end
+	if size then
+		DF:SetFontSize(fontString, size)
+	end
+	if flags then
+		DF:SetFontOutline(fontString, flags)
+	end
 end
 
 ---get the UIObject of type 'FontString' named fontString and set the font size to the maximum value of the arguments

@@ -328,6 +328,7 @@ GameCooltipFrame2 = {}
 ---@field Mixin fun(self:table, target:table, ...) : table
 ---@field MixinX fun(self:table, target:table, ...)
 ---@field SetButtonTexture fun(self:table, button:button|df_button, texture:atlasname|texturepath|textureid)
+---@field SetFont fun(self:table, fontstring:fontstring, font:string, size:number?, flags:string?) set font attributes is passed
 ---@field SetFontSize fun(self:table, fontstring:fontstring, size:number)
 ---@field GetFontSize fun(self:table, fontstring:fontstring) : number return the font size of the fontstring
 ---@field SetFontColor fun(self:table, fontstring:fontstring, red:any, green:number?, blue:number?, alpha:number?)

@@ -84,11 +84,23 @@ Parameter reference
         A table of default settings. When a new profile is created, it is
         populated with copies of these defaults via DF.table.deploy.
         If nil or omitted, an empty table {} is used.
-        Example:
+        IMPORTANT: This table IS the profile content directly. Do NOT wrap
+        it in an extra "profile" key. The framework stores the result of
+        GetProfile() in addonObject.profile, so wrapping the template
+        would produce addonObject.profile.profile.field (double key) instead
+        of addonObject.profile.field.
+        Correct:
             {
                 width = 500,
                 height = 500,
                 name = "John",
+            }
+        Wrong (double key):
+            {
+                profile = {
+                    width = 500,
+                    ...
+                }
             }
 
 Construction sequence

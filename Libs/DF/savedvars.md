@@ -78,13 +78,27 @@ While in use, the profile table is the **merged** result of saved user values + 
 
 ### Default Template
 
-The `savedVarsTemplate` passed to `CreateNewAddOn`. Example:
+The `savedVarsTemplate` passed to `CreateNewAddOn`. This table **is** the profile content
+directly — its top-level keys become fields of `addonObject.profile`. Do **not** wrap it
+in an extra `profile` key: `GetProfile()` is already stored in `addonObject.profile`, so
+wrapping would produce `addonObject.profile.profile.field` (double key) instead of the
+correct `addonObject.profile.field`.
 
 ```lua
+-- Correct: top-level keys are profile fields
 {
     width = 500,
     height = 500,
     name = "John",
+}
+
+-- Wrong: extra "profile" wrapper creates a double key
+-- addonObject.profile.profile.width instead of addonObject.profile.width
+{
+    profile = {
+        width = 500,
+        ...
+    }
 }
 ```
 
