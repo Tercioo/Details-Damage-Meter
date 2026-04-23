@@ -5770,6 +5770,11 @@ local specInformation = {
 	[1478] = {specId = 1478, name = "Adventurer", specIcon = 2055034, role = "DAMAGER", classId = 14, className = "ROGUE", specIndex = 4, flags = 0x2, primaryStatPriority = 4},
 }
 
+local specIconToSpecInformation = {
+	[7455385] = specInformation[1480], --Devourer
+	[7455386] = specInformation[1480], --Devourer
+}
+
 --make a table where the key is the specIcon and the value is the table from specInformation
 local specIconToInfo = {}
 for specId, info in pairs(specInformation) do
@@ -5790,8 +5795,16 @@ end
 function DF:GetSpecInfoFromSpecId(specId)
 	return specInformation[specId]
 end
+
 --~spec
 function DF:GetSpecInfoFromSpecIcon(specIcon)
+	local specInfo = specIconToInfo[specIcon]
+	if (not specInfo) then
+		specInfo = specIconToSpecInformation[specIcon]
+		if specInfo then
+			return specInfo
+		end
+	end
 	return specIconToInfo[specIcon]
 end
 

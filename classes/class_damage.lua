@@ -4260,8 +4260,6 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 				local specInfo = detailsFramework:GetSpecInfoFromSpecIcon(self.thisSpecIcon)
 				local specId = specInfo and specInfo.specId
 
-				--print(class, specInfo, specInfo and specInfo.specId, Details.class_specs_coords[specId] and "true" or "false")
-
 				if (specId and not Details.class_specs_coords[specId]) then
 					if (self.thisSpecIcon == 461112) then --bm hunter
 						specId = 253
@@ -4273,6 +4271,8 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 						specId = 265
 					end
 				end
+
+				--print(specId, specInfo, self.thisSpecIcon)
 
 				if (specId and Details.class_specs_coords[specId]) then
 					--print(1)

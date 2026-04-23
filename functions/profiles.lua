@@ -564,6 +564,7 @@ local default_profile = {
 	class_specs_coords = {
 		[577] = {128/512, 192/512, 256/512, 320/512}, --havoc demon hunter
 		[581] = {192/512, 256/512, 256/512, 320/512}, --vengeance demon hunter
+		[1480] = {448/512, 512/512, 256/512, 320/512}, --devourer demon hunter
 
 		[250] = {0, 64/512, 0, 64/512}, --blood dk
 		[251] = {64/512, 128/512, 0, 64/512}, --frost dk
