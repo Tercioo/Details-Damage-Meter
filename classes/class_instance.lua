@@ -1871,7 +1871,71 @@ function Details:EstaAgrupada(esta_instancia, lado) --lado //// 1 = encostou na 
 	return false --do contr�rio retorna false
 end
 
+---@param self instance
 function Details:BaseFrameSnap()
+	local group = self:GetInstanceGroup()
+
+	-- clear all points before re-anchoring to avoid stale constraints
+	for _, instancia in ipairs(group) do
+		if (instancia:IsAtiva()) then
+			instancia.baseframe:ClearAllPoints()
+		end
+	end
+
+	local scale = self.window_scale
+	for _, instance in ipairs(group) do
+		instance:SetWindowScale(scale)
+	end
+
+	-- self is the absolute anchor; all other frames are positioned relative to
+	-- an already-positioned frame via BFS, which guarantees no circular anchoring.
+	self:RestoreMainWindowPositionNoResize()
+
+	local positioned = {}
+	positioned[self.meu_id] = true
+
+	local queue = {self}
+
+	while #queue > 0 do
+		local current = table.remove(queue, 1)
+
+		for whichSide, neighborId in pairs(current.snap) do
+			if not positioned[neighborId] then
+				---@type instance
+				local neighbor = Details.tabela_instancias[neighborId]
+
+				if (neighbor and neighbor.ativa and neighbor.baseframe) then
+					if (whichSide == 1) then --neighbor is to the left
+						neighbor.baseframe:SetPoint("TOPRIGHT", current.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
+
+					elseif (whichSide == 2) then --neighbor is below
+						local statusbar_y_mod = 0
+						if (not current.show_statusbar) then
+							statusbar_y_mod = 14
+						end
+						neighbor.baseframe:SetPoint("TOPLEFT", current.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+
+					elseif (whichSide == 3) then --neighbor is to the right
+						neighbor.baseframe:SetPoint("TOPLEFT", current.baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
+
+					elseif (whichSide == 4) then --neighbor is above
+						local statusbar_y_mod = 0
+						if (not neighbor.show_statusbar) then
+							statusbar_y_mod = -14
+						end
+						neighbor.baseframe:SetPoint("BOTTOMLEFT", current.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+					end
+
+					positioned[neighborId] = true
+					queue[#queue + 1] = neighbor
+				end
+			end
+		end
+	end
+end
+
+---@param self instance
+function Details:BaseFrameSnap_Backup()
 	local group = self:GetInstanceGroup()
 
 	for meu_id, instancia in ipairs(group) do
@@ -1889,30 +1953,31 @@ function Details:BaseFrameSnap()
 
     self:RestoreMainWindowPositionNoResize()
 
-	for lado, snap_to in pairs(self.snap) do
-		local instancia_alvo = Details.tabela_instancias [snap_to]
+	for whichSide, InstanceId_SnapTo in pairs(self.snap) do
+		---@type instance
+		local targetInstance = Details.tabela_instancias[InstanceId_SnapTo]
 
-		if (instancia_alvo) then
-			if (instancia_alvo.ativa and instancia_alvo.baseframe) then
-				if (lado == 1) then --a esquerda
-					instancia_alvo.baseframe:SetPoint("TOPRIGHT", my_baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
+		if (targetInstance) then
+			if (targetInstance.ativa and targetInstance.baseframe) then
+				if (whichSide == 1) then --attach to the left side
+					targetInstance.baseframe:SetPoint("TOPRIGHT", my_baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
 
-				elseif (lado == 2) then --em baixo
+				elseif (whichSide == 2) then --attach to the bottom
 					local statusbar_y_mod = 0
 					if (not self.show_statusbar) then
 						statusbar_y_mod = 14
 					end
-					instancia_alvo.baseframe:SetPoint("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+					targetInstance.baseframe:SetPoint("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
-				elseif (lado == 3) then --a direita
-					instancia_alvo.baseframe:SetPoint("TOPLEFT", my_baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
+				elseif (whichSide == 3) then --attach to the right side
+					targetInstance.baseframe:SetPoint("TOPLEFT", my_baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
 
-				elseif (lado == 4) then --em cima
+				elseif (whichSide == 4) then --attach to the top
 					local statusbar_y_mod = 0
-					if (not instancia_alvo.show_statusbar) then
+					if (not targetInstance.show_statusbar) then
 						statusbar_y_mod = -14
 					end
-					instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+					targetInstance.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
 
 				end
 			end
@@ -1947,14 +2012,14 @@ function Details:BaseFrameSnap()
 					--fazer os setpoints
 					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
 
-						if (lado_reverso == 1) then --a esquerda
+						if (lado_reverso == 1) then --attach to the left side
 							--check if it is already anchored
 							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
 							if not (parent and parent == instancia_alvo.baseframe) then
 								instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
 							end
 
-						elseif (lado_reverso == 2) then --em baixo
+						elseif (lado_reverso == 2) then --attach to the bottom
 							local statusbar_y_mod = 0
 							if (not instancia_alvo.show_statusbar) then
 								statusbar_y_mod = -14
@@ -1966,14 +2031,14 @@ function Details:BaseFrameSnap()
 								instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
 							end
 
-						elseif (lado_reverso == 3) then --a direita
+						elseif (lado_reverso == 3) then --attach to the right side
 							--check if it is already anchored
 							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
 							if not (parent and parent == instancia_alvo.baseframe) then
 								instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
 							end
 
-						elseif (lado_reverso == 4) then --em cima
+						elseif (lado_reverso == 4) then --attach to the top
 							local statusbar_y_mod = 0
 							if (not instancia.show_statusbar) then
 								statusbar_y_mod = 14
@@ -1999,20 +2064,20 @@ function Details:BaseFrameSnap()
 					local instancia_alvo = Details.tabela_instancias [snap_to]
 
 					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
-						if (lado == 1) then --a esquerda
+						if (lado == 1) then --attach to the left side
 							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
 
-						elseif (lado == 2) then --em baixo
+						elseif (lado == 2) then --attach to the bottom
 							local statusbar_y_mod = 0
 							if (not instancia.show_statusbar) then
 								statusbar_y_mod = 14
 							end
 							instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
-						elseif (lado == 3) then --a direita
+						elseif (lado == 3) then --attach to the right side
 							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
 
-						elseif (lado == 4) then --em cima
+						elseif (lado == 4) then --attach to the top
 
 							local statusbar_y_mod = 0
 							if (not instancia_alvo.show_statusbar) then
