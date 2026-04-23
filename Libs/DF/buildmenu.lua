@@ -205,6 +205,27 @@ local onLeaveHighlight = function(self)
     end
 end
 
+local parseTemplates = function(textTemplate, dropdownTemplate, switchTemplate, sliderTemplate, buttonTemplate, switchIsCheckbox)
+    if not textTemplate then
+        textTemplate = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
+    end
+    if not dropdownTemplate then
+        dropdownTemplate = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+    end
+    if not switchTemplate then
+        switchTemplate = detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+        switchIsCheckbox = true
+    end
+    if not sliderTemplate then
+        sliderTemplate = detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
+    end
+    if not buttonTemplate then
+        buttonTemplate = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
+    end
+
+    return textTemplate, dropdownTemplate, switchTemplate, sliderTemplate, buttonTemplate, switchIsCheckbox
+end
+
 local processTexture = function(widget, widgetTable)
     widget = widget.widget or widget
 
@@ -1821,6 +1842,9 @@ local getDescripttionPhraseID = function(widgetTable, languageAddonId, languageT
     return widgetTable.desc
 end
 
+
+
+
 ---classes used by the menu builder on the menuOptions table on both functions BuildMenu and BuildMenuVolatile
 ---the menuOptions consists of a table with several tables inside in array, each table is a widget to be created
 ---class df_menu_label is used when the sub table of menuOptions has a key named "type" with the value "label" or "text"
@@ -1844,6 +1868,8 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
     local maxColumnWidth = 0 --biggest width of widget + text size on the current column loop pass
     local maxWidgetWidth = 0 --biggest widget width on the current column loop pass
     local canvasFrame = parent
+
+    textTemplate, dropdownTemplate, switchTemplate, sliderTemplate, buttonTemplate, switchIsCheckbox = parseTemplates(textTemplate, dropdownTemplate, switchTemplate, sliderTemplate, buttonTemplate, switchIsCheckbox)
 
     bHighlightColorOne = true
 

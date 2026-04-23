@@ -1609,11 +1609,14 @@ Field: text_template
 - Built-in templates accessible via DF:GetTemplate("font", name):
 	- "OPTIONS_FONT_TEMPLATE": {color = {1, 1, 1, 0.9}, size = 9.6} — standard option label
 	- "ORANGE_FONT_TEMPLATE": {color = {1, 0.8235, 0, 1}, size = 11} — section headers
+	  (recommended for section header labels; see Part 7 section G for best practices)
 	- "SMALL_SILVER": {color = "silver", size = 9} — de-emphasized text
 - When text_template is set on a widgetTable, it overrides the textTemplate
 	argument passed to BuildMenu for that widget's label only.
 - The fallback chain is: widgetTable.text_template → BuildMenu's textTemplate
 	argument → DF.font_templates["ORANGE_FONT_TEMPLATE"].
+- See Part 8, section G "Section header best practices" for recommended patterns
+	when organizing options into visually distinct groups.
 
 Field: button_template
 - Alternate template path used by some widgets (notably textentry fallback).
@@ -1661,8 +1664,12 @@ D) Widget-type reference
 - Typical fields: type, get, text, text_template, color, font, size,
 	namePhraseId, id, hidden, disabled.
 - Notes:
-	- get() may return dynamic string each refresh.
+	- get() may return dynamic string each refresh. Using get() with a function
+	  enables localization updates without rebuilding the menu.
 	- text is fallback when get is absent.
+	- For section header labels, always use get() with text_template set to
+	  DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE"). See Part 8, section G
+	  "Section header best practices" for the complete recommended pattern.
 
 2) select (and specialized select* types)
 - Typical fields: type, get, set, values, name, desc, namePhraseId,
@@ -1769,7 +1776,15 @@ Minimal example:
 
 9) blank / space / breakline (layout rows)
 - blank (or space alias): vertical spacer row, no widget construction.
+  Recommended use: adding visual breathing room between sections.
 - breakline: forces next column / wrap behavior depending on scrollframe mode.
+  Recommended use: separating logical option sections with column breaks or
+  layout wrapping. See Part 8, section G for the recommended section header pattern.
+- Notes:
+	- breakline is particularly useful before section headers (labels with
+	  ORANGE_FONT_TEMPLATE) to provide clear visual separation.
+	- In single-column layouts without use_scrollframe, use blank instead of
+	  breakline for simpler spacing between sections.
 
 10) group
 - Typical fields: type, name, color, UseBackdrop, BackgroundColor,
@@ -1891,6 +1906,93 @@ Group with BackdropTemplate border:
 Group with fixed width and height:
 
 	{type = "group", name = "fixedGroup", color = {0.1, 0.1, 0.1, 0.5}, width = 300, height = 120}
+
+---------------------------------------------------------------------
+G) Section header best practices
+---------------------------------------------------------------------
+
+Context
+- Options panels often group related settings into logical sections.
+- A section typically starts with a visual label (header) that describes the
+	section's purpose, followed by related widget rows.
+- Between sections, a blank/breakline row provides visual separation.
+
+Recommended section pattern
+- Each section should follow this structure:
+
+	{type = "breakline"},  -- separator between sections (or blank at start)
+	{type = "label", get = function() return "Section Name:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
+	-- section widgets follow below
+	{type = "toggle", name = "Option 1", get = GetOpt1, set = SetOpt1, text_template = options_text_template},
+	{type = "range",  name = "Option 2", get = GetOpt2, set = SetOpt2, min = 1, max = 10, step = 1, text_template = options_text_template},
+	{type = "color",  name = "Option 3", get = GetOpt3, set = SetOpt3, text_template = options_text_template},
+
+Section header guidelines
+
+1) Always use get() function for dynamic localization support
+   - Instead of: {type = "label", name = "Frame Settings:"}
+   - Recommended: {type = "label", get = function() return "Frame Settings:" end}
+   - This allows the text to update when the UI language changes without
+     rebuilding the menu.
+
+2) Always use ORANGE_FONT_TEMPLATE for visual distinction
+   - text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")
+   - This distinguishes section headers from regular option labels through
+     color (orange) and size (11pt).
+   - Alternatives include SMALL_SILVER for secondary sections or
+     OPTIONS_FONT_TEMPLATE for subtle headers.
+
+3) Use breakline before each section (except the first row)
+   - {type = "breakline"} provides column/layout separation.
+   - Alternatively, {type = "blank"} adds vertical spacing without layout
+     side-effects (useful in single-column layouts).
+   - Omit the separator before the very first section header.
+
+4) Omit name field from section header label
+   - The get() function supplies all needed text.
+   - Setting both name and get() may cause unexpected behavior with
+     localization systems.
+
+Full panel example with multiple sections
+
+	local DF = DetailsFramework
+	local options_text_template = DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
+	local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+	local options_switch_template = DF:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+	local options_slider_template = DF:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
+
+	local menuOptions = {
+		-- Frame Settings section
+		{type = "label", get = function() return "Frame Settings:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
+		{type = "toggle", name = "Enabled", get = GetEnabled, set = SetEnabled, text_template = options_text_template},
+		{type = "toggle", name = "Locked", get = GetLocked, set = SetLocked, text_template = options_text_template},
+		{type = "toggle", name = "Show Title", get = GetShowTitle, set = SetShowTitle, text_template = options_text_template},
+		{type = "range", name = "Scale", get = GetScale, set = SetScale, min = 0.5, max = 2, step = 0.1, usedecimals = true, text_template = options_text_template},
+
+		-- Text Settings section
+		{type = "breakline"},
+		{type = "label", get = function() return "Text Settings:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
+		{type = "range", name = "Font Size", get = GetFontSize, set = SetFontSize, min = 8, max = 24, step = 1, text_template = options_text_template},
+		{type = "color", name = "Font Color", get = GetFontColor, set = SetFontColor, text_template = options_text_template},
+		{type = "select", name = "Font Face", get = GetFontFace, values = BuildFontList, text_template = options_text_template},
+		{type = "select", name = "Font Shadow", get = GetFontShadow, values = BuildShadowList, text_template = options_text_template},
+
+		-- Color Settings section
+		{type = "breakline"},
+		{type = "label", get = function() return "Color Settings:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
+		{type = "color", name = "Backdrop Color", get = GetBackdropColor, set = SetBackdropColor, text_template = options_text_template},
+		{type = "color", name = "Highlight Color", get = GetHighlightColor, set = SetHighlightColor, text_template = options_text_template},
+	}
+
+	DF:BuildMenu(parentFrame, menuOptions, 7, -50, 500, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template)
+
+Why this pattern matters
+- Improves visual hierarchy and readability of complex option panels.
+- get() function support enables real-time localization updates without
+	panel rebuilds.
+- ORANGE_FONT_TEMPLATE provides consistent visual styling across addons.
+- breakline/blank separation improves scannability and UX.
+- Reduces cognitive load by chunking related options into logical groups.
 
 =====================================================================
 End of Part 8
