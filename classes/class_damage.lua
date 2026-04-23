@@ -4259,11 +4259,28 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 			if (self.thisSpecIcon) then
 				local specInfo = detailsFramework:GetSpecInfoFromSpecIcon(self.thisSpecIcon)
 				local specId = specInfo and specInfo.specId
+
+				--print(class, specInfo, specInfo and specInfo.specId, Details.class_specs_coords[specId] and "true" or "false")
+
+				if (specId and not Details.class_specs_coords[specId]) then
+					if (self.thisSpecIcon == 461112) then --bm hunter
+						specId = 253
+					elseif (self.thisSpecIcon == 608953) then --windwalker monk
+						specId = 269
+					elseif (self.thisSpecIcon == 135846) then --frost mage
+						specId = 64
+					elseif (self.thisSpecIcon == 136145) then --affliction warlock
+						specId = 265
+					end
+				end
+
 				if (specId and Details.class_specs_coords[specId]) then
+					--print(1)
 					texture:SetTexture(instance.row_info.spec_file)
 					texture:SetTexCoord(unpack(Details.class_specs_coords[specId]))
 					texture:SetVertexColor(1, 1, 1)
 				else
+					--print(2)
 					texture:SetTexture(self.thisSpecIcon)
 					texture:SetTexCoord(.1, .9, .1, .9)
 					texture:SetVertexColor(1, 1, 1)

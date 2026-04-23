@@ -2170,6 +2170,7 @@ local iconFrame_OnEnter = function(self)
 	if not actor then
 		if instanceLine.sourceData and not Details222.Apocalypse.IsServerInCombat() then
 			if issecretvalue(instanceLine.sourceData.name) then
+				--print("instanceLine.sourceData.name is secret, not showing tooltip")
 				return
 			end
 			local instance = Details:GetInstance(instanceLine.instance_id)
@@ -2404,6 +2405,13 @@ local iconFrame_OnEnter = function(self)
 					Details:AddTooltipBackgroundStatusbar()
 					height = height + lineHeight
 				end
+			end
+
+			if actor.spec then
+				GameCooltip:AddLine("SpecID:", actor.spec)
+				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
+				Details:AddTooltipBackgroundStatusbar()
+				height = height + lineHeight
 			end
 
 			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])

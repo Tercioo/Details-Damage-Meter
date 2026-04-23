@@ -639,6 +639,7 @@ Details.specToRole = {
 	--DRUID
 	[102] = "DAMAGER", --BALANCE
 	[103] = "DAMAGER", --FERAL DRUID
+	[104] = "TANK", --GUARDIAN
 	[105] = "HEALER", --RESTORATION
 
 	--HUNTER
@@ -693,6 +694,7 @@ Details.specToRole = {
 
 	--DH
 	[577] = "DAMAGER", -- Havoc Demon Hunter
+	[1480] = "DAMAGER", -- Devourer Demon Hunter
 	[581] = "TANK", -- Vengeance Demon Hunter
 
 	--EVOKER
