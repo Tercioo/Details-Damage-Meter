@@ -1069,7 +1069,8 @@ function StreamOverlay:CastStart (castGUID)
 	end
 
 	if DetailsFramework.IsAddonApocalypseWow() and issecretvalue(target) then
-		target = UnitName(target)
+		--target = UnitName(target)
+		target = Ambiguate(target, "short")
 	else
 		target = parse_target_name (target)
 	end
@@ -1112,7 +1113,8 @@ function StreamOverlay:CastFinished (castid)
 			--]=]
 
 			--targetName = parse_target_name (targetName)
-			targetName = UnitName(targetName)
+			--targetName = UnitName(targetName)
+			targetName = Ambiguate(targetName, "short")
 
 			StreamOverlay:NewText (spellicon, spellname, nil, "", {0, 1, 0, 1}, targetName, DefaultColor, backgroundcolor, bordercolor, castid, caststart, GetTime(), GetTime()+1.2)
 		else
