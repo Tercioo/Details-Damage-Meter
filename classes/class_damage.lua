@@ -3450,7 +3450,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	elseif mainDisplay == DETAILS_ATTRIBUTE_HEAL then
 		if (subDisplay == DETAILS_SUBATTRIBUTE_HEALDONE or subDisplay == DETAILS_SUBATTRIBUTE_OVERHEAL) then
 			local ruleToUse = 2 --total hps
-			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, ruleToUse)
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			--percentNumber = math.floor((healingTotal/instanceObject.top) * 100)
 		elseif (subDisplay == DETAILS_SUBATTRIBUTE_HPS) then
 			local ruleToUse = -1 --only show total
@@ -3459,7 +3459,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 
 		elseif (attributeId == DETAILS_SUBATTRIBUTE_HEALPOTION) then
 			local ruleToUse = 3 --total hps percent
-			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), source.percent, ruleToUse)
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), source.percent, ruleToUse)
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_ENERGY then
