@@ -4,6 +4,7 @@
 	local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	local detailsFramework = _G.DetailsFramework
+	local addonName, Details222 = ...
 
 	local DEFAULT_CHILD_WIDTH = 60
 	local DEFAULT_CHILD_HEIGHT = 16
@@ -926,18 +927,53 @@ do
 					-- When in combat, show current combat time
 					local currentCombat = Details:GetCurrentCombat()
 					if (currentCombat and not currentCombat.__destroyed) then
-						local combatTime = currentCombat:GetCombatTime()
-						if (combatTime and combatTime > 0) then
-							if (timeType == 1) then
-								local minutes, seconds = math.floor(combatTime/60), math.floor(combatTime%60)
-								displayText = minutes .. "m " .. seconds .. "s"
-							elseif (timeType == 2) then
-								-- Seconds only
-								displayText = math.floor(combatTime) .. "s"
+						if detailsFramework.IsAddonApocalypseWow() then
+							local segmentType = instance:GetSegmentType()
+							if (segmentType <= 1) then
+								local thisElapsedTime = Details222.B.GetCombatTime(segmentType)
+
+								if thisElapsedTime == nil and segmentType == 0 then
+									--get using older method
+									thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(0)
+								end
+
+								if (thisElapsedTime and issecretvalue(thisElapsedTime) and segmentType == 1) then
+									thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(1)
+								end
+
+								displayText = Details222.BParser.FormatTime(thisElapsedTime)
+								return
 							else
-								-- Default to minutes and seconds
-								local minutes, seconds = math.floor(combatTime/60), math.floor(combatTime%60)
-								displayText = minutes .. "m " .. seconds .. "s"
+								local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, instance:GetNewSegmentId(), 0)
+								local thisElapsedTime = s.durationSeconds
+								if thisElapsedTime and issecretvalue(thisElapsedTime) then
+									local allSegments = Details222.B.GetAllSegments()
+									for i = 1, #allSegments do
+										local thisSegment = allSegments[i]
+										if thisSegment.sessionID == instance:GetNewSegmentId() then
+											thisElapsedTime = thisSegment.durationSeconds
+											break
+										end
+									end
+								end
+
+								displayText = Details222.BParser.FormatTime(thisElapsedTime)
+								return
+							end
+						else
+							local combatTime = currentCombat:GetCombatTime()
+							if (combatTime and combatTime > 0) then
+								if (timeType == 1) then
+									local minutes, seconds = math.floor(combatTime/60), math.floor(combatTime%60)
+									displayText = minutes .. "m " .. seconds .. "s"
+								elseif (timeType == 2) then
+									-- Seconds only
+									displayText = math.floor(combatTime) .. "s"
+								else
+									-- Default to minutes and seconds
+									local minutes, seconds = math.floor(combatTime/60), math.floor(combatTime%60)
+									displayText = minutes .. "m " .. seconds .. "s"
+								end
 							end
 						end
 					end

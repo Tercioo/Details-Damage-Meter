@@ -2083,6 +2083,8 @@ local formatTime = function(elapsedTime)
     return timeString
 end
 
+bParser.FormatTime = formatTime
+
 ---@param self instance
 function Details:GetFormattedTimeForTitleBar()
     local combat = self:GetCombat()
