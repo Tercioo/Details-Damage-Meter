@@ -118,13 +118,28 @@ function DetailsMythicPlusFrame.MythicDungeonFinished(bFromZoneLeft)
                     end
                 end
 
+                if Details222.Apocalypse.IsServerInCombat() then
+                    C_Timer.NewTicker(0.5, function(tickerObject)
+                        if not Details222.Apocalypse.IsServerInCombat() then
+                            Details222.MythicPlus.LogStep("MythicDungeonFinished() -> AddOverallAsSegment() called.")
+                            local overallSegment = Details222.BParser.AddOverallAsSegment()
+                            overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
+                            overallSegment:SetEndTime(GetTime())
+                            Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
+                            Details222.MythicPlus.LogStep("MythicDungeonFinished() -> SaveSegment() called.")
+                            Details222.MythicPlus.LastSegmentSaveTime = GetTime()
+                            tickerObject:Cancel()
+                        end
+                    end)
+                    return
+                end
+
                 Details222.MythicPlus.LogStep("MythicDungeonFinished() -> AddOverallAsSegment() called.")
                 local overallSegment = Details222.BParser.AddOverallAsSegment()
                 overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
                 overallSegment:SetEndTime(GetTime())
                 Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
                 Details222.MythicPlus.LogStep("MythicDungeonFinished() -> SaveSegment() called.")
-
                 Details222.MythicPlus.LastSegmentSaveTime = GetTime()
             end)
         end
