@@ -446,6 +446,10 @@ function Details:ToolTipDead(instance, deathTable, barFrame)
 			gameCooltip:SetHost(DetailsTooltipAnchor, myPoint, anchorPoint, xOffset, yOffset)
 		end
 
+		--tooltip width
+		local tooltipWidth = Details.death_tooltip_width
+		gameCooltip:SetOption("FixedWidth",(type(tooltipWidth) == "number" and tooltipWidth) or 300)
+
 		gameCooltip:ShowCooltip()
 	end
 end

@@ -25,9 +25,9 @@ local CreateFrame = CreateFrame
 local GetTime = GetTime
 local _GetCursorPosition = GetCursorPosition
 local UIParent = UIParent
-local _IsAltKeyDown = IsAltKeyDown
-local _IsShiftKeyDown = IsShiftKeyDown
-local _IsControlKeyDown = IsControlKeyDown
+local IsAltKeyDown = IsAltKeyDown
+local IsShiftKeyDown = IsShiftKeyDown
+local IsControlKeyDown = IsControlKeyDown
 local modo_raid = Details._detalhes_props["MODO_RAID"]
 local modo_alone = Details._detalhes_props["MODO_ALONE"]
 local IsInInstance = _G.IsInInstance
@@ -1444,15 +1444,15 @@ local resize_scripts_onmousedown = function(self, button)
 		end
 
 		if (self._myside == "<") then
-			if (_IsShiftKeyDown()) then
+			if (IsShiftKeyDown()) then
 				self._instance.baseframe:StartSizing("left")
 				self._instance.eh_horizontal = true
 
-			elseif (_IsAltKeyDown()) then
+			elseif (IsAltKeyDown()) then
 				self._instance.baseframe:StartSizing("top")
 				self._instance.eh_vertical = true
 
-			elseif (_IsControlKeyDown()) then
+			elseif (IsControlKeyDown()) then
 				self._instance.baseframe:StartSizing("bottomleft")
 				self._instance.eh_tudo = true
 
@@ -1464,15 +1464,15 @@ local resize_scripts_onmousedown = function(self, button)
 			self.afundado = true
 
 		elseif (self._myside == ">") then
-			if (_IsShiftKeyDown()) then
+			if (IsShiftKeyDown()) then
 				self._instance.baseframe:StartSizing("right")
 				self._instance.eh_horizontal = true
 
-			elseif (_IsAltKeyDown()) then
+			elseif (IsAltKeyDown()) then
 				self._instance.baseframe:StartSizing("top")
 				self._instance.eh_vertical = true
 
-			elseif (_IsControlKeyDown()) then
+			elseif (IsControlKeyDown()) then
 				self._instance.baseframe:StartSizing("bottomright")
 				self._instance.eh_tudo = true
 
@@ -1814,7 +1814,7 @@ local shiftMonitor = function(self)
 		return
 	end
 
-	if (_IsShiftKeyDown()) then
+	if (IsShiftKeyDown()) then
 		if (not self.showing_allspells) then
 			self.showing_allspells = true
 			local instancia = Details:GetInstance(self.instance_id)
@@ -1827,7 +1827,7 @@ local shiftMonitor = function(self)
 		instancia:MontaTooltip(self, self.row_id)
 	end
 
-	if (_IsControlKeyDown()) then
+	if (IsControlKeyDown()) then
 		if (not self.showing_alltargets) then
 			self.showing_alltargets = true
 			local instancia = Details:GetInstance(self.instance_id)
@@ -1840,7 +1840,7 @@ local shiftMonitor = function(self)
 		instancia:MontaTooltip(self, self.row_id)
 	end
 
-	if (_IsAltKeyDown()) then
+	if (IsAltKeyDown()) then
 		if (not self.showing_allpets) then
 			self.showing_allpets = true
 			local instancia = Details:GetInstance(self.instance_id)
@@ -2007,8 +2007,8 @@ end
 
 ---@param self detailsline (row)
 local lineScript_Onmouseup = function(self, button)
-	local bIsShiftDown = _IsShiftKeyDown()
-	local bIsControlDown = _IsControlKeyDown()
+	local bIsShiftDown = IsShiftKeyDown()
+	local bIsControlDown = IsControlKeyDown()
 
 	---@type instance
 	local instanceObject = self._instance

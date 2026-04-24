@@ -1640,6 +1640,15 @@
 		else
 			GameCooltip:SetHost(DetailsTooltipAnchor, myPoint, anchorPoint, x_Offset, y_Offset)
 		end
+
+		if detailsFramework.IsAddonApocalypseWow() then
+			if self:IsShowingDeathLog() then
+				local tooltipWidth = Details.death_tooltip_width
+				local width = (type(tooltipWidth) == "number" and tooltipWidth) or 300
+				GameCooltip:SetOption("FixedWidth", width)
+				GameCooltip:SetOption("MinWidth", width)
+			end
+		end
 	end
 
 	function Details:PostBuildInstanceBarTooltip(actorObject)
@@ -1692,8 +1701,6 @@
 	---@param whichRowLine number
 	---@param keydown string
 	function Details:MontaTooltip(frame, whichRowLine, keydown)
-		self:BuildInstanceBarTooltip(frame)
-
 		---@type detailsline
 		local thisLine = self.barras[whichRowLine] --hoverovered line
 		local object = thisLine.minha_tabela --the object the line is showing
@@ -1706,6 +1713,8 @@
 		if (not object) then
 			return false
 		end
+
+		self:BuildInstanceBarTooltip(frame)
 
 		--check for special tooltips
 		if (object.dead) then --� uma barra de dead
@@ -1731,7 +1740,6 @@
 		end
 
 		local bTooltipBuilt = object:ToolTip(self, whichRowLine, thisLine, keydown) --instance, lineId, lineObject, keydown
-
 		if (bTooltipBuilt) then
 			Details:PostBuildInstanceBarTooltip(object)
 		end
