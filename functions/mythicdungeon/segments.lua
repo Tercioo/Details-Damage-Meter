@@ -382,9 +382,9 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
                 end
             end
 
-            if Details222.Apocalypse.IsServerInCombat() then
+            if Details222.Apocalypse.IsServerInCombat(true) then
                 C_Timer.NewTicker(0.5, function(tickerObject)
-                    if not Details222.Apocalypse.IsServerInCombat() then
+                    if not Details222.Apocalypse.IsServerInCombat(true) then
                         Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> AddOverallAsSegment() called.")
                         local overallSegment = Details222.BParser.AddOverallAsSegment()
                         overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)

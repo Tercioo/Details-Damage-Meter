@@ -285,7 +285,15 @@
 			SetType = function(newType)
 				Details222.Apocalypse.segmentType = newType
 			end,
-			IsServerInCombat = function()
+			IsServerInCombat = function(forceCheckOverall)
+				if (forceCheckOverall) then
+					local s = Details222.B.GetSegment("Type", 0, 0)
+					if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
+						return true
+					else
+						return false
+					end
+				end
 				return Details222.Apocalypse.ServerInCombat
 			end
 		}
