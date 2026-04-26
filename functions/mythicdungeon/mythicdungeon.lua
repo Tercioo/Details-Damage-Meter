@@ -111,37 +111,39 @@ function DetailsMythicPlusFrame.MythicDungeonFinished(bFromZoneLeft)
 
         --assuming `Details222.MythicPlus.ElapsedTime` is only available at the end of the run, so if is nil, the run did not finished
         if detailsFramework.IsAddonApocalypseWow() and Details222.MythicPlus.ElapsedTime then
-            C_Timer.After(2.21, function()
-                if Details222.MythicPlus.LastSegmentSaveTime then
-                    if (GetTime() - Details222.MythicPlus.LastSegmentSaveTime < 5) then
+            if false then
+                C_Timer.After(2.21, function()
+                    if Details222.MythicPlus.LastSegmentSaveTime then
+                        if (GetTime() - Details222.MythicPlus.LastSegmentSaveTime < 5) then
+                            return
+                        end
+                    end
+
+                    if Details222.Apocalypse.IsServerInCombat(true) then
+                        C_Timer.NewTicker(0.5, function(tickerObject)
+                            if not Details222.Apocalypse.IsServerInCombat(true) then
+                                Details222.MythicPlus.LogStep("MythicDungeonFinished() -> AddOverallAsSegment() called.")
+                                local overallSegment = Details222.BParser.AddOverallAsSegment()
+                                overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
+                                overallSegment:SetEndTime(GetTime())
+                                Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
+                                Details222.MythicPlus.LogStep("MythicDungeonFinished() -> SaveSegment() called.")
+                                Details222.MythicPlus.LastSegmentSaveTime = GetTime()
+                                tickerObject:Cancel()
+                            end
+                        end)
                         return
                     end
-                end
 
-                if Details222.Apocalypse.IsServerInCombat(true) then
-                    C_Timer.NewTicker(0.5, function(tickerObject)
-                        if not Details222.Apocalypse.IsServerInCombat(true) then
-                            Details222.MythicPlus.LogStep("MythicDungeonFinished() -> AddOverallAsSegment() called.")
-                            local overallSegment = Details222.BParser.AddOverallAsSegment()
-                            overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
-                            overallSegment:SetEndTime(GetTime())
-                            Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
-                            Details222.MythicPlus.LogStep("MythicDungeonFinished() -> SaveSegment() called.")
-                            Details222.MythicPlus.LastSegmentSaveTime = GetTime()
-                            tickerObject:Cancel()
-                        end
-                    end)
-                    return
-                end
-
-                Details222.MythicPlus.LogStep("MythicDungeonFinished() -> AddOverallAsSegment() called.")
-                local overallSegment = Details222.BParser.AddOverallAsSegment()
-                overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
-                overallSegment:SetEndTime(GetTime())
-                Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
-                Details222.MythicPlus.LogStep("MythicDungeonFinished() -> SaveSegment() called.")
-                Details222.MythicPlus.LastSegmentSaveTime = GetTime()
-            end)
+                    Details222.MythicPlus.LogStep("MythicDungeonFinished() -> AddOverallAsSegment() called.")
+                    local overallSegment = Details222.BParser.AddOverallAsSegment()
+                    overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
+                    overallSegment:SetEndTime(GetTime())
+                    Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
+                    Details222.MythicPlus.LogStep("MythicDungeonFinished() -> SaveSegment() called.")
+                    Details222.MythicPlus.LastSegmentSaveTime = GetTime()
+                end)
+            end
         end
 
 

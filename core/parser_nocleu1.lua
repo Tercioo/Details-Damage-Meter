@@ -821,6 +821,11 @@ local addOverallAsSegment = function()
         for i = 1, #actorList do
             local thisActor = actorList[i]
             local actorName = thisActor.name
+
+            if issecretvalue(actorName) then
+                print("actorName is secret:", actorName)
+            end
+
             local actorSerial = thisActor.sourceGUID
             local totalAmount = thisActor.totalAmount
             local class = thisActor.classFilename

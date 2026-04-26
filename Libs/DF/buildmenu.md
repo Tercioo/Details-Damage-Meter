@@ -1151,12 +1151,115 @@ With align_as_pairs = true:
 
 Why it matters
 - align_as_pairs is the primary layout mode for serious options panels. It allows
-	a panel with mixed widget types (dropdowns, sliders, toggles, color pickers)
-	to look uniform and readable because every input control starts at the same
-	horizontal pixel. Without it, varying label lengths produce a ragged right
-	boundary that looks inconsistent. The hover highlight and full-row click
-	behavior that comes with this mode also improves usability, especially for
-	dense configuration screens.
+  a panel with mixed widget types (dropdowns, sliders, toggles, color pickers)
+  to look uniform and readable because every input control starts at the same
+  horizontal pixel. Without it, varying label lengths produce a ragged right
+  boundary that looks inconsistent. The hover highlight and full-row click
+  behavior that comes with this mode also improves usability, especially for
+  dense configuration screens.
+
+⚠️ CRITICAL REQUIREMENT: align_as_pairs REQUIRES canvasFrame
+---------------------------------------------------------------------
+When using `align_as_pairs = true`, you MUST pass a canvasFrame to BuildMenu
+instead of a regular frame. A canvasFrame is created using the
+`detailsFramework:CreateCanvasScrollBox()` function.
+
+Why this requirement exists:
+- The align_as_pairs layout mode creates highlight frames and performs anchoring
+  operations that require the special properties of a canvas scroll child.
+- Using a regular frame with align_as_pairs will result in incorrect widget
+  positioning, missing hover highlights, or complete layout failures.
+- This is NOT optional — it is a hard requirement for proper functionality.
+
+❌ INCORRECT usage (will not work properly):
+```lua
+-- Creating a regular frame
+local optionsFrame = CreateFrame("frame", nil, parent)
+optionsFrame:SetPoint("topleft", parent, "topleft", 0, 0)
+optionsFrame:SetPoint("bottomright", parent, "bottomright", 0, 0)
+
+local menuOptions = {
+    align_as_pairs = true,  -- This will NOT work correctly!
+    {type = "toggle", name = "Option 1", get = GetOpt1, set = SetOpt1},
+}
+
+DF:BuildMenu(optionsFrame, menuOptions)  -- WRONG! Using regular frame
+```
+
+✅ CORRECT usage (required for align_as_pairs):
+```lua
+-- Create a canvas scroll frame using CreateCanvasScrollBox
+local canvasFrame = detailsFramework:CreateCanvasScrollBox(optionsPanel, nil, "MyCanvasFrame")
+canvasFrame:SetPoint("topleft", optionsPanel, "topleft", 0, -2)
+canvasFrame:SetPoint("bottomright", optionsPanel, "bottomright", -26, 25)
+
+-- Store reference if needed for later access
+optionsPanel.canvasFrame = canvasFrame
+
+local menuOptions = {
+    align_as_pairs = true,  -- This WILL work correctly!
+    {type = "toggle", name = "Option 1", get = GetOpt1, set = SetOpt1},
+    {type = "range", name = "Option 2", get = GetOpt2, set = SetOpt2, min = 0, max = 100},
+}
+
+-- Pass the canvasFrame (not the regular frame) to BuildMenu
+DF:BuildMenu(canvasFrame, menuOptions)
+```
+
+Complete working example:
+```lua
+local parent = SomeExistingFrame
+local optionsPanel = CreateFrame("frame", "MyOptionsPanel", parent, "BackdropTemplate")
+optionsPanel:SetSize(500, 400)
+optionsPanel:SetPoint("center", parent, "center")
+
+-- Step 1: Create canvas scroll box
+local canvasFrame = detailsFramework:CreateCanvasScrollBox(optionsPanel, nil, "OptionsCanvas")
+canvasFrame:SetPoint("topleft", optionsPanel, "topleft", 0, -2)
+canvasFrame:SetPoint("bottomright", optionsPanel, "bottomright", -26, 25)
+
+-- Step 2: Define menu options with align_as_pairs
+local menuOptions = {
+    align_as_pairs = true,
+    align_as_pairs_string_space = 180,  -- Optional: customize label column width
+    
+    {type = "label", get = function() return "Settings:" end,
+     text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
+    
+    {type = "toggle", name = "Enable Feature",
+     get = function() return MyDB.enabled end,
+     set = function(_, _, v) MyDB.enabled = v end},
+    
+    {type = "range", name = "Slider Value",
+     get = function() return MyDB.sliderValue end,
+     set = function(_, _, v) MyDB.sliderValue = v end,
+     min = 0, max = 100, step = 1},
+    
+    {type = "select", name = "Dropdown Option",
+     get = function() return MyDB.dropdownValue end,
+     values = function()
+         return {
+             {value = 1, label = "Option A"},
+             {value = 2, label = "Option B"},
+             {value = 3, label = "Option C"},
+         }
+     end},
+}
+
+-- Step 3: Build menu using canvasFrame (NOT optionsPanel)
+DF:BuildMenu(canvasFrame, menuOptions, 10, -10, nil, false,
+    DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"),
+    DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"),
+    DF:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"),
+    true,
+    DF:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"))
+```
+
+Key points to remember:
+1. Always use `CreateCanvasScrollBox()` when you need `align_as_pairs = true`
+2. Pass the returned canvasFrame to BuildMenu, not the parent frame
+3. The canvasFrame handles scrolling automatically for content that exceeds bounds
+4. Without this requirement met, widgets may appear misaligned or highlights may fail
 
 ---------------------------------------------------------------------
 align_as_pairs_string_space

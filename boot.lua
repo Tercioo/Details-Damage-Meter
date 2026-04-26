@@ -291,6 +291,10 @@
 					if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
 						return true
 					else
+						local e = Details222.B.GetSegment("Type", 0, 10)
+						if e and e.combatSources and e.combatSources[1] and issecretvalue(e.combatSources[1].name) then
+							return true
+						end
 						return false
 					end
 				end

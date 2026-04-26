@@ -1313,6 +1313,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		--C_Timer.After(5, function() bar:CancelTimerBar() end)
 
+	elseif (msg == "server") then
+		print(Details222.Apocalypse.IsServerInCombat(true))
 
 	elseif (msg == "q") then
 
@@ -2116,14 +2118,14 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		{text = Loc["STRING_OPTIONS_PERFORMANCE_DUNGEON"], width = 150, canSort = true, dataType = "string", order = "DESC", offset = 0},
 		{text = RATING, width = 50, canSort = true, dataType = "number", order = "DESC", offset = 0},
 		{text = Loc["STRING_TELEPORT"], width = 100, canSort = false, offset = 0},
-		{text = Loc["STRING_LIKES_YOU_GAVE"], width = 24, canSort = false, offset = 0, name = "likesGiven", columnSpan = 1},
-		{text = "", width = 129, canSort = false, offset = 0, name = "likesGiven"},
+		--{text = Loc["STRING_LIKES_YOU_GAVE"], width = 24, canSort = false, offset = 0, name = "likesGiven", columnSpan = 1},
+		--{text = "", width = 129, canSort = false, offset = 0, name = "likesGiven"},
 	}
 
 	local buttonsCreated = {}
 	local CONST_SCROLL_LINE_HEIGHT = 22
-	local CONST_WINDOW_WIDTH = 650
-	local CONST_WINDOW_HEIGHT = 726
+	local CONST_WINDOW_WIDTH = 510
+	local CONST_WINDOW_HEIGHT = 626
 	local CONST_SCROLL_LINE_AMOUNT = 21
 
 	local detailsKeystoneInfoFrame = detailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones (/key, /keys, /keystone)", "DetailsKeystoneInfoFrame")
@@ -2219,6 +2221,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	local teleportersLabel = footer:CreateFontString(nil, "overlay", "GameFontNormal")
 	teleportersLabel:SetPoint("topleft", footer, "topleft", 58, -9)
 	teleportersLabel:SetText(Loc["STRING_TELEPORTERS"])
+	teleportersLabel:Hide()
 
 	local cooldownBlocker = CreateFrame("frame", "$parentCooldownBlocker", footer, "BackdropTemplate")
 	cooldownBlocker:SetPoint("topleft", footer, "topleft", 140, -5)
@@ -2333,8 +2336,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		end
 
 		if (not lastButton) then
-			teleportButton:SetPoint("topleft", footer, "topleft", 140, -5)
-			blockTeleporter:SetPoint("topleft", footer, "topleft", 140, -5)
+			teleportButton:SetPoint("topleft", footer, "topleft", 2, -5)
+			blockTeleporter:SetPoint("topleft", footer, "topleft", 2, -5)
 			lastButton = teleportButton
 		else
 			teleportButton:SetPoint("left", lastButton, "right", spaceBetweenButtons, 0)
@@ -2459,10 +2462,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local dndCheckbox = detailsFramework:CreateSwitch(f, function(_, _, checked) Details.slashk_dnd = checked; LIB_OPEN_RAID_MYTHIC_PLUS_DND = checked end, Details.slashk_dnd)
 				dndCheckbox:SetTemplate(detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 				dndCheckbox:SetAsCheckBox()
-				dndCheckbox:SetPoint("bottomright", f, "bottomright", -126, 23)
+				dndCheckbox:SetPoint("bottomright", f, "bottomright", -76, 23)
 				dndCheckbox.tooltip = Loc["STRING_KEYSTONE_DND_TOOLTIP"]
 				dndCheckbox.Text = dndCheckbox:CreateFontString("$parentText", "overlay", "GameFontNormal")
 				dndCheckbox.Text:SetText(Loc["STRING_ENABLE_DO_NOT_DISTURB"])
+				dndCheckbox.Text:SetText("D.N.D.")
 				dndCheckbox.Text:SetPoint("left", dndCheckbox.widget, "right", 5, 0)
 				detailsFramework:SetFontSize(dndCheckbox.Text, 10)
 
@@ -2630,11 +2634,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						openRaidLib.RequestKeystoneDataFromGuild()
 					end
 				end, 100, 22, Loc["STRING_KEYSTONE_REQUEST_FROM_GUILD"])
-				requestFromGuildButton:SetPoint("bottomleft", statusBar, "topleft", 2, 2)
+				requestFromGuildButton:SetPoint("bottomleft", statusBar, "topleft", 2, 54)
 				requestFromGuildButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				requestFromGuildButton:SetIcon("UI-RefreshButton", 20, 20, "overlay", {0, 1, 0, 1}, "lawngreen")
 				requestFromGuildButton:SetFrameLevel(f:GetFrameLevel()+5)
 				f.RequestFromGuildButton = requestFromGuildButton
+				--requestFromGuildButton:Hide()
 
 				local recentPlayersFrame = CreateFrame("frame", nil, f, "BackdropTemplate")
 				recentPlayersFrame:SetPoint("bottomleft", footer, "topleft", 0, 0)
@@ -2643,6 +2648,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				detailsFramework:ApplyStandardBackdrop(recentPlayersFrame)
 				recentPlayersFrame:SetBackdropBorderColor(0, 0, 0, 0)
 				f.RecentPlayersFrame = recentPlayersFrame
+
+				recentPlayersFrame:Hide()
 
 				recentPlayersFrame.Title = recentPlayersFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 				recentPlayersFrame.Title:SetPoint("bottomleft", recentPlayersFrame, "topleft", 3, 3)
@@ -3184,7 +3191,7 @@ recentPlayerTable = {
 					end
 				end
 
-				local scrollFrame = detailsFramework:CreateScrollBox(f, "$parentScroll", refreshScrollLines, {}, CONST_WINDOW_WIDTH-10, CONST_WINDOW_HEIGHT-221, CONST_SCROLL_LINE_AMOUNT, CONST_SCROLL_LINE_HEIGHT)
+				local scrollFrame = detailsFramework:CreateScrollBox(f, "$parentScroll", refreshScrollLines, {}, CONST_WINDOW_WIDTH-10, CONST_WINDOW_HEIGHT-121, CONST_SCROLL_LINE_AMOUNT, CONST_SCROLL_LINE_HEIGHT)
 				scrollFrame:SetBackdropBorderColor(0, 0, 0, 0)
 				detailsFramework:ReskinSlider(scrollFrame)
 				scrollFrame.ScrollBar:AdjustPointsOffset(-23, -1)

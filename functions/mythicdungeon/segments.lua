@@ -383,7 +383,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
             end
 
             if Details222.Apocalypse.IsServerInCombat(true) then
-                C_Timer.NewTicker(0.5, function(tickerObject)
+                C_Timer.NewTicker(1, function(tickerObject)
                     if not Details222.Apocalypse.IsServerInCombat(true) then
                         Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> AddOverallAsSegment() called.")
                         local overallSegment = Details222.BParser.AddOverallAsSegment()
@@ -393,6 +393,8 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
                         Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> SaveSegment() called.")
                         Details222.MythicPlus.LastSegmentSaveTime = GetTime()
                         tickerObject:Cancel()
+                    else
+                        Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> Server is in combat.")
                     end
                 end)
                 return

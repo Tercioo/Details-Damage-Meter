@@ -1,4 +1,7 @@
 local detailsFramework = DetailsFramework
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
+	return
+end
 
 ---@class screenanchor : frame
 ---@field anchorName string The identifier for this anchor
@@ -25,7 +28,8 @@ local detailsFramework = DetailsFramework
 ---@field Reorder fun(self: anchorsystem, anchorFrame: screenanchor) Reorders all frames on an anchor frame
 ---@field ShowFrame fun(self: anchorsystem, anchorName: string, ...): any Shows a frame on the specified anchor
 ---@field HideFrame fun(self: anchorsystem, frame: any) Hides a frame from whichever anchor it is currently on
-
+---@field SetLineSpacing fun(self: anchorsystem, spacing: number) Sets the line spacing for all anchor frames and reorders their frames
+---@field SetGrowDirection fun(self: anchorsystem, anchorName: string, growDirection: string) Sets the grow direction for a specific anchor and reorders its frames
 
 ---@type table
 local anchorSystemMixin = {
@@ -158,7 +162,7 @@ local anchorSystemMixin = {
         anchorFrame.framePool = detailsFramework:CreatePool(frameCreateFunction, anchorFrame)
         anchorFrame.framePool:SetCallbackOnRelease(function(frame) frame:Hide() end)
         anchorFrame.framePool:SetCallbackOnReleaseAll(function(frame) frame:Hide() end)
-        anchorFrame.framePool:SetSortFunction(function(a, b) return true end)
+        anchorFrame.framePool:SetSortFunction(sortFunction)
 
         return anchorFrame
     end,
@@ -212,7 +216,7 @@ local anchorSystemMixin = {
                 elseif growDir == "left" then
                     thisComponent:SetPoint("right", lastComponent.widget or lastComponent, "left", lineSpacing, 0)
                 elseif growDir == "right" then
-                    thisComponent:SetPoint("left", lastComponent.widget or lastComponent, "right", -lineSpacing, 0)
+                    thisComponent:SetPoint("left", lastComponent.widget or lastComponent, "right", lineSpacing, 0)
                 end
             else
                 --Attach first frame to the center of anchorFrame
@@ -239,6 +243,18 @@ local anchorSystemMixin = {
 
         for i = 1, #self.screenAnchors do
             local anchorFrame = self.screenAnchors[i]
+            self:Reorder(anchorFrame)
+        end
+    end,
+
+    ---Sets the grow direction for a specific anchor and immediately reorders its frames
+    ---@param self anchorsystem
+    ---@param anchorName string The name of the anchor whose grow direction to change
+    ---@param growDirection string The new direction ("top", "bottom", "left", "right")
+    SetGrowDirection = function(self, anchorName, growDirection)
+        local anchorFrame = self:GetScreenAnchor(anchorName)
+        if anchorFrame then
+            anchorFrame.growDirection = growDirection
             self:Reorder(anchorFrame)
         end
     end,

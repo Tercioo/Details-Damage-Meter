@@ -153,8 +153,27 @@ This replaces per-anchor spacing and affects every anchor in the system immediat
 
 Parameters:
 - `spacing`: the spacing between frames when `Reorder()` positions them.
+### `SetGrowDirection(anchorName, growDirection)`
+
+Sets the grow direction for a specific anchor and immediately reorders its frames.
+This allows you to dynamically change how frames stack from an anchor without recreating it.
+
+Parameters:
+- `anchorName`: the name of the anchor whose grow direction to change.
+- `growDirection`: the new direction ("top", "bottom", "left", "right").
+
+Example:
+
+```lua
+-- Initially frames grow downward from the anchor
+anchorSystem:CreateScreenAnchor("buffs", "BuffAnchor", "bottom", ...)
+
+-- Later, change to growing upward
+anchorSystem:SetGrowDirection("buffs", "top")
+```
 
 ### `HideAll()`
+
 
 Hides and releases all pooled frames from all anchors managed by this object.
 
