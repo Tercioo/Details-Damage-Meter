@@ -4409,6 +4409,46 @@ function gump:CreateNewLine(instance, index)
 	return newLine
 end
 
+function Details:SetBarOutlineSettings(side, outlineMode, shadowColor, shadowXOffset, shadowYOffset)
+	if (outlineMode) then
+		if side == "left" then
+			self.row_info.textL_outline_mode = outlineMode
+		elseif side == "right" then
+			self.row_info.textR_outline_mode = outlineMode
+		end
+	end
+
+	if (shadowColor) then
+		local red, green, blue, alpha = detailsFramework:ParseColors(shadowColor)
+		local c
+		if side == "left" then
+			c = self.row_info.textL_shadow_color
+		elseif side == "right" then
+			c = self.row_info.textR_shadow_color
+		end
+		c[1], c[2], c[3], c[4] = red, green, blue, alpha
+	end
+
+	if (shadowXOffset) then
+		if side == "left" then
+			self.row_info.textL_shadow_offset[1] = shadowXOffset
+		elseif side == "right" then
+			self.row_info.textR_shadow_offset[1] = shadowXOffset
+		end
+	end
+
+	if (shadowYOffset) then
+		if side == "left" then
+			self.row_info.textL_shadow_offset[2] = shadowYOffset
+		elseif side == "right" then
+			self.row_info.textR_shadow_offset[2] = shadowYOffset
+		end
+	end
+
+	self:InstanceReset()
+	self:InstanceRefreshRows()
+end
+
 function Details:SetBarTextSettings(size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext, smalloutline_left, smalloutlinecolor_left, smalloutline_right, smalloutlinecolor_right, translittext, yoffset, leftoffset)
 	--size
 	if (size) then
@@ -5003,6 +5043,13 @@ function Details:InstanceRefreshRows(instance)
 	local textR_outline_small = self.row_info.textR_outline_small
 	local textR_outline_small_color = self.row_info.textR_outline_small_color
 
+	local leftTextOutline = self.row_info.textL_outline_mode
+	local rightTextOutline = self.row_info.textR_outline_mode
+	local leftTextShadowColor = self.row_info.textL_shadow_color
+	local rightTextShadowColor = self.row_info.textR_shadow_color
+	local leftTextShadowOffset = self.row_info.textL_shadow_offset
+	local rightTextShadowOffset = self.row_info.textR_shadow_offset
+
 	--texture color values
 	local bUseClassColor = self.row_info.texture_class_colors
 	local texture_r, texture_g, texture_b
@@ -5233,64 +5280,82 @@ function Details:InstanceRefreshRows(instance)
 		end
 
 		--outline
-		if (left_text_outline) then
-			Details:SetFontOutline(row.lineText1, left_text_outline)
-			Details:SetFontOutline(row.lineText11, left_text_outline)
+		if (leftTextOutline) then
+			detailsFramework:SetFontOutline(row.lineText1, leftTextOutline)
+			detailsFramework:SetFontOutline(row.lineText11, leftTextOutline)
 		else
-			Details:SetFontOutline(row.lineText1, nil)
-			Details:SetFontOutline(row.lineText11, nil)
+			detailsFramework:SetFontOutline(row.lineText1, "")
+			detailsFramework:SetFontOutline(row.lineText11, "")
 		end
 
-		if (right_text_outline) then
-			self:SetFontOutline(row.lineText2, right_text_outline)
-			self:SetFontOutline(row.lineText3, right_text_outline)
-			self:SetFontOutline(row.lineText4, right_text_outline)
-			self:SetFontOutline(row.lineText12, right_text_outline)
-			self:SetFontOutline(row.lineText13, right_text_outline)
-			self:SetFontOutline(row.lineText14, right_text_outline)
+		if (rightTextOutline) then
+			detailsFramework:SetFontOutline(row.lineText2, rightTextOutline)
+			detailsFramework:SetFontOutline(row.lineText3, rightTextOutline)
+			detailsFramework:SetFontOutline(row.lineText4, rightTextOutline)
+			detailsFramework:SetFontOutline(row.lineText12, rightTextOutline)
+			detailsFramework:SetFontOutline(row.lineText13, rightTextOutline)
+			detailsFramework:SetFontOutline(row.lineText14, rightTextOutline)
 		else
-			self:SetFontOutline(row.lineText2, nil)
-			self:SetFontOutline(row.lineText3, nil)
-			self:SetFontOutline(row.lineText4, nil)
-			self:SetFontOutline(row.lineText12, nil)
-			self:SetFontOutline(row.lineText13, nil)
-			self:SetFontOutline(row.lineText14, nil)
+			detailsFramework:SetFontOutline(row.lineText2, "")
+			detailsFramework:SetFontOutline(row.lineText3, "")
+			detailsFramework:SetFontOutline(row.lineText4, "")
+			detailsFramework:SetFontOutline(row.lineText12, "")
+			detailsFramework:SetFontOutline(row.lineText13, "")
+			detailsFramework:SetFontOutline(row.lineText14, "")
 		end
+
+		row.lineText1:SetShadowColor(unpack(leftTextShadowColor))
+		row.lineText11:SetShadowColor(unpack(leftTextShadowColor))
+		row.lineText2:SetShadowColor(unpack(rightTextShadowColor))
+		row.lineText3:SetShadowColor(unpack(rightTextShadowColor))
+		row.lineText4:SetShadowColor(unpack(rightTextShadowColor))
+		row.lineText12:SetShadowColor(unpack(rightTextShadowColor))
+		row.lineText13:SetShadowColor(unpack(rightTextShadowColor))
+		row.lineText14:SetShadowColor(unpack(rightTextShadowColor))
+
+		row.lineText1:SetShadowOffset(unpack(leftTextShadowOffset))
+		row.lineText11:SetShadowOffset(unpack(leftTextShadowOffset))
+		row.lineText2:SetShadowOffset(unpack(rightTextShadowOffset))
+		row.lineText3:SetShadowOffset(unpack(rightTextShadowOffset))
+		row.lineText4:SetShadowOffset(unpack(rightTextShadowOffset))
+		row.lineText12:SetShadowOffset(unpack(rightTextShadowOffset))
+		row.lineText13:SetShadowOffset(unpack(rightTextShadowOffset))
+		row.lineText14:SetShadowOffset(unpack(rightTextShadowOffset))
 
 		--small outline
-		if (textL_outline_small) then
-			local color = textL_outline_small_color
-			row.lineText1:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText1:SetShadowOffset(1, -1)
-			row.lineText11:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText11:SetShadowOffset(1, -1)
-		else
-			row.lineText1:SetShadowColor(0, 0, 0, 0)
-			row.lineText11:SetShadowColor(0, 0, 0, 0)
-		end
+		--if (textL_outline_small) then
+		--	local color = textL_outline_small_color
+		--	row.lineText1:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText1:SetShadowOffset(1, -1)
+		--	row.lineText11:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText11:SetShadowOffset(1, -1)
+		--else
+		--	row.lineText1:SetShadowColor(0, 0, 0, 0)
+		--	row.lineText11:SetShadowColor(0, 0, 0, 0)
+		--end
 
-		if (textR_outline_small) then
-			local color = textR_outline_small_color
-			row.lineText4:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText4:SetShadowOffset(1, -1)
-			row.lineText3:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText3:SetShadowOffset(1, -1)
-			row.lineText2:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText2:SetShadowOffset(1, -1)
-			row.lineText14:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText14:SetShadowOffset(1, -1)
-			row.lineText13:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText13:SetShadowOffset(1, -1)
-			row.lineText12:SetShadowColor(color[1], color[2], color[3], color[4])
-			row.lineText12:SetShadowOffset(1, -1)
-		else
-			row.lineText4:SetShadowColor(0, 0, 0, 0)
-			row.lineText3:SetShadowColor(0, 0, 0, 0)
-			row.lineText2:SetShadowColor(0, 0, 0, 0)
-			row.lineText14:SetShadowColor(0, 0, 0, 0)
-			row.lineText13:SetShadowColor(0, 0, 0, 0)
-			row.lineText12:SetShadowColor(0, 0, 0, 0)
-		end
+		--if (textR_outline_small) then
+		--	local color = textR_outline_small_color
+		--	row.lineText4:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText4:SetShadowOffset(1, -1)
+		--	row.lineText3:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText3:SetShadowOffset(1, -1)
+		--	row.lineText2:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText2:SetShadowOffset(1, -1)
+		--	row.lineText14:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText14:SetShadowOffset(1, -1)
+		--	row.lineText13:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText13:SetShadowOffset(1, -1)
+		--	row.lineText12:SetShadowColor(color[1], color[2], color[3], color[4])
+		--	row.lineText12:SetShadowOffset(1, -1)
+		--else
+		--	row.lineText4:SetShadowColor(0, 0, 0, 0)
+		--	row.lineText3:SetShadowColor(0, 0, 0, 0)
+		--	row.lineText2:SetShadowColor(0, 0, 0, 0)
+		--	row.lineText14:SetShadowColor(0, 0, 0, 0)
+		--	row.lineText13:SetShadowColor(0, 0, 0, 0)
+		--	row.lineText12:SetShadowColor(0, 0, 0, 0)
+		--end
 
 		--texture
 		row.textura:SetTexture(textureFile)

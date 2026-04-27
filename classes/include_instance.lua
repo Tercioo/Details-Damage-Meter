@@ -269,13 +269,19 @@ _detalhes.instance_defaults = {
 			--if text class color are false, this color will be used
 				fixed_text_color = {1, 1, 1},
 			--left text outline effect
-				textL_outline = true,
-				textL_outline_small = true,
-				textL_outline_small_color = {0, 0, 0, 1},
+				textL_outline = true, --deprecated
+				textL_outline_small = true, --deprecated
+				textL_outline_small_color = {0, 0, 0, 1}, --deprecated
+				textL_outline_mode = "",
+				textL_shadow_color = {0, 0, 0, 1},
+				textL_shadow_offset = {1, -1},
 			--right text outline effect
-				textR_outline = false,
-				textR_outline_small = true,
-				textR_outline_small_color = {0, 0, 0, 1},
+				textR_outline = false, --deprecated
+				textR_outline_small = true, --deprecated
+				textR_outline_small_color = {0, 0, 0, 1}, --deprecated
+				textR_outline_mode = "",
+				textR_shadow_color = {0, 0, 0, 1},
+				textR_shadow_offset = {1, -1},
         	-- left text offset
 				textL_offset = 0,
 			-- player name sizing

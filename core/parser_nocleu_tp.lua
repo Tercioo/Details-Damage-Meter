@@ -711,7 +711,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         table.sort(targets, function(a, b) return a.amount > b.amount end)
         targets.topValue = targets[1] and targets[1].amount or 0
 
-        for i = 1, max(#targets, amountOfTargetLines) do
+        for i = 1, min(#targets, amountOfTargetLines) do
             tooltipData[#tooltipData + 1] = targets[i]
             targets[i].topBarValue = targets.topValue
         end

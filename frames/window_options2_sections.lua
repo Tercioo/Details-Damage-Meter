@@ -105,6 +105,7 @@ end
 
 local afterUpdate = function(instance)
     Details:SendOptionsModifiedEvent(instance or currentInstance)
+    Details222.OptionsPanel.RefreshInstances(instance or currentInstance)
 end
 
 local isGroupEditing = function()
@@ -1865,49 +1866,6 @@ do
             --left text options 6
             {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_LEFT_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
 
-            {--use class colors 7
-                type = "toggle",
-                get = function() return currentInstance.row_info.textL_class_colors end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, value)
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
-            },
-            {--outline 8
-                type = "toggle",
-                get = function() return currentInstance.row_info.textL_outline end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, value)
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"],
-            },
-            {--outline small 9
-                type = "toggle",
-                get = function() return currentInstance.row_info.textL_outline_small end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate()
-                end,
-                name = "Outline", --localize-me
-                desc = "Text Outline",
-            },
-			{--outline small color 10
-                type = "color",
-                get = function()
-                    local r, g, b, a = unpack(currentInstance.row_info.textL_outline_small_color)
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
-                    afterUpdate()
-                end,
-                name = "Outline Color",
-                desc = "Outline Color",
-            },
             {--position number 11
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_show_number end,
@@ -1918,6 +1876,7 @@ do
                 name = Loc ["STRING_OPTIONS_TEXT_LPOSITION"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LPOSITION_DESC"],
             },
+
             {--translit text 12
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_translit_text end,
@@ -1928,6 +1887,18 @@ do
                 name = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"],
             },
+
+            {--use class colors 7
+                type = "toggle",
+                get = function() return currentInstance.row_info.textL_class_colors end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
+                desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
+            },
+
             {--text offset
                 type = "range",
                 get = function() return currentInstance.row_info.textL_offset end,
@@ -1941,6 +1912,100 @@ do
                 name = "Offset", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET"]
                 desc = "Change the horizontal offset.", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET_DESC"]
             },
+
+            {type = "blank"},
+            {--outline mode
+                type = "selectoutline",
+                get = function() return currentInstance.row_info.textL_outline_mode end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+                desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+            },
+			{--shadow color
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.row_info.textL_shadow_color)
+                    return {r, g, b, a}
+                end,
+                set = function(self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, {r, g, b, a})
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+                desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+            },
+            {--shadow offset x
+                type = "range",
+                get = function() return currentInstance.row_info.textL_shadow_offset[1] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+            },
+            {--shadow offset y
+                type = "range",
+                get = function() return currentInstance.row_info.textL_shadow_offset[2] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+            },
+
+
+            {--outline 8
+                type = "toggle",
+                get = function() return currentInstance.row_info.textL_outline end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
+                desc = Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"],
+                hidden = true,
+            },
+            {--outline small 9
+                type = "toggle",
+                get = function() return currentInstance.row_info.textL_outline_small end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = "Outline", --localize-me
+                desc = "Text Outline",
+                hidden = true,
+            },
+			{--outline small color 10
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.row_info.textL_outline_small_color)
+                    return {r, g, b, a}
+                end,
+                set = function(self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
+                    afterUpdate()
+                end,
+                name = "Outline Color",
+                desc = "Outline Color",
+                hidden = true,
+            },
+
 
             {type = "blank"}, --13
 
@@ -1981,10 +2046,69 @@ do
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, value)
                     afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
             },
+
+
+            {type = "blank"},
+            {--outline mode
+                type = "selectoutline",
+                get = function() return currentInstance.row_info.textR_outline_mode end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+                desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+            },
+			{--shadow color
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.row_info.textR_shadow_color)
+                    return {r, g, b, a}
+                end,
+                set = function(self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, {r, g, b, a})
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+                desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+            },
+            {--shadow offset x
+                type = "range",
+                get = function() return currentInstance.row_info.textR_shadow_offset[1] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+            },
+            {--shadow offset y
+                type = "range",
+                get = function() return currentInstance.row_info.textR_shadow_offset[2] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+            },
+
+
             {--outline 19
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_outline end,
@@ -1994,6 +2118,7 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"],
+                hidden = true,
             },
             {--outline small 20
                 type = "toggle",
@@ -2004,6 +2129,7 @@ do
                 end,
                 name = "Outline", --localize-me
                 desc = "Text Outline",
+                hidden = true,
             },
 			{--outline small color 21
                 type = "color",
@@ -2017,6 +2143,7 @@ do
                 end,
                 name = "Outline Color",
                 desc = "Outline Color",
+                hidden = true,
             },
 
             {type = "blank"}, --22
