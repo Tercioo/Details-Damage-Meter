@@ -149,6 +149,10 @@ local getTooltipFrame = function() --~tooltip
                 else
                     line.SpellName:SetText(spellName)
 
+                    if not issecretvalue(spellName) then
+                        detailsFramework:TruncateText(line.SpellName, tooltip:GetWidth() / 2.3)
+                    end
+
                     line.SpellIcon:ClearAllPoints()
                     line.SpellIcon:SetPoint("left", line.StatusBar, "left", -tooltipLineHeight, 0)
                     line.SpellIcon:SetTexture(thisData.icon)
