@@ -161,6 +161,7 @@ frames\window_nestspells.lua
 frames\window_deathrecap.lua
 frames\window_transcriptor.lua
 frames\window_arenasummary.lua
+frames\window_mythickeys.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua

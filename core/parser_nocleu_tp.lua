@@ -111,7 +111,7 @@ local getTooltipFrame = function() --~tooltip
     ---@param data table an indexed table with subtables holding the data necessary to refresh each line
     ---@param offset number used to know which line to start showing
     ---@param totalLines number of lines shown in the scroll box
-    local refresFunc = function(self, data, offset, totalLines) --~refresh
+    local refreshFunc = function(self, data, offset, totalLines) --~refresh
 		local showHeader = Details.tooltip.show_header
 		local showHelp = Details.tooltip.show_help
 
@@ -156,8 +156,14 @@ local getTooltipFrame = function() --~tooltip
                     local iconSize = thisData.iconsize or tooltipLineHeight
                     line.SpellIcon:SetSize(iconSize, iconSize)
 
-                    line.StatusBar:SetMinMaxValues(0, tooltip.maxAmount)
-                    line.StatusBar:SetValue(thisData.amount)
+                    if thisData.amount and thisData.topBarValue then
+                        line.StatusBar:SetMinMaxValues(0, thisData.topBarValue)
+                        line.StatusBar:SetValue(thisData.amount)
+                    else
+                        line.StatusBar:SetMinMaxValues(0, tooltip.maxAmount)
+                        line.StatusBar:SetValue(thisData.amount)
+                    end
+
                     line.StatusBar:SetPoint("left", line, "left", tooltipLineHeight, 0)
                     line.StatusBar:SetSize(tooltip:GetWidth() - tooltipLineHeight - 4, tooltipLineHeight)
 
@@ -291,7 +297,7 @@ local getTooltipFrame = function() --~tooltip
 
     local dataPlaceholder = {}
 
-    local scrollBox = detailsFramework:CreateScrollBox(tooltip, "$parentScrollbox", refresFunc, dataPlaceholder, 1, 1, tooltipAmountOfLines, tooltipLineHeight)
+    local scrollBox = detailsFramework:CreateScrollBox(tooltip, "$parentScrollbox", refreshFunc, dataPlaceholder, 1, 1, tooltipAmountOfLines, tooltipLineHeight)
     --used 1 for width and height because we will set the size using anchors
     scrollBox:SetPoint("topleft", tooltip, "topleft", 0, 0)
     scrollBox:SetPoint("bottomright", tooltip, "bottomright", 0, 0)
@@ -702,8 +708,12 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             isHeader = true,
         }
 
-        for i = 1, min(#targets, amountOfTargetLines) do
+        table.sort(targets, function(a, b) return a.amount > b.amount end)
+        targets.topValue = targets[1] and targets[1].amount or 0
+
+        for i = 1, max(#targets, amountOfTargetLines) do
             tooltipData[#tooltipData + 1] = targets[i]
+            targets[i].topBarValue = targets.topValue
         end
     end
 

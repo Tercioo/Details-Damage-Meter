@@ -221,6 +221,7 @@
 		}
 		Details222.Notes = {}
 		Details222.MythicPlusBreakdown = {}
+		Details222.MythicKeys = {}
 		Details222.EJCache = {}
 		Details222.Segments = {}
 		Details222.Tables = {}
