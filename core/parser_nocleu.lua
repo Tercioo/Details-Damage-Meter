@@ -173,6 +173,10 @@ function Details222.BParser.GetCustomDataForWindow(instance, attributeId)
                 durationSeconds = 1,
             }
 
+            if Details222.Apocalypse.IsServerInCombat() then
+                return session
+            end
+
             local combat
             local segmentType, segmentId = instance:GetSegmentType(), instance:GetNewSegmentId()
             if segmentType > 1 then
