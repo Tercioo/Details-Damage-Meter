@@ -17,6 +17,10 @@ local sections = breakdownMidnight.Sections
 ---@param totalLines number
 local refreshTargetsSection = function(self, data, offset, totalLines)
     local header = self:GetHeader()
+    local windowFrame = self:GetWindow()
+    local statusBarTexture = windowFrame:GetStatusBarTexture()
+
+    local maxAmount = data[1] and data[1].amount or 0
 
     for i = 1, totalLines do
         local lineIndex = i + offset
@@ -25,6 +29,8 @@ local refreshTargetsSection = function(self, data, offset, totalLines)
             local line = self:GetLine(i)
             ---@cast line detailsbreakdownmidnight_line
             line:ResetFramesToHeaderAlignment()
+            local secondColumnWidth = header:GetColumnWidth(2)
+            local thirdColumnWidth = header:GetColumnWidth(3)
 
             line.Icon:SetTexture(thisData.icon or sections.genericIcon)
 
@@ -46,10 +52,16 @@ local refreshTargetsSection = function(self, data, offset, totalLines)
             line.Texts[2]:SetText(thisData.name or thisData.text or thisData.label or tostring(thisData))
             line:AddFrameToHeaderAlignment(line.Texts[2])
 
+            line.StatusBar:SetWidth(secondColumnWidth + thirdColumnWidth + header.options.reziser_width * 2)
+            line.StatusBar:SetStatusBarTexture(statusBarTexture)
+            line.StatusBar:SetMinMaxValues(0, maxAmount)
+            line.StatusBar:SetValue(thisData.amount)
+
             for textIndex = 3, #line.Texts do
+                local fontString = line.Texts[textIndex]
                 local value = thisData.texts and thisData.texts[textIndex - 2] or ""
-                line.Texts[textIndex]:SetText(value)
-                line:AddFrameToHeaderAlignment(line.Texts[textIndex])
+                fontString:SetText(value)
+                line:AddFrameToHeaderAlignment(fontString)
             end
 
             line:AlignWithHeader(header, "left")

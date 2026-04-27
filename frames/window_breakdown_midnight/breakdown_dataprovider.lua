@@ -254,7 +254,7 @@ local getSourceSpells = function(sourceSpells, classFileName)
     return spellData, headerData
 end
 
-function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName)
+function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName) --~targets
     local actors = Details222.B.GetSegment(segmentType <= 1 and "Type" or "ID", segmentType <= 1 and segmentType or segmentId, 10)
     --dumpt(actors)
     local targets = {}
@@ -286,6 +286,11 @@ function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName)
             end
         end
     end
+
+    table.sort(targets, function(a, b)
+        return a.amount > b.amount
+    end)
+
     return targets
 end
 
@@ -301,9 +306,9 @@ function breakdownMidnight.GenerateTargetsData(windowFrame)
         {key="icon", text="", width=false, align="left", canSort=false, dataType="string", offset=0},
         {key="rank", text="#", width=false, align="center", canSort=true, dataType="number", offset=0},
         {key="name", text="Target Name", width=180, align="left", canSort=true, dataType="string", offset=0},
-        {key="amount", text="Amount", width=false, align="left", canSort=true, dataType="number", offset=0},
-        --{key="dps", text="DPS", width=false, align="right", canSort=true, dataType="number", offset=0},
-        --{key="percent", text="Percent", width=false, align="right", canSort=true, dataType="number", offset=0},
+        {key="amount", text="Amount", width=false, align="center", canSort=true, dataType="number", offset=0},
+        {key="dps", text="DPS", width=false, align="center", canSort=true, dataType="number", offset=0},
+        {key="percent", text="Percent", width=false, align="center", canSort=true, dataType="number", offset=0},
     }
 
     return targets, headerData
