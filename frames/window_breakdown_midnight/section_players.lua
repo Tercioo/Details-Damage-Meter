@@ -158,6 +158,11 @@ function breakdownMidnight.PlayerSectionInit(sectionFrame, windowFrame)
         breakdownMidnight.UpdateSectionHeader(windowFrame, breakdownMidnight.Enums.SectionIds.Players, headerLabels)
         --assignPlayerRank(playerData.combatSources)
 
+        local total = #playerData.combatSources
+        for i = 1, total do
+            playerData[i] = true
+        end
+
         thisPlayerScroll:SetData(playerData)
         thisPlayerScroll:Refresh()
     end
