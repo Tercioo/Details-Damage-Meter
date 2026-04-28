@@ -4409,6 +4409,14 @@ function gump:CreateNewLine(instance, index)
 	return newLine
 end
 
+function Details:SetSimpleFormattingSettings(showPercent)
+	if showPercent ~= nil then
+		self.row_info.show_percent = showPercent
+		self:InstanceReset()
+		self:InstanceRefreshRows()
+	end
+end
+
 function Details:SetBarOutlineSettings(side, outlineMode, shadowColor, shadowXOffset, shadowYOffset)
 	if (outlineMode) then
 		if side == "left" then

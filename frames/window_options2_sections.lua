@@ -1782,10 +1782,12 @@ do
             profileTable.format_tp = value[3]
             Details:RefreshMainWindow(-1, true)
             afterUpdate()
-            self:GetParent():RefreshOptions()
+            self:GetParent():GetParent():RefreshOptions()
         end
 
         local rightTextTemplates = {
+            {value = {"Select a template"}, label = Loc["STRING_OPTIONS_SELECT_TEMPLATE"], onclick = function()end, icon = ""},
+
             {value = {"%s (%s, %s)", "%s (%s)", "%s (%s)"}, label = Loc["STRING_OPTIONS_RESET_TO_DEFAULT"], onclick = onSelectRightTextTemplate, icon = ""},
             {value = {"%s (%s)", "%s (%s)", "%s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"], onclick = onSelectRightTextTemplate, icon = ""},
             {value = {"%s", "%s", "%s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"], onclick = onSelectRightTextTemplate, icon = ""},
@@ -2375,6 +2377,28 @@ do
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TITLE"] end, text_template = subSectionTitleTextTemplate},
 
+            ---@type df_menu_group
+            {
+                type = "group",
+                UseBackdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tileSize = 16, tile = true, tileEdge = true, edgeSize = 16, insets = {left = 3, right = 3, top = 3, bottom = 3}},
+                BackgroundColor = {0, 0, 0, .2},
+                BackdropBorderColor = {1, 1, 1, 0.5},
+                name = "simpletext",
+                padding = 2,
+                width = 260,
+            },
+
+            ---@type df_menu_group
+            {
+                type = "group",
+                UseBackdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tileSize = 16, tile = true, tileEdge = true, edgeSize = 16, insets = {left = 3, right = 3, top = 3, bottom = 3}},
+                BackgroundColor = {0, 0, 0, .2},
+                BackdropBorderColor = {1, 1, 1, 0.5},
+                name = "alignmenttext",
+                padding = 2,
+                width = 260,
+            },
+
             {--use simple text
                 type = "toggle",
                 get = function() return Details.righttext_simple_formatting.enabled end,
@@ -2391,19 +2415,38 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_DESC"],
                 id = "use_simple_formatting_toggle",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
+            },
+
+            {type = "blank"},
+            {type = "label", get = function() return Loc["STRING_OPTIONS_SELECT_TEMPLATE"] end, text_template = subSectionTitleTextTemplate,
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            {--templates
+                type = "select",
+                get = function() return rightTextTemplates[1].value end,
+                values = function()
+                    return buildRightTextTemplateMenu()
+                end,
+                name = "",
+                desc = "",
+                id = "selecttemplate_dropdown",
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] end,
             text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true, group = "simpletext"},
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
             {--total dps percent
                 type = "textentry",
@@ -2417,13 +2460,15 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE3"],
                 id = "format_tsp_textentry",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] end, text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true, group = "simpletext"},
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
             {--total dps
                 type = "textentry",
@@ -2437,13 +2482,15 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE2"],
                 id = "format_ts_textentry",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] end, text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true, group = "simpletext"},
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
             {--total percent
                 type = "textentry",
@@ -2457,23 +2504,10 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE1"],
                 id = "format_tp_textentry",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
-            {type = "label", get = function() return "Select a template:" end, text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
-
-            {--templates
-                type = "select",
-                get = function() return rightTextTemplates[1].value end,
-                values = function()
-                    return buildRightTextTemplateMenu()
-                end,
-                name = "",
-                desc = "",
-                hidden = not detailsFramework.IsAddonApocalypseWow(),
-            },
-
-            {type = "blank", hidden = not detailsFramework.IsAddonApocalypseWow(),},
+            {type = "blank", hidden = not detailsFramework.IsAddonApocalypseWow()},
 
             {--use alignment
                 type = "toggle",
@@ -2491,7 +2525,22 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"],
                 id = "use_alignment_toggle",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "alignmenttext",
             },
+
+            {--show percent
+                type = "toggle",
+                get = function() return currentInstance.row_info.show_percent end,
+                set = function(self, fixedparam, value)
+                    Details:InstanceCallMethod("SetSimpleFormattingSettings", value)
+                    afterUpdate()
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
+                desc = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "alignmenttext",
+            },
+
             {--alignment space
                 type = "range",
                 get = function() return Details.righttext_simple_formatting.alignment_space end,
@@ -2508,6 +2557,7 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"],
                 id = "alignment_space_range",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "alignmenttext",
             },
         }
 
@@ -2526,6 +2576,7 @@ do
             local formatTSP = sectionFrame:GetWidgetById("format_tsp_textentry")
             local formatTS = sectionFrame:GetWidgetById("format_ts_textentry")
             local formatTP = sectionFrame:GetWidgetById("format_tp_textentry")
+            local selectTemplate = sectionFrame:GetWidgetById("selecttemplate_dropdown")
             local useAlignment = sectionFrame:GetWidgetById("use_alignment_toggle")
             local alignmentSpace = sectionFrame:GetWidgetById("alignment_space_range")
 
@@ -2537,6 +2588,7 @@ do
                     formatTP:Enable()
                     useAlignment:SetChecked(false)
                     alignmentSpace:Disable()
+                    selectTemplate:Disable()
                 else
                     useSimpleText:SetChecked(false)
                     formatTSP:Disable()
@@ -2544,6 +2596,7 @@ do
                     formatTP:Disable()
                     --useAlignment:Enable()
                     alignmentSpace:Enable()
+                    selectTemplate:Enable()
                 end
             end
 

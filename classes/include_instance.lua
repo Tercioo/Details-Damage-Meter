@@ -260,6 +260,7 @@ _detalhes.instance_defaults = {
 				textR_custom_text = "{data1} ({data2}, {data3}%)",
 			--right text show which infos
 				textR_show_data = {true, true, true},
+				show_percent = false, --dlc 12 and above
 				textR_bracket = "(",
 				textR_separator = ",",
 			--left text bar number
