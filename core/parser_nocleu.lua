@@ -257,6 +257,10 @@ function Details222.BParser.GetCustomDataForWindow(instance, attributeId)
                 end
             end
 
+            table.sort(session.combatSources, function(a, b)
+                return a.totalAmount > b.totalAmount
+            end)
+
             return session
         end
     end
