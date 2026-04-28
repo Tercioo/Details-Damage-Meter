@@ -641,8 +641,8 @@ local instanceMixins = {
 		return Details222.BParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
 	end,
 
-	GetSources = function(instance)
-		local thisSegment = instance:GetSegmentObject()
+	GetSources = function(instance, attributeId)
+		local thisSegment = instance:GetSegmentObject(attributeId)
 		if (thisSegment) then
 			return thisSegment.combatSources
 		end
@@ -674,6 +674,17 @@ local instanceMixins = {
 					end
 				else
 					foundSecret = true
+				end
+			end
+
+			if foundSecret then
+				sources = instance:GetSources(0)
+				for i = 1, #sources do
+					if not issecretvalue(sources[i].name) then
+						if sources[i].name == actorName then
+							return sources[i]
+						end
+					end
 				end
 			end
 		--end
@@ -1065,8 +1076,8 @@ function Details:GetSegment()
 	return self.segmento
 end
 
-function Details:GetSegmentObject()
-	local attributeId = self:GetAttributeType()
+function Details:GetSegmentObject(attributeId)
+	attributeId = attributeId or self:GetAttributeType()
 	if attributeId == 100 then
 		attributeId = 0
 	end

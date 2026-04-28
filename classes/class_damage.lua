@@ -3359,6 +3359,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			canShowPercent = true
 		end
 
+		if source.amountPerSecond < 1 then
+			source.amountPerSecond = 1
+		end
+
 		if actorName then
 			actorName = detailsFramework:RemoveRealmName(actorName)
 		else

@@ -165,7 +165,7 @@
 		---@type damagemeter_combat_source
 		sourceData = sourceData or instance:GetSourceActorFromName(actorName) --attempt to index local 'sourceData' (a nil value) after finish a dungeon
 		actorName = actorName or sourceData.name
-		local actorGUID = sourceData.sourceGUID
+		local actorGUID = sourceData.sourceGUID --util.lua:168: attempt to index local 'sourceData' (a nil value)
 		local classFilename = sourceData.classFilename
 		local damageMeterType = instance:GetAttributeType()
 		local blzSpecIcon = sourceData.specIconID
@@ -828,7 +828,7 @@
 	---@param maxHealth number
 	---@return adapter
 	function Details:MakeDeathLogAdapter(instance, actorName, deathRecap, maxHealth)
-		local settingsTable = Details:MakeSettingsForAdapter(instance, actorName)
+		local settingsTable = Details:MakeSettingsForAdapter(instance, actorName) --831: in function 'MakeDeathLogAdapter'
 		local adapter = Details:MakeActorAdapter(settingsTable)
 		local thisDeathLog = Details:CreateDeathLogTable(actorName, adapter.classe, adapter.specIcon, deathRecap, maxHealth)
 		adapter.deathLog = thisDeathLog

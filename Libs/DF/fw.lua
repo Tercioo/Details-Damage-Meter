@@ -1105,9 +1105,15 @@ local function tableToString(t, resultString, deep, seenTables)
             resultString = resultString .. space .. "|cFFa9ffa9},|r\n"
 
 		elseif (valueType == "string") then
+			if issecretvalue(value) then
+				value = "#secret-string#"
+			end
 			resultString = resultString .. space .. "[\"" .. key .. "\"] = \"|cFFfff1c1" .. value .. "|r\",\n"
 
 		elseif (valueType == "number") then
+			if issecretvalue(value) then
+				value = "#secret-number#"
+			end
 			if (type(key) == "number") then
 				resultString = resultString .. space .. "[" .. key .. "] = |cFFffc1f4" .. value .. "|r,\n"
 			else
@@ -1118,7 +1124,12 @@ local function tableToString(t, resultString, deep, seenTables)
 			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFC586C0function|r,\n"
 
 		elseif (valueType == "boolean") then
-			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r,\n"
+			if issecretvalue(value) then
+				value = "#secret-boolean#"
+				resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. value .. "|r,\n"
+			else
+				resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r,\n"
+			end
 		end
     end
 

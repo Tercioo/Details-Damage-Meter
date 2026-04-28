@@ -759,7 +759,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field UnFreeze fun(instance: instance)
 ---@field DoAutomation fun(instance: instance, event:string)
 ---@field GetAttributeType fun(instance: instance) : number
----@field GetSources fun(instance: instance) : damagemeter_combat_source[]
+---@field GetSources fun(instance: instance, attributeId: attributeid?) : damagemeter_combat_source[]
 ---@field SetSegment fun(instance: instance, segment: segmentid, force: boolean|nil)
 ---@field SetDisplay fun(instance: instance, segmentId: segmentid?, attributeId: attributeid?, subAttributeId: attributeid?, modeId: modeid?, quickMode:boolean?)
 ---@field GetDisplay fun(instance: instance) : attributeid, attributeid
@@ -771,7 +771,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field SetNewSegmentId fun(instance: instance, sessionId: number, bForceRefresh: boolean?, bByUser: boolean?)
 ---@field GetSegmentType fun(instance: instance) : number
 ---@field SetSegmentType fun(instance: instance, sessionType: number, bForceRefresh: boolean?, bByUser: boolean?)
----@field GetSegmentObject fun(instance: instance) : damagemeter_combat_session
+---@field GetSegmentObject fun(instance: instance, attributeId: attributeid?) : damagemeter_combat_session
 ---@field GetSourceActorFromName fun(instance: instance, name: string) : actor
 
 ---@class sessioncache : table
