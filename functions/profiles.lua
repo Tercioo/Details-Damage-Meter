@@ -1944,7 +1944,7 @@ end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 --~export ~ import ~profile
-
+--these are keys in the profile that should not be exported
 local exportProfileBlacklist = {
 	custom = true,
 	cached_specs = true,
@@ -1987,6 +1987,30 @@ local exportProfileBlacklist = {
 	trinket_data = true,
 	keystone_cache = true,
 	performance_profiles = true,
+	coach = true,
+	apocalypse_savedsegments = true,
+	arena_data_headers = true,
+	arena_data_compressed = true, --store data for arena the character did
+	arena_data_index_selected = true, --index of the arena data selected to be shown in the arena data panel
+	player_stats = true,
+	combat_log = true,
+	data_harvest_for_charsts = true,
+	data_harvested_for_charts = true,
+	ocd_tracker = true,
+	mythic_plus_log = true,
+	cached_roles = true,
+	last_day = true,
+	last_instance_id = true,
+	last_instance_time = true,
+	mythic_dungeon_id = true,
+	local_instances_config = true,
+	on_death_menu = true,
+	damage_meter_sessions = true,
+	damage_meter_session_info = true,
+	current_exp_raid_encounters = true,
+	savedCustomSpells = true,
+	recent_players = true,
+	third_party = true,
 }
 
 --transform the current profile into a string which can be shared in the internet
@@ -2059,7 +2083,6 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 
 	local dataTable = Details:DecompressData (profileString, "print")
 	if (dataTable) then
-
 		local profileObject = Details:GetProfile (newProfileName, false)
 		local nameWasDuplicate = false
     if not overwriteExisting then
