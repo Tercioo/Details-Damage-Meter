@@ -9,12 +9,12 @@ local EDIT_MODE_SESSION =
 	{
 		{ totalAmount = 100000; amountPerSecond = 100000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_1; classFilename = "DEATHKNIGHT"; },
 		{ totalAmount = 86000; amountPerSecond = 86000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_3; classFilename = "WARLOCK"; },
-		{ totalAmount = 67000; amountPerSecond = 67000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_7; classFilename = "HUNTER"; },
-		{ totalAmount = 71000; amountPerSecond = 71000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_6; classFilename = "DEMONHUNTER"; },
+		{ totalAmount = 71000; amountPerSecond = 67000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_7; classFilename = "HUNTER"; },
+		{ totalAmount = 67000; amountPerSecond = 71000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_6; classFilename = "DEMONHUNTER"; },
 		{ totalAmount = 56000; amountPerSecond = 56000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_4; classFilename = "SHAMAN"; },
 		{ totalAmount = 41000; amountPerSecond = 41000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_5; classFilename = "PALADIN"; },
 	};
-	maxAmount = 100;
+	maxAmount = 100000;
     durationSeconds = testTime,
 };
 
@@ -43,13 +43,17 @@ function Details:StartTestBarUpdate()
     if (Details.test_bar_update) then
         Details:CancelTimer(Details.test_bar_update)
     end
-    Details.test_bar_update = Details:ScheduleRepeatingTimer ("TestBarsUpdate", 0.5)
+    Details.test_bar_update = Details:ScheduleRepeatingTimer ("TestBarsUpdate", 0)
 end
 function Details:StopTestBarUpdate()
     if (Details.test_bar_update) then
         Details:CancelTimer(Details.test_bar_update)
     end
     Details.test_bar_update = nil
+end
+
+function Details:IsTestBarOngoing()
+    return Details.test_bar_update ~= nil
 end
 
 function Details:CreateTestBars (alphabet, isArena)

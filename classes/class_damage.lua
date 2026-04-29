@@ -2148,6 +2148,10 @@ local lastEventTime = 0
 function Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
 	---@cast instance instance
 
+	if Details:IsTestBarOngoing() then
+		return
+	end
+
 	--check if the window is showing a pluging, if yes do not update
 	local mode = instance:GetMode()
 	if mode == DETAILS_MODE_RAID then
@@ -4336,6 +4340,7 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 				texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
 				texture:SetVertexColor(1, 1, 1)
 			else
+				--issue is here
 				texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
 				if (not class or class == "" or type(class) ~= "string" or not Details.class_coords[class]) then
 					class = "UNKNOW"

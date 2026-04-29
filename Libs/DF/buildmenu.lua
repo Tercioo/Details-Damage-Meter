@@ -1520,35 +1520,6 @@ end
 
 --volatile menu can be called several times, each time all settings are reset and a new menu is built reusing the widgets
 function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffset, height, useColon, textTemplate, dropdownTemplate, switchTemplate, switchIsCheckbox, sliderTemplate, buttonTemplate, valueChangeHook)
-    if (not parent.widget_list) then
-        detailsFramework:SetAsOptionsPanel(parent)
-    end
-
-    table.wipe(parent.widget_to_disable_check)
-
-    local userValueChangeHook = valueChangeHook
-    local refreshTimer
-    valueChangeHook = function()
-        if userValueChangeHook then
-            userValueChangeHook()
-        end
-
-        if menuOptions.no_refresh_on_change then
-            return
-        end
-
-        if refreshTimer then
-            return
-        else
-            refreshTimer = C_Timer.NewTimer(0.05, function()
-                refreshTimer = nil
-                parent:RefreshOptions()
-            end)
-        end
-    end
-
-    detailsFramework:ClearOptionsPanel(parent)
-
     bHighlightColorOne = true
 
     local amountLineWidgetAdded = 0
@@ -1577,6 +1548,34 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
     local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft = parseOptionsTable(menuOptions)
     parent, height = parseParent(bUseScrollFrame, parent, height, yOffset)
     local languageTable = parseLanguageTable(languageAddonId)
+
+    if (not parent.widget_list) then
+        detailsFramework:SetAsOptionsPanel(parent)
+    end
+    table.wipe(parent.widget_to_disable_check)
+
+    detailsFramework:ClearOptionsPanel(parent)
+
+    local userValueChangeHook = valueChangeHook
+    local refreshTimer
+    valueChangeHook = function()
+        if userValueChangeHook then
+            userValueChangeHook()
+        end
+
+        if menuOptions.no_refresh_on_change then
+            return
+        end
+
+        if refreshTimer then
+            return
+        else
+            refreshTimer = C_Timer.NewTimer(0.05, function()
+                refreshTimer = nil
+                parent:RefreshOptions()
+            end)
+        end
+    end
 
     parent.build_menu_options = menuOptions
 
