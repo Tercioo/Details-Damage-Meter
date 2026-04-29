@@ -2373,7 +2373,7 @@ do
                 hidden = detailsFramework.IsAddonApocalypseWow(),
             },
 
-            {type = "blank", hidden = detailsFramework.IsAddonApocalypseWow(),},
+            {type = "blank", hidden = detailsFramework.IsAddonApocalypseWow()},
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TITLE"] end, text_template = subSectionTitleTextTemplate},
 
@@ -2507,7 +2507,10 @@ do
                 group = "simpletext",
             },
 
-            {type = "blank", hidden = not detailsFramework.IsAddonApocalypseWow()},
+            --{type = "blank", hidden = not detailsFramework.IsAddonApocalypseWow()},
+
+            {type = "label", get = function() return Loc["STRING_OR"] end, text_template = subSectionTitleTextTemplate,
+            hidden = not detailsFramework.IsAddonApocalypseWow()},
 
             {--use alignment
                 type = "toggle",
@@ -2538,6 +2541,7 @@ do
                 name = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
                 desc = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                id = "show_percent_toggle",
                 group = "alignmenttext",
             },
 
@@ -2579,6 +2583,7 @@ do
             local selectTemplate = sectionFrame:GetWidgetById("selecttemplate_dropdown")
             local useAlignment = sectionFrame:GetWidgetById("use_alignment_toggle")
             local alignmentSpace = sectionFrame:GetWidgetById("alignment_space_range")
+            local showPercent = sectionFrame:GetWidgetById("show_percent_toggle")
 
             function sectionFrame.UpdateRightTextOption()
                 if Details.righttext_simple_formatting.enabled then
@@ -2586,17 +2591,19 @@ do
                     formatTSP:Enable()
                     formatTS:Enable()
                     formatTP:Enable()
+                    selectTemplate:Enable()
                     useAlignment:SetChecked(false)
                     alignmentSpace:Disable()
-                    selectTemplate:Disable()
+                    showPercent:Disable()
                 else
                     useSimpleText:SetChecked(false)
                     formatTSP:Disable()
                     formatTS:Disable()
                     formatTP:Disable()
+                    selectTemplate:Disable()
                     --useAlignment:Enable()
                     alignmentSpace:Enable()
-                    selectTemplate:Enable()
+                    showPercent:Enable()
                 end
             end
 

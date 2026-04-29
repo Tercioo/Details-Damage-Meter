@@ -4,6 +4,7 @@ if not L then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 L = L or {}
 
+L["STRING_OR"] = "Or"
 
 L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
