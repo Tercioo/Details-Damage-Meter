@@ -568,7 +568,16 @@ end
 --compress data
 
 -- ~compress ~zip ~export ~import ~deflate ~serialize
-function Details:CompressData(data, dataType)
+function Details:CompressData(data, dataType, bUseBlizzardEncoding)
+	if bUseBlizzardEncoding then
+		local dataCopied = DetailsFramework.table.copytocompress({}, data)
+		local serializedString = C_EncodingUtil.SerializeCBOR(dataCopied)
+		local compressedString = C_EncodingUtil.CompressString(serializedString)
+		local encodedString = C_EncodingUtil.EncodeBase64(compressedString)
+		local file = "D!ProfileV2-" .. encodedString
+		return file
+	end
+
 	local LibDeflate = LibStub:GetLibrary("LibDeflate")
 	local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0")
 
@@ -594,6 +603,17 @@ function Details:CompressData(data, dataType)
 end
 
 function Details:DecompressData(data, dataType)
+	if (string.sub(data, 1, 13) == "D!ProfileV2-") then
+		local encodedString = string.sub(data, 14)
+		local decodedString = C_EncodingUtil.DecodeBase64(encodedString)
+		local decompressedString = C_EncodingUtil.DecompressString(decodedString)
+		if (decompressedString) then
+			local decodedData = C_EncodingUtil.DeserializeCBOR(decompressedString)
+			return decodedData
+		end
+		return ""
+	end
+
 	local LibDeflate = LibStub:GetLibrary("LibDeflate")
 	local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0")
 

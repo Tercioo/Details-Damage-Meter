@@ -2061,7 +2061,8 @@ function Details:ExportCurrentProfile(profileName)
 		version = 1,
 	}
 
-	local compressedData = Details:CompressData (exportedData, "print")
+	local bUseBlizzardEncoding = true
+	local compressedData = Details:CompressData (exportedData, "print", bUseBlizzardEncoding)
 	return compressedData
 end
 
