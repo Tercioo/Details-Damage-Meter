@@ -82,6 +82,9 @@ function Details:GetInstanceEJID(...)
 end
 
 function Details222.EJCache.IsCurrentContent(id)
+    if (not Details222.EJCache.CacheCreated) then
+        Details222.EJCache.CreateEncounterJournalDump()
+    end
     return Details222.EJCache.CurrentContent[id]
 end
 
