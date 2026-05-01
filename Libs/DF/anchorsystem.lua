@@ -10,6 +10,7 @@ end
 ---@field sortFunction function The sort function for ordering frames on this anchor
 ---@field framePool any The pool of frames on this anchor
 ---@field MoverTexture texture The texture displayed when the anchor is unlocked
+---@field MoverString fontstring The text label displayed next to the mover texture when unlocked
 ---@field screenAnchors screenanchor[] Array of all anchor frames
 
 ---@class anchorsystem
@@ -99,6 +100,7 @@ local anchorSystemMixin = {
         for i = 1, #self.screenAnchors do
             local thisAnchor = self.screenAnchors[i]
             thisAnchor.MoverTexture:Show()
+            thisAnchor.MoverString:Show()
             thisAnchor:EnableMouse(true)
             thisAnchor:SetMovable(true)
             thisAnchor:RegisterForDrag("LeftButton")
@@ -124,19 +126,32 @@ local anchorSystemMixin = {
             thisAnchor:SetScript("OnDragStart", nil)
             thisAnchor:SetScript("OnDragStop", nil)
             thisAnchor.MoverTexture:Hide()
+            thisAnchor.MoverString:Hide()
         end
     end,
 
+    ---@class anchor_options : table
+    ---@field anchorKey string The key identifying this anchor type
+    ---@field frameName string The name to give the frame
+    ---@field growDirection string The direction frames grow from the anchor ("top", "bottom", "left", "right")
+    ---@field setupFunction function The function to call when setting up a frame for this anchor
+    ---@field sortFunction function The sort function for ordering frames on this anchor
+    ---@field frameCreateFunction function The function to call to create frames for the pool
+    ---@field anchorLabel string The text to display on the anchor when unlocked (defaults to anchorKey if not provided)
+
     ---Creates a new screen anchor for displaying frames
     ---@param self anchorsystem
-    ---@param anchorKey string The key identifying this anchor type
-    ---@param frameName string The name to give the frame
-    ---@param growDirection string The direction frames grow from the anchor ("top", "bottom", "left", "right")
-    ---@param setupFunction function The function to call when setting up a frame for this anchor
-    ---@param sortFunction function The sort function for ordering frames on this anchor
-    ---@param frameCreateFunction function The function to call to create frames for the pool
+    ---@param options anchor_options The options for creating the anchor
     ---@return screenanchor The newly created anchor frame
-    CreateScreenAnchor = function(self, anchorKey, frameName, growDirection, setupFunction, sortFunction, frameCreateFunction)
+    CreateScreenAnchor = function(self, options)
+        local anchorKey = options.anchorKey
+        local anchorLabel = options.anchorLabel or anchorKey
+        local frameName = options.frameName
+        local growDirection = options.growDirection
+        local setupFunction = options.setupFunction
+        local sortFunction = options.sortFunction
+        local frameCreateFunction = options.frameCreateFunction
+
         ---@type screenanchor
         local anchorFrame = CreateFrame("frame", frameName, UIParent)
         anchorFrame:SetSize(20, 20)
@@ -154,6 +169,12 @@ local anchorSystemMixin = {
         moverTexture:SetColorTexture(1, 0.1, 0.1, 0.8)
         moverTexture:Hide()
         anchorFrame.MoverTexture = moverTexture
+
+        local moverString = anchorFrame:CreateFontString("$parentMoverString", "overlay", "GameFontNormal")
+        moverString:SetPoint("left", moverTexture, "right", 2, 0)
+        moverString:SetText(anchorLabel)
+        moverString:Hide()
+        anchorFrame.MoverString = moverString
 
         table.insert(self.screenAnchors, anchorFrame)
 

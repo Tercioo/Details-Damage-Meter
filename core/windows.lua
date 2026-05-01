@@ -1659,3 +1659,42 @@ function Details.ShowCopyValueFrame(textToShow)
 	DetailsCopyValueFrame.editBox:SetFocus()
 	DetailsCopyValueFrame.editBox:HighlightText()
 end
+
+--#region
+function Details:SkinCloseButton(closeButton, parent)
+    if (closeButton.__alreadySkinned) then
+        return
+    end
+
+    closeButton:ClearAllPoints()
+    closeButton:SetPoint("topright", parent, "topright", 9, 4)
+    closeButton:SetSize(32, 32)
+    closeButton:SetAlpha(0)
+
+    local closeTexture = [[Interface\AddOns\Details\images\close_rounded.png]]
+    local clampMethod = "CLAMP"
+    local filterMethod = "TRILINEAR"
+
+    local closeFFTexture = parent:CreateTexture(nil, "overlay")
+    --closeFFTexture:SetAtlas("perks-dropdown-clear")
+    closeFFTexture:SetTexture(closeTexture, clampMethod, clampMethod, filterMethod)
+    --closeFFTexture:SetVertexColor(1, 1, 1, 0.5)
+    --closeFFTexture:SetDesaturated(true)
+    --close texture setup
+    local alpha = 0.5
+    local left, right, top, bottom = 0, 1, 0, 1
+    local size = 20
+    closeFFTexture:SetAlpha(alpha)
+    closeFFTexture:SetTexCoord(left, right, top, bottom)
+    closeFFTexture:SetSize(size, size)
+    closeFFTexture:SetPoint("center", closeButton, "center", -4, 0)
+    --highlight when hoverover
+    closeButton:HookScript("OnEnter", function(self)
+        closeFFTexture:SetAlpha(1)
+    end)
+    closeButton:HookScript("OnLeave", function(self)
+        closeFFTexture:SetAlpha(alpha)
+    end)
+
+    closeButton.__alreadySkinned = true
+end
