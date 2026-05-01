@@ -603,8 +603,8 @@ function Details:CompressData(data, dataType, bUseBlizzardEncoding)
 end
 
 function Details:DecompressData(data, dataType)
-	if (string.sub(data, 1, 13) == "D!ProfileV2-") then
-		local encodedString = string.sub(data, 14)
+	if data:sub(1, #"D!ProfileV2-") == "D!ProfileV2-" then
+		local encodedString = string.sub(data, #"D!ProfileV2-" + 1)
 		local decodedString = C_EncodingUtil.DecodeBase64(encodedString)
 		local decompressedString = C_EncodingUtil.DecompressString(decodedString)
 		if (decompressedString) then

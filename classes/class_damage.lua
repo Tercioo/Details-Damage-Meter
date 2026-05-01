@@ -3250,7 +3250,8 @@ local dealWithPlayerName = function(instance, line, forceUpdate)
 		end
 	end
 
-	dummyText:SetFont(instance.row_info.font_face_file, instance.row_info.font_size, "")
+	detailsFramework:SetFont(dummyText, instance.row_info.font_face_file, instance.row_info.font_size, "")
+	--dummyText:SetFont(instance.row_info.font_face_file, instance.row_info.font_size, "")
 	dummyText:SetText("MMM")
 	local textHeight = dummyText:GetStringHeight()
 	local lineHeight = instance.row_info.height
