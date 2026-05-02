@@ -912,8 +912,19 @@ do
 
 	function Details:ClockPluginTickOnSegment()
 		Details:ClockPluginTick(true)
-	end	
-	
+	end
+
+	local formatTime = function(elapsedTime)
+		if not elapsedTime then
+			return ""
+		end
+
+		local minutes = math.floor(elapsedTime / 60)
+		local seconds = math.floor(elapsedTime % 60)
+		local timeString = string.format("%02d:%02d", minutes, seconds)
+		return timeString
+	end
+
 	--1 sec tick
 	function Details:ClockPluginTick(force)
 		for index, childObject in ipairs(Clock.childs) do
