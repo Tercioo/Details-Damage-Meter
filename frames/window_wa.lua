@@ -2420,12 +2420,9 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local useglow_label = fw:CreateLabel(f, "Glow Effect: ", nil, nil, "GameFontNormal")
         local useglow = fw:CreateSwitch(f, function(self, _, state) 
             if (state and self.glow_test) then  
-                self.glow_test:Show()
-                self.glow_test.animOut:Stop()
-                self.glow_test.animIn:Play()
+                self.glow_test:Play()
             elseif (self.glow_test) then
-                self.glow_test.animIn:Stop()
-                self.glow_test.animOut:Play()
+                self.glow_test:Stop()
             end 
         end, false, nil, nil, nil, nil, "UseGlow")
         
@@ -2435,7 +2432,8 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         useglow:SetPoint("left", useglow_label, "right", 2, 0)
         useglow.tooltip = "Do not rename the aura on WeakAuras options panel or the glow effect may not work."
         
-        useglow.glow_test = CreateFrame("frame", "DetailsAuraTextGlowTest", useglow.widget, "ActionBarButtonSpellActivationAlert")
+        useglow.glow_test = fw:CreateGlowOverlay(useglow.widget, "yellow", "white")
+        useglow.glow_test:ClearAllPoints()
         useglow.glow_test:SetPoint("topleft", useglow.widget, "topleft", -20, 2)
         useglow.glow_test:SetPoint("bottomright", useglow.widget, "bottomright", 20, -2)
         useglow.glow_test:Hide()
@@ -2753,8 +2751,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
     DetailsAuraPanel.AuraSpellId.text = tostring(spellid)
     DetailsAuraPanel.icon.texture = spellicon
     
-    DetailsAuraPanel.UseGlow.glow_test.animIn:Stop()
-    DetailsAuraPanel.UseGlow.glow_test.animOut:Play()
+    DetailsAuraPanel.UseGlow.glow_test:Stop()
     DetailsAuraPanel.UseGlow:SetValue(false)
     
     DetailsAuraPanel.StackSlider:SetValue(0)
