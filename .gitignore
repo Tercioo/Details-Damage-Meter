@@ -74,3 +74,4 @@ core/parser_nocleu2.lua
 player_combatlog_event.txt
 DLC12_API.lua
 docs_generator.md
+/.context

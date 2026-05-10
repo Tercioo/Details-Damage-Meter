@@ -111,6 +111,7 @@ local buildHeaderTableFromData = function(sectionId, headerData)
             local isAmountColumn = key == "amount"
             local isNameColumn = key == "name"
             local savedWidth = getSavedHeaderWidth(sectionId, key)
+            local useSavedWidth = columnData.useSavedWidth ~= false
 
             local width = columnData.width
             if (width == false) then
@@ -119,11 +120,16 @@ local buildHeaderTableFromData = function(sectionId, headerData)
                 width = getDefaultWidthForColumnKey(key)
             end
 
+            local finalWidth = width
+            if (useSavedWidth and savedWidth) then
+                finalWidth = savedWidth
+            end
+
             headerTable[#headerTable+1] = {
                 name = key,
                 key = key,
                 text = columnData.text or "",
-                width = savedWidth or width,
+                width = finalWidth,
                 align = columnData.align or "left",
                 canSort = columnData.canSort ~= false,
                 selected = columnData.selected or (isAmountColumn and true or nil),

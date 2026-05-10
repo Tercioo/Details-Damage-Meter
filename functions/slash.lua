@@ -445,6 +445,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "keys") then
 		Details222.MythicKeys.OpenKeysPanel()
 
+	elseif (msg == "keyss") then
+		Details222.MythicKeys.OpenSmallKeysPanel()
+
 	elseif (msg == "slider") then
 
 		local f = CreateFrame("frame", "TESTEDESCROLL", UIParent)

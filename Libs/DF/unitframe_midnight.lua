@@ -5,7 +5,7 @@ if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
-if not detailsFramework.IsMidnightWow() then return end
+if not detailsFramework.IsMidnightWowAPI() then return end
 
 local _
 --lua locals

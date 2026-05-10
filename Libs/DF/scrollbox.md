@@ -83,6 +83,9 @@ detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width, height,
 | `ScrollBar` | `statusbar` | The scrollbar widget. |
 | `pre_refresh_func` | `function?` | Pre-refresh hook set via `SetPreRefreshFunction`. |
 | `OnSetData` | `function?` | Post-SetData hook. Called after data is assigned. |
+| `dataSelected` | `table?` | Sub-table reference of the currently selected data. Set via `SetDataSelected`. |
+| `dataSelectedIndex` | `number?` | Index of the currently selected data within `self.data`. |
+| `bArrowKeySelection` | `boolean?` | True when arrow key navigation is enabled via `EnableArrowKeySelection`. |
 
 ---
 
@@ -115,7 +118,23 @@ Calls `CreateLine(callback)` in a loop `lineAmount` times.
 
 ### `GetLine(lineIndex)`
 
-Returns the line at `self.Frames[lineIndex]` and marks it as `_InUse = true`. Increments `_LinesInUse`. This is how the refresh function signals which lines are visible.
+Returns the line at `self.Frames[lineIndex]` and marks it as `_InUse = true`. Increments `_LinesInUse`. Call line:Show(). This is how the refresh function signals which lines are visible.
+Call GetLine only after confirming that the data for that line exists; otherwise, the line will remain empty as the loop code will get the next line as the iteration advances to a new data.
+Example:
+Wrong:
+```lua
+local data = dataset[i]
+local line = self:GetLine(lineIndex)
+if data then
+end
+```
+Correct:
+```lua
+local data = dataset[i]
+if data then
+    local line = self:GetLine(lineIndex)
+end
+```
 
 **Returns:** `frame`
 
@@ -126,6 +145,43 @@ Sets `self.data` and `self.data_original` to the provided table. Calls `self.OnS
 ### `GetData()`
 
 Returns `self.data`.
+
+### `SetDataSelected(dataOrIndex)`
+
+Marks one entry of `self.data` as the currently selected one. Accepts:
+- a `number` — treated as the 1-based index into `self.data`
+- a `table` — searched for in `self.data` by reference equality (`data[i] == dataOrIndex`)
+- `nil` — clears the selection
+
+Stores `self.dataSelected` (the resolved sub-table) and `self.dataSelectedIndex` (its index). Returns the resolved data sub-table, or `nil` if the index/table was not found in `self.data`.
+
+The base scrollbox does not visually highlight the selected line — the user's refresh function is responsible for comparing each line's data against `:GetDataSelected()` and applying its own highlight (see how `CreateMenuWithGridScrollBox` borders the selected button at scrollbox.lua:526).
+
+### `GetDataSelected()`
+
+Returns the selected data sub-table previously set via `:SetDataSelected()`, or `nil`.
+
+### `GetDataSelectedIndex()`
+
+Returns the index (within `self.data`) of the selected data, or `nil`.
+
+### `SelectNext()` / `SelectPrevious()`
+
+Moves the selection one entry down (`SelectNext`) or up (`SelectPrevious`) in `self.data`. If nothing is selected yet, both select index `1`. The selection clamps at the end and at the beginning. After moving, calls `:ScrollToSelectedData()` and then `:Refresh()`.
+
+### `ScrollToSelectedData()`
+
+If the currently selected data is outside the visible window, sets the scrollbar value so it becomes visible. No-op if there is no selection or no scrollbar.
+
+### `EnableArrowKeySelection(enabled)`
+
+Opt-in arrow key navigation. When enabled and the mouse is over the scrollbox, pressing `UP`/`DOWN` calls `:SelectPrevious()`/`:SelectNext()`. Other keys propagate normally. Implementation:
+
+- `EnableMouse(true)` is set so the scrollbox receives `OnEnter`/`OnLeave`.
+- `OnEnter` enables keyboard input on the scrollbox (gated by `bArrowKeySelection`); `OnLeave` disables it. This avoids consuming arrow keys globally — e.g. character movement still works when the cursor is elsewhere.
+- `OnKeyDown` consumes only `UP`/`DOWN` (`SetPropagateKeyboardInput(false)`) and propagates everything else.
+
+The user is still responsible for making the selection visible — typically by checking `:GetDataSelected()` inside the refresh function and applying a highlight.
 
 ### `GetFrames()` / `GetLines()`
 
@@ -576,6 +632,13 @@ detailsFramework:CreateCanvasScrollBox(parent, child, name, options)
 | `width` | `number` | `600` | Viewport width. |
 | `height` | `number` | `400` | Viewport height. |
 | `reskin_slider` | `boolean` | `true` | Apply `ReskinSlider` to the scrollbar. |
+| `smooth_scrolling` | `boolean` | `false` | Animate scroll position on mouse wheel instead of snapping. |
+| `smooth_scrolling_speed` | `number` | `12` | Easing rate for smooth scrolling. Higher = faster convergence on the target. |
+| `smooth_scrolling_acceleration` | `boolean` | `false` | When `true`, rapid wheel ticks scale up the scroll step (velocity-based acceleration). Applies to both smooth scrolling and momentum modes. |
+| `smooth_scrolling_acceleration_factor` | `number` | `4` | Maximum step multiplier applied during rapid wheel input. |
+| `use_momentum` | `boolean` | `false` | When `true`, the OnUpdate handler uses momentum/inertia: each wheel tick adds velocity, which decays exponentially over time (phone-style flick scrolling). Takes priority over `smooth_scrolling`. |
+| `momentum_friction` | `number` | `4` | Decay rate for momentum velocity. Higher = stops sooner; lower = longer glide. With `4`, ~98% of velocity is lost in 1 second. |
+| `use_drag_scroll` | `boolean` | `false` | When `true`, holding the left mouse button on the scrollframe and dragging up/down scrolls the content 1:1 with the cursor (touchscreen-style). Releasing while moving hands off to momentum if `use_momentum` is also enabled. |
 
 ### How It Differs from Base
 
@@ -590,7 +653,71 @@ detailsFramework:CreateCanvasScrollBox(parent, child, name, options)
 |---|---|
 | `SetScrollSpeed(speed)` | Set pixels scrolled per mouse wheel tick. |
 | `GetScrollSpeed()` | Get current scroll speed. |
-| `OnVerticalScroll(delta)` | Handles mouse wheel: scrolls up or down by `scrollStep`, clamped to `[0, verticalScrollRange]`. |
+| `SetSmoothScrolling(enabled)` | Enable or disable smooth (animated) scrolling. Disabling cancels any in-flight animation. |
+| `GetSmoothScrolling()` | Returns whether smooth scrolling is enabled. |
+| `SetSmoothScrollSpeed(speed)` | Set the easing rate used while smooth scrolling. Higher = faster convergence. |
+| `SetSmoothScrollingAcceleration(enabled)` | Enable or disable velocity-based step scaling. Applied while either smooth scrolling or momentum is on. |
+| `GetSmoothScrollingAcceleration()` | Returns whether smooth scrolling acceleration is enabled. |
+| `SetSmoothScrollingAccelerationFactor(factor)` | Set the maximum step multiplier reached at very fast wheel rates. |
+| `SetUseMomentum(enabled)` | Enable or disable momentum (inertia) scrolling. Toggling clears any in-flight motion. |
+| `GetUseMomentum()` | Returns whether momentum scrolling is enabled. |
+| `SetMomentumFriction(friction)` | Set the velocity decay rate. Higher = stops sooner. |
+| `SetUseDragScroll(enabled)` | Enable or disable click-and-drag scrolling. Calls `EnableMouse(enabled)` so the scrollframe receives `OnMouseDown`/`OnMouseUp`. |
+| `GetUseDragScroll()` | Returns whether drag scrolling is enabled. |
+| `OnVerticalScroll(delta)` | Handles mouse wheel. Dispatches to momentum (if `useMomentum`), smooth easing (if `smoothScrolling`), or instant snap. |
+
+### Smooth Scrolling
+
+When enabled, mouse wheel events update a `targetScroll` value (computed from the previous target, so rapid wheel ticks accumulate correctly), and an `OnUpdate` script eases `GetVerticalScroll()` toward it each frame using exponential smoothing: `current + (target - current) * min(elapsed * smoothScrollSpeed, 1)`. The `OnUpdate` script unhooks itself once the position is within 0.5 px of the target.
+
+#### Velocity-Based Acceleration
+
+When `smooth_scrolling_acceleration` is enabled, the time between consecutive wheel ticks is measured. If ticks arrive rapidly, the per-tick `scrollStep` is multiplied by a boost factor:
+
+```
+boost = min(0.15 / dt, smoothScrollingAccelerationFactor)
+```
+
+- A wheel tick 150 ms or more after the previous one → boost = 1 (no change).
+- Faster ticks → larger boost, capped at `smoothScrollingAccelerationFactor`.
+- Acceleration applies to both smooth scrolling and momentum modes (it scales the per-tick step, which becomes the velocity kick under momentum).
+
+### Momentum Scrolling
+
+When `use_momentum` is enabled, the `OnUpdate` algorithm switches from target-easing to velocity-based motion (phone-style flick scrolling). It takes priority over `smooth_scrolling`.
+
+Each wheel tick adds a velocity kick:
+
+```
+kick = scrollStep * momentumFriction
+```
+
+The relationship is chosen so that under no further input, one isolated tick travels approximately `scrollStep` total pixels (the integral of the decaying velocity).
+
+Per frame, position integrates from velocity and velocity decays exponentially:
+
+```
+position(t+dt) = position(t) + velocity * dt
+velocity(t+dt) = velocity(t) * exp(-momentumFriction * dt)
+```
+
+- Velocity below 1 px/sec is treated as stopped; the `OnUpdate` script unhooks itself.
+- Hitting top or bottom (`0` or `verticalScrollRange`) clamps the position and zeroes velocity (no bounce).
+- Reversing direction mid-glide drops the existing velocity instead of fighting it.
+- Disabling momentum (or smooth scrolling) clears `scrollVelocity`, `targetScroll`, and `lastWheelTime`.
+
+### Drag Scrolling
+
+When `use_drag_scroll` is enabled, holding the left mouse button on the scrollframe lets the user drag the content like a touchscreen.
+
+**How it works:**
+
+- `EnableMouse(true)` is set so the scrollframe receives `OnMouseDown`/`OnMouseUp`. Children with their own mouse handling (buttons, sliders, etc.) still consume their clicks first — drag only initiates from non-interactive areas of the child.
+- `OnMouseDown` (left button) starts a drag: clears any in-flight motion, records the cursor Y, and hooks `OnUpdate`.
+- Each frame while dragging, `SetVerticalScroll(currentScroll + (cursorY - lastCursorY))` keeps the content under the cursor 1:1. Cursor positions are normalized through `GetEffectiveScale()`. Cursor samples (timestamp + Y) from the last 100 ms are kept for release-velocity computation.
+- The drag also runs while the cursor is outside the frame as long as the left button is held. Releases that happen off-frame (where `OnMouseUp` doesn't fire on the scrollframe) are caught by polling `IsMouseButtonDown("LeftButton")` from inside the drag `OnUpdate`.
+- On release: if `use_momentum` is also enabled, the average cursor velocity over the last 100 ms is seeded into `scrollVelocity` and momentum takes over (so a flick-and-release glides). Otherwise scrolling stops immediately.
+- Mouse wheel still works while drag scrolling is enabled.
 
 ### Key Fields
 
@@ -599,6 +726,19 @@ detailsFramework:CreateCanvasScrollBox(parent, child, name, options)
 | `child` | `frame` | The scroll child frame. |
 | `scrollStep` | `number` | Pixels per scroll tick (default 20). |
 | `minValue` | `number` | Minimum scroll value (always 0). |
+| `smoothScrolling` | `boolean` | Whether smooth scrolling is active. |
+| `smoothScrollSpeed` | `number` | Easing rate for smooth scrolling. |
+| `smoothScrollingAcceleration` | `boolean` | Whether velocity-based acceleration is active. |
+| `smoothScrollingAccelerationFactor` | `number` | Maximum step multiplier under rapid wheel input. |
+| `useMomentum` | `boolean` | Whether momentum/inertia scrolling is active. Takes priority over `smoothScrolling`. |
+| `momentumFriction` | `number` | Velocity decay rate for momentum scrolling. |
+| `useDragScroll` | `boolean` | Whether click-and-drag scrolling is active. |
+| `isDragging` | `boolean?` | True while the left button is held down for a drag. |
+| `dragLastY` | `number?` | Cursor Y from the previous drag frame, used to compute per-frame deltas. |
+| `dragSamples` | `table?` | Recent `{time, cursorY}` samples (last 100 ms) used to compute release velocity. |
+| `scrollVelocity` | `number?` | Current scroll velocity (px/sec) under momentum mode. `nil` or `0` when stopped. Negative = up, positive = down. |
+| `targetScroll` | `number?` | The scroll position the smooth animation is easing toward. `nil` when no animation is in flight. |
+| `lastWheelTime` | `number?` | Timestamp of the last wheel tick. Used to compute the velocity boost. |
 
 **Returns:** `df_canvasscrollbox`
 

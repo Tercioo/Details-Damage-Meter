@@ -522,19 +522,20 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     local instanceLineWidth = instanceLine:GetWidth()
     local tooltipWidth = Details.tooltip.apocalypse_width_useline and instanceLineWidth or (Details.tooltip.apocalypse_width or 300)
 
+    local myPoint = Details.tooltip.anchor_point
+    local anchorPoint = Details.tooltip.anchor_relative
+    local x_Offset = Details.tooltip.anchor_offset[1]
+    local y_Offset = Details.tooltip.anchor_offset[2]
+
     if (Details.tooltip.anchored_to == 1) then
         local addedPadding = 0
         if (instanceLineWidth < tooltipWidth) then
             local diff = tooltipWidth - instanceLineWidth
             addedPadding = diff / 2
         end
-        tooltip:SetPoint("bottomleft", instanceLine, "topleft", -addedPadding, 3)
-        tooltip:SetPoint("bottomright", instanceLine, "topright", addedPadding, 3)
+        tooltip:SetPoint(myPoint, instanceLine, anchorPoint, x_Offset + addedPadding, y_Offset)
+        tooltip:SetWidth(tooltipWidth)
     else
-        local myPoint = Details.tooltip.anchor_point
-        local anchorPoint = Details.tooltip.anchor_relative
-        local x_Offset = Details.tooltip.anchor_offset[1]
-        local y_Offset = Details.tooltip.anchor_offset[2]
         tooltip:SetPoint(myPoint, DetailsTooltipAnchor, anchorPoint, x_Offset, y_Offset)
         tooltip:SetWidth(tooltipWidth)
     end

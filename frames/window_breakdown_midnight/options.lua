@@ -228,6 +228,7 @@ local createOptionsPanel = function()
                 get = function() return Details.breakdown_spell_tab.nest_players_spells_with_same_name end,
                 set = function(self, fixedparam, value)
                     Details.breakdown_spell_tab.nest_players_spells_with_same_name = value
+                    refreshAllWindows()
                 end,
                 name = "Group Player Spells With Same Name",
                 desc = "Group spells casted by players which has the same name",

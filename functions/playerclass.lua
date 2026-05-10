@@ -415,6 +415,8 @@ do
 					local text = thisLineData.leftText
 					if (text and thisLineData.type == 0) then
 						local specId = specNamesToId[text]
+--14x Details/functions/playerclass.lua:417: attempted to index a table that cannot be indexed with secret keys
+--[Details/functions/playerclass.lua]:417: in function '?'						
 						if (specId and type(specId) == "number") then
 							actorSpec = specId
 						end

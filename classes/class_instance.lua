@@ -193,7 +193,6 @@ end
 
 --instance class prototype/mixin
 local instanceMixins = {
-	apocalypseSourceType = detailsFramework.IsAddonApocalypseWow() and Details222.Apocalypse.TypeGame or Details222.Apocalypse.TypeDetails,
 	overallByUser = false, --true when the user selected overall data, false when Details! set to overall
 
 	---check if the instance is the lower instance id
@@ -263,6 +262,8 @@ local instanceMixins = {
 	---@param instance instance
 	RefreshCombat = function(instance)
 		Details:StopTestBarUpdate()
+
+		instance:ClearRestoredSavedSegment()
 
 		---@type segmentid
 		local segmentId = instance:GetSegmentId()
@@ -580,11 +581,14 @@ local instanceMixins = {
 	end,
 
 	GetApocalypseSourceType = function(instance)
-		return instance.apocalypseSourceType
+		return instance.source_type
 	end,
 
 	SetApocalypseSourceType = function(instance, sourceType)
-		instance.apocalypseSourceType = sourceType
+		if instance.savedSegmentIndex and sourceType ~= instance.source_type then
+			instance:ClearRestoredSavedSegment()
+		end
+		instance.source_type = sourceType
 	end,
 
 	---@param instance instance
@@ -613,6 +617,8 @@ local instanceMixins = {
 
 		instance.sessionType = sessionType
 		Details222.BParser.lastEventTime = 0
+
+		Details222.BParser.SetTitleText(instance, "")
 
 		if bForceRefresh then
 			instance:RefreshWindow(bForceRefresh)
@@ -737,7 +743,9 @@ local instanceMixins = {
 			if (instance.freezed) then
 				instance:UnFreeze()
 			end
-			instance.segmento = segmentId
+
+			instance:SetSegmentId(segmentId)
+
 			instance:RefreshCombat()
 			Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmentId)
 
@@ -756,7 +764,7 @@ local instanceMixins = {
 									otherInstance:UnFreeze()
 								end
 
-								otherInstance.segmento = segmentId
+								otherInstance:SetSegmentId(segmentId)
 								otherInstance:RefreshCombat()
 
 								if (not otherInstance.showing) then
@@ -946,6 +954,30 @@ local instanceMixins = {
 		if (needRefreshRows) then
 			self:InstanceRefreshRows()
 		end
+	end,
+
+	ClearRestoredSavedSegment = function(instance)
+		local saved = instance.savedSegmentCombat
+		instance.savedSegmentCombat = nil
+		instance.savedSegmentIndex = nil
+		instance.showing = Details:GetCurrentCombat()
+		if saved then
+			Details:DestroyCombat(saved)
+		end
+	end,
+
+	---@param instance instance
+	---@param savedIndex number index into Details.apocalypse_savedsegments
+	ShowSavedSegment = function(instance, savedIndex)
+		instance:ClearRestoredSavedSegment()
+		instance:SetApocalypseSourceType(Details222.Apocalypse.TypeDetails)
+
+		local segmentsSaved = Details:GetSavedSegments()
+		local saved = segmentsSaved[savedIndex]
+		local restoredCombat = Details.DecompressSegment(saved.combatData)
+
+		instance.savedSegmentCombat = restoredCombat
+		instance.savedSegmentIndex = savedIndex
 	end,
 
 	---@param instance instance
@@ -1611,6 +1643,7 @@ end
 		self.cached_bar_width = self.cached_bar_width or 0
 
 		self.modo = self.modo or 2
+		self.source_type = self.source_type or (detailsFramework.IsAddonApocalypseWow() and Details222.Apocalypse.TypeGame or Details222.Apocalypse.TypeDetails)
 
 		local lower = Details:GetLowerInstanceNumber()
 
@@ -1628,7 +1661,10 @@ end
 		end
 
 		self:ChangeSkin() --carrega a skin aqui que era antes feito dentro do restaura janela
-		Details:TrocaTabela(self, nil, nil, nil, true)
+
+		if self:GetApocalypseSourceType() == Details222.Apocalypse.TypeDetails then
+			Details:TrocaTabela(self, nil, nil, nil, true)
+		end
 
 		if (self.hide_icon) then
 			Details.FadeHandler.Fader(self.baseframe.cabecalho.atributo_icon, 1)
@@ -2332,72 +2368,74 @@ end
 --cria uma janela para uma nova inst�ncia
 	--search key: ~new ~nova
 	function Details:CreateDisabledInstance(ID, skin_table)
-	--first check if we can recycle a old instance
-	if (Details.unused_instances [ID]) then
-		local new_instance = Details.unused_instances [ID]
-		Details.tabela_instancias [ID] = new_instance
-		Details.unused_instances [ID] = nil
-		--replace the values on recycled instance
+		--first check if we can recycle a old instance
+		if (Details.unused_instances[ID]) then
+			local new_instance = Details.unused_instances[ID]
+			Details.tabela_instancias[ID] = new_instance
+			Details.unused_instances[ID] = nil
+			--replace the values on recycled instance
 			new_instance:ResetInstanceConfig()
 
-		--copy values from a previous skin saved
+			--copy values from a previous skin saved
 			if (skin_table) then
 				--copy from skin_table to new_instance
 				Details.table.copy(new_instance, skin_table)
 			end
 
-		return new_instance
-	end
+			return new_instance
+		end
 
-	--must create a new one
+		--must create a new one
 		local new_instance = {
 			--instance id
-				meu_id = ID,
+			meu_id = ID,
 			--internal stuff
-				barras = {}, --container que ir� armazenar todas as barras
-				barraS = {nil, nil}, --de x at� x s�o as barras que est�o sendo mostradas na tela
-				rolagem = false, --barra de rolagem n�o esta sendo mostrada
-				largura_scroll = 26,
-				bar_mod = 0,
-				bgdisplay_loc = 0,
+			barras = {},     --container que ir� armazenar todas as barras
+			barraS = { nil, nil }, --de x at� x s�o as barras que est�o sendo mostradas na tela
+			rolagem = false, --barra de rolagem n�o esta sendo mostrada
+			largura_scroll = 26,
+			bar_mod = 0,
+			bgdisplay_loc = 0,
 
 			--displaying row info
-				rows_created = 0,
-				rows_showing = 0,
-				rows_max = 50,
+			rows_created = 0,
+			rows_showing = 0,
+			rows_max = 50,
 
 			--saved pos for normal mode and lone wolf mode
-				posicao = {
-					["normal"] = {x = 1, y = 2, w = 300, h = 200},
-					["solo"] = {x = 1, y = 2, w = 300, h = 200}
-				},
+			posicao = {
+				["normal"] = { x = 1, y = 2, w = 300, h = 200 },
+				["solo"] = { x = 1, y = 2, w = 300, h = 200 }
+			},
 
 			--save information about window snaps
-				snap = {},
+			snap = {},
 
 			--current state starts as normal
-				mostrando = "normal",
+			mostrando = "normal",
 			--menu consolidated
-				consolidate = false, --deprecated
-				icons = {true, true, true, true},
+			consolidate = false, --deprecated
+			icons = { true, true, true, true },
 
 			--status bar stuff
-				StatusBar = {options = {}},
+			StatusBar = { options = {} },
 
 			--more stuff
-				atributo = 1, --dano
-				sub_atributo = 1, --damage done
-				sub_atributo_last = {1, 1, 1, 1, 1},
-				segmento = 0, --combate atual
-				modo = modo_grupo,
-				last_modo = modo_grupo,
-				LastModo = modo_grupo,
+			atributo = 1, --dano
+			sub_atributo = 1, --damage done
+			sub_atributo_last = { 1, 1, 1, 1, 1 },
+			segmento = 0, --combate atual
+			modo = modo_grupo,
+			last_modo = modo_grupo,
+			LastModo = modo_grupo,
+
+			source_type = detailsFramework.IsAddonApocalypseWow() and Details222.Apocalypse.TypeGame or Details222.Apocalypse.TypeDetails
 		}
 
 		DetailsFramework:Mixin(new_instance, instanceMixins)
 
 		setmetatable(new_instance, Details)
-		Details.tabela_instancias[#Details.tabela_instancias+1] = new_instance
+		Details.tabela_instancias[#Details.tabela_instancias + 1] = new_instance
 
 		--fill the empty instance with default values
 		new_instance:ResetInstanceConfig()
@@ -2427,6 +2465,7 @@ end
 
 		--instance id
 		newInstance.meu_id = instanceId
+		newInstance.source_type = detailsFramework.IsAddonApocalypseWow() and Details222.Apocalypse.TypeGame or Details222.Apocalypse.TypeDetails
 
 		--setup all config
 		newInstance:ResetInstanceConfig()
@@ -2558,6 +2597,8 @@ function Details:RestauraJanela(index, temp, load_only)
 		self.row_height = self.row_info.height + self.row_info.space.between
 		self.rows_fit_in_window = _math_floor(self.posicao[self.mostrando].h / self.row_height)
 
+		self.source_type = self.source_type or (detailsFramework.IsAddonApocalypseWow() and Details222.Apocalypse.TypeGame or Details222.Apocalypse.TypeDetails)
+
 	--create frames
 		local isLocked = self.isLocked
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
@@ -2571,7 +2612,9 @@ function Details:RestauraJanela(index, temp, load_only)
 		--self.isLocked = isLocked --window isn't locked when just created it
 
 	--change the attribute
+	if self:GetApocalypseSourceType() == Details222.Apocalypse.TypeDetails then
 		Details:TrocaTabela(self, self.segmento, self.atributo, self.sub_atributo, true) --passando true no 5� valor para a fun��o ignorar a checagem de valores iguais
+	end
 
 	--set wallpaper
 		if (self.wallpaper.enabled) then
@@ -3154,6 +3197,7 @@ function Details:Freeze(instance)
 	end
 
 	if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeGame then
+		instance:InstanceMsg(false)
 		return
 	end
 
@@ -3196,18 +3240,21 @@ eventListener:RegisterEvent("DETAILS_DATA_SEGMENTREMOVED", function()
 end)
 
 function Details:UpdateCombatObjectInUse(instance)
-	if (instance.iniciada) then
-		if (instance.segmento == -1) then
-			instance.showing = Details.tabela_overall
+    if (instance.iniciada) then
+        if (instance.savedSegmentCombat and not instance.savedSegmentCombat.__destroyed) then
+            instance.showing = instance.savedSegmentCombat
 
-		elseif (instance.segmento == 0) then
-			instance.showing = Details:GetCurrentCombat()
-		else
-			local segmentsTable = Details:GetCombatSegments()
-			local combatObject = segmentsTable[instance.segmento]
-			instance.showing = combatObject
-		end
-	end
+        elseif (instance.segmento == -1) then
+            instance.showing = Details.tabela_overall
+
+        elseif (instance.segmento == 0) then
+            instance.showing = Details:GetCurrentCombat()
+        else
+            local segmentsTable = Details:GetCombatSegments()
+            local combatObject = segmentsTable[instance.segmento]
+            instance.showing = combatObject
+        end
+    end
 end
 
 function Details:AtualizaSegmentos_AfterCombat(instancia)
@@ -3434,7 +3481,7 @@ function Details:TrocaTabela(instance, segmentId, attributeId, subAttributeId, f
 			end
 		end
 
-		instance.segmento = segmentId
+		instance:SetSegmentId(segmentId, true)
 
 		---@type combat[]
 		local segmentsTable = Details:GetCombatSegments()

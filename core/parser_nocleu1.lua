@@ -2037,16 +2037,27 @@ function Details:GetFormattedTimeForTitleBar()
     return "00:00"
 end
 
-local setTitleText = function(instance, timeString)
-    if instance.attribute_text.show_timer then
-        local attributeText = instance:GetInstanceAttributeText() --this return the title, like 'damage done'
-        if instance:GetSegmentType() == 0 then
-            attributeText = _G["DAMAGE_METER_OVERALL_SESSION"] .. " " .. attributeText
+local setTitleText = function(instance, timeString) --0 = overall 1 = current
+    local attributeText = instance:GetInstanceAttributeText() --this return the title, like 'damage done'
+    if instance:GetSegmentType() == 0 then
+        attributeText = _G["DAMAGE_METER_OVERALL_SESSION"] .. " " .. attributeText
+    end
+
+    local lowerInstanceId = Details:GetLowerInstanceNumber()
+    if lowerInstanceId and instance:GetId() == lowerInstanceId then
+        if instance.attribute_text.show_timer then
+            timeString = format("%s %s", timeString, attributeText)
+            instance:SetTitleBarText(timeString)
+        else
+            instance:SetTitleBarText(attributeText)
         end
-        timeString = format("%s %s", timeString, attributeText)
-        instance:SetTitleBarText(timeString)
+    else
+        instance:SetTitleBarText(attributeText)
     end
 end
+
+bParser.SetTitleText = setTitleText
+
 
 local timerUpdateInterval = 1 --time in seconds
 local timerUpdateObject = nil --the C_Timer.NewTicker object that will update the time in the window every X seconds

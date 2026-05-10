@@ -26,12 +26,12 @@ DF.Math = {}
 ---@field MapRangeUnclamped fun(inputX: number, inputY: number, outputX: number, outputY: number, value: number) : number find the value scale between two given values. e.g: value of 75 in a range 0-100 result in 7.5 in a scale for 0-10
 ---@field GetRangePercent fun(minValue: number, maxValue: number, value: number) : number find the normalized percent of the value in the range. e.g range of 200-400 and a value of 250 result in 0.25
 ---@field GetRangeValue fun(minValue: number, maxValue: number, percent: number) : number find the value in the range given from a normalized percent. e.g range of 200-400 and a percent of 0.8 result in 360
----@field GetColorRangeValue fun(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, value: number) : number, number, number find the color value in the range given from a normalized percent. e.g range of 200-400 and a percent of 0.8 result in 360
+---@field GetColorRangeValue fun(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, value: number) : number, number, number interpolate each channel between two colors using a normalized percent. e.g (1,0,0) and (0,0,1) at 0.5 result in (0.5, 0, 0.5)
 ---@field GetDotProduct fun(value1: table, value2: table) : number dot product of two 2D Vectors
----@field GetBezierPoint fun(value: number, point1: table, point2: table, point3: table) : number find a point in a bezier curve
+---@field GetBezierPoint fun(value: number, point1: number, point2: number, point3: number) : number find a point in a quadratic bezier curve (operates on scalar values)
 ---@field LerpNorm fun(minValue: number, maxValue: number, value: number) : number normalized value 0-1 result in the value on the range given, e.g 200-400 range with a value of .5 result in 300
----@field LerpLinearColor fun(deltaTime: number, interpSpeed: number, r1: number, g1: number, b1: number, r2: number, g2: number, b2: number) : number, number, number change the color by the deltaTime
----@field InvertInRange fun(minValue: number, maxValue: number, value: number) : number invert the value in a range, example: InvertInRange(0, 1, 0.75) return 0.25, InvertInRange(0, 100, 75) return 25, InvertInRange(-1, 1, 0.5) return -0.5, InvertInRange(-3, 1, -0.75) return -2.25
+---@field LerpLinearColor fun(deltaTime: number, interpSpeed: number, r1: number, g1: number, b1: number, r2: number, g2: number, b2: number) : number, number, number change the color by the deltaTime, deltaTime*interpSpeed is clamped to [0,1] to prevent overshoot
+---@field InvertInRange fun(minValue: number, maxValue: number, value: number) : number invert the value in a range, example: InvertInRange(0, 1, 0.75) return 0.25, InvertInRange(0, 100, 75) return 25, InvertInRange(-1, 1, 0.5) return -0.5, InvertInRange(-3, 1, -0.75) return -1.25
 ---@field IsNearlyEqual fun(value1: number, value2: number, tolerance: number) : boolean check if a number is near another number by a tolerance
 ---@field IsNearlyZero fun(value: number, tolerance: number) : boolean check if a number is near zero
 ---@field IsWithin fun(minValue: number, maxValue: number, value: number, isInclusive: boolean) : boolean check if a number is within a two other numbers, if isInclusive is true, it'll  include the max value
@@ -46,6 +46,10 @@ DF.Math = {}
 ---@field GetVectorLength fun(vectorX: number, vectorY: number, vectorZ: number?) : number return the magnitude of a vector
 ---@field GetSortFractionFromString fun(str: string) : number return a fraction based on the string first two leters, useful for sorting cases where the number repeats
 ---@field PositiveNonZero fun(value: number) : number return the value or a small float if the value is zero or negative
+---@field Percentile fun(t: number[], p: number) : number? return the p-th percentile of t (p is normalized 0-1, e.g. 0.95 = 95th percentile). Uses linear interpolation between ranks. Returns nil for empty input. Does not mutate t.
+---@field MovingAverage fun(t: number[], window: number) : number[] return a new array of centered moving averages over `window` samples. Edges use a truncated window. Useful for smoothing per-second damage curves.
+---@field SafeDivide fun(a: number, b: number, fallback: number?) : number return a/b, or `fallback` (default 0) if b is zero
+---@field StandardDeviation fun(t: number[]) : number return the population standard deviation of t. Returns 0 for empty or single-element input.
 
 
 
@@ -133,6 +137,7 @@ function DF.Math.GetNinePoints(object)
 	return ninePoints
 end
 
+--produces a small fraction derived from the first two characters of str. abs(byte - 91) is intentional: it inverts the alphabet so 'A' has the largest weight and 'Z' the smallest, giving a reverse-alphabetical tie-breaker when added to a primary sort key.
 function DF.Math.GetSortFractionFromString(str)
 	local name = string.upper(str) .. "ZZ"
 	local byte1 = abs(string.byte(name, 2)-91) / 1000000
@@ -153,7 +158,7 @@ function DF.Math.RandomFraction(minValue, maxValue)
     return DF.Math.MapRangeClamped(0, 1, minValue, maxValue, math.random())
 end
 
----invert the value in a range, example: InvertInRange(0, 1, 0.75) return 0.25, InvertInRange(0, 100, 75) return 25, InvertInRange(-1, 1, 0.5) return -0.5, InvertInRange(-3, 1, -0.75) return -2.25
+---invert the value in a range, example: InvertInRange(0, 1, 0.75) return 0.25, InvertInRange(0, 100, 75) return 25, InvertInRange(-1, 1, 0.5) return -0.5, InvertInRange(-3, 1, -0.75) return -1.25
 function DF.Math.InvertInRange(minValue, maxValue, value)
 	return DF.Math.GetRangeValue(minValue, maxValue, 1 - DF.Math.GetRangePercent(minValue, maxValue, value))
 end
@@ -163,13 +168,14 @@ end
 ---@param unitId2 string
 function DF.Math.GetUnitDistance(unitId1, unitId2)
 	if (UnitExists(unitId1) and UnitExists(unitId2)) then
-		local u1X, u1Y = UnitPosition(unitId1)
-		local u2X, u2Y = UnitPosition(unitId2)
+		--UnitPosition returns posY, posX, posZ, instanceID; the labels are flipped for distance, but the result is the same
+		local u1A, u1B = UnitPosition(unitId1)
+		local u2A, u2B = UnitPosition(unitId2)
 
-		local dX = u2X - u1X
-		local dY = u2Y - u1Y
+		local dA = u2A - u1A
+		local dB = u2B - u1B
 
-		return ((dX*dX) + (dY*dY)) ^ .5
+		return ((dA*dA) + (dB*dB)) ^ .5
 	end
 	return 0
 end
@@ -251,10 +257,11 @@ function DF.Math.LerpNorm(minValue, maxValue, value)
 end
 
 function DF.Math.LerpLinearColor(deltaTime, interpSpeed, r1, g1, b1, r2, g2, b2)
-	deltaTime = deltaTime * interpSpeed
-	local r = r1 + (r2 - r1) * deltaTime
-	local g = g1 + (g2 - g1) * deltaTime
-	local b = b1 + (b2 - b1) * deltaTime
+	--clamp to [0,1] so a long frame (large deltaTime) cannot push the color past the target
+	local t = Clamp(deltaTime * interpSpeed, 0, 1)
+	local r = r1 + (r2 - r1) * t
+	local g = g1 + (g2 - g1) * t
+	local b = b1 + (b2 - b1) * t
 	return r, g, b
 end
 
@@ -283,6 +290,101 @@ end
 function DF.Math.Round(num, numDecimalPlaces)
 	local mult = 10^(numDecimalPlaces or 0)
 	return math.floor(num * mult + 0.5) / mult
+end
+
+---divide a by b, returning fallback (default 0) when b is zero. Useful at boundaries where a zero divisor is plausible (empty windows, no-damage segments, etc).
+---@param a number
+---@param b number
+---@param fallback number?
+---@return number
+function DF.Math.SafeDivide(a, b, fallback)
+	if (b == 0) then
+		return fallback or 0
+	end
+	return a / b
+end
+
+---return the population standard deviation of the values in t. Returns 0 for empty or single-element input.
+---@param t number[]
+---@return number
+function DF.Math.StandardDeviation(t)
+	local n = #t
+	if (n < 2) then
+		return 0
+	end
+
+	local sum = 0
+	for i = 1, n do
+		sum = sum + t[i]
+	end
+	local mean = sum / n
+
+	local sqDiff = 0
+	for i = 1, n do
+		local d = t[i] - mean
+		sqDiff = sqDiff + d * d
+	end
+
+	return (sqDiff / n) ^ 0.5
+end
+
+---return the p-th percentile of the values in t. p is normalized 0-1 (e.g. 0.95 = 95th percentile). Uses linear interpolation between ranks. Returns nil for empty input. Does not mutate t.
+---@param t number[]
+---@param p number
+---@return number?
+function DF.Math.Percentile(t, p)
+	local n = #t
+	if (n == 0) then
+		return nil
+	elseif (n == 1) then
+		return t[1]
+	end
+
+	--copy then sort so the caller's array is untouched
+	local sorted = {}
+	for i = 1, n do
+		sorted[i] = t[i]
+	end
+	table.sort(sorted)
+
+	p = Clamp(p, 0, 1)
+
+	--linear interpolation between rank floor and rank ceil
+	local rank = p * (n - 1) + 1
+	local lower = math.floor(rank)
+	local upper = math.ceil(rank)
+	if (lower == upper) then
+		return sorted[lower]
+	end
+	local frac = rank - lower
+	return sorted[lower] + (sorted[upper] - sorted[lower]) * frac
+end
+
+---return a new array where each entry is the centered moving average of t across `window` samples. window is floored and clamped to a minimum of 1. At array edges the window is truncated to the available samples (so the first/last entries average over fewer values).
+---@param t number[]
+---@param window number
+---@return number[]
+function DF.Math.MovingAverage(t, window)
+	local n = #t
+	local result = {}
+	if (n == 0) then
+		return result
+	end
+
+	window = max(math.floor(window), 1)
+	local half = math.floor(window / 2)
+
+	for i = 1, n do
+		local lo = max(1, i - half)
+		local hi = math.min(n, i + half)
+		local sum = 0
+		for j = lo, hi do
+			sum = sum + t[j]
+		end
+		result[i] = sum / (hi - lo + 1)
+	end
+
+	return result
 end
 
 --old calls, keeping for compatibility

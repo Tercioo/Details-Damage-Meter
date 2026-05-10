@@ -1730,6 +1730,8 @@ local default_global_data = {
 			mythicrun_time_type = 1, --1: combat time (the amount of time the player is in combat) 2: run time (the amount of time it took to finish the mythic+ run)
 		}, --implementar esse time_type quando estiver dando refresh na janela
 
+		mythic_small_window_pos = {},
+
 	--plugin window positions
 		plugin_window_pos = {},
 
@@ -2011,6 +2013,7 @@ local exportProfileBlacklist = {
 	savedCustomSpells = true,
 	recent_players = true,
 	third_party = true,
+	mythic_small_window_pos = true,
 }
 
 --transform the current profile into a string which can be shared in the internet

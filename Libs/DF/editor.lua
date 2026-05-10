@@ -9,7 +9,37 @@ end
 local CreateFrame = CreateFrame
 local unpack = unpack
 local wipe = table.wipe
-local _
+
+--maximum number of entries kept in the undo / redo stacks; oldest entries are dropped beyond this.
+local MAX_UNDO_STACK = 50
+
+--object types we've already warned about for "unrecognized type" so the message fires once per
+--type per session, not on every EditObject() call. keyed by the GetObjectType() string.
+local warnedUnrecognizedTypes = {}
+
+--shallow equality for undo snapshots. used to skip pushing undo entries when nothing actually
+--changed - this happens when BuildMenuVolatile fires set() during widget construction with the
+--current value, which would otherwise create no-op undo entries that wipe the redo stack.
+local function snapshotsEqual(a, b)
+    if (a == b) then
+        --same reference, same scalar, or both nil
+        return true
+    end
+    if (type(a) ~= "table" or type(b) ~= "table") then
+        return false
+    end
+    for k, v in pairs(a) do
+        if (b[k] ~= v) then
+            return false
+        end
+    end
+    for k in pairs(b) do
+        if (a[k] == nil) then
+            return false
+        end
+    end
+    return true
+end
 
 --[=[
     file description: this file has the code for the object editor
@@ -32,10 +62,8 @@ local _
 ---@field editingProfileTable table
 ---@field editingProfileMap table
 ---@field editingOptions df_editobjectoptions
----@field currentObjectNinePoints df_ninepoints
 ---@field editingExtraOptions table
 ---@field registeredObjectInfo df_editor_objectinfo
----@field moverGuideLines table<string, texture>
 ---@field onEditCallback function
 ---@field optionsFrame frame
 ---@field overTheTopFrame frame
@@ -44,8 +72,19 @@ local _
 ---@field canvasScrollBox df_canvasscrollbox
 ---@field ObjectBackgroundTexture texture
 ---@field AnchorFrames df_editor_anchorframes
+---@field SelectedTextures texture[]
 ---@field undoHistory undostate[]
 ---@field redoHistory undostate[]
+---@field UndoButton df_button?
+---@field RedoButton df_button?
+
+---each undo entry is a pair of closures. coalesceKey lets adjacent entries from the same widget
+---(e.g. continuous slider drag) merge into one stack entry instead of N.
+---@class undostate : table
+---@field objectId any
+---@field coalesceKey string
+---@field undo fun()
+---@field redo fun()
 
 ---@class df_editor_attribute
 ---@field key string?
@@ -58,6 +97,9 @@ local _
 ---@field step number?
 ---@field usedecimals boolean?
 ---@field subkey string?
+---@field profileTable table? per-extra override of the registration's profileTable, so an option can read/write against a different scope (e.g., the profile root on a registration bound to a sub-table)
+---@field setter fun(object:any, value:any)?
+---@field dropdownFunc function?
 
 ---@class df_editor_objectinfo : table
 ---@field object uiobject
@@ -90,7 +132,6 @@ local attributes = {
             widget = "selectstatusbartexture",
             default = "",
             setter = function(widget, value) widget:SetTexture(value) end,
-            is_default = true,
         },
         {
             key = "width",
@@ -99,7 +140,6 @@ local attributes = {
             minvalue = 5,
             maxvalue = 120,
             setter = function(widget, value) widget:SetWidth(value) end,
-            is_default = true,
         },
         {
             key = "height",
@@ -108,14 +148,12 @@ local attributes = {
             minvalue = 5,
             maxvalue = 120,
             setter = function(widget, value) widget:SetHeight(value) end,
-            is_default = true,
         },
         {
             key = "vertexcolor",
             label = "Color",
             widget = "color",
             setter = function(widget, value) widget:SetVertexColor(unpack(value)) end,
-            is_default = true,
         },
         {
             key = "alpha",
@@ -125,7 +163,6 @@ local attributes = {
             maxvalue = 1,
             usedecimals = true,
             setter = function(widget, value) widget:SetAlpha(value) end,
-            is_default = true,
         },
 
         {widget = "blank"},
@@ -134,7 +171,6 @@ local attributes = {
             label = "Anchor",
             widget = "anchordropdown",
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
         {
             key = "anchoroffsetx",
@@ -143,7 +179,6 @@ local attributes = {
             minvalue = -120,
             maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
         {
             key = "anchoroffsety",
@@ -152,7 +187,6 @@ local attributes = {
             minvalue = -120,
             maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
     },
 
@@ -163,7 +197,6 @@ local attributes = {
             widget = "textentry",
             default = "font string text",
             setter = function(widget, value) widget:SetText(value) end,
-            is_default = true,
         },
         {
             key = "size",
@@ -172,7 +205,6 @@ local attributes = {
             minvalue = 5,
             maxvalue = 120,
             setter = function(widget, value) widget:SetFont(widget:GetFont(), value, select(3, widget:GetFont())) end,
-            is_default = true,
         },
         {
             key = "font",
@@ -182,14 +214,12 @@ local attributes = {
                 local font = LibStub:GetLibrary("LibSharedMedia-3.0"):Fetch("font", value)
                 widget:SetFont(font, select(2, widget:GetFont()))
             end,
-            is_default = true,
         },
         {
             key = "color",
             label = "Color",
             widget = "color",
             setter = function(widget, value) widget:SetTextColor(unpack(value)) end,
-            is_default = true,
         },
         {
             key = "alpha",
@@ -199,7 +229,6 @@ local attributes = {
             maxvalue = 1,
             usedecimals = true,
             setter = function(widget, value) widget:SetAlpha(value) end,
-            is_default = true,
         },
         {widget = "blank"},
         {
@@ -207,14 +236,12 @@ local attributes = {
             label = "Draw Shadow",
             widget = "toggle",
             setter = function(widget, value) widget:SetShadowColor(widget:GetShadowColor(), select(2, widget:GetShadowColor()), select(3, widget:GetShadowColor()), value and 0.5 or 0) end,
-            is_default = true,
         },
         {
             key = "shadowcolor",
             label = "Shadow Color",
             widget = "color",
             setter = function(widget, value) widget:SetShadowColor(unpack(value)) end,
-            is_default = true,
         },
         {
             key = "shadowoffsetx",
@@ -223,7 +250,6 @@ local attributes = {
             minvalue = -10,
             maxvalue = 10,
             setter = function(widget, value) widget:SetShadowOffset(value, select(2, widget:GetShadowOffset())) end,
-            is_default = true,
         },
         {
             key = "shadowoffsety",
@@ -232,14 +258,12 @@ local attributes = {
             minvalue = -10,
             maxvalue = 10,
             setter = function(widget, value) widget:SetShadowOffset(widget:GetShadowOffset(), value) end,
-            is_default = true,
         },
         {
             key = "outline",
             label = "Outline",
             widget = "outlinedropdown",
             setter = function(widget, value) widget:SetFont(widget:GetFont(), select(2, widget:GetFont()), value) end,
-            is_default = true,
         },
         {widget = "blank"},
         {
@@ -247,7 +271,6 @@ local attributes = {
             label = "Anchor",
             widget = "anchordropdown",
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
         {
             key = "anchoroffsetx",
@@ -256,7 +279,6 @@ local attributes = {
             minvalue = -120,
             maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
         {
             key = "anchoroffsety",
@@ -265,7 +287,6 @@ local attributes = {
             minvalue = -120,
             maxvalue = 120,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
         {
             key = "rotation",
@@ -275,7 +296,6 @@ local attributes = {
             minvalue = 0,
             maxvalue = math.pi*2,
             setter = function(widget, value) widget:SetRotation(value) end,
-            is_default = true,
         },
         {
             key = "scale",
@@ -285,7 +305,6 @@ local attributes = {
             minvalue = 0.65,
             maxvalue = 2.5,
             setter = function(widget, value) widget:SetScale(value) end,
-            is_default = true,
         },
     },
 
@@ -297,7 +316,6 @@ local attributes = {
             minvalue = 5,
             maxvalue = 800,
             setter = function(widget, value) widget:SetWidth(value) end,
-            is_default = true,
         },
         {
             key = "height",
@@ -306,7 +324,6 @@ local attributes = {
             minvalue = 5,
             maxvalue = 600,
             setter = function(widget, value) widget:SetHeight(value) end,
-            is_default = true,
         },
         --alpha
         {
@@ -317,7 +334,6 @@ local attributes = {
             maxvalue = 1,
             usedecimals = true,
             setter = function(widget, value) widget:SetAlpha(value) end,
-            is_default = true,
         },
         --frame strata
         {
@@ -325,7 +341,6 @@ local attributes = {
             label = "Frame Strata",
             widget = "selectframestrata",
             setter = function(widget, value) widget:SetFrameStrata(value) end,
-            is_default = true,
         },
 
         {widget = "blank"},
@@ -334,7 +349,6 @@ local attributes = {
             label = "Anchor",
             widget = "anchordropdown",
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
         {
             key = "anchoroffsetx",
@@ -343,7 +357,6 @@ local attributes = {
             minvalue = -400,
             maxvalue = 400,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
         {
             key = "anchoroffsety",
@@ -352,17 +365,12 @@ local attributes = {
             minvalue = -300,
             maxvalue = 300,
             setter = function(widget, value) detailsFramework:SetAnchor(widget, value, widget:GetParent()) end,
-            is_default = true,
         },
     },
 }
 
 ---@class df_editormixin : table
----@field AddToUndoHistory fun(self:df_editor, undoData:undostate)
----@field AddToRedoHistory fun(self:df_editor, undoData:undostate)
----@field CreateMoverGuideLines fun(self:df_editor)
 ---@field CreateMoverFrame fun(self:df_editor):df_editor_mover[]
----@field CreateUndoManager fun(self:df_editor)
 ---@field CreateObjectSelectionList fun(self:df_editor, scroll_width:number, scroll_height:number, scroll_lines:number, scroll_line_height:number):df_scrollbox
 ---@field GetAllRegisteredObjects fun(self:df_editor):df_editor_objectinfo[]
 ---@field GetEditingObject fun(self:df_editor):uiobject
@@ -384,6 +392,13 @@ local attributes = {
 ---@field EditObject fun(self:df_editor, object:df_editor_objectinfo)
 ---@field EditObjectById fun(self:df_editor, id:any)
 ---@field EditObjectByIndex fun(self:df_editor, index:number)
+---@field ClearEditing fun(self:df_editor) tear down editor UI and clear all editing state
+---@field CreateUndoManager fun(self:df_editor)
+---@field AddToUndoHistory fun(self:df_editor, state:undostate)
+---@field AddMoverUndoState fun(self:df_editor, registeredObject:df_editor_objectinfo, anchorTable:table, oldX:number, oldY:number, newX:number, newY:number)
+---@field Undo fun(self:df_editor)
+---@field Redo fun(self:df_editor)
+---@field RefreshUndoButtons fun(self:df_editor) update enable/disable state of the toolbar undo/redo buttons
 ---@field PrepareObjectForEditing fun(self:df_editor)
 ---@field StartObjectMovement fun(self:df_editor, anchorSettings:df_anchor)
 ---@field StopObjectMovement fun(self:df_editor)
@@ -393,25 +408,24 @@ local attributes = {
 ---@field OnShow fun(self:df_editor)
 ---@field CreateSelectedTextures fun(self:df_editor)
 ---@field ShowSelectedTextures fun(self:df_editor, object:uiobject) 90 degree corner on each corner of the object
+---@field HideSelectedTextures fun(self:df_editor) hide the four corner highlight textures
 ---@field GetProfileTableFromObject fun(self:df_editor, object:df_editor_objectinfo):table
----@field UpdateGuideLinesAnchors fun(self:df_editor)
 ---@field UpdateProfileTableOnAllRegisteredObjects fun(self:df_editor, profileTable:table)
 ---@field UpdateProfileTable fun(self:df_editor, identifier:any, profileTable:table):boolean change the profile table, identifier is the ID, index or object reference of the registered object info
 ---@field UpdateProfileSubTablePath fun(self:df_editor, identifier:any, subTablePath:string) change the subTablePath, identifier is the ID, index, object reference of the registered object info
----@field Undo fun(self:df_editor)
 ---@field Refresh fun(self:df_editor) re-start editing the object that is currently being edited
 
 ---@class df_editobjectoptions : table
 ---@field use_colon boolean? if true a colon is shown after the option name
 ---@field can_move boolean? if true the object can be moved
----@field use_guide_lines boolean? if true guide lines are shown when the object is being moved
+---@field can_click boolean? if true the live-preview click-to-select overlay is shown for this object
 ---@field icon any atlasName atlasTable (from DF:CreateAtlas) or texture path|id
 
 ---@type df_editobjectoptions
 local editObjectDefaultOptions = {
     use_colon = false,
     can_move = true,
-    use_guide_lines = true,
+    can_click = true,
 }
 
 ---@class df_editor_defaultoptions : table
@@ -432,6 +446,7 @@ local editObjectDefaultOptions = {
 ---@field start_editing_callback fun(editorFrame: df_editor, registeredObject: df_editor_objectinfo)?
 ---@field selection_texture string
 ---@field selection_size number
+---@field show_undo_buttons boolean
 
 ---@type df_editor_defaultoptions
 local editorDefaultOptions = {
@@ -452,6 +467,7 @@ local editorDefaultOptions = {
     start_editing_callback = nil,
     selection_texture = "GM_BehaviorMessage_CornerTopLeft_Frame",
     selection_size = 8,
+    show_undo_buttons = true,
 }
 
 
@@ -609,102 +625,14 @@ detailsFramework.EditorMixin = {
         textures[4]:Show()
     end,
 
+    --symmetric to ShowSelectedTextures. called from OnHide and ClearEditing so the corner
+    --highlights don't linger over a previously-edited widget when the editor closes or the
+    --active object is unregistered.
     ---@param self df_editor
-    CreateMoverGuideLines = function(self)
-        local overTheTopFrame = self:GetOverTheTopFrame()
-
-        self.moverGuideLines = {
-            left = overTheTopFrame:CreateTexture(nil, "overlay"),
-            right = overTheTopFrame:CreateTexture(nil, "overlay"),
-            top = overTheTopFrame:CreateTexture(nil, "overlay"),
-            bottom = overTheTopFrame:CreateTexture(nil, "overlay"),
-        }
-
-        for side, texture in pairs(self.moverGuideLines) do
-            texture:SetColorTexture(.8, .8, .8, 0.1)
-            texture:SetSize(1, 1)
-            texture:SetDrawLayer("overlay", 7)
-            texture:Hide()
-
-            if (side == "left" or side == "right") then
-                texture:SetHeight(1)
-                texture:SetWidth(GetScreenWidth())
-            else
-                texture:SetWidth(1)
-                texture:SetHeight(GetScreenHeight())
-            end
-        end
-    end,
-
-    UpdateGuideLinesAnchors = function(self)
-        local object = self:GetEditingObject()
-
-        for side, texture in pairs(self.moverGuideLines) do
-            texture:ClearAllPoints()
-            if (side == "left" or side == "right") then
-                if (side == "left") then
-                    texture:SetPoint("right", object, "left", -2, 0)
-                else
-                    texture:SetPoint("left", object, "right", 2, 0)
-                end
-            else
-                if (side == "top") then
-                    texture:SetPoint("bottom", object, "top", 0, 2)
-                else
-                    texture:SetPoint("top", object, "bottom", 0, -2)
-                end
-            end
-        end
-    end,
-
-    --creates the undo and redo history tables and the functions to add states to them
-    CreateUndoManager = function(self)
-        self.undoHistory = {}
-        self.redoHistory = {}
-    end,
-
-    AddToUndoHistory = function(self, state)
-        table.insert(self.undoHistory, state)
-        wipe(self.redoHistory)
-    end,
-
-    AddToRedoHistory = function(self, state)
-        table.insert(self.redoHistory, state)
-    end,
-
-    Undo = function(self)
-        ---@type undostate
-        local nextUndo = table.remove(self.undoHistory)
-        if nextUndo then
-            self:AddToRedoHistory(nextUndo)
-
-            local originalStates = nextUndo.oldState
-            for i = 1, #originalStates do
-                local thisSettingState = originalStates[i]
-                local key = thisSettingState.key
-                local value = thisSettingState.value
-                local configTable = thisSettingState.settingTable
-                configTable[key] = value
-            end
-
-            --get the object by id
-            local objectId = nextUndo.objectId
-
-            ---@type df_editor_objectinfo
-            local objectRegistered = self:GetObjectById(objectId)
---PAREI AQUI, PRECISA TESTAR - terminei de fazer o loop for i = 1, #originalStates do
---terminei de adicionar os dois self:EditObject(objectRegistered)
---o que espero ver: a localização do uiobject retornar ao estado anterior quando chamar a Undo
-            local currentObjectRegistered = self:GetEditingRegisteredObject()
-            --if the current object being edited is different from the one being undone, switch to it
-            if currentObjectRegistered and objectId ~= currentObjectRegistered.id then
-                self:EditObject(objectRegistered)
-                self.objectSelector:RefreshMe()
-            else
-                self:EditObject(currentObjectRegistered)
-                self.objectSelector:RefreshMe()
-            end
-
+    HideSelectedTextures = function(self)
+        local textures = self.SelectedTextures
+        for i = 1, #textures do
+            textures[i]:Hide()
         end
     end,
 
@@ -842,29 +770,18 @@ detailsFramework.EditorMixin = {
     end,
 
     ---@class moverobject : table
-    ---@field bIsMoving boolean
     ---@field lastMoveInfo table
     ---@field MoverFrame df_editor_mover
-    ---@field AddUndoState fun(self:moverobject) add a undo state into the editor object undo state manager
     ---@field Setup fun(self:moverobject, object:uiobject, registeredObject:df_editor_objectinfo, onTickWhileMoving:function, onTickNotMoving:function)
     ---@field Hide fun(self:moverobject)
     ---@field Stop fun(self:moverobject)
     ---@field UpdatePosition fun(self:moverobject, moverFrame:df_editor_mover)
 
     ---@class df_editor_mover : frame
-    ---@field undoInfo table
-    ---@field moved boolean
-    ---@field anchorName string
     ---@field MovingInfo df_editor_mover_movinginfo
     ---@field MoverIcon texture
-    ---@field bIsMoving boolean
     ---@field OnTickWhileMoving fun(self:df_editor_mover, deltaTime:number)
     ---@field OnTickNotMoving fun(self:df_editor_mover, deltaTime:number)
-
-    ---@class undostate : table
-    ---@field objectId string
-    ---@field oldState table
-    ---@field newState table
 
     ---create a frame to move the object, the frame is attached into the bottom right of the selected object
     ---@param editorFrame df_editor
@@ -874,47 +791,12 @@ detailsFramework.EditorMixin = {
         ---@type moverobject
         ---@diagnostic disable-next-line: missing-fields
         local moverObject = {
-            bIsMoving = false,
-
-            AddUndoState = function(self)
-                local moverFrame = self.MoverFrame
-
-                local editor = editorFrame
-                local registeredObject = editor:GetEditingRegisteredObject()
-                local profileTable, profileMap = editor:GetEditingProfile()
-                local objectId = registeredObject.id
-                local objectType = registeredObject.object:GetObjectType()
-
-                local anchorSettingsTable = self.lastMoveInfo.anchorSettings
-                local xKey = self.lastMoveInfo.keyX
-                local yKey = self.lastMoveInfo.keyY
-                local stateX = self.lastMoveInfo.defaultX
-                local stateY = self.lastMoveInfo.defaultY
-
-                ---@type undostate
-                local newUndoState = {
-                    objectId = objectId, --to start editing the object
-                    oldState = {
-                        {key = xKey, settingTable = anchorSettingsTable, value = stateX},
-                        {key = yKey, settingTable = anchorSettingsTable, value = stateY},
-                    },
-                    newState = {
-                        {key = xKey, settingTable = anchorSettingsTable, value = anchorSettingsTable[xKey]},
-                        {key = yKey, settingTable = anchorSettingsTable, value = anchorSettingsTable[yKey]},
-                    },
-                }
-
-                --add the undo state to the editor undo state
-                editorFrame:AddToUndoHistory(newUndoState)
-            end,
-
             Setup = function(self, object, registeredObject, onTickWhileMoving, onTickNotMoving)
                 local moverFrame = self.MoverFrame
                 moverFrame:Show()
                 moverFrame:EnableMouse(true)
                 moverFrame.OnTickWhileMoving = onTickWhileMoving
                 moverFrame.OnTickNotMoving = onTickNotMoving
-                moverFrame.anchorName = "center"
 
                 moverFrame:SetScript("OnMouseDown", function()
                     --save the current position of the object
@@ -922,11 +804,17 @@ detailsFramework.EditorMixin = {
                     moverFrame.MovingInfo.startX = startX
                     moverFrame.MovingInfo.startY = startY
 
-                    editorFrame.currentObjectNinePoints = detailsFramework.Math.GetNinePoints(registeredObject.refFrame)
+                    --snapshot the anchor offsets at drag start so OnMouseUp can push an
+                    --accurate undo entry. captured here (not at StartObjectMovement time)
+                    --so that anchor changes between drags don't pollute the snapshot.
+                    local moveInfo = self.lastMoveInfo
+                    if (moveInfo and moveInfo.anchorSettings) then
+                        moveInfo.preMoveX = moveInfo.anchorSettings.x
+                        moveInfo.preMoveY = moveInfo.anchorSettings.y
+                    end
 
                     --start moving
                     moverFrame:SetScript("OnUpdate", onTickWhileMoving)
-                    moverFrame.bIsMoving = true
                     moverFrame:StartMoving()
                 end)
 
@@ -940,30 +828,33 @@ detailsFramework.EditorMixin = {
                     moverFrame.MovingInfo.restingY = y
                     moverFrame:SetScript("OnUpdate", onTickNotMoving)
 
-                    local editingObject = editorFrame:GetEditingObject()
-
-                    --which object, from which table, path to property, key, old value, new value
-                    self:AddUndoState()
+                    --push undo entry for the drag, but only if the offsets actually changed.
+                    --skips entries for click-without-drag.
+                    local moveInfo = self.lastMoveInfo
+                    if (moveInfo and moveInfo.anchorSettings and moveInfo.preMoveX ~= nil) then
+                        local anchor = moveInfo.anchorSettings
+                        local oldX, oldY = moveInfo.preMoveX, moveInfo.preMoveY
+                        local newX, newY = anchor.x, anchor.y
+                        if (oldX ~= newX or oldY ~= newY) then
+                            local edited = editorFrame:GetEditingRegisteredObject()
+                            if (edited) then
+                                editorFrame:AddMoverUndoState(edited, anchor, oldX, oldY, newX, newY)
+                            end
+                        end
+                    end
                 end)
 
+                --anchor the mover so it covers the entire widget (topleft + bottomright pair
+                --overrides SetSize). this lets the user click anywhere on the widget to drag it,
+                --matching the purple ObjectBackgroundTexture that visually frames the same area.
                 moverFrame:ClearAllPoints()
-
-                --setting all points on the object
                 moverFrame:SetPoint("topleft", object, "topleft", 0, 0)
                 moverFrame:SetPoint("bottomright", object, "bottomright", 0, 0)
 
-                --current position of object selected
                 local x, y = object:GetCenter()
                 moverFrame.MovingInfo.restingX = x
                 moverFrame.MovingInfo.restingY = y
                 moverFrame:SetScript("OnUpdate", onTickNotMoving)
-
-                --problem, I don't remember why caused the issue of the hide on click on others tabs, I think the mover was anchored to parent frame all points
-                if (not moverFrame.moved) then
-                    moverFrame:GetScript("OnMouseDown")(moverFrame)
-                    moverFrame:GetScript("OnMouseUp")(moverFrame)
-                    --moverFrame.moved = true
-                end
             end,
 
             Hide = function(self)
@@ -971,7 +862,6 @@ detailsFramework.EditorMixin = {
             end,
 
             Stop = function(self)
-                self.bIsMoving = false
                 local moverFrame = self.MoverFrame
                 moverFrame:StopMovingOrSizing()
                 moverFrame:SetScript("OnUpdate", nil)
@@ -1018,7 +908,6 @@ detailsFramework.EditorMixin = {
         local objectRegistered = self:GetObjectById(id)
         assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
         self:EditObject(objectRegistered)
-        self.objectSelector:RefreshMe()
     end,
 
     EditObjectByIndex = function(self, index)
@@ -1026,7 +915,6 @@ detailsFramework.EditorMixin = {
         local objectRegistered = self:GetObjectByIndex(index)
         assert(type(objectRegistered) == "table", "EditObjectById() object not found.")
         self:EditObject(objectRegistered)
-        self.objectSelector:RefreshMe()
     end,
 
     ---@param self df_editor
@@ -1063,9 +951,158 @@ detailsFramework.EditorMixin = {
 
         self:PrepareObjectForEditing()
 
+        --refresh the left-panel selector so its highlight tracks the active object.
+        --guarded because EditObject can technically be reachable before the selector is built.
+        if (self.objectSelector) then
+            self.objectSelector:RefreshMe()
+        end
+
         if self.options.start_editing_callback then
             xpcall(self.options.start_editing_callback, geterrorhandler(), self, registeredObject)
         end
+    end,
+
+    ---tear down editor UI and clear all editing state. used when the active object is unregistered.
+    ---@param self df_editor
+    ClearEditing = function(self)
+        self:StopObjectMovement()
+        self:GetMoverObject():Hide()
+        self.AnchorFrames:DisableAllAnchors()
+        self:HideSelectedTextures()
+
+        self.editingObject = nil
+        self.editingProfileMap = nil
+        self.editingProfileTable = nil
+        self.editingOptions = nil
+        self.editingExtraOptions = nil
+        self.onEditCallback = nil
+        self.registeredObjectInfo = nil
+    end,
+
+    ---initialize the empty undo / redo stacks. called once during editor construction.
+    ---@param self df_editor
+    CreateUndoManager = function(self)
+        self.undoHistory = {}
+        self.redoHistory = {}
+        self:RefreshUndoButtons()
+    end,
+
+    ---enable / disable the undo / redo buttons based on stack contents. safe to call
+    ---when the buttons don't exist (consumer turned them off via show_undo_buttons).
+    ---@param self df_editor
+    RefreshUndoButtons = function(self)
+        if (self.UndoButton) then
+            if (self.undoHistory and #self.undoHistory > 0) then
+                self.UndoButton:Enable()
+            else
+                self.UndoButton:Disable()
+            end
+        end
+        if (self.RedoButton) then
+            if (self.redoHistory and #self.redoHistory > 0) then
+                self.RedoButton:Enable()
+            else
+                self.RedoButton:Disable()
+            end
+        end
+    end,
+
+    ---push an undo state. coalesces with the previous state if its coalesceKey matches
+    ---(continuous slider drags, color picker, etc. produce many set() calls but should
+    ---collapse into a single undo entry from drag-start to drag-end). any new edit
+    ---invalidates the redo stack.
+    ---@param self df_editor
+    ---@param state undostate
+    AddToUndoHistory = function(self, state)
+        local last = self.undoHistory[#self.undoHistory]
+        if (last and last.coalesceKey and last.coalesceKey == state.coalesceKey) then
+            --keep last.undo (the original "before" snapshot) but advance the redo target.
+            last.redo = state.redo
+        else
+            self.undoHistory[#self.undoHistory + 1] = state
+            if (#self.undoHistory > MAX_UNDO_STACK) then
+                table.remove(self.undoHistory, 1)
+            end
+        end
+        if (#self.redoHistory > 0) then
+            wipe(self.redoHistory)
+        end
+        self:RefreshUndoButtons()
+    end,
+
+    ---convenience wrapper used by the mover. anchorTable is the live profile sub-table
+    ---(e.g. profile.anchor); the undo / redo closures mutate its x and y in place and
+    ---fire the consumer's edit callback so listeners (e.g. Plater) react.
+    ---@param self df_editor
+    ---@param registeredObject df_editor_objectinfo
+    ---@param anchorTable table
+    ---@param oldX number
+    ---@param oldY number
+    ---@param newX number
+    ---@param newY number
+    AddMoverUndoState = function(self, registeredObject, anchorTable, oldX, oldY, newX, newY)
+        local profileTable, profileMap = self:GetEditingProfile()
+        local profileKey = profileMap and profileMap.anchor
+        local object = registeredObject.object
+        local onEditCallback = self:GetOnEditCallback()
+
+        local applyXY = function(x, y)
+            anchorTable.x = x
+            anchorTable.y = y
+            --reposition the widget itself; without this the data is restored but the widget
+            --visually stays where the drag left it. matches what option.setter does for the
+            --slider-driven anchor undo path.
+            detailsFramework:SetAnchor(object, anchorTable, object:GetParent())
+            if (onEditCallback) then
+                onEditCallback(object, "x", x, profileTable, profileKey)
+                onEditCallback(object, "y", y, profileTable, profileKey)
+            end
+        end
+
+        self:AddToUndoHistory({
+            objectId = registeredObject.id,
+            coalesceKey = tostring(registeredObject.id) .. ":mover",
+            undo = function() applyXY(oldX, oldY) end,
+            redo = function() applyXY(newX, newY) end,
+        })
+    end,
+
+    ---pop the most recent undo entry, restore the previous state, push it onto the redo
+    ---stack, and re-render the affected object's menu so widgets reflect the restored value.
+    ---no-op if the stack is empty.
+    ---@param self df_editor
+    Undo = function(self)
+        local state = table.remove(self.undoHistory)
+        if (not state) then
+            self:RefreshUndoButtons()
+            return
+        end
+        xpcall(state.undo, geterrorhandler())
+        self.redoHistory[#self.redoHistory + 1] = state
+
+        local registered = self:GetObjectById(state.objectId)
+        if (registered) then
+            self:EditObject(registered)
+        end
+        self:RefreshUndoButtons()
+    end,
+
+    ---inverse of Undo: pop from redo, re-apply, push back onto undo, re-render.
+    ---@param self df_editor
+    Redo = function(self)
+        local state = table.remove(self.redoHistory)
+        if (not state) then
+            self:RefreshUndoButtons()
+            return
+        end
+        xpcall(state.redo, geterrorhandler())
+        self.undoHistory[#self.undoHistory + 1] = state
+
+        local registered = self:GetObjectById(state.objectId)
+        if (registered) then
+            self:EditObject(registered)
+        end
+        self:RefreshUndoButtons()
     end,
 
     PrepareObjectForEditing = function(self) --~edit
@@ -1107,6 +1144,17 @@ detailsFramework.EditorMixin = {
         elseif (objectType == "Frame" or objectType == "Button" or objectType == "StatusBar") then
             ---@cast object frame
             attributeList = attributes["Frame"]
+
+        else
+            --unrecognized type (e.g. EditBox, ScrollFrame, CheckButton, Cooldown). fall back to
+            --empty so the loop doesn't crash on #attributeList; the consumer's extraOptions still
+            --build into the menu. warn once per type so a developer notices but the message
+            --doesn't spam on every EditObject() call.
+            attributeList = {}
+            if (not warnedUnrecognizedTypes[objectType]) then
+                warnedUnrecognizedTypes[objectType] = true
+                print(("|cFFFFAA00DetailsFramework editor|r: object type %q has no built-in attributes; only extraOptions will appear in the menu."):format(tostring(objectType)))
+            end
         end
 
         --if there's extra options, add the attributeList to a new table and right after the extra options
@@ -1140,25 +1188,19 @@ detailsFramework.EditorMixin = {
             if (widgetType == "blank") then
                 menuOptions[#menuOptions+1] = {type = "blank"}
             else
+                --extras may override the registration's profileTable so a single option can read/write
+                --against a different scope - e.g. a global/root-level setting exposed on a registration
+                --that's otherwise bound to a sub-table via subTablePath.
+                local entryProfileTable = option.profileTable or profileTable
                 --get the key to be used on profile table
                 local profileKey = profileMap[option.key] or option.key
                 if profileKey then
                     local value
                     --if the key contains a dot or a bracket, it means it's a table path, example: "text_settings[1].width"
                     if (profileKey and (profileKey:match("%.") or profileKey:match("%["))) then --profileKey is a number
-                        value = detailsFramework.table.getfrompath(profileTable, profileKey)
+                        value = detailsFramework.table.getfrompath(entryProfileTable, profileKey)
                     else
-                        value = profileTable[profileKey]
-                    end
-
-                    --if you're seeing an option shown without being in the 'profileKeyMap' and 'extraOptions', 
-                    --it's because the profileTable has a key with the same name of the automatic options in 'attributes'
-                    --see: 'local attributes = {'
-                    --example: 'texture' is a profileKey within the Texture attributes, hence if the profile table has a 'texture' key, the option will appear
-                    --update: this is not the case anymore as the default value isn't used anymore
-                    --if no value is found, attempt to get a default
-                    if (type(value) == "nil") then
-                        --value = option.default --won't show options automatically
+                        value = entryProfileTable[profileKey]
                     end
 
                     local bHasValue = type(value) ~= "nil"
@@ -1175,7 +1217,7 @@ detailsFramework.EditorMixin = {
                     end
 
                     if (bHasValue) then
-                        local parentTable = getParentTable(profileTable, profileKey)
+                        local parentTable = getParentTable(entryProfileTable, profileKey)
 
                         assert(detailsFramework:IsValidWidgetForBuildMenu(option.widget), "Invalid widget type for option with key and name: " .. option.key .. ", " .. option.label)
 
@@ -1183,57 +1225,104 @@ detailsFramework.EditorMixin = {
                             anchorSettings = parentTable
                         end
 
+                        --shared apply function used both by the live set() callback and by undo/redo
+                        --replay. captures per-option upvalues so each undo entry just calls applyValue
+                        --with a snapshot value rather than re-deriving the path/setter/callback chain.
+                        local applyValue = function(value)
+                            if (widgetType == "color") then
+                                --mutate the live profile color table in place to preserve references
+                                parentTable[1] = value[1]
+                                parentTable[2] = value[2]
+                                parentTable[3] = value[3]
+                                parentTable[4] = value[4]
+                                value = parentTable
+                            else
+                                detailsFramework.table.setfrompath(entryProfileTable, profileKey, value)
+                            end
+
+                            if (self:GetOnEditCallback()) then
+                                self:GetOnEditCallback()(object, option.key, value, entryProfileTable, profileKey)
+                            end
+
+                            --update the widget visual
+                            --anchoring uses SetAnchor() which requires the anchorTable to be passed
+                            if (option.key == "anchor" or option.key == "anchoroffsetx" or option.key == "anchoroffsety") then
+                                anchorSettings = parentTable
+
+                                if (option.key == "anchor") then
+                                    anchorSettings.x = 0
+                                    anchorSettings.y = 0
+                                end
+
+                                self:StopObjectMovement()
+
+                                option.setter(object, parentTable)
+
+                                if (editingOptions.can_move) then
+                                    self:StartObjectMovement(anchorSettings)
+                                else
+                                    --hide mover frame
+                                    self.moverObject:Hide()
+                                end
+                            else
+                                option.setter(object, value)
+                            end
+                        end
+
                         local optionTable = {
                             type = widgetType,
                             name = option.label,
                             get = function() return value end, --need to get the value directly from the profile table
                             set = function(widget, fixedValue, newValue, ...)
-                                --color is a table with 4 indexes for each color plus alpha
+                                --normalize numeric inputs from sliders
                                 if (widgetType == "range" or widgetType == "slider") then
                                     if (not option.usedecimals) then
                                         newValue = math.floor(newValue)
                                     end
-
-                                elseif (widgetType == "color") then
-                                    --calor callback sends the red color in the fixedParameter slot
-                                    local r, g, b, alpha = fixedValue, newValue, ...
-                                    --need to use the same table from the profile table
-                                    parentTable[1] = r
-                                    parentTable[2] = g
-                                    parentTable[3] = b
-                                    parentTable[4] = alpha
-
-                                    newValue = parentTable
                                 end
 
-                                detailsFramework.table.setfrompath(profileTable, profileKey, newValue)
-
-                                if (self:GetOnEditCallback()) then
-                                    self:GetOnEditCallback()(object, option.key, newValue, profileTable, profileKey)
-                                end
-
-                                --update the widget visual
-                                --anchoring uses SetAnchor() which require the anchorTable to be passed
-                                if (option.key == "anchor" or option.key == "anchoroffsetx" or option.key == "anchoroffsety") then
-                                    anchorSettings = parentTable
-
-                                    if (option.key == "anchor") then
-                                        anchorSettings.x = 0
-                                        anchorSettings.y = 0
-                                    end
-
-                                    self:StopObjectMovement()
-
-                                    option.setter(object, parentTable)
-
-                                    if (editingOptions.can_move) then
-                                        self:StartObjectMovement(anchorSettings)
-                                    else
-                                        --hide mover frame
-                                        self.moverObject:Hide()
-                                    end
+                                --snapshot the OLD profile state before mutation, for undo replay
+                                local oldSnapshot
+                                if (widgetType == "color") then
+                                    oldSnapshot = {parentTable[1], parentTable[2], parentTable[3], parentTable[4]}
                                 else
-                                    option.setter(object, newValue)
+                                    oldSnapshot = detailsFramework.table.getfrompath(entryProfileTable, profileKey)
+                                end
+
+                                --pack color callback args (r, g, b, alpha) into a single table
+                                local payload
+                                if (widgetType == "color") then
+                                    payload = {fixedValue, newValue, ...}
+                                else
+                                    payload = newValue
+                                end
+
+                                applyValue(payload)
+
+                                --capture the post-mutation NEW state for redo replay
+                                local newSnapshot
+                                if (widgetType == "color") then
+                                    newSnapshot = {parentTable[1], parentTable[2], parentTable[3], parentTable[4]}
+                                else
+                                    newSnapshot = detailsFramework.table.getfrompath(entryProfileTable, profileKey)
+                                end
+
+                                --push undo entry. skip if the value didn't actually change - this
+                                --filters out the no-op set() calls BuildMenuVolatile fires during
+                                --widget construction, which would otherwise wipe redoHistory and
+                                --break the second undo of a multi-step undo/redo cycle.
+                                --AddToUndoHistory coalesces consecutive real edits to the same widget
+                                --into one entry, so a slider drag becomes a single undo step.
+                                if (not snapshotsEqual(oldSnapshot, newSnapshot)) then
+                                    local registered = self:GetEditingRegisteredObject()
+                                    if (registered) then
+                                        self:AddToUndoHistory({
+                                            objectId = registered.id,
+                                            coalesceKey = tostring(registered.id) .. ":" .. tostring(option.key),
+                                            undo = function() applyValue(oldSnapshot) end,
+                                            redo = function() applyValue(newSnapshot) end,
+                                        })
+                                    end
                                 end
                             end,
                             min = minValue,
@@ -1244,7 +1333,7 @@ detailsFramework.EditorMixin = {
                         }
 
                         if (conditionalKeys[option.key]) then
-                            local bIsEnabled = conditionalKeys[option.key](object, profileTable, profileKey)
+                            local bIsEnabled = conditionalKeys[option.key](object, entryProfileTable, profileKey)
                             if (not bIsEnabled) then
                                 optionTable.disabled = true
                             end
@@ -1326,19 +1415,6 @@ detailsFramework.EditorMixin = {
 
         assert(anchorSettings, "Object \"" .. registeredObject.id .. "\" without anchorSettings and can_move is 'True'.\nIf this came as surprise, add can_move = false into the table of the 10th argument of editor:RegisterObject().")
 
-        --registeredObjectInfo
-        --print(object.label, ob)
-
-        --update guidelines
-        if (self:GetEditingOptions().use_guide_lines) then
-            --self:UpdateGuideLinesAnchors()
-            --show all four guidelines
-            for side, texture in pairs(self.moverGuideLines) do
-                texture:Show()
-            end
-        end
-
-        local registeredObject = self:GetEditingRegisteredObject()
         local optionsFrame = self:GetOptionsFrame()
         local objectParent = object:GetParent()
         local moverObject = self:GetMoverObject()
@@ -1381,17 +1457,12 @@ detailsFramework.EditorMixin = {
                 local anchorYSlider = optionsFrame:GetWidgetById("anchoroffsety")
                 anchorYSlider:SetValueNoCallback(anchorSettings.y)
 
-                --save the new position
+                --anchorSettings IS the profile sub-table (assigned from getParentTable() in
+                --PrepareObjectForEditing for the anchor option). lines 1440-1441 above already
+                --mutated its .x and .y in place, so the data is persisted by the time we get
+                --here. fire the consumer callback so listeners react.
                 local profileTable, profileMap = self:GetEditingProfile()
                 local profileKey = profileMap.anchor
-                local parentTable = getParentTable(profileTable, profileKey)
-                parentTable.x = anchorSettings.x
-                parentTable.y = anchorSettings.y
-
-                local closestPoint = self.currentObjectNinePoints:GetClosestPoint(CreateVector2D(startX, startY))
-                if (closestPoint ~= parentTable.side) then
-                    --print("side is different", closestPoint, parentTable.side)
-                end
 
                 if (self:GetOnEditCallback()) then
                     self:GetOnEditCallback()(object, "x", anchorSettings.x, profileTable, profileKey)
@@ -1407,9 +1478,11 @@ detailsFramework.EditorMixin = {
             local objectX, objectY = object:GetCenter()
             --did the object move?
             if (objectX ~= moverFrame.MovingInfo.restingX or objectY ~= moverFrame.MovingInfo.restingY) then
-                moverFrame:SetPoint("center", object, moverFrame.anchorName, 0, 0)
-                local x, y = moverFrame:GetCenter()
-                --moverFrame:SetPoint("center", UIParent, "bottomleft", x, y)
+                --re-anchor with the same dual-anchor pair used in Setup so the mover keeps
+                --covering the whole widget after StartMoving/StopMovingOrSizing replaced its anchors.
+                moverFrame:ClearAllPoints()
+                moverFrame:SetPoint("topleft", object, "topleft", 0, 0)
+                moverFrame:SetPoint("bottomright", object, "bottomright", 0, 0)
                 moverFrame.MovingInfo.restingX = objectX
                 moverFrame.MovingInfo.restingY = objectY
             end
@@ -1422,11 +1495,6 @@ detailsFramework.EditorMixin = {
     StopObjectMovement = function(self)
         local moverFrame = self:GetMoverObject()
         moverFrame:Stop()
-
-        --hide all four guidelines
-        for side, texture in pairs(self.moverGuideLines) do
-            texture:Hide()
-        end
     end,
 
     ---@param self df_editor
@@ -1509,7 +1577,8 @@ detailsFramework.EditorMixin = {
 
         localizedLabel = type(localizedLabel) == "string" and localizedLabel or "invalid label"
 
-        --a button to select the widget
+        --invisible button overlaid on the widget so clicking the live preview selects it for
+        --editing in the designer (in addition to clicking the left-panel list).
         local selectButton = CreateFrame("button", "$parentSelectButton" .. id, object:GetParent())
         selectButton:SetAllPoints(object)
 
@@ -1531,21 +1600,42 @@ detailsFramework.EditorMixin = {
         registeredObjects[#registeredObjects+1] = objectRegistered
         self.registeredObjectsByID[id] = objectRegistered
 
-        selectButton:SetFrameLevel(self:GetFrameLevel() + #registeredObjects)
+        --raise above the widget within the same parent so clicks land on selectButton, not the
+        --widget itself. previously used self:GetFrameLevel() + #registeredObjects which mixed
+        --frame levels from two different parent trees and only worked by coincidence of strata.
+        --textures and fontstrings are regions (not frames) and have no GetFrameLevel of their own,
+        --so treat their effective level as parent + 1 (mirroring how a child frame would sit).
+        --this is what lets a region nested inside a registered frame win over the frame's own
+        --selectButton: the region's button ends up at parentLevel + 2 vs the parent's parentLevel + 1.
+        ---@diagnostic disable-next-line: undefined-field
+        local widgetLevel = object.GetFrameLevel and object:GetFrameLevel() or (object:GetParent():GetFrameLevel() + 1)
+        selectButton:SetFrameLevel(widgetLevel + 1)
 
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
 
         selectButton:SetScript("OnClick", function()
             self:EditObject(objectRegistered)
-            objectSelector:RefreshMe()
         end)
+
+        --suppress the click-to-select overlay when can_click is false. otherwise the
+        --invisible full-size button covers the widget area and intercepts clicks meant for
+        --overlapping registrations or child widgets.
+        if (not options.can_click) then
+            selectButton:Hide()
+        end
 
         --what to do after an object is registered?
         return objectRegistered
     end,
 
     UnregisterObject = function(self, object)
+        --tear down the active edit if it's the object being unregistered.
+        --otherwise the editor would be left pointing at a removed registration.
+        if (self:GetEditingObject() == object) then
+            self:ClearEditing()
+        end
+
         local registeredObjects = self:GetAllRegisteredObjects()
 
         for i = 1, #registeredObjects do
@@ -1559,8 +1649,6 @@ detailsFramework.EditorMixin = {
 
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
-
-        --stop editing the object
     end,
 
     ---@param self df_editor
@@ -1675,7 +1763,6 @@ detailsFramework.EditorMixin = {
             line:SetScript("OnClick", function(self)
                 local objectRegistered = editorFrame:GetObjectByIndex(self.index)
                 editorFrame:EditObject(objectRegistered)
-                editorFrame.objectSelector:RefreshMe()
             end)
 
 			--icon
@@ -1719,6 +1806,7 @@ detailsFramework.EditorMixin = {
         local moverObject = self:GetMoverObject()
         moverObject:Hide()
         self.AnchorFrames:DisableAllAnchors()
+        self:HideSelectedTextures()
         self.overTheTopFrame:Hide()
     end,
 
@@ -1728,7 +1816,6 @@ detailsFramework.EditorMixin = {
         local objectIndex = self:GetEditingObjectIndex()
         if (objectIndex) then
             self:EditObjectByIndex(objectIndex)
-            self.objectSelector:RefreshMe()
         end
         self.overTheTopFrame:Show()
     end,
@@ -1798,12 +1885,29 @@ function detailsFramework:CreateEditor(parent, name, options)
     editorFrame:CreateUndoManager()
 
     editorFrame.moverObject = editorFrame:CreateMoverFrame()
-    editorFrame:CreateMoverGuideLines()
 
     editorFrame:CreateSelectedTextures()
 
     editorFrame.optionsFrame = optionsFrame
     editorFrame.canvasScrollBox = canvasFrame
+
+    --undo / redo toolbar at the bottom-right of the editor frame.
+    --placed below the build-menu canvas where there's empty space, so it doesn't fight the menu layout.
+    if (editorFrame.options.show_undo_buttons) then
+        local buttonTemplate = editorFrame.options.button_template
+        local buttonW, buttonH = 60, 22
+
+        local undoButton = detailsFramework:CreateButton(editorFrame, function() editorFrame:Undo() end, buttonW, buttonH, "Undo", nil, nil, nil, nil, nil, nil, buttonTemplate)
+        undoButton:SetPoint("bottomright", editorFrame, "bottomright", -(buttonW + 4), 6)
+        editorFrame.UndoButton = undoButton
+
+        local redoButton = detailsFramework:CreateButton(editorFrame, function() editorFrame:Redo() end, buttonW, buttonH, "Redo", nil, nil, nil, nil, nil, nil, buttonTemplate)
+        redoButton:SetPoint("bottomright", editorFrame, "bottomright", -2, 6)
+        editorFrame.RedoButton = redoButton
+
+        --initial enable/disable state (both stacks empty at construction time)
+        editorFrame:RefreshUndoButtons()
+    end
 
     return editorFrame
 end

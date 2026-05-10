@@ -188,6 +188,19 @@ Sets the vertex color of `backgroundTexture`. Same color format as `SetColor`.
 
 ---
 
+#### `SetIconPosition(position)`
+```lua
+timeBar:SetIconPosition(DF_TIMEBAR_ICON_POSITIONS_OUTSIDE)
+```
+Sets the icon to be show within the statubar or outside.
+If called without parameter, a refresh with the already set position is performed.
+Accept parameters:
+- nil (just refresh)
+- DF_TIMEBAR_ICON_POSITIONS_INSIDE (default when the timebar is created)
+- DF_TIMEBAR_ICON_POSITIONS_OUTSIDE
+
+---
+
 #### `SetDirection(direction)`
 ```lua
 timeBar:SetDirection("right")  -- bar fills left → right (default)

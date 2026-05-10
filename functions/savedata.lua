@@ -78,9 +78,14 @@ function Details:SaveLocalInstanceConfig()
 	end
 end
 
-function Details:SaveConfig()
+--function Details:SaveConfig()
+function Details222.SaveVariables.SaveConfig()
 	--save character instance settings, e.g. which attribute is selected, position, etc
 	Details:SaveLocalInstanceConfig()
+
+	for index, instance in Details:ListInstances() do
+		instance.savedSegmentCombat = nil
+	end
 
 	--cleanup
 	Details:PrepareTablesForSave()

@@ -104,6 +104,7 @@ Details222.BreakdownWindowMidnight = breakdownMidnight
 ---@field GetSpellScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
 ---@field GetStatusBarTexture fun(windowFrame: detailsbreakdownmidnight_window):string
 ---@field GetTargetsScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
+---@field GetComparisonScroll fun(windowFrame: detailsbreakdownmidnight_window):detailsbreakdownmidnight_sectionscroll
 ---@field GetTitleText fun(windowFrame: detailsbreakdownmidnight_window):fontstring
 ---@field RefreshAllScrolls fun(windowFrame: detailsbreakdownmidnight_window)
 ---@field SetCurrentAttributeId fun(windowFrame: detailsbreakdownmidnight_window, attributeId: number)
@@ -122,7 +123,10 @@ Details222.BreakdownWindowMidnight = breakdownMidnight
 ---@field Highlight texture
 ---@field SelectedTexture texture
 ---@field Background texture
+---@field ExpandButton button
+---@field ExpandTexture texture
 ---@field StatusBar statusbar
+---@field ComparisonTexts fontstring[]?
 ---@field GetData fun(line: detailsbreakdownmidnight_line):table
 ---@field SetData fun(line: detailsbreakdownmidnight_line, data: table)
 ---@field GetScroll fun(line: detailsbreakdownmidnight_line):detailsbreakdownmidnight_sectionscroll
@@ -136,6 +140,9 @@ Details222.BreakdownWindowMidnight = breakdownMidnight
 ---@field NoDataPanel frame
 ---@field NoDataText fontstring
 ---@field AttributeNameText fontstring
+---@field ExpandedSpellGroups table<string, boolean>?
+---@field RawSpellData table?
+---@field bUseGroupedSpellData boolean?
 ---@field GetHeader fun(scroll: detailsbreakdownmidnight_sectionscroll):detailsbreakdownmidnight_header
 ---@field GetWindow fun(scroll: detailsbreakdownmidnight_sectionscroll):detailsbreakdownmidnight_window
 ---@field UpdateScrollLineAmount fun(scroll: detailsbreakdownmidnight_sectionscroll)
@@ -149,6 +156,17 @@ local CONST_WINDOW_PADDING = 5
 
 function breakdownMidnight.GetProfile()
     return Details.breakdown_midnight
+end
+
+function breakdownMidnight.FixUnderOneValue(value)
+    if not issecretvalue(value) then
+        if type(value) == "number" then
+            if value < 1 then
+                return 0
+            end
+        end
+    end
+    return value
 end
 
 ---@param windowIndex number

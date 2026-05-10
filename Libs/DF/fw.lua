@@ -1,5 +1,5 @@
 
-local dversion = 723
+local dversion = 730
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -257,6 +257,11 @@ function DF.IsAddonApocalypseWow()
 	return buildInfo >= 120000
 end
 
+function DF.IsMidnightWowAPI()
+	if (buildInfo < 130000 and buildInfo >= 120000) then		return true	end
+	if (buildInfo < 60000 and buildInfo >= 50504) then        return true    end
+	return false
+end
 
 ---return true if the player is playing in the WotLK version of wow with the retail api
 ---@return boolean

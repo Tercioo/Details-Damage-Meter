@@ -207,6 +207,7 @@ _detalhes.instance_defaults = {
 		sessionType_user = 1,
 		tempId = -1,
 		SegmentType = 1,
+		source_type = 0,
 
 		rounded_corner_enabled = false,
 
@@ -288,6 +289,7 @@ _detalhes.instance_defaults = {
 			-- player name sizing
 				playername_size_auto = true,
 				playername_size = 80,
+				playername_alignment_auto = true,
 		  	-- text y offset
 				text_yoffset = 0,
 			--bar height

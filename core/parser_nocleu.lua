@@ -86,6 +86,8 @@ local onEvent = function(event, instance, ...)
     ---@cast instance instance
     if event == "DETAILS_INSTANCE_CHANGEATTRIBUTE" then
         local mainDisplay, subDisplay = ...
+        --Details222.BParser.SetTitleText(instance, "")
+
         if bParser.IsDamageMeterSwapped() then
             local damageMeterType = bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
             if damageMeterType < 100 then

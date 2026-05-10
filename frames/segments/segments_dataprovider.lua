@@ -140,23 +140,34 @@ function segmentSelectionMidnight.GenerateDetailsData() --~data
     for i = 1, #savedSegments do
         local savedSegment = savedSegments[i]
         local combatData = savedSegment.combatData
-        local combatName = savedSegment.header.name
 
-        local combatObject = segmentSelectionMidnight.DecompressSegment(combatData)
-        local duration = combatObject:GetCombatTime()
-        local combatIcon, categoryIcon = combatObject:GetCombatIcon()
-        --print("duration", duration, detailsFramework:IntegerToTimer(duration))
-        data[#data + 1] = {
-            icon = combatIcon or categoryIcon or segmentSelectionMidnight.settings.defaultIcon,
-            statusbarColor = defaultStatusBarColor,
-            leftText = "(*) " .. combatName .. " (" .. date("%Y-%m-%d %H:%M:%S", savedSegment.header.date) .. ")",
-            rightText = detailsFramework:IntegerToTimer(duration),
-            durationPercent = maxDuration > 0 and duration / maxDuration or 0,
-            combatObject = combatObject,
-            segmentId = -i, -- negative segmentId to differentiate from non-saved segments
-        }
+        local headerData = savedSegment.header
+        local combatName = headerData.name
+        local dateWhenHappened = headerData.date
+        local elapsedTime = headerData.elapsedTime
+        local mythicPlusLevel = headerData.mythicPlusLevel
+        local mythicPlusOverall = headerData.mythicPlusOverall
+        local mythicPlusZoneName = headerData.mythicPlusZoneName
 
-        totalAdded = totalAdded + 1
+        if mythicPlusLevel and mythicPlusLevel > 1 then
+            local combatObject = segmentSelectionMidnight.DecompressSegment(combatData)
+            local duration = combatObject:GetCombatTime()
+            local combatIcon, categoryIcon = combatObject:GetCombatIcon()
+
+            --print("duration", duration, detailsFramework:IntegerToTimer(duration))
+            data[#data + 1] = {
+                icon = combatIcon or categoryIcon or segmentSelectionMidnight.settings.defaultIcon,
+                statusbarColor = defaultStatusBarColor,
+                leftText = "(*) " .. combatName .. " (" .. date("%Y-%m-%d", dateWhenHappened) .. ")",
+                rightText = detailsFramework:IntegerToTimer(duration),
+                durationPercent = maxDuration > 0 and duration / maxDuration or 0,
+                --combatObject = combatObject,
+                dataSource = "saved",
+                savedIndex = i,
+            }
+
+            totalAdded = totalAdded + 1
+        end
     end
 
     for i = 1, segmentAmount do
@@ -177,6 +188,7 @@ function segmentSelectionMidnight.GenerateDetailsData() --~data
                 rightText = detailsFramework:IntegerToTimer(duration),
                 durationPercent = maxDuration > 0 and duration / maxDuration or 0,
                 combatObject = thisCombat,
+                dataSource = "live",
                 segmentId = i,
             }
         end

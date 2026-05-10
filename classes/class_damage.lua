@@ -3243,6 +3243,10 @@ end
 
 ---@param instance instance
 local dealWithPlayerName = function(instance, line, forceUpdate)
+	if not instance.row_info.playername_alignment_auto then
+		return
+	end
+
 	if InCombatLockdown() and line.lineText1.__playerNameUpdated and not forceUpdate then
 		local baseFrame = instance.baseframe
 		if not baseFrame.isStretching and not baseFrame.isResizing then
@@ -3251,11 +3255,12 @@ local dealWithPlayerName = function(instance, line, forceUpdate)
 	end
 
 	detailsFramework:SetFont(dummyText, instance.row_info.font_face_file, instance.row_info.font_size, "")
-	--dummyText:SetFont(instance.row_info.font_face_file, instance.row_info.font_size, "")
 	dummyText:SetText("MMM")
+
 	local textHeight = dummyText:GetStringHeight()
 	local lineHeight = instance.row_info.height
 	local lineWidth = instance.baseframe:GetWidth()
+
 	local yOffset = -math.max((lineHeight - textHeight) / 2, 0)
 
 	yOffset = yOffset + instance.row_info.text_yoffset

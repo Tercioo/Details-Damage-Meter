@@ -11,6 +11,34 @@ local PixelUtil = PixelUtil
 local breakdownMidnight = Details222.BreakdownWindowMidnight
 
 local sections = breakdownMidnight.Sections
+local assignSpellRank
+local collapsedExpandColumnWidth = 1
+local defaultExpandColumnWidth = 16
+
+---@param headerData table
+---@param width number
+local setExpandColumnWidth = function(headerData, width)
+    for i = 1, #headerData do
+        local columnData = headerData[i]
+        if (columnData.key == "expand") then
+            columnData.width = width
+            columnData.useSavedWidth = false
+            return
+        end
+    end
+end
+
+---@param spellRows table[]
+---@return boolean
+local hasExpandableSpellRows = function(spellRows)
+    for i = 1, #spellRows do
+        local rowData = spellRows[i]
+        if (rowData and rowData.isExpandable) then
+            return true
+        end
+    end
+    return false
+end
 
 ---@param rowData table
 ---@param sortKey string
@@ -25,9 +53,9 @@ local getSortValue = function(rowData, sortKey)
     elseif (sortKey == "amount") then
         return rowData.amount
     elseif (sortKey == "dps") then
-        return rowData.amount
+        return rowData.dps or rowData.amount
     elseif (sortKey == "percent") then
-        return rowData.amount
+        return rowData.percent or rowData.amount
     elseif (sortKey == "icon") then
         return rowData.icon
     end
@@ -77,6 +105,187 @@ local sortDataBySelectedColumn = function(scrollBox, data)
     end)
 end
 
+---@param a table
+---@param b table
+---@param sortKey string
+---@param sortOrder string
+---@return boolean
+local compareRows = function(a, b, sortKey, sortOrder)
+    local v1 = getSortValue(a, sortKey)
+    local v2 = getSortValue(b, sortKey)
+
+    if (type(v1) == "number" and type(v2) == "number") then
+        if (sortOrder == "ASC") then
+            return v1 < v2
+        end
+        return v1 > v2
+    end
+
+    local s1 = tostring(v1 or "")
+    local s2 = tostring(v2 or "")
+    if (sortOrder == "ASC") then
+        return s1 < s2
+    end
+    return s1 > s2
+end
+
+---@param rows table[]
+---@param sortKey string
+---@param sortOrder string
+local sortRowsByKeyAndOrder = function(rows, sortKey, sortOrder)
+    table.sort(rows, function(a, b)
+        return compareRows(a, b, sortKey, sortOrder)
+    end)
+end
+
+---@param spellScroll detailsbreakdownmidnight_sectionscroll
+---@param spellData table[]
+---@return table[]
+local buildGroupedSpellDisplayData = function(spellScroll, spellData)
+    local header = spellScroll:GetHeader()
+    local _, sortOrder, sortKey = header:GetSelectedColumn()
+    sortOrder = sortOrder or "DESC"
+    sortKey = sortKey or "amount"
+
+    spellScroll.ExpandedSpellGroups = spellScroll.ExpandedSpellGroups or {}
+
+    ---@type table<string, table>
+    local groupsByName = {}
+    ---@type table[]
+    local groups = {}
+
+    for i = 1, #spellData do
+        local spellRow = spellData[i]
+        local groupKey = spellRow.name or ("unknown_" .. i)
+        local group = groupsByName[groupKey]
+        if (not group) then
+            group = {
+                groupKey = groupKey,
+                name = spellRow.name,
+                icon = spellRow.icon,
+                spellID = spellRow.spellID,
+                data = spellRow.data,
+                maxAmount = spellRow.maxAmount or 0,
+                amount = 0,
+                dps = 0,
+                percent = 0,
+                hasPercent = false,
+                children = {},
+            }
+            groupsByName[groupKey] = group
+            groups[#groups + 1] = group
+        end
+
+        group.children[#group.children + 1] = spellRow
+        group.amount = group.amount + (spellRow.amount or 0)
+        group.dps = group.dps + (spellRow.dps or 0)
+        group.maxAmount = math.max(group.maxAmount, spellRow.maxAmount or 0)
+
+        if (type(spellRow.percent) == "number") then
+            group.percent = group.percent + spellRow.percent
+            group.hasPercent = true
+        end
+
+        if (not group.data) then
+            group.data = spellRow.data
+        end
+        if (not group.icon) then
+            group.icon = spellRow.icon
+        end
+        if (not group.spellID) then
+            group.spellID = spellRow.spellID
+        end
+    end
+
+    ---@type table[]
+    local parentRows = {}
+    for i = 1, #groups do
+        local group = groups[i]
+        local isExpandable = #group.children > 1
+        local isExpanded = isExpandable and spellScroll.ExpandedSpellGroups[group.groupKey] or false
+        local percentText = group.hasPercent and format("%.1f%%", group.percent) or nil
+
+        local dps = group.dps
+        if not issecretvalue(dps) then
+            dps = breakdownMidnight.FixUnderOneValue(dps)
+        end
+
+        parentRows[#parentRows + 1] = {
+            groupKey = group.groupKey,
+            name = group.name,
+            icon = group.icon,
+            spellID = group.spellID,
+            data = group.data,
+            texts = {
+                AbbreviateNumbers(group.amount, Details.abbreviateOptionsDamage),
+                AbbreviateNumbers(dps, Details.abbreviateOptionsDPS),
+                percentText,
+            },
+            amount = group.amount,
+            dps = group.dps,
+            percent = group.percent,
+            maxAmount = group.maxAmount,
+            isExpandable = isExpandable,
+            isExpanded = isExpanded,
+            children = group.children,
+        }
+    end
+
+    sortRowsByKeyAndOrder(parentRows, sortKey, sortOrder)
+    assignSpellRank(parentRows)
+
+    ---@type table[]
+    local displayRows = {}
+    for i = 1, #parentRows do
+        local parentRow = parentRows[i]
+        displayRows[#displayRows + 1] = parentRow
+
+        if (parentRow.isExpandable and parentRow.isExpanded) then
+            ---@type table[]
+            local childRows = {}
+            for childIndex = 1, #parentRow.children do
+                childRows[childIndex] = parentRow.children[childIndex]
+            end
+
+            sortRowsByKeyAndOrder(childRows, sortKey, sortOrder)
+
+            for childIndex = 1, #childRows do
+                local childRow = childRows[childIndex]
+                displayRows[#displayRows + 1] = {
+                    parentGroupKey = parentRow.groupKey,
+                    name = childRow.name,
+                    icon = nil,
+                    spellID = childRow.spellID,
+                    data = childRow.data,
+                    texts = childRow.texts,
+                    amount = childRow.amount,
+                    dps = childRow.dps,
+                    percent = childRow.percent,
+                    maxAmount = parentRow.maxAmount,
+                    rank = nil,
+                    isExpandedChild = true,
+                }
+            end
+        end
+    end
+
+    return displayRows
+end
+
+---@param line detailsbreakdownmidnight_line
+local onClickExpandButton = function(line)
+    local scroll = line:GetScroll()
+    ---@cast scroll detailsbreakdownmidnight_sectionscroll
+    local data = line:GetData()
+    if (not data or not data.groupKey) then
+        return
+    end
+
+    scroll.ExpandedSpellGroups = scroll.ExpandedSpellGroups or {}
+    scroll.ExpandedSpellGroups[data.groupKey] = not scroll.ExpandedSpellGroups[data.groupKey]
+    scroll:Refresh()
+end
+
 local iconOnEnter = function(self)
     local spellId = self.data.spellID
     if spellId then
@@ -97,7 +306,12 @@ end
 ---@param totalLines number
 local refreshFunc = function(self, data, offset, totalLines)
     local windowFrame = self:GetWindow()
-    if (offset == 0 and windowFrame:GetCurrentAttributeId() ~= 9) then
+
+    if (self.bUseGroupedSpellData and self.RawSpellData) then
+        local groupedData = buildGroupedSpellDisplayData(self, self.RawSpellData)
+        self:SetData(groupedData)
+        data = groupedData
+    elseif (offset == 0 and windowFrame:GetCurrentAttributeId() ~= 9) then
         sortDataBySelectedColumn(self, data)
     end
 
@@ -110,6 +324,15 @@ local refreshFunc = function(self, data, offset, totalLines)
     end
 
     local statusBarTexture = windowFrame:GetStatusBarTexture()
+    local maxGroupedAmount = 1
+    if (self.bUseGroupedSpellData) then
+        for rowIndex = 1, #data do
+            local rowData = data[rowIndex]
+            if (rowData and not rowData.isExpandedChild) then
+                maxGroupedAmount = math.max(maxGroupedAmount, rowData.amount or 0)
+            end
+        end
+    end
 
     for i = 1, totalLines do
         local lineIndex = i + offset
@@ -119,14 +342,35 @@ local refreshFunc = function(self, data, offset, totalLines)
             ---@cast line detailsbreakdownmidnight_line
 
             line:ResetFramesToHeaderAlignment()
-            local secondColumnWidth = header:GetColumnWidth(2)
-            local thirdColumnWidth = header:GetColumnWidth(3)
+            local rankColumnWidth = header:GetColumnWidth(2) or 0
+            local hasExpandColumn = header:DoesColumnExists(4)
+            local expandColumnWidth = hasExpandColumn and (header:GetColumnWidth(3) or 0) or 0
+            local nameColumnIndex = hasExpandColumn and 4 or 3
+            local nameColumnWidth = header:GetColumnWidth(nameColumnIndex) or 0
 
+            line.ExpandButton:Hide()
+            line.ExpandButton:EnableMouse(false)
+            line.ExpandButton:SetScript("OnClick", nil)
+            line.ExpandTexture:SetAlpha(0)
+            line.Icon:Show()
             line.Icon:SetTexture(thisData.icon or sections.genericIcon)
             line:AddFrameToHeaderAlignment(line.IconFrame)
 
-            line.Texts[1]:SetText(thisData.rank and tostring(thisData.rank) or "")
+            if (thisData.isExpandedChild) then
+                line.Texts[1]:SetText("")
+                line.Icon:Hide()
+                line.Icon:SetTexture(nil)
+                line.IconFrame:SetScript("OnEnter", nil)
+                line.IconFrame:SetScript("OnLeave", nil)
+                line.IconFrame.data = nil
+            else
+                line.Texts[1]:SetText(thisData.rank and tostring(thisData.rank) or "")
+                line.IconFrame:SetScript("OnEnter", iconOnEnter)
+                line.IconFrame:SetScript("OnLeave", iconOnLeave)
+                line.IconFrame.data = thisData.data
+            end
             line:AddFrameToHeaderAlignment(line.Texts[1])
+            line:AddFrameToHeaderAlignment(line.ExpandButton)
 
             line.Texts[2]:SetText(thisData.name)
 
@@ -139,28 +383,46 @@ local refreshFunc = function(self, data, offset, totalLines)
 
                 local width = line.Texts[2]:GetStringWidth()
                 if not issecretvalue(width) then
-                    detailsFramework:TruncateText(line.Texts[2], thirdColumnWidth)
+                    detailsFramework:TruncateText(line.Texts[2], nameColumnWidth)
                 end
             end
             line.Texts[2]:Show()
             line:AddFrameToHeaderAlignment(line.Texts[2])
 
             for textIndex = 3, #line.Texts do
-                local value = thisData.texts[textIndex - 2]
+                local value = thisData.texts and thisData.texts[textIndex - 2] or ""
                 line.Texts[textIndex]:SetText(value)
                 line:AddFrameToHeaderAlignment(line.Texts[textIndex])
             end
 
-            line.IconFrame:SetScript("OnEnter", iconOnEnter)
-            line.IconFrame:SetScript("OnLeave", iconOnLeave)
-            line.IconFrame.data = thisData.data
+            if (thisData.isExpandable) then
+                line.ExpandButton:Show()
+                line.ExpandButton:EnableMouse(true)
+                line.ExpandButton:SetScript("OnClick", function()
+                    onClickExpandButton(line)
+                end)
+                line.ExpandTexture:SetAlpha(0.8)
 
-            line.StatusBar:SetWidth(secondColumnWidth + thirdColumnWidth + header.options.reziser_width * 2 + 5)
+                if (thisData.isExpanded) then
+                    line.ExpandTexture:SetRotation(0)
+                else
+                    line.ExpandTexture:SetRotation(math.pi / 2)
+                end
+            end
+
+            local statusBarWidth = rankColumnWidth + expandColumnWidth + nameColumnWidth
+            local resizerCount = hasExpandColumn and 3 or 2
+            line.StatusBar:SetWidth(statusBarWidth + header.options.reziser_width * resizerCount + 5)
             line.StatusBar:SetStatusBarTexture(statusBarTexture)
-            line.StatusBar:SetMinMaxValues(0, thisData.maxAmount)
-            line.StatusBar:SetValue(thisData.amount)
+            local maxValue = self.bUseGroupedSpellData and maxGroupedAmount or thisData.maxAmount
+            if (not maxValue or maxValue <= 0) then
+                maxValue = math.max(1, thisData.amount or 0)
+            end
+            line.StatusBar:SetMinMaxValues(0, maxValue)
+            line.StatusBar:SetValue(thisData.amount or 0)
 
             line:AlignWithHeader(header, "left")
+            line:SetData(thisData)
         end
     end
 
@@ -168,7 +430,7 @@ local refreshFunc = function(self, data, offset, totalLines)
 end
 
 ---@param spellData table
-local assignSpellRank = function(spellData)
+assignSpellRank = function(spellData)
     local rankOrder = {}
     for i = 1, #spellData do
         rankOrder[i] = spellData[i]
@@ -196,6 +458,10 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     detailsFramework:SetFontSize(attributeNameText, 14)
     attributeNameText:SetPoint("bottom", sectionFrame, "top", 0, 6)
     spellScroll.AttributeNameText = attributeNameText
+    spellScroll.ExpandedSpellGroups = spellScroll.ExpandedSpellGroups or {}
+    spellScroll.RawSpellData = spellScroll.RawSpellData or {}
+    spellScroll.bUseGroupedSpellData = false
+    spellScroll.ExpandColumnOpenWidth = spellScroll.ExpandColumnOpenWidth or defaultExpandColumnWidth
 
     ---@param thisSpellScroll detailsbreakdownmidnight_sectionscroll
     spellScroll.RefreshMe = function(thisSpellScroll)
@@ -206,13 +472,34 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
         local spellData, headerLabels, isDude = breakdownMidnight.GenerateSpellData(windowFrame)
         thisSpellScroll.isSpells = isDude
         if spellData then
-            if attributeId ~= 9 then
+            local shouldGroupSpells = attributeId ~= 9 and isDude and Details.breakdown_spell_tab.nest_players_spells_with_same_name
+            thisSpellScroll.RawSpellData = spellData
+            thisSpellScroll.bUseGroupedSpellData = shouldGroupSpells
+
+            local header = thisSpellScroll:GetHeader()
+            if (header and header:DoesColumnExists(3)) then
+                local currentExpandWidth = header:GetColumnWidth(3) or 0
+                if (currentExpandWidth > collapsedExpandColumnWidth) then
+                    thisSpellScroll.ExpandColumnOpenWidth = currentExpandWidth
+                end
+            end
+
+            if shouldGroupSpells then
+                spellData = buildGroupedSpellDisplayData(thisSpellScroll, spellData)
+            elseif attributeId ~= 9 then
                 assignSpellRank(spellData)
             end
+
+            local hasExpandableRows = hasExpandableSpellRows(spellData)
+            local expandColumnWidth = hasExpandableRows and thisSpellScroll.ExpandColumnOpenWidth or collapsedExpandColumnWidth
+            setExpandColumnWidth(headerLabels, expandColumnWidth)
+
             breakdownMidnight.UpdateSectionHeader(windowFrame, breakdownMidnight.Enums.SectionIds.Spells, headerLabels)
             thisSpellScroll:SetData(spellData)
             thisSpellScroll:Refresh()
         else
+            thisSpellScroll.RawSpellData = {}
+            thisSpellScroll.bUseGroupedSpellData = false
             thisSpellScroll:SetData({})
             thisSpellScroll:Refresh()
         end

@@ -35,6 +35,7 @@ local GetTime = GetTime
 ---@field SetThrottle fun(self:df_timebar, seconds:number)
 ---@field SetDirection fun(self:df_timebar, direction:string)
 ---@field SetBackgroundColor fun(self:df_timebar, color:any, green:number|nil, blue:number|nil, alpha:number|nil)
+---@field SetIconPosition fun(self:df_timebar, iconPosition:string?) DF_TIMEBAR_ICON_POSITIONS_OUTSIDE or DF_TIMEBAR_ICON_POSITIONS_INSIDE
 
 ---@class df_timebar_statusbar : statusbar
 ---@field MyObject df_timebar
@@ -185,12 +186,8 @@ end
 function TimeBarMetaFunctions:SetIcon(texture, L, R, T, B)
     if (texture) then
         self.statusBar.icon:Show()
-        self.statusBar.icon:ClearAllPoints()
-        self.statusBar.icon:SetPoint("left", self.statusBar, "left", 2, 0)
-        self.statusBar.icon:SetSize(self.statusBar:GetHeight()-2, self.statusBar:GetHeight()-2)
-        self.statusBar.leftText:ClearAllPoints()
-        self.statusBar.leftText:SetPoint("left", self.statusBar.icon, "right", 2, 0)
         self.statusBar.icon:SetTexture(texture)
+        self:SetIconPosition()
 
         if (L) then
             self.statusBar.icon:SetTexCoord(L, R, T, B)
@@ -220,6 +217,30 @@ function TimeBarMetaFunctions:SetLeftText(text)
 end
 function TimeBarMetaFunctions:SetRightText(text)
     self.statusBar.rightText:SetText(text)
+end
+
+DF_TIMEBAR_ICON_POSITIONS_OUTSIDE = "outside"
+DF_TIMEBAR_ICON_POSITIONS_INSIDE = "inside"
+
+function TimeBarMetaFunctions:SetIconPosition(iconPosition)
+    if not iconPosition then
+        iconPosition = self.iconPosition
+    end
+
+    self.statusBar.icon:ClearAllPoints()
+
+    if iconPosition == DF_TIMEBAR_ICON_POSITIONS_INSIDE then
+        self.statusBar.icon:SetPoint("left", self.statusBar, "left", 2, 0)
+        self.statusBar.leftText:ClearAllPoints()
+        self.statusBar.leftText:SetPoint("left", self.statusBar.icon, "right", 2, 0)
+
+    elseif iconPosition == DF_TIMEBAR_ICON_POSITIONS_OUTSIDE then
+        self.statusBar.icon:SetPoint("topright", self.statusBar, "topleft", 0, 0)
+        self.statusBar.icon:SetPoint("bottomright", self.statusBar, "bottomleft", 0, 0)
+        self.statusBar.icon:SetSize(self.statusBar:GetHeight()-2, self.statusBar:GetHeight()-2)
+        self.statusBar.leftText:ClearAllPoints()
+        self.statusBar.leftText:SetPoint("left", self.statusBar, "left", 2, 0)
+    end
 end
 
 function TimeBarMetaFunctions:SetFont(font, size, color, outline, shadowColor, shadowX, shadowY)
@@ -507,6 +528,7 @@ function detailsFramework:CreateTimeBar(parent, texture, width, height, value, m
     detailsFramework:Mixin(timeBar.statusBar, detailsFramework.WidgetFunctions)
     timeBar.statusBar.MyObject = timeBar
     timeBar.direction = "right"
+    timeBar.iconPosition = DF_TIMEBAR_ICON_POSITIONS_INSIDE
 
     if (not APITimeBarFunctions) then
         APITimeBarFunctions = true

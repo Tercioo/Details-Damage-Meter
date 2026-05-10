@@ -727,7 +727,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field last_interaction number?
 ---@field auto_current boolean?
 ---@field tempId number
----@field apocalypseSourceType number
+---@field source_type number
 ---@field overallByUser boolean
 ---@field sessionType_user number
 ---@field sessionId_user number
@@ -740,6 +740,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field IsShowingDeathLog fun(instance: instance) : boolean
 ---@field GetCombatTime fun(instance: instance) : number get the combat time of the currently showing combat segment
 ---@field CheckForSecretsAndAspects fun(self: instance)
+---@field ClearRestoredSavedSegment fun(instance: instance)
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor
 ---@field GetSize fun(instance: instance) : width, height
 ---@field GetInstanceGroup fun() : table

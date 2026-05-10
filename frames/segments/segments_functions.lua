@@ -200,11 +200,18 @@ segmentSelectionMidnight.OnClickLine = function(line) --~click õnclick ~onclick
         end
 
     elseif sourceType == "details" then
-        instance:SetSegmentId(rowData.segmentId, byUser)
+        if rowData.dataSource == "saved" then
+            instance:ShowSavedSegment(rowData.savedIndex)
+        else
+            instance:ClearRestoredSavedSegment()
+            instance:SetSegmentId(rowData.segmentId, byUser)
+        end
+
+        --instance:SetSegmentId(rowData.segmentId, byUser)
+
         Details.no_fade_animation = true
         Details:UpdateCombatObjectInUse(instance)
         Details:RefreshMainWindow(instance, true)
-
         Details.no_fade_animation = false
     end
 
@@ -238,7 +245,12 @@ segmentSelectionMidnight.IsLineSelected = function(panel, rowData)
         if instance:GetApocalypseSourceType() == Details222.Apocalypse.TypeGame then
             return false
         end
-        return rowData.segmentId == instance:GetSegmentId()
+
+        if rowData.dataSource == "saved" then
+            return instance.savedSegmentIndex == rowData.savedIndex
+        end
+        return not instance.savedSegmentIndex and rowData.segmentId == instance:GetSegmentId()
+        --return rowData.segmentId == instance:GetSegmentId()
     end
 
     return false

@@ -1133,6 +1133,7 @@ function segmentClass:ResetAllCombatData()
 		---@type instance
 		local instance = allInstances[i]
 		if (instance:IsEnabled()) then
+			instance:ClearRestoredSavedSegment()
 			Details:UpdateCombatObjectInUse(instance)
 		end
 	end

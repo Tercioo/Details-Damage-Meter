@@ -69,17 +69,18 @@ end
 ---@param offset number
 ---@param totalLines number
 local refreshFunc = function(self, data, offset, totalLines)
-    if not data.combatSources then
-        print(debugstack())
+    local header = self.Header
+    local playerData = data and data.combatSources
+    if (not playerData) then
+        header.refreshColumn = nil
+        return
     end
 
-    local header = self.Header
     local windowFrame = self:GetWindow()
     local selectedActor = windowFrame:GetPlayerObject()
     local selectedActorGuid = getActorGuid(selectedActor)
     local selectedActorName = getActorName(selectedActor)
-    local playerData = data.combatSources
-    local maxAmount = data.maxAmount
+    local maxAmount = data.maxAmount or 1
 
     for i = 1, totalLines do
         local index = i + offset

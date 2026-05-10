@@ -310,6 +310,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
     ---@type fontstring
 	local mainTitle = detailsFramework:CreateLabel(tabContainer, title, 24, "white")
 	mainTitle:SetPoint("topleft", tabContainer, "topleft", 10, -30 + yOffset)
+    tabContainer.MainTitle = mainTitle
 
 	tabContainer.AllFrames = {}
 	tabContainer.AllButtons = {}

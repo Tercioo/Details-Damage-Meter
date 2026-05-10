@@ -83,6 +83,13 @@ breakdownMidnight.windowFrameMixin = {
         return windowFrame.TargetsScroll
     end,
 
+    ---example: local comparisonScroll = windowFrame:GetComparisonScroll()
+    ---@param windowFrame detailsbreakdownmidnight_window
+    ---@return detailsbreakdownmidnight_sectionscroll
+    GetComparisonScroll = function(windowFrame)
+        return windowFrame.ComparisonScroll
+    end,
+
     ---example: local scrollFrame = windowFrame:GetScrollForSectionId(breakdownMidnight.Enums.SectionIds.Spells)
     ---@param windowFrame detailsbreakdownmidnight_window
     ---@param sectionId number
@@ -99,6 +106,8 @@ breakdownMidnight.windowFrameMixin = {
             return windowFrame:GetSpellDetailsScroll()
         elseif (sectionId == sectionIds.Targets) then
             return windowFrame:GetTargetsScroll()
+        elseif (sectionId == sectionIds.Compare) then
+            return windowFrame:GetComparisonScroll()
         end
     end,
 
@@ -237,6 +246,12 @@ breakdownMidnight.windowFrameMixin = {
 
         local targetsScroll = windowFrame:GetTargetsScroll()
         targetsScroll:RefreshMe()
+
+        --show comparison data for the current player across all past sessions
+        local comparisonScroll = windowFrame.ComparisonScroll
+        if comparisonScroll and comparisonScroll.RefreshMe then
+            comparisonScroll:RefreshMe()
+        end
 
         --show details for the selected spell
         local spellDetailsScroll = windowFrame:GetSpellDetailsScroll()
