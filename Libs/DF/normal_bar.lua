@@ -352,6 +352,11 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --methods
 
+--return the UIObject (the underlying StatusBar frame) that is behind the wrapper table.
+	function BarMetaFunctions:GetUIObject()
+		return self.widget
+	end
+
 --show & hide
 	function BarMetaFunctions:Show()
 		self.statusbar:Show()
@@ -746,7 +751,17 @@ local build_statusbar = function(self)
 	DetailsFrameworkNormalBar_OnCreate (self)
 end
 
+---create a normal_bar (single-texture status bar with built-in countdown timer).
+---This function returns a wrapper Lua table, NOT a Blizzard frame. The underlying UIObject (the
+---Blizzard StatusBar frame backing the bar) is accessible at `wrapper.widget` (or equivalently
+---`wrapper.statusbar`) and via `wrapper:GetUIObject()`. Method calls on the wrapper itself are fine
+---(the metatable forwards them), but when the wrapper is passed AS AN ARGUMENT to a Blizzard API
+---that expects a frame — e.g. as a `SetPoint` relative anchor, a `CreateFrame` parent, a
+---`GameTooltip:SetOwner` target, or a secure-template ref — it MUST be unwrapped via
+---`wrapper:GetUIObject()` first, otherwise the C side will error or misbehave because the wrapper
+---has no frame userdata.
 function DF:CreateBar (parent, texture, w, h, value, member, name)
+	--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 	return DF:NewBar (parent, parent, name, member, w, h, value, texture)
 end
 

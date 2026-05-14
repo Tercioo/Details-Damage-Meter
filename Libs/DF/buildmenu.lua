@@ -1630,6 +1630,10 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                             local func = detailsFramework:CreateStatusbarTextureListGenerator(widgetTable.set)
                             dropdown:SetFunction(func)
 
+                        elseif (widgetTable.type == "selectbackgroundtexture") then
+                            local func = detailsFramework:CreateBackgroundListGenerator(widgetTable.set, widgetTable.include_default)
+                            dropdown:SetFunction(func)
+
                         --frame strata
                         elseif (widgetTable.type == "selectframestrata") then
                             local func = detailsFramework:CreateFrameStrataListGenerator(widgetTable.set)
@@ -1956,6 +1960,9 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
                     elseif (widgetTable.type == "selectstatusbartexture") then
                         dropdown = detailsFramework:CreateStatusbarTextureDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)
+
+                    elseif (widgetTable.type == "selectbackgroundtexture") then
+                        dropdown = detailsFramework:CreateBackgroundDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate, widgetTable.include_default)
 
                     elseif (widgetTable.type == "selectframestrata") then
                         dropdown = detailsFramework:CreateFrameStrataDropDown(parent, widgetTable.set, widgetTable.get(), widgetWidth or 140, widgetHeight or defaultHeight, nil, "$parentWidget" .. index, dropdownTemplate)

@@ -13,6 +13,8 @@ This file implements three distinct UI control types that share a common metatab
 
 All slider/switch objects use the **wrapper↔widget** pattern: a Lua table (`SliderObject`) wraps a native WoW frame (`SliderObject.slider` or `SliderObject.widget`). The metatable `DFSliderMetaFunctions` provides `__index`, `__newindex`, and `__call` metamethods for property access and value getting/setting.
 
+The wrapper is a plain Lua table, NOT a Blizzard frame. The underlying UIObject is at `wrapper.widget` (or `wrapper.slider`) and is returned by `wrapper:GetUIObject()`. Method calls on the wrapper are fine — the metatable forwards them — but when the wrapper is passed AS AN ARGUMENT to a Blizzard API that expects a frame (SetPoint relative anchor, CreateFrame parent, GameTooltip:SetOwner target, secure-template ref, etc.), it MUST be unwrapped via `wrapper:GetUIObject()` first; the wrapper has no frame userdata for the C side to bind to. The same rule applies to switches/checkboxes (which extend df_button and inherit GetUIObject from there).
+
 ### Callback Model
 
 - **Slider:** When the value changes, `self.OnValueChanged(self, FixedValue, value)` is called. Hooks registered via `SetHook("OnValueChanged", func)` are also called.

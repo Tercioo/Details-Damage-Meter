@@ -221,6 +221,13 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --methods
 
+	---return the UIObject (the underlying FontString) that is behind the wrapper table.
+	---@param self df_label
+	---@return fontstring
+	function LabelMetaFunctions:GetUIObject()
+		return self.widget
+	end
+
 	---set the text of the label and truncate it is its width passes 'maxWidth' threshold
 	---@param self df_label
 	---@param text string
@@ -271,6 +278,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ---@class df_label: fontstring, df_widgets
 ---@field widget fontstring widget and label points to the same fontstring
 ---@field label fontstring widget and label points to the same fontstring
+---@field GetUIObject fun(self: df_label): fontstring returns the UIObject (FontString) that is behind the wrapper table
 ---@field align justifyh
 ---@field valign justifyv
 ---@field text string
@@ -300,7 +308,15 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 --detailsFramework:CreateLabel(parent, text, size, color, font, member, name, layer)
 --detailsFramework:NewLabel(parent, container, name, member, text, font, size, color, layer)
 
----create a new label object
+---create a new label object.
+---This function returns a wrapper Lua table, NOT a Blizzard FontString. The underlying UIObject (the
+---Blizzard FontString backing the label) is accessible at `wrapper.widget` (or equivalently
+---`wrapper.label`) and via `wrapper:GetUIObject()`. Method calls on the wrapper itself are fine (the
+---metatable forwards them), but when the wrapper is passed AS AN ARGUMENT to a Blizzard API that
+---expects a real FontString or frame — e.g. as a `SetPoint` relative anchor for another widget, as
+---the argument to `frame:SetFontString(...)`, or as a region passed into animation/layout APIs — it
+---MUST be unwrapped via `wrapper:GetUIObject()` first, otherwise the C side will error or misbehave
+---because the wrapper has no fontstring userdata.
 ---@param parent frame
 ---@param text string|table for used for localization, expects a locTable from the language system
 ---@param size any?
@@ -311,6 +327,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ---@param layer drawlayer|nil
 ---@return df_label|nil
 function detailsFramework:CreateLabel(parent, text, size, color, font, member, name, layer)
+	--returns a wrapper table (not a FontString); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 	return detailsFramework:NewLabel(parent, parent, name, member, text, font, size, color, layer)
 end
 
@@ -441,8 +458,13 @@ local showErrorMsg = function(self, text)
 	end)
 end
 
----error msg fontstring, this text is used to show errors to the user, its color is red, size 13 and it is placed centered and below the buttons above
----it also has an animation to fade out after 5 seconds, and a shake animation when it's shown
+---error msg fontstring, this text is used to show errors to the user, its color is red, size 13 and it is placed centered and below the buttons above.
+---It also has an animation to fade out after 5 seconds, and a shake animation when it's shown.
+---This function returns a wrapper Lua table (df_errorlabel, extends df_label), NOT a Blizzard FontString.
+---The underlying UIObject is at `wrapper.widget` (or `wrapper.label`) and via `wrapper:GetUIObject()`.
+---Pass the unwrapped FontString to any Blizzard API that expects one (SetPoint relative anchor,
+---frame:SetFontString, layout/animation APIs, etc.); method calls on the wrapper itself are fine
+---because the metatable forwards them.
 function detailsFramework:CreateErrorLabel(parent, text, size, color, layer, name)
 	---@type df_errorlabel
 	local errorMsg = detailsFramework:CreateLabel(parent, text or "", size or 13, color or "orangered", nil, nil, name, layer or "overlay")

@@ -23,7 +23,7 @@ end
 ---@field RestorePosition fun(self: anchorsystem, anchorFrame: screenanchor) Restores the anchor frame's position from the profile
 ---@field UnlockAnchors fun(self: anchorsystem) Unlocks all anchor frames, allowing them to be moved
 ---@field LockAnchors fun(self: anchorsystem) Locks all anchor frames, preventing them from being moved
----@field CreateScreenAnchor fun(self: anchorsystem, anchorKey: string, frameName: string, growDirection: string, setupFunction: function, sortFunction: function, frameCreateFunction: function): screenanchor Creates a new screen anchor
+---@field CreateScreenAnchor fun(self: anchorsystem, options: anchor_options): screenanchor Creates a new screen anchor
 ---@field GetScreenAnchor fun(self: anchorsystem, anchorName: string): screenanchor Gets a screen anchor by name
 ---@field HideAll fun(self: anchorsystem) Hides all frames from all anchors
 ---@field Reorder fun(self: anchorsystem, anchorFrame: screenanchor) Reorders all frames on an anchor frame
@@ -235,7 +235,7 @@ local anchorSystemMixin = {
                 elseif growDir == "bottom" then
                     thisComponent:SetPoint("top", lastComponent.widget or lastComponent, "bottom", 0, -lineSpacing)
                 elseif growDir == "left" then
-                    thisComponent:SetPoint("right", lastComponent.widget or lastComponent, "left", lineSpacing, 0)
+                    thisComponent:SetPoint("right", lastComponent.widget or lastComponent, "left", -lineSpacing, 0)
                 elseif growDir == "right" then
                     thisComponent:SetPoint("left", lastComponent.widget or lastComponent, "right", lineSpacing, 0)
                 end

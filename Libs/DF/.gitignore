@@ -11,3 +11,4 @@ mail.blp
 CHANGES.txt
 *.jsonl
 *.py
+*.pyc

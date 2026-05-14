@@ -39,6 +39,11 @@ detailsFramework.ScrollBoxFunctions = {
 		if (self.IsFauxScroll) then
 			self:UpdateFaux(#self.data, self.LineAmount, self.LineHeight)
 			offset = self:GetOffsetFaux()
+		else
+			--callers driving the scroll externally (e.g. a CreateScrollBar2 widget that bypasses
+			--FauxScrollFrame entirely) write self.offset directly; honor it instead of leaving
+			--the local at 0, which would freeze the refresh on the first page.
+			offset = self.offset or 0
 		end
 
 		--before starting the refresh, check if there's a pre refresh function and call it
@@ -70,17 +75,39 @@ detailsFramework.ScrollBoxFunctions = {
 					scrollBar:Hide()
 				end
 			else
-				--[=[ --maybe in the future I visit this again
+				--proportional thumb sizing: scale the thumb height to the ratio of visible
+				--lines vs total data, matching the standard OS/browser scrollbar convention
+				--(small thumb = lots to scroll, tall thumb = little). In the no-scroll case,
+				--explicitly hide the thumb — UpdateFaux's else branch hides the parent
+				--ScrollFrame but Refresh re-shows it, so the thumb would otherwise linger
+				--at whatever height a previous larger dataset gave it.
 				local scrollBar = _G[frameName .. "ScrollBar"]
-				local height = self:GetHeight()
-				local totalLinesRequired = #self.data
-				local linesShown = self._LinesInUse
-
-				local percent = linesShown / totalLinesRequired
-				local thumbHeight = height * percent
-				scrollBar.ThumbTexture:SetSize(12, thumbHeight)
-				print("thumbHeight:", thumbHeight)
-				--]=]
+				if (scrollBar and scrollBar.ThumbTexture) then
+					local numItems = #self.data
+					local numToDisplay = self.LineAmount
+					if (numItems > numToDisplay and numItems > 0) then
+						local trackHeight = scrollBar:GetHeight()
+						local visibleRatio = numToDisplay / numItems
+						--12px floor keeps the thumb grabbable even with huge data sets.
+						local thumbHeight = math.max(12, math.floor(trackHeight * visibleRatio))
+						--gate on actual change so the resize doesn't fire on every Refresh.
+						--during a drag, OnVerticalScroll triggers Refresh on every cursor frame
+						--and re-binding the thumb texture mid-drag resets the slider's drag
+						--state, which makes the thumb appear to race ahead of the cursor.
+						if (scrollBar._lastThumbHeight ~= thumbHeight) then
+							scrollBar._lastThumbHeight = thumbHeight
+							scrollBar.ThumbTexture:SetHeight(thumbHeight)
+							--re-bind the thumb texture so the slider widget picks up the new dimensions
+							--for its internal hit-test region. SetHeight alone resizes the visual texture
+							--but leaves the clickable hitbox at whatever size it was when SetThumbTexture
+							--was last called, so clicks on the resized extensions miss and page-jump.
+							scrollBar:SetThumbTexture(scrollBar.ThumbTexture)
+						end
+						scrollBar.ThumbTexture:Show()
+					else
+						scrollBar.ThumbTexture:Hide()
+					end
+				end
 			end
 		end
 		return self.Frames
@@ -136,7 +163,7 @@ detailsFramework.ScrollBoxFunctions = {
 			line._InUse = true
 		end
 
-		self._LinesInUse = self._LinesInUse + 1
+		self._LinesInUse = (self._LinesInUse or 0) + 1
 		return line
 	end,
 
@@ -461,6 +488,12 @@ detailsFramework.ScrollBoxFunctions = {
 		else
 			scrollBar:SetValue(0);
 			frame:Hide();
+			--the arrow button enable/disable block below only runs while frame:IsShown(), so its
+			--state can persist as "enabled" from a prior refresh. Refresh re-shows the parent
+			--scrollframe to keep the line frames visible, which would otherwise leave the arrows
+			--clickable with nothing to scroll. Force them disabled here so the no-scroll case is correct.
+			scrollUpButton:Disable();
+			scrollDownButton:Disable();
 		end
 		if ( frame:IsShown() ) then
 			local scrollFrameHeight = 0;
@@ -484,6 +517,18 @@ detailsFramework.ScrollBoxFunctions = {
 			scrollBar:SetValueStep(buttonHeight);
 			scrollBar:SetStepsPerPage(numToDisplay-1);
 			scrollChildFrame:SetHeight(scrollChildHeight);
+
+			--kick the slider widget so the thumb texture renders. After SetMinMaxValues the
+			--thumb stays invisible until SetValue is called next (normally on user scroll).
+			--re-applying the current value materializes the thumb without changing position.
+			--gated on a max-range change so the kick fires on initial display and on data resize
+			--(when the slider truly needs re-rendering) but is skipped during refreshes triggered
+			--mid-drag by OnVerticalScroll, where firing SetValue can interfere with the slider's
+			--internal drag tracking and amplify perceived scroll speed.
+			if (frame._lastKickedMaxRange ~= maxRange) then
+				frame._lastKickedMaxRange = maxRange
+				scrollBar:SetValue(scrollBar:GetValue());
+			end
 
 			-- Arrow button handling
 			if ( scrollBar:GetValue() == 0 ) then
@@ -519,6 +564,91 @@ detailsFramework.ScrollBoxFunctions = {
 		end
 
 		return showScrollBar;
+	end,
+
+	---creates a df_scrollbar2 widget bound to this scrollbox and handles all the wiring:
+	---disables the legacy FauxScrollFrame slider, sets up the OnScrollChange callback so
+	---the scrollbox's offset stays in sync, anchors the new scrollbar in the right gutter,
+	---enables mouse-wheel input, and intercepts Refresh so the scrollbar's range and visible
+	---ratio auto-sync after every refresh. callers can pass df_scrollbar2_options to customize
+	---(wheel_step defaults to 1 for line-based scrolling). idempotent: returns the existing
+	---scrollbar if one is already bound.
+	---@param self df_scrollbox
+	---@param options df_scrollbar2_options?
+	---@return df_scrollbar2
+	CreateScrollBar2 = function(self, options)
+		if (self.CustomScrollBar) then
+			return self.CustomScrollBar
+		end
+
+		--bypass FauxScrollFrame entirely: the new scrollbar drives self.offset via its callback.
+		self.HideScrollBar = true
+		self.IsFauxScroll = false
+		self.offset = 0
+
+		--default wheel_step = 1 (one line per wheel tick); caller options override.
+		local mergedOptions = {wheel_step = 1}
+		if (options) then
+			for key, value in pairs(options) do
+				mergedOptions[key] = value
+			end
+		end
+
+		local scrollBox = self
+		local scrollBar = detailsFramework:CreateScrollBar2(self, 100, function(_, value)
+			scrollBox.offset = math.floor(value + 0.5)
+			scrollBox:Refresh()
+		end, mergedOptions)
+
+		--anchor to the right gutter, filling the full scrollbox vertical range. -2 horizontal
+		--inset matches the standard scrollbox right margin. no vertical inset: CreateScrollBar2's
+		--step buttons live INSIDE the scrollbar's bounds (at its top and bottom corners), so they
+		--already sit at the scrollbox corners without an outer gap. an older draft used (-16, +16)
+		--insets — a holdover from the FauxScrollFrame slider whose up/down arrows were external
+		--siblings needing 16px slots above/below the track; the new scrollbar doesn't need that.
+		scrollBar:ClearAllPoints()
+		scrollBar:SetPoint("topright", self, "topright", -2, 0)
+		scrollBar:SetPoint("bottomright", self, "bottomright", -2, 0)
+		scrollBar:SetFrameLevel(self:GetFrameLevel() + 5)
+		scrollBar:EnableMouseWheelOn(self)
+
+		self.CustomScrollBar = scrollBar
+
+		--intercept Refresh on this instance so the scrollbar's range/ratio stay current.
+		--mixin functions are copied onto each instance via detailsFramework:Mixin, so this
+		--override only affects this scrollbox; other scrollboxes keep the original Refresh.
+		local originalRefresh = self.Refresh
+		self.Refresh = function(refreshSelf)
+			local frames = originalRefresh(refreshSelf)
+			refreshSelf:SyncCustomScrollBar()
+			return frames
+		end
+
+		return scrollBar
+	end,
+
+	---syncs the bound CustomScrollBar's range and visible-ratio from the current data and
+	---visible-line count, and toggles its visibility. called automatically after Refresh
+	---once CreateScrollBar2 has been called on this scrollbox; no-op if no scrollbar is bound.
+	---@param self df_scrollbox
+	SyncCustomScrollBar = function(self)
+		local scrollBar = self.CustomScrollBar
+		if (not scrollBar) then
+			return
+		end
+
+		local numItems = #self.data
+		local numToDisplay = self.LineAmount
+
+		if (numItems > numToDisplay and numItems > 0) then
+			scrollBar:SetRange(numItems - numToDisplay)
+			scrollBar:SetVisibleRatio(numToDisplay / numItems)
+			scrollBar:Show()
+		else
+			scrollBar:SetRange(0)
+			scrollBar:SetVisibleRatio(1)
+			scrollBar:Hide()
+		end
 	end,
 }
 
@@ -775,7 +905,7 @@ function detailsFramework:CreateMenuWithGridScrollBox(parent, name, refreshMeFun
 		for _, data in ipairs(gridScrollBox.data_original) do
 			originalData = data
 
-			if (type(value) == string) then
+			if (type(value) == "string") then
 				value = value:lower()
 				local dataValue = data[key]:lower()
 				if (dataValue == value) then
@@ -1095,7 +1225,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
 
 	auraScrollBox.Refresh = function()
 		auraScrollBox:TransformAuraData()
-		auraScrollBox:refresh_original()
+		return auraScrollBox:refresh_original()
 	end
 
     auraScrollBox:SetData(data)
@@ -1502,8 +1632,12 @@ end
 ---@field Frames frame[]
 ---@field ReajustNumFrames boolean?
 ---@field DontHideChildrenOnPreRefresh boolean
+---@field offset number?
+---@field CustomScrollBar df_scrollbar2?
 ---@field refresh_func fun(self:df_scrollbox, data:table, offset:number, numlines:number)
----@field Refresh fun(self:df_scrollbox)
+---@field Refresh fun(self:df_scrollbox):frame[]
+---@field CreateScrollBar2 fun(self:df_scrollbox, options:df_scrollbar2_options?):df_scrollbar2
+---@field SyncCustomScrollBar fun(self:df_scrollbox)
 ---@field CreateLineFunc fun(self:df_scrollbox, index:number)?
 ---@field CreateLine fun(self:df_scrollbox, func:function)
 ---@field SetData fun(self:df_scrollbox, data:table)
@@ -2102,7 +2236,7 @@ function detailsFramework:CreateBossScrollSelectorForInstance(instanceId, parent
 
 	---@type df_bossscrollselector
 	---@diagnostic disable-next-line: assign-type-mismatch
-	local bossScrollFrame = detailsFramework:CreateScrollBox(parent, name, refreshFunc, arrayOfBosses, options.width, options.height, options.line_amount, options.line_amount)
+	local bossScrollFrame = detailsFramework:CreateScrollBox(parent, name, refreshFunc, arrayOfBosses, options.width, options.height, options.line_amount, options.line_height)
 	bossScrollFrame.options = options
 	bossScrollFrame.SetCallback = detailsFramework.BossScrollSelectorMixin.SetCallback
 

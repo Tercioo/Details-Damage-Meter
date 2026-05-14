@@ -257,7 +257,7 @@ local createAxesLines = function(self, xOffset, yOffset, whichSide, thickness, a
         yAxisLine:SetEndPoint("bottomleft", plotFrame, 0, self.chartBottomOffset * -1)
     else
         yAxisLine:SetStartPoint("topright", plotFrame, 0, -1)
-        yAxisLine:SetEndPoint("bottomleft", plotFrame, 0, self.chartBottomOffset)
+        yAxisLine:SetEndPoint("bottomright", plotFrame, 0, self.chartBottomOffset * -1)
     end
 
     --horizontal axis point
@@ -389,13 +389,9 @@ detailsFramework.ChartFrameSharedMixin = {
         local tinsert = table.insert
 
         if (bJustDrop) then
-            if (true) then
-                --make a for loop to drop the values by random, for example, is shrink is 3 and index is 9, it will drop at random two values of: 9 10 or 11
-            else
-                --it will shrink the data by dropping values each skrinkBy indexes
-                for i = 1, dataSize, skrinkBy do
-                    tinsert(newData, data[i])
-                end
+            --it will shrink the data by dropping values each skrinkBy indexes
+            for i = 1, dataSize, skrinkBy do
+                tinsert(newData, data[i])
             end
         else
             --it will shrink the data by making an average of the values and add to newTable, shrinkBy controls how many values will be averaged
@@ -1002,7 +998,7 @@ local calcLOESS = function(data, span, mainFrame, chartFrame)
         local abs = math.abs
         local tinsert = table.insert
 
-        for i = currentDataIndex, currentDataIndex + payload.executionsPerFrame do
+        for i = currentDataIndex, math.min(currentDataIndex + payload.executionsPerFrame - 1, lastDataIndex) do
             --define the local neighborhood
             local neighborhood = {}
             for o = max(1, i - halfSpan), min(lastDataIndex, i + halfSpan) do
@@ -1113,8 +1109,9 @@ local calcSMA = function(data, averageSize, mainFrame, chartFrame, bAddZeroPaddi
         payload.currentDataIndex = currentDataIndex + payload.executionsPerFrame
 
         local tinsert = table.insert
+        local max = math.max
 
-        for i = currentDataIndex, currentDataIndex + payload.executionsPerFrame do
+        for i = currentDataIndex, math.min(currentDataIndex + payload.executionsPerFrame - 1, lastDataIndex) do
             sum = sum + data[i]
             sumTotal = sumTotal + data[i]
             if (i >= averageSize) then
@@ -1470,7 +1467,7 @@ detailsFramework.MultiChartFrameMixin = {
         for i = 1, multiChartFrame:GetAmountCharts() do
             local chartFrame = allCharts[i]
             chartFrame.chartLeftOffset = multiChartFrame.chartLeftOffset
-            chartFrame.chartBottomOffset = multiChartFrame.chartLeftOffset
+            chartFrame.chartBottomOffset = multiChartFrame.chartBottomOffset
 
             chartFrame.plotFrame:ClearAllPoints()
             chartFrame.plotFrame:SetAllPoints(multiChartFrame.plotFrame)

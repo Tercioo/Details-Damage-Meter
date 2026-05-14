@@ -14,6 +14,7 @@ textentry.MyObject.func(textentry.MyObject.param1, textentry.MyObject.param2, te
 
 ---@class df_textentry : editbox
 ---@field widget editbox
+---@field GetUIObject fun(self:df_textentry):editbox returns the UIObject (the EditBox frame) that is behind the wrapper table
 ---@field tooltip any
 ---@field show any
 ---@field hide any
@@ -253,6 +254,11 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 
 ------------------------------------------------------------------------------------------------------------
 --methods
+
+	---return the UIObject (the underlying EditBox frame) that is behind the wrapper table.
+	function TextEntryMetaFunctions:GetUIObject()
+		return self.widget
+	end
 
 	local cleanfunction = function()end
 	function TextEntryMetaFunctions:SetEnterFunction(func, param1, param2)
@@ -680,6 +686,14 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
+---create a text entry (editbox) object.
+---This function returns a wrapper Lua table (df_textentry), NOT a Blizzard EditBox. The underlying
+---UIObject (the Blizzard EditBox frame) is at `wrapper.widget` and via `wrapper:GetUIObject()`.
+---Method calls on the wrapper itself are fine (the metatable forwards them), but when the wrapper
+---is passed AS AN ARGUMENT to a Blizzard API that expects a frame — SetPoint relative anchor,
+---CreateFrame parent, GameTooltip:SetOwner, secure-template ref, etc. — it MUST be unwrapped via
+---`wrapper:GetUIObject()` first, otherwise the C side will error or misbehave because the wrapper
+---has no frame userdata.
 ---@param parent frame
 ---@param textChangedCallback function
 ---@param width number
@@ -691,7 +705,8 @@ end
 ---@param labelTemplate table?
 ---@return df_textentry
 function detailsFramework:CreateTextEntry(parent, textChangedCallback, width, height, member, name, labelText, textentryTemplate, labelTemplate)
----@diagnostic disable-next-line: return-type-mismatch
+	--returns a wrapper table (not an EditBox); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
+	---@diagnostic disable-next-line: return-type-mismatch
 	return detailsFramework:NewTextEntry(parent, parent, name, member, width, height, textChangedCallback, nil, nil, nil, labelText, textentryTemplate, labelTemplate)
 end
 
@@ -838,11 +853,17 @@ function detailsFramework:NewTextEntry(parent, container, name, member, width, h
 	return newTextEntryObject, withLabel
 end
 
----create a search box with no backdrop, a magnifying glass icon and a clear search button
+---create a search box with no backdrop, a magnifying glass icon and a clear search button.
+---This function returns a wrapper Lua table (df_searchbox, extends df_textentry), NOT a Blizzard
+---EditBox. The underlying UIObject is at `wrapper.widget` and via `wrapper:GetUIObject()` (inherited
+---from df_textentry). Pass the unwrapped EditBox to any Blizzard API that expects a real frame
+---(SetPoint relative anchor, CreateFrame parent, GameTooltip:SetOwner, secure-template ref, etc.);
+---method calls on the wrapper itself are fine because the metatable forwards them.
 ---@param parent frame
 ---@param callback any
 ---@return df_searchbox
 function detailsFramework:CreateSearchBox(parent, callback)
+    --returns a wrapper table (not an EditBox); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
     local onSearchPressEnterCallback = function(_, _, text, self)
         callback(self)
     end

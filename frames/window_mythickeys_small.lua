@@ -6,23 +6,67 @@ local detailsFramework = DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
+    local eventFrame = CreateFrame("frame")
+    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
+    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
+
+    eventFrame.isCasting = false
+
+    --forward-declared; assigned after mainPanel exists. captured by the OnEvent closure below.
+    local castOverlay
+    local castTimeBar
+
+    eventFrame:SetScript("OnEvent", function(self, event, ...)
+        if event == "UNIT_SPELLCAST_START" then
+            local _, _, spellId = ...
+            if LIB_OPEN_RAID_MYTHIC_PLUS_TELEPORT_SPELLS[spellId] then
+                --confirmed that this cast is a teleport spell
+                --the next interrupted or succeeded event, indicate the cast stop
+                self.isCasting = true
+
+                local spellInfo = C_Spell.GetSpellInfo(spellId)
+                castTimeBar:SetIcon(spellInfo.iconID)
+                castTimeBar:SetLeftText(spellInfo.name)
+
+                castOverlay:Show()
+                castTimeBar:SetTimer(10, true)
+            end
+
+        elseif event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_SUCCEEDED" or event == "UNIT_SPELLCAST_FAILED" then
+            if self.isCasting then
+                self.isCasting = false
+                castTimeBar:StopTimer()
+                castOverlay:Hide()
+            end
+        end
+    end)
 
     --constants
     local WINDOW_WIDTH = 350
     local WINDOW_HEIGHT = 320
 
-    --createRoundedPanel's title bar is positioned 4px from the top and is 16px tall,
-    --so it occupies y=0 to y=-20 from the panel top. Its frame level is 9500 (always above tabs).
-    local TITLEBAR_BOTTOM = 20
+    --use_titlebar is false, so there's no internal title bar reserve. The corner curve
+    --is roundness=3, so 4px from the top puts the tab buttons right at the curve.
+    local TITLEBAR_BOTTOM = 4
+
+    --row background tints used by the Keys tab to mark group membership of each keystone
+    --holder. priority blue > orange > green; blue and orange can't both apply because they
+    --branch on IsInRaid(). {r, g, b, a}.
+    local LINE_COLOR_PARTY = {0.05, 0.10, 0.65, 0.6}  --dark blue
+    local LINE_COLOR_RAID = {0.6, 0.18, 0.05, 0.6}   --dark orange
+    local LINE_COLOR_GUILD = {0.30, 0.45, 0.30, 0.5}  --washed-out green
 
     --main rounded panel — provides the visual shell, title bar, and close button.
+    --alpha is 1.0 so the empty top/bottom strips don't read as more transparent than the row area.
     local mainPanel = detailsFramework:CreateRoundedPanel(UIParent, "DetailsKeystoneSmallFrame", {
         width = WINDOW_WIDTH,
         height = WINDOW_HEIGHT,
         use_titlebar = false,
         title = "M+ Keys",
         roundness = 3,
-        color = {.09, .09, .09, 0.95},
+        color = {.09, .09, .09, 1.0},
         border_color = {.15, .15, .15, 0.9},
     })
 
@@ -35,11 +79,72 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
     mainPanel:Hide()
 
-    local leftResizer, rightResizer = detailsFramework:CreateResizeGrips(mainPanel)
+    --cast feedback overlay anchored to the bottom of mainPanel.
+    --shows a 10s timebar while the player casts a dungeon teleport spell;
+    --hidden as soon as UNIT_SPELLCAST_SUCCEEDED/FAILED/INTERRUPTED fires.
+    --castOverlay/castTimeBar are forward-declared at the top of the block.
+    castOverlay = CreateFrame("frame", nil, mainPanel, "BackdropTemplate")
+    castOverlay:SetHeight(30)
+    castOverlay:SetPoint("bottomleft", mainPanel, "bottomleft", 0, 0)
+    castOverlay:SetPoint("bottomright", mainPanel, "bottomright", 0, 0)
+    --tabContainer reaches the bottom of mainPanel and its scrollbox rows render in the
+    --overlay area. raising strata (not just frame level) guarantees the bar sits above
+    --every row regardless of the level math inside the tab/scrollbox hierarchy.
+    castOverlay:SetFrameStrata("HIGH")
+    detailsFramework:ApplyStandardBackdrop(castOverlay)
+    castOverlay:Hide()
+
+    castTimeBar = detailsFramework:CreateTimeBar(castOverlay, nil, nil, 22)
+    castTimeBar:SetPoint("left", castOverlay, "left", 4, 0)
+    castTimeBar:SetPoint("right", castOverlay, "right", -4, 0)
+    castTimeBar:ShowTimer(true)
+
+    --use_default_scripts = false: the DF default OnMouseDown calls parent:StartSizing,
+    --which snaps the resized corner to the cursor position on click. Since the grip is
+    --32x32 anchored at the corner (extending up-left), the cursor is almost never exactly
+    --on the corner, so the panel "jumps" by that offset just from clicking. We attach
+    --our own scripts below that track the cursor delta instead.
+    local leftResizer, rightResizer = detailsFramework:CreateResizeGrips(mainPanel, {use_default_scripts = false})
     leftResizer:SetScale(0.7)
     rightResizer:SetScale(0.7)
     leftResizer:Hide()
-    --rightResizer:SetParent()
+
+    local MIN_RESIZE_H, MAX_RESIZE_H = 200, 700
+    rightResizer:SetScript("OnMouseDown", function(self)
+        local _, cursorY = GetCursorPosition()
+        self.startCursorY = cursorY
+        self.startHeight = mainPanel:GetHeight()
+
+        --re-anchor to topleft so SetHeight grows only the bottom edge. With a center
+        --anchor, the frame expands both up and down from its midpoint and the top edge
+        --drifts upward while the user drags the bottom.
+        local top, left = mainPanel:GetTop(), mainPanel:GetLeft()
+        if (top and left) then
+            mainPanel:ClearAllPoints()
+            mainPanel:SetPoint("topleft", UIParent, "bottomleft", left, top)
+        end
+
+        self:SetScript("OnUpdate", function(grip)
+            local _, y = GetCursorPosition()
+            local scale = mainPanel:GetEffectiveScale()
+            --cursor y increases upward in WoW, so moving the cursor down (y decreases)
+            --should make the panel taller; (startY - y) is the downward delta.
+            local newHeight = grip.startHeight + (grip.startCursorY - y) / scale
+
+            if (newHeight < MIN_RESIZE_H) then
+                newHeight = MIN_RESIZE_H
+            end
+
+            if (newHeight > MAX_RESIZE_H) then
+                newHeight = MAX_RESIZE_H
+            end
+
+            mainPanel:SetHeight(newHeight)
+        end)
+    end)
+    rightResizer:SetScript("OnMouseUp", function(self)
+        self:SetScript("OnUpdate", nil)
+    end)
 
     local closeButton = CreateFrame("button", nil, mainPanel, "UIPanelCloseButton")
     closeButton:SetPoint("topright", mainPanel, "topright", -4, -4)
@@ -47,14 +152,95 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
         Details:SkinCloseButton(closeButton, mainPanel)
     end)
 
+    --button to request keystone data from guild + group; positioned at the bottom-left.
+    --mirrors the request-from-guild button on the full keystone window.
+    local requestFromGuildButton = detailsFramework:CreateButton(mainPanel, function()
+        local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+        if (not openRaidLib) then
+            return
+        end
+
+        local guildName = GetGuildInfo("player")
+        if (guildName) then
+            if (C_GuildInfo and C_GuildInfo.GuildRoster) then
+                C_GuildInfo.GuildRoster()
+            end
+            openRaidLib.RequestKeystoneDataFromGuild()
+        end
+
+        if (IsInRaid()) then
+            openRaidLib.RequestKeystoneDataFromRaid()
+        elseif (IsInGroup()) then
+            openRaidLib.RequestKeystoneDataFromParty()
+        end
+    end, 22, 18, REFRESH)
+    requestFromGuildButton:SetPoint("bottomleft", mainPanel, "bottomleft", 28, 2)
+    requestFromGuildButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+    requestFromGuildButton:SetIcon("UI-RefreshButton", 14, 14, "overlay", {0, 1, 0, 1}, "lawngreen")
+    requestFromGuildButton:SetFrameLevel(mainPanel:GetFrameLevel() + 100)
+    requestFromGuildButton.tooltip = Loc["STRING_KEYSTONE_REQUEST_FROM_GUILD"]
+    mainPanel.RequestFromGuildButton = requestFromGuildButton
+
     --shows the compact M+ keystone window.
     function Details222.MythicKeys.OpenSmallKeysPanel()
         mainPanel:Show()
+        --auto-request keys from guild on first open or after 60 seconds (matches the full window)
+        local guildName = GetGuildInfo("player")
+        if (guildName) then
+            if (not mainPanel.lastGuildRequest or GetTime() - mainPanel.lastGuildRequest > 60) then
+                mainPanel.lastGuildRequest = GetTime()
+                mainPanel.RequestFromGuildButton:Click()
+            end
+        end
     end
 
     --allow dragging the title bar to reposition the panel.
     --the title bar close button already hides mainPanel when clicked (built-in behaviour).
     detailsFramework:MakeDraggable(mainPanel, Details.mythic_small_window_pos)
+
+    --when the group composition changes while the panel is open, re-request keystone data
+    --from the new party/raid members. Without this, you have to /reload (or close and reopen
+    --the panel) before keys from people who joined after the panel opened actually appear.
+    mainPanel:SetScript("OnEvent", function(self, event)
+        if (event == "GROUP_ROSTER_UPDATE") then
+            --throttle: GROUP_ROSTER_UPDATE fires repeatedly on a single join/leave
+            if (self.lastGroupRequest and GetTime() - self.lastGroupRequest < 3) then
+                return
+            end
+            self.lastGroupRequest = GetTime()
+            --small delay so openRaidLib finishes its own GROUP_ROSTER_UPDATE bookkeeping first
+            C_Timer.After(1, function()
+                local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+                if (not openRaidLib) then return end
+                if (IsInRaid()) then
+                    openRaidLib.RequestKeystoneDataFromRaid()
+                elseif (IsInGroup()) then
+                    openRaidLib.RequestKeystoneDataFromParty()
+                end
+            end)
+        end
+    end)
+    mainPanel:HookScript("OnShow", function(self)
+        self:RegisterEvent("GROUP_ROSTER_UPDATE")
+    end)
+    mainPanel:HookScript("OnHide", function(self)
+        self:UnregisterEvent("GROUP_ROSTER_UPDATE")
+    end)
+
+    --refresh the Keys tab list every 3 seconds while the panel is shown.
+    --mainPanel.RefreshKeysData is assigned by the Keys tab createOnDemandFunc once the tab is built.
+    mainPanel:SetScript("OnUpdate", function(self, deltaTime)
+        if (not self.lastRefresh) then
+            self.lastRefresh = 0
+        end
+        self.lastRefresh = self.lastRefresh + deltaTime
+        if (self.lastRefresh > 3) then
+            self.lastRefresh = 0
+            if (self.RefreshKeysData) then
+                self.RefreshKeysData()
+            end
+        end
+    end)
 
     --pre-create teleport buttons as children of mainPanel using InsecureActionButtonTemplate.
     --they must be created at load time (outside createOnDemandFunc and outside combat)
@@ -65,6 +251,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
         button:SetAttribute("type", "spell")
         button:RegisterForClicks("AnyDown")
         button:Hide()
+
         smallKeysTeleportButtons[i] = button
     end
 
@@ -133,6 +320,14 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             line:Show()
 
                             local unitName, level, _, challengeMapID, classID, rating, _, classIconTex, iconTexCoords, mapName, _, _, _, specId = unpack(unitTable)
+
+                            --background tint based on group (slot 15); fall back to default if nil
+                            local lineColor = unitTable[15]
+                            if (lineColor) then
+                                line:SetBackdropColor(lineColor[1], lineColor[2], lineColor[3], lineColor[4])
+                            else
+                                line:SetBackdropColor(.12, .12, .12, 0.6)
+                            end
 
                             --spec / class icon
                             if (specId and specId > 20) then
@@ -210,7 +405,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 local createLineFunc = function(self, index)
                     local line = CreateFrame("frame", "$parentLine" .. index, self, "BackdropTemplate")
                     line:SetPoint("topleft", self, "topleft", 1, -((index - 1) * (LINE_HEIGHT + 1)) - 1)
-                    line:SetSize(SCROLL_WIDTH - 2, LINE_HEIGHT)
+                    --shorter than the scrollBox so the rating text doesn't sit under the inset scrollbar
+                    line:SetSize(SCROLL_WIDTH - 22, LINE_HEIGHT)
                     line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
                     line:SetBackdropColor(.12, .12, .12, 0.6)
 
@@ -219,6 +415,15 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     teleportButton:SetParent(line)
                     teleportButton:SetAllPoints(line)
                     teleportButton:SetFrameLevel(line:GetFrameLevel() + 1)
+
+                    --hover highlight: the button covers the whole line and captures mouse events,
+                    --so anchoring the highlight texture to it lets Blizzard auto-toggle it on hover.
+                    if (not teleportButton.hoverHighlight) then
+                        local hoverHighlight = teleportButton:CreateTexture(nil, "highlight")
+                        hoverHighlight:SetAllPoints()
+                        hoverHighlight:SetColorTexture(1, 1, 1, 0.10)
+                        teleportButton.hoverHighlight = hoverHighlight
+                    end
 
                     local roleIcon = line:CreateTexture(nil, "overlay")
                     roleIcon:SetSize(20, 20)
@@ -270,11 +475,22 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     LINES_VISIBLE,
                     LINE_HEIGHT
                 )
-                scrollBox:SetPoint("topleft", tabFrame, "topleft", 4, -26)
-                scrollBox:SetPoint("bottomright", tabFrame, "bottomright", 0, 20)
+                --scrollBox at x=1 + line internal x=1 → line left edge sits 2px inside the panel.
+                --right side at -2 keeps the scrollbar 2px inside the right border.
+                scrollBox:SetPoint("topleft", tabFrame, "topleft", 1, -26)
+                scrollBox:SetPoint("bottomright", tabFrame, "bottomright", -2, 20)
                 scrollBox:SetBackdropBorderColor(0, 0, 0, 0)
+
+                --bind the custom scrollbar; CreateScrollBar2 handles HideScrollBar, IsFauxScroll,
+                --offset wiring, anchoring (right gutter, panel-aligned), frame level, mouse wheel,
+                --and auto-syncs range/visible-ratio via a Refresh hook.
+                scrollBox:CreateScrollBar2()
+
                 scrollBox:SetScript("OnSizeChanged", function(self)
-                    local newAmount = math.floor(self:GetHeight() / LINE_HEIGHT)
+                    --each line occupies (LINE_HEIGHT + 1) pixels including the gap between rows.
+                    --dividing by LINE_HEIGHT would overestimate and let the last line spill into
+                    --the bottom margin where the refresh button lives.
+                    local newAmount = math.floor(self:GetHeight() / (LINE_HEIGHT + 1))
                     if (newAmount < 1) then
                         newAmount = 1
                     end
@@ -291,9 +507,37 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     scrollBox:CreateLine(createLineFunc)
                 end
 
+                --CreateScrollBox seeds NumFramesShown from LINES_VISIBLE (computed from the
+                --default WINDOW_HEIGHT). The SetPoint above stretches the scrollBox to its real
+                --height, but that resize happens before OnSizeChanged is attached, so the
+                --handler never fires on first display. Recalculate now so the initial layout
+                --fills the available height instead of waiting for the user to resize.
+                --recompute the visible-line count from the scrollbox's actual height and apply it.
+                local syncVisibleLines = function()
+                    --divide by (LINE_HEIGHT + 1) to include the 1px gap between rows; using
+                    --just LINE_HEIGHT lets one extra row spill into the bottom margin.
+                    local actualLines = math.floor(scrollBox:GetHeight() / (LINE_HEIGHT + 1))
+
+                    if (actualLines < 1) then
+                        actualLines = 1
+                    end
+
+                    if (actualLines > LINE_AMOUNT) then
+                        actualLines = LINE_AMOUNT
+                    end
+
+                    scrollBox:SetNumFramesShown(actualLines)
+                end
+                syncVisibleLines()
+                --also resync each time the panel is shown, in case a saved size is restored
+                --after this createOnDemandFunc runs.
+                scrollBox:HookScript("OnShow", syncVisibleLines)
+
                 tabFrame.ScrollBox = scrollBox
 
-                --build party-member-only data and push it into the scrollbox
+                --build party-member-only data and push it into the scrollbox.
+                --scrollbar sync happens automatically inside scrollBox:Refresh() via the hook
+                --installed by scrollBox:CreateScrollBar2 above.
                 local refreshData = function()
                     if (USE_DUMMY_DATA) then
                         scrollBox:SetData(DUMMY_DATA)
@@ -315,10 +559,37 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         return
                     end
 
+                    --build the set of online guild members so their keystones can also appear.
+                    --GetGuildRosterInfo returns "Name-Realm"; openRaidLib unit names are realm-stripped
+                    --on this realm, so strip both sides before matching.
+                    local realmNameGsub = "%-.*"
+                    local guildUsers = {}
+                    local guildName = GetGuildInfo("player")
+                    if (guildName) then
+                        local totalMembers = GetNumGuildMembers()
+                        for i = 1, totalMembers do
+                            local fullName, _, _, _, _, _, _, _, online = GetGuildRosterInfo(i)
+                            if (not fullName) then
+                                break
+                            end
+                            if (online) then
+                                guildUsers[fullName:gsub(realmNameGsub, "")] = true
+                            end
+                        end
+                    end
+
                     local newData = {}
+                    local isPlayerInRaid = IsInRaid()
+                    local playerNameNoRealm = Details:GetFullName("player"):gsub(realmNameGsub, "")
 
                     for unitName, keystoneInfo in pairs(keystoneData) do
-                        if (UnitInParty(unitName) and (keystoneInfo.level > 0 or keystoneInfo.rating > 0)) then
+                        local nameNoRealm = unitName:gsub(realmNameGsub, "")
+                        local isThisPlayer = (nameNoRealm == playerNameNoRealm)
+                        local isInMyParty = UnitInParty(unitName)
+                        local isInMyRaid = isPlayerInRaid and UnitInRaid(unitName)
+                        local isGuildMember = guildName and guildUsers[nameNoRealm] and true or false
+
+                        if ((isThisPlayer or isInMyParty or isInMyRaid or isGuildMember) and (keystoneInfo.level > 0 or keystoneInfo.rating > 0)) then
                             local classId = keystoneInfo.classID
                             local classIcon = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]]
                             local _, class = GetClassInfo(classId)
@@ -335,6 +606,31 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                             mapName = mapName or ""
 
+                            --sort group: 0=player, 1=party, 2=raid, 3=guild, 4=other.
+                            --party and raid are mutually exclusive (party only counts when not in a raid).
+                            local sortGroup
+                            if (isThisPlayer) then
+                                sortGroup = 0
+                            elseif (isInMyParty and not isPlayerInRaid) then
+                                sortGroup = 1
+                            elseif (isInMyRaid) then
+                                sortGroup = 2
+                            elseif (isGuildMember) then
+                                sortGroup = 3
+                            else
+                                sortGroup = 4
+                            end
+
+                            --background tint constants live at the top of the file; resolved here per row.
+                            local lineColor
+                            if (isInMyParty and not isPlayerInRaid) then
+                                lineColor = LINE_COLOR_PARTY
+                            elseif (isInMyRaid) then
+                                lineColor = LINE_COLOR_RAID
+                            elseif (isGuildMember) then
+                                lineColor = LINE_COLOR_GUILD
+                            end
+
                             newData[#newData + 1] = {
                                 unitName, --[1]  unit name
                                 keystoneInfo.level, --[2]  keystone level
@@ -346,10 +642,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                 classIcon, --[8]  class icon texture
                                 class and CLASS_ICON_TCOORDS[class], --[9]  icon tex coords
                                 mapName, --[10] dungeon name
-                                1, --[11] isInMyParty
+                                isInMyParty and 1 or 0, --[11] isInMyParty
                                 true, --[12] isOnline
-                                false, --[13] isGuildMember
+                                isGuildMember, --[13] isGuildMember
                                 specId, --[14] spec ID
+                                lineColor, --[15] line backdrop tint (or nil)
+                                sortGroup, --[16] sort bucket
                             }
 
                             if (#newData >= LINE_AMOUNT) then
@@ -358,12 +656,22 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         end
                     end
 
+                    --player first, then party, then raid, then guild; tiebreak on rating descending
+                    table.sort(newData, function(a, b)
+                        if (a[16] ~= b[16]) then
+                            return a[16] < b[16]
+                        end
+                        return (a[6] or 0) > (b[6] or 0)
+                    end)
+
                     scrollBox:SetData(newData)
                     scrollBox:Refresh()
                 end
 
                 --called automatically by the tab container each time this tab is selected
                 tabFrame.RefreshOptions = refreshData
+                --expose the refresh closure so the panel-level OnUpdate handler can keep keys live
+                mainPanel.RefreshKeysData = refreshData
                 tabFrame.titleText:Hide()
             end,
         },
@@ -372,11 +680,21 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
             text = "Teleports",
             createOnDemandFunc = function(tabFrame, tabContainer, parent)
                 tabFrame:EnableMouse(false)
+                tabFrame.titleText:Hide()
 
                 --constants
                 local LINE_HEIGHT = 30
                 local SCROLL_WIDTH = WINDOW_WIDTH - 8
                 local LINES_VISIBLE = math.floor((WINDOW_HEIGHT - TITLEBAR_BOTTOM - 26) / LINE_HEIGHT)
+
+                --current-season dungeon names. Used to push these dungeons to the top of the list.
+                local currentSeasonDungeons = {}
+                if (detailsFramework.Ejc and detailsFramework.Ejc.GetAllDungeonNames) then
+                    local dungeonNames = detailsFramework.Ejc.GetAllDungeonNames()
+                    for i = 1, #dungeonNames do
+                        currentSeasonDungeons[dungeonNames[i]] = true
+                    end
+                end
 
                 --build a sorted list of dungeons that have a teleport spell
                 local teleportData = {}
@@ -389,10 +707,19 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         end
                     end
 
+                    --current-season dungeons first (alphabetical), then the rest by known-first then alphabetical.
                     table.sort(teleportData, function(a, b)
-                        if a[8] ~= b[8] then
+                        local aIsSeasonal = currentSeasonDungeons[a[1]] and true or false
+                        local bIsSeasonal = currentSeasonDungeons[b[1]] and true or false
+
+                        if (aIsSeasonal ~= bIsSeasonal) then
+                            return aIsSeasonal
+                        end
+
+                        if (a[8] ~= b[8]) then
                             return a[8] and not b[8]
                         end
+
                         return (a[1] or "") < (b[1] or "")
                     end)
                 end
@@ -400,8 +727,81 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 local lineCount = math.max(#teleportData, 1)
                 local searchText = ""
 
-                --filters teleportData by searchText and refreshes the scrollbox
+                --map of zone name -> number of party members currently in that zone.
+                --rebuilt on each refresh from C_Map.GetBestMapForUnit + C_Map.GetMapInfo,
+                --with a tooltip-scrape fallback for units C_Map can't resolve.
+                local playerZoneCounts = {}
+
+                ---reads the localised "Zone:" line from the server-cached unit tooltip.
+                ---used as a fallback when C_Map can't resolve a distant party member's zone.
+                ---@param unit string unit token like "player" or "party1"
+                ---@return string? zoneName the zone name, or nil if no "Zone:" line is found
+                local getZoneNameFromTooltip = function(unit)
+                    if (not C_TooltipInfo or not C_TooltipInfo.GetUnit) then
+                        return nil
+                    end
+
+                    local result = C_TooltipInfo.GetUnit(unit)
+                    if (not result or not result.lines) then
+                        return nil
+                    end
+
+                    --localised "Zone:" prefix from GlobalStrings; fall back to English literal.
+                    local zonePrefix = (_G.ZONE or "Zone") .. ":"
+                    local prefixLen = #zonePrefix
+
+                    for i = 1, #result.lines do
+                        local line = result.lines[i]
+                        local text = line and line.leftText
+
+                        if (text and text:sub(1, prefixLen) == zonePrefix) then
+                            local rest = text:sub(prefixLen + 1):match("^%s*(.+)$")
+
+                            if (rest and rest ~= "") then
+                                return rest
+                            end
+                        end
+                    end
+
+                    return nil
+                end
+
+                ---rebuilds playerZoneCounts from {player, party1..4}: resolves each unit's zone
+                ---via C_Map first, falling back to a tooltip scrape, and tallies counts by zone name.
+                local computePlayerZoneCounts = function()
+                    wipe(playerZoneCounts)
+                    local units = {"player", "party1", "party2", "party3", "party4"}
+
+                    for index, unit in ipairs(units) do
+                        if (UnitExists(unit)) then
+                            local zoneName
+                            local uiMapID = C_Map.GetBestMapForUnit(unit)
+
+                            if (uiMapID) then
+                                local info = C_Map.GetMapInfo(uiMapID)
+
+                                if (info and info.name) then
+                                    zoneName = info.name
+                                end
+                            end
+
+                            if (not zoneName) then
+                                zoneName = getZoneNameFromTooltip(unit)
+                            end
+
+                            if (zoneName) then
+                                playerZoneCounts[zoneName] = (playerZoneCounts[zoneName] or 0) + 1
+                            end
+                        end
+                    end
+                end
+
+                --filters teleportData by searchText and refreshes the scrollbox.
+                --scrollbar sync happens automatically inside scrollBox:Refresh() via the hook
+                --installed by scrollBox:CreateScrollBar2 below.
                 local refreshScrollData = function(scrollBox)
+                    computePlayerZoneCounts()
+
                     if searchText ~= "" then
                         local filteredData = {}
                         for index, mapInfo in ipairs(teleportData) do
@@ -430,6 +830,13 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             line.dungeonTexture:SetTexture(mapInfo[4])
                             line.dungeonNameText.text = mapInfo[1] or ""
 
+                            local count = playerZoneCounts[mapInfo[1] or ""]
+                            if count and count > 0 then
+                                line.playerCountText.text = tostring(count)
+                            else
+                                line.playerCountText.text = ""
+                            end
+
                             if mapInfo[8] then
                                 line.notLearnedBg:Hide()
                                 line.dungeonTexture:SetAlpha(1)
@@ -455,6 +862,14 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                         button:ClearAllPoints()
                                         button:SetAllPoints(line)
                                         button:SetFrameLevel(line:GetFrameLevel() + 1)
+                                        --hover highlight: the button covers the whole line and captures mouse events,
+                                        --so anchoring the highlight texture to it lets Blizzard auto-toggle it on hover.
+                                        if (not button.hoverHighlight) then
+                                            local hoverHighlight = button:CreateTexture(nil, "highlight")
+                                            hoverHighlight:SetAllPoints()
+                                            hoverHighlight:SetColorTexture(1, 1, 1, 0.10)
+                                            button.hoverHighlight = hoverHighlight
+                                        end
                                         button:Show()
                                         line.button = button
                                     end
@@ -471,7 +886,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                     local line = CreateFrame("frame", "$parentTeleportLine" .. index, self, "BackdropTemplate")
                     line:SetPoint("topleft", self, "topleft", 1, -((index - 1) * (LINE_HEIGHT + 1)) - 1)
-                    line:SetSize(SCROLL_WIDTH - 2, LINE_HEIGHT)
+                    --width leaves a 22px gutter on the right so the scroll bar sits over empty
+                    --space instead of overlapping the row text (matches the Keys tab layout).
+                    line:SetSize(SCROLL_WIDTH - 22, LINE_HEIGHT)
                     line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
                     line:SetBackdropColor(.12, .12, .12, 0.6)
 
@@ -488,8 +905,14 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     detailsFramework:SetFontSize(dungeonNameText, 10)
                     dungeonNameText:SetPoint("left", line, "left", LINE_HEIGHT + 4, 0)
 
+                    --party-member count: how many of {player, party1..4} are currently in this dungeon's zone.
+                    local playerCountText = detailsFramework:CreateLabel(line, "")
+                    detailsFramework:SetFontSize(playerCountText, 12)
+                    playerCountText:SetPoint("right", line, "right", -8, 0)
+
                     line.dungeonTexture = dungeonTexture
                     line.dungeonNameText = dungeonNameText
+                    line.playerCountText = playerCountText
 
                     return line
                 end
@@ -509,11 +932,19 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     scrollBox:CreateLine(createLineFunc)
                 end
 
-                --scrollbox is offset 50px from the top to leave room for the search box (26px) + margin
+                --scrollbox is offset 50px from the top to leave room for the search box (26px) + margin.
+                --bottomright is pulled in 2px so the scroll bar (reskinned ~6px right of the box)
+                --stays visually inside the panel edge.
                 scrollBox:SetPoint("topleft", tabFrame, "topleft", 4, -50)
-                scrollBox:SetPoint("bottomright", tabFrame, "bottomright", 0, 20)
+                scrollBox:SetPoint("bottomright", tabFrame, "bottomright", -2, 20)
                 scrollBox:SetBackdropBorderColor(0, 0, 0, 0)
-                scrollBox:SetScript("OnSizeChanged", function(self)
+
+                --bind the custom scrollbar; CreateScrollBar2 handles HideScrollBar, IsFauxScroll,
+                --offset wiring, anchoring (right gutter, panel-aligned), frame level, mouse wheel,
+                --and auto-syncs range/visible-ratio via a Refresh hook.
+                scrollBox:CreateScrollBar2()
+
+                local resizeScrollBox = function(self)
                     local newAmount = math.floor(self:GetHeight() / LINE_HEIGHT)
                     if (newAmount < 1) then
                         newAmount = 1
@@ -525,6 +956,15 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                     self:SetNumFramesShown(newAmount)
                     self:Refresh()
+                end
+                scrollBox:SetScript("OnSizeChanged", resizeScrollBox)
+
+                --LINES_VISIBLE passed to CreateScrollBox is an estimate from WINDOW_HEIGHT, but the
+                --actual height comes from the anchors above. The first time the tab is shown, the
+                --estimate can exceed the real height by one line, which renders below the visible
+                --area until a resize triggers OnSizeChanged. Force a recompute after the layout pass.
+                C_Timer.After(0, function()
+                    resizeScrollBox(scrollBox)
                 end)
 
                 tabFrame.ScrollBox = scrollBox
@@ -550,6 +990,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
             text = "Alts",
             createOnDemandFunc = function(tabFrame, tabContainer, parent)
                 --build Alts tab content here
+                tabFrame.titleText:Hide()
             end,
         },
         {
@@ -557,6 +998,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
             text = "History",
             createOnDemandFunc = function(tabFrame, tabContainer, parent)
                 --build History tab content here
+                tabFrame.titleText:Hide()
             end,
         },
     }
@@ -590,6 +1032,19 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
     tabContainer:SetPoint("topleft", mainPanel, "topleft", 0, -TITLEBAR_BOTTOM)
     tabContainer:SetPoint("bottomright", mainPanel, "bottomright", 0, 0)
+
+    --strip any default backdrop the tab framework may apply on the container or per-tab frames,
+    --so the rounded panel shows through cleanly without a fade band at top/bottom.
+    if (tabContainer.SetBackdrop) then
+        tabContainer:SetBackdrop(nil)
+    end
+    if (tabContainer.AllFrames) then
+        for index, tabFrame in ipairs(tabContainer.AllFrames) do
+            if (tabFrame.SetBackdrop) then
+                tabFrame:SetBackdrop(nil)
+            end
+        end
+    end
 
     Details222.MythicKeysSmall = {
         MainPanel = mainPanel,

@@ -14,6 +14,8 @@ local createAdvancedOptionsFunction = function()
     ---@field value any
     ---@field label string text shown in the dropdown option
     ---@field onclick fun(dropdownObject:table, fixedValue:any, value:any)? function to call when the option is selected
+    ---@field onenter fun(button:button, value:any)? function to call when the cursor enters this option row
+    ---@field onleave fun(button:button, value:any)? function to call when the cursor leaves this option row
     ---@field icon string|number? texture
     ---@field iconcolor any any color format
     ---@field iconsize number[]? width, height

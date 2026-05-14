@@ -475,8 +475,6 @@ function DF:CreateCoolTip()
 				self.frame1.titleIcon:SetPoint("center", frame1, "center")
 				self.frame1.titleIcon:SetPoint("bottom", frame1, "top")
 				self.frame1.titleText:SetPoint("left", frame1.titleIcon, "right")
-				self.frame1.titleText:SetText("TESTE")
-
 				self.frame1.titleText:Show()
 				self.frame1.titleIcon:Show()
 
@@ -1102,7 +1100,7 @@ function DF:CreateCoolTip()
 
 			elseif (gameCooltip.OptionsTable.TextFont and not leftTextSettings[7]) then --font
 				if (_G[gameCooltip.OptionsTable.TextFont]) then
-					menuButton.leftText:SetFontObject(_G.GameFontRed or gameCooltip.OptionsTable.TextFont)
+					menuButton.leftText:SetFontObject(gameCooltip.OptionsTable.TextFont)
 				else
 					local font = SharedMedia:Fetch("font", gameCooltip.OptionsTable.TextFont)
 					local _, size, flags = menuButton.leftText:GetFont()
@@ -1336,7 +1334,7 @@ function DF:CreateCoolTip()
 
 			--check if the texture passed is a texture object
 			if (type(rightIconSettings[1]) == "table" and rightIconSettings[1].GetObjectType and rightIconSettings[1]:GetObjectType() == "Texture") then
-				menuButton.rightIcon:SetSize(leftIconSettings[2], leftIconSettings[3])
+				menuButton.rightIcon:SetSize(rightIconSettings[2], rightIconSettings[3])
 				menuButton.rightIcon:SetColorTexture(0.0156, 0.047, 0.1215, 1)
 
 				textureObject = rightIconSettings[1]
@@ -2020,7 +2018,7 @@ function DF:CreateCoolTip()
 				PixelUtil.SetHeight(frame2, newHeight + heightMod)
 
 			else
-				local newHeight = (frame2.hHeight * gameCooltip.Indexes) + 8 + ((gameCooltip.OptionsTable.ButtonsYMod or 0) * -1)
+				local newHeight = (frame2.hHeight * #LeftTextTableSub) + 8 + ((gameCooltip.OptionsTable.ButtonsYMod or 0) * -1)
 				PixelUtil.SetHeight(frame2, max(newHeight + heightMod, 22))
 			end
 		end
@@ -2567,7 +2565,7 @@ function DF:CreateCoolTip()
 			return gameCooltip:SetMyPoint(host, bHadXPositionOutOfScreen and xOffset or 0, bHadYPositionOutOfScreen and yOffset or 0)
 		end
 
-		if (frame2:IsShown() and not gameCooltip.overlap_checked) then
+		if (frame2:IsShown() and not gameCooltip.overlapChecked) then
 			local frame2CenterX = frame2:GetCenter()
 			if (frame2CenterX) then
 				local frame2HalfWidth = frame2:GetWidth() / 2
@@ -2578,10 +2576,10 @@ function DF:CreateCoolTip()
 					local frame2StartPoint = frame2CenterX - frame2HalfWidth
 
 					if (frame2StartPoint < frame1EndPoint) then
-						gameCooltip.overlap_checked = true
+						gameCooltip.overlapChecked = true
 						frame2:ClearAllPoints()
 						frame2:SetPoint("bottomright", frame1, "bottomleft", 4, 0)
-						gameCooltip.frame2_leftside = true
+						gameCooltip.frame2_IsOnLeftside = true
 						return gameCooltip:SetMyPoint(host, gameCooltip.internal_x_mod , gameCooltip.internal_y_mod)
 					end
 				end

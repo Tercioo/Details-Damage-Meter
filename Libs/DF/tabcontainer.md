@@ -298,3 +298,64 @@ local hookList = {
 
 local tabContainer = DF:CreateTabContainer(parent, "Title", "Frame", tabList, {}, hookList)
 ```
+
+---
+
+## Pitfalls
+
+### Tab buttons are siblings of the tab body, not children
+
+The tab body (`df_tabcontainerframe`) is created with `SetAllPoints()` to fill the container, at frame level `210`. The tab button for the same tab is created separately as a child of the **container** (not the tab body), at frame level `220`. Two siblings in the parent tree; spatially the buttons sit on top of the upper Y region of the tab body.
+
+**Consequence**: if you anchor content inside a tab body at `TOPLEFT, x, -10`, the upper portion of your content occupies the same screen rectangle as the tab buttons. Buttons win on frame level and draw on top, but consumer content can still peek through in zones where the button textures don't fully cover — producing partial bleed-through (FontStrings showing through other FontStrings, scrambled text).
+
+**Fix**: anchor below the button band. With the default geometry (`button_y = 30`, `button_height = 22`) the band ends at y ≈ 52. Use `-60` from `TOPLEFT` to clear with padding:
+
+```lua
+local TAB_TOP_OFFSET = -60
+myContent:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 10, TAB_TOP_OFFSET)
+myContent:SetPoint("TOPRIGHT", tabFrame, "TOPRIGHT", -10, TAB_TOP_OFFSET)
+```
+
+If `button_y` is customised, or if buttons wrap to multiple rows (when `button_width * tabCount > containerWidth`), recompute. Wrapped rows stack downward at `-(button_height + 1)` per row, so the offset must account for every row.
+
+This is the most common "looks broken on the Designer / editor / config panel" report from consumers anchoring into a tab body — they assume `TOPLEFT, 0, -10` means "10 px below the top of usable space" when in fact it means "10 px below the top of the area the tab buttons share".
+
+### Per-tab `titleText` is anchored to the container's main title, not the tab body
+
+Each tab frame auto-creates `tabFrame.titleText` — a FontString showing the tab's text. It's anchored to **the container's main title** at `mainTitle.bottomleft`, not to the tab body. The main title sits at the top of the container, above the button row.
+
+For consumers who want their tab content to start as high as possible, or who hide the main title to save space (passing `title = ""` to `CreateTabContainer` makes the title an empty string but doesn't remove the anchor), this dangling per-tab title can overlap content unexpectedly. It's also visually redundant — the selected tab button already shows the active tab name.
+
+**Fix**: hide each `tabFrame.titleText` right after construction:
+
+```lua
+local tabContainer = DF:CreateTabContainer(parent, "", "MyTabs", tabList, options)
+for _, tabFrame in ipairs(tabContainer.AllFrames) do
+    if tabFrame.titleText then
+        tabFrame.titleText:Hide()
+    end
+end
+```
+
+### Tab body has mouse handlers that intercept clicks and drags
+
+The `TabContainerFrameMixin` installs `OnMouseDown` / `OnMouseUp` scripts on every tab frame. With `options.can_move_parent = true` (default), left-dragging anywhere in the empty area of the tab body moves the highest movable ancestor. Right-click navigates: tab 1 closes, other tabs go back to tab 1.
+
+Child widgets inside the tab body that have `EnableMouse(true)` capture clicks first, so dropdowns / sliders / buttons work as expected — only the empty space responds to the body's drag and right-click handlers.
+
+**Pitfall A**: calling `tabFrame:EnableMouse(false)` to let drags pass through to a different ancestor also disables the body's own mouse handling. If you have a body-level click handler (rare, but some addons add one), it stops firing. Usually fine for read-only tab content.
+
+**Pitfall B**: if `can_move_parent` is enabled and you have a child widget that visually fills the tab body (e.g. an editor panel anchored to `TOPLEFT`/`BOTTOMRIGHT`), the editor's mouse-enabled regions absorb drags everywhere they cover. Drag-to-move only works on whatever bare body space is left exposed. To preserve drag-anywhere behaviour, disable mouse on the editor's outer frame: `editor:EnableMouse(false)` — child widgets keep their own mouse handling.
+
+### Frame level math: stay below `220` or explicitly above it
+
+Don't `SetFrameLevel` consumer content to a value in the range `[220, 220 + N]` unless you intend to draw over the tab buttons. For normal "render inside the tab body" cases, leave frame level inherited (default `parent + 1`, putting your content at `211+`). For modal overlays that should cover the entire tab container including buttons, use `tabFrame:GetFrameLevel() + 20` or higher.
+
+The `210` / `220` constants are baked into the framework — don't depend on them in consumer code (they could change). Compute relative to `tabFrame:GetFrameLevel()`.
+
+### Tab frame at level `210` may be hidden by parents at higher strata
+
+The tab body's frame level (`210`) is high inside its own strata, but strata trumps frame level. If the tab container is at strata `"HIGH"` and consumer content inside the tab body uses a factory that calls `SetFrameStrata("LOW")` internally (typical for profile-driven preview widgets), the content sinks below the container regardless of its level number.
+
+Symptom: the content visually disappears behind the container's background, with only fragments leaking through due to sibling z-fights. See `editor.md` § "Preview widgets that hard-code strata fight the editor's parent strata" for the override pattern.

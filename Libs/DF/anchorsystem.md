@@ -311,7 +311,7 @@ anchorSystem:HideFrame(frame)
 2. **Acquisition**: Each subsequent `ShowFrame` reuses frames from the pool. If no unused frames exist, a new one is created.
 3. **Setup**: The anchor's `setupFunction` is called to configure the frame with user data.
 4. **Layout**: The anchor reorders all visible frames, positioning them in a stack.
-5. **Release**: When `HideFrame` is called, the frame is released back to the pool. Its `StopTimer` and `Hide` callbacks are invoked.
+5. **Release**: When `HideFrame` is called, the frame is released back to the pool and its `Hide` callback is invoked.
 6. **Reuse**: The released frame can be acquired again by a future `ShowFrame` call.
  
 This pooling system avoids frame creation overhead and keeps memory usage constant.

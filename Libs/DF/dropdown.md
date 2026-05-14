@@ -9,6 +9,19 @@ Button frame. When clicked it opens a scrollable menu of options.
 Selecting an option updates the button face (label, icon, statusbar,
 colors) and fires a callback.
 
+Every DF:Create*DropDown* function (including the specialty helpers
+listed in sections 66-74) returns a wrapper Lua table, NOT a Blizzard
+frame. The underlying UIObject (the Blizzard button frame backing the
+dropdown) is stored at `wrapper.widget` (or equivalently
+`wrapper.dropdown`) and is returned by `wrapper:GetUIObject()`. Method
+calls on the wrapper itself are fine — the metatable forwards them or
+applies wrapper-specific behavior. But when the wrapper is passed AS
+AN ARGUMENT to a Blizzard API that expects a real frame (SetPoint
+relative anchor, CreateFrame parent, GameTooltip:SetOwner target,
+secure-template ref, etc.), it MUST be unwrapped via
+`wrapper:GetUIObject()` first, because the wrapper is a plain Lua
+table with no frame userdata for the C side to bind to.
+
 Two public constructors exist:
 
   DF:CreateDropDown()          – standard dropdown
@@ -464,6 +477,24 @@ these fields:
   onclick         (function?)     Callback:
                                   onclick(dropdownObj, fixedValue, value)
                                   Called when the option is clicked.
+
+  onenter         (function?)     Hover-enter callback:
+                                  onenter(button, value)
+                                  Called when the cursor enters this
+                                  option row in the open menu.
+                                  - button: the option row Button frame
+                                  - value:  this option's .value
+                                  Fires after the built-in mouseover
+                                  highlight is positioned and the
+                                  desc tooltip / audiocue (if any)
+                                  have been processed.
+
+  onleave         (function?)     Hover-leave callback:
+                                  onleave(button, value)
+                                  Called when the cursor leaves the
+                                  option row. Same arguments as
+                                  onenter. Fires after the built-in
+                                  mouseover highlight is hidden.
 
   icon            (string|number?) Texture path or fileID for the
                                   option's icon.
@@ -1987,12 +2018,24 @@ Behavior
        self:GetParent().mouseover:SetPoint("left", self)
        self:GetParent().mouseover:Show()
 
+    4. If self.table.onenter exists, calls it as:
+       self.table.onenter(self, self.table.value)
+       - self  is the option row Button frame.
+       - value is the .value field from this option's table.
+       The call happens AFTER the mouseover highlight is positioned,
+       so user code can rely on the hover state being visible.
+       Errors thrown by the callback propagate (no xpcall wrapping).
+
 Additional dropdownoption fields used here
     .desc           (string|number)  Tooltip text (or phraseId
                                      if .addonId is set).
     .descfont       (string?)        Font for the tooltip text.
     .tooltipwidth   (number?)        Fixed width for the tooltip.
     .audiocue       (string?)        Sound file path to preview.
+    .onenter        (function?)      Hover-enter callback;
+                                     onenter(button, value).
+    .value          (any)            Passed as the second argument
+                                     to onenter.
 
 
 =====================================================================
@@ -2015,6 +2058,18 @@ Behavior
     1. If frame.table.desc exists, hides GameCooltip2.
     2. Hides the mouseover highlight:
        frame:GetParent().mouseover:Hide()
+    3. If frame.table.onleave exists, calls it as:
+       frame.table.onleave(frame, frame.table.value)
+       - frame is the option row Button frame.
+       - value is the .value field from this option's table.
+       The call happens AFTER the highlight is hidden.
+       Errors thrown by the callback propagate (no xpcall wrapping).
+
+Additional dropdownoption fields used here
+    .onleave        (function?)      Hover-leave callback;
+                                     onleave(button, value).
+    .value          (any)            Passed as the second argument
+                                     to onleave.
 
 
 =====================================================================
@@ -2690,6 +2745,138 @@ Parameters
 
 Returns
     (df_dropdown)
+
+
+=====================================================================
+67a) DF:BuildDropDownBackgroundList()
+=====================================================================
+
+Location
+    dropdown.lua  line 1463
+
+Signature
+    DF:BuildDropDownBackgroundList(onClick, bIncludeDefault)
+
+Purpose
+    Builds and returns a table of dropdownoption entries — one per
+    background texture registered in LibSharedMedia-3.0. Each option
+    sets .statusbar = texturePath so the row's background previews
+    the texture in the open menu.
+
+    This is the background equivalent of DF:BuildDropDownFontList.
+    Iterates SharedMedia:HashTable("background") rather than
+    HashTable("font").
+
+Parameters
+    onClick         (function)   onclick callback for every option.
+                                 Signature:
+                                 onClick(dropdown, fixedValue,
+                                         backgroundName).
+    bIncludeDefault (boolean?)   If true, prepends a "DEFAULT" entry
+                                 with an empty statusbar path.
+
+Returns
+    (dropdownoption[]) Sorted alphabetically by label. Each entry has:
+        .value      = background name (string)
+        .label      = background name (string)
+        .onclick    = onClick
+        .statusbar  = texture path from SharedMedia
+
+Notes
+    Unlike the font variant there is no icon parameter — the texture
+    itself is the preview (rendered behind the row label via the
+    .statusbar field on the option table).
+
+Example
+    local backgroundOptions = DF:BuildDropDownBackgroundList(
+        function(dropdown, _, name) MyDB.background = name end,
+        true
+    )
+
+
+=====================================================================
+67b) DF:CreateBackgroundListGenerator()
+=====================================================================
+
+Location
+    dropdown.lua  line 1492
+
+Signature
+    DF:CreateBackgroundListGenerator(callback, bIncludeDefault)
+
+Purpose
+    Returns a menu-builder function (suitable for the `func`
+    parameter of CreateDropDown / NewDropDown) that builds a
+    background-texture list from LibSharedMedia when called.
+
+    Background equivalent of DF:CreateFontListGenerator.
+
+Parameters
+    callback        (function)   onclick callback for every option.
+    bIncludeDefault (boolean?)   Prepend "DEFAULT" entry.
+
+Returns
+    (function) A closure that calls DF:BuildDropDownBackgroundList
+    (callback, bIncludeDefault) and returns its result.
+
+Example
+    local generator = DF:CreateBackgroundListGenerator(
+        function(_, _, name) MyDB.background = name end
+    )
+    local dd = DF:CreateDropDown(parent, generator, MyDB.background,
+                                 180, 20)
+
+
+=====================================================================
+67c) DF:CreateBackgroundDropDown()
+=====================================================================
+
+Location
+    dropdown.lua  line 1561
+
+Signature
+    DF:CreateBackgroundDropDown(parent, callback, default,
+                                width, height, member, name,
+                                template, bIncludeDefault)
+
+Purpose
+    Convenience constructor: creates a dropdown pre-filled with all
+    background textures from LibSharedMedia. Each option previews
+    its texture as the row background.
+
+    Background equivalent of DF:CreateFontDropDown.
+
+Parameters
+    parent          (frame)      Owner frame.
+    callback        (function)   onclick for when a background is
+                                 selected. Receives (dropdown,
+                                 fixedValue, backgroundName).
+    default         (any)        Initial selection (background name).
+    width           (number?)    Button width.
+    height          (number?)    Button height.
+    member          (string?)    Key on parent to store the capsule.
+    name            (string?)    Global frame name.
+    template        (table?)     Visual template.
+    bIncludeDefault (boolean?)   Prepend "DEFAULT" entry.
+
+Returns
+    (df_dropdown) The dropdown capsule.
+
+Behavior
+    Creates a background list generator via
+    CreateBackgroundListGenerator(), then delegates to
+    DF:NewDropDown(parent, parent, name, member, width, height,
+    func, default, template).
+
+Example
+    local bgDropdown = DF:CreateBackgroundDropDown(
+        settingsPanel,
+        function(_, _, name) MyDB.background = name end,
+        MyDB.background or "DEFAULT",
+        180, 20,
+        nil, nil, nil,
+        true   -- include DEFAULT entry
+    )
 
 
 =====================================================================

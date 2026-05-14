@@ -104,7 +104,7 @@ detailsFramework.TabContainerMixin = {
                 tabFrame:SetBackdropColor(r, g, b, a)
             end
             if (backdropBorderColorTable) then
-                local r, g, b, a = detailsFramework:ParseColors(backdropColorTable)
+                local r, g, b, a = detailsFramework:ParseColors(backdropBorderColorTable)
                 tabFrame:SetBackdropBorderColor(r, g, b, a)
             end
         end

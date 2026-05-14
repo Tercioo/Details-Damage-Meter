@@ -282,6 +282,13 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --methods
 
+	---return the UIObject that is behind the wrapper table.
+	---@param self df_button
+	---@return button
+	function ButtonMetaFunctions:GetUIObject()
+		return self.widget
+	end
+
 	---change the function which will be called when the button is pressed
 	---callback function will receive the blizzard button as first parameter, click type as second, param1 and param2 as third and fourth
 	---@param self df_button
@@ -304,7 +311,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 				rawset(self, "param2", param2)
 			end
 
-		elseif (clickType or string.find(string.lower(clickType), "right")) then
+		elseif (clickType and string.find(string.lower(clickType), "right")) then
 			if (func) then
 				rawset(self, "funcright", func)
 			else
@@ -966,6 +973,7 @@ end
 	---@field IsEnabled fun(self: df_button) : boolean returns true if the button is enabled
 	---@field SetIcon fun(self: df_button,texture: string|number, width: number|nil, height: number|nil, layout: string|nil, texcoord: table|nil, overlay: table|nil, textDistance: number|nil, leftPadding: number|nil, textHeight: number|nil, shortMethod: any|nil)
 	---@field GetIconTexture fun(self: df_button) : string returns the texture path of the button icon
+	---@field GetUIObject fun(self: df_button) : button returns the UIObject that is behind the wrapper table
 	---@field SetTexture fun(self: df_button, normalTexture: any, highlightTexture: any, pressedTexture: any, disabledTexture: any) set the regular button textures
 	---@field SetFontFace fun(self: df_button, font: string) set the button font
 	---@field SetFontSize fun(self: df_button, size: number) set the button font size
@@ -976,7 +984,14 @@ end
 	---@field SetClickFunction fun(self: df_button, func: function, param1: any, param2: any, clickType: "left"|"right"|nil)
 	---@field SetIconFilterMode fun(self: df_button, filterMode: any) set the filter mode for the icon, execute after SetIcon()
 
-	---create a Details Framework button
+	---create a Details Framework button.
+	---This function returns a wrapper Lua table, NOT a Blizzard frame. The underlying UIObject (the
+	---Blizzard button frame) is accessible at `wrapper.widget` or via `wrapper:GetUIObject()`. Method
+	---calls on the wrapper itself are fine (the metatable forwards them), but when the wrapper is
+	---passed AS AN ARGUMENT to a Blizzard API that expects a frame — e.g. as a `SetPoint` relative
+	---anchor, a `CreateFrame` parent, a `GameTooltip:SetOwner` target, or a secure-template ref —
+	---it MUST be unwrapped via `wrapper:GetUIObject()` first, otherwise the C side will error or
+	---misbehave because the wrapper has no frame userdata.
 	---@param parent frame
 	---@param callback function
 	---@param width number
@@ -992,6 +1007,7 @@ end
 	---@param textTemplate table|nil
 	---@return df_button
 	function detailsFramework:CreateButton(parent, callback, width, height, text, param1, param2, texture, member, name, shortMethod, buttonTemplate, textTemplate)
+		--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 		return detailsFramework:NewButton(parent, parent, name, member, width, height, callback, param1, param2, texture, text, shortMethod, buttonTemplate, textTemplate)
 	end
 
@@ -1071,7 +1087,14 @@ end
 
 			elseif (detailsFramework:IsHtmlColor(texture)) then
 				local r, g, b, a = detailsFramework:ParseColors(texture)
-				self.icon:SetColorTexture(r, g, b, a)
+				buttonObject.button:SetNormalTexture("")
+				buttonObject.button:GetNormalTexture():SetColorTexture(r, g, b, a)
+				buttonObject.button:SetPushedTexture("")
+				buttonObject.button:GetPushedTexture():SetColorTexture(r, g, b, a)
+				buttonObject.button:SetDisabledTexture("")
+				buttonObject.button:GetDisabledTexture():SetColorTexture(r, g, b, a)
+				buttonObject.button:SetHighlightTexture("")
+				buttonObject.button:GetHighlightTexture():SetColorTexture(r, g, b, a)
 				bSetTexture = true
 
 			elseif (texture == "") then
@@ -1204,7 +1227,14 @@ end
 	---@field __iscolorpicker boolean
 	---@field color_texture texture
 	---@field background_texture texture
-	---create a button which opens a color picker when clicked
+	---create a button which opens a color picker when clicked.
+	---This function returns a wrapper Lua table, NOT a Blizzard frame. The underlying UIObject (the
+	---Blizzard button frame) is accessible at `wrapper.widget` or via `wrapper:GetUIObject()` (inherited
+	---from df_button). Method calls on the wrapper itself are fine (the metatable forwards them), but
+	---when the wrapper is passed AS AN ARGUMENT to a Blizzard API that expects a frame — e.g. as a
+	---`SetPoint` relative anchor, a `CreateFrame` parent, a `GameTooltip:SetOwner` target, or a
+	---secure-template ref — it MUST be unwrapped via `wrapper:GetUIObject()` first, otherwise the C
+	---side will error or misbehave because the wrapper has no frame userdata.
 	---@param parent table
 	---@param name string|nil
 	---@param member string|nil
@@ -1213,6 +1243,7 @@ end
 	---@param buttonTemplate table|nil
 	---@return df_colorpickbutton
 	function detailsFramework:CreateColorPickButton(parent, name, member, callback, alpha, buttonTemplate)
+		--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 		return detailsFramework:NewColorPickButton(parent, name, member, callback, alpha, buttonTemplate)
 	end
 
@@ -1337,7 +1368,7 @@ end
 	---@param blue number|nil
 	---@param alpha number|nil
 	function detailsFramework:SetButtonVertexColor(button, red, green, blue, alpha)
-        red, green, blue, alpha = detailsFramework:ParseColor(red, green, blue, alpha)
+        red, green, blue, alpha = detailsFramework:ParseColors(red, green, blue, alpha)
         local normalTexture = button:GetNormalTexture()
         local pushedTexture = button:GetPushedTexture()
         local highlightTexture = button:GetHighlightTexture()

@@ -50,6 +50,7 @@ local defaultCreatureIconCoords = {0, 1, 0, 0.95}
 ---@field CreateEncounterJournalDump fun()
 ---@field GetAllRaidInstances fun():df_instanceinfo[]
 ---@field GetAllDungeonInstances fun():df_instanceinfo[]
+---@field GetAllDungeonNames fun():string[]
 ---@field GetEncounterSpells fun(journalInstanceId:number, journalEncounterId:number, difficulty:number):df_ejspell[]
 ---@field CacheRaidData_OnlyRaidInstances table<number, df_instanceinfo[]>
 ---@field CacheRaidData_OnlyDungeonInstances table<number, df_instanceinfo[]>
@@ -71,6 +72,10 @@ end
 
 detailsFramework.Ejc = {}
 local Ejc = detailsFramework.Ejc
+
+--initialize cache tables so reads before CreateEncounterJournalDump() don't crash
+Ejc.CurrentContent = {}
+Ejc.Id_To_JournalInstanceID = {}
 
 ---@return df_encounterinfo?
 function Ejc.GetEncounterInfo(id)
@@ -168,6 +173,18 @@ function Ejc.GetAllDungeonInstances()
         Ejc.CreateEncounterJournalDump()
     end
     return Ejc.CacheRaidData_OnlyDungeonInstances
+end
+
+---@return string[]
+function Ejc.GetAllDungeonNames()
+    if (not bHasLoaded) then
+        Ejc.CreateEncounterJournalDump()
+    end
+    local names = {}
+    for i = 1, #Ejc.CacheRaidData_OnlyDungeonInstances do
+        names[i] = Ejc.CacheRaidData_OnlyDungeonInstances[i].name
+    end
+    return names
 end
 
 ---@class df_ejspell : table
@@ -300,7 +317,11 @@ function Ejc.CreateEncounterJournalDump()
                 startIndex = raidTierStartIndex
                 endIndex = 20
             else
-                EJ_SelectTier(currentTierId) --print("tier selected:", currentTierId, "dungeons", "currentTierId:", currentTierId) --debug
+                if detailsFramework.IsAddonApocalypseWow() then
+                    EJ_SelectTier(currentTierId+1) --get "current seasion" tier
+                else
+                    EJ_SelectTier(currentTierId)
+                end
                 startIndex = 1
                 endIndex = maxAmountOfDungeons
             end

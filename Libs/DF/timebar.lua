@@ -15,6 +15,7 @@ local GetTime = GetTime
 ---@field dframework boolean
 ---@field statusBar df_timebar_statusbar
 ---@field widget statusbar
+---@field GetUIObject fun(self:df_timebar):statusbar returns the UIObject (the underlying StatusBar) that is behind the wrapper table
 ---@field direction string
 ---@field HookList table
 ---@field tooltip string
@@ -168,6 +169,11 @@ local OnMouseUpFunc = function(statusBar, mouseButton)
     if (kill) then
         return
     end
+end
+
+---return the UIObject (the underlying StatusBar frame) that is behind the wrapper table.
+function TimeBarMetaFunctions:GetUIObject()
+    return self.widget
 end
 
 --timer functions
@@ -482,6 +488,14 @@ end
 
 ---create a time bar widget, a timebar is a statubar that can have a timer and a spark
 ---@param parent frame the parent frame
+---create a time bar (a StatusBar with built-in timer animation, icon, two text labels, and spark).
+---This function returns a wrapper Lua table (df_timebar), NOT a Blizzard frame. The underlying
+---UIObject (the Blizzard StatusBar frame) is at `wrapper.widget` (or equivalently
+---`wrapper.statusBar`) and via `wrapper:GetUIObject()`. Method calls on the wrapper itself are fine
+---(the metatable forwards them), but when the wrapper is passed AS AN ARGUMENT to a Blizzard API
+---that expects a frame — SetPoint relative anchor, CreateFrame parent, GameTooltip:SetOwner,
+---secure-template ref, etc. — it MUST be unwrapped via `wrapper:GetUIObject()` first, otherwise
+---the C side will error or misbehave because the wrapper has no frame userdata.
 ---@param texture texturepath|textureid the texture of the bar
 ---@param width number? the width of the bar, default is 150
 ---@param height number? the height of the bar, default is 20
@@ -569,6 +583,7 @@ function detailsFramework:CreateTimeBar(parent, texture, width, height, value, m
 
         timeBar.statusBar.icon = timeBar.statusBar:CreateTexture(nil, "overlay", nil, 5)
         timeBar.statusBar.icon:SetPoint("left", timeBar.statusBar, "left", 2, 0)
+        timeBar.statusBar.icon:SetSize(height - 2, height - 2)
 
         timeBar.statusBar.leftText = timeBar.statusBar:CreateFontString("$parentLeftText", "overlay", "GameFontNormal", 4)
         timeBar.statusBar.leftText:SetPoint("left", timeBar.statusBar.icon, "right", 2, 0)

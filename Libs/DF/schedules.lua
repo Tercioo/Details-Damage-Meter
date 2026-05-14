@@ -80,14 +80,14 @@ local triggerScheduledLoop = function(tickerObject)
         end
     end
 
-    tickerObject.currentLoop = tickerObject.currentLoop + 1
-
     if (tickerObject.currentLoop == tickerObject.lastLoop) then
         tickerObject:Cancel()
         if (tickerObject.loopEndCallback) then
             tickerObject.loopEndCallback()
         end
     end
+
+    tickerObject.currentLoop = tickerObject.currentLoop + 1
 
     return result
 end

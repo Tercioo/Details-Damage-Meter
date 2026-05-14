@@ -13,6 +13,7 @@
 
 ---@class df_dropdown : table, frame, df_widgets
 ---@field func function
+---@field GetUIObject fun(self:df_dropdown):frame returns the UIObject that is behind the wrapper table
 ---@field SetTemplate fun(self:df_dropdown, template:table|string)
 ---@field SetFixedParameter fun(self:df_dropdown, value:any) is sent as 2nd argument to the callback function, the value is the same no matter which option is selected
 ---@field GetFixedParameter fun(self:df_dropdown):any
@@ -40,6 +41,8 @@
 ---@field value any
 ---@field label string text shown in the dropdown option
 ---@field onclick fun(dropdownObject:table, fixedValue:any, value:any)? function to call when the option is selected
+---@field onenter fun(button:button, value:any)? function to call when the cursor enters this option row
+---@field onleave fun(button:button, value:any)? function to call when the cursor leaves this option row
 ---@field icon string|number? texture
 ---@field iconcolor any any color format
 ---@field iconsize number[]? width, height
@@ -252,6 +255,13 @@ DF:Mixin(DropDownMetaFunctions, DF.Language.LanguageMixin)
 
 ------------------------------------------------------------------------------------------------------------
 
+---return the UIObject that is behind the wrapper table.
+---@param self df_dropdown
+---@return frame
+function DropDownMetaFunctions:GetUIObject()
+	return self.widget
+end
+
 function DropDownMetaFunctions:IsText()
 	return self.isText or false
 end
@@ -396,7 +406,7 @@ function DropDownMetaFunctions:Refresh()
 	assert(type(self.func) == "function", "Dropdown without options initializator function, check 2nd parameter (function) on CreateDropdown().")
 	local state, optionsTable = xpcall(self.func, geterrorhandler(), self)
 
-	if (#optionsTable == 0) then
+	if (type(optionsTable) ~= "table" or #optionsTable == 0) then
 		self:NoOption(true)
 		self.no_options = true
 		return false
@@ -807,6 +817,10 @@ function DetailsFrameworkDropDownOptionOnEnter(self)
 
 	self:GetParent().mouseover:SetPoint("left", self)
 	self:GetParent().mouseover:Show()
+
+	if (self.table.onenter) then
+		self.table.onenter(self, self.table.value)
+	end
 end
 
 --on leave an option on the menu dropdown
@@ -815,6 +829,10 @@ function DetailsFrameworkDropDownOptionOnLeave(frame)
 		GameCooltip2:ShowMe(false)
 	end
 	frame:GetParent().mouseover:Hide()
+
+	if (frame.table.onleave) then
+		frame.table.onleave(frame, frame.table.value)
+	end
 end
 
 
@@ -851,7 +869,7 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 			end
 
 			for tindex, thisOption in ipairs(optionsTable) do
-				local bIsOptionVisible = isOptionVisible(button, thisOption)
+				local bIsOptionVisible = isOptionVisible(object, thisOption)
 
 				---@cast thisOption dropdownoption
 
@@ -1459,6 +1477,41 @@ function DF:CreateStatusbarTextureListGenerator(callback)
 	return newGenerator
 end
 
+---build a table with all background textures available from LibSharedMedia-3.0, ready to be consumed by a dropdown
+---each option uses the texture as its row background (statusbar field) so the user previews each texture before selecting
+---@param onClick function callback fired on option select: onClick(dropdownObject, fixedValue, backgroundName)
+---@param bIncludeDefault boolean? if true, prepends a "DEFAULT" option with an empty texture path
+---@return table dropdownOptions sorted alphabetically by background name
+function DF:BuildDropDownBackgroundList(onClick, bIncludeDefault)
+	local backgroundTable = {}
+
+	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+	for name, texturePath in pairs(SharedMedia:HashTable("background")) do
+		backgroundTable[#backgroundTable+1] = {
+			value = name,
+			label = name,
+			onclick = onClick,
+			statusbar = texturePath,
+		}
+	end
+
+	table.sort(backgroundTable, function(t1, t2) return t1.label < t2.label end)
+
+	if (bIncludeDefault) then
+		table.insert(backgroundTable, 1, {value = "DEFAULT", label = "DEFAULT", onclick = onClick, statusbar = ""})
+	end
+
+	return backgroundTable
+end
+
+---return a function which when called returns a table filled with all background textures available and ready to be used on dropdowns
+---@param callback function
+---@param bIncludeDefault boolean?
+---@return function
+function DF:CreateBackgroundListGenerator(callback, bIncludeDefault)
+	return function() return DF:BuildDropDownBackgroundList(callback, bIncludeDefault) end
+end
+
 ---create a list generator for frame strata
 ---@param callback function
 ---@return function
@@ -1480,7 +1533,8 @@ function DF:CreateFrameStrataListGenerator(callback)
 	return newGenerator
 end
 
----create a dropdown object with a list of fonts
+---create a dropdown object with a list of fonts.
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
 ---@param parent frame
 ---@param callback function
 ---@param default any
@@ -1490,13 +1544,15 @@ end
 ---@param name string?
 ---@param template table?
 ---@param bIncludeDefault boolean?
+---@return df_dropdown
 function DF:CreateFontDropDown(parent, callback, default, width, height, member, name, template, bIncludeDefault)
 	local func = DF:CreateFontListGenerator(callback, bIncludeDefault)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end
 
----create a dropdown object with a list of status bar textures from SharedMedia library
+---create a dropdown object with a list of status bar textures from SharedMedia library.
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
 ---@param parent frame
 ---@param callback function
 ---@param default any
@@ -1512,7 +1568,9 @@ function DF:CreateStatusbarTextureDropDown(parent, callback, default, width, hei
 	return dropDownObject
 end
 
----create a dropdown object with a list of frame strata
+---create a dropdown object with a list of background textures from SharedMedia library.
+---Each option uses its texture as the row background so the user previews each texture in the open menu.
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
 ---@param parent frame
 ---@param callback function
 ---@param default any
@@ -1521,36 +1579,70 @@ end
 ---@param member string?
 ---@param name string?
 ---@param template table?
+---@param bIncludeDefault boolean? if true, prepends a "DEFAULT" option
+---@return df_dropdown
+function DF:CreateBackgroundDropDown(parent, callback, default, width, height, member, name, template, bIncludeDefault)
+	local func = DF:CreateBackgroundListGenerator(callback, bIncludeDefault)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
+
+---create a dropdown object with a list of frame strata.
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
+---@param parent frame
+---@param callback function
+---@param default any
+---@param width number?
+---@param height number?
+---@param member string?
+---@param name string?
+---@param template table?
+---@return df_dropdown
 function DF:CreateFrameStrataDropDown(parent, callback, default, width, height, member, name, template)
 	local func = DF:CreateFrameStrataListGenerator(callback)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end
 
+---create a dropdown object with a list of preset colors.
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
+---@return df_dropdown
 function DF:CreateColorDropDown(parent, callback, default, width, height, member, name, template)
 	local func = DF:CreateColorListGenerator(callback)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end
 
+---create a dropdown object with a list of text outline styles.
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
+---@return df_dropdown
 function DF:CreateOutlineDropDown(parent, callback, default, width, height, member, name, template)
 	local func = DF:CreateOutlineListGenerator(callback)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end
 
+---create a dropdown object with a list of anchor points (topleft, top, topright, etc.).
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
+---@return df_dropdown
 function DF:CreateAnchorPointDropDown(parent, callback, default, width, height, member, name, template)
 	local func = DF:CreateAnchorPointListGenerator(callback)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end
 
+---create a dropdown object with a list of audio files from SharedMedia library.
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
+---@return df_dropdown
 function DF:CreateAudioDropDown(parent, callback, default, width, height, member, name, template)
 	local func = DF:CreateAudioListGenerator(callback)
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	return dropDownObject
 end
 
+---create a dropdown object with a list of raid instances (current content).
+---Returns a wrapper table (not a frame); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
+---@return df_dropdown
 function DF:CreateRaidInstanceSelectorDroDown(parent, callback, default, width, height, member, name, template)
 	local func = DF:CreateRaidInstanceListGenerator(callback)
 
@@ -1582,6 +1674,9 @@ local setInstance = function(self, instanceId)
 	self:Refresh()
 end
 
+---create a dropdown object with a list of bosses for a given raid instance.
+---Returns a wrapper table (df_dropdown_bossselector, extends df_dropdown); unwrap via `wrapper:GetUIObject()` / `wrapper.widget` when handing to a Blizzard API (see CreateDropDown for the full wrapper-vs-UIObject contract).
+---@return df_dropdown_bossselector
 function DF:CreateBossSelectorDroDown(parent, callback, instanceId, default, width, height, member, name, template)
 	local func = DF:CreateBossListGenerator(callback, instanceId)
 	local dropdown = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
@@ -1651,7 +1746,23 @@ local dropdownWithTextFunctions = {
 ---@field SetOnPressEnterFunction fun(self:df_dropdown_text, func:function)
 ---@field GetTextEntry fun(self:df_dropdown_text):df_textentry
 
+---create a dropdown object that also has an editable text entry overlaid on the button face.
+---This function returns a wrapper Lua table (df_dropdown_text, extends df_dropdown), NOT a Blizzard
+---frame. The underlying UIObject is at `wrapper.widget` (or `wrapper.dropdown`) and via
+---`wrapper:GetUIObject()`. Pass the unwrapped frame to any Blizzard API that expects a real frame
+---(SetPoint relative anchor, CreateFrame parent, GameTooltip:SetOwner, secure-template ref, etc.);
+---method calls on the wrapper itself are fine because the metatable forwards them.
+---@param parent frame
+---@param func function
+---@param default any
+---@param width number?
+---@param height number?
+---@param member string?
+---@param name string?
+---@param template table?
+---@return df_dropdown_text
 function DF:CreateDropDownWithText(parent, func, default, width, height, member, name, template)
+	--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 	---@type df_dropdown_text
 	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 	dropDownObject.isText = true
@@ -1700,7 +1811,15 @@ function DF:CreateDropDownWithText(parent, func, default, width, height, member,
 	return dropDownObject
 end
 
----create a dropdown object
+---create a dropdown object.
+---This function returns a wrapper Lua table, NOT a Blizzard frame. The underlying UIObject (the
+---Blizzard button frame backing the dropdown) is accessible at `wrapper.widget` (or equivalently
+---`wrapper.dropdown`) and via `wrapper:GetUIObject()`. Method calls on the wrapper itself are fine
+---(the metatable forwards them), but when the wrapper is passed AS AN ARGUMENT to a Blizzard API
+---that expects a frame — e.g. as a `SetPoint` relative anchor, a `CreateFrame` parent, a
+---`GameTooltip:SetOwner` target, or a secure-template ref — it MUST be unwrapped via
+---`wrapper:GetUIObject()` first, otherwise the C side will error or misbehave because the wrapper
+---has no frame userdata.
 ---@param parent frame
 ---@param func function
 ---@param default any
@@ -1711,6 +1830,7 @@ end
 ---@param template table?
 ---@return df_dropdown
 function DF:CreateDropDown(parent, func, default, width, height, member, name, template)
+	--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 	return DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 end
 

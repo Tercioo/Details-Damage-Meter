@@ -1199,7 +1199,11 @@ Behavior
        the computed offsets.
 
     5. If frame2 is shown and overlaps frame1, moves frame2 to the
-       left side of frame1 (sets gameCooltip.frame2_leftside = true).
+       left side of frame1 (sets gameCooltip.frame2_IsOnLeftside = true).
+       Coalesces with the standalone CheckOverlap() in section 34 —
+       gameCooltip.overlapChecked is set after the first correction so
+       the inline SetMyPoint check doesn't re-fire within the same
+       Show/Sub display cycle; Reset() clears the flag.
 
 
 =====================================================================
@@ -4255,8 +4259,7 @@ Behavior by anchorPoint
     "center":
         titleIcon at CENTER horizontally, BOTTOM → TOP of frame.
         titleText to the RIGHT of titleIcon.
-        On frame1, text is set to "TESTE" (debug placeholder) and
-        both elements are explicitly shown.
+        On frame1, both elements are explicitly shown.
 
     "right":
         titleIcon anchored RIGHT of the frame.

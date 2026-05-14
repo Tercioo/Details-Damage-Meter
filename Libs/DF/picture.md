@@ -4,6 +4,8 @@
 
 The picture system provides a wrapper around WoW's native `Texture` object. It creates a plain Lua table (`df_image`) that holds a reference to the underlying texture in `object.image` (aliased as `object.widget`), then sets a metatable (`ImageMetaFunctions`) so that dot‑syntax reads and writes are routed through getter/setter member tables, and any unknown method call is forwarded to the native texture.
 
+The wrapper is a plain Lua table, NOT a Blizzard `Texture`. The underlying Texture is at `wrapper.widget` (or equivalently `wrapper.image`) and is returned by `wrapper:GetUIObject()`. Method calls on the wrapper are fine — the metatable forwards them — but when the wrapper is passed AS AN ARGUMENT to a Blizzard API that expects a real `Texture` or frame (e.g. as a `SetPoint` relative anchor, as the argument to `frame:SetNormalTexture(tex)`, as a mask region, or to animation APIs), it MUST be unwrapped via `wrapper:GetUIObject()` first; the wrapper has no texture userdata for the C side to bind to.
+
 In addition to the wrapper object, the file provides a set of standalone utility functions for working with textures, atlases, gradients, masks, and texture‑escape strings. These utilities operate on raw WoW `Texture` objects and do **not** require the wrapper.
 
 ---

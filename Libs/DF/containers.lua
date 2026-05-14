@@ -141,7 +141,7 @@ detailsFramework.FrameContainerMixin = {
             frameContainer.bottomRightResizer:Show()
         end
         if (frameContainer.options.use_topleft_resizer) then
-            frameContainer.topRightResizer:Show()
+            frameContainer.topLeftResizer:Show()
         end
         if (frameContainer.options.use_topright_resizer) then
             frameContainer.topRightResizer:Show()
@@ -166,20 +166,19 @@ detailsFramework.FrameContainerMixin = {
     ---@param frameContainer df_framecontainer
     CheckResizeLockedState = function(frameContainer)
         if (frameContainer.options.is_locked) then
+            --locked: no resize affordance visible, frame not resizable
             frameContainer:HideResizer()
+            frameContainer:HideResizeGrips()
             frameContainer:SetResizable(false)
         else
+            --unlocked: frame is resizable, exactly one affordance kind visible
             frameContainer:SetResizable(true)
-        end
-
-        if frameContainer.options.show_resize_grips then
-            frameContainer:SetResizable(true)
-            frameContainer:ShowResizeGrips()
-        else
-            frameContainer:HideResizeGrips()
-            if frameContainer.options.is_locked then
+            if (frameContainer.options.show_resize_grips) then
+                frameContainer:HideResizer()
+                frameContainer:ShowResizeGrips()
+            else
                 frameContainer:ShowResizer()
-                frameContainer:SetResizable(false)
+                frameContainer:HideResizeGrips()
             end
         end
     end,
@@ -230,6 +229,7 @@ detailsFramework.FrameContainerMixin = {
     CreateMover = function(frameContainer)
         local mover = CreateFrame("button", nil, frameContainer)
         frameContainer.moverFrame = mover
+        frameContainer.components[mover] = true
         mover:SetAllPoints(frameContainer)
         mover:EnableMouse(false)
         mover:SetMovable(true)
@@ -1242,7 +1242,7 @@ function DF:CreateFrameContainer(parent, options, frameName)
     }
 
     local leftResizer, rightResizer = detailsFramework:CreateResizeGrips(frameContainer, resizeGripOptions)
-    if options.show_resize_grips then
+    if frameContainer.options.show_resize_grips then
         leftResizer:Show()
         rightResizer:Show()
         frameContainer:SetResizable(true)
@@ -1253,6 +1253,8 @@ function DF:CreateFrameContainer(parent, options, frameName)
 
     frameContainer.LeftResizeGrip = leftResizer
     frameContainer.RightResizeGrip = rightResizer
+    frameContainer.components[leftResizer] = true
+    frameContainer.components[rightResizer] = true
 
     frameContainer:OnInitialize()
 

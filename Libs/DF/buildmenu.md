@@ -85,9 +85,14 @@ Specialized dropdown get/set value reference
 	- set receives the selected texture name string.
 	- Dropdown rows display a statusbar preview of each texture.
 - selectbackgroundtexture:
-	- Alias of selectstatusbartexture after normalization. Same generator and
-	  get/set contract — SharedMedia statusbar texture name strings.
-	  Semantically used for background textures but technically identical.
+	- Generator: DF:CreateBackgroundListGenerator(set, include_default).
+	- get() should return the SharedMedia background texture name string
+	  (e.g. "Blizzard Tooltip", "Solid", etc.).
+	- set receives the selected texture name string as the third argument.
+	- Options come from SharedMedia:HashTable("background"); each row previews
+	  the texture as the row background.
+	- Optional field: include_default (boolean) — when true, adds a "DEFAULT"
+	  entry at the top of the list with an empty texture path.
 - selectbordertexture:
 	- Alias of selectstatusbartexture after normalization. Same generator and
 	  get/set contract — SharedMedia statusbar texture name strings.

@@ -15,6 +15,20 @@ Overview
   texture, member, name, shortMethod, buttonTemplate, textTemplate)
 - Internally, CreateButton delegates to NewButton which is considered an
   internal function and should not be called directly.
+- This function returns a wrapper Lua table, the underlying UIObject (the
+  Blizzard button frame) is stored in `wrapper.widget` and is also returned by
+  `wrapper:GetUIObject()`. The wrapper itself is NOT a Blizzard frame: it is a
+  plain Lua table with a metatable. Passing the wrapper directly into a
+  Blizzard API call that expects a real frame will error or behave incorrectly,
+  because the C-side code unwraps a UserData frame handle and the wrapper has
+  none. Use `wrapper:GetUIObject()` (or `wrapper.widget`) whenever the wrapper
+  is being given to a Blizzard function as an argument — e.g. as the relative
+  anchor frame in `someFrame:SetPoint("center", wrapper:GetUIObject(), "center", 0, 0)`,
+  as the parent in `CreateFrame("frame", nil, wrapper:GetUIObject())`, or as
+  the target of `SetAttribute`, `RegisterEvent`, secure-template hookups, etc.
+  Calling methods *on* the wrapper is fine — the metatable forwards them or
+  applies the wrapper-specific behavior; only argument-passing to Blizzard
+  code needs the unwrapped frame.
 
 =====================================================================
 1) Object architecture
@@ -227,8 +241,14 @@ Step-by-step:
 After creation, a df_button contains these accessible parts:
 
 	.button / .widget (df_blizzbutton)
-	    The real Blizzard button frame. You rarely need to access this
-	    directly; the wrapper forwards most operations.
+	    The real Blizzard button frame (the UIObject). The wrapper forwards
+	    most method calls to this frame, so you rarely need to access it
+	    directly when calling methods on the wrapper. You DO need it when
+	    passing the wrapper as an argument to a Blizzard API call that
+	    expects a frame (anchors, parents, secure-template targets, etc.).
+	    `wrapper:GetUIObject()` is the canonical accessor and is equivalent
+	    to reading `wrapper.widget` (or `wrapper.button`, which points to
+	    the same frame).
 
 	.button.text (FontString)
 	    The label FontString. Operated on by SetText(), SetTextColor(),
@@ -570,6 +590,53 @@ Context
   called on the df_button wrapper object (e.g. btn:SetText("Hello")).
 - Because the __index metamethod falls through to ButtonMetaFunctions,
   every method listed here is available on any df_button instance.
+
+
+=====================================================================
+10.5) Wrapper / UIObject access
+=====================================================================
+
+GetUIObject()
+.....................................................................
+Purpose
+  Return the underlying Blizzard button frame (the UIObject) that the
+  wrapper table is wrapping. Use this whenever the wrapper needs to be
+  passed as an argument to a Blizzard API that expects a real frame.
+
+Returns
+  df_blizzbutton — the raw Blizzard button frame stored at .widget.
+
+Behavior
+  Implemented as `return self.widget`. This is exactly equivalent to
+  reading `wrapper.widget` or `wrapper.button` (both fields point to the
+  same Blizzard frame). The method form is provided so that wrapper
+  consumers do not have to know the internal field layout — every DF
+  wrapper exposes :GetUIObject() with the same contract.
+
+When to use it
+  - As a relative anchor frame:
+      someFrame:SetPoint("center", btn:GetUIObject(), "center", 0, 0)
+  - As the parent of a new frame:
+      local child = CreateFrame("frame", nil, btn:GetUIObject())
+  - With secure templates / attribute hookups:
+      SecureHandlerSetFrameRef(headerFrame, "btn", btn:GetUIObject())
+  - Any other Blizzard API call that expects a frame argument.
+
+When you do NOT need it
+  - Calling methods directly on the wrapper:
+      btn:SetPoint("center", UIParent, "center", 0, 0)   -- fine
+      btn:Show(); btn:Hide(); btn:SetSize(w, h)          -- fine
+    These flow through the wrapper's __index and either hit a DF-specific
+    method, or fall through to a bridged Blizzard method that already
+    knows about the wrapper.
+
+Example
+  local btn = DF:CreateButton(UIParent, callback, 120, 24, "OK")
+  btn:SetPoint("center")                                 -- methods on the wrapper: OK
+  myCustomFrame:SetPoint("topleft", btn, "topright", 4, 0)
+      -- ↑ WRONG: passes the wrapper table where a frame is expected
+  myCustomFrame:SetPoint("topleft", btn:GetUIObject(), "topright", 4, 0)
+      -- ↑ correct: hands SetPoint the real Blizzard frame
 
 
 =====================================================================
@@ -1120,6 +1187,12 @@ Overview
   color-specific fields and methods.
 - Displays a color swatch texture that updates live as the user picks a
   color. Behind the swatch, a transparency grid hints at the alpha value.
+- Like every DF widget, CreateColorPickButton returns a wrapper Lua table,
+  NOT a Blizzard frame. The underlying UIObject is at `wrapper.widget` and
+  `wrapper:GetUIObject()` (the same accessor inherited from df_button).
+  Use the unwrapped frame whenever the wrapper is being handed to a
+  Blizzard API that expects a frame argument (SetPoint relative anchor,
+  CreateFrame parent, GameTooltip:SetOwner, secure-template ref, etc.).
 
 Type: df_colorpickbutton (inherits from df_button)
 
@@ -1253,7 +1326,7 @@ Purpose
 
 Parameters
   button (button) — the raw Blizzard button frame.
-  red, green, blue, alpha — color values passed through DF:ParseColor.
+  red, green, blue, alpha — color values passed through DF:ParseColors.
 
 Example
   DF:SetButtonVertexColor(btn.button, 1, 0.5, 0, 1) -- orange tint

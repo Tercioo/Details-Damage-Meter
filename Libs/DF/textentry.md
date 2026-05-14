@@ -4,6 +4,8 @@
 
 `textentry.lua` implements a family of UI input components built on top of the WoW `EditBox` widget. All components are created through the `DetailsFramework` (`detailsFramework`) global object.
 
+Every `CreateTextEntry` / `CreateSearchBox` returns a wrapper Lua table, NOT a Blizzard `EditBox`. The underlying UIObject is at `wrapper.widget` and is returned by `wrapper:GetUIObject()`. Method calls on the wrapper are fine — the metatable forwards them — but when the wrapper is passed AS AN ARGUMENT to a Blizzard API that expects a frame (SetPoint relative anchor, CreateFrame parent, GameTooltip:SetOwner target, secure-template ref, etc.), it MUST be unwrapped via `wrapper:GetUIObject()` first; the wrapper has no frame userdata for the C side to bind to.
+
 There are four distinct types of input component:
 
 | Type | Constructor | Class |

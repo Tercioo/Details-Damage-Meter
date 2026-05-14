@@ -332,6 +332,11 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --methods
 
+--return the UIObject (the underlying StatusBar frame) that is behind the wrapper table.
+	function SplitBarMetaFunctions:GetUIObject()
+		return self.widget
+	end
+
 --show & hide
 	function SplitBarMetaFunctions:Show()
 		return self.statusbar:Show()
@@ -650,7 +655,16 @@ function DetailsFrameworkSplitlBar_OnCreate (self)
 	return true
 end
 
+---create a split_bar (a StatusBar that fills from both ends, with separate left/right colors, icons, and text).
+---This function returns a wrapper Lua table, NOT a Blizzard frame. The underlying UIObject (the
+---Blizzard StatusBar frame) is at `wrapper.widget` (or equivalently `wrapper.statusbar`) and via
+---`wrapper:GetUIObject()`. Method calls on the wrapper itself are fine (the metatable forwards
+---them), but when the wrapper is passed AS AN ARGUMENT to a Blizzard API that expects a frame —
+---SetPoint relative anchor, CreateFrame parent, GameTooltip:SetOwner, secure-template ref, etc. —
+---it MUST be unwrapped via `wrapper:GetUIObject()` first, otherwise the C side will error or
+---misbehave because the wrapper has no frame userdata.
 function DF:CreateSplitBar(parent, width, height, member, name)
+	--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 	return DF:NewSplitBar(parent, nil, name, member, width, height)
 end
 

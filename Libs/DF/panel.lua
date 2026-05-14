@@ -2140,7 +2140,17 @@ local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 --the slider was anchoring to with_label and here here were anchoring the slider again
 ---@class df_scalebar : slider
 ---@field thumb texture
+
+---create a slider preconfigured as a UI-scale picker, with an attached editbox to type the scale value.
+---This function returns a wrapper Lua table (df_scalebar, built on top of df_slider via CreateSlider),
+---NOT a Blizzard frame. The underlying UIObject (the Blizzard slider frame) is at `wrapper.widget`
+---and via `wrapper:GetUIObject()` (inherited from the slider wrapper). Method calls on the wrapper
+---itself are fine (the metatable forwards them), but when the wrapper is passed AS AN ARGUMENT to a
+---Blizzard API that expects a frame — SetPoint relative anchor, CreateFrame parent, etc. — it MUST
+---be unwrapped via `wrapper:GetUIObject()` first, otherwise the C side will error or misbehave
+---because the wrapper has no frame userdata.
 function detailsFramework:CreateScaleBar(frame, config, bNoRightClick) --~scale
+	--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 	---@type df_scalebar
 	local scaleBar, text = detailsFramework:CreateSlider(frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"), detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
 	scaleBar.thumb:SetWidth(24)

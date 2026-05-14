@@ -289,7 +289,7 @@ detailsFramework.RoundedCornerPanelMixin = {
             return self:GetHeight() - (borderTexture:GetHeight() * 2) + 2
 
         elseif (alignment == "horizontal") then
-            return self:GetWidth() - (borderTexture:GetHeight() * 2) + 2
+            return self:GetWidth() - (borderTexture:GetWidth() * 2) + 2
         end
 
         error("df_roundedpanel:CalculateBorderEdgeSize(self, alignment) alignment must be 'vertical' or 'horizontal'")

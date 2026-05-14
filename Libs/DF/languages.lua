@@ -1127,7 +1127,7 @@ function DF.Language.SetFontByAlphabetOrRegion(addonId, latin, cyrillic, china, 
     if (korean) then
         local fontPath = korean
         if (type(fontPath) == "string") then
-            setFontForLanguageId(addonNamespaceTable, "zhTW", fontPath)
+            setFontForLanguageId(addonNamespaceTable, "koKR", fontPath)
         end
     end
 

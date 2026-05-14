@@ -10,6 +10,8 @@
 
 The bar fills or drains automatically on every frame (or on a throttled interval), updates an optional countdown text on the right side, and shows an animated spark that tracks the leading edge of the fill. When the timer expires, an `OnTimerEnd` hook fires automatically.
 
+`CreateTimeBar` returns a wrapper Lua table, NOT a Blizzard frame. The underlying UIObject (the Blizzard `StatusBar`) is at `wrapper.widget` (or equivalently `wrapper.statusBar`) and is returned by `wrapper:GetUIObject()`. Method calls on the wrapper are fine — the metatable forwards them — but when the wrapper is passed AS AN ARGUMENT to a Blizzard API that expects a frame (SetPoint relative anchor, CreateFrame parent, GameTooltip:SetOwner target, secure-template ref, etc.), it MUST be unwrapped via `wrapper:GetUIObject()` first; the wrapper has no frame userdata for the C side to bind to.
+
 ---
 
 ## 1. Entry Point — `CreateTimeBar`

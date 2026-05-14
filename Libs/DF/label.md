@@ -12,7 +12,7 @@ The system has three components:
 | `DetailsFramework:CreateLabel()` | Convenience entry point. Reorders parameters and delegates to `NewLabel`. |
 | `DetailsFramework:CreateErrorLabel()` | Creates a label pre-configured for animated error messages. |
 
-A label object is a plain Lua table — not a frame. Its `.label` and `.widget` fields both point to the underlying `FontString`.
+A label object is a plain Lua table — NOT a Blizzard `FontString` (and NOT a frame). Its `.label` and `.widget` fields both point to the underlying `FontString`, which is also returned by `wrapper:GetUIObject()`. Method calls on the wrapper are fine — the metatable forwards them — but when the wrapper is passed AS AN ARGUMENT to a Blizzard API that expects a real `FontString` or frame (e.g. as a `SetPoint` relative anchor for another widget, as the argument to `frame:SetFontString(...)`, or as a region passed into animation/layout APIs), it MUST be unwrapped via `wrapper:GetUIObject()` first; the wrapper has no fontstring userdata for the C side to bind to.
 
 ---
 

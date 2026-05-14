@@ -217,6 +217,11 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 
 ------------------------------------------------------------------------------------------------------------
 --methods
+	---return the UIObject (the underlying Texture) that is behind the wrapper table.
+	function ImageMetaFunctions:GetUIObject()
+		return self.widget
+	end
+
 	--size
 	function ImageMetaFunctions:SetSize(width, height)
 		if (width) then
@@ -272,6 +277,15 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 	---create an object that encapsulates a texture and add additional methods to it
 	---this function is an alias of NewImage() with a different name and parameters in different order
 	---@param parent frame
+	---create an object that encapsulates a Texture and adds additional methods to it.
+	---This function returns a wrapper Lua table (df_image), NOT a Blizzard Texture. The underlying
+	---UIObject (the Blizzard Texture) is accessible at `wrapper.widget` (or equivalently
+	---`wrapper.image`) and via `wrapper:GetUIObject()`. Method calls on the wrapper itself are fine
+	---(the metatable forwards them), but when the wrapper is passed AS AN ARGUMENT to a Blizzard API
+	---that expects a real Texture or frame — e.g. as a `SetPoint` relative anchor for another
+	---widget, as the argument to `frame:SetNormalTexture(tex)` / mask attachment / animation APIs —
+	---it MUST be unwrapped via `wrapper:GetUIObject()` first, otherwise the C side will error or
+	---misbehave because the wrapper has no texture userdata.
 	---@param texture texturepath|textureid|df_gradienttable|nil
 	---@param width number?
 	---@param height number?
@@ -281,6 +295,7 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 	---@param name string?
 	---@return df_image
 	function detailsFramework:CreateImage(parent, texture, width, height, layer, coords, member, name)
+		--returns a wrapper table (not a Texture); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 		return detailsFramework:NewImage(parent, texture, width, height, layer, coords, member, name)
 	end
 
