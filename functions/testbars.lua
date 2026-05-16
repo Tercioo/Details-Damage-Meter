@@ -13,10 +13,11 @@ local EDIT_MODE_SESSION =
 		{ totalAmount = 67000; amountPerSecond = 71000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_6; classFilename = "DEMONHUNTER"; },
 		{ totalAmount = 56000; amountPerSecond = 56000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_4; classFilename = "SHAMAN"; },
 		{ totalAmount = 41000; amountPerSecond = 41000/testTime; name = DAMAGE_METER_EDIT_MODE_SOURCE_5; classFilename = "PALADIN"; },
-	};
-	maxAmount = 100000;
+	},
+	maxAmount = 100000,
+    totalAmount = 100000 + 86000 + 71000 + 67000 + 56000 + 41000,
     durationSeconds = testTime,
-};
+}
 
 function Details:TestBarsUpdate()
     if Details:IsUsingBlizzardAPI() then

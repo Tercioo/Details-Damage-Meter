@@ -7754,6 +7754,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details.pvp_parser_frame:ReadPvPData()
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		local players = GetNumBattlefieldScores()
 
 		local _player, realmName = UnitFullName("player")
