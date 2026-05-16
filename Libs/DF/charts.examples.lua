@@ -112,3 +112,47 @@ do
 
     ChartFrameTest:Plot()
 end
+
+--5º example: a 5-line chart using World of Warcraft class colors and names,
+--with the Y axis fixed from 0 to 100 and the X axis from 00:00 to 05:00 minutes
+do
+    local ChartFrameTest = ChartFrameExample5 or DetailsFramework:CreateGraphicMultiLineFrame(UIParent, "ChartFrameExample5")
+    ChartFrameTest:SetPoint("left", UIParent, "left", 10, 0)
+    ChartFrameTest:SetSize(1200, 500)
+    DetailsFramework:ApplyStandardBackdrop(ChartFrameTest)
+
+    --discard any previous data before adding the new lines
+    ChartFrameTest:Reset()
+
+    --create the axes lines and labels (10 labels on each axis)
+    --CreateAxesLines only takes effect once per chart, so re-running this block is safe
+    ChartFrameTest:CreateAxesLines(48, 28, "left", 1, 10, 10, 1, 1, 1, 1)
+
+    --X axis: 'time' type with 300 seconds -> labels run 0:30, 1:00 ... 5:00
+    ChartFrameTest:SetXAxisDataType("time")
+    ChartFrameTest:SetXAxisData(300)
+
+    --Y axis: lock the vertical scale to 0 - 100
+    --all the data below stays within 0-100, so Plot() keeps this range
+    ChartFrameTest:SetMinMaxValues(0, 100)
+
+    --one data table per line, each entry is a data point (all kept within 0-100)
+    --the chart connects data points with straight segments: many points that change
+    --gradually give smooth, rounded lines -- few points with big jumps give scribbles
+    local mage        = {40, 46, 53, 61, 69, 76, 82, 87, 90, 91, 90, 87, 82, 76, 69, 61, 53, 46, 40, 35, 32, 30, 30, 32, 36, 42, 49, 57, 64, 71, 77, 82, 85, 86, 85, 82, 77, 71, 64, 57, 50, 45, 42, 41, 42, 45, 50, 56}
+    local druid       = {15, 17, 20, 24, 29, 35, 41, 47, 53, 58, 63, 67, 70, 72, 73, 74, 75, 77, 79, 82, 85, 87, 88, 88, 87, 86, 86, 87, 89, 91, 92, 93, 93, 92, 91, 90, 90, 91, 92, 93, 94, 94, 93, 92, 91, 90, 90, 91}
+    local deathKnight = {55, 60, 66, 72, 78, 83, 87, 90, 92, 93, 93, 92, 90, 88, 86, 85, 84, 84, 85, 86, 87, 87, 86, 84, 81, 77, 73, 68, 63, 58, 53, 49, 46, 44, 43, 43, 44, 46, 48, 50, 52, 53, 53, 52, 50, 48, 46, 45}
+    local shaman      = {85, 84, 82, 79, 75, 70, 64, 58, 52, 46, 40, 35, 31, 28, 26, 25, 25, 27, 30, 34, 39, 44, 50, 55, 60, 64, 67, 69, 70, 70, 69, 67, 65, 63, 62, 62, 63, 65, 67, 69, 71, 72, 72, 71, 70, 69, 69, 70}
+    local monk        = {35, 38, 42, 46, 49, 51, 52, 51, 49, 46, 43, 40, 38, 37, 38, 40, 43, 47, 51, 54, 56, 57, 56, 54, 51, 48, 45, 43, 42, 43, 45, 48, 51, 54, 56, 57, 57, 56, 54, 52, 50, 49, 49, 50, 52, 54, 56, 57}
+
+    --add one line per class -- AddData(data, smoothingMethod, smoothnessLevel, name, red, green, blue, alpha)
+    --the 'name' becomes the legend label; red/green/blue is the class color
+    ChartFrameTest:AddData(mage,        "sma", 3, "Mage",         0.25, 0.78, 0.92, 1)
+    ChartFrameTest:AddData(druid,       "sma", 3, "Druid",        1.00, 0.49, 0.04, 1)
+    ChartFrameTest:AddData(deathKnight, "sma", 3, "Death Knight", 0.77, 0.12, 0.23, 1)
+    ChartFrameTest:AddData(shaman,      "sma", 3, "Shaman",       0.00, 0.44, 0.87, 1)
+    ChartFrameTest:AddData(monk,        "sma", 3, "Monk",         0.00, 1.00, 0.60, 1)
+
+    --draw the chart
+    ChartFrameTest:Plot()
+end

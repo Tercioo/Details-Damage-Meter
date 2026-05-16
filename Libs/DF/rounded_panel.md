@@ -1,6 +1,6 @@
 # Rounded Corners Frame
 
-Implementation file: `frames.lua`
+Implementation file: `rounded_panel.lua`
 
 A rounded corners frame is a standard World of Warcraft frame with rounded borders. It works by using a circle texture (`Interface\CHARACTERFRAME\TempPortraitAlphaMaskSmall`) which is split into four quadrants — each quadrant is placed at the corresponding corner of the frame. The space between the corners is filled with solid-color textures (top edge, bottom edge, and a center block) to complete the panel.
 

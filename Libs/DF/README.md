@@ -1,19 +1,27 @@
 # LibDFramework-1.0 (Details Framework)
 
-**LibDFramework-1.0**, also referred to as **Details Framework** or **DF**, is a UI and addon framework for World of Warcraft addons. It is shipped as part of the `Details!` damage meter addon and embedded by several other addons (notably `Plater Nameplates`).
+**LibDFramework-1.0**, also referred to as **Details Framework** or **DF**, is a UI and addon framework for World of Warcraft addons. It is currently used by several addons including Plater Nameplates, World Quest Tracker, Details!, and many more.
 
 - **Library name (LibStub):** `DetailsFramework-1.0`
 - **Global table:** `_G["DetailsFramework"]` (also reachable as `DetailsFramework`)
 - **Author:** Terciob
 - **CurseForge page:** https://www.curseforge.com/wow/addons/libdframework
-- **Shipped with:** [`Details!` Damage Meter](https://www.curseforge.com/wow/addons/details), under `Interface/AddOns/Details/Libs/DF/`
-- **License:** All rights reserved (see `LICENSE` at the addon root)
+- **Shipped with:** Several addons use the framework for fast and easy addon development.
+- **License:** GNU LGPL 2.1 (see [LICENSE](LICENSE)). Addons that embed the framework keep their own license — LGPL only covers modifications to the framework files themselves. If you make improvements, send a pull request to the GitHub repository so all users can benefit from the changes.
 
-This framework provides high-level building blocks for in-game UI: panels, buttons, dropdowns, sliders, scroll boxes, tooltips (Cooltip), tab containers, charts, timelines, time bars, unit frames, an addon scaffolding system with profile management, and more. It is consumed both by `Details!` itself and by other addons that embed it as a library.
+This framework provides high-level building blocks for in-game UI: panels, buttons, dropdowns, sliders, scroll boxes, tooltips (Cooltip), tab containers, charts, timelines, time bars, unit frames, an addon scaffolding system with profile management, and more. 
 
 ---
 
 ## Loading the framework
+You need a copy of the framework in your project; it can be in any folder but is usually placed in `Libs\DetailsFramework\`.
+
+You can:
+- Download it and place it there.
+- Use the file `.pkgmeta` in the root folder of your project (create one if it doesn't exist) to make the CurseForge packager download the library for you.
+- Fork the library's repository and embed your fork in a folder in your project.
+
+In your project's `.toc` file, add the line that loads the framework — place it before your own files: `Libs\DetailsFramework\load.xml`
 
 The framework is a [LibStub](https://www.wowace.com/projects/libstub) library:
 
@@ -27,18 +35,7 @@ It also exposes itself on the global table during initialization:
 local DF = _G["DetailsFramework"]
 ```
 
-Both references point to the same table. The current version is exposed as `DF.dversion` (a number).
-
-If your addon embeds the framework via TOC, include it before your own files:
-
-```toc
-## Interface: 110207
-## Title: MyAddon
-
-Libs\DF\LibDFramework-1.0.toc
-
-MyAddon.lua
-```
+Both references point to the same table.
 
 ---
 

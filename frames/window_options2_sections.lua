@@ -5131,7 +5131,7 @@ do
                     afterUpdate()
                 end,
                 min = 230,
-                max = 370,
+                max = 550,
                 step = 1,
                 name = "Tooltip Width",
                 desc = "Set the width of the midnight tooltip",
