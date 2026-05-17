@@ -4302,6 +4302,24 @@ local glow_overlay_onhide = function(self)
 	glow_overlay_stop(self)
 end
 
+local create_glow_overlay_frame = function(frameName, parent)
+	local templates
+	if (buildInfo >= 110107 or DF.IsTBCWow()) then --24-05-2025: in the 11.1.7 patch, the template used here does not exist anymore, replacement used
+		templates = {"ActionButtonSpellAlertTemplate", "ActionBarButtonSpellActivationAlert"}
+	else
+		templates = {"ActionBarButtonSpellActivationAlert", "ActionButtonSpellAlertTemplate"}
+	end
+
+	for _, templateName in ipairs(templates) do
+		local okay, glowFrame = pcall(CreateFrame, "frame", frameName, parent, templateName)
+		if (okay and glowFrame) then
+			return glowFrame
+		end
+	end
+
+	return CreateFrame("frame", frameName, parent)
+end
+
 ---create a glow overlay around a frame, return a frame and also add parent.overlay to the parent frame
 ---@param self table
 ---@param parent frame
@@ -4315,12 +4333,7 @@ function DF:CreateGlowOverlay(parent, antsColor, glowColor)
 		frameName = string.sub(frameName, string.len(frameName)-49)
 	end
 
-	local glowFrame
-	if (buildInfo >= 110107 or DF.IsTBCWow()) then --24-05-2025: in the 11.1.7 patch, the template used here does not exist anymore, replacement used
-		glowFrame = CreateFrame("frame", frameName, parent, "ActionButtonSpellAlertTemplate")
-	else
-		glowFrame = CreateFrame("frame", frameName, parent, "ActionBarButtonSpellActivationAlert")
-	end
+	local glowFrame = create_glow_overlay_frame(frameName, parent)
 
 	--local glowFrame = CreateFrame("frame", frameName, parent)
 	glowFrame:HookScript("OnShow", glow_overlay_onshow)
