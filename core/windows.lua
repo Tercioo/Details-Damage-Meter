@@ -539,6 +539,16 @@
 		x = x or 0
 		y = y or 0
 
+		if (not pre_defined and x == 0 and y == 0 and self.libwindow.x and self.mostrando == "normal" and not Details.instances_no_libwindow) then
+			local s = self.window_scale
+			self.baseframe:SetScale(s)
+			self.rowframe:SetScale(s)
+
+			self:RestoreLibWindow()
+			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --espa�o para o final da janela
+			return
+		end
+
 		local _scale = self.baseframe:GetEffectiveScale()
 		local _UIscale = UIParent:GetScale()
 

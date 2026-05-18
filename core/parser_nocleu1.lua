@@ -2619,11 +2619,15 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         Details:InstanceCall(function(instance)
             local baseFrame = instance.baseframe
             if baseFrame and baseFrame:IsShown() then
-                baseFrame.button_stretch:Click()
                 C_Timer.After(1, function()
-                    --note: revisit this code, why not just calling the functions the stretch button calls.
-                    baseFrame.button_stretch:GetScript("OnMouseDown")(baseFrame.button_stretch, "LeftButton")
-                    baseFrame.button_stretch:GetScript("OnMouseUp")(baseFrame.button_stretch, "LeftButton")
+                    if not instance.baseframe or not instance.baseframe:IsShown() then
+                        return
+                    end
+                    
+                    instance:RefreshBars()
+                    instance:InstanceReset()
+                    instance:ReajustaGump()
+                    instance:BaseFrameSnap()
                 end)
             end
         end)
