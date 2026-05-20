@@ -3265,10 +3265,20 @@ local dealWithPlayerName = function(instance, line, forceUpdate)
 	yOffset = yOffset + instance.row_info.text_yoffset
 
 	line.lineText1:ClearAllPoints()
-	if (instance.row_info.no_icon) then
-		line.lineText1:SetPoint("topleft", line, "topleft", 2 + instance.row_info.textL_offset, yOffset)
+	if (instance.bars_inverted) then
+		-- bars grow right-to-left: name sits on the right edge of the bar,
+		-- justified right; numbers (lineText4) get the left side.
+		if (instance.row_info.no_icon) then
+			line.lineText1:SetPoint("topright", line, "topright", -2 - instance.row_info.textL_offset, yOffset)
+		else
+			line.lineText1:SetPoint("topright", line.icone_classe, "topleft", -2 - instance.row_info.textL_offset, yOffset)
+		end
 	else
-		line.lineText1:SetPoint("topleft", line.icone_classe, "topright", 2 + instance.row_info.textL_offset, yOffset)
+		if (instance.row_info.no_icon) then
+			line.lineText1:SetPoint("topleft", line, "topleft", 2 + instance.row_info.textL_offset, yOffset)
+		else
+			line.lineText1:SetPoint("topleft", line.icone_classe, "topright", 2 + instance.row_info.textL_offset, yOffset)
+		end
 	end
 
 	local playerNameWidth = 0
@@ -3285,7 +3295,7 @@ local dealWithPlayerName = function(instance, line, forceUpdate)
 
 	line.lineText1:SetNonSpaceWrap(true)
 	line.lineText1:SetWordWrap(false)
-	line.lineText1:SetJustifyH("LEFT")
+	line.lineText1:SetJustifyH(instance.bars_inverted and "RIGHT" or "LEFT")
 	line.lineText1:SetJustifyV("TOP")
 
 	line.lineText1.__playerNameUpdated = true
@@ -6382,7 +6392,7 @@ function damageClass:MontaInfoDamageDone()
 	local attribute, subAttribute = instance:GetDisplay()
 
 	if Details:IsUsingBlizzardAPI(instance) then
-		--tests: 
+		--tests:
 		--print(self.__is_adapter)
 		--print(playerName)
 		--print(instance)
