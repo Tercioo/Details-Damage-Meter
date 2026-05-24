@@ -384,30 +384,59 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
                 end
             end
 
-            if Details222.Apocalypse.IsServerInCombat(true) then
-                Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> Server is in combat.")
-                C_Timer.NewTicker(1, function(tickerObject)
-                    if not Details222.Apocalypse.IsServerInCombat(true) then
-                        Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> AddOverallAsSegment() called.")
-                        local overallSegment = Details222.BParser.AddOverallAsSegment()
-                        overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
-                        overallSegment:SetEndTime(GetTime())
-                        Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
-                        Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> SaveSegment() called.")
-                        Details222.MythicPlus.LastSegmentSaveTime = GetTime()
-                        tickerObject:Cancel()
-                    end
-                end)
-                return
-            end
+            --ticker fires every second until the server is out of combat, then saves once.
+            --collapses what used to be two parallel paths (in-combat → wait, not-in-combat → save now)
+            --into a single path: the very first tick after combat ends does the save.
+            C_Timer.NewTicker(1, function(tickerObject)
+                if not Details222.Apocalypse.IsServerInCombat(true) then
+                    Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> AddOverallAsSegment() called.")
+                    local overallSegment = Details222.BParser.AddOverallAsSegment()
 
-            Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> AddOverallAsSegment() called.")
-            local overallSegment = Details222.BParser.AddOverallAsSegment()
-            overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
-            overallSegment:SetEndTime(GetTime())
-            Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
-            Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> SaveSegment() called.")
-            Details222.MythicPlus.LastSegmentSaveTime = GetTime()
+                    --attach mythic+ metadata so SaveSegment can populate savedsegmentheader.
+                    --without this, header.mythicPlusLevel / mythicPlusZoneName are nil and
+                    --neither the saved-segment list nor the history view can classify the run.
+                    local completionInfo = C_ChallengeMode.GetChallengeCompletionInfo and C_ChallengeMode.GetChallengeCompletionInfo()
+                    ---@type mythicdungeoninfo
+                    overallSegment.is_mythic_dungeon = {
+                        OverallSegment = true,
+                        SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL,
+                        RunID = Details.mythic_dungeon_id,
+                        StartedAt = Details.MythicPlus.StartedAt,
+                        EndedAt = Details.MythicPlus.EndedAt or time(),
+                        TotalTime = Details222.MythicPlus.ElapsedTime,
+                        ZoneName = Details.MythicPlus.DungeonName,
+                        DungeonName = Details.MythicPlus.DungeonName,
+                        MapID = Details.MythicPlus.DungeonID,
+                        DungeonID = Details.MythicPlus.DungeonID,
+                        Level = Details.MythicPlus.Level,
+                        EJID = Details.MythicPlus.ejID,
+                        SegmentName = (Details.MythicPlus.DungeonName or "") .. " +" .. (Details.MythicPlus.Level or 0),
+                        --completion data from the client; nil when the run wasn't completed normally
+                        --(e.g. player left the dungeon). guarded individually so partial data still lands.
+                        RunTime = completionInfo and completionInfo.time,
+                        OnTime = completionInfo and completionInfo.onTime,
+                        KeystoneUpgradeLevels = completionInfo and completionInfo.keystoneUpgradeLevels,
+                        PracticeRun = completionInfo and completionInfo.practiceRun,
+                        OldDungeonScore = completionInfo and completionInfo.oldOverallDungeonScore,
+                        NewDungeonScore = completionInfo and completionInfo.newOverallDungeonScore,
+                        IsAffixRecord = completionInfo and completionInfo.isAffixRecord,
+                        IsMapRecord = completionInfo and completionInfo.isMapRecord,
+                        IsEligibleForScore = completionInfo and completionInfo.isEligibleForScore,
+                        UpgradeMembers = completionInfo and completionInfo.members,
+                    }
+                    overallSegment.is_mythic_dungeon_segment = true
+                    overallSegment.is_mythic_dungeon_run_id = Details.mythic_dungeon_id
+                    overallSegment.is_challenge = true
+
+                    overallSegment:SetStartTime(GetTime() - Details222.MythicPlus.ElapsedTime)
+                    overallSegment:SetEndTime(GetTime())
+                    Details222.SegmentSelectionMidnight.SaveSegment(overallSegment)
+
+                    Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> SaveSegment() called.")
+                    Details222.MythicPlus.LastSegmentSaveTime = GetTime()
+                    tickerObject:Cancel()
+                end
+            end)
         end)
     end
 end

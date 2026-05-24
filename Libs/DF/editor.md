@@ -114,7 +114,7 @@ After the editor exists, the consumer calls `RegisterObject` once per editable o
 ```lua
 ---@return df_editor_objectinfo
 editor:RegisterObject(
-    object,            -- 1: the actual UIObject (Texture, FontString, Frame, StatusBar, ...)
+    object,            -- 1: a UIObject OR an array of UIObjects (see "Multiple members" below)
     localizedLabel,    -- 2: human-readable label shown in the left panel
     id,                -- 3: unique string id (used by EditObjectById, undo states, etc.)
     profileTable,      -- 4: the table where this object's settings live
@@ -126,6 +126,54 @@ editor:RegisterObject(
     refFrame           -- 10: the parent that owns the object; used by anchor sliders for size limits
 )
 ```
+
+### Multiple members — one registration, many selectable widgets
+
+Param #1 accepts either a single UIObject (the classic shape) or an array of UIObjects that
+share the **same logical editor entry**:
+
+```lua
+editor:RegisterObject({tex1, tex2, tex3, tex4}, "Border", "BORDER", profile, "", borderMap, ...)
+```
+
+When an array is passed:
+
+- **Every member** gets its own invisible click-to-select overlay in the live preview. Clicking
+  any of them selects the registration for editing and makes that specific member the focus
+  of the selection brackets / mover / `ObjectBackgroundTexture`.
+- **One row** appears in the left panel (registration is the unit). Clicking the row
+  re-selects whichever member was last clicked in the preview, or `members[1]` on first edit.
+- **All members must share the same object type** (`:GetObjectType()`). The same-type
+  assertion is enforced at registration — mixed types are rejected, because the built-in
+  attribute list and setters are object-type-specific.
+- **Setters fan out**: when the user changes any value, the option's `setter(widget, value)`
+  is invoked once per member, in array order. The 8th-arg `onEditCallback` still fires once
+  per edit with the active member as its `object` argument.
+- **Mover drags fan out**: dragging the active member updates the shared anchor data and
+  calls `SetAnchor` on every member in the array, so siblings keep visual lockstep with the
+  dragged member.
+- **Brackets / mover do NOT fan out**: they attach only to the active member. This is
+  deliberate — the user expects the selection visuals to follow what they clicked.
+
+The active member is remembered across closing and re-opening the editor (via
+`activeMemberIndex` on the registration), so OnShow restores the same member the user was
+last looking at.
+
+**Backward compatibility**: passing a single widget (the classic shape) is unchanged. The
+registration is internally a 1-member array; `objectRegistered.object` and
+`objectRegistered.selectButton` remain valid as aliases for `objects[1]` / `selectButtons[1]`.
+
+**Idempotency caveat**: because setters fan out, any non-idempotent work inside a setter is
+now multiplied by member count per edit. Keep setters purely visual (`SetX(value)`); put
+side effects (telemetry, network, debounced persistence) in the per-registration callback,
+which still fires only once per edit.
+
+**Different parents**: members may live under different parents — the mover calls
+`SetAnchor(member, anchorSettings, member:GetParent())` per member, so the same anchor data
+resolves to each member's own parent.
+
+**Unregister semantics**: `editor:UnregisterObject(anyMember)` drops the whole registration.
+Registration is the unit; partial-member removal is not supported.
 
 The 9th-parameter `options` is per-object (overrides anchor lock, icon, etc.); the editor-wide options are passed at `CreateEditor` time. Don't confuse them.
 
@@ -255,6 +303,7 @@ Important behavior differences vs. the built-ins:
 - **`setter` is optional but recommended.** Both `option.setter` call sites in `applyValue` are nil-guarded (`if (option.setter) then ... end`), so you may omit it on an extra entry and let the 8th-arg callback do the visual update. There's no built-in fallback for `extraOptions`, so something must do the work — either the setter, the callback, or you accept that this widget edits the profile but doesn't visually update. See "Setter vs callback — order, roles, and when each is required" below for the trade-off, and "Anchor edits and the setter" in Pitfalls for the one case where a callback-only approach silently breaks.
 - **`{type = "blank"}` (or `{widget = "blank"}`)** inserts a vertical spacer in the menu. The editor's blank-collapsing logic strips leading blanks and collapses adjacent blank pairs.
 - **`{type = "label", text = "...", text_template = template}`** inserts a static text row — handy as a header above a logical group of options. Forwarded fields: `text`, `name`, `get`, `text_template`, `color`, `namePhraseId` (same shape BuildMenu's label widget consumes). No `key`/`setter` needed; the editor doesn't read/write profile state for it.
+- **`{type = "execute"` / `"button"`, label = "...", func = function() ... end}`** inserts an action button — fires `func` on click, with no profile read/write. Forwarded fields: `func`, `param1`, `param2`, `icontexture`, `icontexcoords`, `text_template`, `width`, `height` (same shape BuildMenu's execute widget consumes). `key` is used only as the widget id. Bypasses the `bHasValue` check, so unlike value-bearing widgets the entry renders even without a corresponding profile key.
 
 ### Each attribute entry — full field list
 
@@ -527,10 +576,10 @@ The toolbar buttons are auto-managed: disabled when their stack is empty, enable
 
 There are two ways to select a widget for editing:
 
-1. **Click the row in the left-panel list.** The row's `OnClick` calls `editor:EditObject(registeredObjectInfo)`.
-2. **Click the live widget itself in the preview area.** Each `RegisterObject` call creates an invisible `selectButton` parented to the widget's parent, sized to cover the widget (`SetAllPoints(object)`), with frame level set to `widgetLevel + 1` so it sits on top. Its `OnClick` calls `EditObject` on its own registration.
+1. **Click the row in the left-panel list.** The row's `OnClick` calls `editor:EditObject(registeredObjectInfo)`. For multi-member registrations, no specific member is passed, so the editor falls back to the registration's `activeMemberIndex` (the last in-place click) or to `members[1]` if no member has been clicked yet.
+2. **Click the live widget itself in the preview area.** Each member of the registration gets its own invisible `selectButton`, parented to that member's parent, sized to cover the member (`SetAllPoints(member)`), with frame level set to `widgetLevel + 1` so it sits on top. Its `OnClick` calls `EditObject(registration, clickedMember)`. For single-widget registrations there is exactly one such button — same as before.
 
-Both paths go through the same `EditObject`. Mutually compatible.
+Both paths go through the same `EditObject`. Mutually compatible. `EditObject` writes `activeMemberIndex` back onto the registration so subsequent left-list clicks land on the same member.
 
 The frame-level math used to be `editor:GetFrameLevel() + #registeredObjects` — that mixed levels from two parent trees (the editor and the widget's parent) and only worked by coincidence. Now it's `widgetLevel + 1` (or `widgetParentLevel + 1` for Region children that lack their own frame level).
 
@@ -626,6 +675,14 @@ profile.color = {r, g, b, a}
 
 This preserves references — if anything else in your addon holds a reference to the color table, that reference stays valid and gets the new color. If your code expects to replace the table (e.g. with `setfrompath`), you'll see surprising behavior. Mutate in place to interop cleanly.
 
+### Setters fan out across all members of a registration
+
+For multi-member registrations, `option.setter(widget, value)` runs once per member on every edit (same call site, looped). Built-in setters are pure visual writes (`SetText`, `SetWidth`, `SetVertexColor`, …) and tolerate repetition trivially.
+
+`extraOptions` setters need to stay idempotent for the same reason — running them N times must produce the same end state as running them once. Anything that's *not* idempotent (incrementing a counter, posting to a network, emitting telemetry) must move to the per-registration 8th-arg callback, which still fires exactly once per edit regardless of member count.
+
+Single-widget registrations are unaffected: the fan-out loop iterates once.
+
 ### onEditCallback is called repeatedly during drag
 
 Don't do expensive work synchronously inside `onEditCallback`. During mover drag, it fires twice per frame (once for `"x"`, once for `"y"`). Plater calls `designer.UpdateAllNameplates()` in its callback — that's expensive but Plater is comfortable with the cost. If you're triggering anything heavier (network, file I/O), throttle it.
@@ -649,7 +706,7 @@ Net effect: profile is `(newSide, 0, 0)`, widget is anchored at `(newSide, oldX,
 
 ### `attributeList` for unrecognized object types
 
-If you `RegisterObject` an `EditBox`, `ScrollFrame`, `CheckButton`, `Cooldown`, or any other type that's not in the recognized set (`Frame`, `Button`, `StatusBar`, `FontString`, `Texture`), the editor falls back to an empty `attributeList`. The build-menu will show only your `extraOptions`. A one-time chat-window warning prints the first time each unrecognized type is encountered.
+If you `RegisterObject` an `EditBox`, `ScrollFrame`, `CheckButton`, `Cooldown`, `Slider`, or any other type that's not in the recognized set (`Frame`, `Button`, `StatusBar`, `FontString`, `Texture`), the editor falls back to an empty `attributeList`. The build-menu will show only your `extraOptions`. No warning is emitted — this is a supported pattern (custom widget driven entirely by extras).
 
 This is intentional — the consumer knows best what's editable on a custom widget type. Provide everything via `extraOptions` and your registration will work.
 

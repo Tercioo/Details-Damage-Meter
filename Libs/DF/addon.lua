@@ -148,7 +148,8 @@ function detailsFramework:CreateNewAddOn(addonName, globalSavedVariablesName, sa
 end
 
 
---old create addon using ace3
+--if you installed the framework on a project that already uses Ace3, you can use this function to create an addon object that uses Ace3.
+--take in mind this function is deprecated, you should always prefer using `CreateNewAddOn` while using Details Framework.
 function detailsFramework:CreateAddOn(name, global_saved, global_table, options_table, broker)
 
 	local addon = LibStub("AceAddon-3.0"):NewAddon (name, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "DetailsFramework-1.0", "AceComm-3.0")

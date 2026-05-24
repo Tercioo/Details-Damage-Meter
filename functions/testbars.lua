@@ -23,6 +23,19 @@ function Details:TestBarsUpdate()
     if Details:IsUsingBlizzardAPI() then
         local lowerInstanceId = Details:GetLowerInstanceNumber()
         local instanceObject = Details:GetInstance(lowerInstanceId)
+        if not instanceObject then
+            --pick the first window open
+            for instance in Details:ListInstances() do
+                if instance:IsEnabled() then
+                    instanceObject = instance
+                    break
+                end
+            end
+            if not instanceObject then
+                Details:Msg("No instance found to update test bars.")
+                return
+            end
+        end
         instanceObject:SetApocalypseSourceType(Details222.Apocalypse.TypeGame)
         Details:RefreshWindowAddOnApocalypse(instanceObject, EDIT_MODE_SESSION, EDIT_MODE_SESSION.durationSeconds)
     else

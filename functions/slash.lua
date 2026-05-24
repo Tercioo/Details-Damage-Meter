@@ -924,11 +924,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		f:Show()
 
-	--debug
-	elseif (msg == "save") then
-		print("running... this is a debug command, details wont work until next /reload.")
-		Details:PrepareTablesForSave()
-
 	elseif (command == "bossspells") then
 		local one, two = rest:match("^(%S*)%s*(.-)$")
 

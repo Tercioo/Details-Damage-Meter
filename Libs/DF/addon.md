@@ -117,11 +117,18 @@ Construction sequence
 
 
 =====================================================================
-3) Lifecycle event handlers
+3) Lifecycle handlers and callbacks
 =====================================================================
 
-The addon object responds to three WoW events. These are handled by
-internal functions that dispatch to user-defined callbacks.
+The addon object dispatches four user-defined callbacks: three tied to
+WoW lifecycle events (ADDON_LOADED, PLAYER_LOGIN, PLAYER_LOGOUT), and
+one fired when the active profile changes (OnProfileChanged). All are
+optional — define only the ones your addon needs.
+
+When writing a new Details Framework addon, define all four by default
+unless you know a specific one is unnecessary. OnProfileChanged is easy
+to forget because it is not tied to a WoW event, but skipping it causes
+stale UI state after a profile switch.
 
 addonLoaded (ADDON_LOADED)
 .....................................................................
@@ -195,6 +202,56 @@ What it does:
 Why it matters:
     This ensures user settings are written back to the saved variables
     global. Without this, changes made during the session would be lost.
+
+
+OnProfileChanged (profile switched)
+.....................................................................
+
+Fires when:
+    DF.SavedVars.SetProfile is called — either programmatically, when
+    the user picks a different profile in the CreateProfilePanel
+    dropdown, or when they click "Create" with a new profile name in
+    that panel. Does NOT fire on first load (OnLoad covers initial
+    profile setup).
+
+What it does:
+    Calls OnProfileChanged(self, profile) if defined on the addon
+    object. Dispatched via DF:Dispatch, so errors are caught and
+    reported. By the time the callback fires, addonObject.profile has
+    already been replaced with the new profile table.
+
+Callback signature:
+    function addon.OnProfileChanged(self, profile)
+        -- self:    the df_addon object
+        -- profile: the new profile table (same reference as self.profile)
+
+Why it matters:
+    When the user switches profiles, any UI state or runtime values
+    derived from the old profile are now stale. This callback is where
+    you re-apply settings: update widget positions, reload colors,
+    rebuild caches keyed on per-profile options, etc.
+
+    Pair this with OnLoad — both should pull settings from the profile
+    and produce the same end state. The recommended pattern is to put
+    the apply-settings logic in a method on the addon and call it from
+    both callbacks:
+
+        function addon:ApplySettings(profile)
+            self.mainFrame:SetWidth(profile.width)
+            self.mainFrame:SetHeight(profile.height)
+            -- ... etc.
+        end
+
+        function addon:OnLoad()
+            self:ApplySettings(self.profile)
+        end
+
+        function addon:OnProfileChanged(profile)
+            self:ApplySettings(profile)
+        end
+
+    This guarantees the addon behaves identically whether the profile
+    was loaded at startup or switched into mid-session.
 
 
 Event dispatcher (addonOnEvent)
@@ -579,6 +636,12 @@ Minimal addon setup:
         print("Player is in the world")
     end
 
+    function addon:OnProfileChanged(profile)
+        -- fires whenever DF.SavedVars.SetProfile is called (programmatically
+        -- or via CreateProfilePanel). Re-apply settings from the new profile.
+        print("Profile switched, new font size:", profile.fontSize)
+    end
+
 Accessing the profile from anywhere:
     -- After OnLoad has fired:
     local profile = addon.profile
@@ -662,6 +725,12 @@ Matching code (SliceAndDance_Core.lua):
 
     function addon:OnInit()
         print("Player ready to play")
+    end
+
+    function addon:OnProfileChanged(profile)
+        -- called when the player switches profiles (e.g. through the
+        -- CreateProfilePanel UI). Re-apply UI settings from the new profile.
+        print("Switched profile, width is", profile.width)
     end
 
 Note: the first return value of ... (the varargs at the top of every

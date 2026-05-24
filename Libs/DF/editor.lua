@@ -13,10 +13,6 @@ local wipe = table.wipe
 --maximum number of entries kept in the undo / redo stacks; oldest entries are dropped beyond this.
 local MAX_UNDO_STACK = 50
 
---object types we've already warned about for "unrecognized type" so the message fires once per
---type per session, not on every EditObject() call. keyed by the GetObjectType() string.
-local warnedUnrecognizedTypes = {}
-
 --shallow equality for undo snapshots. used to skip pushing undo entries when nothing actually
 --changed - this happens when BuildMenuVolatile fires set() during widget construction with the
 --current value, which would otherwise create no-op undo entries that wipe the redo stack.
@@ -77,7 +73,6 @@ end
 ---@field redoHistory undostate[]
 ---@field UndoButton df_button?
 ---@field RedoButton df_button?
-
 ---each undo entry is a pair of closures. coalesceKey lets adjacent entries from the same widget
 ---(e.g. continuous slider drag) merge into one stack entry instead of N.
 ---@class undostate : table
@@ -108,7 +103,8 @@ end
 ---@field namePhraseId? string label widget: phrase id for language table lookup when type == "label"
 
 ---@class df_editor_objectinfo : table
----@field object uiobject
+---@field object uiobject alias for objects[1]; the canonical "primary" member kept for backward compatibility with external consumers that read .object directly
+---@field objects uiobject[] every UIObject bound to this registration; length >= 1. multi-member registrations have the same options/profile mapping driving all members
 ---@field label string
 ---@field id any
 ---@field profiletable table
@@ -117,7 +113,9 @@ end
 ---@field extraoptions table
 ---@field callback fun(object:df_editor_objectinfo, key:string, value:any, profileTable:table, profileKey:string)
 ---@field options df_editobjectoptions
----@field selectButton button
+---@field selectButton button alias for selectButtons[1]
+---@field selectButtons button[] one click-to-select overlay per member widget
+---@field activeMemberIndex number? which member was last clicked (or 1 by default); brackets/mover follow this member
 ---@field refFrame frame usually the parent of the object registered
 
 ---@class df_editor_mover_movinginfo : table
@@ -395,7 +393,7 @@ local attributes = {
 ---@field GetObjectByIndex fun(self:df_editor, index:number):df_editor_objectinfo
 ---@field GetObjectByObjectInfo fun(self:df_editor, objectInfo:df_editor_objectinfo):df_editor_objectinfo
 ---@field GetEditingRegisteredObject fun(self:df_editor):df_editor_objectinfo
----@field EditObject fun(self:df_editor, object:df_editor_objectinfo)
+---@field EditObject fun(self:df_editor, object:df_editor_objectinfo, activeMember:uiobject?) when activeMember is omitted, falls back to the registration's last-clicked member (activeMemberIndex) or to objects[1].
 ---@field EditObjectById fun(self:df_editor, id:any)
 ---@field EditObjectByIndex fun(self:df_editor, index:number)
 ---@field ClearEditing fun(self:df_editor) tear down editor UI and clear all editing state
@@ -408,7 +406,7 @@ local attributes = {
 ---@field PrepareObjectForEditing fun(self:df_editor)
 ---@field StartObjectMovement fun(self:df_editor, anchorSettings:df_anchor)
 ---@field StopObjectMovement fun(self:df_editor)
----@field RegisterObject fun(self:df_editor, object:uiobject, localizedLabel:string, id:string, profileTable:table, subTablePath:string, profileKeyMap:table, extraOptions:table?, callback:function?, options:df_editobjectoptions?, refFrame:frame):df_editor_objectinfo
+---@field RegisterObject fun(self:df_editor, object:uiobject|uiobject[], localizedLabel:string, id:string, profileTable:table, subTablePath:string, profileKeyMap:table, extraOptions:table?, callback:function?, options:df_editobjectoptions?, refFrame:frame):df_editor_objectinfo register one or more widgets under a single logical entry. When an array of widgets is passed, all members share the same option set and any in-place selection click selects the registration with the clicked member becoming the brackets/mover focus. All members must share the same object type.
 ---@field UnregisterObject fun(self:df_editor, object:uiobject)
 ---@field OnHide fun(self:df_editor)
 ---@field OnShow fun(self:df_editor)
@@ -530,8 +528,12 @@ detailsFramework.EditorMixin = {
         local registeredObjects = self:GetAllRegisteredObjects()
         for i = 1, #registeredObjects do
             local objectRegistered = registeredObjects[i]
-            if (objectRegistered.object == object) then
-                return i
+            --multi-member registrations: the editing widget may be any member, not just objects[1].
+            local members = objectRegistered.objects or {objectRegistered.object}
+            for j = 1, #members do
+                if (members[j] == object) then
+                    return i
+                end
             end
         end
     end,
@@ -938,7 +940,8 @@ detailsFramework.EditorMixin = {
 
     ---@param self df_editor
     ---@param registeredObject df_editor_objectinfo
-    EditObject = function(self, registeredObject)
+    ---@param activeMember uiobject? specific member widget to focus brackets/mover on; defaults to last-clicked member or members[1]
+    EditObject = function(self, registeredObject, activeMember)
         --clear previous values
         self.editingObject = nil
         self.editingProfileMap = nil
@@ -947,7 +950,26 @@ detailsFramework.EditorMixin = {
         self.editingExtraOptions = nil
         self.onEditCallback = nil
 
-        local object = registeredObject.object
+        --resolve which member becomes the visual focus (brackets, mover, ObjectBackgroundTexture).
+        --priority: explicit activeMember arg > registration's last-clicked memory > members[1].
+        --activeMemberIndex is remembered on the registration so subsequent EditObject(reg) calls
+        --(left-list clicks, OnShow restore, Undo replay) preserve the user's last in-place click.
+        local members = registeredObject.objects
+        local active = activeMember
+        if (not active) then
+            local lastIndex = registeredObject.activeMemberIndex
+            active = (lastIndex and members[lastIndex]) or members[1]
+        end
+        if (active) then
+            for i = 1, #members do
+                if (members[i] == active) then
+                    registeredObject.activeMemberIndex = i
+                    break
+                end
+            end
+        end
+
+        local object = active or registeredObject.object
         local profileKeyMap = registeredObject.profilekeymap
         local extraOptions = registeredObject.extraoptions
         local callback = registeredObject.callback
@@ -1062,19 +1084,26 @@ detailsFramework.EditorMixin = {
     AddMoverUndoState = function(self, registeredObject, anchorTable, oldX, oldY, newX, newY)
         local profileTable, profileMap = self:GetEditingProfile()
         local profileKey = profileMap and profileMap.anchor
-        local object = registeredObject.object
+        --capture the members array at undo-creation time. for multi-member registrations the
+        --replay must reposition every member, not just the primary, so all visual sibling
+        --widgets stay in lockstep with the anchor data.
+        local members = registeredObject.objects or {registeredObject.object}
+        local callbackObject = members[1]
         local onEditCallback = self:GetOnEditCallback()
 
         local applyXY = function(x, y)
             anchorTable.x = x
             anchorTable.y = y
-            --reposition the widget itself; without this the data is restored but the widget
-            --visually stays where the drag left it. matches what option.setter does for the
-            --slider-driven anchor undo path.
-            detailsFramework:SetAnchor(object, anchorTable, object:GetParent())
+            --reposition every member; without this the data is restored but the widgets
+            --visually stay where the drag left them. matches what option.setter does for the
+            --slider-driven anchor undo path (which also fans out across members).
+            for i = 1, #members do
+                local member = members[i]
+                detailsFramework:SetAnchor(member, anchorTable, member:GetParent())
+            end
             if (onEditCallback) then
-                onEditCallback(object, "x", x, profileTable, profileKey)
-                onEditCallback(object, "y", y, profileTable, profileKey)
+                onEditCallback(callbackObject, "x", x, profileTable, profileKey)
+                onEditCallback(callbackObject, "y", y, profileTable, profileKey)
             end
         end
 
@@ -1130,6 +1159,17 @@ detailsFramework.EditorMixin = {
         local profileTable, profileMap = self:GetEditingProfile()
         profileMap = profileMap or {}
 
+        --capture the registration + callback at menu-build time so undo/redo replay always
+        --acts on the right widgets. resolving these live inside applyValue via
+        --self:GetEditingRegisteredObject() / self:GetOnEditCallback() breaks during
+        --undo/redo: Undo/Redo run state.undo/.redo BEFORE calling EditObject(targetObject),
+        --so the live editing context is whatever the previous replay step left active -
+        --which fans the wrong registration's setter (e.g. FontString:SetFont) onto another
+        --registration's members (e.g. a Texture), causing "attempt to call a nil value".
+        local registeredForClosure = self:GetEditingRegisteredObject()
+        local onEditCallbackForClosure = self:GetOnEditCallback()
+        local fanoutMembers = registeredForClosure and registeredForClosure.objects or {object}
+
         self.AnchorFrames:DisableAllAnchors()
 
         local conditionalKeys = profileMap.enable_if or {}
@@ -1177,15 +1217,11 @@ detailsFramework.EditorMixin = {
             attributeList = attributes["Frame"]
 
         else
-            --unrecognized type (e.g. EditBox, ScrollFrame, CheckButton, Cooldown). fall back to
+            --unrecognized type (e.g. EditBox, ScrollFrame, CheckButton, Cooldown, Slider). fall back to
             --empty so the loop doesn't crash on #attributeList; the consumer's extraOptions still
-            --build into the menu. warn once per type so a developer notices but the message
-            --doesn't spam on every EditObject() call.
+            --build into the menu. silent on purpose - this is an expected/valid registration
+            --pattern (custom widget driven entirely by extraOptions), not an error worth chat-spamming.
             attributeList = {}
-            if (not warnedUnrecognizedTypes[objectType]) then
-                warnedUnrecognizedTypes[objectType] = true
-                print(("|cFFFFAA00DetailsFramework editor|r: object type %q has no built-in attributes; only extraOptions will appear in the menu."):format(tostring(objectType)))
-            end
         end
 
         --if there's extra options, add the attributeList to a new table and right after the extra options
@@ -1227,6 +1263,24 @@ detailsFramework.EditorMixin = {
                     text_template = option.text_template,
                     color = option.color,
                     namePhraseId = option.namePhraseId,
+                }
+            elseif (widgetType == "execute" or widgetType == "button") then
+                --action buttons in extras don't read or write profile state, so they skip the
+                --value-resolution pipeline below (no get/set, no path lookup, no undo capture).
+                --forward the BuildMenu execute-widget fields straight through; the consumer's
+                --`func` is invoked on click.
+                menuOptions[#menuOptions+1] = {
+                    type = widgetType,
+                    name = option.label,
+                    func = option.func,
+                    param1 = option.param1,
+                    param2 = option.param2,
+                    icontexture = option.icontexture,
+                    icontexcoords = option.icontexcoords,
+                    text_template = option.text_template,
+                    width = option.width,
+                    height = option.height,
+                    id = option.key,
                 }
             else
                 --extras may override the registration's profileTable so a single option can read/write
@@ -1281,12 +1335,21 @@ detailsFramework.EditorMixin = {
                                 detailsFramework.table.setfrompath(entryProfileTable, profileKey, value)
                             end
 
-                            if (self:GetOnEditCallback()) then
-                                self:GetOnEditCallback()(object, option.key, value, entryProfileTable, profileKey)
+                            if (onEditCallbackForClosure) then
+                                onEditCallbackForClosure(object, option.key, value, entryProfileTable, profileKey)
                             end
 
                             --update the widget visual
-                            --anchoring uses SetAnchor() which requires the anchorTable to be passed
+                            --anchoring uses SetAnchor() which requires the anchorTable to be passed.
+                            --for multi-member registrations the setter fans out across every member so
+                            --a single edit updates all of them in lockstep (e.g. 4 textures sharing one
+                            --logical anchor all reposition together). consumer setters should be idempotent
+                            --since this loop calls them N times per edit; non-idempotent side effects
+                            --(network, telemetry) belong in the per-registration onEditCallback above.
+                            --uses fanoutMembers / onEditCallbackForClosure captured at menu-build time
+                            --rather than self:GetEditingRegisteredObject() / self:GetOnEditCallback() so
+                            --undo/redo replay still targets this closure's registration (see prologue).
+
                             if (option.key == "anchor" or option.key == "anchoroffsetx" or option.key == "anchoroffsety") then
                                 anchorSettings = parentTable
 
@@ -1298,7 +1361,9 @@ detailsFramework.EditorMixin = {
                                 self:StopObjectMovement()
 
                                 if (option.setter) then
-                                    option.setter(object, parentTable)
+                                    for i = 1, #fanoutMembers do
+                                        option.setter(fanoutMembers[i], parentTable)
+                                    end
                                 end
 
                                 if (editingOptions.can_move) then
@@ -1309,7 +1374,9 @@ detailsFramework.EditorMixin = {
                                 end
                             else
                                 if (option.setter) then
-                                    option.setter(object, value)
+                                    for i = 1, #fanoutMembers do
+                                        option.setter(fanoutMembers[i], value)
+                                    end
                                 end
                             end
                         end
@@ -1480,7 +1547,6 @@ detailsFramework.EditorMixin = {
         assert(anchorSettings, "Object \"" .. registeredObject.id .. "\" without anchorSettings and can_move is 'True'.\nIf this came as surprise, add can_move = false into the table of the 10th argument of editor:RegisterObject().")
 
         local optionsFrame = self:GetOptionsFrame()
-        local objectParent = object:GetParent()
         local moverObject = self:GetMoverObject()
         --the mover frame set its point to the object being moved
         --the move frame center dot keep under the mouse, but the object moves much faster
@@ -1513,7 +1579,15 @@ detailsFramework.EditorMixin = {
                 anchorSettings.x = anchorSettings.x + xOffset
                 anchorSettings.y = anchorSettings.y + yOffset
 
-                detailsFramework:SetAnchor(object, anchorSettings, objectParent)
+                --reposition every member of the registration. brackets/mover follow only the active
+                --member (which is `object` here), but the sibling members must keep visual lockstep
+                --with the shared anchor data. each member uses its own parent for SetAnchor in case
+                --members are sibling widgets under different parents.
+                local members = registeredObject.objects or {object}
+                for i = 1, #members do
+                    local member = members[i]
+                    detailsFramework:SetAnchor(member, anchorSettings, member:GetParent())
+                end
 
                 --update the slider offset in the options frame
                 local anchorXSlider = optionsFrame:GetWidgetById("anchoroffsetx")
@@ -1619,19 +1693,44 @@ detailsFramework.EditorMixin = {
     end,
 
     RegisterObject = function(self, object, localizedLabel, id, profileTable, subTablePath, profileKeyMap, extraOptions, callback, options, refFrame)
-        assert(type(object) == "table", "editor:RegisterObject() expects an UIObject on #2 parameter.")
-        assert(object.GetObjectType, "editor:RegisterObject() expects an UIObject on #2 parameter.")
+        assert(type(object) == "table", "editor:RegisterObject() expects a UIObject or array of UIObjects on #2 parameter.")
         assert(type(profileTable) == "table", "editor:RegisterObject() expects a table on #5 parameter.")
         assert(type(id) ~= "nil" and type(id) ~= "boolean", "editor:RegisterObject() expects an ID on parameter #4.")
         assert(type(callback) == "function" or callback == nil, "editor:RegisterObject() expects a function or nil as the #8 parameter.")
 
+        --param #2 may be a single UIObject or an array of them. WoW UIObjects expose GetObjectType,
+        --so the presence of that method on the value itself distinguishes the two shapes.
+        local members
+        if (object.GetObjectType) then
+            members = {object}
+        else
+            assert(#object > 0, "editor:RegisterObject() expects at least one widget when an array is passed on #2.")
+            local firstType = object[1] and object[1].GetObjectType and object[1]:GetObjectType()
+            for i = 1, #object do
+                assert(type(object[i]) == "table" and object[i].GetObjectType,
+                    "editor:RegisterObject() array element " .. i .. " is not a UIObject.")
+                assert(object[i]:GetObjectType() == firstType,
+                    "editor:RegisterObject() all member widgets must share the same object type (element " .. i .. " differs from element 1).")
+            end
+            --shallow-copy so later mutation of the caller's array can't surprise us.
+            members = {}
+            for i = 1, #object do members[i] = object[i] end
+        end
+
         local registeredObjects = self:GetAllRegisteredObjects()
 
-        --is object already registered?
+        --duplicate check spans all members across all existing registrations - any widget
+        --that's already bound (as the sole object of a single-member registration or as one
+        --member of a multi-member one) cannot be registered again.
         for i = 1, #registeredObjects do
-            local objectRegistered = registeredObjects[i]
-            if (objectRegistered.object == object) then
-                error("editor:RegisterObject(UIObject) UIObject (param #2) already registered.")
+            local existing = registeredObjects[i]
+            local existingMembers = existing.objects
+            for j = 1, #existingMembers do
+                for k = 1, #members do
+                    if (existingMembers[j] == members[k]) then
+                        error("editor:RegisterObject(UIObject) UIObject (param #2) already registered.")
+                    end
+                end
             end
         end
 
@@ -1641,14 +1740,11 @@ detailsFramework.EditorMixin = {
 
         localizedLabel = type(localizedLabel) == "string" and localizedLabel or "invalid label"
 
-        --invisible button overlaid on the widget so clicking the live preview selects it for
-        --editing in the designer (in addition to clicking the left-panel list).
-        local selectButton = CreateFrame("button", "$parentSelectButton" .. id, object:GetParent())
-        selectButton:SetAllPoints(object)
-
         ---@type df_editor_objectinfo
+        ---@diagnostic disable-next-line: missing-fields
         local objectRegistered = {
-            object = object,
+            object = members[1],
+            objects = members,
             label = localizedLabel,
             id = id,
             profiletable = profileTable,
@@ -1657,59 +1753,109 @@ detailsFramework.EditorMixin = {
             extraoptions = extraOptions or {},
             callback = callback,
             options = options,
-            selectButton = selectButton,
+            selectButtons = {},
+            activeMemberIndex = 1,
             refFrame = refFrame,
         }
 
         registeredObjects[#registeredObjects+1] = objectRegistered
         self.registeredObjectsByID[id] = objectRegistered
 
-        --raise above the widget within the same parent so clicks land on selectButton, not the
-        --widget itself. previously used self:GetFrameLevel() + #registeredObjects which mixed
-        --frame levels from two different parent trees and only worked by coincidence of strata.
-        --textures and fontstrings are regions (not frames) and have no GetFrameLevel of their own,
-        --so treat their effective level as parent + 1 (mirroring how a child frame would sit).
-        --this is what lets a region nested inside a registered frame win over the frame's own
-        --selectButton: the region's button ends up at parentLevel + 2 vs the parent's parentLevel + 1.
-        ---@diagnostic disable-next-line: undefined-field
-        local widgetLevel = object.GetFrameLevel and object:GetFrameLevel() or (object:GetParent():GetFrameLevel() + 1)
-        selectButton:SetFrameLevel(widgetLevel + 1)
+        --one invisible click-to-select overlay per member widget. each overlay is parented to
+        --its own member's parent and sized to that member, so any member can be clicked in the
+        --live preview to select this registration. the clicked member becomes the active focus
+        --for brackets/mover (passed as the 2nd arg to EditObject).
+        for i = 1, #members do
+            local member = members[i]
+            local selectButton = CreateFrame("button", "$parentSelectButton" .. tostring(id) .. "_" .. i, member:GetParent())
+            selectButton:SetAllPoints(member)
+
+            --raise above the widget within the same parent so clicks land on selectButton, not the
+            --widget itself. textures and fontstrings are regions (not frames) and have no
+            --GetFrameLevel of their own, so treat their effective level as parent + 1
+            --(mirroring how a child frame would sit). this is what lets a region nested inside a
+            --registered frame win over the frame's own selectButton.
+            ---@diagnostic disable-next-line: undefined-field
+            local widgetLevel = member.GetFrameLevel and member:GetFrameLevel() or (member:GetParent():GetFrameLevel() + 1)
+            selectButton:SetFrameLevel(widgetLevel + 1)
+
+            selectButton:SetScript("OnClick", function()
+                self:EditObject(objectRegistered, member)
+            end)
+
+            --suppress the click-to-select overlay when can_click is false. otherwise the
+            --invisible full-size button covers the widget area and intercepts clicks meant for
+            --overlapping registrations or child widgets.
+            if (not options.can_click) then
+                selectButton:Hide()
+            end
+
+            objectRegistered.selectButtons[i] = selectButton
+        end
+
+        --alias for backward compat with any external reader that touched .selectButton directly.
+        objectRegistered.selectButton = objectRegistered.selectButtons[1]
 
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
-
-        selectButton:SetScript("OnClick", function()
-            self:EditObject(objectRegistered)
-        end)
-
-        --suppress the click-to-select overlay when can_click is false. otherwise the
-        --invisible full-size button covers the widget area and intercepts clicks meant for
-        --overlapping registrations or child widgets.
-        if (not options.can_click) then
-            selectButton:Hide()
-        end
 
         --what to do after an object is registered?
         return objectRegistered
     end,
 
     UnregisterObject = function(self, object)
-        --tear down the active edit if it's the object being unregistered.
-        --otherwise the editor would be left pointing at a removed registration.
-        if (self:GetEditingObject() == object) then
-            self:ClearEditing()
-        end
-
         local registeredObjects = self:GetAllRegisteredObjects()
 
+        --locate the registration that owns this widget (as primary or as any member of a
+        --multi-member registration). passing any member drops the whole registration -
+        --registration is the unit; partial-member removal is intentionally not supported.
+        local foundIndex
+        local foundRegistration
         for i = 1, #registeredObjects do
             local objectRegistered = registeredObjects[i]
-            if (objectRegistered.object == object) then
-                self.registeredObjectsByID[objectRegistered.id] = nil
-                table.remove(registeredObjects, i)
-                break
+            local members = objectRegistered.objects or {objectRegistered.object}
+            for j = 1, #members do
+                if (members[j] == object) then
+                    foundIndex = i
+                    foundRegistration = objectRegistered
+                    break
+                end
+            end
+            if (foundIndex) then break end
+        end
+
+        if (not foundIndex) then
+            return
+        end
+
+        --tear down the active edit if any member of this registration is being edited.
+        --otherwise the editor would be left pointing at a removed registration's freed widgets.
+        local editingObject = self:GetEditingObject()
+        if (editingObject) then
+            local members = foundRegistration.objects or {foundRegistration.object}
+            for j = 1, #members do
+                if (members[j] == editingObject) then
+                    self:ClearEditing()
+                    break
+                end
             end
         end
+
+        --hide every per-member overlay so the freed registration doesn't leave invisible
+        --click-catchers in the live preview area.
+        local selectButtons = foundRegistration.selectButtons
+        if (selectButtons) then
+            for j = 1, #selectButtons do
+                selectButtons[j]:Hide()
+                selectButtons[j]:SetScript("OnClick", nil)
+            end
+        elseif (foundRegistration.selectButton) then
+            foundRegistration.selectButton:Hide()
+            foundRegistration.selectButton:SetScript("OnClick", nil)
+        end
+
+        self.registeredObjectsByID[foundRegistration.id] = nil
+        table.remove(registeredObjects, foundIndex)
 
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
@@ -1727,8 +1873,13 @@ detailsFramework.EditorMixin = {
         local registeredObjects = self:GetAllRegisteredObjects()
         for i = 1, #registeredObjects do
             local objectRegistered = registeredObjects[i]
-            if (objectRegistered.object == object) then
-                return objectRegistered
+            --check every member; any widget in a multi-member registration's array resolves
+            --back to the same registration.
+            local members = objectRegistered.objects or {objectRegistered.object}
+            for j = 1, #members do
+                if (members[j] == object) then
+                    return objectRegistered
+                end
             end
         end
     end,
@@ -1801,9 +1952,15 @@ detailsFramework.EditorMixin = {
 
                     line.Label:SetText(objectRegistered.label)
 
-                    if (objectRegistered.object == objectCurrentBeingEdited) then
-                        self.SelectionTexture:SetAllPoints(line)
-                        self.SelectionTexture:Show()
+                    --multi-member registrations: highlight the row if any member is currently
+                    --being edited, not just objects[1].
+                    local rowMembers = objectRegistered.objects or {objectRegistered.object}
+                    for memberIndex = 1, #rowMembers do
+                        if (rowMembers[memberIndex] == objectCurrentBeingEdited) then
+                            self.SelectionTexture:SetAllPoints(line)
+                            self.SelectionTexture:Show()
+                            break
+                        end
                     end
                 end
             end
@@ -1872,6 +2029,10 @@ detailsFramework.EditorMixin = {
         self.AnchorFrames:DisableAllAnchors()
         self:HideSelectedTextures()
         self.overTheTopFrame:Hide()
+
+        --stop receiving key events while hidden so Ctrl+Z / Ctrl+Y fall back to the
+        --player's combat keybinds.
+        self:EnableKeyboard(false)
     end,
 
     ---@param self df_editor
@@ -1882,6 +2043,10 @@ detailsFramework.EditorMixin = {
             self:EditObjectByIndex(objectIndex)
         end
         self.overTheTopFrame:Show()
+
+        --start receiving Ctrl+Z / Ctrl+Y while the editor is shown.
+        self:EnableKeyboard(true)
+        self:SetPropagateKeyboardInput(true)
     end,
 }
 
@@ -1890,6 +2055,7 @@ function detailsFramework:CreateEditor(parent, name, options)
     name = name or ("DetailsFrameworkEditor" .. math.random(100000, 10000000))
     ---@type df_editor
     local editorFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
+    parent:SetToplevel(true)
 
     detailsFramework:Mixin(editorFrame, detailsFramework.EditorMixin)
     detailsFramework:Mixin(editorFrame, detailsFramework.OptionsFunctions)
@@ -1951,6 +2117,25 @@ function detailsFramework:CreateEditor(parent, name, options)
     editorFrame:CreateAnchorFrames()
     editorFrame:CreateUndoManager()
 
+    --Ctrl+Z / Ctrl+Y bindings. EnableKeyboard is toggled on/off by OnShow/OnHide so the
+    --handler only fires while the editor is visible; combat keybinds work normally otherwise.
+    --propagation is left enabled for non-shortcut keys so other keybinds still pass through.
+    editorFrame:SetScript("OnKeyDown", function(self, key)
+        if (IsControlKeyDown() and key == "Z") then
+            self:SetPropagateKeyboardInput(false)
+            if (IsShiftKeyDown()) then
+                self:Redo()
+            else
+                self:Undo()
+            end
+        elseif (IsControlKeyDown() and key == "Y") then
+            self:SetPropagateKeyboardInput(false)
+            self:Redo()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
+
     editorFrame.moverObject = editorFrame:CreateMoverFrame()
 
     editorFrame:CreateSelectedTextures()
@@ -1962,13 +2147,14 @@ function detailsFramework:CreateEditor(parent, name, options)
     --placed below the build-menu canvas where there's empty space, so it doesn't fight the menu layout.
     if (editorFrame.options.show_undo_buttons) then
         local buttonTemplate = editorFrame.options.button_template
-        local buttonW, buttonH = 60, 22
+        --width bumped from 60 to 110 so the "(ctrl+z)" / "(ctrl+y)" hint fits next to the label.
+        local buttonW, buttonH = 110, 22
 
-        local undoButton = detailsFramework:CreateButton(editorFrame, function() editorFrame:Undo() end, buttonW, buttonH, "Undo", nil, nil, nil, nil, nil, nil, buttonTemplate)
+        local undoButton = detailsFramework:CreateButton(editorFrame, function() editorFrame:Undo() end, buttonW, buttonH, "Undo (ctrl+z)", nil, nil, nil, nil, nil, nil, buttonTemplate)
         undoButton:SetPoint("bottomright", editorFrame, "bottomright", -(buttonW + 4), 6)
         editorFrame.UndoButton = undoButton
 
-        local redoButton = detailsFramework:CreateButton(editorFrame, function() editorFrame:Redo() end, buttonW, buttonH, "Redo", nil, nil, nil, nil, nil, nil, buttonTemplate)
+        local redoButton = detailsFramework:CreateButton(editorFrame, function() editorFrame:Redo() end, buttonW, buttonH, "Redo (ctrl+y)", nil, nil, nil, nil, nil, nil, buttonTemplate)
         redoButton:SetPoint("bottomright", editorFrame, "bottomright", -2, 6)
         editorFrame.RedoButton = redoButton
 

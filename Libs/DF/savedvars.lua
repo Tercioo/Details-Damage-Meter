@@ -18,6 +18,7 @@ local UnitGUID = UnitGUID
 ---@field GetProfile fun(addonObject: df_addon, bCreateIfNotFound?: boolean, profileToCopyFrom?: profile): profile
 ---@field SetProfile fun(addonObject: df_addon, profileName: profileid, bCopyFromCurrentProfile?: boolean)
 ---@field SaveProfile fun(addonObject: df_addon)
+---@field DeleteProfile fun(addonObject: df_addon, profileName: profileid): boolean
 ---@field CreateProfilePanel fun(addonObject: df_addon, frameName: string, parentFrame: frame, options?: table): df_profilepanel
 ---@field RefreshProfilePanel fun(profilePanel: df_profilepanel)
 
@@ -174,13 +175,51 @@ function detailsFramework.SavedVars.SaveProfile(addonObject)
     end
 end
 
+---@param addonObject df_addon the addon object created by detailsFramework:CreateNewAddOn()
+---@param profileName profileid the name of the profile to delete
+---@return boolean bDeleted true if the profile was deleted
+function detailsFramework.SavedVars.DeleteProfile(addonObject, profileName)
+    assert(type(addonObject) == "table", "DeleteProfile: addonObject must be a table.")
+    assert(type(profileName) == "string", "DeleteProfile: profileName must be a string.")
+
+    local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+    local playerGUID = UnitGUID("player")
+    local currentProfileId = savedVariables.profile_ids[playerGUID]
+
+    --refuse to delete the profile in use by this character
+    if (profileName == currentProfileId) then
+        return false
+    end
+
+    if (not savedVariables.profiles[profileName]) then
+        return false
+    end
+
+    savedVariables.profiles[profileName] = nil
+
+    --clear the profile_ids entries that point to the deleted profile
+    for guid, profileId in pairs(savedVariables.profile_ids) do
+        if (profileId == profileName) then
+            savedVariables.profile_ids[guid] = nil
+        end
+    end
+
+    return true
+end
+
 ---@class df_profilepanel : frame
 ---@field AddonObject df_addon
 ---@field ProfileNameValueLabel fontstring
 ---@field ProfileSelectionDropdown df_dropdown
 ---@field ProfileNameTextEntry df_textentry
+---@field DeleteProfileDropdown df_dropdown
+---@field ProfileChangedNotificationLabel df_errorlabel
+---@field ProfileDeletedNotificationLabel df_errorlabel
+---@field SelectedProfileToDelete profileid?
 ---@field OnClickCreateNewProfile function
+---@field OnClickDeleteProfile function
 ---@field RefreshSelectProfileDropdown function
+---@field RefreshDeleteProfileDropdown function
 
 ---@param profilePanel df_profilepanel
 function detailsFramework.SavedVars.RefreshProfilePanel(profilePanel)
@@ -194,6 +233,9 @@ function detailsFramework.SavedVars.RefreshProfilePanel(profilePanel)
     --update the options of the dropdown to select a profile
     profilePanel:RefreshSelectProfileDropdown()
 
+    --update the options of the dropdown to select a profile to delete (excludes current profile)
+    profilePanel:RefreshDeleteProfileDropdown()
+
     --clear the text entry for the new profile name
     profilePanel.ProfileNameTextEntry:SetText("")
 end
@@ -204,28 +246,99 @@ local profilePanelMixin = {
         local addonObject = self.AddonObject
         local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
         local profiles = savedVariables.profiles
+        local currentProfileName = detailsFramework.SavedVars.GetCurrentProfileName(addonObject)
 
         local callback = function(self, fixedValue, profileSelected)
             detailsFramework.SavedVars.SetProfile(addonObject, profileSelected)
-            detailsFramework.SavedVars.RefreshProfilePanel(self:GetParent())
+            local profilePanel = self:GetParent()
+            detailsFramework.SavedVars.RefreshProfilePanel(profilePanel)
+            if (profilePanel.ProfileChangedNotificationLabel) then
+                profilePanel.ProfileChangedNotificationLabel:ShowErrorMsg("Profile changed to: " .. profileSelected)
+            end
         end
 
         local dropdownOptions = {}
         for profileId in pairs(profiles) do
-            table.insert(dropdownOptions, {value = profileId, label = profileId, onclick = callback, icon = [[Interface\CHATFRAME\UI-ChatIcon-BlizzardArcadeCollection]], iconsize = {16, 16}})
+            --skip the profile already in use; the "Current Profile:" label already shows it
+            if (profileId ~= currentProfileName) then
+                table.insert(dropdownOptions, {value = profileId, label = profileId, onclick = callback, icon = [[Interface\CHATFRAME\UI-ChatIcon-BlizzardArcadeCollection]], iconsize = {16, 16}})
+            end
         end
 
         self.ProfileSelectionDropdown.Options = dropdownOptions
         self.ProfileSelectionDropdown:Refresh()
-        self.ProfileSelectionDropdown:Select(detailsFramework.SavedVars.GetCurrentProfileName(addonObject))
+        self.ProfileSelectionDropdown:NoOption(#dropdownOptions == 0)
+        self.ProfileSelectionDropdown:NoOptionSelected()
     end,
 
     ---@param self df_profilepanel
     OnClickCreateNewProfile = function(self)
         local addonObject = self.AddonObject
         local profileName = self.ProfileNameTextEntry:GetText()
+        if (profileName == "") then
+            return
+        end
         detailsFramework.SavedVars.SetProfile(addonObject, profileName)
         detailsFramework.SavedVars.RefreshProfilePanel(self)
+        --SetProfile also activates the new profile, so reuse the change notification
+        if (self.ProfileChangedNotificationLabel) then
+            self.ProfileChangedNotificationLabel:ShowErrorMsg("Profile changed to: " .. profileName)
+        end
+    end,
+
+    ---@param self df_profilepanel
+    RefreshDeleteProfileDropdown = function(self)
+        local addonObject = self.AddonObject
+        local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+        local profiles = savedVariables.profiles
+        local currentProfileName = detailsFramework.SavedVars.GetCurrentProfileName(addonObject)
+
+        local callback = function(dropdownSelf, fixedValue, profileSelected)
+            local profilePanel = dropdownSelf:GetParent()
+            profilePanel.SelectedProfileToDelete = profileSelected
+        end
+
+        local dropdownOptions = {}
+        for profileId in pairs(profiles) do
+            --do not list the profile in use by this character
+            if (profileId ~= currentProfileName) then
+                table.insert(dropdownOptions, {value = profileId, label = profileId, onclick = callback, icon = [[Interface\CHATFRAME\UI-ChatIcon-BlizzardArcadeCollection]], iconsize = {16, 16}})
+            end
+        end
+
+        self.DeleteProfileDropdown.Options = dropdownOptions
+        self.DeleteProfileDropdown:Refresh()
+
+        --the previously selected profile may no longer exist (it could have been just deleted, or it might be the new current profile)
+        local stillExists = false
+        if (self.SelectedProfileToDelete and self.SelectedProfileToDelete ~= currentProfileName and profiles[self.SelectedProfileToDelete]) then
+            stillExists = true
+        end
+
+        if (stillExists) then
+            self.DeleteProfileDropdown:Select(self.SelectedProfileToDelete)
+        else
+            self.SelectedProfileToDelete = nil
+            self.DeleteProfileDropdown:NoOption(#dropdownOptions == 0)
+            self.DeleteProfileDropdown:Select(1, true)
+        end
+    end,
+
+    ---@param self df_profilepanel
+    OnClickDeleteProfile = function(self)
+        local addonObject = self.AddonObject
+        local profileName = self.SelectedProfileToDelete
+        if (not profileName) then
+            return
+        end
+        local bDeleted = detailsFramework.SavedVars.DeleteProfile(addonObject, profileName)
+        if (bDeleted) then
+            self.SelectedProfileToDelete = nil
+            detailsFramework.SavedVars.RefreshProfilePanel(self)
+            if (self.ProfileDeletedNotificationLabel) then
+                self.ProfileDeletedNotificationLabel:ShowErrorMsg("Profile deleted: " .. profileName)
+            end
+        end
     end
 
 }
@@ -236,6 +349,11 @@ local defaultProfilePanelOptions = {
     title = "Profile Management"
 }
 
+--alias
+function detailsFramework:CreateProfilePanel(addonObject, frameName, parentFrame, options)
+    return detailsFramework.SavedVars.CreateProfilePanel(addonObject, frameName, parentFrame, options)
+end
+
 function detailsFramework.SavedVars.CreateProfilePanel(addonObject, frameName, parentFrame, options)
     options = options or detailsFramework.table.copy({}, defaultProfilePanelOptions)
     detailsFramework.table.deploy(options, defaultProfilePanelOptions)
@@ -245,14 +363,18 @@ function detailsFramework.SavedVars.CreateProfilePanel(addonObject, frameName, p
     local dropdownTemplate = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
     --create a simple frame
-    local panelOptions = {}
     ---@type df_profilepanel
     local frame = CreateFrame("frame", frameName, parentFrame)
     frame:SetSize(options.width, options.height)
     frame.AddonObject = addonObject
 
+    local roundedCornerPreset = {
+        roundness = 12,
+        color = {.1, .1, .1, 0.834},
+    }
+
     detailsFramework:Mixin(frame, profilePanelMixin)
-    detailsFramework:AddRoundedCornersToFrame(frame, Details.PlayerBreakdown.RoundedCornerPreset)
+    detailsFramework:AddRoundedCornersToFrame(frame, roundedCornerPreset)
 
     --create a label with the name of the profile (two labels, one for the name "Profile Name" and one for the value)
     ---@type fontstring
@@ -281,17 +403,49 @@ function detailsFramework.SavedVars.CreateProfilePanel(addonObject, frameName, p
     local profileSelectionDropdown = detailsFramework:CreateDropDown(frame, onSelectProfileCallback, defaultValue, 180, 32, "ProfileSelectionDropdown", "$parentProfileSelectionDropdown", dropdownTemplate)
     profileSelectionDropdown:SetPoint("topleft", selectProfileLabel, "bottomleft", 0, -5)
     profileSelectionDropdown:SetBackdrop(nil)
-    detailsFramework:AddRoundedCornersToFrame(profileSelectionDropdown, Details.PlayerBreakdown.RoundedCornerPreset)
+    profileSelectionDropdown:SetEmptyTextAndIcon("Select a profile...", [[Interface\CHATFRAME\UI-ChatIcon-BlizzardArcadeCollection]])
+    profileSelectionDropdown:SetNoOptionsText("No other profiles")
+    detailsFramework:AddRoundedCornersToFrame(profileSelectionDropdown, roundedCornerPreset)
     frame.ProfileSelectionDropdown = profileSelectionDropdown
 
     ---@type fontstring
+    --notification shown in the gap between the select dropdown and the create-new field
+    --uses df_errorlabel for the fade-in/fade-out animation; overridden to 2.5s instead of the default 4s
+    ---@type df_errorlabel
+    local profileChangedNotificationLabel = detailsFramework:CreateErrorLabel(frame, "", 12, "white")
+    profileChangedNotificationLabel:SetPoint("top", profileSelectionDropdown.widget, "bottom", 0, -10)
+    profileChangedNotificationLabel.ShowErrorMsg = function(self, text)
+        --if the same text is already being shown, let the running animation finish
+        if (self.HideTimer and text and self:GetText() == text) then
+            return
+        end
+        --interrupt any in-flight display so the new text appears immediately
+        if (self.HideTimer) then
+            self.HideTimer:Cancel()
+            self.HideTimer = nil
+        end
+        if (self.fadeOutAnimationHub:IsPlaying()) then
+            self.fadeOutAnimationHub:Stop()
+        end
+        self.fadeInAnimationHub:Play()
+        if (text) then
+            self:SetText(text)
+        end
+        self:PlayFrameShake(self.shake)
+        self.HideTimer = C_Timer.NewTimer(2.5, function()
+            self.fadeOutAnimationHub:Play()
+            self.HideTimer = nil
+        end)
+    end
+    frame.ProfileChangedNotificationLabel = profileChangedNotificationLabel
+
     local createNewProfileLabel = frame:CreateFontString(nil, "overlay", "GameFontNormal")
-    createNewProfileLabel:SetPoint("topleft", profileSelectionDropdown.widget, "bottomleft", 0, -10)
+    createNewProfileLabel:SetPoint("topleft", profileSelectionDropdown.widget, "bottomleft", 0, -40)
     createNewProfileLabel:SetText("Create New:")
 
     --create a textentry to enter the name of the profile to be created and create a button to create the new profile
     local onPressEnterCallback = function()
-
+        --do nothing, the profile will be created when the user clicks the create button
     end
 
     ---@type df_textentry
@@ -300,13 +454,66 @@ function detailsFramework.SavedVars.CreateProfilePanel(addonObject, frameName, p
     profileNameTextEntry:SetBackdrop(nil)
     profileNameTextEntry:SetJustifyH("left")
     profileNameTextEntry.fontsize = 12
-    detailsFramework:AddRoundedCornersToFrame(profileNameTextEntry, Details.PlayerBreakdown.RoundedCornerPreset)
+    detailsFramework:AddRoundedCornersToFrame(profileNameTextEntry, roundedCornerPreset)
     frame.ProfileNameTextEntry = profileNameTextEntry
 
     ---@type df_button
     local createProfileButton = detailsFramework:CreateButton(frame, function() frame.OnClickCreateNewProfile(frame) end, 100, 32, "Create", false, false, false, "ProfileCreateButton", "$parentCreateProfileButton", buttonTemplate, labelTemplate)
     createProfileButton:SetPoint("left", profileNameTextEntry, "right", 5, 0)
-    detailsFramework:AddRoundedCornersToFrame(createProfileButton, Details.PlayerBreakdown.RoundedCornerPreset)
+    detailsFramework:AddRoundedCornersToFrame(createProfileButton, roundedCornerPreset)
+
+    --delete profile section
+    ---@type fontstring
+    local deleteProfileLabel = frame:CreateFontString(nil, "overlay", "GameFontNormal")
+    deleteProfileLabel:SetPoint("topleft", profileNameTextEntry.widget, "bottomleft", 0, -15)
+    deleteProfileLabel:SetText("Delete Profile")
+
+    local onDeleteProfileDropdownCallback = function()
+        return frame.DeleteProfileDropdown.Options or {}
+    end
+
+    ---@type df_dropdown
+    local deleteProfileDropdown = detailsFramework:CreateDropDown(frame, onDeleteProfileDropdownCallback, 1, 180, 32, "DeleteProfileDropdown", "$parentDeleteProfileDropdown", dropdownTemplate)
+    deleteProfileDropdown:SetPoint("topleft", deleteProfileLabel, "bottomleft", 0, -5)
+    deleteProfileDropdown:SetBackdrop(nil)
+    deleteProfileDropdown:SetEmptyTextAndIcon("Select a profile to delete...", [[Interface\CHATFRAME\UI-ChatIcon-BlizzardArcadeCollection]])
+    deleteProfileDropdown:SetNoOptionsText("No profiles to delete")
+    detailsFramework:AddRoundedCornersToFrame(deleteProfileDropdown, roundedCornerPreset)
+    frame.DeleteProfileDropdown = deleteProfileDropdown
+
+    ---@type df_button
+    local deleteProfileButton = detailsFramework:CreateButton(frame, function() frame.OnClickDeleteProfile(frame) end, 100, 32, "Delete", false, false, false, "ProfileDeleteButton", "$parentDeleteProfileButton", buttonTemplate, labelTemplate)
+    deleteProfileButton:SetPoint("left", deleteProfileDropdown.widget, "right", 5, 0)
+    detailsFramework:AddRoundedCornersToFrame(deleteProfileButton, roundedCornerPreset)
+
+    --notification shown below the delete profile dropdown; mirrors the change-profile notification (2.5s, white)
+    ---@type df_errorlabel
+    local profileDeletedNotificationLabel = detailsFramework:CreateErrorLabel(frame, "", 12, "white")
+    profileDeletedNotificationLabel:SetPoint("top", deleteProfileDropdown.widget, "bottom", 0, -10)
+    profileDeletedNotificationLabel.ShowErrorMsg = function(self, text)
+        --if the same text is already being shown, let the running animation finish
+        if (self.HideTimer and text and self:GetText() == text) then
+            return
+        end
+        --interrupt any in-flight display so the new text appears immediately
+        if (self.HideTimer) then
+            self.HideTimer:Cancel()
+            self.HideTimer = nil
+        end
+        if (self.fadeOutAnimationHub:IsPlaying()) then
+            self.fadeOutAnimationHub:Stop()
+        end
+        self.fadeInAnimationHub:Play()
+        if (text) then
+            self:SetText(text)
+        end
+        self:PlayFrameShake(self.shake)
+        self.HideTimer = C_Timer.NewTimer(2.5, function()
+            self.fadeOutAnimationHub:Play()
+            self.HideTimer = nil
+        end)
+    end
+    frame.ProfileDeletedNotificationLabel = profileDeletedNotificationLabel
 
     frame:SetScript("OnShow", function()
         detailsFramework.SavedVars.RefreshProfilePanel(frame)

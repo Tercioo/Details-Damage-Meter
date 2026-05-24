@@ -30,7 +30,7 @@ local is_exception = {
 	["nick_tag_cache"] = true
 }
 
-function Details:SaveLocalInstanceConfig()
+function Details222.SaveVariables.SaveLocalInstanceConfig()
 	for index, instance in Details:ListInstances() do
 		--check for the max size toggle, don't save it
 		if (instance.is_in_max_size) then
@@ -81,14 +81,27 @@ end
 --function Details:SaveConfig()
 function Details222.SaveVariables.SaveConfig()
 	--save character instance settings, e.g. which attribute is selected, position, etc
-	Details:SaveLocalInstanceConfig()
+	Details222.SaveVariables.SaveLocalInstanceConfig()
 
 	for index, instance in Details:ListInstances() do
 		instance.savedSegmentCombat = nil
 	end
 
 	--cleanup
-	Details:PrepareTablesForSave()
+	Details222.SaveVariables.PrepareTablesForSave()
+
+	--query keystone info for alts
+	Details.keystone_alts_cache.logs = nil
+	pcall(function()
+		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+		if (openRaidLib and C_MythicPlus and C_PlayerInfo and C_MythicPlus.GetOwnedKeystoneLevel) then
+			local keystoneTable = {}
+			openRaidLib.KeystoneInfoManager.UpdatePlayerKeystoneInfo(keystoneTable)
+			if keystoneTable.level and keystoneTable.level > 0 then
+				Details.keystone_alts_cache[UnitName("player")] = keystoneTable
+			end
+		end
+	end)
 
 	_detalhes_database.tabela_instancias = {} --Details.tabela_instancias --[[instances now saves only inside the profile --]]
 	_detalhes_database.tabela_historico = Details.tabela_historico

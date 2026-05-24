@@ -1144,6 +1144,7 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 
 	--the legacy switch visual (thumb + ON/OFF text) is no longer used; every switch is rendered as a checkbox
 	slider:SetAsCheckBox()
+	slider:SetTemplate("OPTIONS_CHECKBOX_TEMPLATE")
 
 	return slider, with_label
 end

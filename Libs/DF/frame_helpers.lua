@@ -350,14 +350,42 @@ local snapMakeAbsolute = function(frame)
     frame:SetPoint("bottomleft", UIParent, "bottomleft", left * scale, bottom * scale)
 end
 
---re-applies the SetPoint chain for an entire cluster as a spanning tree rooted at rootData.
---the root keeps an absolute point to UIParent; every other member is single-point anchored at the
---midpoint of its connecting side to the neighbour it was first reached from, AND has its
---perpendicular dimension (height for left/right snaps, width for top/bottom snaps) explicitly set
---to the parent's. matching the perpendicular dimension makes the connecting edge flush at both
---ends (top AND bottom for a side snap) while still using a single anchor per child, so cluster
---drag through StartMoving still propagates correctly. links that would close a cycle are ignored
---for anchoring, which guarantees there are never recursive or broken point chains.
+--module-level re-entrancy guard: TRUE while we're inside snapApplyAnchor (i.e. doing our own
+--ClearAllPoints/SetHeight/SetPoint to wire up the chain). the resize hooks installed by
+--RegisterFrame check this flag and skip propagation when set, because the SetHeight/SetWidth
+--triggered synchronously by hooksecurefunc inside snapApplyAnchor MUST NOT trigger a recursive
+--snapPropagateSize -- doing so would call snapGetRoot before the cluster's isRoot flags have been
+--updated, pick the wrong root, and re-anchor in the opposite direction, creating an anchor cycle
+--("Cannot anchor to a region dependent on it") when the outer SetPoint then tries to complete.
+local snapInternalChain = false
+
+--applies a snap anchor between a child frame and its parent: a single SetPoint at the midpoint of
+--the connecting side, plus an explicit SetHeight/SetWidth that matches the perpendicular dimension
+--to the parent's. used uniformly at rest and during drag, because:
+-- (a) Blizzard's StartMoving propagates position reliably with one anchor per child but not two,
+--     so the cluster has to stay single-anchored to be draggable as a unit.
+-- (b) the explicit SetSize keeps the connecting edges flush at both ends, giving the two-anchor
+--     visual without a second anchor.
+-- live resize propagation through the cluster does NOT come from anchors (the owning addon's
+-- resize logic often calls ClearAllPoints which breaks any anchor chain); it comes from an
+-- OnSizeChanged hook installed by RegisterFrame, see snapPropagateSize below.
+local snapApplyAnchor = function(childFrame, parentFrame, childSide, parentSide)
+    snapInternalChain = true
+
+    childFrame:ClearAllPoints()
+    if (SNAP_AXIS[childSide] == "x") then
+        childFrame:SetHeight(parentFrame:GetHeight())
+    else
+        childFrame:SetWidth(parentFrame:GetWidth())
+    end
+    childFrame:SetPoint(childSide, parentFrame, parentSide, 0, 0)
+
+    snapInternalChain = false
+end
+
+--re-applies the SetPoint chain for an entire cluster as a spanning tree rooted at rootData. every
+--non-root member gets the single-anchor + SetSize-matched form. links that would close a cycle
+--are ignored for anchoring, which guarantees there are never recursive or broken point chains.
 local snapRebuildCluster = function(rootData)
     local rootFrame = rootData.Frame
 
@@ -382,17 +410,7 @@ local snapRebuildCluster = function(rootData)
                 --find the child's own link pointing back at this parent and use it to anchor the child
                 for childSide, childLink in pairs(childData.links) do
                     if (childLink.Target == parentFrame) then
-                        --match the perpendicular dimension first so the midpoint anchor below lands
-                        --the child's vertical (or horizontal) midpoint on the parent's, giving flush
-                        --alignment at both ends of the connecting side without needing a 2nd anchor.
-                        if (SNAP_AXIS[childLink.mySide] == "x") then
-                            childFrame:SetHeight(parentFrame:GetHeight())
-                        else
-                            childFrame:SetWidth(parentFrame:GetWidth())
-                        end
-
-                        childFrame:ClearAllPoints()
-                        childFrame:SetPoint(childLink.mySide, parentFrame, childLink.theirSide, childLink.offsetX, childLink.offsetY)
+                        snapApplyAnchor(childFrame, parentFrame, childLink.mySide, childLink.theirSide)
                         break
                     end
                 end
@@ -414,6 +432,109 @@ local snapGetRoot = function(frameData)
         end
     end
     return frameData
+end
+
+--BFS from originData restricted to links of a single axis ("x" or "y"); returns true when targetData
+--is reachable through the axis-only path. used by snapPropagateSize to decide whether the resized
+--frame's new dimension should be pushed onto the cluster root.
+local snapReachesByAxis = function(originData, targetData, axis)
+    if (originData == targetData) then
+        return true
+    end
+    local visited = {[originData.Frame] = true}
+    local queue = {originData}
+    while (#queue > 0) do
+        local current = table.remove(queue, 1)
+        for side, link in pairs(current.links) do
+            if (SNAP_AXIS[link.mySide] == axis and not visited[link.Target]) then
+                if (link.targetData == targetData) then
+                    return true
+                end
+                visited[link.Target] = true
+                queue[#queue+1] = link.targetData
+            end
+        end
+    end
+    return false
+end
+
+--called from the SetSize/SetHeight/SetWidth/OnSizeChanged hooks installed by RegisterFrame. it does
+--TWO things, in this order:
+--  1. propagates the resized frame's new dimension to the cluster root, if the resized frame can
+--     reach the root through links of the matching axis (height through x-axis, width through y).
+--     this is what lets the user resize ANY group member, not just the root.
+--  2. rebuilds the whole cluster's snap chain via snapApplyAnchor on every non-root member. this is
+--     what KEEPS THE WINDOWS ALIGNED after a resize: the addon owning the frame frequently calls
+--     ClearAllPoints or SetPoint inside its own resize handler, wiping our snap anchors. just
+--     pushing SetSize without re-anchoring leaves the children floating wherever the addon put them.
+--     re-running snapApplyAnchor re-pins each child at its connecting-side midpoint with the parent
+--     and resets the perpendicular SetSize from the parent's now-current value, so the row/column
+--     stays a coherent layout.
+--
+--axis partition for propagation:
+--   * horizontal group = frames reachable from origin via x-axis (left/right) links; height syncs.
+--   * vertical group   = frames reachable from origin via y-axis (top/bottom) links; width syncs.
+-- a frame can belong to both groups independently.
+local snapPropagateSize = function(group, originData)
+    --suppress propagation when we're inside our own anchor work. SetHeight/SetWidth in
+    --snapApplyAnchor fire hooksecurefunc synchronously; re-entering here mid-rebuild picks the
+    --wrong cluster root (because isRoot flags haven't been updated yet) and creates an anchor cycle.
+    if (snapInternalChain) then
+        return
+    end
+    if (group.__syncingSize) then
+        return
+    end
+    --silently no-op if the frame is no longer in the group (hooksecurefunc and HookScript can't be
+    --removed at UnregisterFrame, so they keep firing for the rest of the frame's lifetime).
+    if (not group.framesByObject[originData.Frame]) then
+        return
+    end
+
+    group.__syncingSize = true
+
+    local originFrame = originData.Frame
+    local newHeight = originFrame:GetHeight()
+    local newWidth = originFrame:GetWidth()
+
+    --step 1: push origin's new dimension onto the root if origin is in the matching-axis chain.
+    --otherwise the chain rebuild in step 2 would revert origin back to root's old dimension.
+    local rootData = snapGetRoot(originData)
+    local rootFrame = rootData.Frame
+    if (originData ~= rootData) then
+        if (snapReachesByAxis(originData, rootData, "x") and math.abs(rootFrame:GetHeight() - newHeight) > 0.5) then
+            rootFrame:SetHeight(newHeight)
+        end
+        if (snapReachesByAxis(originData, rootData, "y") and math.abs(rootFrame:GetWidth() - newWidth) > 0.5) then
+            rootFrame:SetWidth(newWidth)
+        end
+    end
+
+    --step 2: re-apply snap anchors for every non-root cluster member. snapApplyAnchor's built-in
+    --SetHeight/SetWidth to parent's value naturally propagates root's (now-updated) dimension to
+    --x-axis siblings as height and to y-axis siblings as width, in a single BFS pass.
+    local visited = {[rootFrame] = true}
+    local queue = {rootData}
+    while (#queue > 0) do
+        local parentData = table.remove(queue, 1)
+        local parentFrame = parentData.Frame
+        for side, link in pairs(parentData.links) do
+            if (not visited[link.Target]) then
+                visited[link.Target] = true
+                local childData = link.targetData
+                local childFrame = link.Target
+                for childSide, childLink in pairs(childData.links) do
+                    if (childLink.Target == parentFrame) then
+                        snapApplyAnchor(childFrame, parentFrame, childLink.mySide, childLink.theirSide)
+                        break
+                    end
+                end
+                queue[#queue+1] = childData
+            end
+        end
+    end
+
+    group.__syncingSize = false
 end
 
 --snapped frames are anchored at the midpoint of their connecting side AND have their perpendicular
@@ -460,6 +581,7 @@ end
 ---@field __dragFrameData snapframedata|nil the frame being dragged right now, if any
 ---@field __dragClusterLookup table|nil lookup of the cluster being dragged (excluded from candidates)
 ---@field __dragElapsed number time accumulator for throttling the proximity scan
+---@field __syncingSize boolean re-entrancy guard for snapPropagateSize OnSizeChanged cascades
 ---@field RegisterFrame fun(self: snapgroup, frame: frame, id: string?)
 ---@field UnregisterFrame fun(self: snapgroup, frame: frame)
 ---@field Unsnap fun(self: snapgroup, frame: frame)
@@ -520,6 +642,28 @@ local snapGroupMixin = {
 
         frame:SetScript("OnDragStop", function(_, ...)
             self:OnFrameDragStop(frameData, ...)
+        end)
+
+        --resize detection uses TWO layers, because either alone isn't reliable enough:
+        --  (a) HookScript("OnSizeChanged", …) catches the event the next render frame. cheap, but
+        --      can be silently lost if the owning addon later calls SetScript("OnSizeChanged", …)
+        --      with its own handler.
+        --  (b) hooksecurefunc on SetSize/SetHeight/SetWidth fires synchronously inside the call.
+        --      hooksecurefunc hooks CANNOT be removed by anything, so they survive whatever the
+        --      addon does to the frame's scripts.
+        --both call snapPropagateSize; the __syncingSize guard in snapPropagateSize coalesces them
+        --so the cluster rebuild only runs once per resize even when both fire.
+        frame:HookScript("OnSizeChanged", function()
+            snapPropagateSize(self, frameData)
+        end)
+        hooksecurefunc(frame, "SetSize", function()
+            snapPropagateSize(self, frameData)
+        end)
+        hooksecurefunc(frame, "SetHeight", function()
+            snapPropagateSize(self, frameData)
+        end)
+        hooksecurefunc(frame, "SetWidth", function()
+            snapPropagateSize(self, frameData)
         end)
 
         --a newly registered frame may complete a relationship described by the saved profile
@@ -589,10 +733,17 @@ local snapGroupMixin = {
         snapMakeAbsolute(frame)
         frameData.isRoot = true
 
-        --each former neighbour may now head its own cluster; rebuild from a fresh root
+        --each former neighbour may now head its own cluster; rebuild from a fresh root.
+        --if a neighbour is now itself solo (the link we just cut was its only one), restore its
+        --pre-snap size too -- otherwise it would stay stretched to the old cluster's matched size.
         for i = 1, #neighbours do
             local neighbourData = neighbours[i]
             if (self.framesByObject[neighbourData.Frame]) then
+                if (neighbourData.originalWidth and next(neighbourData.links) == nil) then
+                    neighbourData.Frame:SetSize(neighbourData.originalWidth, neighbourData.originalHeight)
+                    neighbourData.originalWidth = nil
+                    neighbourData.originalHeight = nil
+                end
                 snapRebuildCluster(snapGetRoot(neighbourData))
             end
         end
@@ -673,11 +824,9 @@ local snapGroupMixin = {
         self.currentCandidate = nil
 
         if (#clusterList > 1) then
-            --multi-frame cluster: re-root the chain on the grabbed frame so the whole tree is
-            --single-point SetPoint-chained to it, then StartMoving it -> the entire cluster follows
-            --the cursor via Blizzard's normal anchor propagation. (single-point anchors propagate
-            --reliably during StartMoving; multi-point anchors do not, which is why the chain has
-            --to stay single-point.)
+            --multi-frame cluster: re-root the chain on the grabbed frame so the whole cluster is
+            --single-point chained to it, then StartMoving it -> the entire cluster follows the
+            --cursor via Blizzard's anchor propagation (single-anchor children propagate reliably).
             snapRebuildCluster(frameData)
             frame:StartMoving()
 

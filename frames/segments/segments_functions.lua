@@ -258,6 +258,7 @@ end
 
 ---@class savedsegmentheader : table
 ---@field name string
+---@field playerName string
 ---@field mythicPlusOverall boolean?
 ---@field mythicPlusLevel number?
 ---@field mythicPlusZoneName string?
@@ -281,6 +282,7 @@ function segmentSelectionMidnight.SaveSegment(combatObject)
         header = {
             date = time(),
             name = segmentName,
+            playerName = Details.playername,
             elapsedTime = combatObject:GetCombatTime(),
             mythicPlusOverall = mythicDungeonInfo and mythicDungeonInfo.OverallSegment,
             mythicPlusLevel = mythicDungeonInfo and mythicDungeonInfo.Level,

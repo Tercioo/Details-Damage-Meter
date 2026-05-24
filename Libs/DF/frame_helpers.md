@@ -134,16 +134,35 @@ Sides are stored lowercase (`"left"`, `"right"`, `"top"`, `"bottom"`) so they ca
 | `"top"` | `"bottom"` | y (vertical touch) |
 | `"bottom"` | `"top"` | y (vertical touch) |
 
-A snap pins the dragged frame at the midpoint of its connecting side **and** explicitly matches its perpendicular dimension to the target's. The dragged frame stretches (or shrinks) so its height (for left/right snaps) or width (for top/bottom snaps) equals the target's. For a `right ↔ left` snap (dragged frame's right side meeting the target's left side):
+A snap pins the dragged frame at the midpoint of its connecting side with a single `SetPoint`, plus an explicit `SetHeight`/`SetWidth` matching the target's perpendicular dimension. For a `right ↔ left` snap:
 
 ```lua
-draggedFrame:SetHeight(targetFrame:GetHeight())            -- match perpendicular dimension
-draggedFrame:SetPoint("right", targetFrame, "left", 0, 0)  -- single midpoint anchor
+draggedFrame:SetHeight(targetFrame:GetHeight())
+draggedFrame:SetPoint("right", targetFrame, "left", 0, 0)
 ```
 
-Because the heights are equal and the anchor is at the vertical midpoint, the top and bottom edges line up flush automatically — you get the "two-anchor flush" visual using only one anchor, which is what keeps cluster drag through `StartMoving` reliable (multi-anchor children don't propagate during a StartMoving drag).
+Because the heights are equal and the anchor is at the vertical midpoint, the top and bottom edges line up flush automatically — the same visual as a two-anchor pin, but using only one anchor. Single-anchor children are also what makes `StartMoving` cluster drag work reliably; two-anchor children fail to propagate during a `StartMoving` drag.
 
-The dragged frame's original size is captured the first time it snaps (and persisted across `/reload`); `Unsnap` / `UnregisterFrame` / `Reset` restore it.
+**Resize propagation** doesn't rely on anchor resolution at all. Addons that own snapped frames routinely call `ClearAllPoints`/`SetPoint` inside their own resize logic, which silently wipes any snap anchor chain we'd built. Instead, `RegisterFrame` installs four hooks on each frame:
+
+- `HookScript("OnSizeChanged", …)` — catches the event next render frame.
+- `hooksecurefunc(frame, "SetSize"/"SetHeight"/"SetWidth", …)` — fires synchronously inside the resize call, and **can't be removed** by anything (in case the addon later overwrites the OnSizeChanged script).
+
+All four feed into the same handler. A `__syncingSize` re-entrancy guard coalesces them so the cluster rebuild only runs once per resize.
+
+The handler does two things, in order:
+
+1. **Propagate the new dimension to the cluster root.** If the resized frame can reach the root through links of the matching axis (height through x-axis links, width through y-axis links), the root's `SetHeight`/`SetWidth` is updated first. Without this, the next step would revert the user's resize back to the root's old dimension.
+2. **Rebuild the snap chain.** Walks the cluster from the root and re-applies the single-anchor + `SetSize`-match form on every non-root member. This both **propagates the size** (each child gets its parent's dimension via `SetHeight`/`SetWidth`) and **re-establishes the anchor** that keeps the row/column aligned — anchors the owning addon may have wiped during its own resize logic are restored every time.
+
+Axis partition:
+
+- **Horizontal group** — frames reachable through x-axis (`left`/`right`) links. Height syncs; top/bottom edges stay flush.
+- **Vertical group** — frames reachable through y-axis (`top`/`bottom`) links. Width syncs; left/right edges stay flush.
+
+A single frame can belong to both groups independently (e.g. snapped `right` to B and `top` to C); each axis's reachability is computed separately, so resizing only the height affects only the horizontal group.
+
+The dragged frame's original size is captured the first time it snaps (and persisted across `/reload`); `Unsnap` / `UnregisterFrame` / `Reset` restore it. A frame that becomes solo as a side-effect of another frame's `Unsnap` is also restored to its captured original size.
 
 ---
 
@@ -186,9 +205,11 @@ Each link is stored in both directions (once on each frame). Offsets are always 
 1. **Registration** — `RegisterFrame` wraps the frame's existing `OnDragStart`/`OnDragStop` scripts so the group can observe every drag without replacing the addon's own drag logic.
 2. **Proximity scan** — While a drag is in progress, a dedicated per-group `UpdateFrame` runs `OnUpdate` throttled by `options.update_interval`. Each tick, every other frame in the group is evaluated against the dragged frame using simple O(1) edge-distance math. All measurements are converted to screen pixels via `GetEffectiveScale()`, so frames living under parents with different scales still compare correctly. Pairings where either frame's connecting side is already occupied by an existing snap link are skipped — that way the scanner never suggests a snap that would overlap a frame already chained on the same edge. Candidates within the primary `snap_distance` are ranked by `primary_gap + perpendicular_center_misalignment` (lower is better), so when two targets share the same connecting edge (e.g. two size-matched frames already snapped side by side), the dragged frame snaps to whichever one its perpendicular center is closer to.
 3. **Preview** — When a candidate is found, two thin colored textures are positioned on the connecting edges of both frames. The preview stays on the same candidate from frame to frame unless another pairing becomes meaningfully closer (`options.hysteresis`), avoiding flicker. When no candidate exists, the glow is cleared immediately.
-4. **Drop** — On `OnDragStop` with an active preview, the dragged frame's perpendicular dimension is matched to the target's via `SetHeight` (for left/right snaps) or `SetWidth` (for top/bottom snaps), and it is anchored at the midpoint of its connecting side via a single `SetPoint` with zero offset. The connecting edges line up flush at both ends. The dragged frame's pre-snap size is captured into its `frameData` (and persisted) so `Unsnap` can restore it later.
-5. **Clusters** — A cluster is the connected component of frames joined by snap links, viewed as a spanning tree rooted at the one member anchored to `UIParent`. When a member is dragged, that member is temporarily promoted to the root for the duration of the drag, so the whole cluster follows the cursor through Blizzard's `StartMoving` and single-point anchor propagation. On drop the cluster is rebuilt; links that would close a cycle are ignored for anchoring, which guarantees there are never recursive or broken point chains.
-6. **Persistence** — After any structural change (snap, unsnap, register, unregister) the group writes its link graph and root positions to `profileTable[groupName]`. `TryRestore` runs after every `RegisterFrame` and idempotently creates links whose two frames are both currently registered, so the saved layout reassembles correctly regardless of registration order.
+4. **Drop** — On `OnDragStop` with an active preview, the dragged frame's pre-snap size is captured (so `Unsnap` can restore it), the link is added, and the merged cluster is rebuilt: each non-root member is anchored at the midpoint of its connecting side and explicitly `SetHeight`/`SetWidth`'d to match its neighbour, giving flush alignment at both ends.
+5. **Clusters** — A cluster is the connected component of frames joined by snap links, viewed as a spanning tree rooted at the one member anchored to `UIParent`. Every non-root member is single-point anchored to its parent in the tree, with an explicit `SetSize`-matched perpendicular dimension. When a member is grabbed, the cluster is re-rooted on the grabbed frame so the whole tree follows through Blizzard's `StartMoving` anchor propagation. Links that would close a cycle are ignored when the cluster is rebuilt, so there are never recursive or broken point chains.
+
+6. **Live resize propagation** — `RegisterFrame` installs four hooks on each frame: `HookScript("OnSizeChanged", …)` plus `hooksecurefunc` on `SetSize`, `SetHeight`, and `SetWidth`. All four feed into the same handler, which (a) pushes the resized frame's dimension onto the cluster root if reachable through axis-matching links, then (b) rebuilds the whole cluster's snap chain — re-`SetSize`'ing each child to its parent's dimension AND re-applying its midpoint anchor. The second step is what preserves vertical/horizontal alignment after a resize: the owning addon frequently calls `ClearAllPoints` inside its resize logic, which would otherwise leave the frames floating wherever the addon last positioned them. Re-anchoring on every resize keeps the row/column visually coherent. The `__syncingSize` re-entrancy guard coalesces the four hooks and prevents cascades.
+7. **Persistence** — After any structural change (snap, unsnap, register, unregister) the group writes its link graph and root positions to `profileTable[groupName]`. `TryRestore` runs after every `RegisterFrame` and idempotently creates links whose two frames are both currently registered, so the saved layout reassembles correctly regardless of registration order.
 
 ---
 

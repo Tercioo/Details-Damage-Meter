@@ -151,7 +151,7 @@ function Details:ResetSpecCache(forced)
                 if (type(playerSpec) == "number") then
                     local specId = DetailsFramework.GetSpecializationInfo(playerSpec)
                     if (type(specId) == "number") then
-                        local playerGuid = UnitGUID(Details.playername)
+                        local playerGuid = UnitGUID("player")
                         if (playerGuid) then
                             Details.cached_specs[playerGuid] = specId
                         end

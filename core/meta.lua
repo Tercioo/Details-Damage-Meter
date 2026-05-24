@@ -624,7 +624,7 @@ local classTypeUtility = Details.atributos.misc
 	end
 
 	--limpa indexes e metatables
-	function Details:PrepareTablesForSave()
+	function Details222.SaveVariables.PrepareTablesForSave()
 		Details.clear_ungrouped = true
 
 		--clear instances

@@ -255,7 +255,7 @@ function Details:ApplyProfile(profileName, bNoSave, bIsCopy)
 
 	--apply the skin
 		--first save the local instance configs
-		Details:SaveLocalInstanceConfig()
+		Details222.SaveVariables.SaveLocalInstanceConfig()
 
 		local saved_skins = profile.instances
 		local instance_limit = Details.instances_amount
@@ -554,7 +554,7 @@ function Details:SaveProfile (saveas)
 		end
 	end
 	Details.do_not_save_skins = nil
-	Details:SaveLocalInstanceConfig()
+	Details222.SaveVariables.SaveLocalInstanceConfig()
 
 	return profile
 end
@@ -1491,6 +1491,7 @@ local default_global_data = {
 
 	--keystone cache
 		keystone_cache = {},
+		keystone_alts_cache = {},
 
 	--all switch settings (panel shown when right click the title bar)
 		all_switch_config = {
@@ -1988,6 +1989,7 @@ local exportProfileBlacklist = {
 	installed_skins_cache = true,
 	trinket_data = true,
 	keystone_cache = true,
+	keystone_alts_cache = true,
 	performance_profiles = true,
 	coach = true,
 	apocalypse_savedsegments = true,
