@@ -153,47 +153,71 @@ local buildGroupedSpellDisplayData = function(spellScroll, spellData)
     local groupsByName = {}
     ---@type table[]
     local groups = {}
+    --spells whose name is a secret value cannot be grouped (there is no readable key to match on); they are shown as-is
+    ---@type table[]
+    local standaloneRows = {}
 
     for i = 1, #spellData do
         local spellRow = spellData[i]
         local groupKey = spellRow.name or ("unknown_" .. i)
-        local group = groupsByName[groupKey]
-        if (not group) then
-            group = {
-                groupKey = groupKey,
-                name = spellRow.name,
-                icon = spellRow.icon,
-                spellID = spellRow.spellID,
-                data = spellRow.data,
-                maxAmount = spellRow.maxAmount or 0,
-                amount = 0,
-                dps = 0,
-                percent = 0,
-                hasPercent = false,
-                children = {},
-            }
-            groupsByName[groupKey] = group
-            groups[#groups + 1] = group
-        end
 
-        group.children[#group.children + 1] = spellRow
-        group.amount = group.amount + (spellRow.amount or 0)
-        group.dps = group.dps + (spellRow.dps or 0)
-        group.maxAmount = math.max(group.maxAmount, spellRow.maxAmount or 0)
+        --the spell name is a secret value: it cannot be used as a table key (indexing errors) and there is no
+        --readable name to match other spells against, so there is no group to build. Show the spell on its own row.
+        if (issecretvalue(groupKey)) then
+            standaloneRows[#standaloneRows + 1] = spellRow
+        else
 
-        if (type(spellRow.percent) == "number") then
-            group.percent = group.percent + spellRow.percent
-            group.hasPercent = true
-        end
+            --the spell name has the casting pet's icon and name appended as a colored escape
+            --(formatPetName builds "SpellName |cAARRGGBB|Ticon|t PetName|r"). Strip from that first " |c"
+            --so the same spell cast by different pets collapses into one group instead of one row per pet.
+            local petInfoStart = string.find(groupKey, " |c", 1, true)
+            if (petInfoStart) then
+                groupKey = string.sub(groupKey, 1, petInfoStart - 1)
+            end
 
-        if (not group.data) then
-            group.data = spellRow.data
-        end
-        if (not group.icon) then
-            group.icon = spellRow.icon
-        end
-        if (not group.spellID) then
-            group.spellID = spellRow.spellID
+            --label shown on the grouped (parent) row: the clean spell name plus the pet's icon texture, but
+            --without the pet name. The expanded child rows keep the full name so the individual pets stay distinguishable.
+            local petIcon = spellRow.name and string.match(spellRow.name, "|T.-|t")
+            local groupDisplayName = petIcon and (groupKey .. " " .. petIcon) or groupKey
+
+            local group = groupsByName[groupKey]
+            if (not group) then
+                group = {
+                    groupKey = groupKey,
+                    name = groupDisplayName,
+                    icon = spellRow.icon,
+                    spellID = spellRow.spellID,
+                    data = spellRow.data,
+                    maxAmount = spellRow.maxAmount or 0,
+                    amount = 0,
+                    dps = 0,
+                    percent = 0,
+                    hasPercent = false,
+                    children = {},
+                }
+                groupsByName[groupKey] = group
+                groups[#groups + 1] = group
+            end
+
+            group.children[#group.children + 1] = spellRow
+            group.amount = group.amount + (spellRow.amount or 0)
+            group.dps = group.dps + (spellRow.dps or 0)
+            group.maxAmount = math.max(group.maxAmount, spellRow.maxAmount or 0)
+
+            if (type(spellRow.percent) == "number") then
+                group.percent = group.percent + spellRow.percent
+                group.hasPercent = true
+            end
+
+            if (not group.data) then
+                group.data = spellRow.data
+            end
+            if (not group.icon) then
+                group.icon = spellRow.icon
+            end
+            if (not group.spellID) then
+                group.spellID = spellRow.spellID
+            end
         end
     end
 
@@ -229,6 +253,11 @@ local buildGroupedSpellDisplayData = function(spellScroll, spellData)
             isExpanded = isExpanded,
             children = group.children,
         }
+    end
+
+    --secret-named spells have no group; add them straight to the list as standalone (non-expandable) rows
+    for i = 1, #standaloneRows do
+        parentRows[#parentRows + 1] = standaloneRows[i]
     end
 
     sortRowsByKeyAndOrder(parentRows, sortKey, sortOrder)

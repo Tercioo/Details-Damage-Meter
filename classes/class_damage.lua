@@ -3476,10 +3476,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond), nil, format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = -1 --only show total
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond), nil, nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
 				--percentNumber = math.floor((dps/instanceObject.top) * 100)
 			end
 

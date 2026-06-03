@@ -1768,6 +1768,10 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     jumpToNextLine = false
                 end
 
+                if languageAddonId and widgetCreated then
+                    widgetCreated.__languageAddonId = languageAddonId
+                end
+
                 if (widgetTable.nocombat) then
                     table.insert(widgetsToDisableOnCombat, widgetCreated)
                 end
@@ -2161,6 +2165,10 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 widgetCreated = groupFrame
                 setWidgetId(parent, widgetTable, groupFrame)
                 jumpToNextLine = false
+            end
+
+            if languageAddonId and widgetCreated then
+                widgetCreated.__languageAddonId = languageAddonId
             end
 
             if (widgetTable.nocombat) then

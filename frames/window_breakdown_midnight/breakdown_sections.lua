@@ -212,6 +212,15 @@ local createLine = function(self, index) --~line
     line.ExpandTexture:SetPoint("center", line.ExpandButton, "center", 0, 0)
     line.ExpandTexture:SetAlpha(0.8)
 
+    --clicking anywhere on the line acts like clicking its ExpandButton, but only while that button is shown
+    --(i.e. an expandable spell group). a click toggles the group open; clicking again closes it. sections that
+    --need their own click behavior (players/segments/compare) override this OnClick in their refresh functions.
+    line:SetScript("OnClick", function(clickedLine)
+        if (clickedLine.ExpandButton:IsShown()) then
+            clickedLine.ExpandButton:Click()
+        end
+    end)
+
     local highlight = line.IconFrame:CreateTexture("$parentHighlight", "highlight")
     highlight:SetAllPoints()
     highlight:SetColorTexture(1, 1, 1, 0.1)
