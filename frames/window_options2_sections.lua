@@ -7665,6 +7665,19 @@ do
         end
 
         local sectionOptions = {
+            {type = "label", get = function() return "Combatlog.txt:" end, text_template = subSectionTitleTextTemplate},
+            {
+                type = "toggle",
+                get = function() return Details.auto_combatlog end,
+                set = function(self, fixedparam, value)
+                    Details.auto_combatlog = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_AUTO_COMBATLOG"],
+                desc = Loc ["STRING_OPTIONS_AUTO_COMBATLOG_DESC"],
+            },
+            {type = "blank"},
+
             {type = "label", get = function() return "Death Log Options:" end, text_template = subSectionTitleTextTemplate},
             {--reverse death logs
                 type = "toggle",

@@ -1199,6 +1199,8 @@ local default_player_data = {
 			last_coach_name = false,
 		},
 
+		auto_combatlog = false,
+
 		apocalypse_savedsegments = {},
 
 		arena_data_headers = {},
