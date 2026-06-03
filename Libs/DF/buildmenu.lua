@@ -328,6 +328,7 @@ local processLabelIcon = function(label, widgetTable, languageTable, textTemplat
 
     local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon, languageAddonId)
 
+    local iconString = ""
     if widgetTable.icontexture then
         local tc = widgetTable.iconcoords or {.1, .9, .1, .9}
         local fileSize = widgetTable.iconfilesize or {64, 64}
@@ -337,10 +338,17 @@ local processLabelIcon = function(label, widgetTable, languageTable, textTemplat
         local bAddSpace = true
         local bAddAfterText = false
 
-        namePhrase = detailsFramework:AddTextureToText(namePhrase, detailsFramework:CreateTextureInfo(widgetTable.icontexture, iconSize[1], iconSize[2], tc[1], tc[2], tc[3], tc[4], fileSize[1], fileSize[2]), bAddSpace, bAddAfterText)
+        namePhrase, iconString = detailsFramework:AddTextureToText(namePhrase, detailsFramework:CreateTextureInfo(widgetTable.icontexture, iconSize[1], iconSize[2], tc[1], tc[2], tc[3], tc[4], fileSize[1], fileSize[2]), bAddSpace, bAddAfterText)
     end
 
-    label.text = namePhrase
+    label.__iconString = iconString
+    label.__iconStringBefore = true
+    if label.widget then
+        label.widget.__iconString = iconString
+        label.widget.__iconStringBefore = true
+    end
+
+    label:SetText(namePhrase)
 end
 
 --control the highlight color, if true, use color one, if false, use color two
