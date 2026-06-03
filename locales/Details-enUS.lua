@@ -1287,6 +1287,8 @@ L["STRING_OPTIONS_TOOLBARSIDE_DESC"] = [=[Places the title bar on the top of the
 
 |cFFFFFF00Important|r: when alternating the position, title text won't change, check out |cFFFFFF00Title Bar: Text|r section for more options.]=]
 L["STRING_OPTIONS_TOOLS_ANCHOR"] = "Tools:"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Disable Tooltips"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Disable tooltips for the selected window."
 L["STRING_OPTIONS_TOOLTIP_ANCHOR"] = "Settings:"
 L["STRING_OPTIONS_TOOLTIP_ANCHORTEXTS"] = "Texts:"
 L["STRING_OPTIONS_TOOLTIPS_ABBREVIATION"] = "Abbreviation Type"

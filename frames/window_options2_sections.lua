@@ -5139,6 +5139,20 @@ do
                 disableif = function() return Details.tooltip.apocalypse_width_useline and true end,
             },
 
+            {type = "breakline"},
+            {type = "label", get = function() return Loc ["STRING_OPTIONS_ADVANCED"] end, text_template = subSectionTitleTextTemplate},
+
+            --toogle to not show tooltips at all (line_no_tooltip)
+            {--disable tooltips
+                type = "toggle",
+                get = function() return currentInstance.line_no_tooltip end,
+                set = function(self, fixedparam, value)
+                    currentInstance.line_no_tooltip = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_TOOLTIPS_DISABLE"],
+                desc = Loc ["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"],
+            },
         }
 
         sectionFrame.sectionOptions = sectionOptions
