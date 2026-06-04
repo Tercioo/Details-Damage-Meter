@@ -1,4 +1,4 @@
-## Interface: 50503
+## Interface: 50504
 ## Title: Details!: Storage
 ## Notes: Stores information for Details! Damage Meter
 ## DefaultState: Enabled
