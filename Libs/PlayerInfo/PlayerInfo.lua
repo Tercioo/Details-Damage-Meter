@@ -449,16 +449,16 @@ local registerComm = function()
             local encodedData = text
 
             --decode
-            local dataDecoded = C_EncodingUtil.DecodeBase64(encodedData)
-            if (not dataDecoded) then
-                print(red("problem decoding base64 from player:"), sender, "data:", text)
+            local okay, dataDecoded = pcall(C_EncodingUtil.DecodeBase64, encodedData)
+            if (not okay) then
+                --print(red("problem decoding base64 from player:"), sender, "data:", text)
                 return nil
             end
 
             --decompress
-            local dataString = C_EncodingUtil.DecompressString(dataDecoded, Enum.CompressionMethod.Deflate)
-            if (not dataString) then
-                print(red("UncompressedRun(dataDecoded): C_EncodingUtil.DecompressString failed"), "from player:", sender, "data:", text)
+            local okay, dataString = pcall(C_EncodingUtil.DecompressString, dataDecoded, Enum.CompressionMethod.Deflate)
+            if (not okay) then
+                --print(red("UncompressedRun(dataDecoded): C_EncodingUtil.DecompressString failed"), "from player:", sender, "data:", text)
                 return nil
             end
 

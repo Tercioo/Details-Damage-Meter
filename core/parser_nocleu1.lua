@@ -585,6 +585,10 @@ end
 ---@return string|nil amountDoneField
 ---@return string|nil classField
 local isServerSideSessionOpen = function(segmentId)
+    if Details222.Apocalypse.IsServerInCombat(true) then
+        return true
+    end
+
     if segmentId then
         for combatType = 0, CONST_MAX_DAMAGEMETER_TYPES do
             local isSecret, nameSecret, guidSecret, amountDoneSecret, classSecret = containerIsOpen(segmentId, combatType)
