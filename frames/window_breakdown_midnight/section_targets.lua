@@ -79,6 +79,12 @@ function breakdownMidnight.TargetsScrollInit(sectionFrame, windowFrame)
 
     ---@param thisTargetsScroll detailsbreakdownmidnight_sectionscroll
     targetsScroll.RefreshMe = function(thisTargetsScroll)
+        if Details222.Apocalypse.IsServerInCombat(true) then
+            thisTargetsScroll:SetData({})
+            thisTargetsScroll:Refresh()
+            return
+        end
+
         local targetsData, headerLabels = breakdownMidnight.GenerateTargetsData(windowFrame)
         if targetsData then
             breakdownMidnight.UpdateSectionHeader(windowFrame, sectionIds.Targets, headerLabels)
