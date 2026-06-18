@@ -935,10 +935,14 @@ end
 function encounterDetails:OnEvent(self, event, ...)
 	if (event == "ENCOUNTER_START") then
 		--tracks if a enemy spell is instant cast
-		encounterDetails.CLEvents:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		if not DetailsFramework.IsAddonApocalypseWow() then
+			encounterDetails.CLEvents:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		end
 
 	elseif (event == "ENCOUNTER_END") then
-		encounterDetails.CLEvents:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		if not DetailsFramework.IsAddonApocalypseWow() then
+			encounterDetails.CLEvents:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		end
 
 	elseif (event == "ADDON_LOADED") then
 		local addonName = select(1, ...)

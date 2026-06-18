@@ -1645,6 +1645,380 @@ Enum = {
 }
 
 
+---@class encounterwarning_payload : table
+---@field shouldShowChatMessage boolean
+---@field shouldShowWarning boolean
+---@field shouldPlaySound boolean
+---@field severity number
+---@field duration number
+---@field color string
+---@field text string secret
+---@field isDeadly boolean secret
+---@field iconFileID number secret
+---@field targetName string  secret
+---@field targetGUID string secret
+---@field casterName string  secret
+---@field casterGUID string secret
+---@field tooltipSpellID number secret
+
+
+EncounterTimelineEventConstants = {
+    ENCOUNTER_TIMELINE_INVALID_EVENT = 0,
+    ENCOUNTER_TIMELINE_RESERVED_EVENT_COUNT = 40,
+}
+
+EncounterTimelineIconMasks = {
+    EncounterTimelineTankAlertIcons = TankRole,
+    EncounterTimelineHealerAlertIcons = HealerRole,
+    EncounterTimelineDamageAlertIcons = DpsRole,
+    EncounterTimelineDeadlyIcons = DeadlyEffect,
+    EncounterTimelineDispelIcons = 124,
+    EncounterTimelineEnrageIcons = EnrageEffect,
+    EncounterTimelineAllIcons = 1023,
+    EncounterTimelineRoleIcons = 896,
+    EncounterTimelineOtherIcons = 127,
+    EncounterTimelineNoIcons = 0,
+}
+
+---@alias DurationSeconds number
+---@alias EncounterTimelineEventID number
+---@alias fileID number
+---@alias stringView string
+---@alias EncounterEventIconmask string|number
+
+---@class C_EncounterTimeline : table
+C_EncounterTimeline = {}
+
+--- Adds a predefined set of events to the timeline for display in Edit Mode.
+--- @param loopTimerDuration DurationSeconds
+--- @return DurationSeconds loopTimerDuration
+function C_EncounterTimeline.AddEditModeEvents(loopTimerDuration) return loopTimerDuration end
+
+--- Adds a custom event to the timeline.
+--- @param eventInfo EncounterTimelineScriptEventRequest
+--- @return EncounterTimelineEventID eventID
+function C_EncounterTimeline.AddScriptEvent(eventInfo) return 0 end
+
+--- Cancels all custom timeline events, removing them from the timeline.
+function C_EncounterTimeline.CancelAllScriptEvents() end
+
+--- Removes all Edit Mode events from the timeline.
+function C_EncounterTimeline.CancelEditModeEvents() end
+
+--- Cancels a custom timeline event, removing it from the timeline.
+--- @param eventID EncounterTimelineEventID
+function C_EncounterTimeline.CancelScriptEvent(eventID) end
+
+--- Finishes a custom timeline event, removing it from the timeline.
+--- @param eventID EncounterTimelineEventID
+function C_EncounterTimeline.FinishScriptEvent(eventID) end
+
+--- Returns the current timestamp used for rendering the timeline display.
+--- @return DurationSeconds currentTime
+function C_EncounterTimeline.GetCurrentTime() return 0 end
+
+--- Returns the number of present events in the timeline by their source type.
+--- @param source EncounterTimelineEventSource
+--- @return number count
+function C_EncounterTimeline.GetEventCountBySource(source) return 0 end
+
+--- Returns the duration at which timeline events will be highlighted for imminency.
+--- @return DurationSeconds highlightTime
+function C_EncounterTimeline.GetEventHighlightTime() return 0 end
+
+--- Returns information about a timeline event. This data is generally expected to be static for the lifetime of an event.
+--- @param eventID EncounterTimelineEventID
+--- @return EncounterTimelineEventInfo info
+function C_EncounterTimeline.GetEventInfo(eventID) return {} end
+
+--- Returns an unsorted list of event IDs present in the timeline.
+--- @return table events
+function C_EncounterTimeline.GetEventList() return {} end
+
+--- Returns the current state of a timeline event.
+--- @param eventID EncounterTimelineEventID
+--- @return EncounterTimelineEventState state
+function C_EncounterTimeline.GetEventState(eventID) return 0 end
+
+--- Returns the elapsed duration of a timeline event.
+--- @param eventID EncounterTimelineEventID
+--- @return DurationSeconds timeElapsed
+function C_EncounterTimeline.GetEventTimeElapsed(eventID) return 0 end
+
+--- Returns the remaining duration of a timeline event.
+--- @param eventID EncounterTimelineEventID
+--- @return DurationSeconds timeRemaining
+function C_EncounterTimeline.GetEventTimeRemaining(eventID) return 0 end
+
+--- Returns a Duration object that tracks the elapsed duration of a timeline event. This object tracks the range [0, duration] of the event and automatically pauses its progression based on event state.
+--- @param eventID EncounterTimelineEventID
+--- @return LuaDurationObject duration
+function C_EncounterTimeline.GetEventTimer(eventID) return nil end
+
+--- Returns information about the position of an event on the timeline.
+--- @param eventID EncounterTimelineEventID
+--- @return EncounterTimelineTrack track
+--- @return luaIndex trackSortIndex
+function C_EncounterTimeline.GetEventTrack(eventID) return 0, nil end
+
+--- Returns a sorted list of event IDs present in the timeline from shortest to longest remaining durations, meeting the requirements of the specified filters.
+--- @param maxEventCount number
+--- @param maxEventDuration DurationSeconds
+--- @param excludeTerminalStates boolean
+--- @param excludeHiddenEvents boolean
+--- @return table events
+function C_EncounterTimeline.GetSortedEventList(maxEventCount, maxEventDuration, excludeTerminalStates, excludeHiddenEvents) return {} end
+
+--- Returns information for a single timeline track.
+--- @param track EncounterTimelineTrack
+--- @return EncounterTimelineTrackInfo trackInfo
+function C_EncounterTimeline.GetTrackInfo(track) return {} end
+
+--- Returns information about all timeline tracks.
+--- @return table tracks
+function C_EncounterTimeline.GetTrackList() return {} end
+
+--- Returns the maximum permitted event duration on a single timeline track.
+--- @param track EncounterTimelineTrack
+--- @return DurationSeconds maxEventDuration
+function C_EncounterTimeline.GetTrackMaxEventDuration(track) return 0 end
+
+--- Returns the type of a single timeline track.
+--- @param track EncounterTimelineTrack
+--- @return EncounterTimelineTrackType trackType
+function C_EncounterTimeline.GetTrackType(track) return 0 end
+
+--- Returns the current view type of the timeline.
+--- @return EncounterTimelineViewType viewType
+function C_EncounterTimeline.GetViewType() return 0 end
+
+--- Returns true if the timeline contains any events in the active state.
+--- @return boolean hasActiveEvents
+function C_EncounterTimeline.HasActiveEvents() return true end
+
+--- Returns true if the timeline contains any events in any state.
+--- @return boolean hasAnyEvents
+function C_EncounterTimeline.HasAnyEvents() return true end
+
+--- Returns true if the timeline contains any events in the paused state.
+--- @return boolean hasPausedEvents
+function C_EncounterTimeline.HasPausedEvents() return true end
+
+--- Returns true if the timeline contains any events that are on visible tracks.
+--- @return boolean hasVisibleEvents
+function C_EncounterTimeline.HasVisibleEvents() return true end
+
+--- Returns true if the event is in a 'blocked' state, where the cast for this event may not occur due to encounter conditions not being met.
+--- @param eventID EncounterTimelineEventID
+--- @return boolean blocked
+function C_EncounterTimeline.IsEventBlocked(eventID) return true end
+
+--- Returns true if the encounter timeline feature is available on this client.
+--- @return boolean isAvailable
+function C_EncounterTimeline.IsFeatureAvailable() return true end
+
+--- Returns true if the encounter timeline feature has been enabled by the player. This function will always return false if the feature is not available.
+--- @return boolean isAvailableAndEnabled
+function C_EncounterTimeline.IsFeatureEnabled() return true end
+
+--- Pauses a custom timeline event, hiding it from the timeline. A paused event can later be resumed to show it again, or canceled.
+--- @param eventID EncounterTimelineEventID
+function C_EncounterTimeline.PauseScriptEvent(eventID) end
+
+--- Resumes a custom timeline event, showing it on the timeline again if it is currently paused.
+--- @param eventID EncounterTimelineEventID
+function C_EncounterTimeline.ResumeScriptEvent(eventID) end
+
+--- Updates a given vector of texture objects to reference art assets for icons associated with an event.
+--- @param eventID EncounterTimelineEventID
+--- @param includeIcons EncounterEventIconmask
+--- @param textures table
+function C_EncounterTimeline.SetEventIconTextures(eventID, includeIcons, textures) end
+
+--- Changes the view type for the timeline. This adjusts track layouts to be more appropriate for a specific mode and optimizes event processing.
+--- @param viewType EncounterTimelineViewType
+function C_EncounterTimeline.SetViewType(viewType) end
+
+---@class encountertimeline_eventsortdirection : table
+---@field Descending number 0 Events are sorted in descending order (longest time remaining to shortest).
+---@field Ascending number 1 Events are sorted in ascending order (shortest time remaining to longest).
+
+---@class encountertimeline_eventsource : table
+---@field Encounter number 0 Source used for events added by an instance encounter.
+---@field Script number 1 Source used for events added by Lua scripting APIs. This is used to apply API restrictions; the Pause/Cancel/ResumeScriptEvent functions only work on Script events.
+---@field EditMode number 2 Source used for events added by the AddEditModeEvents script API.
+
+---@class encountertimeline_eventstate : table
+---@field Active number 0
+---@field Paused number 1
+---@field Finished number 2
+---@field Canceled number 3
+
+---@class encountertimeline_iconset : table
+---@field TankAlert number 1
+---@field HealerAlert number 2
+---@field DamageAlert number 3
+---@field Deadly number 4
+---@field Dispel number 5
+---@field Enrage number 6
+
+---@class encountertimeline_track : table
+---@field Queued number 0
+---@field Short number 1 This track always has a zero minimum duration.
+---@field Medium number 2
+---@field Long number 3
+---@field Indeterminate number 4 This track is used as a placeholder for events whose position is not calculated and shouldn't appear on the timeline.
+
+---@class encountertimeline_tracktype : table
+---@field Hidden number 0
+---@field Sorted number 1
+---@field Linear number 2
+
+---@class encountertimeline_viewtype : table
+---@field None number 0 Configures the view for an empty timeline display. This mode is recommended for user addons that take full control of the timeline display.
+---@field Timeline number 1 Configures the view for a linear timeline display.
+---@field Bars number 2 Configures the view for a sorted timer bar display.
+
+---@class encountertimeline_eventconstants : table
+---@field ENCOUNTER_TIMELINE_INVALID_EVENT number 0 Constant used for invalid event IDs. Script APIs are guaranteed to always return nil data if supplied this ID, and events will never be added to the timeline with this ID.
+---@field ENCOUNTER_TIMELINE_RESERVED_EVENT_COUNT number 40 Minimum size of internal arrays that are preallocated for event storage.
+
+---@class encountertimeline_iconmasks : table
+---@field EncounterTimelineTankAlertIcons EncounterEventIconmask TankRole
+---@field EncounterTimelineHealerAlertIcons EncounterEventIconmask HealerRole
+---@field EncounterTimelineDamageAlertIcons EncounterEventIconmask DpsRole
+---@field EncounterTimelineDeadlyIcons EncounterEventIconmask DeadlyEffect
+---@field EncounterTimelineDispelIcons EncounterEventIconmask 124
+---@field EncounterTimelineEnrageIcons EncounterEventIconmask EnrageEffect
+---@field EncounterTimelineAllIcons EncounterEventIconmask 1023
+---@field EncounterTimelineRoleIcons EncounterEventIconmask 896
+---@field EncounterTimelineOtherIcons EncounterEventIconmask 127
+---@field EncounterTimelineNoIcons EncounterEventIconmask 0
+
+---@class encountertimeline_eventfilter : table
+---@field maxEventCount number
+---@field maxEventDuration DurationSeconds
+---@field excludeTerminalStates boolean
+---@field excludeHiddenEvents boolean
+
+---@class encountertimeline_eventinfo : table
+---@field id EncounterTimelineEventID
+---@field source EncounterTimelineEventSource
+---@field spellName string
+---@field spellID number
+---@field iconFileID fileID
+---@field duration DurationSeconds
+---@field maxQueueDuration DurationSeconds
+---@field icons EncounterEventIconmask
+---@field severity EncounterEventSeverity
+---@field color colorRGB
+---@field isApproximate boolean
+
+---@class encountertimeline_scripteventrequest : table
+---@field spellID number
+---@field iconFileID fileID
+---@field duration DurationSeconds
+---@field maxQueueDuration DurationSeconds
+---@field overrideName stringView
+---@field icons EncounterEventIconmask
+---@field severity EncounterEventSeverity
+---@field paused boolean
+
+---@class encountertimeline_trackinfo : table
+---@field id EncounterTimelineTrack
+---@field type EncounterTimelineTrackType
+---@field minimumDuration DurationSeconds
+---@field maximumDuration DurationSeconds
+---@field minimumEventIntroDuration DurationSeconds
+---@field minimumEventGapDuration DurationSeconds
+---@field maximumEventCount number
+---@field sortDirection EncounterTimelineEventSortDirection
+
+---@class enum : table
+---@field EncounterTimelineEventSortDirection encountertimeline_eventsortdirection
+---@field EncounterTimelineEventSource encountertimeline_eventsource
+---@field EncounterTimelineEventState encountertimeline_eventstate
+---@field EncounterTimelineIconSet encountertimeline_iconset
+---@field EncounterTimelineTrack encountertimeline_track
+---@field EncounterTimelineTrackType encountertimeline_tracktype
+---@field EncounterTimelineViewType encountertimeline_viewtype
+---@field EncounterTimelineEventConstants encountertimeline_eventconstants
+---@field EncounterTimelineIconMasks encountertimeline_iconmasks
+
+C_EncounterEvents = {}
+
+    ---@alias EncounterEventSoundTrigger number|string
+---@alias EncounterEventInfo table
+---@alias EncounterEventSoundInfo table
+---@alias SoundHandle number
+
+---@class C_EncounterEvents : table
+C_EncounterEvents = {}
+
+--- Returns any custom color override applied for an encounter event.
+--- @param encounterEventID number
+--- @return colorRGB? colorRGB color
+function C_EncounterEvents.GetEventColor(encounterEventID) return nil end
+
+--- Returns information about an encounter event.
+--- @param encounterEventID number
+--- @return EncounterEventInfo encounterEventInfo
+function C_EncounterEvents.GetEventInfo(encounterEventID) return {} end
+
+--- Returns a list of all encounter event IDs.
+--- @return table<number> encounterEventIDs
+function C_EncounterEvents.GetEventList() return {} end
+
+--- Returns information on a custom sound file to be played when an encounter event trigger occurs.
+--- @param encounterEventID number
+--- @param trigger EncounterEventSoundTrigger
+--- @return EncounterEventSoundInfo sound
+function C_EncounterEvents.GetEventSound(encounterEventID, trigger) return {} end
+
+--- Returns true if an encounter event record with a specified ID exists.
+--- @param encounterEventID number
+--- @return boolean exists
+function C_EncounterEvents.HasEventInfo(encounterEventID) return false end
+
+--- Plays any registered custom sound file for a given encounter event trigger.
+--- @param encounterEventID number
+--- @param trigger EncounterEventSoundTrigger
+--- @return SoundHandle handle
+function C_EncounterEvents.PlayEventSound(encounterEventID, trigger) return 0 end
+
+--- Sets a custom color override for an encounter event. This can be used to colorize text or timer bars individually.
+--- @param encounterEventID number
+--- @param colorRGB? colorRGB color
+function C_EncounterEvents.SetEventColor(encounterEventID, colorRGB) end
+
+--- Sets a custom sound file to be played when an encounter event trigger occurs.
+--- @param encounterEventID number
+--- @param trigger EncounterEventSoundTrigger
+--- @param sound? EncounterEventSoundInfo
+function C_EncounterEvents.SetEventSound(encounterEventID, trigger, sound) end
+
+
+
+---@class instanceencounter : table
+C_InstanceEncounter = {}
+
+---@param isInProgress boolean
+---@return boolean isActive
+function C_InstanceEncounter.IsEncounterInProgress(isInProgress) return true end
+
+---@param isLimitingResurrections boolean
+---@return boolean isActive
+function C_InstanceEncounter.IsEncounterLimitingResurrections(isLimitingResurrections) return true end
+
+---@param isSuppressingRelease boolean
+---@return boolean isActive
+function C_InstanceEncounter.IsEncounterSuppressingRelease(isSuppressingRelease) return true end
+
+---@param shouldShow boolean
+---@return boolean isActive
+function C_InstanceEncounter.ShouldShowTimelineForEncounter(shouldShow) return true end
+
+
 ---@class encodingutil : table
 ---@field EncodeHex fun(self: encodingutil, str: string) : string
 ---@field DecodeHex fun(self: encodingutil, str: string) : string

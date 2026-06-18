@@ -741,8 +741,13 @@ local CreatePluginFrames = function()
 			end
 
 			--order by class > alphabetically by the unit name
-			unitClassID = (((unitClassID or 0) + 128) ^ 4) + tonumber(string.byte (unitName, 1) .. "" .. string.byte(unitName, 2))
-
+			unitName = unitName or UNKNOWN
+			unitClassID = (((unitClassID or 0) + 128) ^ 4) + tonumber(string.byte (unitName or "ZZ", 1) .. "" .. string.byte(unitName or "ZZ", 2))
+				--[=[
+1x ...rfaceDetails_RaidCheck/Details_RaidCheck.lua:744: attempt to concatenate a nil value
+[Details_RaidCheck/Details_RaidCheck.lua]:744: in function <...rfaceDetails_RaidCheck/Details_RaidCheck.lua:679>
+[Details_RaidCheck/Details_RaidCheck.lua]:844: in function <...rfaceDetails_RaidCheck/Details_RaidCheck.lua:828>				
+				]=]
 			tinsert(PlayerData, {unitName, unitClassID,
 				Name = unitName,
 				UnitNameRealm = unitNameWithRealm,

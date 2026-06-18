@@ -2479,3 +2479,125 @@ end
 
 		return true
     end
+
+	--sha256 for lua 5.1 / wow (uses the bit library: band, bor, bxor, bnot, rshift, lshift)
+	local bit_band, bit_bor, bit_bxor, bit_bnot = bit.band, bit.bor, bit.bxor, bit.bnot
+	local bit_rshift, bit_lshift = bit.rshift, bit.lshift
+
+	--round constants (first 32 bits of the fractional parts of the cube roots of the first 64 primes)
+	local sha256_k = {
+		0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+		0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+		0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+		0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+		0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+		0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+		0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+		0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+	}
+
+	--rotate right within 32 bits
+	local function rrotate(x, n)
+		return bit_bor(bit_rshift(x, n), bit_lshift(x, 32 - n))
+	end
+
+	--32-bit modular addition of a list of values
+	local function add32(...)
+		local sum = 0
+		for i = 1, select("#", ...) do
+			sum = sum + select(i, ...)
+		end
+		return sum % 4294967296
+	end
+
+	local function sha256_bytes(msg)
+		--initial hash values (fractional parts of the square roots of the first 8 primes)
+		local h0, h1, h2, h3 = 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a
+		local h4, h5, h6, h7 = 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+
+		--pre-processing: append the bit '1', then '0's, then the 64-bit message length
+		local len = #msg
+		local bitlen = len * 8
+		msg = msg .. "\128"
+		while (#msg % 64) ~= 56 do
+			msg = msg .. "\0"
+		end
+		--64-bit big-endian length; lua numbers handle the low 32 bits, high bits stay 0 for our sizes
+		for i = 1, 8 do
+			local shift = (8 - i) * 8
+			local byte = 0
+			if shift < 32 then
+				byte = bit_band(bit_rshift(bitlen, shift), 0xff)
+			end
+			msg = msg .. string.char(byte)
+		end
+
+		local w = {}
+		for chunkStart = 1, #msg, 64 do
+			--break the chunk into sixteen 32-bit big-endian words
+			for i = 0, 15 do
+				local p = chunkStart + i * 4
+				local a, b, c, d = msg:byte(p, p + 3)
+				w[i + 1] = bit_bor(bit_lshift(a, 24), bit_lshift(b, 16), bit_lshift(c, 8), d)
+			end
+			--extend into the remaining 48 words
+			for i = 17, 64 do
+				local v15 = w[i - 15]
+				local v2 = w[i - 2]
+				local s0 = bit_bxor(rrotate(v15, 7), rrotate(v15, 18), bit_rshift(v15, 3))
+				local s1 = bit_bxor(rrotate(v2, 17), rrotate(v2, 19), bit_rshift(v2, 10))
+				w[i] = add32(w[i - 16], s0, w[i - 7], s1)
+			end
+
+			local a, b, c, d, e, f, g, h = h0, h1, h2, h3, h4, h5, h6, h7
+
+			for i = 1, 64 do
+				local s1 = bit_bxor(rrotate(e, 6), rrotate(e, 11), rrotate(e, 25))
+				local ch = bit_bxor(bit_band(e, f), bit_band(bit_bnot(e), g))
+				local temp1 = add32(h, s1, ch, sha256_k[i], w[i])
+				local s0 = bit_bxor(rrotate(a, 2), rrotate(a, 13), rrotate(a, 22))
+				local maj = bit_bxor(bit_band(a, b), bit_band(a, c), bit_band(b, c))
+				local temp2 = add32(s0, maj)
+
+				h = g
+				g = f
+				f = e
+				e = add32(d, temp1)
+				d = c
+				c = b
+				b = a
+				a = add32(temp1, temp2)
+			end
+
+			h0 = add32(h0, a)
+			h1 = add32(h1, b)
+			h2 = add32(h2, c)
+			h3 = add32(h3, d)
+			h4 = add32(h4, e)
+			h5 = add32(h5, f)
+			h6 = add32(h6, g)
+			h7 = add32(h7, h)
+		end
+
+		return string.format("%08x%08x%08x%08x%08x%08x%08x%08x", h0, h1, h2, h3, h4, h5, h6, h7)
+	end
+
+	--accepts any mix of strings and numbers, concatenates them and returns the hex
+	function Details222.Encode.MakeHash(...)
+		local parts = {}
+		for i = 1, select("#", ...) do
+			parts[i] = tostring((select(i, ...)))
+		end
+		return sha256_bytes(table.concat(parts))
+	end
+
+	function Details222.Encode.GetArenaHash(arenaName, spellContainer)
+        local toHash = {arenaName}
+		spellContainer = spellContainer.combatSources or spellContainer
+        for i = 1, #spellContainer do
+            ---@type damagemeter_combat_source
+            local playerInfo = spellContainer[i]
+            toHash[#toHash+1] = playerInfo.specIconID
+        end
+		return Details222.Encode.MakeHash(unpack(toHash))
+	end

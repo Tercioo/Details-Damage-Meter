@@ -1201,7 +1201,9 @@ local default_player_data = {
 
 		auto_combatlog = false,
 
+		apocalypse_hashes = {},
 		apocalypse_savedsegments = {},
+		apocalypes_info = {},
 
 		arena_data_headers = {},
 		arena_data_compressed = {}, --store data for arena the character did
@@ -1995,6 +1997,8 @@ local exportProfileBlacklist = {
 	performance_profiles = true,
 	coach = true,
 	apocalypse_savedsegments = true,
+	apocalypse_hashes = true,
+	apocalypes_info = true,
 	arena_data_headers = true,
 	arena_data_compressed = true, --store data for arena the character did
 	arena_data_index_selected = true, --index of the arena data selected to be shown in the arena data panel

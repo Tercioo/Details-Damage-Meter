@@ -443,7 +443,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 
 	elseif (msg == "keys") then
-		Details222.MythicKeys.OpenKeysPanel()
+		Details222.MythicKeys.OpenSmallKeysPanel()
+		--Details222.MythicKeys.OpenKeysPanel()
 
 	elseif (msg == "keyss") then
 		Details222.MythicKeys.OpenSmallKeysPanel()

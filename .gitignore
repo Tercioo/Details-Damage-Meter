@@ -75,3 +75,5 @@ player_combatlog_event.txt
 DLC12_API.lua
 docs_generator.md
 /.context
+Plater_Designer.lua
+Plater_Designer_Objects.lua

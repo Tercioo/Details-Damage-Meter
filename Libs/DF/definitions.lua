@@ -25,7 +25,7 @@
 ---@field packhashsubtable fun(tbl:table) : string pack a hash table where the value of the key is a numerical table, example: {key1 = {1, 2, 3}, key2 = {4, 6}, key3 = {7}}, result: "key1,3,1,2,3,key2,2,4,6,key3,1,7"
 ---@field unpackhashsubtable fun(tbl:table) : table unpack a table packed with packhashsubtable()
 ---@field inserts fun(tbl:table, ...) : table receives an indexed table and N arguments, add all arguments passed into the table
-
+---@field isequal fun(tbl1:table, tbl2:table) : boolean check if two indexed tables are equal
 
 ---@class df_language : table
 ---@field Register fun(addonId:any, languageId:string, gameLanguageOnly:boolean?) : table

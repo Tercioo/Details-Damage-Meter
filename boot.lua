@@ -17,7 +17,7 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 15101
+		Details.build_counter = 15235
 		Details.alpha_build_counter = 15101 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
@@ -235,6 +235,7 @@
 		Details222.PlayerStats = {}
 		Details222.LoadSavedVariables = {}
 		Details222.SaveVariables = {}
+		Details222.Encode = {}
 		Details222.GuessSpecSchedules = {
 			Schedules = {},
 		}
@@ -286,7 +287,7 @@
 			SetType = function(newType)
 				Details222.Apocalypse.segmentType = newType
 			end,
-			IsServerInCombat = function(forceCheckOverall)
+			IsServerInCombat = function(forceCheckOverall, forceRecheck)
 				if (forceCheckOverall) then
 					local s = Details222.B.GetSegment("Type", 0, 0)
 					if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
@@ -296,9 +297,21 @@
 						if e and e.combatSources and e.combatSources[1] and issecretvalue(e.combatSources[1].name) then
 							return true
 						end
-						return false
 					end
 				end
+
+				if forceRecheck then
+					local s = Details222.B.GetSegment("Type", 1, 0)
+					if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
+						return true
+					else
+						local e = Details222.B.GetSegment("Type", 1, 10)
+						if e and e.combatSources and e.combatSources[1] and issecretvalue(e.combatSources[1].name) then
+							return true
+						end
+					end
+				end
+
 				return Details222.Apocalypse.ServerInCombat
 			end
 		}

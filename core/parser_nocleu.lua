@@ -70,6 +70,11 @@ function bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
     if (mainDisplay == 2 and subDisplay == 8) then --heal potions
         displayType = -10
     end
+
+    if not displayType then
+        displayType = 0
+    end
+
     return displayType
 end
 

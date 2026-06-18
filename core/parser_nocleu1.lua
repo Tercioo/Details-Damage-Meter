@@ -59,6 +59,12 @@ local targetGUID
 
 local restrictionFlag = 0x0
 
+local arenaElapsedTime = 0
+local arenaName = ""
+local arenaTicker
+local arenaPlayers = {}
+local currentArenaStr = ""
+local pvpLastStateChange = {}
 local onPvpMatch = false
 local sessionIdAtArenaStart = 0
 
@@ -131,6 +137,7 @@ local currentZoneType = "none"
 ---@field WaitServerDropCombat fun(callback:function)
 ---@field ResetServerDM fun()
 ---@field GetSpells fun(sessionType:number, sessionID:number, damageMeterType:number, sourceGUID:string, isPlayer:boolean):damagemeter_unit_spells
+---@field GetSegmentHash fun(zoneName:string, newSegmentId:number):string
 
 local debugFrame = CreateFrame("frame", "DetailsParserDebugFrame2", UIParent)
 
@@ -140,6 +147,8 @@ local print = function(...)
         _print(...)
     end
 end
+
+print = _print
 
 --local print = _G.print
 
@@ -297,6 +306,147 @@ end
 
 local getSessions = function()
     return segmentInfoCache
+end
+
+local getArenaPlayers = function(damageContainer)
+    local theseArenaPlayers = {}
+    for i = 1, #damageContainer do
+        local actor = damageContainer[i]
+        if (not actor.specIconID) then
+            local className = actor.classFilename
+            --convert the first two letters of the class name to numbers in the ascii
+            local classNumber = 0
+            for j = 1, 2 do
+                classNumber = classNumber + string.byte(className, j)
+            end
+            detailsFramework.table.addunique(theseArenaPlayers, classNumber)
+        else
+            detailsFramework.table.addunique(theseArenaPlayers, actor.specIconID)
+        end
+    end
+    table.sort(theseArenaPlayers, function(a, b) return a < b end)
+    return theseArenaPlayers
+end
+
+local getPlayerHash = function(thisArenaPlayers)
+    return table.concat(thisArenaPlayers, "")
+end
+
+local getArenaHash = function(thisArenaName, thisArenaPlayers)
+    return thisArenaName .. getPlayerHash(thisArenaPlayers)
+end
+
+local getSegmentHash = function(zoneName, newSegmentId)
+    local segment
+
+    if (newSegmentId == 0) then
+        segment = Details222.B.GetSegment("Type", 1, 0)
+    else
+        segment = Details222.B.GetSegment("ID", newSegmentId, 0)
+    end
+
+    local actorContainer = Details222.B.GetSegmentInfo(segment)
+    local players = getArenaPlayers(actorContainer)
+    return getArenaHash(zoneName, players)
+end
+Details222.BParser.GetSegmentHash = getSegmentHash
+
+---@param sessionName string
+---@param damageContainer table
+local getSegmentInfoByHash = function(sessionName, damageContainer)
+    local thisSessionPlayers = getArenaPlayers(damageContainer) --table
+
+    for hash, sessionInfo in pairs(Details.apocalypse_hashes) do
+        ---@cast sessionInfo details_session_info
+        if sessionInfo.sessionName == sessionName then
+            if detailsFramework.table.isequal(thisSessionPlayers, thisSessionPlayers) then
+                return sessionInfo
+            end
+        end
+    end
+end
+
+Details222.BParser.GetSessionInfo = getSegmentInfoByHash
+
+local findLatestArenaSegment = function()
+    if not arenaElapsedTime then
+        return
+    end
+
+    local bFound = false
+
+    local allSegments = Details222.B.GetAllSegments()
+    for i = #allSegments, math.max(1, #allSegments-3), -1 do
+        ---@type damagemeter_availablecombat_session
+        local segmentInfo = allSegments[i]
+        local damageSegment = Details222.B.GetSegment("ID", segmentInfo.sessionID, 0)
+        local actorContainer = Details222.B.GetSegmentInfo(damageSegment)
+        local theseArenaPlayers = getArenaPlayers(actorContainer) --table
+
+        local str = getArenaHash(arenaName, theseArenaPlayers)
+        if (str == currentArenaStr) then
+            local sessionInfo = Details.apocalypse_hashes[str]
+            --print("|cff00FF00!!! FOUND SESSION INFO !!!")
+
+            ---@class details_session_info : table
+            ---@field sessionId number
+            ---@field zoneName string the actual zone name
+            ---@field sessionName string
+            ---@field playersList table
+            ---@field playersListHash string
+            ---@field elapsedTime number
+            ---@field combatSources table
+
+            sessionInfo.sessionName = segmentInfo.name
+            sessionInfo.playersList = theseArenaPlayers
+            sessionInfo.playersListHash = str
+
+            sessionInfo.combatSources = {
+                dps = {},
+                hps = {},
+            }
+
+            for j = 1, #damageSegment.combatSources do
+                local thisActor = damageSegment.combatSources[j]
+                sessionInfo.combatSources.dps[thisActor.name] = thisActor.amountPerSecond
+            end
+
+            local healingSegment = Details222.B.GetSegment("ID", segmentInfo.sessionID, 2)
+            for j = 1, #healingSegment.combatSources do
+                local thisActor = healingSegment.combatSources[j]
+                sessionInfo.combatSources.hps[thisActor.name] = thisActor.amountPerSecond
+            end
+
+            bFound = true
+            break
+        end
+    end
+
+    if not bFound then
+        ---@type damagemeter_availablecombat_session
+        local damageSegment = Details222.B.GetSegment("Type", 1, 0)
+        local actorContainer = Details222.B.GetSegmentInfo(damageSegment)
+        local theseArenaPlayers = getArenaPlayers(actorContainer)
+        local str = getArenaHash(arenaName, theseArenaPlayers)
+        if (str == currentArenaStr) then
+            local sessionInfo = Details.apocalypse_hashes[str]
+            sessionInfo.combatSources = {
+                dps = {},
+                hps = {},
+            }
+
+            for j = 1, #actorContainer do
+                local thisActor = actorContainer[j]
+                sessionInfo.combatSources.dps[thisActor.name] = thisActor.amountPerSecond
+            end
+
+            local healingSegment = Details222.B.GetSegment("Type", 1, 2)
+            for j = 1, #healingSegment.combatSources do
+                local thisActor = healingSegment.combatSources[j]
+                sessionInfo.combatSources.hps[thisActor.name] = thisActor.amountPerSecond
+            end
+        end
+    end
 end
 
 local StopUpdaterAndClearWindow
@@ -585,7 +735,7 @@ end
 ---@return string|nil amountDoneField
 ---@return string|nil classField
 local isServerSideSessionOpen = function(segmentId)
-    if Details222.Apocalypse.IsServerInCombat(true) then
+    if Details222.Apocalypse.IsServerInCombat(true, true) then
         return true
     end
 
@@ -1085,6 +1235,10 @@ local addSegment = function(parameterType, session, bIsUpdate, detailsId)
             local totalAmount = thisActor.totalAmount
             local class = thisActor.classFilename
             local icon = thisActor.specIconID
+
+            if (issecretvalue(actorName)) then
+                return
+            end
 
             local actor = damageContainer:GetOrCreateActor(actorSerial, actorName, 0x512, true)
             actor.nome = actorName
@@ -2297,6 +2451,7 @@ if detailsFramework.IsAddonApocalypseWow() then
     combatEventFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
     combatEventFrame:RegisterEvent("PVP_MATCH_COMPLETE")
     combatEventFrame:RegisterEvent("PVP_MATCH_ACTIVE")
+    combatEventFrame:RegisterEvent("PVP_MATCH_STATE_CHANGED")
     combatEventFrame:RegisterEvent("PLAYER_DEAD")
     combatEventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     combatEventFrame:RegisterEvent("CHALLENGE_MODE_START")
@@ -2707,6 +2862,12 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
 
         local _, newInstanceType = GetInstanceInfo()
 
+        if newInstanceType ~= "arena" then
+            if (arenaTicker) then
+                arenaTicker:Cancel()
+            end
+        end
+
         if currentZoneType ~= "arena" and newInstanceType == "arena" then --joined arena
             arenaSessionIdStart = getCurrentCombatIdentifier()
             onEnterPvpArea()
@@ -2729,13 +2890,39 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
 
         currentZoneType = newInstanceType
 
-    elseif (ev == "PVP_MATCH_ACTIVE") then
-        --print("(debug-event) PVP_MATCH_ACTIVE", GetTime())
+    elseif (ev == "PVP_MATCH_STATE_CHANGED") then
+        pvpLastStateChange[#pvpLastStateChange+1] = GetTime()
+        print("PVP MATCH STATE CHANGED:", GetTime())
 
+    elseif (ev == "PVP_MATCH_ACTIVE") then
+        table.wipe(pvpLastStateChange)
+        pvpLastStateChange[#pvpLastStateChange+1] = 0
+
+        --print("(debug-event) PVP_MATCH_ACTIVE", GetTime())
+        Details:CheckSwitchToCurrent()
         onPvpMatch = true
+
+        arenaName = GetInstanceInfo()
         debugTexts[#debugTexts+1] = {left = "PVP_MATCH_ACTIVE", right = "true", time = GetTime(), date = date("%H:%M:%S")}
 
+        table.wipe(arenaPlayers)
+
+        arenaTicker = C_Timer.NewTicker(1, function(ticker)
+            if InCombatLockdown() then
+                local currentCombat = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, 1, 0)
+                local actorContainer = Details222.B.GetSegmentInfo(currentCombat)
+                for i = 1, #actorContainer do
+                    local actor = actorContainer[i]
+                    detailsFramework.table.addunique(arenaPlayers, actor.specIconID)
+                end
+            end
+        end)
+
     elseif (ev == "PVP_MATCH_COMPLETE") then
+        if (arenaTicker) then
+            arenaTicker:Cancel()
+        end
+
         --print("(debug-event) PVP_MATCH_COMPLETE", GetTime())
         cantStartUpdater = false
         local _, instanceType = GetInstanceInfo()
@@ -2744,6 +2931,19 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
                 combatEventFrame:GetScript("OnEvent")(combatEventFrame, "PLAYER_REGEN_ENABLED")
             end)
         end
+
+        if (pvpLastStateChange[#pvpLastStateChange] ~= 0) then
+            arenaElapsedTime = pvpLastStateChange[#pvpLastStateChange] - pvpLastStateChange[#pvpLastStateChange-1]
+        end
+
+        arenaName = GetInstanceInfo()
+        table.sort(arenaPlayers, function(a, b) return a < b end)
+        local str = getArenaHash(arenaName, arenaPlayers)
+        local allSegments = Details222.B.GetAllSegments()
+        Details.apocalypse_hashes[str] = {zoneName = arenaName, sessionId = allSegments[#allSegments].sessionID, elapsedTime = arenaElapsedTime}
+        currentArenaStr = str
+
+        bParser.WaitServerDropCombat(findLatestArenaSegment)
 
         debugTexts[#debugTexts+1] = {left = "PVP_MATCH_COMPLETE", right = "true", time = GetTime(), date = date("%H:%M:%S")}
 

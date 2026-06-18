@@ -262,7 +262,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
     end
 
 	function SlashCmdList.KEYSTONE(msg, editbox)
-        openKeysPanel()
+        Details222.MythicKeys.OpenSmallKeysPanel()
+        --openKeysPanel()
     end
 
     openKeysPanel = function()

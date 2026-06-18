@@ -1,7 +1,7 @@
 -- SPDX-License-Identifier: LGPL-2.1-or-later
 -- Details Framework (DetailsFramework-1.0) -- see Libs/DF/LICENSE
 
-local dversion = 743
+local dversion = 744
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -914,6 +914,28 @@ function DF.table.addunique(t, index, value)
 	end
 
 	table.insert(t, index, value)
+	return true
+end
+
+---return if both tables has the same values in the same order
+---@param t1 table
+---@param t2 table
+---@return boolean
+function DF.table.isequal(t1, t2)
+	if (t1 == t2) then
+		return true
+	end
+
+	if (#t1 ~= #t2) then
+		return false
+	end
+
+	for i = 1, #t1 do
+		if (t1[i] ~= t2[i]) then
+			return false
+		end
+	end
+
 	return true
 end
 
