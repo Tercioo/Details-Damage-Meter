@@ -17,7 +17,7 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 15235
+		Details.build_counter = 15236
 		Details.alpha_build_counter = 15101 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
