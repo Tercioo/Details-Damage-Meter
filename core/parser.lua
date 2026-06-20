@@ -6734,7 +6734,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.LoadSavedVariables.CombatSegments()
 
 		--load the profiles
-		Details:LoadConfig()
+		Details222.LoadSavedVariables.LoadConfig()
 
 		Details:UpdateParserGears()
 

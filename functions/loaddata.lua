@@ -210,8 +210,7 @@ end
 --On Details! Load:
 	--load the saved config on the addon
 
-function Details:LoadConfig()
-
+function Details222.LoadSavedVariables.LoadConfig()
 	--plugins data
 		Details.plugin_database = _detalhes_database.plugin_database or {}
 

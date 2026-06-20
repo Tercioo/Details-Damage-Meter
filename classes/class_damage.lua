@@ -2117,7 +2117,9 @@ function Details:IsUsingBlizzardAPI(instance)
 	if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
 		return false
 	end
-	return Details222.Apocalypse.ShouldUseGameData(instance)
+	--the true boolean is for debug purposes only
+	return true
+	--return Details222.Apocalypse.ShouldUseGameData(instance)
 	--return Details.appocalypse_mode == 0
 end
 
