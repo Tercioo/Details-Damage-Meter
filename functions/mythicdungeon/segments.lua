@@ -388,7 +388,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
             --collapses what used to be two parallel paths (in-combat → wait, not-in-combat → save now)
             --into a single path: the very first tick after combat ends does the save.
             C_Timer.NewTicker(1, function(tickerObject)
-                if not Details222.Apocalypse.IsServerInCombat(true) then
+                if not Details222.Apocalypse.IsServerInCombat(true, true) then
                     Details222.MythicPlus.LogStep("MergeSegmentsOnEnd() -> AddOverallAsSegment() called.")
                     local overallSegment = Details222.BParser.AddOverallAsSegment()
 

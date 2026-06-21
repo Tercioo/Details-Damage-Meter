@@ -17,8 +17,8 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 15237
-		Details.alpha_build_counter = 15101 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 15238
+		Details.alpha_build_counter = 15238 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -287,27 +287,55 @@
 			SetType = function(newType)
 				Details222.Apocalypse.segmentType = newType
 			end,
-			IsServerInCombat = function(forceCheckOverall, forceRecheck)
-				if (forceCheckOverall) then
-					local s = Details222.B.GetSegment("Type", 0, 0)
-					if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
-						return true
-					else
-						local e = Details222.B.GetSegment("Type", 0, 10)
-						if e and e.combatSources and e.combatSources[1] and issecretvalue(e.combatSources[1].name) then
-							return true
+			IsServerInCombat = function(forceCheckOverall, forceRecheck, fullScan)
+				if fullScan then
+					local getSegment = C_DamageMeter.GetCombatSessionFromType
+					for i = 0, 1 do
+						local thisSegment = getSegment(i, 0)
+						if thisSegment then
+							if issecretvalue(thisSegment.combatSources[1] and thisSegment.combatSources[1].name) then
+								return true
+							end
 						end
 					end
-				end
 
-				if forceRecheck then
-					local s = Details222.B.GetSegment("Type", 1, 0)
-					if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
-						return true
-					else
-						local e = Details222.B.GetSegment("Type", 1, 10)
-						if e and e.combatSources and e.combatSources[1] and issecretvalue(e.combatSources[1].name) then
+					getSegment = C_DamageMeter.GetCombatSessionFromID
+					local allSegments = Details.DM.GetAvailableCombatSessions()
+					for i = #allSegments, #allSegments-2, -1 do
+						if i > 0 then
+							local newSegmentID = allSegments[i].sessionID
+							if newSegmentID then
+								local thisSegment = getSegment(newSegmentID, 0)
+								if thisSegment then
+									if issecretvalue(thisSegment.combatSources[1] and thisSegment.combatSources[1].name) then
+										return true
+									end
+								end
+							end
+						end
+					end
+				else
+					if (forceCheckOverall) then
+						local s = Details222.B.GetSegment("Type", 0, 0)
+						if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
 							return true
+						else
+							local e = Details222.B.GetSegment("Type", 0, 10)
+							if e and e.combatSources and e.combatSources[1] and issecretvalue(e.combatSources[1].name) then
+								return true
+							end
+						end
+					end
+
+					if forceRecheck then
+						local s = Details222.B.GetSegment("Type", 1, 0)
+						if s and s.combatSources and s.combatSources[1] and issecretvalue(s.combatSources[1].name) then
+							return true
+						else
+							local e = Details222.B.GetSegment("Type", 1, 10)
+							if e and e.combatSources and e.combatSources[1] and issecretvalue(e.combatSources[1].name) then
+								return true
+							end
 						end
 					end
 				end

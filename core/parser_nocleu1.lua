@@ -1078,6 +1078,10 @@ local addOverallAsSegment = function()
             ---@type damagemeter_combat_source
             local thisActor = actorList[i]
 
+            if issecretvalue(thisActor.name) then
+                thisActor.name = "Secret Pet " .. math.random(0000, 9999)
+            end
+
             ---@type actorutility
             local actor = utilityContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
 
@@ -1356,6 +1360,10 @@ local addSegment = function(parameterType, session, bIsUpdate, detailsId)
             ---@type damagemeter_combat_source
             local thisActor = actorList[i]
 
+            if issecretvalue(thisActor.name) then
+                thisActor.name = "Secret Pet " .. math.random(0000, 9999)
+            end
+
             ---@type actorutility
             local actor = utilityContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
 
@@ -1395,6 +1403,10 @@ local addSegment = function(parameterType, session, bIsUpdate, detailsId)
         for i = 1, #actorList do
             ---@type damagemeter_combat_source
             local thisActor = actorList[i]
+
+            if issecretvalue(thisActor.name) then
+                thisActor.name = "Secret Pet " .. math.random(0000, 9999)
+            end
 
             ---@type actorutility
             local actor = utilityContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)

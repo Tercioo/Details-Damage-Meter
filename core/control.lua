@@ -936,20 +936,22 @@
 		local getSegment = C_DamageMeter.GetCombatSessionFromType
 		local serverInCombat = false
 		C_Timer.NewTicker(0, function()
-			local thisSegment = getSegment(1, 6)
-			if thisSegment then
-				if issecretvalue(thisSegment.totalAmount) then
-					if not serverInCombat then
-						Details:SendEvent("SERVER_COMBAT_STARTED")
+			for i = 0, 1 do
+				local thisSegment = getSegment(i, 0)
+				if thisSegment then
+					if issecretvalue(thisSegment.combatSources[1] and thisSegment.combatSources[1].name) then
+						if not serverInCombat then
+							Details:SendEvent("SERVER_COMBAT_STARTED")
+						end
+						serverInCombat = true
+						Details222.Apocalypse.ServerInCombat = true
+					else
+						if serverInCombat then
+							Details:SendEvent("SERVER_COMBAT_ENDED")
+						end
+						serverInCombat = false
+						Details222.Apocalypse.ServerInCombat = false
 					end
-					serverInCombat = true
-					Details222.Apocalypse.ServerInCombat = true
-				else
-					if serverInCombat then
-						Details:SendEvent("SERVER_COMBAT_ENDED")
-					end
-					serverInCombat = false
-					Details222.Apocalypse.ServerInCombat = false
 				end
 			end
 		end)
