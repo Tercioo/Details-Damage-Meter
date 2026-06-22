@@ -92,6 +92,7 @@ end
 ---@field step number?
 ---@field usedecimals boolean?
 ---@field subkey string?
+---@field desc string? tooltip text shown when the user hovers the widget
 ---@field profileTable table? per-extra override of the registration's profileTable, so an option can read/write against a different scope (e.g., the profile root on a registration bound to a sub-table)
 ---@field setter fun(object:any, value:any)?
 ---@field dropdownFunc function?
@@ -1442,6 +1443,9 @@ detailsFramework.EditorMixin = {
                             step = option.step,
                             usedecimals = option.usedecimals,
                             id = option.key,
+                            --tooltip text shown when the user hovers the widget. BuildMenu reads
+                            --this from optionTable.desc, so consumers set it as option.desc on extras.
+                            desc = option.desc,
                         }
 
                         --forwarded for the generic `dropdown` widget; BuildMenu expects `values`

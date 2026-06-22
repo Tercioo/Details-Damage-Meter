@@ -289,12 +289,20 @@
 			end,
 			IsServerInCombat = function(forceCheckOverall, forceRecheck, fullScan)
 				if fullScan then
+					--print("performing full scan for secrets")
+					local analyzed = {
+						type = {amount = 0},
+						ids = {amount = 0}
+					}
 					local getSegment = C_DamageMeter.GetCombatSessionFromType
 					for i = 0, 1 do
-						local thisSegment = getSegment(i, 0)
-						if thisSegment then
-							if issecretvalue(thisSegment.combatSources[1] and thisSegment.combatSources[1].name) then
-								return true
+						for j = 0, 10 do
+							local thisSegment = getSegment(i, j)
+							if thisSegment then
+								analyzed.type.amount = analyzed.type.amount + 1
+								if issecretvalue(thisSegment.combatSources and thisSegment.combatSources[1] and thisSegment.combatSources[1].name) then
+									return true
+								end
 							end
 						end
 					end
@@ -305,15 +313,20 @@
 						if i > 0 then
 							local newSegmentID = allSegments[i].sessionID
 							if newSegmentID then
-								local thisSegment = getSegment(newSegmentID, 0)
-								if thisSegment then
-									if issecretvalue(thisSegment.combatSources[1] and thisSegment.combatSources[1].name) then
-										return true
+								for j = 0, 10 do
+									local thisSegment = getSegment(newSegmentID, j)
+									if thisSegment then
+										analyzed.ids.amount = analyzed.ids.amount + 1
+										if issecretvalue(thisSegment.combatSources and thisSegment.combatSources[1] and thisSegment.combatSources[1].name) then
+											return true
+										end
 									end
 								end
 							end
 						end
 					end
+
+					--dumpt(analyzed)
 				else
 					if (forceCheckOverall) then
 						local s = Details222.B.GetSegment("Type", 0, 0)
