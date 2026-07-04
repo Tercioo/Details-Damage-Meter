@@ -183,7 +183,9 @@ The 9th-parameter `options` is per-object (overrides anchor lock, icon, etc.); t
 |---|---|---|---|
 | `use_colon` | boolean | `false` | If true, "Size" becomes "Size:" in the menu. |
 | `can_move` | boolean | `true` | If true, the mover handle is shown over the object and the user can drag it. Set to false for objects that shouldn't be repositioned (a fixed health bar, a non-movable icon). |
+| `can_click` | boolean | `true` | If true, an invisible full-size click-to-select overlay is shown over each member widget in the live preview. Set to false when the registration shares its canvas area with another widget that should win clicks (e.g. a parent that contains clickable children). |
 | `icon` | atlas / texture | nil | Icon shown next to `localizedLabel` in the left panel. Accepts atlas name, atlas table from `DF:CreateAtlas`, or a texture path/id. |
+| `parentId` | any | nil | Nests this registration under another registration in the left-panel object selector. The parent shows a `+`/`-` toggle to expand/collapse its children. Selecting a nested entry (from the list OR via the canvas selectButton) auto-expands the parent. One level of nesting is supported. |
 
 ### Why these arguments are split into pairs
 

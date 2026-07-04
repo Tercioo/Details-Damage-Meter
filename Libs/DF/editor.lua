@@ -96,6 +96,8 @@ end
 ---@field profileTable table? per-extra override of the registration's profileTable, so an option can read/write against a different scope (e.g., the profile root on a registration bound to a sub-table)
 ---@field setter fun(object:any, value:any)?
 ---@field dropdownFunc function?
+---@field onenter? fun(widget:any) optional callback for live preview
+---@field onleave? fun(widget:any) optional callback (paired with onenter to revert the preview)
 ---@field text? string label widget: literal text to display when type == "label"
 ---@field name? string label widget: localization key fallback when type == "label"
 ---@field get? fun():string label widget: dynamic text getter when type == "label"
@@ -118,6 +120,8 @@ end
 ---@field selectButtons button[] one click-to-select overlay per member widget
 ---@field activeMemberIndex number? which member was last clicked (or 1 by default); brackets/mover follow this member
 ---@field refFrame frame usually the parent of the object registered
+---@field parentId any? id of the parent registration. when set, this entry renders nested under that parent in the object selector and is hidden while the parent is collapsed
+---@field isExpanded boolean only meaningful for parents (entries that have at least one child registration). controls whether the children are shown in the selector. defaults to false
 
 ---@class df_editor_mover_movinginfo : table
 ---@field startX number
@@ -426,6 +430,7 @@ local attributes = {
 ---@field can_move boolean? if true the object can be moved
 ---@field can_click boolean? if true the live-preview click-to-select overlay is shown for this object
 ---@field icon any atlasName atlasTable (from DF:CreateAtlas) or texture path|id
+---@field parentId any? id of the parent registration. nests this entry under that parent in the object selector. selecting a nested entry auto-expands its parent
 
 ---@type df_editobjectoptions
 local editObjectDefaultOptions = {
@@ -993,6 +998,16 @@ detailsFramework.EditorMixin = {
 
         self:PrepareObjectForEditing()
 
+        --auto-expand parent if this registration is nested under one. covers all selection
+        --paths (canvas selectButton click, programmatic EditObjectById, undo/redo replay) since
+        --they all funnel through here. the selector refresh below picks up the new state.
+        if (registeredObject.parentId ~= nil) then
+            local parent = self.registeredObjectsByID[registeredObject.parentId]
+            if (parent) then
+                parent.isExpanded = true
+            end
+        end
+
         --refresh the left-panel selector so its highlight tracks the active object.
         --guarded because EditObject can technically be reachable before the selector is built.
         if (self.objectSelector) then
@@ -1315,6 +1330,16 @@ detailsFramework.EditorMixin = {
                     if (bHasValue) then
                         local parentTable = getParentTable(entryProfileTable, profileKey)
 
+                        --color widgets mutate the color table in place to preserve references
+                        --(downstream code holds the same {r,g,b,a} pointer). getParentTable returns
+                        --the wrong thing for nested paths like "tank.colors.aggro" (it strips the
+                        --leaf and gives profile.tank.colors, so applyValue writes r/g/b/a into the
+                        --grouping table, not the color). value is already the color table at the
+                        --full path, so use it directly for color widgets at any nesting depth.
+                        if (widgetType == "color") then
+                            parentTable = value
+                        end
+
                         assert(detailsFramework:IsValidWidgetForBuildMenu(option.widget), "Invalid widget type for option with key and name: " .. option.key .. ", " .. option.label)
 
                         if (option.key == "anchor" or option.key == "anchoroffsetx" or option.key == "anchoroffsety") then
@@ -1443,9 +1468,9 @@ detailsFramework.EditorMixin = {
                             step = option.step,
                             usedecimals = option.usedecimals,
                             id = option.key,
-                            --tooltip text shown when the user hovers the widget. BuildMenu reads
-                            --this from optionTable.desc, so consumers set it as option.desc on extras.
                             desc = option.desc,
+                            onenter = option.onenter,
+                            onleave = option.onleave,
                         }
 
                         --forwarded for the generic `dropdown` widget; BuildMenu expects `values`
@@ -1531,6 +1556,13 @@ detailsFramework.EditorMixin = {
         --~build ~menu ~volatile
         menuOptions.no_refresh_on_change = true --the editor .get functions just return a value instead of getting the value from the profile
         detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, 2, -2, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template)
+
+        --reset the options scroll back to the top whenever the selection changes. without this
+        --switching from a long widget (e.g. Auras Layout) to a short one (e.g. Raid Mark) leaves
+        --the scroll at the bottom and the short widget renders entirely above the visible area.
+        if (canvasScrollBox and canvasScrollBox.SetVerticalScroll) then
+            canvasScrollBox:SetVerticalScroll(0)
+        end
 
         if (editingOptions.can_move) then
             self:StartObjectMovement(anchorSettings)
@@ -1760,6 +1792,10 @@ detailsFramework.EditorMixin = {
             selectButtons = {},
             activeMemberIndex = 1,
             refFrame = refFrame,
+            --nesting support (object selector tree). parentId comes from options for a clean signature.
+            --isExpanded only matters for parents; children read their parent's flag at refresh time.
+            parentId = options.parentId,
+            isExpanded = false,
         }
 
         registeredObjects[#registeredObjects+1] = objectRegistered
@@ -1871,6 +1907,46 @@ detailsFramework.EditorMixin = {
         return self.registeredObjects
     end,
 
+    ---walks registeredObjects in order and returns a flat list with parent-child nesting applied
+    ---(top-level rows always shown, children inserted contiguously after their parent only when
+    ---the parent is expanded). consumed by the object selector to render the sidebar tree.
+    ---@param self df_editor
+    ---@return df_editor_objectinfo[]
+    GetVisibleRegisteredObjects = function(self)
+        local all = self.registeredObjects
+        local visible = {}
+        for i = 1, #all do
+            local entry = all[i]
+            if (not entry.parentId) then
+                visible[#visible+1] = entry
+                if (entry.isExpanded) then
+                    for j = 1, #all do
+                        local maybeChild = all[j]
+                        if (maybeChild.parentId == entry.id) then
+                            visible[#visible+1] = maybeChild
+                        end
+                    end
+                end
+            end
+        end
+        return visible
+    end,
+
+    ---returns true if any other registration has this entry as its parent.
+    ---used by the selector to decide whether to show the expand/collapse toggle.
+    ---@param self df_editor
+    ---@param entry df_editor_objectinfo
+    ---@return boolean
+    HasChildRegistrations = function(self, entry)
+        local all = self.registeredObjects
+        for i = 1, #all do
+            if (all[i].parentId == entry.id) then
+                return true
+            end
+        end
+        return false
+    end,
+
     ---@param self df_editor
     ---@return df_editor_objectinfo?
     GetObjectByRef = function(self, object)
@@ -1916,6 +1992,15 @@ detailsFramework.EditorMixin = {
     CreateObjectSelectionList = function(self, scroll_width, scroll_height, scroll_lines, scroll_line_height)
         local editorFrame = self
 
+        --pixel constants for the nesting tree.
+        local CHILD_INDENT = 12 --how far children shift right under their parent
+        local TOGGLE_SIZE = scroll_line_height - 4
+        local TOGGLE_LEFT_PAD = 1
+
+        --forward-declared so the per-line expand toggle (built inside createLineFunc, before
+        --selectObjectScrollBox exists) can call back here once the scrollbox is wired.
+        local selectObjectScrollBoxRefresh
+
         local refreshFunc = function(self, data, offset, totalLines) --~refresh
             self.SelectionTexture:Hide()
             self.SelectionTexture:ClearAllPoints()
@@ -1928,7 +2013,43 @@ detailsFramework.EditorMixin = {
 
 				if (objectRegistered) then
                     local line = self:GetLine(i)
-                    line.index = index
+                    line.objectRegistered = objectRegistered
+
+                    --nesting visuals. children get indented; parents that have children get a
+                    --+/- toggle. layout pixels live in CHILD_INDENT / TOGGLE_SIZE above.
+                    local isChild = objectRegistered.parentId ~= nil
+                    local hasChildren = editorFrame:HasChildRegistrations(objectRegistered)
+
+                    local iconLeftOffset
+                    if (isChild) then
+                        iconLeftOffset = 2 + CHILD_INDENT
+                    elseif (hasChildren) then
+                        --shift past the toggle button so they do not overlap.
+                        iconLeftOffset = TOGGLE_LEFT_PAD + TOGGLE_SIZE + 2
+                    else
+                        iconLeftOffset = 2
+                    end
+
+                    line.Icon:ClearAllPoints()
+                    line.Icon:SetPoint("left", line, "left", iconLeftOffset, 0)
+
+                    if (hasChildren) then
+                        line.ExpandToggle:Show()
+                        local normalTexture = line.ExpandToggle:GetNormalTexture()
+                        local toggleRotation = objectRegistered.isExpanded and 0 or (math.pi / 2)
+
+                        if toggleRotation == 0 then --expanded
+                            normalTexture:ClearAllPoints()
+                            normalTexture:SetRotation(toggleRotation)
+                            normalTexture:SetPoint("center", line.ExpandToggle, "center", 2, -4)
+                        else --collapsed
+                            normalTexture:ClearAllPoints()
+                            normalTexture:SetRotation(toggleRotation)
+                            normalTexture:SetPoint("center", line.ExpandToggle, "center", 4, 0)
+                        end
+                    else
+                        line.ExpandToggle:Hide()
+                    end
 
                     local customIcon = objectRegistered.options.icon
                     if (customIcon) then
@@ -1985,10 +2106,54 @@ detailsFramework.EditorMixin = {
             detailsFramework:CreateHighlightTexture(line, "HighlightTexture")
     		detailsFramework:Mixin(line, detailsFramework.HeaderFunctions)
 
+            --row click selects the registration. we use line.objectRegistered (set in refresh)
+            --instead of self.index so the array-index drift caused by hiding collapsed children
+            --does not point at the wrong entry. double-click on a parent row also toggles its
+            --expansion, same as clicking the +/- arrow. timestamp + registration check prevents
+            --misfires from scrollbox row recycling (the same frame line later representing a
+            --different registration) and from rapid clicks across two different rows.
             line:SetScript("OnClick", function(self)
-                local objectRegistered = editorFrame:GetObjectByIndex(self.index)
-                editorFrame:EditObject(objectRegistered)
+                if (not self.objectRegistered) then
+                    return
+                end
+                editorFrame:EditObject(self.objectRegistered)
+
+                local now = GetTime()
+                local sameRow = self.lastClickedRegistration == self.objectRegistered
+                local isDoubleClick = sameRow and self.lastClickTime and (now - self.lastClickTime) < 0.4
+                if (isDoubleClick and editorFrame:HasChildRegistrations(self.objectRegistered)) then
+                    self.objectRegistered.isExpanded = not self.objectRegistered.isExpanded
+                    selectObjectScrollBoxRefresh()
+                    self.lastClickTime = nil
+                    self.lastClickedRegistration = nil
+                else
+                    self.lastClickTime = now
+                    self.lastClickedRegistration = self.objectRegistered
+                end
             end)
+
+            --expand/collapse toggle, only shown for parent rows (refreshFunc shows/hides it).
+            --sits above the line button so clicks on the toggle do not also fire the row click.
+            local expandToggle = CreateFrame("button", "$parentExpandToggle", line, "BackdropTemplate")
+            expandToggle:SetSize(TOGGLE_SIZE, TOGGLE_SIZE)
+            expandToggle:SetPoint("left", line, "left", TOGGLE_LEFT_PAD, 0)
+            expandToggle:SetFrameLevel(line:GetFrameLevel() + 1)
+            expandToggle:SetNormalTexture([[Interface\BUTTONS\Arrow-Down-Up]])
+
+            local normalTexture = expandToggle:GetNormalTexture()
+            normalTexture:ClearAllPoints()
+            normalTexture:SetPoint("center", expandToggle, "center", 0, 0)
+            normalTexture.isExpanded = false
+
+            expandToggle:Hide()
+            expandToggle:SetScript("OnClick", function(toggle)
+                local entry = line.objectRegistered
+                if (entry) then
+                    entry.isExpanded = not entry.isExpanded
+                    selectObjectScrollBoxRefresh()
+                end
+            end)
+            line.ExpandToggle = expandToggle
 
 			--icon
 			local objectIcon = line:CreateTexture("$parentIcon", "overlay")
@@ -2006,7 +2171,7 @@ detailsFramework.EditorMixin = {
 			return line
 		end
 
-        local selectObjectScrollBox = detailsFramework:CreateScrollBox(self:GetParent(), "$parentSelectObjectScrollBox", refreshFunc, editorFrame:GetAllRegisteredObjects(), scroll_width, scroll_height, scroll_lines, scroll_line_height)
+        local selectObjectScrollBox = detailsFramework:CreateScrollBox(self:GetParent(), "$parentSelectObjectScrollBox", refreshFunc, editorFrame:GetVisibleRegisteredObjects(), scroll_width, scroll_height, scroll_lines, scroll_line_height)
         detailsFramework:ReskinSlider(selectObjectScrollBox)
 
         local selectionTexture = selectObjectScrollBox:CreateTexture(nil, "overlay")
@@ -2014,9 +2179,15 @@ detailsFramework.EditorMixin = {
         selectObjectScrollBox.SelectionTexture = selectionTexture
 
 		function selectObjectScrollBox:RefreshMe()
-			selectObjectScrollBox:SetData(editorFrame:GetAllRegisteredObjects())
+			selectObjectScrollBox:SetData(editorFrame:GetVisibleRegisteredObjects())
 		    selectObjectScrollBox:Refresh()
 		end
+
+        --shared refresh entry used by per-line toggles. forward-declared so createLineFunc's
+        --closure can call it without referencing selectObjectScrollBox before it exists.
+        selectObjectScrollBoxRefresh = function()
+            selectObjectScrollBox:RefreshMe()
+        end
 
 		--create lines
 		for i = 1, scroll_lines do

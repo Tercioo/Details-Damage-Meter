@@ -2687,6 +2687,8 @@ function playerAuraParser:StartTicker()
         return
     end
 
+    do return end
+
     self:ResetData()
 
     self.playerAuraTicker = C_Timer.NewTicker(0.1, function()
