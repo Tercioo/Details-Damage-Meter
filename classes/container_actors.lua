@@ -892,6 +892,13 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 		local petOwnerObject
 		actorSerial = actorSerial or "ns"
 
+		-- Midnight 12.0: actorName from C_DamageMeter / UnitName can be a
+		-- secret string, which cannot be used as a regular table key or
+		-- stored on non-secret-safe tables. Convert to plain string early.
+		if type(actorName) == "string" and ToPlainString then
+			actorName = ToPlainString(actorName)
+		end
+
 		if not detailsFramework.IsAddonApocalypseWow() then
 			--check if this actor is a pet and the pet is in the pet cache
 			if (petContainer.IsPetInCache(actorSerial)) then --this is a registered pet
