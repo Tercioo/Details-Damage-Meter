@@ -638,6 +638,7 @@ Behavior
 	- slider_buttons_to_left
 	- use_scrollframe
 	- language_addonId
+	- fixed_width
 - Returns a fixed tuple consumed by both build functions.
 Why it matters
 - Centralizes menu-level defaults so per-widget code stays focused on widget
@@ -1364,6 +1365,33 @@ Why it matters
 	clips and scrolls the child, which acts as the true canvas for all widgets.
 	Without this flag the caller would have to manually manage the scroll child
 	relationship and column sizing.
+
+---------------------------------------------------------------------
+fixed_width
+---------------------------------------------------------------------
+Type: number (default 0)
+
+Purpose
+- Forces every column to advance by a fixed horizontal width when the layout
+	wraps to a new column, instead of sizing each column to its widest widget.
+
+Behavior
+- Read by parseOptionsTable() and stored as fixedColumnWidth (defaults to 0).
+- During a column break (breakline entry, or when the current column runs out of
+	vertical space without use_scrollframe), the horizontal advance normally uses
+	maxColumnWidth, the widest widget + text seen on that column. When fixed_width
+	is non-zero the advance uses fixed_width instead:
+		currentXOffset = currentXOffset + (fixedColumnWidth ~= 0 and fixedColumnWidth or maxColumnWidth) + 20
+- The trailing +20 column gap is preserved in both modes.
+- Applies to both BuildMenu and BuildMenuVolatile.
+- Has no effect on align_as_pairs column breaks, which advance using
+	align_as_pairs_string_space + widget width + align_as_pairs_spacing instead.
+
+Why it matters
+- Without this option the width of a column is dictated by its single widest
+	option, so columns can end up uneven and shift horizontally depending on which
+	labels happen to be longest. Setting fixed_width gives every column the same
+	predictable width for a clean, aligned grid.
 
 ---------------------------------------------------------------------
 language_addonId

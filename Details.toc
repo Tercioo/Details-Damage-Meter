@@ -1,4 +1,4 @@
-## Interface: 120007
+## Interface: 120007, 120100
 ## Interface-Mists: 50503, 50504
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.

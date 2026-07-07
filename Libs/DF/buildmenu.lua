@@ -1105,7 +1105,9 @@ local parseOptionsTable = function(menuOptions)
     --the scrollBox child will be used as the parent, and the height of the child will be resized to fit the widgets
     local bUseScrollFrame = menuOptions.use_scrollframe
     local languageAddonId = menuOptions.language_addonId
-    return bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft
+    --fixed column width, when set the column advances by this amount instead of the widest widget on the column
+    local nFixedColumnWidth = menuOptions.fixed_width or 0
+    return bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft, nFixedColumnWidth
 end
 
 local parseParent = function(bUseScrollFrame, parent, height, yOffset)
@@ -1191,6 +1193,7 @@ local getOrCreateGroupFrame = function(parent, groupName, widgetTable, isVolatil
         groupFrame = parent.widget_list_by_type["group"][poolIndex]
         if not groupFrame then
             groupFrame = CreateFrame("frame", nil, parent, "BackdropTemplate")
+            groupFrame:SetFrameLevel(parent:GetFrameLevel()+5)
             groupFrame.backgroundTexture = groupFrame:CreateTexture(nil, "background")
             groupFrame.backgroundTexture:SetAllPoints()
             table.insert(parent.widget_list_by_type["group"], groupFrame)
@@ -1198,6 +1201,7 @@ local getOrCreateGroupFrame = function(parent, groupName, widgetTable, isVolatil
         indexTable["group"] = poolIndex + 1
     else
         groupFrame = CreateFrame("frame", nil, parent, "BackdropTemplate")
+        groupFrame:SetFrameLevel(parent:GetFrameLevel()+5)
         groupFrame.backgroundTexture = groupFrame:CreateTexture(nil, "background")
         groupFrame.backgroundTexture:SetAllPoints()
         table.insert(parent.widget_list_by_type["group"], groupFrame)
@@ -1539,6 +1543,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
     local currentYOffset = yOffset or 0
     local maxColumnWidth = 0 --biggest width of widget + text size on the current column loop pass
     local maxWidgetWidth = 0 --biggest widget width on the current column loop pass
+    local fixedColumnWidth = 0 --when different than zero, columns advance by this fixed amount instead of maxColumnWidth
     local canvasFrame = parent
 
     --which is the next widget to get from the pool
@@ -1555,7 +1560,8 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
 
     parseOptionsTypes(menuOptions)
 
-    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft = parseOptionsTable(menuOptions)
+    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft, nFixedColumnWidth = parseOptionsTable(menuOptions)
+    fixedColumnWidth = nFixedColumnWidth
     parent, height = parseParent(bUseScrollFrame, parent, height, yOffset)
     local languageTable = parseLanguageTable(languageAddonId)
 
@@ -1819,7 +1825,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                             if (bAlignAsPairs) then
                                 currentXOffset = currentXOffset + nAlignAsPairsLength + (widgetWidth or maxWidgetWidth) + nAlignAsPairsSpacing
                             else
-                                currentXOffset = currentXOffset + maxColumnWidth + 20
+                                currentXOffset = currentXOffset + (fixedColumnWidth ~= 0 and fixedColumnWidth or maxColumnWidth) + 20
                             end
 
                             amountLineWidgetAdded = 0
@@ -1829,7 +1835,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     else
                         if (widgetTable.type == "breakline" or currentYOffset < height) then
                             currentYOffset = yOffset
-                            currentXOffset = currentXOffset + maxColumnWidth + 20
+                            currentXOffset = currentXOffset + (fixedColumnWidth ~= 0 and fixedColumnWidth or maxColumnWidth) + 20
                             amountLineWidgetAdded = 0
                             maxColumnWidth = 0
                         end
@@ -1899,6 +1905,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
     local currentYOffset = yOffset or 0
     local maxColumnWidth = 0 --biggest width of widget + text size on the current column loop pass
     local maxWidgetWidth = 0 --biggest widget width on the current column loop pass
+    local fixedColumnWidth = 0 --when different than zero, columns advance by this fixed amount instead of maxColumnWidth
     local canvasFrame = parent
 
     textTemplate, dropdownTemplate, switchTemplate, sliderTemplate, buttonTemplate, switchIsCheckbox = parseTemplates(textTemplate, dropdownTemplate, switchTemplate, sliderTemplate, buttonTemplate, switchIsCheckbox)
@@ -1908,7 +1915,8 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
     --parse settings and the options table
     parseOptionsTypes(menuOptions)
 
-    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft = parseOptionsTable(menuOptions)
+    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft, nFixedColumnWidth = parseOptionsTable(menuOptions)
+    fixedColumnWidth = nFixedColumnWidth
     parent, height = parseParent(bUseScrollFrame, parent, height, yOffset)
     local languageTable = parseLanguageTable(languageAddonId)
 
@@ -2233,7 +2241,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                         if (bAlignAsPairs) then
                             currentXOffset = currentXOffset + nAlignAsPairsLength + (widgetWidth or maxWidgetWidth) + nAlignAsPairsSpacing
                         else
-                            currentXOffset = currentXOffset + maxColumnWidth + 20
+                            currentXOffset = currentXOffset + (fixedColumnWidth ~= 0 and fixedColumnWidth or maxColumnWidth) + 20
                         end
 
                         amountLineWidgetAdded = 0
@@ -2243,7 +2251,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 else
                     if (widgetTable.type == "breakline" or currentYOffset < height) then
                         currentYOffset = yOffset
-                        currentXOffset = currentXOffset + maxColumnWidth + 20
+                        currentXOffset = currentXOffset + (fixedColumnWidth ~= 0 and fixedColumnWidth or maxColumnWidth) + 20
                         amountLineWidgetAdded = 0
                         maxColumnWidth = 0
                     end

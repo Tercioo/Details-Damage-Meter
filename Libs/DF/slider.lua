@@ -1723,3 +1723,74 @@ function DF:CreateOnEnterIgnoreZone()
 
 	return _G.DetailsFrameworkIgnoreHoverOverFrame
 end
+
+local mouseCaptureFunc = function(self, deltaTime)
+	local cMousePosX, cMousePosY = GetCursorPosition()
+
+	local offSetX = cMousePosX - self.mousePosX
+	local offSetY = cMousePosY - self.mousePosY
+	self.mousePosX = cMousePosX
+	self.mousePosY = cMousePosY
+
+	--mouse moving right or up turns the knob clockwise, left or down turns it counter clockwise
+	--clockwise means decreasing the radian, hence the subtraction
+	local delta = (offSetX + offSetY) * self.mouseToRadians
+	self.currentRadian = Clamp(self.currentRadian - delta, self.minRadian, self.maxRadian)
+
+	--normalized value: 0 at the bottom-left, maxValue at the bottom-right
+	self.value = (self.maxRadian - self.currentRadian) / (self.maxSweep * 2) * self.maxValue
+
+	self.KnobTexture:SetRotation(self.currentRadian)
+end
+
+local knobOnMouseDown = function(self)
+	self.mousePosX, self.mousePosY = GetCursorPosition()
+	self:SetScript("OnUpdate", mouseCaptureFunc)
+	self.capturingMouseMoviment = true
+end
+
+local knobOnMouseUp = function(self)
+	self.capturingMouseMoviment = false
+	self:SetScript("OnUpdate", nil)
+end
+
+local createKnob = function(parent, name, width, height)
+    local f = CreateFrame("frame", name, parent)
+    f:SetSize(width, height)
+	f.maxSweep = math.rad(150)
+    f.value = 0
+    f.maxValue = 1
+    --positive rotation is counter clockwise in wow, so the min value (bottom-left) is +maxSweep and the max value (bottom-right) is -maxSweep
+    f.minRadian = -f.maxSweep
+    f.maxRadian = f.maxSweep
+    f.currentRadian = f.maxRadian
+
+	f.mousePosX = 0
+	f.mousePosY = 0
+	f.mouseToRadians = 0.02
+
+    local texture = f:CreateTexture("$parentCircularTexture", "overlay")
+    texture:SetTexture([[Interface\AddOns\Details\images\buttons\button1.png]])
+    texture:SetPoint("center")
+    texture:SetRotation(f.currentRadian)
+	f.KnobTexture = texture
+
+    f:SetScript("OnMouseDown", knobOnMouseDown)
+    f:SetScript("OnMouseUp", knobOnMouseUp)
+
+	return f
+end
+
+function DF:CreateKnob(parent, name, width, height)
+	if (not name) then
+		name = "DetailsFrameworkKnob" .. DF.SliderCounter
+		DF.SliderCounter = DF.SliderCounter + 1
+
+	elseif (not parent) then
+		return error("DF:CreateKnob(): parent not found.", 2)
+	end
+
+	local newKnob = createKnob(parent, name, width, height)
+	return newKnob
+end
+--createKnob()

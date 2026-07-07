@@ -44,6 +44,7 @@ local PixelUtil = PixelUtil
 ---@field OnMouseDown fun(self: df_tabcontainerframe, button: string)
 ---@field OnMouseUp fun(self: df_tabcontainerframe, button: string)
 ---@field RefreshOptions fun(self: df_tabcontainerframe)|nil
+---@field RightClickToBackLabel df_label?
 
 ---@class df_tabcontainerbutton : button
 ---@field selectedUnderlineGlow texture
@@ -391,12 +392,14 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 				rightClickToBack:SetAlpha(optionsTable.close_text_alpha)
 			end
 			tabFrame.bIsFrontPage = true
+            tabFrame.RightClickToBackLabel = rightClickToBack
 		else
 			rightClickToBack = detailsFramework:CreateLabel(tabFrame, "right click to go back to main menu", 10, "gray")
 			rightClickToBack:SetPoint("bottomright", tabFrame, "bottomright", -1, optionsTable.right_click_y or 0)
 			if (optionsTable.close_text_alpha) then
 				rightClickToBack:SetAlpha(optionsTable.close_text_alpha)
 			end
+            tabFrame.RightClickToBackLabel = rightClickToBack
 		end
 
 		if (optionsTable.hide_click_label) then

@@ -576,7 +576,7 @@ local defaultOptions = {
     color = {.1, .1, .1, 1},
     border_color = {.2, .2, .2, .5},
     corner_texture = [[Interface\CHARACTERFRAME\TempPortraitAlphaMaskSmall]],
-    titlebar_height = 26,
+    titlebar_height = 20,
 }
 
 local defaultPreset = {
