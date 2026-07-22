@@ -367,6 +367,13 @@ function ArenaSummary.OnArenaEnd() --~end
         return
     end
 
+    --combatData is only built by OnArenaStart(); if that never ran for this match
+    --(e.g. a /reload or enabling the addon while already inside the arena), there is
+    --nothing to summarize and the combatData.* accesses below would error. Bail out.
+    if (not Details222.ArenaSummary.arenaData.combatData) then
+        return
+    end
+
     local combat = Details:GetCurrentCombat()
     local combatTime = combat:GetCombatTime()
     if (Details.arena_debug) then
