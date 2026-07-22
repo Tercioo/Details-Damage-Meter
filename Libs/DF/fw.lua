@@ -1,7 +1,7 @@
 -- SPDX-License-Identifier: LGPL-2.1-or-later
 -- Details Framework (DetailsFramework-1.0) -- see Libs/DF/LICENSE
 
-local dversion = 749
+local dversion = 750
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -263,6 +263,7 @@ function DF.IsMidnightWowAPI()
 	if (buildInfo < 130000 and buildInfo >= 120000) then return true end
 	if (buildInfo < 60000 and buildInfo >= 50504) then   return true end
 	if (buildInfo < 30000 and buildInfo >= 20506) then   return true end
+	if (buildInfo < 20000 and buildInfo >= 11509) then   return true end
 	return false
 end
 
