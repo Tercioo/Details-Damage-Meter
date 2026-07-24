@@ -6,6 +6,22 @@ local addonName, Details222 = ...
 local C_Timer = C_Timer
 local UnitName = UnitName
 
+---decode combat data stored in the character saved variables back into a table
+---accepts plain tables saved by older versions, return nil if the data is missing or damaged
+---@param storedData string|table|nil
+---@return table|nil
+local decodeCombatData = function(storedData)
+	if (type(storedData) == "string") then
+		return Details222.Serializer.Deserialize(storedData)
+
+	elseif (type(storedData) == "table") then
+		--plain table from before combat data was serialized, or a save fallback after a failed serialization
+		return storedData
+	end
+
+	return nil
+end
+
 --On Details! Load load default keys into the main object
 function Details222.LoadSavedVariables.DefaultProfile()
 	for key, value in pairs(Details.default_profile) do
@@ -58,6 +74,28 @@ function Details222.LoadSavedVariables.CharacterData()
 	end
 end
 
+---convert profiles stored by older versions into per profile serialized strings
+---runs once on login, plain table entries are sanitized and serialized in place
+function Details222.LoadSavedVariables.MigrateProfiles()
+	local savedData = _detalhes_global
+	if (not savedData) then
+		return
+	end
+
+	--serialize plain table profiles in place
+	local profileStorage = savedData.__profiles
+	if (type(profileStorage) == "table") then
+		for profileName, storedProfile in pairs(profileStorage) do
+			if (type(storedProfile) == "table") then
+				local encodedString = Details222.Serializer.Serialize(storedProfile)
+				if (encodedString) then
+					profileStorage[profileName] = encodedString
+				end
+			end
+		end
+	end
+end
+
 --check if this is a first run, reset, or just load the saved data.
 function Details222.LoadSavedVariables.SharedData()
 	local defaultAccountData = Details.default_global_data
@@ -67,6 +105,9 @@ function Details222.LoadSavedVariables.SharedData()
 		currentAccountData = Details.CopyTable(defaultAccountData)
 		--[[GLOBAL]] _detalhes_global = currentAccountData
 	end
+
+	--convert profiles stored by older versions into per profile serialized strings
+	Details222.LoadSavedVariables.MigrateProfiles()
 
 	for key, value in pairs(defaultAccountData) do
 		if (currentAccountData[key] == nil) then
@@ -112,10 +153,16 @@ function Details222.LoadSavedVariables.CombatSegments()
 	end
 
 	--custom displays - if there's no saved custom display, they will be filled from the StartMeUp() when a new version is installed
+	--rebuild the custom displays from a sanitized copy, this also removes __index class pollution left behind by old versions
 	if (_detalhes_global.custom) then
-		Details.custom = _detalhes_global.custom
+		Details.custom = Details222.Serializer.SanitizeCopy(_detalhes_global.custom)
 		Details.refresh:r_atributo_custom()
 	end
+
+	--combat data from the last session is stored serialized, decode it back into plain tables
+	--a damaged entry decodes to nil and falls into the clear data path below
+	currentCharacterData.tabela_historico = decodeCombatData(currentCharacterData.tabela_historico)
+	currentCharacterData.tabela_overall = decodeCombatData(currentCharacterData.tabela_overall)
 
 	local bShouldClearAndExit = not currentCharacterData.tabela_historico
 
@@ -234,7 +281,7 @@ function Details222.LoadSavedVariables.LoadConfig()
 
 		--switch tables
 			Details.switch.slots = _detalhes_global.switchSaved.slots
-			Details.switch.table = _detalhes_global.switchSaved.table
+			Details.switch.table = Details222.Serializer.SanitizeCopy(_detalhes_global.switchSaved.table)
 
 			if (Details.switch.table) then
 				for i = 1, #Details.switch.table do
@@ -287,14 +334,16 @@ function Details222.LoadSavedVariables.LoadConfig()
 			if (Details.always_use_profile and not Details.always_use_profile_exception [unitname]) then
 				local profile_name = Details.always_use_profile_name
 				if (profile_name and profile_name ~= "" and Details:GetProfile (profile_name)) then
-					_detalhes_database.active_profile = profile_name
+					Details:SetCharacterProfile(profile_name)
 				end
 			end
 
-		--character first run
-			if (_detalhes_database.active_profile == "") then
+		--character first run: no profile is assigned to this character yet
+			local legacyProfileName = _detalhes_database.active_profile --before profile assignments moved to the account wide data
+			local hasLegacyProfileName = type(legacyProfileName) == "string" and legacyProfileName ~= ""
+			if (not Details:GetCharacterProfile() and not hasLegacyProfileName) then
 				Details.character_first_run = true
-				--� a primeira vez que este character usa profiles,  precisa copiar as keys existentes
+				--first time this character uses profiles, copy the current settings into its new profile
 				local current_profile_name = Details:GetCurrentProfileName()
 				Details:GetProfile (current_profile_name, true)
 				Details:SaveProfileSpecial()
@@ -354,10 +403,16 @@ function Details222.LoadSavedVariables.LoadConfig()
 				end
 
 				Details.tabela_instancias = {}
+
+				--save the window data written into the profile above, ApplyProfile decodes it back from the saved data
+				Details:StoreProfile(current_profile_name, profile)
 			end
 
 		--apply the profile
 		Details:ApplyProfile(current_profile_name, true)
+
+		--the assignment now lives in the account wide data, GetCurrentProfileName adopted the legacy value above
+		_detalhes_database.active_profile = nil
 end
 
 --On Details! Load count logons, tutorials, etc

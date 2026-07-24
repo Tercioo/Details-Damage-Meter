@@ -3,6 +3,23 @@
 local Details = 		_G.Details
 local addonName, Details222 = ...
 
+---sanitize and serialize a combat data table for storage in the character saved variables
+---if the serialization fails, a sanitized plain copy is returned instead so the combat data isn't lost
+---@param dataTable table
+---@return string|table|nil
+local encodeCombatData = function(dataTable)
+	if (type(dataTable) ~= "table") then
+		return nil
+	end
+
+	local encodedString = Details222.Serializer.Serialize(dataTable)
+	if (encodedString) then
+		return encodedString
+	end
+
+	return Details222.Serializer.SanitizeCopy(dataTable)
+end
+
 function Details:WipeConfig()
 	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 
@@ -104,14 +121,14 @@ function Details222.SaveVariables.SaveConfig()
 	end)
 
 	_detalhes_database.tabela_instancias = {} --Details.tabela_instancias --[[instances now saves only inside the profile --]]
-	_detalhes_database.tabela_historico = Details.tabela_historico
+
+	--combat data is stored serialized (CBOR -> Deflate -> Base64), it's decoded back into plain tables on the next login
+	_detalhes_database.tabela_historico = encodeCombatData(Details.tabela_historico)
 
 	if (Details.overall_clear_logout) then
-		if (_detalhes_database.tabela_overall) then
-			_detalhes_database.tabela_overall = nil
-		end
+		_detalhes_database.tabela_overall = nil
 	else
-		_detalhes_database.tabela_overall = Details.tabela_overall
+		_detalhes_database.tabela_overall = encodeCombatData(Details.tabela_overall)
 	end
 
 	local name, instanceType = GetInstanceInfo()
@@ -137,9 +154,13 @@ function Details222.SaveVariables.SaveConfig()
 	end
 
 	--save shared data (shared among all characters)
+	--tables are stored as sanitized copies: no direct references to runtime objects, no metatables, functions or cycles
 	for key in pairs(Details.default_global_data) do
-		if (key ~= "__profiles") then
-			_detalhes_global[key] = Details[key]
+		local value = Details[key]
+		if (type(value) == "table") then
+			_detalhes_global[key] = Details222.Serializer.SanitizeCopy(value)
+		else
+			_detalhes_global[key] = value
 		end
 	end
 
@@ -155,8 +176,9 @@ function Details222.SaveVariables.SaveConfig()
 	_detalhes_database.RaidTablesSaved = nil
 
 	--save bookmark tables
+	_detalhes_global.switchSaved = _detalhes_global.switchSaved or {}
 	_detalhes_global.switchSaved.slots = Details.switch.slots
-	_detalhes_global.switchSaved.table = Details.switch.table
+	_detalhes_global.switchSaved.table = Details222.Serializer.SanitizeCopy(Details.switch.table)
 
 	--last boss (boss name)
 	_detalhes_database.last_encounter = Details.last_encounter
@@ -165,14 +187,4 @@ function Details222.SaveVariables.SaveConfig()
 	_detalhes_database.last_realversion = Details.realversion --core number
 	_detalhes_database.last_version = Details.userversion --version
 	_detalhes_global.got_first_run = true
-
-	pcall(function()
-		--save the profile assigned to the character
-		_detalhes_global.__char_profiles = _detalhes_global.__char_profiles or {}
-		local realmName = GetRealmName()
-		local charName = UnitName("player")
-		_detalhes_global.__char_profiles[charName .. "-" .. realmName] = Details:GetCurrentProfileName()
-		--local charGUID = UnitGUID("player")
-		--_detalhes_global.__char_profiles[charGUID] = Details:GetCurrentProfileName()
-	end)
 end

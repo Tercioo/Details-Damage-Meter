@@ -235,6 +235,7 @@
 		Details222.PlayerStats = {}
 		Details222.LoadSavedVariables = {}
 		Details222.SaveVariables = {}
+		Details222.Serializer = {}
 		Details222.Encode = {}
 		Details222.GuessSpecSchedules = {
 			Schedules = {},
@@ -2259,6 +2260,6 @@ end
 ---@param self details
 ---@return table<charname, profilekey> --a table in the format [charName] = profileKey
 function DetailsAPI:GetProfileAssignments()
-	local result = DetailsFramework.table.copy({}, _detalhes_global.__char_profiles)
+	local result = DetailsFramework.table.copy({}, Details:GetCharacterProfileMap() or {})
 	return result
 end

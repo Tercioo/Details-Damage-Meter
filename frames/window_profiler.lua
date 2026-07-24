@@ -16,10 +16,7 @@ function Details:OpenProfiler()
 
     else
         --check is this is the first run of the addon (after being installed)
-        local amount = 0
-        for name, profile in pairs(_detalhes_global.__profiles) do
-            amount = amount + 1
-        end
+        local amount = #Details:GetProfileList()
         if (amount == 1) then
             return
         end

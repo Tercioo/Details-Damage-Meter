@@ -569,13 +569,14 @@ end
 
 -- ~compress ~zip ~export ~import ~deflate ~serialize
 function Details:CompressData(data, dataType, bUseBlizzardEncoding)
-	if bUseBlizzardEncoding then
-		local dataCopied = DetailsFramework.table.copytocompress({}, data)
-		local serializedString = C_EncodingUtil.SerializeCBOR(dataCopied)
-		local compressedString = C_EncodingUtil.CompressString(serializedString)
-		local encodedString = C_EncodingUtil.EncodeBase64(compressedString)
-		local file = "D!ProfileV2-" .. encodedString
-		return file
+	if (bUseBlizzardEncoding) then
+		--the serializer sanitizes the data and returns nil if the data can't be serialized
+		local encodedString = Details222.Serializer.Serialize(data)
+		if (encodedString) then
+			return "D!ProfileV2-" .. encodedString
+		end
+
+		return
 	end
 
 	local LibDeflate = LibStub:GetLibrary("LibDeflate")
@@ -603,15 +604,10 @@ function Details:CompressData(data, dataType, bUseBlizzardEncoding)
 end
 
 function Details:DecompressData(data, dataType)
-	if data:sub(1, #"D!ProfileV2-") == "D!ProfileV2-" then
+	if (data:sub(1, #"D!ProfileV2-") == "D!ProfileV2-") then
 		local encodedString = string.sub(data, #"D!ProfileV2-" + 1)
-		local decodedString = C_EncodingUtil.DecodeBase64(encodedString)
-		local decompressedString = C_EncodingUtil.DecompressString(decodedString)
-		if (decompressedString) then
-			local decodedData = C_EncodingUtil.DeserializeCBOR(decompressedString)
-			return decodedData
-		end
-		return ""
+		--the serializer returns nil if the string is damaged
+		return Details222.Serializer.Deserialize(encodedString)
 	end
 
 	local LibDeflate = LibStub:GetLibrary("LibDeflate")

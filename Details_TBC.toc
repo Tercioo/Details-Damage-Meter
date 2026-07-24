@@ -52,6 +52,7 @@ functions\classes.lua
 functions\buff.lua
 functions\spellcache.lua
 functions\attributes.lua
+functions\serializer.lua
 functions\savedata.lua
 functions\slash.lua
 functions\playerclass.lua

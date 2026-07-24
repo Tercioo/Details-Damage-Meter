@@ -4415,7 +4415,7 @@ do
 		end
 
         local sectionOptions = {
-            {type = "label", get = function() return Loc["STRING_OPTIONS_PROFILES_CURRENT"] .. " |cFFFFFFFF" .. _detalhes_database.active_profile end, text_template = options_text_template},
+            {type = "label", get = function() return Loc["STRING_OPTIONS_PROFILES_CURRENT"] .. " |cFFFFFFFF" .. Details:GetCurrentProfileName() end, text_template = options_text_template},
 
             {--select profile
                 type = "select",

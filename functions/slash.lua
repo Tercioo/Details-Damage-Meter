@@ -323,8 +323,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local profileName = rest
 		if (profileName and profileName ~= "") then
 
-			local profile = Details:GetProfile(profileName)
-			if (not profile) then
+			if (not Details:HasProfile(profileName)) then
 				return Details:Msg("Profile Not Found.")
 			end
 

@@ -6961,6 +6961,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--xpcall(Details.SaveConfig, logSaverError)
 		xpcall(Details222.SaveVariables.SaveConfig, logSaverError)
 
+		--saving the profile also encodes it and saves it over its stored entry
 		tinsert(_detalhes_global.exit_log, "7 - Saving Profiles.")
 		currentStep = "Saving Profile"
 		xpcall(Details.SaveProfile, logSaverError)

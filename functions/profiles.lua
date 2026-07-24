@@ -5,14 +5,199 @@ local _
 local addonName, Details222 = ...
 local detailsFramework = DetailsFramework
 
+--[[
+	profile storage:
+
+	Each profile is stored at rest as a string created by Details222.Serializer inside
+	_detalhes_global.__profiles[profileName]. A profile is decoded straight from the saved
+	data when it is needed; when profiles are swapped, the outgoing profile is serialized
+	and saved over its stored entry, then the incoming profile is decoded and applied.
+
+	There is no decoded cache: retrieveProfile() returns a fresh table on every call, the
+	encoding utils are fast enough to decode on demand. Because of that, any change made to
+	a retrieved profile table only persists after Details:StoreProfile() is called with it.
+
+	The profile assigned to each character lives in _detalhes_global.__char_profiles,
+	keyed by "CharacterName-RealmName".
+
+	This keeps the runtime from holding direct references to saved variables tables, which in
+	the past allowed metatables, functions and cyclic references to leak into the file, bloating
+	and corrupting it.
+]]
+
+---return the table holding the stored (serialized) profiles, or nil if the saved variables aren't loaded yet
+---@return table<string, string|table>|nil
+local getProfileStorage = function()
+	local savedData = _detalhes_global
+	if (not savedData) then
+		return nil
+	end
+
+	savedData.__profiles = savedData.__profiles or {}
+	return savedData.__profiles
+end
+
+---return the key identifying the current character in the character to profile assignment table
+---@return string
+local getCharacterKey = function()
+	return UnitName("player") .. "-" .. GetRealmName()
+end
+
+---serialize a profile and save it over its stored entry
+---@param profileName string
+---@param profileTable table
+---@return boolean wasStored
+function Details:StoreProfile(profileName, profileTable)
+	if (type(profileName) ~= "string" or profileName == "" or type(profileTable) ~= "table") then
+		return false
+	end
+
+	local profileStorage = getProfileStorage()
+	if (not profileStorage) then
+		return false
+	end
+
+	local encodedString = Details222.Serializer.Serialize(profileTable)
+	if (encodedString) then
+		profileStorage[profileName] = encodedString
+	else
+		--the serialization failed, store a sanitized plain table so the settings aren't lost
+		profileStorage[profileName] = Details222.Serializer.SanitizeCopy(profileTable)
+	end
+
+	return true
+end
+
+---decode a stored profile straight from the saved data, return nil if the profile doesn't exist
+---the returned table is a fresh decode: changes to it only persist after Details:StoreProfile() is called
+---if a stored string can't be decoded, it's preserved in _detalhes_global.__profiles_damaged instead of being lost
+---@param profileName string
+---@return table|nil
+local retrieveProfile = function(profileName)
+	if (type(profileName) ~= "string") then
+		return nil
+	end
+
+	local profileStorage = getProfileStorage()
+	if (not profileStorage) then
+		return nil
+	end
+
+	local storedProfile = profileStorage[profileName]
+
+	if (type(storedProfile) == "string") then
+		local profileTable = Details222.Serializer.Deserialize(storedProfile)
+		if (not profileTable) then
+			--decode failed, move the string aside so it isn't overwritten and can be recovered
+			_detalhes_global.__profiles_damaged = _detalhes_global.__profiles_damaged or {}
+			_detalhes_global.__profiles_damaged[profileName] = storedProfile
+			profileStorage[profileName] = nil
+			Details:Msg("failed to decode the profile '" .. profileName .. "', the damaged data has been preserved. Please report this error.")
+			return nil
+		end
+
+		return profileTable
+
+	elseif (type(storedProfile) == "table") then
+		--plain table from before profiles were serialized, or a store fallback after a failed serialization
+		return Details222.Serializer.SanitizeCopy(storedProfile)
+	end
+
+	return nil
+end
+
+---return true if a profile with this name exists
+---@param profileName string
+---@return boolean
+function Details:HasProfile(profileName)
+	local profileStorage = getProfileStorage()
+	return (profileStorage and profileStorage[profileName] ~= nil) and true or false
+end
+
+---delete a profile from the storage
+---@param profileName string
+local removeProfile = function(profileName)
+	local profileStorage = getProfileStorage()
+	if (profileStorage) then
+		profileStorage[profileName] = nil
+	end
+end
+
+---return an array with the name of all stored profiles
+---@return string[]
+local getProfileNameList = function()
+	local profileNames = {}
+
+	local profileStorage = getProfileStorage()
+	if (profileStorage) then
+		for profileName in pairs(profileStorage) do
+			profileNames[#profileNames + 1] = profileName
+		end
+	end
+
+	return profileNames
+end
+
+---return the table assigning a profile name to each character of the account, keys are "CharacterName-RealmName"
+---return nil if the saved variables aren't loaded yet
+---@return table<string, string>|nil
+function Details:GetCharacterProfileMap()
+	local savedData = _detalhes_global
+	if (not savedData) then
+		return nil
+	end
+
+	savedData.__char_profiles = savedData.__char_profiles or {}
+	return savedData.__char_profiles
+end
+
+---return the name of the profile assigned to the current character, nil if no profile is assigned yet
+---@return string|nil
+function Details:GetCharacterProfile()
+	local characterProfileMap = Details:GetCharacterProfileMap()
+	if (not characterProfileMap) then
+		return nil
+	end
+
+	local profileName = characterProfileMap[getCharacterKey()]
+	if (type(profileName) == "string" and profileName ~= "") then
+		return profileName
+	end
+
+	return nil
+end
+
+---assign a profile name to the current character
+---@param profileName string
+function Details:SetCharacterProfile(profileName)
+	if (type(profileName) ~= "string" or profileName == "") then
+		return
+	end
+
+	local characterProfileMap = Details:GetCharacterProfileMap()
+	if (characterProfileMap) then
+		characterProfileMap[getCharacterKey()] = profileName
+	end
+end
+
 ---return the current profile name
 ---@return string
 function Details:GetCurrentProfileName()
-	if (_detalhes_database.active_profile == "") then
-		local characterKey = UnitName ("player") .. "-" .. GetRealmName()
-		_detalhes_database.active_profile = characterKey
+	local profileName = Details:GetCharacterProfile()
+
+	if (not profileName) then
+		--older versions kept the active profile in the character saved variables, adopt it if present
+		local legacyProfileName = _detalhes_database and _detalhes_database.active_profile
+		if (type(legacyProfileName) == "string" and legacyProfileName ~= "") then
+			profileName = legacyProfileName
+		else
+			profileName = getCharacterKey()
+		end
+
+		Details:SetCharacterProfile(profileName)
 	end
-	return _detalhes_database.active_profile
+
+	return profileName
 end
 
 ---create a new profile
@@ -24,7 +209,7 @@ function Details:CreateProfile(profileName)
 	end
 
 	--check if already exists
-	if (_detalhes_global.__profiles[profileName]) then
+	if (Details:HasProfile(profileName)) then
 		return false
 	end
 
@@ -32,8 +217,8 @@ function Details:CreateProfile(profileName)
 	local newProfile = Details.CopyTable(Details.default_profile)
 	newProfile.instances = {}
 
-	--add to global container
-	_detalhes_global.__profiles[profileName] = newProfile
+	--encode and add to the stored profiles
+	Details:StoreProfile(profileName, newProfile)
 
 	--end
 	return newProfile
@@ -42,11 +227,7 @@ end
 ---return the list os all profiles
 ---@return table
 function Details:GetProfileList()
-	local profileList = {}
-	for profileName in pairs(_detalhes_global.__profiles) do
-		profileList[#profileList + 1] = profileName
-	end
-	return profileList
+	return getProfileNameList()
 end
 
 ---delete a profile
@@ -57,11 +238,11 @@ function Details:EraseProfile(profileName)
 		return false
 	end
 
-	--erase the profile from the profile container
-	_detalhes_global.__profiles[profileName] = nil
+	--erase the profile from the stored profiles
+	removeProfile(profileName)
 
-	if (_detalhes_database.active_profile == profileName) then
-		local characterKey = UnitName("player") .. "-" .. GetRealmName()
+	if (Details:GetCurrentProfileName() == profileName) then
+		local characterKey = getCharacterKey()
 		local profile = Details:GetProfile(characterKey)
 
 		if (profile) then
@@ -84,7 +265,9 @@ function Details:GetProfile(profileName, create)
 		profileName = Details:GetCurrentProfileName()
 	end
 
-	local profile = _detalhes_global.__profiles[profileName]
+	--decoded straight from the saved data, this is a fresh table on every call:
+	--changes made to it only persist after Details:StoreProfile()
+	local profile = retrieveProfile(profileName)
 
 	if (not profile and not create) then
 		return false
@@ -109,6 +292,8 @@ function Details:SetProfileCProp (name, cprop, value)
 		else
 			rawset(profile, cprop, value)
 		end
+		--encode the change over the stored profile
+		Details:StoreProfile(name, profile)
 	else
 		return
 	end
@@ -120,6 +305,7 @@ end
 function Details:ResetProfile (profile_name)
 
 	--get the profile
+		profile_name = profile_name or Details:GetCurrentProfileName()
 		local profile = Details:GetProfile (profile_name, true)
 
 		if (not profile) then
@@ -159,6 +345,9 @@ function Details:ResetProfile (profile_name)
 		instance.horizontalSnap = false
 		instance.verticalSnap = false
 		instance.snap = {}
+
+		--save the reset over the stored profile, ApplyProfile decodes it back from the saved data
+		Details:StoreProfile(profile_name, profile)
 
 		Details:ApplyProfile (profile_name, true)
 
@@ -250,7 +439,7 @@ function Details:ApplyProfile(profileName, bNoSave, bIsCopy)
 	--set the current profile
 	if (not bIsCopy) then
 		Details.active_profile = profileName
-		_detalhes_database.active_profile = profileName
+		Details:SetCharacterProfile(profileName)
 	end
 
 	--apply the skin
@@ -504,6 +693,9 @@ function Details:ApplyProfile(profileName, bNoSave, bIsCopy)
 	Details.capture_real["aura"] = true
 	Details.capture_real["spellcast"] = true
 
+	--the swap is complete: encode the applied profile (with freshly deployed defaults) over its stored entry
+	Details:StoreProfile(profileName, profile)
+
 	return true
 end
 
@@ -555,6 +747,9 @@ function Details:SaveProfile (saveas)
 	end
 	Details.do_not_save_skins = nil
 	Details222.SaveVariables.SaveLocalInstanceConfig()
+
+	--encode the profile and save it over its stored entry
+	Details:StoreProfile(profile_name, profile)
 
 	return profile
 end
@@ -1335,8 +1530,6 @@ local default_player_data = {
 	--version
 		last_realversion = Details.realversion,
 		last_version = "v1.0.0",
-	--profile
-		active_profile = "",
 	--plugins tables
 		SoloTablesSaved = {},
 		RaidTablesSaved = {},
@@ -1400,9 +1593,10 @@ Details.default_player_data = default_player_data
 
 local default_global_data = {
 
-	--profile pool
-		__profiles = {},
-		__char_profiles = {}, --table<name or guid> = profile name
+	--the profile pool (__profiles) and the character assignments (__char_profiles) are accessed
+	--directly in _detalhes_global and can't be listed here: keys listed here are copied to the
+	--runtime object on login and written back on logout, which would overwrite anything stored
+	--during the session with a stale copy
 		latest_news_saw = "",
 		always_use_profile = false,
 		always_use_profile_name = "",
@@ -1842,6 +2036,9 @@ function Details:SaveProfileSpecial()
 			end
 		end
 
+	--encode the profile and save it over its stored entry
+		Details:StoreProfile(profile_name, profile)
+
 	--end
 		return profile
 end
@@ -2189,6 +2386,9 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 
 		--transfer instance data to the new created profile
 		profileObject.instances = DetailsFramework.table.copy({}, profileData.instances)
+
+		--save the imported settings over the stored profile, ApplyProfile decodes it back from the saved data
+		Details:StoreProfile(newProfileName, profileObject)
 
 		local shouldSkipSave = overwriteExisting and Details:GetCurrentProfileName() == newProfileName
 		Details:ApplyProfile (newProfileName, shouldSkipSave)
