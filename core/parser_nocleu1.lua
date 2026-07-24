@@ -997,6 +997,11 @@ local addOverallAsSegment = function()
         local actorList = Details222.B.GetSegmentInfo(segments[8])
         for i = 1, #actorList do
             local thisActor = actorList[i]
+
+            if (issecretvalue(thisActor.name)) then
+                return
+            end
+
             local actor = damageContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
             actor.nome = thisActor.name
             actor.damage_taken = thisActor.totalAmount
@@ -1279,6 +1284,11 @@ local addSegment = function(parameterType, session, bIsUpdate, detailsId)
         local actorList = Details222.B.GetSegmentInfo(segments[8])
         for i = 1, #actorList do
             local thisActor = actorList[i]
+
+            if (issecretvalue(thisActor.name)) then
+                return
+            end
+
             local actor = damageContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
             actor.nome = thisActor.name
             actor.damage_taken = thisActor.totalAmount
