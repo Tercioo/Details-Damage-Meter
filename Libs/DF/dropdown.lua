@@ -606,41 +606,6 @@ function DropDownMetaFunctions:UseSimpleHeader(value)
 	self.isSimpleHeader = value
 end
 
--- Cache whether SetFont accepts a font *object name* (legacy) or only a file path.
--- Do not gate this on TOC >= N: a lower-bound version check would also sweep 5xxx/11xxx
--- clients that still rely on the legacy call. Probe the Font object once instead.
-local dropdownDefaultFontNameAccepted -- nil untested, true/false after first use
-
-local function setDropdownLabelDefaultFont(label, size)
-	size = size or 10
-
-	-- Upstream branch: Midnight-style API clients resolve the Font object first.
-	if DF.IsMidnightWowAPI() then
-		local fontFace, fontSize, fontFlags = GameFontHighlightSmall:GetFont()
-		DF:SetFont(label, fontFace, fontSize, fontFlags)
-		return
-	end
-
-	-- Legacy path used by other versions. Keep it when the client accepts it.
-	if dropdownDefaultFontNameAccepted ~= false then
-		local ok = pcall(label.SetFont, label, "GameFontHighlightSmall", size)
-		if ok then
-			dropdownDefaultFontNameAccepted = true
-			return
-		end
-		dropdownDefaultFontNameAccepted = false
-	end
-
-	-- Name was rejected: treat GameFontHighlightSmall as a Font object and use its file path.
-	local fontObject = rawget(_G, "GameFontHighlightSmall")
-	if fontObject and fontObject.GetFont then
-		local fontFace, _, fontFlags = fontObject:GetFont()
-		if fontFace then
-			label:SetFont(fontFace, size, fontFlags)
-		end
-	end
-end
-
 function DropDownMetaFunctions:Selected(thisOption)
 	if (not thisOption) then
 		--does not have any options?
@@ -767,7 +732,8 @@ function DropDownMetaFunctions:Selected(thisOption)
 				self.label:SetFont(font, 10, flags)
 			end
 		else
-			setDropdownLabelDefaultFont(self.label, 10)
+			local fontFace, fontSize, fontFlags = GameFontHighlightSmall:GetFont()
+			DF:SetFont(self.label, fontFace, fontSize, fontFlags)
 		end
 	end
 
