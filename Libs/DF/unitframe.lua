@@ -51,8 +51,8 @@ local IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP = IS_WOW_PROJECT_MAINLINE or (ClassicE
 local CastInfo = detailsFramework.CastInfo
 
 -- Prefer client PixelUtil when present, else DF's polyfill.
--- Some clients (e.g. CN Titan Reforged TOC 38002) expose PixelUtil without SetStatusBarValue;
--- do not use TOC ranges here — fill only the missing method so other versions stay unchanged.
+-- On CN Titan Reforged TOC 38002, global PixelUtil exists without SetStatusBarValue.
+-- Fill only the missing method (no TOC range gates) so other versions stay unchanged.
 local PixelUtil = PixelUtil or DFPixelUtil
 if PixelUtil and not PixelUtil.SetStatusBarValue then
 	-- DFPixelUtil.SetStatusBarValue needs ClampedPercentageBetween/Lerp/Round which may also be missing.
