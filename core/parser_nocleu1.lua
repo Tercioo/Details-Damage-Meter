@@ -823,14 +823,793 @@ local startWaitSecretDropTimer = function(sessionId)
     end)
 end
 
+local findSecrets
+
+findSecrets = function(t)
+    if type(t) ~= "table" then
+        return false
+    end
+
+    if issecrettable(t) then
+        return true
+    end
+
+    for k, v in pairs(t) do
+        if issecretvalue(v) then
+            return true
+        end
+
+        --'v' is known to not be a secret here due to the check in the top
+        if type(v) == "table" then
+            if findSecrets(v) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+Details222.BParser.FindSecrets = findSecrets
+
+local getBlizzardSegmentData = function(ID) --~harvest
+    local secretType = ID > 0 and DETAILS_SEGMENTTYPE_ID or DETAILS_SEGMENTTYPE_TYPE
+    local segmentId = secretType == DETAILS_SEGMENTTYPE_TYPE and ID+1 or ID
+    local segments = Details222.B.GetAllCombatTypes(secretType, segmentId)
+
+    local segmentData = {}
+    local spellsData = {}
+
+    local dealWithDuration = function(durationSeconds)
+        if durationSeconds then
+            if issecretvalue(durationSeconds) then
+                return 0
+            end
+            return durationSeconds
+        end
+        return 0
+    end
+
+    do --1 damage
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[1])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[1] = thisSegment
+        spellsData[1] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.DamageDone, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[1][thisActor.name] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --3 heal
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[3])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[3] = thisSegment
+        spellsData[3] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.HealingDone, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[3][thisActor.name] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --5 absorbs
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[5])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[5] = thisSegment
+        spellsData[5] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.Absorbs, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[5][thisActor.name] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --6 interrupts
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[6])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[6] = thisSegment
+        spellsData[6] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            if issecretvalue(thisActor.name) then
+                thisActor.name = "Secret Pet " .. math.random(0000, 999999)
+            end
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.Interrupts, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[6][thisActor.name] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --7 dispels
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[7])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[7] = thisSegment
+        spellsData[7] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.Dispels, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[7][thisActor.name] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --8 damage taken
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[8])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[8] = thisSegment
+        spellsData[8] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.DamageTaken, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[8][thisActor.name] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --9 avoidable damage taken
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[9])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[9] = thisSegment
+        spellsData[9] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.AvoidableDamageTaken, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[9][thisActor.name] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --10 deaths
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[10])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[10] = thisSegment
+        spellsData[10] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+
+                local hasDeathRecap, events, maxHealth, link = Details222.Recap.GetRecapInfoSafe(thisActor.deathRecapID)
+                if hasDeathRecap then
+                    thisActor.deathRecap = {
+                        events = events,
+                        maxHealth = maxHealth,
+                    }
+                else
+                    local bDeathHasSecrets = events
+                    if bDeathHasSecrets then
+                        return false
+                    end
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    do --11 enemy damage taken
+        local combatSources, combatSourcesAmount, totalAmount, durationSeconds, maxAmount = Details222.B.GetSegmentInfo(segments[11])
+        local thisSegment = Details222.B.GetEmptySegment()
+        if issecretvalue(totalAmount) or issecretvalue(maxAmount) then
+            return false
+        end
+
+        thisSegment.totalAmount = totalAmount
+        thisSegment.maxAmount = maxAmount
+        thisSegment.durationSeconds = dealWithDuration(durationSeconds)
+        segmentData[11] = thisSegment
+        spellsData[11] = {}
+
+        for i = 1, combatSourcesAmount do
+            local thisActor = combatSources[i]
+            local bFoundSecrets = findSecrets(thisActor)
+            if not bFoundSecrets then
+                thisSegment.combatSources[#thisSegment.combatSources+1] = thisActor
+                ---@type damagemeter_unit_spells
+                local spells = Details222.B.GetSpells(secretType, segmentId, Enum.DamageMeterType.EnemyDamageTaken, thisActor.sourceGUID, thisActor.sourceCreatureID)
+                local bFoundSpellSecrets = findSecrets(spells)
+                if not bFoundSpellSecrets then
+                    spellsData[11][thisActor.sourceCreatureID or thisActor.name or thisActor.sourceGUID] = spells
+                else
+                    return false
+                end
+            else
+                return false
+            end
+        end
+    end
+
+    return segmentData, spellsData
+end
+
+DetailsDebug = {}
+DetailsDebug.GetBlizzardSegmentData = getBlizzardSegmentData
+
+if false then
+    getBlizzardSegmentData(1)
+end
 
 local addOverallAsSegment = function()
+    local segmentData, spellsData = getBlizzardSegmentData(DETAILS_SEGMENTID_OVERALL)
+    if not segmentData or not spellsData then
+        print("loop", "addOverallAsSegment() found a secret.")
+        return false
+    end
+
+    ---@type combat
+    local currentCombat
+    local damageContainer, healingContainer, utilityContainer
+
+    do --1
+        local damageActorList = segmentData[1].combatSources
+
+        Details222.StartCombat()
+        currentCombat = Details:GetCurrentCombat()
+        damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+        healingContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_HEAL)
+        utilityContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_MISC)
+
+        Details222.MythicPlus.LogStep("addOverallAsSegment() -> start saving data: damage done.")
+
+        local canAddToCache = getcache(damageActorList)
+        --getBlizzardSegmentData(damageActorList)
+
+        for i = 1, #damageActorList do
+            local thisActor = damageActorList[i]
+            local actorName = thisActor.name
+            local actorSerial = thisActor.sourceGUID
+            local totalAmount = thisActor.totalAmount
+            local class = thisActor.classFilename
+            local icon = thisActor.specIconID
+
+            local actor
+            local okay, errorText = pcall(function()
+                actor = damageContainer:GetOrCreateActor(actorSerial, actorName, 0x512, true)
+                return actor
+            end)
+
+            if not okay then
+                --_print("Failed making a segment from overall data.")
+                --_print(errorText)
+                --return
+                error("AddOnRestrictionType `Combat` is false but client is still reporting secret values.")
+            else
+                actor = errorText
+            end
+
+            actor.nome = actorName
+            actor.total = totalAmount
+            actor.classe = class
+            actor.last_dps = thisActor.amountPerSecond
+            actor.specIcon = icon
+            actor.serial = actorSerial
+            actor.grupo = true
+            actor.displayName = actorName
+            if (icon and canAddToCache[icon]) then
+                guidCache[icon]= actorSerial
+            end
+
+            currentCombat.totals[1] = currentCombat.totals[1] + totalAmount
+            currentCombat.totals_grupo[1] = currentCombat.totals_grupo[1] + totalAmount
+
+            --spells
+            local spells = spellsData[1][thisActor.name]
+            for j = 1, #spells.combatSpells do
+                local thisSpell = spells.combatSpells[j]
+                local bCanCreateSpellIfMissing = true
+                local spellTable = actor.spells:GetOrCreateSpell(thisSpell.spellID, bCanCreateSpellIfMissing, "SPELL_DAMAGE")
+                spellTable.total = thisSpell.totalAmount
+                spellTable.id = thisSpell.spellID
+                spellTable.counter = 1
+                --thisSpell.creatureName
+                --thisSpell.combatSpellDetails
+            end
+        end
+    end
+
+    do --11
+        local actorList = segmentData[11].combatSources
+        for i = 1, #actorList do
+            local thisActor = actorList[i]
+            local actorName = thisActor.name
+            local actorSerial = thisActor.sourceGUID
+            local totalAmount = thisActor.totalAmount
+            local class = thisActor.classFilename
+            local icon = thisActor.specIconID
+
+            local actor = damageContainer:GetOrCreateActor(actorSerial, actorName, 0x60, true)
+            actor.nome = actorName
+            actor.classe = class
+            actor.last_dps = thisActor.amountPerSecond
+            actor.specIcon = icon
+            actor.serial = actorSerial
+            actor.grupo = false
+            actor.displayName = actorName
+            actor.damage_taken = totalAmount
+
+            local damageFromPlayers = actor.damage_from_players
+
+            --currentCombat.totals[1] = currentCombat.totals[1] + totalAmount
+            --currentCombat.totals_grupo[1] = currentCombat.totals_grupo[1] + totalAmount
+
+            --spells
+            --local spells = getSpells(0, nil, 10, thisActor.sourceGUID, thisActor.sourceCreatureID)
+            local spells = spellsData[11][thisActor.sourceCreatureID or thisActor.name or thisActor.sourceGUID]
+            if spells then
+                for j = 1, #spells.combatSpells do
+                    --spell details
+                    local spellDetails = spells.combatSpells[j]
+                    local spellId = spellDetails.spellID
+                    local spellAmount = spellDetails.totalAmount
+                    local dps = spellDetails.amountPerSecond
+                    local isDeadly = spellDetails.isDeadly
+                    local creatureName = spellDetails.creatureName
+                    local isAvoidable = spellDetails.isAvoidable
+                    local overkillAmount = spellDetails.overkillAmount
+
+                    --creature info
+                    local isPet = spellDetails.combatSpellDetails.isPet
+                    local unitClassFilename = spellDetails.combatSpellDetails.unitClassFilename
+                    local amount = spellDetails.combatSpellDetails.amount
+                    local unitName = spellDetails.combatSpellDetails.unitName
+                    local isMob = spellDetails.combatSpellDetails.isMob
+                    local classification = spellDetails.combatSpellDetails.classification
+                    local specIconID = spellDetails.combatSpellDetails.specIconID
+
+                    ---@class damage_from_player : table
+                    ---@field name string
+                    ---@field class string
+                    ---@field amount number
+                    ---@field dps number
+                    ---@field icon number
+
+                    --don't trust blizzard on enemy damage taken
+                    local damageFromPlayer = {
+                        name = unitName or UNKNOWN,
+                        class = unitClassFilename or "PRIEST",
+                        amount = spellAmount or 0,
+                        dps = dps or 0,
+                        icon = specIconID or 0,
+                    }
+
+                    local damagerActor = damageContainer:GetOrCreateActor(nil, unitName, 0x512, false)
+                    if damagerActor then
+                        local targetsTable = damagerActor.targets
+                        targetsTable[actorName] = (targetsTable[actorName] or 0) + (spellAmount or 0)
+                    end
+
+                    damageFromPlayers[#damageFromPlayers+1] = damageFromPlayer
+                end
+            end
+        end
+    end
+
+    do --9
+        local damageActorList = segmentData[9].combatSources
+        for i = 1, #damageActorList do
+            local thisActor = damageActorList[i]
+            local actorName = thisActor.name
+            local actorSerial = thisActor.sourceGUID
+            local totalAmount = thisActor.totalAmount
+            local class = thisActor.classFilename
+            local icon = thisActor.specIconID
+
+            local actor = damageContainer:GetOrCreateActor(actorSerial, actorName, 0x512, true)
+            actor.nome = actorName
+            actor.classe = class
+            actor.specIcon = icon
+            actor.serial = actorSerial
+            actor.grupo = true
+            actor.displayName = actorName
+            actor.avoidable_damage_taken = totalAmount
+
+            --spells
+            local spells = spellsData[9][thisActor.name]
+            for j = 1, #spells.combatSpells do
+                local thisSpell = spells.combatSpells[j]
+                local bCanCreateSpellIfMissing = true
+                local spellTable = actor.avoidable_damage_spells:GetOrCreateSpell(thisSpell.spellID, bCanCreateSpellIfMissing, "SPELL_DAMAGE")
+                spellTable.total = thisSpell.totalAmount
+                spellTable.id = thisSpell.spellID
+                spellTable.counter = 1
+                --thisSpell.creatureName
+                --thisSpell.combatSpellDetails
+            end
+        end
+    end
+
+    do --8
+        local actorList = segmentData[8].combatSources
+        local enemyDataByName = {}
+        local enemyList = segmentData[11].combatSources
+        for i = 1, #enemyList do
+            enemyDataByName[enemyList[i].name] = enemyList[i]
+        end
+
+        for i = 1, #actorList do
+            local thisActor = actorList[i]
+            local actor = damageContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
+            actor.nome = thisActor.name
+            actor.damage_taken = thisActor.totalAmount
+            actor.damage_taken_ps = thisActor.amountPerSecond
+            actor.classe = thisActor.classFilename
+            actor.last_dps = thisActor.amountPerSecond
+            actor.specIcon = thisActor.specIconID
+            actor.serial = thisActor.sourceGUID
+            actor.grupo = true
+            actor.displayName = thisActor.name
+
+            --spells
+            local spells = spellsData[8][thisActor.name]
+            for j = 1, #spells.combatSpells do
+                local thisSpell = spells.combatSpells[j]
+                local spellDetails = thisSpell.combatSpellDetails
+                local enemyName = spellDetails.unitName
+                local enemyData = enemyDataByName[enemyName]
+
+                local enemySerial = enemyData and enemyData.sourceGUID
+                if (not enemySerial and enemyData and enemyData.sourceCreatureID) then
+                    enemySerial = "Creature-0-0-0-0-" .. enemyData.sourceCreatureID .. "-0000000000"
+                else
+                    enemySerial = "Creature-0-4217-0-26-243166-" .. math.random(1000000, 9000000)
+                end
+
+                local enemyActor = damageContainer:GetOrCreateActor(enemySerial, enemyName, 0x60, true)
+                enemyActor.nome = enemyActor.nome or enemyName
+                enemyActor.classe = enemyActor.classe or spellDetails.unitClassFilename
+                enemyActor.specIcon = enemyActor.specIcon or spellDetails.specIconID
+                enemyActor.serial = enemyActor.serial or enemySerial
+                enemyActor.displayName = enemyActor.displayName or enemyName
+                enemyActor.grupo = false
+
+                if enemyActor then
+                    local playerName = thisActor.name
+                    local amount = thisSpell.totalAmount
+                    actor.damage_from[enemyActor.nome] = true
+                    enemyActor.targets[playerName] = (enemyActor.targets[playerName] or 0) + amount
+
+                    local enemySpellTable = enemyActor.spells:GetOrCreateSpell(thisSpell.spellID, true, "SPELL_DAMAGE")
+                    enemySpellTable.id = thisSpell.spellID
+                    enemySpellTable.total = enemySpellTable.total + amount
+                    enemySpellTable.counter = enemySpellTable.counter + 1
+                    enemySpellTable.targets[playerName] = (enemySpellTable.targets[playerName] or 0) + amount
+                end
+            end
+        end
+    end
+
+    do --3
+        local actorList = segmentData[3].combatSources
+        for i = 1, #actorList do
+            local thisActor = actorList[i]
+            local actor = healingContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
+            actor.nome = thisActor.name
+            actor.total = thisActor.totalAmount
+            actor.classe = thisActor.classFilename
+            actor.last_hps = thisActor.amountPerSecond
+            actor.specIcon = thisActor.specIconID
+            actor.serial = thisActor.sourceGUID
+            actor.grupo = true
+            actor.displayName = thisActor.name
+
+            currentCombat.totals[2] = currentCombat.totals[2] + thisActor.totalAmount
+            currentCombat.totals_grupo[2] = currentCombat.totals_grupo[2] + thisActor.totalAmount
+
+            --spells
+            local spells = spellsData[3][thisActor.name]
+            actor.healpotion = 0
+            for j = 1, #spells.combatSpells do
+                local thisSpell = spells.combatSpells[j]
+                local spellId = thisSpell.spellID
+                local bCanCreateSpellIfMissing = true
+                local spellTable = actor.spells:GetOrCreateSpell(spellId, bCanCreateSpellIfMissing, "SPELL_HEAL")
+                spellTable.total = thisSpell.totalAmount
+                spellTable.id = spellId
+                spellTable.counter = 1
+
+                if (spellId == DETAILS_HEALTH_POTION1_ID or spellId == DETAILS_HEALTH_POTION2_ID or spellId == DETAILS_HEALTH_POTION3_ID or spellId == DETAILS_HEALTHSTONE_ID) then
+                    actor.healpotion = actor.healpotion + thisSpell.totalAmount
+                end
+            end
+        end
+    end
+
+    do --5
+        local actorList = segmentData[5].combatSources
+        for i = 1, #actorList do
+            ---@type damagemeter_combat_source
+            local thisActor = actorList[i]
+
+            ---@type actorheal
+            local actor = healingContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
+
+            actor.nome = thisActor.name
+            actor.totalabsorb = thisActor.totalAmount
+            actor.totalabsorb_ps = thisActor.amountPerSecond
+            actor.classe = thisActor.classFilename
+            actor.last_hps = thisActor.amountPerSecond
+            actor.specIcon = thisActor.specIconID
+            actor.serial = thisActor.sourceGUID
+            actor.grupo = true
+            actor.displayName = thisActor.name
+
+            --spells
+            local spells = spellsData[5][thisActor.name]
+            for j = 1, #spells.combatSpells do
+                local thisSpell = spells.combatSpells[j]
+                local bCanCreateSpellIfMissing = true
+                local spellTable = actor.spells:GetOrCreateSpell(thisSpell.spellID, bCanCreateSpellIfMissing, "SPELL_HEAL")
+                spellTable.id = thisSpell.spellID
+                spellTable.totalabsorb = thisSpell.totalAmount
+                spellTable.counter = 1
+                spellTable.is_shield = true
+            end
+        end
+    end
+
+    do --6
+        local actorList = segmentData[6].combatSources
+        for i = 1, #actorList do
+            ---@type damagemeter_combat_source
+            local thisActor = actorList[i]
+
+            ---@type actorutility
+            local actor = utilityContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
+
+            actor.interrupt_cast_overlap = 0
+            actor.interrupt_targets = {}
+            actor.interrupt_spells = spellContainerClass:CreateSpellContainer(containerUtilityType)
+            actor.interrompeu_oque = {}
+
+            actor.nome = thisActor.name
+            actor.interrupt = thisActor.totalAmount + Details:GetOrderNumber()
+            actor.classe = thisActor.classFilename
+            actor.specIcon = thisActor.specIconID
+            actor.serial = thisActor.sourceGUID
+            actor.grupo = true
+            actor.displayName = thisActor.name
+
+            currentCombat.totals[4].interrupt = currentCombat.totals[4].interrupt + 1
+            currentCombat.totals_grupo[4].interrupt = currentCombat.totals_grupo[4].interrupt + 1
+
+            --spells
+            local spells = spellsData[6][thisActor.name]
+            for j = 1, #spells.combatSpells do
+                local thisSpell = spells.combatSpells[j]
+                local bCanCreateSpellIfMissing = true
+                local spellTable = actor.interrupt_spells:GetOrCreateSpell(thisSpell.spellID, bCanCreateSpellIfMissing, "SPELL_INTERRUPT")
+                spellTable.total = thisSpell.totalAmount
+                spellTable.id = thisSpell.spellID
+                spellTable.counter = 1
+            end
+        end
+    end
+
+    do --7
+        local actorList = segmentData[7].combatSources
+        for i = 1, #actorList do
+            ---@type damagemeter_combat_source
+            local thisActor = actorList[i]
+
+            ---@type actorutility
+            local actor = utilityContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true)
+            actor.dispell_targets = {}
+            actor.dispell_spells = spellContainerClass:CreateSpellContainer(containerUtilityType)
+            actor.dispell_oque = {}
+
+            actor.nome = thisActor.name
+            actor.dispell = thisActor.totalAmount + Details:GetOrderNumber()
+            actor.classe = thisActor.classFilename
+            actor.specIcon = thisActor.specIconID
+            actor.serial = thisActor.sourceGUID
+            actor.grupo = true
+            actor.displayName = thisActor.name
+
+            currentCombat.totals[4].dispell = currentCombat.totals[4].dispell + 1
+            currentCombat.totals_grupo[4].dispell = currentCombat.totals_grupo[4].dispell + 1
+
+            --spells
+            local spells = spellsData[7][thisActor.name]
+            for j = 1, #spells.combatSpells do
+                local thisSpell = spells.combatSpells[j]
+                local bCanCreateSpellIfMissing = true
+                local spellTable = actor.dispell_spells:GetOrCreateSpell(thisSpell.spellID, bCanCreateSpellIfMissing, "SPELL_DISPEL")
+                spellTable.total = thisSpell.totalAmount
+                spellTable.id = thisSpell.spellID
+                spellTable.counter = 1
+            end
+        end
+    end
+
+    do --10
+        local actorList = segmentData[10].combatSources
+        for i = 1, #actorList do
+            ---@type damagemeter_combat_source
+            local thisActor = actorList[i]
+            --the harvest already fetched the recap through GetRecapInfoSafe() and attached it here,
+            --calling GetRecapInfo() again would read the events back without checking them for secrets
+            local deathRecap = thisActor.deathRecap
+            if deathRecap then
+                local deathLog = Details:CreateDeathLogTable(thisActor.name, thisActor.classFilename, thisActor.specIconID, deathRecap.events, deathRecap.maxHealth)
+                table.insert(currentCombat.last_events_tables, #currentCombat.last_events_tables+1, deathLog)
+            end
+        end
+    end
+
+    Details222.MythicPlus.LogStep("addOverallAsSegment() -> done building the overall segment.")
+
+    currentCombat:SetDate("", "")
+    local elapsedTime = Details222.B.GetCombatTime(0) or 0
+    currentCombat:SetStartTime(GetTime() - elapsedTime)
+    currentCombat:SetEndTime(GetTime())
+
+    local _, instanceType = GetInstanceInfo()
+    if (instanceType == "arena") then
+        currentCombat.secretArena = true
+    end
+
+    currentCombat:SetEndTime(GetTime())
+    Details:SairDoCombate()
+
+    Details222.MythicPlus.LogStep("addOverallAsSegment() -> finished creating the overall data segment, returning currentCombat.")
+
+    return currentCombat
+end
+
+local addOverallAsSegment2_original = function()
     ---@type combat
     local currentCombat
     local segments = Details222.B.GetAllCombatTypes(DETAILS_SEGMENTTYPE_TYPE, 0)
     local damageContainer, healingContainer, utilityContainer
 
-    do
+    do --1 x
         local damageActorList = Details222.B.GetSegmentInfo(segments[1])
         Details222.StartCombat()
         currentCombat = Details:GetCurrentCombat()
@@ -841,6 +1620,8 @@ local addOverallAsSegment = function()
         Details222.MythicPlus.LogStep("addOverallAsSegment() -> start saving data: damage done.")
 
         local canAddToCache = getcache(damageActorList)
+        --getBlizzardSegmentData(damageActorList)
+
         for i = 1, #damageActorList do
             local thisActor = damageActorList[i]
             local actorName = thisActor.name
@@ -894,7 +1675,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --11
         local actorList = Details222.B.GetSegmentInfo(segments[11])
         for i = 1, #actorList do
             local thisActor = actorList[i]
@@ -973,7 +1754,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --9 x
         local damageActorList = Details222.B.GetSegmentInfo(segments[9])
         for i = 1, #damageActorList do
             local thisActor = damageActorList[i]
@@ -1007,7 +1788,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --8 x
         local actorList = Details222.B.GetSegmentInfo(segments[8])
         for i = 1, #actorList do
             local thisActor = actorList[i]
@@ -1024,7 +1805,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --3 x
         local actorList = Details222.B.GetSegmentInfo(segments[3])
         for i = 1, #actorList do
             local thisActor = actorList[i]
@@ -1065,7 +1846,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --5 x
         local actorList = Details222.B.GetSegmentInfo(segments[5])
         for i = 1, #actorList do
             ---@type damagemeter_combat_source
@@ -1086,7 +1867,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --6 x
         local actorList = Details222.B.GetSegmentInfo(segments[6])
         for i = 1, #actorList do
             ---@type damagemeter_combat_source
@@ -1130,7 +1911,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --7 x
         local actorList = Details222.B.GetSegmentInfo(segments[7])
         for i = 1, #actorList do
             ---@type damagemeter_combat_source
@@ -1168,7 +1949,7 @@ local addOverallAsSegment = function()
         end
     end
 
-    do
+    do --10
         local actorList = Details222.B.GetSegmentInfo(segments[10])
         for i = 1, #actorList do
             ---@type damagemeter_combat_source
@@ -1200,6 +1981,7 @@ local addOverallAsSegment = function()
 
     return currentCombat
 end
+
 Details222.BParser.AddOverallAsSegment = addOverallAsSegment
 --DetailsDebug = {}
 --DetailsDebug.AddOverall = Details222.BParser.AddOverallAsSegment

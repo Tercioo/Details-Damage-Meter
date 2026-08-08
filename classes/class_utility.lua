@@ -198,20 +198,22 @@ function Details.ShowDeathTooltip2(instance, lineFrame) --~death
 	Details:FormatCooltipForSpells()
 	local hasRecap, events, maxHealth, link = Details222.Recap.GetRecapInfo(lineFrame.deathRecapId)
 
-	for i = #events, 1, -1 do
-		local ev = events[i]
-		GameCooltip:AddLine(format("%s (%s)", ev.spellName or UNKNOWN, ev.sourceName or UNKNOWN), format("-%d", ev.amount), 1, "white", "white")
-		if ev.spellId then
-			local spellInfo = C_Spell.GetSpellInfo(ev.spellId)
-			GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
-		end
-		if i == 1 then
-			GameCooltip:AddStatusBar(0, 1, 1, 1, 1, 1, false)
-		else
-			GameCooltip:AddStatusBar(ev.currentHP/maxHealth*100, 1, 1, .2, 0, 0.8, false)
-		end
+	if events then
+		for i = #events, 1, -1 do
+			local ev = events[i]
+			GameCooltip:AddLine(format("%s (%s)", ev.spellName or UNKNOWN, ev.sourceName or UNKNOWN), format("-%d", ev.amount), 1, "white", "white")
+			if ev.spellId then
+				local spellInfo = C_Spell.GetSpellInfo(ev.spellId)
+				GameCooltip:AddIcon(spellInfo.iconID, 1, 1, 18, 18, .1, .9, .1, .9)
+			end
+			if i == 1 then
+				GameCooltip:AddStatusBar(0, 1, 1, 1, 1, 1, false)
+			else
+				GameCooltip:AddStatusBar(ev.currentHP/maxHealth*100, 1, 1, .2, 0, 0.8, false)
+			end
 
-		GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_hyanda]])
+			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_hyanda]])
+		end
 	end
 
 	local myPoint = Details.tooltip.anchor_point
@@ -3770,11 +3772,33 @@ end
 ---@return number
 ---@return string
 function Details222.Recap.GetRecapInfo(id)
-    local hasDeathRecap = Details.DR.HasRecapEvents(id)
+    local hasDeathRecap = Details222.DR.HasRecapEvents(id)
     if hasDeathRecap then
-        local thisRecap = Details.DR.GetRecapEvents(id)
-        local maxHealth = Details.DR.GetRecapMaxHealth(id)
-        return true, thisRecap, maxHealth, Details.DR.GetRecapLink(id)
+        local thisRecap = Details222.DR.GetRecapEvents(id)
+        local maxHealth = Details222.DR.GetRecapMaxHealth(id)
+        return true, thisRecap, maxHealth, Details222.DR.GetRecapLink(id)
 	end
 	return false
+end
+
+---usage: local hasRecap, events, maxHealth, link = Details222.Recap.GetRecapInfo(12345)
+---@param id number
+---@return boolean
+---@return deathrecapeventinfo[]
+---@return number
+---@return string
+function Details222.Recap.GetRecapInfoSafe(id)
+    local hasDeathRecap = Details222.DR.HasRecapEvents(id)
+    if hasDeathRecap then
+        local thisRecap = Details222.DR.GetRecapEvents(id)
+		if Details222.BParser.FindSecrets(thisRecap) then
+			return false, true --has secrets
+		end
+        local maxHealth = Details222.DR.GetRecapMaxHealth(id)
+		if issecretvalue(maxHealth) then
+			return false, true --has secrets
+		end
+        return true, thisRecap, maxHealth, Details222.DR.GetRecapLink(id)
+	end
+	return false, false --no death recap available
 end

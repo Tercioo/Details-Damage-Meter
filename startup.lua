@@ -167,6 +167,10 @@ function Details222.StartUp.StartMeUp()
 	Details:InitializePlaterIntegrationWindow()
 	Details:InitializeMacrosWindow()
 
+	if detailsFramework.IsAddonApocalypseWow() then
+		Details222.StorageScheduler.Initialize()
+	end
+
 	if (Details.InitializeEncounterSwapper) then
 		Details:InitializeEncounterSwapper()
 	end

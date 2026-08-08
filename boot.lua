@@ -410,8 +410,9 @@
 		---@return number amountOfActors
 		---@return number totalAmount
 		---@return number combatTime
+		---@return number maxAmount
 		function Details222.B.GetSegmentInfo(s)
-			return s.combatSources, #s.combatSources, s.totalAmount, s.durationSeconds
+			return s.combatSources, #s.combatSources, s.totalAmount, s.durationSeconds, s.maxAmount
 		end
 
 		---usage: local spellList, amountOfSpells, totalAmount, maxAmount = Details222.B.GetSpellContainerInfo(spellContainer)
@@ -794,6 +795,7 @@
 
 		local dr = C_DeathRecap
 		Details.DR = dr
+		Details222.DR = dr
 
         if (C_Spell and C_Spell.GetSpellInfo) then
             Details222.GetSpellInfo = function(...)

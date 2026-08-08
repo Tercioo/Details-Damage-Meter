@@ -81,6 +81,7 @@ functions\commentator.lua
 functions\chat_embed.lua
 functions\storage.lua
 functions\swapper\swapper.lua
+functions\storage_scheduler.lua
 
 core\parser_nocleu.lua
 

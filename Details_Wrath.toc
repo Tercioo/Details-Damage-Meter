@@ -71,6 +71,7 @@ functions\textures.lua
 functions\commentator.lua
 functions\chat_embed.lua
 functions\storage.lua
+functions\storage_scheduler.lua
 
 core\parser_nocleu.lua
 

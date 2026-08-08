@@ -408,7 +408,7 @@ do
 
 		--attempt to get spec from tooltip
 		if (not actorSpec and DetailsFramework:IsDragonflightAndBeyond()) then
-			local tooltipData = C_TooltipInfo.GetHyperlink("unit:" .. actorObject.serial)
+			local tooltipData = C_TooltipInfo.GetHyperlink("unit:" .. (actorObject.serial or "0x01"))
 			if (tooltipData and tooltipData.lines) then
 				for i = 1, #tooltipData.lines do
 					local thisLineData = tooltipData.lines[i]

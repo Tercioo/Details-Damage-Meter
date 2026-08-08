@@ -491,7 +491,7 @@ end
 
 --~tooltip
 ---@param instanceLine detailsline
-function bParser.ShowTooltip_Hook(instanceLine, mouse)
+function bParser.ShowTooltip_Hook(instanceLine)
     if not detailsFramework.IsAddonApocalypseWow() then
         return
     end
