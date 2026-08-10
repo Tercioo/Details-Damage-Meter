@@ -82,7 +82,15 @@ function Details222.OptionsPanel.SetCurrentInstanceAndRefresh(instance)
 end
 
 function Details222.OptionsPanel.UpdateAutoHideSettings(instance)
-    for contextId, line in ipairs(_G.DetailsOptionsWindowTab13.AutoHideOptions) do --tab13 = automation settings
+    local tab13 = _G.DetailsOptionsWindowTab13 --tab13 = automation settings
+    if (not tab13 or not tab13.AutoHideOptions) then
+        --tab 13's widgets are built lazily the first time the Automation tab is
+        --actually selected (see SelectOptionsSection/BuildSectionContent in
+        --window_options2.lua). If it hasn't been opened yet this session, there's
+        --nothing to update -- bail instead of crashing the whole options window.
+        return
+    end
+    for contextId, line in ipairs(tab13.AutoHideOptions) do
         line.enabledCheckbox:SetValue(instance.hide_on_context[contextId].enabled)
         line.reverseCheckbox:SetValue(instance.hide_on_context[contextId].inverse)
         line.alphaSlider:SetValue(instance.hide_on_context[contextId].value)
