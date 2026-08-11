@@ -1990,6 +1990,8 @@ Details222.BParser.AddOverallAsSegment = addOverallAsSegment
 ---@param session sessioncache
 ---@param bIsUpdate boolean|nil
 local addSegment = function(parameterType, session, bIsUpdate, detailsId)
+    do return end --> bloking the execution of this function
+
     local identifier = session.sessionId
     if not identifier then
         dumpt(session)
