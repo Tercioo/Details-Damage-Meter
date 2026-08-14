@@ -714,12 +714,12 @@ function atributo_misc:UpdateDeathRow(deathTable, whichRowLine, rankPosition, in
 		Details:SetBarLeftText(thisRow, instanceObject, false, false, false, bUseCustomLeftText)
 	end
 
-	if (instanceObject.row_info.textL_class_colors) then
+	if (instanceObject.row_info.texts[1].color.byClass) then
 		local textColor_Red, textColor_Green, textColor_Blue = actorObject:GetTextColor(instanceObject, "left")
 		thisRow.lineText1:SetTextColor(textColor_Red, textColor_Green, textColor_Blue) --the r, g, b color passed are the color used on the bar, so if the bar is not using class color, the text is painted with the fixed color for the bar
 	end
 
-	if (instanceObject.row_info.textR_class_colors) then
+	if (instanceObject.row_info.texts[2].color.byClass) then
 		local textColor_Red, textColor_Green, textColor_Blue = actorObject:GetTextColor(instanceObject, "right")
 		thisRow.lineText4:SetTextColor(textColor_Red, textColor_Green, textColor_Blue) --the r, g, b color passed are the color used on the bar, so if the bar is not using class color, the text is painted with the fixed color for the bar
 	end
@@ -769,7 +769,7 @@ function atributo_misc:UpdateDeathRow(deathTable, whichRowLine, rankPosition, in
 		gump:UpdateTooltip(whichRowLine, thisRow, instanceObject)
 	end
 
-	thisRow.lineText1:SetSize(thisRow:GetWidth() - thisRow.lineText4:GetStringWidth() - 20, 15)
+	Details222.RowTexts.FitNameText(thisRow, instanceObject)
 end
 
 function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bIsExport)
@@ -1251,8 +1251,6 @@ function atributo_misc:RefreshBarra(esta_barra, instancia, from_resize)
 	self:SetBarColors(esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	--left text
 	self:SetBarLeftText(esta_barra, instancia, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
-
-	esta_barra.lineText1:SetSize(esta_barra:GetWidth() - esta_barra.lineText4:GetStringWidth() - 20, 15)
 end
 
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------

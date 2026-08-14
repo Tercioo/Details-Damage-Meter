@@ -527,9 +527,6 @@
 				end
 			end
 		end
-
-		instance:AutoAlignInLineFontStrings()
-
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -786,8 +783,6 @@
 
 		--left text
 		self:SetBarLeftText(thisBar, instanceObject, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
-
-		thisBar.lineText1:SetSize(thisBar:GetWidth() - thisBar.lineText4:GetStringWidth() - 20, 15)
 
 	end
 

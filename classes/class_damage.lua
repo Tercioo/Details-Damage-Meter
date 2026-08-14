@@ -325,11 +325,12 @@ function Details:GetTextColor(instanceObject, textSide)
 	local actorObject = self
 	textSide = textSide or "left"
 
+	--"left" is the unit name (text 1), "right" is the value columns, which share this setting
 	local bUseClassColor = false
 	if (textSide == "left") then
-		bUseClassColor = instanceObject.row_info.textL_class_colors
+		bUseClassColor = instanceObject.row_info.texts[1].color.byClass
 	elseif(textSide == "right") then
-		bUseClassColor = instanceObject.row_info.textR_class_colors
+		bUseClassColor = instanceObject.row_info.texts[2].color.byClass
 	end
 
 	if (bUseClassColor) then
@@ -1121,7 +1122,7 @@ end
 		thisLine.lineText3:SetTextColor(1, 1, 1, 1)
 		thisLine.lineText4:SetTextColor(1, 1, 1, 1)
 
-		thisLine.lineText1:SetSize(thisLine:GetWidth() - thisLine.lineText4:GetStringWidth() - 20, 15)
+		Details222.RowTexts.FitNameText(thisLine, instance)
 
 		if (colocacao == 1) then
 			thisLine:SetValue(100)
@@ -1308,7 +1309,7 @@ end
 			thisLine.lineText4:SetText(total_frags .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
 		end
 
-		thisLine.lineText1:SetSize(thisLine:GetWidth() - thisLine.lineText4:GetStringWidth() - 20, 15)
+		Details222.RowTexts.FitNameText(thisLine, instancia)
 
 		if (colocacao == 1) then
 			thisLine:SetValue(100)
@@ -1739,7 +1740,7 @@ end
 		end
 
 		thisLine.lineText1:SetText(colocacao .. ". " .. self.nome)
-		thisLine.lineText1:SetSize(thisLine:GetWidth() - thisLine.lineText4:GetStringWidth() - 20, 15)
+		Details222.RowTexts.FitNameText(thisLine, instancia)
 
 		thisLine.lineText1:SetTextColor(1, 1, 1, 1)
 		thisLine.lineText4:SetTextColor(1, 1, 1, 1)
@@ -3034,138 +3035,9 @@ function damageClass:RefreshWindow(instance, combatObject, bForceUpdate, bExport
 
 	Details.LastFullDamageUpdate = Details._tempo
 
-	if not detailsFramework.IsAddonApocalypseWow() then
-		instance:AutoAlignInLineFontStrings()
-	end
-
 	return Details:EndRefresh(instance, total, combatObject, damageContainer) --retorna a tabela que precisa ganhar o refresh
 end
 end
-
---self is instance
-function Details:AutoAlignInLineFontStrings()
-	--if this instance is using in line texts, check the min distance and the length of strings to make them more spread appart
-	if (self.use_multi_fontstrings and self.use_auto_align_multi_fontstrings) then
-		if detailsFramework.IsAddonApocalypseWow() then
-			return
-		end
-
-		local maxStringLength_StringFour = 0
-		local maxStringLength_StringThree = 0
-		local profileOffsetString3 = self.fontstrings_text3_anchor
-		local profileOffsetString2 = self.fontstrings_text2_anchor
-		local profileYOffset = self.row_info.text_yoffset
-
-		Details.CacheInLineMaxDistance = Details.CacheInLineMaxDistance or {}
-		Details.CacheInLineMaxDistance[self:GetId()] = Details.CacheInLineMaxDistance[self:GetId()] or {[2] = profileOffsetString2, [3] = profileOffsetString3}
-
-		--space between string4 and string3(usually dps is 4 and total value is 3)
-		for lineId = 1, self:GetNumLinesShown() do
-			local thisLine = self:GetLine(lineId)
-			if (thisLine) then
-				--check strings 3 and 4
-				if (thisLine.lineText4:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
-					--the length of the far right string determines the space between it and the next string in the left
-					local stringLength = thisLine.lineText4:GetStringWidth()
-					maxStringLength_StringFour = stringLength > maxStringLength_StringFour and stringLength or maxStringLength_StringFour
-				end
-
-				--check strings 2 and 3
-				if (thisLine.lineText2:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
-					--the length of the middle string determines the space between it and the next string in the left
-					local stringLength = thisLine.lineText3:GetStringWidth()
-					maxStringLength_StringThree = stringLength > maxStringLength_StringThree and stringLength or maxStringLength_StringThree
-				end
-			end
-		end
-
-		--if the length bigger than the min distance? calculate for string4 to string3 distance
-		if ((maxStringLength_StringFour > 0) and(maxStringLength_StringFour + 5 > profileOffsetString3)) then
-			local newOffset = maxStringLength_StringFour + 5
-
-			--check if the current needed min distance is bigger than the distance stored in the cache
-			local currentCacheMaxValue = Details.CacheInLineMaxDistance[self:GetId()][3]
-			if (currentCacheMaxValue < newOffset) then
-				currentCacheMaxValue = newOffset
-				Details.CacheInLineMaxDistance[self:GetId()][3] = currentCacheMaxValue
-			else
-				--if not, use the distance value cached to avoid jittering in the string
-				newOffset = currentCacheMaxValue
-			end
-
-			--update the lines
-			for lineId = 1, self:GetNumLinesShown() do
-				local thisLine = self:GetLine(lineId)
-				if (thisLine) then
-					thisLine.lineText3:SetPoint("right", thisLine.statusbar, "right", -newOffset, profileYOffset)
-				end
-			end
-		end
-
-		--check if there's length in the third string, also the third string cannot have a length if the second string is empty
-		if (maxStringLength_StringThree > 0) then
-			local newOffset = maxStringLength_StringThree + maxStringLength_StringFour + 14
-			if (newOffset >= profileOffsetString2) then
-				--check if the current needed min distance is bigger than the distance stored in the cache
-				local currentCacheMaxValue = Details.CacheInLineMaxDistance[self:GetId()][2]
-				if (currentCacheMaxValue < newOffset) then
-					currentCacheMaxValue = newOffset
-					Details.CacheInLineMaxDistance[self:GetId()][2] = currentCacheMaxValue
-				else
-					--if not, use the distance value cached to avoid jittering in the string
-					newOffset = currentCacheMaxValue
-				end
-
-				--update the lines
-				for lineId = 1, self:GetNumLinesShown() do
-					local thisLine = self:GetLine(lineId)
-					if (thisLine) then
-						thisLine.lineText2:SetPoint("right", thisLine.statusbar, "right", -newOffset, profileYOffset)
-					end
-				end
-			end
-		end
-
-		--reduce the size of the actor name string based on the total size of all strings in the right side
-		for lineId = 1, self:GetNumLinesShown() do
-			local thisLine = self:GetLine(lineId)
-
-			--check if there's something showing in this line
-			--check if the line is shown and if the text exists for sanitization
-			if (thisLine and thisLine.minha_tabela and thisLine:IsShown() and thisLine.lineText1:GetText()) then
-				local playerNameFontString = thisLine.lineText1
-				local text2 = thisLine.lineText2
-				local text3 = thisLine.lineText3
-				local text4 = thisLine.lineText4
-
-				local totalWidth = text2:GetStringWidth() + text3:GetStringWidth() + text4:GetStringWidth()
-				totalWidth = totalWidth + 40 - self.fontstrings_text_limit_offset
-
-				DetailsFramework:TruncateTextSafe(playerNameFontString, self.cached_bar_width - totalWidth) --this avoid truncated strings with ...
-
-				--these commented lines are for to create a cache and store the name already truncated there to safe performance
-				--local truncatedName = playerNameFontString:GetText()
-				--local actorObject = thisLine.minha_tabela
-				--actorObject.name_cached = truncatedName
-				--actorObject.name_cached_time = GetTime()
-			end
-		end
-	end
-end
-
---handle internal details! events
-local eventListener = Details:CreateEventListener()
-eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function(eventName, combatObject)
-	if (Details.CacheInLineMaxDistance) then
-		Details:Destroy(Details.CacheInLineMaxDistance)
-
-		for i = 1, 10 do
-			C_Timer.After(i, function()
-				Details:Destroy(Details.CacheInLineMaxDistance)
-			end)
-		end
-	end
-end)
 
 local classColor_Red, classColor_Green, classColor_Blue
 
@@ -3177,7 +3049,11 @@ local classColor_Red, classColor_Green, classColor_Blue
 	perSecondText = perSecondText or ""
 	percentText = percentText or ""
 
-	if ((Details.use_realtimedps or(Details.combat_log.evoker_show_realtimedps and Details.playerspecid == 1473)) and Details.in_combat) then --real time
+	local instanceSettings = instance.row_info
+	local bShowPerSecond = instanceSettings.textR_show_data[2]
+
+	--the caller blanks perSecondText when the option is off, so the realtime value has to respect it too
+	if (bShowPerSecond and (Details.use_realtimedps or(Details.combat_log.evoker_show_realtimedps and Details.playerspecid == 1473)) and Details.in_combat) then
 		if (thisLine:GetActor()) then
 			local actorSerial = thisLine:GetActor().serial
 			local currentDps = Details.CurrentDps.GetCurrentDps(actorSerial)
@@ -3189,7 +3065,6 @@ local classColor_Red, classColor_Green, classColor_Blue
 	end
 
 	--check if the instance is showing total, dps and percent
-	local instanceSettings = instance.row_info
 	if (not instanceSettings.textR_show_data[3]) then --percent text disabled on options panel
 		local attributeId = instance:GetDisplay()
 		if (attributeId ~= 5) then --not custom
@@ -3218,89 +3093,6 @@ local classColor_Red, classColor_Green, classColor_Blue
 			thisLine.lineText3:SetText("") --clear
 			thisLine.lineText2:SetText("") --clear
 		end
-	end
-end
-
-local dummyFrameForText = CreateFrame("frame", nil, UIParent)
-local dummyText = dummyFrameForText:CreateFontString(nil, "overlay", "GameFontNormal")
-
-if detailsFramework.IsAddonApocalypseWow() then
-	dummyFrameForText:SetSize(100, 100)
-	dummyFrameForText:RegisterEvent("PLAYER_REGEN_DISABLED")
-
-	dummyFrameForText:SetScript("OnEvent", function(self, event)
-		Details:InstanceCall(function(instance)
-			if instance:IsEnabled() then
-				---@cast instance instance
-				local allLines = instance:GetAllLines()
-				for _, line in ipairs(allLines) do
-					---@cast line detailsline
-					line.lineText1.__playerNameUpdated = nil
-				end
-			end
-		end)
-	end)
-end
-
----@param instance instance
-local dealWithPlayerName = function(instance, line, forceUpdate)
-	if not instance.row_info.playername_alignment_auto then
-		return
-	end
-
-	if InCombatLockdown() and line.lineText1.__playerNameUpdated and not forceUpdate then
-		local baseFrame = instance.baseframe
-		if not baseFrame.isStretching and not baseFrame.isResizing then
-			return
-		end
-	end
-
-	detailsFramework:SetFont(dummyText, instance.row_info.font_face_file, instance.row_info.font_size, "")
-	dummyText:SetText("MMM")
-
-	local textHeight = dummyText:GetStringHeight()
-	local lineHeight = instance.row_info.height
-	local lineWidth = instance.baseframe:GetWidth()
-
-	local yOffset = -math.max((lineHeight - textHeight) / 2, 0)
-
-	yOffset = yOffset + instance.row_info.text_yoffset
-
-	line.lineText1:ClearAllPoints()
-	if (instance.row_info.no_icon) then
-		line.lineText1:SetPoint("topleft", line, "topleft", 2 + instance.row_info.textL_offset, yOffset)
-	else
-		line.lineText1:SetPoint("topleft", line.icone_classe, "topright", 2 + instance.row_info.textL_offset, yOffset)
-	end
-
-	local playerNameWidth = 0
-
-	if instance.row_info.playername_size_auto then
-		local minWidth = lineWidth - lineHeight - 2 - (dummyText:GetStringWidth()*2) - 14 --lineHeight is the width of the icon; -2 is the space between the icon and the text; dummy text is the damageDone and DPS space.
-		line.lineText1:SetWidth(minWidth)
-		playerNameWidth = minWidth
-	else
-		line.lineText1:SetWidth(instance.row_info.playername_size)
-		playerNameWidth = instance.row_info.playername_size
-	end
-	line.lineText1:SetHeight(lineHeight*2)
-
-	line.lineText1:SetNonSpaceWrap(true)
-	line.lineText1:SetWordWrap(false)
-	line.lineText1:SetJustifyH("LEFT")
-	line.lineText1:SetJustifyV("TOP")
-
-	line.lineText1.__playerNameUpdated = true
-end
-
-Details222.Apocalypse.UpdatePlayerNameLength = dealWithPlayerName
-
-function Details222.Apocalypse.UpdateInstancePlayerNameLength(instance)
-	local allLines = instance:GetAllLines()
-	for _, line in ipairs(allLines) do
-		---@cast line detailsline
-		local forceUpdate = true
-		dealWithPlayerName(instance, line, forceUpdate)
 	end
 end
 
@@ -3401,8 +3193,6 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			actorName = source.name
 		end
 	end
-
-	dealWithPlayerName(instance, instanceLine)
 
 	if (instance.row_info.textL_show_number) then
 		if issecretvalue(actorName) then
@@ -4121,22 +3911,6 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 	end
 end
 
-local setLineTextSize = function(line, instance)
-	local stringLength = line.lineText4:GetStringWidth()
-	if detailsFramework.IsAddonApocalypseWow() then
-		if issecretvalue(stringLength) then
-			return
-		end
-	end
-
-	if (instance.bars_inverted) then
-		line.lineText4:SetSize(instance.cached_bar_width - line.lineText1:GetStringWidth() - 20, 15)
-	else
-		line.lineText1:SetSize(instance.cached_bar_width - stringLength - 20, 15)
-	end
-end
-
-
 function Details:SetBarLeftText(bar, instance, enemy, arenaEnemy, arenaAlly, usingCustomLeftText) --[[exported]]
 	local barNumber = ""
 	if (instance.row_info.textL_show_number) then
@@ -4218,7 +3992,7 @@ function Details:SetBarLeftText(bar, instance, enemy, arenaEnemy, arenaAlly, usi
 		end
 	end
 
-	setLineTextSize(bar, instance)
+	Details222.RowTexts.FitNameText(bar, instance)
 end
 
 function Details:SetBarColors(bar, instance, r, g, b, a) --[[exported]] --~colors
@@ -4248,12 +4022,12 @@ function Details:SetBarColors(bar, instance, r, g, b, a) --[[exported]] --~color
 		bar.background:SetVertexColor(r, g, b, a)
 	end
 
-	if (instance.row_info.textL_class_colors) then
+	if (instance.row_info.texts[1].color.byClass) then
 		local textColor_Red, textColor_Green, textColor_Blue = self:GetTextColor(instance, "left")
 		bar.lineText1:SetTextColor(textColor_Red, textColor_Green, textColor_Blue) --the r, g, b color passed are the color used on the bar, so if the bar is not using class color, the text is painted with the fixed color for the bar
 	end
 
-	if (instance.row_info.textR_class_colors) then
+	if (instance.row_info.texts[2].color.byClass) then
 		local textColor_Red, textColor_Green, textColor_Blue = self:GetTextColor(instance, "right")
 		bar.lineText2:SetTextColor(textColor_Red, textColor_Green, textColor_Blue)
 		bar.lineText3:SetTextColor(textColor_Red, textColor_Green, textColor_Blue)

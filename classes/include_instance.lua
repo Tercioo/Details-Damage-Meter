@@ -12,13 +12,17 @@ local addonName, Details222 = ...
 local _ = nil
 
 function _detalhes:ResetInstanceConfig (maintainsnap)
-	for key, value in pairs(_detalhes.instance_defaults) do 
+	for key, value in pairs(_detalhes.instance_defaults) do
 		if (type(value) == "table") then
 			self [key] = Details.CopyTable(value)
 		else
 			self [key] = value
 		end
 	end
+
+	--row_info was just replaced, so the legacy key shim has to be attached again
+	Details222.RowTexts.Prepare(self)
+
 	if (not maintainsnap) then
 		self.snap = {}
 		self.horizontalSnap = nil
@@ -58,7 +62,7 @@ _detalhes.instance_skin_ignored_values = {
 }
 
 function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)
-	for key, value in pairs(_detalhes.instance_defaults) do 
+	for key, value in pairs(_detalhes.instance_defaults) do
 		if (not _detalhes.instance_skin_ignored_values [key]) then
 			if (type(value) == "table") then
 				self [key] = Details.CopyTable(value)
@@ -67,6 +71,10 @@ function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)
 			end
 		end
 	end
+
+	--row_info was just replaced, so the legacy key shim has to be attached again
+	Details222.RowTexts.Prepare(self)
+
 	if (not maintainsnap) then
 		self.snap = {}
 		self.horizontalSnap = nil
@@ -85,7 +93,7 @@ function _detalhes:LoadInstanceConfig()
 			end
 			
 		elseif (type(value) == "table") then
-			for key2, value2 in pairs(value) do 
+			for key2, value2 in pairs(value) do
 				if (self [key] [key2] == nil) then
 					if (type(value2) == "table") then
 						self [key] [key2] = Details.CopyTable(_detalhes.instance_defaults [key] [key2])
@@ -96,6 +104,10 @@ function _detalhes:LoadInstanceConfig()
 			end
 		end
 	end
+
+	--the loop above only fills defaults two levels deep, so it cannot reach row_info.texts leaves.
+	--Migrate does its own recursive backfill and folds any leftover flat text keys into the table.
+	Details222.RowTexts.Prepare(self)
 end
 
 _detalhes.instance_defaults = {
@@ -221,9 +233,6 @@ _detalhes.instance_defaults = {
 		use_multi_fontstrings = true,
 		use_auto_align_multi_fontstrings = true,
 		fontstrings_text_limit_offset = -10,
-		fontstrings_text4_anchor = 0,
-		fontstrings_text3_anchor = 38,
-		fontstrings_text2_anchor = 73,
 
 	--title bar
 		titlebar_shown = false,
@@ -249,10 +258,6 @@ _detalhes.instance_defaults = {
 				fixed_texture_color = {0, 0, 0},
 			--row alpha
 				alpha = 1,
-			--left text class color
-				textL_class_colors = false,
-			--right text class color
-				textR_class_colors = false,
 			--left text customization
 				textL_enable_custom_text = false,
 				textL_custom_text = "{data1}. {data3}{data2}",
@@ -270,20 +275,16 @@ _detalhes.instance_defaults = {
 				textL_translit_text = false,
 			--if text class color are false, this color will be used
 				fixed_text_color = {1, 1, 1},
-			--left text outline effect
+			--per fontstring settings: anchor, justify, width, font and color
+			--index 1 is the unit name, indexes 2 to 4 are the value columns, see functions/rowtexts.lua
+				texts = Details222.RowTexts.GetDefaultTexts(),
+			--outline effect
 				textL_outline = true, --deprecated
 				textL_outline_small = true, --deprecated
 				textL_outline_small_color = {0, 0, 0, 1}, --deprecated
-				textL_outline_mode = "",
-				textL_shadow_color = {0, 0, 0, 1},
-				textL_shadow_offset = {1, -1},
-			--right text outline effect
 				textR_outline = false, --deprecated
 				textR_outline_small = true, --deprecated
 				textR_outline_small_color = {0, 0, 0, 1}, --deprecated
-				textR_outline_mode = "",
-				textR_shadow_color = {0, 0, 0, 1},
-				textR_shadow_offset = {1, -1},
         	-- left text offset
 				textL_offset = 0,
 			-- player name sizing

@@ -593,10 +593,6 @@ function healingClass:RefreshWindow (instance, tabela_do_combate, forcar, export
 		end
 	end
 
-	if not detailsFramework.IsAddonApocalypseWow() then
-		instance:AutoAlignInLineFontStrings()
-	end
-
 	-- showing.need_refresh = false
 	return Details:EndRefresh (instance, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
 
@@ -1032,8 +1028,6 @@ function healingClass:RefreshBarra(thisLine, instancia, from_resize)
 	self:SetBarColors(thisLine, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	--left text
 	self:SetBarLeftText (thisLine, instancia, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
-
-	thisLine.lineText1:SetSize(thisLine:GetWidth() - thisLine.lineText4:GetStringWidth() - 20, 15)
 
 end
 

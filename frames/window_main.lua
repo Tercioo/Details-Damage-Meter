@@ -192,7 +192,7 @@ local function move_barras(self, elapsed)
 			--verifica o tamanho do text
 			for i  = 1, #self._move_func.instancia.barras do
 				local esta_barra = self._move_func.instancia.barras[i]
-				Details:name_space(esta_barra)
+				Details222.RowTexts.FitNameText(esta_barra, self._move_func.instancia, 18)
 			end
 		end
 	end
@@ -1989,10 +1989,6 @@ local lineScript_Onmousedown = function(self, button)
 		Details.left_anti_truncate:Hide()
 	end
 
-	if not isAddonApocalypseWow then
-		self._instance:HandleTextsOnMouseClick (self, "down")
-	end
-
 	self.mouse_down = GetTime()
 	self.button = button
 	local x, y = _GetCursorPosition()
@@ -2021,8 +2017,6 @@ local lineScript_Onmouseup = function(self, button)
 			GameCooltip:Show (self, 1)
 		end
 	end
-
-	instanceObject:HandleTextsOnMouseClick (self, "up")
 
 	local x, y = _GetCursorPosition()
 	x = floor(x)
@@ -2105,47 +2099,6 @@ local lineScript_Onshow = function(self)
 	if (self.using_lower_3dmodels) then
 		self.modelbox_low:SetModel(self._instance.row_info.models.lower_model)
 		self.modelbox_low:SetAlpha(self._instance.row_info.models.lower_alpha)
-	end
-end
-
-function Details:HandleTextsOnMouseClick(row, type)
-	if (self.bars_inverted) then
-		if (type == "down") then
-			row.lineText4:SetPoint("left", row.statusbar, "left", self.fontstrings_text4_anchor + 2, self.row_info.text_yoffset - 1)
-
-			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint("right", row.statusbar, "right", -self.row_info.textL_offset - 1, self.row_info.text_yoffset - 1)
-			else
-				row.lineText1:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 1, self.row_info.text_yoffset - 1)
-			end
-
-		elseif (type == "up") then
-			row.lineText4:SetPoint("left", row.statusbar, "left", self.fontstrings_text4_anchor + 1, self.row_info.text_yoffset)
-
-			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint("right", row.statusbar, "right", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
-			else
-				row.lineText1:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
-			end
-		end
-
-	else
-		if (type == "down") then
-			row.lineText4:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor + 1, self.row_info.text_yoffset - 1)
-			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint("left", row.statusbar, "left", self.row_info.textL_offset + 3, self.row_info.text_yoffset - 1)
-			else
-				row.lineText1:SetPoint("left", row.icone_classe, "right", self.row_info.textL_offset + 4, self.row_info.text_yoffset - 1)
-			end
-
-		elseif (type == "up") then
-			row.lineText4:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
-			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint("left", row.statusbar, "left", self.row_info.textL_offset + 2, self.row_info.text_yoffset)
-			else
-				row.lineText1:SetPoint("left", row.icone_classe, "right", self.row_info.textL_offset + 3, self.row_info.text_yoffset)
-			end
-		end
 	end
 end
 
@@ -4055,6 +4008,9 @@ function Details:SetBarOrientationDirection(orientation)
 
 	self.bars_inverted = orientation
 
+	--the orientation mirrors every row text, so re-anchor before refreshing the bars
+	Details222.RowTexts.ApplyAnchorsToAllRows(self)
+
 	self:InstanceRefreshRows()
 	self:RefreshBars()
 	self:InstanceReset()
@@ -4371,13 +4327,9 @@ function gump:CreateNewLine(instance, index)
 
 	--left text 1
 	newLine.lineText1 = newLine.border:CreateFontString("$parentLineText1", "overlay", "GameFontHighlight")
-	newLine.lineText1:SetPoint("left", newLine.icone_classe, "right", 3, 0)
-	newLine.lineText1:SetJustifyH("left")
 	newLine.lineText1:SetNonSpaceWrap (true)
 
 	newLine.lineText11 = newLine.border:CreateFontString("$parentLineText1", "overlay", "GameFontHighlight")
-	newLine.lineText11:SetPoint("left", newLine.icone_classe, "right", 3, 0)
-	newLine.lineText11:SetJustifyH("left")
 	newLine.lineText11:SetNonSpaceWrap (true)
 
 	newLine.border.lineText1 = newLine.lineText1
@@ -4388,6 +4340,9 @@ function gump:CreateNewLine(instance, index)
 		newLine["lineText"..i+10] = newLine.border:CreateFontString("$parentLineText"..i, "overlay", "GameFontHighlight")
 		newLine.border["lineText"..i+10] = newLine["lineText"..i+10]
 	end
+
+	--anchor all eight fontstrings from row_info.texts
+	Details222.RowTexts.ApplyAnchors(instance, newLine)
 
 	--set the onclick, on enter scripts
 	setLineScripts(newLine, instance, index)
@@ -4417,73 +4372,212 @@ function Details:SetSimpleFormattingSettings(showPercent)
 	end
 end
 
+---which setting one of the column sliders drives. texts 2 and 3 chain onto their neighbour when
+---auto align is on, and then it is the gap that matters rather than the distance to the statusbar.
+---text 4 is the chain anchor, so it always drives its own absolute offset.
+---@param instance table
+---@param index number
+---@return string
+local getColumnOffsetPath = function(instance, index)
+	if (index < 4 and Details222.RowTexts.IsChained(instance)) then
+		return "anchor.gap"
+	end
+	return "anchor.x"
+end
+
+---set the horizontal spacing of one value column, expressed as a positive number (the settings
+---store these as negative offsets, since the columns are anchored by their right edge). index 2 is
+---the leftmost value column and 4 the rightmost.
+---@param index number
+---@param spacing number
+function Details:SetBarTextAnchorOffset(index, spacing)
+	Details222.RowTexts.Set(self, index, getColumnOffsetPath(self, index), -spacing)
+	Details222.RowTexts.ApplyAnchorsToAllRows(self)
+end
+
+---the spacing as the options panel shows it, the inverse of Details:SetBarTextAnchorOffset
+---@param index number
+---@return number
+function Details:GetBarTextAnchorOffset(index)
+	return -(Details222.RowTexts.Get(self, index, getColumnOffsetPath(self, index)) or 0)
+end
+
+---the slider range for one of the column sliders. a gap between packed columns is a small number,
+---a distance from the statusbar's right edge is not.
+---@param index number
+---@return number min
+---@return number max
+function Details:GetBarTextAnchorOffsetRange(index)
+	if (getColumnOffsetPath(self, index) == "anchor.gap") then
+		return 0, 30
+	end
+
+	--per column ranges, widest for the leftmost column
+	local maxByIndex = {[2] = 125, [3] = 75, [4] = 50}
+	return -10, maxByIndex[index] or 50
+end
+
+--[[
+	Per property setters for the row texts.
+
+	Each one writes a single setting into row_info.texts and then re-applies only what that
+	setting affects: the anchors when it changes where a text sits, the style otherwise.
+
+	'target' selects which texts to write. A number is a single text (1 is the unit name, 2 to 4
+	are the value columns, 4 being the rightmost). The strings "left" and "right" are the shape the
+	options use: "left" is the unit name, "right" is every value column at once.
+]]
+
+---@param target number|string
+---@return number firstIndex
+---@return number lastIndex
+local resolveTextTarget = function(target)
+	if (type(target) == "number") then
+		return target, target
+	end
+
+	if (target == "left") then
+		return 1, 1
+	end
+
+	return 2, 4
+end
+
+---set the text outline mode
+---@param target number|string
+---@param outlineMode string
+function Details:SetBarTextOutline(target, outlineMode)
+	local firstIndex, lastIndex = resolveTextTarget(target)
+	for index = firstIndex, lastIndex do
+		Details222.RowTexts.Set(self, index, "font.outline", outlineMode)
+	end
+	Details222.RowTexts.ApplyStyleToAllRows(self)
+end
+
+---set the text shadow colour
+---@param target number|string
+---@vararg any anything detailsFramework:ParseColors accepts
+function Details:SetBarTextShadowColor(target, ...)
+	local red, green, blue, alpha = detailsFramework:ParseColors(...)
+	local firstIndex, lastIndex = resolveTextTarget(target)
+
+	for index = firstIndex, lastIndex do
+		--each index owns its own colour table, so write the contents rather than the reference
+		local color = Details222.RowTexts.Get(self, index, "shadow.color")
+		color[1], color[2], color[3], color[4] = red, green, blue, alpha
+	end
+
+	Details222.RowTexts.ApplyStyleToAllRows(self)
+end
+
+---set the text shadow offset; pass nil for an axis to leave it alone
+---@param target number|string
+---@param xOffset number?
+---@param yOffset number?
+function Details:SetBarTextShadowOffset(target, xOffset, yOffset)
+	local firstIndex, lastIndex = resolveTextTarget(target)
+
+	for index = firstIndex, lastIndex do
+		local offset = Details222.RowTexts.Get(self, index, "shadow.offset")
+		offset[1] = xOffset or offset[1]
+		offset[2] = yOffset or offset[2]
+	end
+
+	Details222.RowTexts.ApplyStyleToAllRows(self)
+end
+
+---colour the text by the actor's class instead of using the fixed colour
+---@param target number|string
+---@param bUseClassColor boolean
+function Details:SetBarTextClassColor(target, bUseClassColor)
+	local firstIndex, lastIndex = resolveTextTarget(target)
+	for index = firstIndex, lastIndex do
+		Details222.RowTexts.Set(self, index, "color.byClass", bUseClassColor)
+	end
+	--turning class colour off has to repaint from the fixed colour, and the bars own the colour
+	--while it is on, so this one needs the bars rebuilt rather than just restyled
+	self:InstanceReset()
+	self:InstanceRefreshRows()
+end
+
+---set the vertical offset shared by every row text
+---@param yOffset number
+function Details:SetBarTextYOffset(yOffset)
+	self.row_info.text_yoffset = yOffset
+	--this feeds ResolveAnchor, so it moves texts
+	Details222.RowTexts.ApplyAnchorsToAllRows(self)
+end
+
+---set the horizontal offset of the unit name
+---@param xOffset number
+function Details:SetBarTextNameOffset(xOffset)
+	self.row_info.textL_offset = xOffset
+	--this feeds ResolveAnchor, so it moves texts
+	Details222.RowTexts.ApplyAnchorsToAllRows(self)
+end
+
+---set the font size shared by every row text
+---@param size number
+function Details:SetBarTextFontSize(size)
+	self.row_info.font_size = size
+	Details222.RowTexts.ApplyStyleToAllRows(self)
+end
+
+---set the font face shared by every row text
+---@param fontName string a LibSharedMedia font name
+function Details:SetBarTextFontFace(fontName)
+	self.row_info.font_face = fontName
+	self.row_info.font_face_file = SharedMedia:Fetch("font", fontName)
+	Details222.RowTexts.ApplyStyleToAllRows(self)
+end
+
+---set the colour used by texts that are not coloured by class
+---@vararg any anything gump:ParseColors accepts
+function Details:SetBarTextFixedColor(...)
+	local red, green, blue, alpha = gump:ParseColors(...)
+	local color = self.row_info.fixed_text_color
+	color[1], color[2], color[3], color[4] = red, green, blue, alpha
+	Details222.RowTexts.ApplyStyleToAllRows(self)
+end
+
 function Details:SetBarOutlineSettings(side, outlineMode, shadowColor, shadowXOffset, shadowYOffset)
 	if (outlineMode) then
-		if side == "left" then
-			self.row_info.textL_outline_mode = outlineMode
-		elseif side == "right" then
-			self.row_info.textR_outline_mode = outlineMode
-		end
+		self:SetBarTextOutline(side, outlineMode)
 	end
 
 	if (shadowColor) then
-		local red, green, blue, alpha = detailsFramework:ParseColors(shadowColor)
-		local c
-		if side == "left" then
-			c = self.row_info.textL_shadow_color
-		elseif side == "right" then
-			c = self.row_info.textR_shadow_color
-		end
-		c[1], c[2], c[3], c[4] = red, green, blue, alpha
+		self:SetBarTextShadowColor(side, shadowColor)
 	end
 
-	if (shadowXOffset) then
-		if side == "left" then
-			self.row_info.textL_shadow_offset[1] = shadowXOffset
-		elseif side == "right" then
-			self.row_info.textR_shadow_offset[1] = shadowXOffset
-		end
+	if (shadowXOffset or shadowYOffset) then
+		self:SetBarTextShadowOffset(side, shadowXOffset, shadowYOffset)
 	end
-
-	if (shadowYOffset) then
-		if side == "left" then
-			self.row_info.textL_shadow_offset[2] = shadowYOffset
-		elseif side == "right" then
-			self.row_info.textR_shadow_offset[2] = shadowYOffset
-		end
-	end
-
-	self:InstanceReset()
-	self:InstanceRefreshRows()
 end
 
 function Details:SetBarTextSettings(size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext, smalloutline_left, smalloutlinecolor_left, smalloutline_right, smalloutlinecolor_right, translittext, yoffset, leftoffset)
 	--size
 	if (size) then
-		self.row_info.font_size = size
+		self:SetBarTextFontSize(size)
 	end
 
 	--font
 	if (font) then
-		self.row_info.font_face = font
-		self.row_info.font_face_file = SharedMedia:Fetch("font", font)
+		self:SetBarTextFontFace(font)
 	end
 
 	--fixed color
 	if (fixedcolor) then
-		local red, green, blue, alpha = gump:ParseColors(fixedcolor)
-		local c = self.row_info.fixed_text_color
-		c[1], c[2], c[3], c[4] = red, green, blue, alpha
+		self:SetBarTextFixedColor(fixedcolor)
 	end
 
 	--left color by class
 	if (type(leftcolorbyclass) == "boolean") then
-		self.row_info.textL_class_colors = leftcolorbyclass
+		self:SetBarTextClassColor("left", leftcolorbyclass)
 	end
 
 	--right color by class
 	if (type(rightcolorbyclass) == "boolean") then
-		self.row_info.textR_class_colors = rightcolorbyclass
+		self:SetBarTextClassColor("right", rightcolorbyclass)
 	end
 
 	--left text outline
@@ -4547,12 +4641,13 @@ function Details:SetBarTextSettings(size, font, fixedcolor, leftcolorbyclass, ri
 	end
 
 	if (yoffset) then
-		self.row_info.text_yoffset = yoffset
+		self:SetBarTextYOffset(yoffset)
 	end
 
 	if (leftoffset) then
-		self.row_info.textL_offset = leftoffset
+		self:SetBarTextNameOffset(leftoffset)
 	end
+
 	self:InstanceReset()
 	self:InstanceRefreshRows()
 end
@@ -4817,6 +4912,9 @@ function Details:SetBarSettings(height, texture, colorclass, fixedcolor, backgro
 		self.row_info.icon_size_offset = icon_size_offset
 	end
 
+	--no_icon decides whether the unit name hangs off the class icon or off the statusbar edge
+	Details222.RowTexts.ApplyAnchorsToAllRows(self)
+
 	self:InstanceReset()
 	self:InstanceRefreshRows()
 	self:ReajustaGump()
@@ -4985,16 +5083,13 @@ function Details:FastPSUpdate(enabled)
 end
 
 
-function Details:AdjustInLineTextPadding()
-	for _, row in ipairs(self.barras) do
-		row.lineText2:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
-		row.lineText3:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
-		row.lineText4:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
-
-		row.lineText12:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
-		row.lineText13:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
-		row.lineText14:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
+--re-anchors every row text of this window from row_info.texts, without restyling anything else
+function Details:AdjustInLineTextPadding(instance)
+	if (instance) then
+		self = instance
 	end
+
+	Details222.RowTexts.ApplyAnchorsToAllRows(self)
 end
 
 function Details:InstanceClearTexts(instance)
@@ -5026,84 +5121,61 @@ function Details:InstanceRefreshRows(instance)
 		return
 	end
 
+	local rowInfo = self.row_info
+
 	--mirror
 	local isInvertedBars = self.bars_inverted
 
-	--texture
-	local textureFile = SharedMedia:Fetch("statusbar", self.row_info.texture)
-	local textureFile2 = SharedMedia:Fetch("statusbar", self.row_info.texture_background)
+	--resolve the media names into file paths and cache them back into the settings, the per bar
+	--refresh paths read the resolved '_file' keys
+	local textureFile = SharedMedia:Fetch("statusbar", rowInfo.texture)
+	local textureFile2 = SharedMedia:Fetch("statusbar", rowInfo.texture_background)
 
-	--update texture files
-	self.row_info.texture_file = textureFile
-	self.row_info.texture_background_file = textureFile2
+	rowInfo.texture_file = textureFile
+	rowInfo.texture_background_file = textureFile2
 
-	if (type(self.row_info.texture_custom) == "string" and self.row_info.texture_custom ~= "") then
-		textureFile = [[Interface\]] .. self.row_info.texture_custom
-		--update texture file
-		self.row_info.texture_custom_file = textureFile
+	if (type(rowInfo.texture_custom) == "string" and rowInfo.texture_custom ~= "") then
+		textureFile = [[Interface\]] .. rowInfo.texture_custom
+		rowInfo.texture_custom_file = textureFile
 	end
 
-	--outline values
-	local left_text_outline = self.row_info.textL_outline
-	local right_text_outline = self.row_info.textR_outline
-	local textL_outline_small = self.row_info.textL_outline_small
-	local textL_outline_small_color = self.row_info.textL_outline_small_color
-	local textR_outline_small = self.row_info.textR_outline_small
-	local textR_outline_small_color = self.row_info.textR_outline_small_color
+	rowInfo.font_face_file = SharedMedia:Fetch("font", rowInfo.font_face)
 
-	local leftTextOutline = self.row_info.textL_outline_mode
-	local rightTextOutline = self.row_info.textR_outline_mode
-	local leftTextShadowColor = self.row_info.textL_shadow_color
-	local rightTextShadowColor = self.row_info.textR_shadow_color
-	local leftTextShadowOffset = self.row_info.textL_shadow_offset
-	local rightTextShadowOffset = self.row_info.textR_shadow_offset
-
-	--texture color values
-	local bUseClassColor = self.row_info.texture_class_colors
+	--texture color values, when class coloring is on the color is owned by the per bar refresh
+	local bUseClassColor = rowInfo.texture_class_colors
 	local texture_r, texture_g, texture_b
 	if (not bUseClassColor) then
-		texture_r, texture_g, texture_b = unpack(self.row_info.fixed_texture_color)
+		texture_r, texture_g, texture_b = unpack(rowInfo.fixed_texture_color)
 	end
 
-	--text color
-	local left_text_class_color = self.row_info.textL_class_colors
-	local right_text_class_color = self.row_info.textR_class_colors
-	local text_r, text_g, text_b
-	if (not left_text_class_color or not right_text_class_color) then
-		text_r, text_g, text_b = unpack(self.row_info.fixed_text_color)
-	end
-
-	local height = self.row_info.height
+	local height = rowInfo.height
 
 	--alpha
-	local alpha = self.row_info.alpha
+	local alpha = rowInfo.alpha
 
 	--icons
-	local no_icon = self.row_info.no_icon
-	local start_after_icon = self.row_info.start_after_icon
-	local isDesaturated = self.row_info.icon_grayscale
-	local icon_offset_x, icon_offset_y = unpack(self.row_info.icon_offset)
-	local iconMask = self.row_info.icon_mask
+	local no_icon = rowInfo.no_icon
+	local start_after_icon = rowInfo.start_after_icon
+	local isDesaturated = rowInfo.icon_grayscale
+	local icon_offset_x, icon_offset_y = unpack(rowInfo.icon_offset)
+	local iconMask = rowInfo.icon_mask
 	local bHasIconMask = iconMask ~= ""
 
 	--line border
-	local lineBorderEnabled = self.row_info.backdrop.enabled
-	local lineBorderColor = self.row_info.backdrop.color
-	local lineBorderSize = self.row_info.backdrop.size
-
-	--font face
-	self.row_info.font_face_file = SharedMedia:Fetch("font", self.row_info.font_face)
+	local lineBorderEnabled = rowInfo.backdrop.enabled
+	local lineBorderColor = rowInfo.backdrop.color
+	local lineBorderSize = rowInfo.backdrop.size
 
 	--models
-	local upper_model_enabled = self.row_info.models.upper_enabled
-	local lower_model_enabled = self.row_info.models.lower_enabled
-	local upper_model = self.row_info.models.upper_model
-	local lower_model = self.row_info.models.lower_model
-	local upper_model_alpha = self.row_info.models.upper_alpha
-	local lower_model_alpha = self.row_info.models.lower_alpha
+	local upper_model_enabled = rowInfo.models.upper_enabled
+	local lower_model_enabled = rowInfo.models.lower_enabled
+	local upper_model = rowInfo.models.upper_model
+	local lower_model = rowInfo.models.lower_model
+	local upper_model_alpha = rowInfo.models.upper_alpha
+	local lower_model_alpha = rowInfo.models.lower_alpha
 
-	local overlayTexture = SharedMedia:Fetch("statusbar", self.row_info.overlay_texture)
-	local overlayColor = self.row_info.overlay_color
+	local overlayTexture = SharedMedia:Fetch("statusbar", rowInfo.overlay_texture)
+	local overlayColor = rowInfo.overlay_color
 
 	for _, row in ipairs(self.barras) do
 		--positioning and size
@@ -5118,82 +5190,34 @@ function Details:InstanceRefreshRows(instance)
 			row.iconHighlight:SetDesaturated(false)
 		end
 
-		row.lineText1:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
-		row.lineText2:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
-		row.lineText3:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
-		row.lineText4:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
-		row.lineText11:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
-		row.lineText12:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
-		row.lineText13:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
-		row.lineText14:SetFont(self.row_info.font_face_file or "GameFontHighlight", self.row_info.font_size)
+		--clear the columns this layout does not write to, so nothing stale lingers
+		if (not self.use_multi_fontstrings) then
+			row.lineText2:SetText("")
+			row.lineText3:SetText("")
+			row.lineText12:SetText("")
+			row.lineText13:SetText("")
+		end
 
-		--text font
-		Details:SetFontFace(row.lineText1, self.row_info.font_face_file or "GameFontHighlight")
-		Details:SetFontFace(row.lineText2, self.row_info.font_face_file or "GameFontHighlight")
-		Details:SetFontFace(row.lineText3, self.row_info.font_face_file or "GameFontHighlight")
-		Details:SetFontFace(row.lineText4, self.row_info.font_face_file or "GameFontHighlight")
-		Details:SetFontFace(row.lineText11, self.row_info.font_face_file or "GameFontHighlight")
-		Details:SetFontFace(row.lineText12, self.row_info.font_face_file or "GameFontHighlight")
-		Details:SetFontFace(row.lineText13, self.row_info.font_face_file or "GameFontHighlight")
-		Details:SetFontFace(row.lineText14, self.row_info.font_face_file or "GameFontHighlight")
+		row.lineText4:SetText("")
+		row.lineText14:SetText("")
 
-		--icon and texture anchors
-		if (not isInvertedBars) then
-			row.lineText1:ClearAllPoints()
-			row.lineText11:ClearAllPoints()
+		--justify, font, shadow, width and colour of all eight fontstrings come from row_info.texts
+		Details222.RowTexts.ApplyStyleToRow(self, row)
 
-			row.lineText2:ClearAllPoints()
-			row.lineText12:ClearAllPoints()
+		--icon and statusbar anchors
+		if (no_icon) then
+			row.statusbar:SetPoint("topleft", row, "topleft")
+			row.statusbar:SetPoint("bottomright", row, "bottomright")
+			row.icone_classe:Hide()
+			row.iconHighlight:Hide()
 
-			row.lineText3:ClearAllPoints()
-			row.lineText13:ClearAllPoints()
-			row.lineText4:ClearAllPoints()
-			row.lineText14:ClearAllPoints()
+		else
+			row.icone_classe:ClearAllPoints()
+			row.icone_classe:Show()
 
-			row.lineText1:SetJustifyH("left")
-			row.lineText2:SetJustifyH("right")
-			row.lineText3:SetJustifyH("right")
-			row.lineText4:SetJustifyH("right")
-			row.lineText11:SetJustifyH("left")
-			row.lineText12:SetJustifyH("right")
-			row.lineText13:SetJustifyH("right")
-			row.lineText14:SetJustifyH("right")
-
-			if (not self.use_multi_fontstrings) then
-				row.lineText2:SetText("")
-				row.lineText3:SetText("")
-				row.lineText12:SetText("")
-				row.lineText13:SetText("")
-			end
-
-			row.lineText4:SetText("")
-			row.lineText14:SetText("")
-
-			if detailsFramework.IsAddonApocalypseWow() then
-				local spacing = Details.righttext_simple_formatting.alignment_space
-				row.lineText4:SetPoint("right", row.statusbar, "right", 0, self.row_info.text_yoffset)
-				row.lineText3:SetPoint("right", row.statusbar, "right", -spacing, self.row_info.text_yoffset)
-				row.lineText2:SetPoint("right", row.statusbar, "right", -spacing * 2, self.row_info.text_yoffset)
-			else
-				row.lineText2:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
-				row.lineText3:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
-				row.lineText4:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
-				row.lineText12:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, self.row_info.text_yoffset)
-				row.lineText13:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, self.row_info.text_yoffset)
-				row.lineText14:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, self.row_info.text_yoffset)
-			end
-
-			if (no_icon) then
-				row.statusbar:SetPoint("topleft", row, "topleft")
-				row.statusbar:SetPoint("bottomright", row, "bottomright")
-				row.lineText1:SetPoint("left", row.statusbar, "left", self.row_info.textL_offset + 2, self.row_info.text_yoffset)
-				row.lineText11:SetPoint("left", row.statusbar, "left", self.row_info.textL_offset + 2, self.row_info.text_yoffset)
-				row.icone_classe:Hide()
-				row.iconHighlight:Hide()
-			else
-				row.icone_classe:ClearAllPoints()
+			if (not isInvertedBars) then
 				row.icone_classe:SetPoint("left", row, "left", icon_offset_x, icon_offset_y)
-				row.icone_classe:Show()
+				row.statusbar:SetPoint("bottomright", row, "bottomright")
 
 				if (start_after_icon) then
 					row.statusbar:SetPoint("topleft", row.icone_classe, "topright")
@@ -5201,65 +5225,15 @@ function Details:InstanceRefreshRows(instance)
 					row.statusbar:SetPoint("topleft", row, "topleft")
 				end
 
-				row.statusbar:SetPoint("bottomright", row, "bottomright")
-				row.lineText1:SetPoint("left", row.icone_classe, "right", self.row_info.textL_offset + 3, self.row_info.text_yoffset)
-				row.lineText11:SetPoint("left", row.icone_classe, "right", self.row_info.textL_offset + 3, self.row_info.text_yoffset)
-			end
-		else
-			row.lineText1:ClearAllPoints()
-			row.lineText2:ClearAllPoints()
-			row.lineText3:ClearAllPoints()
-			row.lineText4:ClearAllPoints()
-
-			row.lineText4:SetJustifyH("left")
-			row.lineText3:SetJustifyH("left")
-			row.lineText2:SetJustifyH("left")
-			row.lineText1:SetJustifyH("right")
-
-			row.lineText4:SetPoint("left", row.statusbar, "left", self.fontstrings_text4_anchor + 1, self.row_info.text_yoffset)
-			row.lineText3:SetPoint("left", row.statusbar, "left", self.fontstrings_text3_anchor + 1, self.row_info.text_yoffset)
-			row.lineText2:SetPoint("left", row.statusbar, "left", self.fontstrings_text2_anchor + 1, self.row_info.text_yoffset)
-
-			row.lineText11:ClearAllPoints()
-			row.lineText12:ClearAllPoints()
-			row.lineText13:ClearAllPoints()
-			row.lineText14:ClearAllPoints()
-
-			row.lineText14:SetJustifyH("left")
-			row.lineText13:SetJustifyH("left")
-			row.lineText12:SetJustifyH("left")
-			row.lineText11:SetJustifyH("right")
-
-			row.lineText14:SetPoint("left", row.statusbar, "left", self.fontstrings_text4_anchor + 1, self.row_info.text_yoffset)
-			row.lineText13:SetPoint("left", row.statusbar, "left", self.fontstrings_text3_anchor + 1, self.row_info.text_yoffset)
-			row.lineText12:SetPoint("left", row.statusbar, "left", self.fontstrings_text2_anchor + 1, self.row_info.text_yoffset)
-
-			if (no_icon) then
-				row.statusbar:SetPoint("topleft", row, "topleft")
-				row.statusbar:SetPoint("bottomright", row, "bottomright")
-				row.lineText1:SetPoint("right", row.statusbar, "right", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
-				row.lineText11:SetPoint("right", row.statusbar, "right", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
-				row.icone_classe:Hide()
-				row.iconHighlight:Hide()
-				--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
-				row.right_to_left_texture:SetPoint("topright", row.statusbar, "topright")
-				row.right_to_left_texture:SetPoint("bottomright", row.statusbar, "bottomright")]]
-
 			else
-				row.icone_classe:ClearAllPoints()
 				row.icone_classe:SetPoint("right", row, "right", icon_offset_x, icon_offset_y)
-				row.icone_classe:Show()
+				row.statusbar:SetPoint("topleft", row, "topleft")
 
 				if (start_after_icon) then
 					row.statusbar:SetPoint("bottomright", row.icone_classe, "bottomleft")
 				else
 					row.statusbar:SetPoint("bottomright", row, "bottomright")
 				end
-
-				row.statusbar:SetPoint("topleft", row, "topleft")
-
-				row.lineText1:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
-				row.lineText11:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
 			end
 		end
 
@@ -5278,92 +5252,15 @@ function Details:InstanceRefreshRows(instance)
 			end
 		end
 
-		if (not self.row_info.texture_background_class_color) then
-			local color = self.row_info.fixed_texture_background_color
+		if (not rowInfo.texture_background_class_color) then
+			local color = rowInfo.fixed_texture_background_color
 			row.background:SetVertexColor(color[1], color[2], color[3], color[4])
 		else
-			local color = self.row_info.fixed_texture_background_color
+			--class colored background, keep the color the per bar refresh set and only apply the alpha
+			local color = rowInfo.fixed_texture_background_color
 			local r, g, b = row.background:GetVertexColor()
 			row.background:SetVertexColor(r, g, b, color[4])
 		end
-
-		--outline
-		if (leftTextOutline) then
-			detailsFramework:SetFontOutline(row.lineText1, leftTextOutline)
-			detailsFramework:SetFontOutline(row.lineText11, leftTextOutline)
-		else
-			detailsFramework:SetFontOutline(row.lineText1, "")
-			detailsFramework:SetFontOutline(row.lineText11, "")
-		end
-
-		if (rightTextOutline) then
-			detailsFramework:SetFontOutline(row.lineText2, rightTextOutline)
-			detailsFramework:SetFontOutline(row.lineText3, rightTextOutline)
-			detailsFramework:SetFontOutline(row.lineText4, rightTextOutline)
-			detailsFramework:SetFontOutline(row.lineText12, rightTextOutline)
-			detailsFramework:SetFontOutline(row.lineText13, rightTextOutline)
-			detailsFramework:SetFontOutline(row.lineText14, rightTextOutline)
-		else
-			detailsFramework:SetFontOutline(row.lineText2, "")
-			detailsFramework:SetFontOutline(row.lineText3, "")
-			detailsFramework:SetFontOutline(row.lineText4, "")
-			detailsFramework:SetFontOutline(row.lineText12, "")
-			detailsFramework:SetFontOutline(row.lineText13, "")
-			detailsFramework:SetFontOutline(row.lineText14, "")
-		end
-
-		row.lineText1:SetShadowColor(unpack(leftTextShadowColor))
-		row.lineText11:SetShadowColor(unpack(leftTextShadowColor))
-		row.lineText2:SetShadowColor(unpack(rightTextShadowColor))
-		row.lineText3:SetShadowColor(unpack(rightTextShadowColor))
-		row.lineText4:SetShadowColor(unpack(rightTextShadowColor))
-		row.lineText12:SetShadowColor(unpack(rightTextShadowColor))
-		row.lineText13:SetShadowColor(unpack(rightTextShadowColor))
-		row.lineText14:SetShadowColor(unpack(rightTextShadowColor))
-
-		row.lineText1:SetShadowOffset(unpack(leftTextShadowOffset))
-		row.lineText11:SetShadowOffset(unpack(leftTextShadowOffset))
-		row.lineText2:SetShadowOffset(unpack(rightTextShadowOffset))
-		row.lineText3:SetShadowOffset(unpack(rightTextShadowOffset))
-		row.lineText4:SetShadowOffset(unpack(rightTextShadowOffset))
-		row.lineText12:SetShadowOffset(unpack(rightTextShadowOffset))
-		row.lineText13:SetShadowOffset(unpack(rightTextShadowOffset))
-		row.lineText14:SetShadowOffset(unpack(rightTextShadowOffset))
-
-		--small outline
-		--if (textL_outline_small) then
-		--	local color = textL_outline_small_color
-		--	row.lineText1:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText1:SetShadowOffset(1, -1)
-		--	row.lineText11:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText11:SetShadowOffset(1, -1)
-		--else
-		--	row.lineText1:SetShadowColor(0, 0, 0, 0)
-		--	row.lineText11:SetShadowColor(0, 0, 0, 0)
-		--end
-
-		--if (textR_outline_small) then
-		--	local color = textR_outline_small_color
-		--	row.lineText4:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText4:SetShadowOffset(1, -1)
-		--	row.lineText3:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText3:SetShadowOffset(1, -1)
-		--	row.lineText2:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText2:SetShadowOffset(1, -1)
-		--	row.lineText14:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText14:SetShadowOffset(1, -1)
-		--	row.lineText13:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText13:SetShadowOffset(1, -1)
-		--	row.lineText12:SetShadowColor(color[1], color[2], color[3], color[4])
-		--	row.lineText12:SetShadowOffset(1, -1)
-		--else
-		--	row.lineText4:SetShadowColor(0, 0, 0, 0)
-		--	row.lineText3:SetShadowColor(0, 0, 0, 0)
-		--	row.lineText2:SetShadowColor(0, 0, 0, 0)
-		--	row.lineText14:SetShadowColor(0, 0, 0, 0)
-		--	row.lineText13:SetShadowColor(0, 0, 0, 0)
-		--	row.lineText12:SetShadowColor(0, 0, 0, 0)
-		--end
 
 		--texture
 		row.textura:SetTexture(textureFile)
@@ -5373,7 +5270,7 @@ function Details:InstanceRefreshRows(instance)
 
 		if (isInvertedBars) then
 			row.statusbar:SetReverseFill(true)
-			else
+		else
 			row.statusbar:SetReverseFill(false)
 		end
 
@@ -5386,32 +5283,6 @@ function Details:InstanceRefreshRows(instance)
 			local r, g, b = row.textura:GetVertexColor()
 			row.textura:SetVertexColor(r, g, b, 1) --alpha
 		end
-
-		--text class color: if true color changes on the fly through class refresh
-		if (not left_text_class_color) then
-			row.lineText1:SetTextColor(text_r, text_g, text_b)
-			row.lineText11:SetTextColor(text_r, text_g, text_b)
-		end
-		if (not right_text_class_color) then
-			row.lineText4:SetTextColor(text_r, text_g, text_b)
-			row.lineText3:SetTextColor(text_r, text_g, text_b)
-			row.lineText2:SetTextColor(text_r, text_g, text_b)
-			row.lineText14:SetTextColor(text_r, text_g, text_b)
-			row.lineText13:SetTextColor(text_r, text_g, text_b)
-			row.lineText12:SetTextColor(text_r, text_g, text_b)
-		end
-
-		--text size
-		Details:SetFontSize(row.lineText1, self.row_info.font_size or height * 0.75)
-		Details:SetFontSize(row.lineText2, self.row_info.font_size or height * 0.75)
-		Details:SetFontSize(row.lineText3, self.row_info.font_size or height * 0.75)
-		Details:SetFontSize(row.lineText4, self.row_info.font_size or height * 0.75)
-		Details:SetFontSize(row.lineText11, self.row_info.font_size or height * 0.75)
-		Details:SetFontSize(row.lineText12, self.row_info.font_size or height * 0.75)
-		Details:SetFontSize(row.lineText13, self.row_info.font_size or height * 0.75)
-		Details:SetFontSize(row.lineText14, self.row_info.font_size or height * 0.75)
-
-
 
 		--backdrop
 		if (lineBorderEnabled) then
@@ -5444,10 +5315,6 @@ function Details:InstanceRefreshRows(instance)
 			row.modelbox_low:Hide()
 		end
 
-		if detailsFramework.IsAddonApocalypseWow() then
-			local forceUpdate = true
-			Details222.Apocalypse.UpdatePlayerNameLength(self, row, forceUpdate)
-		end
 	end
 
 	self:SetBarGrowDirection()
@@ -7728,6 +7595,8 @@ function Details:ChangeSkin(skin_name)
 						end
 					end
 				end
+
+				Details222.RowTexts.Prepare(self)
 			end
 
 		--reset micro frames

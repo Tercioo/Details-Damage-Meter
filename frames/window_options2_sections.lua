@@ -1709,7 +1709,7 @@ do
 
     --text font selection
         local onSelectFont = function(_, instance, fontName)
-            editInstanceSetting(currentInstance, "SetBarTextSettings", nil, fontName)
+            editInstanceSetting(currentInstance, "SetBarTextFontFace", fontName)
             afterUpdate()
         end
 
@@ -1812,7 +1812,7 @@ do
                     return {r, g, b, 1}
                 end,
                 set = function(self, r, g, b, a)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, {r, g, b, 1})
+                    editInstanceSetting(currentInstance, "SetBarTextFixedColor", {r, g, b, 1})
                     afterUpdate()
                 end,
                 name = Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR"],
@@ -1822,7 +1822,7 @@ do
                 type = "range",
                 get = function() return currentInstance.row_info.font_size end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", value)
+                    editInstanceSetting(currentInstance, "SetBarTextFontSize", value)
                     afterUpdate()
                 end,
                 min = 5,
@@ -1835,7 +1835,7 @@ do
                 type = "range",
                 get = function() return currentInstance.row_info.text_yoffset end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextYOffset", value)
                     afterUpdate()
                 end,
                 min = -10,
@@ -1892,9 +1892,9 @@ do
 
             {--use class colors 7
                 type = "toggle",
-                get = function() return currentInstance.row_info.textL_class_colors end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 1, "color.byClass") end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextClassColor", "left", value)
                     afterUpdate()
                 end,
                 name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
@@ -1905,7 +1905,7 @@ do
                 type = "range",
                 get = function() return currentInstance.row_info.textL_offset end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextNameOffset", value)
                     afterUpdate()
                 end,
                 min = -10,
@@ -1918,11 +1918,10 @@ do
             {type = "blank"},
             {--outline mode
                 type = "selectoutline",
-                get = function() return currentInstance.row_info.textL_outline_mode end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 1, "font.outline") end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", value)
+                    editInstanceSetting(currentInstance, "SetBarTextOutline", "left", value)
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
                 desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
@@ -1930,24 +1929,22 @@ do
 			{--shadow color
                 type = "color",
                 get = function()
-                    local r, g, b, a = unpack(currentInstance.row_info.textL_shadow_color)
+                    local r, g, b, a = unpack(Details222.RowTexts.Get(currentInstance, 1, "shadow.color"))
                     return {r, g, b, a}
                 end,
                 set = function(self, r, g, b, a)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, {r, g, b, a})
+                    editInstanceSetting(currentInstance, "SetBarTextShadowColor", "left", {r, g, b, a})
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
                 desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
             },
             {--shadow offset x
                 type = "range",
-                get = function() return currentInstance.row_info.textL_shadow_offset[1] end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 1, "shadow.offset")[1] end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextShadowOffset", "left", value, nil)
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 min = -5,
                 max = 5,
@@ -1957,11 +1954,10 @@ do
             },
             {--shadow offset y
                 type = "range",
-                get = function() return currentInstance.row_info.textL_shadow_offset[2] end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 1, "shadow.offset")[2] end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextShadowOffset", "left", nil, value)
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 min = -5,
                 max = 5,
@@ -2044,11 +2040,10 @@ do
 
             {--use class colors 18
                 type = "toggle",
-                get = function() return currentInstance.row_info.textR_class_colors end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 2, "color.byClass") end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextClassColor", "right", value)
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
@@ -2058,11 +2053,10 @@ do
             {type = "blank"},
             {--outline mode
                 type = "selectoutline",
-                get = function() return currentInstance.row_info.textR_outline_mode end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 2, "font.outline") end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", value)
+                    editInstanceSetting(currentInstance, "SetBarTextOutline", "right", value)
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
                 desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
@@ -2070,24 +2064,22 @@ do
 			{--shadow color
                 type = "color",
                 get = function()
-                    local r, g, b, a = unpack(currentInstance.row_info.textR_shadow_color)
+                    local r, g, b, a = unpack(Details222.RowTexts.Get(currentInstance, 2, "shadow.color"))
                     return {r, g, b, a}
                 end,
                 set = function(self, r, g, b, a)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, {r, g, b, a})
+                    editInstanceSetting(currentInstance, "SetBarTextShadowColor", "right", {r, g, b, a})
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
                 desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
             },
             {--shadow offset x
                 type = "range",
-                get = function() return currentInstance.row_info.textR_shadow_offset[1] end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 2, "shadow.offset")[1] end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextShadowOffset", "right", value, nil)
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 min = -5,
                 max = 5,
@@ -2097,11 +2089,10 @@ do
             },
             {--shadow offset y
                 type = "range",
-                get = function() return currentInstance.row_info.textR_shadow_offset[2] end,
+                get = function() return Details222.RowTexts.Get(currentInstance, 2, "shadow.offset")[2] end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, nil, nil, value)
+                    editInstanceSetting(currentInstance, "SetBarTextShadowOffset", "right", nil, value)
                     afterUpdate()
-                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 min = -5,
                 max = 5,
@@ -2241,6 +2232,7 @@ do
                 name = Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR"],
                 desc = Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR_DESC"],
                 hidden = detailsFramework.IsAddonApocalypseWow(),
+                id = "text_separator_select",
             },
             {--brackets 28
                 type = "select",
@@ -2251,10 +2243,11 @@ do
                 name = Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET"],
                 desc = Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"],
                 hidden = detailsFramework.IsAddonApocalypseWow(),
+                id = "text_bracket_select",
             },
 
             {type = "label", get = function() return Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS"] .. " (".. Loc["STRING_OPTIONSMENU_ROWSETTINGS"] ..")\n" .. Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_WARNING"] end, text_template = subSectionTitleTextTemplate,
-        hidden = detailsFramework.IsAddonApocalypseWow(),}, --29
+        hidden = detailsFramework.IsAddonApocalypseWow(), id = "inline_text_warning_label"},
 
             {type = "blank"}, --30
 
@@ -2297,13 +2290,19 @@ do
                 get = function() return currentInstance.use_multi_fontstrings end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "use_multi_fontstrings", value)
+                    --chaining only applies to in line texts, so this decides the layout mode too
+                    editInstanceSetting(currentInstance, "AdjustInLineTextPadding")
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
+                    if (sectionFrame.UpdateColumnOffsetSliders) then
+                        sectionFrame.UpdateColumnOffsetSliders()
+                    end
                     Details:RefreshMainWindow(-1, true)
                     afterUpdate()
                 end,
                 name = Loc ["STRING_ENABLED"],
                 desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_DESC"],
                 hidden = detailsFramework.IsAddonApocalypseWow(),
+                id = "inline_text_toggle",
             },
 
             {--inline auto align enabled
@@ -2311,13 +2310,20 @@ do
                 get = function() return currentInstance.use_auto_align_multi_fontstrings end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "use_auto_align_multi_fontstrings", value)
+                    --switches the value columns between chaining onto each other and each sitting
+                    --at its own distance from the statusbar, so it has to re-anchor
+                    editInstanceSetting(currentInstance, "AdjustInLineTextPadding")
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
+                    if (sectionFrame.UpdateColumnOffsetSliders) then
+                        sectionFrame.UpdateColumnOffsetSliders()
+                    end
                     Details:RefreshMainWindow(-1, true)
                     afterUpdate()
                 end,
                 name = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN"],
                 desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN_DESC"],
                 hidden = detailsFramework.IsAddonApocalypseWow(),
+                id = "auto_align_toggle",
             },
 
 
@@ -2338,12 +2344,15 @@ do
                 hidden = detailsFramework.IsAddonApocalypseWow(),
             },
 
+            --with auto align on, texts 2 and 3 chain onto their right hand neighbour and these
+            --sliders drive the gap between the columns; with it off they drive each column's own
+            --distance from the statusbar's right edge. text 4 is always the chain anchor.
+            --UpdateColumnOffsetSliders below swaps the ranges when the mode changes.
             {--lineText2 (left, usuali is the 'done' amount)
                 type = "range",
-                get = function() return tonumber(currentInstance.fontstrings_text2_anchor) end,
+                get = function() return currentInstance:GetBarTextAnchorOffset(2) end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "fontstrings_text2_anchor", value)
-                    editInstanceSetting(currentInstance, "InstanceRefreshRows")
+                    editInstanceSetting(currentInstance, "SetBarTextAnchorOffset", 2, value)
                     afterUpdate()
                 end,
                 min = -10,
@@ -2352,14 +2361,14 @@ do
                 name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 1),
                 desc = Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"],
                 hidden = detailsFramework.IsAddonApocalypseWow(),
+                id = "column_offset_2_range",
             },
 
             {--lineText3 (in the middle)
                 type = "range",
-                get = function() return tonumber(currentInstance.fontstrings_text3_anchor) end,
+                get = function() return currentInstance:GetBarTextAnchorOffset(3) end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "fontstrings_text3_anchor", value)
-                    editInstanceSetting(currentInstance, "InstanceRefreshRows")
+                    editInstanceSetting(currentInstance, "SetBarTextAnchorOffset", 3, value)
                     afterUpdate()
                 end,
                 min = -10,
@@ -2368,14 +2377,14 @@ do
                 name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 2),
                 desc = Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"],
                 hidden = detailsFramework.IsAddonApocalypseWow(),
+                id = "column_offset_3_range",
             },
 
             {--lineText4 (closest to the right)
                 type = "range",
-                get = function() return tonumber(currentInstance.fontstrings_text4_anchor) end,
+                get = function() return currentInstance:GetBarTextAnchorOffset(4) end,
                 set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "fontstrings_text4_anchor", value)
-                    editInstanceSetting(currentInstance, "InstanceRefreshRows")
+                    editInstanceSetting(currentInstance, "SetBarTextAnchorOffset", 4, value)
                     afterUpdate()
                 end,
                 min = -10,
@@ -2384,6 +2393,7 @@ do
                 name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 3),
                 desc = Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"],
                 hidden = detailsFramework.IsAddonApocalypseWow(),
+                id = "column_offset_4_range",
             },
 
             {type = "blank", hidden = detailsFramework.IsAddonApocalypseWow()},
@@ -2563,6 +2573,8 @@ do
                 get = function() return Details.righttext_simple_formatting.alignment_space end,
                 set = function(self, fixedparam, value)
                     Details.righttext_simple_formatting.alignment_space = value
+                    --this spacing feeds ResolveAnchor on this client, so re-anchor the value columns
+                    Details:InstanceCallDetailsFunc(Details.AdjustInLineTextPadding)
                     Details:InstanceCallDetailsFunc(Details.InstanceRefreshRows)
                     Details:RefreshMainWindow(-1, true)
                     afterUpdate()
@@ -2585,9 +2597,9 @@ do
         C_Timer.After(0.15, function()
             DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
-            local separatorOption = sectionFrame.widget_list[25]
-            local bracketOption = sectionFrame.widget_list[26]
-            local warningLabel = sectionFrame.widget_list[27]
+            local separatorOption = sectionFrame:GetWidgetById("text_separator_select")
+            local bracketOption = sectionFrame:GetWidgetById("text_bracket_select")
+            local warningLabel = sectionFrame:GetWidgetById("inline_text_warning_label")
             Details222.OptionsPanel.textSeparatorOption = separatorOption
             Details222.OptionsPanel.textbracketOption = bracketOption
 
@@ -2599,6 +2611,28 @@ do
             local useAlignment = sectionFrame:GetWidgetById("use_alignment_toggle")
             local alignmentSpace = sectionFrame:GetWidgetById("alignment_space_range")
             local showPercent = sectionFrame:GetWidgetById("show_percent_toggle")
+
+            local columnOffsetSliders = {
+                [2] = sectionFrame:GetWidgetById("column_offset_2_range"),
+                [3] = sectionFrame:GetWidgetById("column_offset_3_range"),
+                [4] = sectionFrame:GetWidgetById("column_offset_4_range"),
+            }
+
+            --the column sliders drive the gap between packed columns when auto align is on and each
+            --column's distance from the statusbar when it is off, so their ranges swap with the mode
+            function sectionFrame.UpdateColumnOffsetSliders()
+                if (not currentInstance) then
+                    return
+                end
+
+                for index, slider in pairs(columnOffsetSliders) do
+                    local minValue, maxValue = currentInstance:GetBarTextAnchorOffsetRange(index)
+                    --the framework wrapper has no method for the range, so reach the inner slider
+                    slider.slider:SetMinMaxValues(minValue, maxValue)
+                    --NoCallback, otherwise refreshing the widget writes the setting straight back
+                    slider:SetValueNoCallback(currentInstance:GetBarTextAnchorOffset(index))
+                end
+            end
 
             function sectionFrame.UpdateRightTextOption()
                 if Details.righttext_simple_formatting.enabled then
@@ -2626,6 +2660,8 @@ do
                 if detailsFramework.IsAddonApocalypseWow() then
                     sectionFrame.UpdateRightTextOption()
                 else
+                    sectionFrame.UpdateColumnOffsetSliders()
+
                     if (currentInstance.use_multi_fontstrings) then
                         separatorOption:Disable()
                         bracketOption:Disable()

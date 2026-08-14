@@ -34,6 +34,7 @@ Definitions.lua
 boot.lua
 indent.lua
 functions\util.lua
+functions\rowtexts.lua
 functions\mixin.lua
 API.lua
 textures.lua

@@ -245,7 +245,7 @@ function atributo_energy:AtualizarResources (whichRowLine, colocacao, instancia)
 	end
 
 	esta_barra.lineText1:SetText(colocacao .. ". " .. self.nome)
-	esta_barra.lineText1:SetSize(esta_barra:GetWidth() - esta_barra.lineText4:GetStringWidth() - 20, 15)
+	Details222.RowTexts.FitNameText(esta_barra, instancia)
 
 	esta_barra:SetValue(100)
 
@@ -808,8 +808,6 @@ function atributo_energy:RefreshBarra(esta_barra, instancia, from_resize)
 	self:SetBarColors(esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	--left text
 	self:SetBarLeftText (esta_barra, instancia, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
-
-	esta_barra.lineText1:SetSize(esta_barra:GetWidth() - esta_barra.lineText4:GetStringWidth() - 20, 15)
 
 end
 

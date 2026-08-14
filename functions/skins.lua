@@ -177,6 +177,12 @@ local addonName, Details222 = ...
 			["bg_g"] = 0.0941,
 			["bars_grow_direction"] = 1,
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = true,
 				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = true,
@@ -226,7 +232,6 @@ local addonName, Details222 = ...
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
 				["texture_background"] = "DGround",
 				["use_spec_icons"] = true,
-				["textR_class_colors"] = false,
 				["alpha"] = 1,
 				["no_icon"] = false,
 				["percent_type"] = 1,
@@ -251,7 +256,6 @@ local addonName, Details222 = ...
 				},
 				["fast_ps_update"] = false,
 				["textR_separator"] = ",",
-				["textL_class_colors"] = false,
 			},
 			["show_statusbar"] = false,
 			["bg_alpha"] = 0.699999988079071,
@@ -446,6 +450,12 @@ local addonName, Details222 = ...
 			},
 			["stretch_button_side"] = 1,
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = false,
 				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = false,
@@ -487,8 +497,6 @@ local addonName, Details222 = ...
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "You Are the Best!",
 				["use_spec_icons"] = true,
-				["textR_class_colors"] = false,
-				["textL_class_colors"] = false,
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4_reverse",
 				["texture_background"] = "Details D'ictum (reverse)",
 				["alpha"] = 1,
@@ -595,6 +603,12 @@ local addonName, Details222 = ...
 			},
 			["backdrop_texture"] = "Details Ground",
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = false,
 				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = false,
@@ -644,7 +658,6 @@ local addonName, Details222 = ...
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
 				["texture_background"] = "DGround",
 				["use_spec_icons"] = true,
-				["textR_class_colors"] = false,
 				["alpha"] = 1,
 				["no_icon"] = false,
 				["percent_type"] = 1,
@@ -669,7 +682,6 @@ local addonName, Details222 = ...
 				},
 				["fast_ps_update"] = false,
 				["textR_separator"] = ",",
-				["textL_class_colors"] = false,
 			},
 			["micro_displays_side"] = 2,
 			["strata"] = "LOW",
@@ -875,6 +887,12 @@ local addonName, Details222 = ...
 			["bg_g"] = 0.0509803921568627,
 			["bars_grow_direction"] = 1,
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = false,
 				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = false,
@@ -950,8 +968,6 @@ local addonName, Details222 = ...
 					true, -- [2]
 					false, -- [3]
 				},
-				["textL_class_colors"] = false,
-				["textR_class_colors"] = false,
 				["textR_outline_small_color"] = {
 					0, -- [1]
 					0, -- [2]
@@ -1234,6 +1250,12 @@ local addonName, Details222 = ...
 			},
 			["hide_icon"] = true,
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = false,
 				["textL_outline"] = false,
 				["fixed_texture_color"] = {
@@ -1279,7 +1301,6 @@ local addonName, Details222 = ...
 					},
 					["texture"] = "Details BarBorder 2",
 				},
-				["textL_class_colors"] = false,
 				["models"] = {
 					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
 					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
@@ -1289,7 +1310,6 @@ local addonName, Details222 = ...
 					["upper_enabled"] = false,
 				},
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["textR_class_colors"] = false,
 				["alpha"] = 1,
 				["no_icon"] = false,
 				["font_size"] = 16,
@@ -1443,6 +1463,12 @@ local addonName, Details222 = ...
 				["enable_custom_text"] = false,
 			},
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = false,
 				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = false,
@@ -1482,8 +1508,6 @@ local addonName, Details222 = ...
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "Skyline",
 				["use_spec_icons"] = true,
-				["textR_class_colors"] = false,
-				["textL_class_colors"] = false,
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
 				["texture_background"] = "DGround",
 				["alpha"] = 0.8,
@@ -1649,6 +1673,12 @@ local addonName, Details222 = ...
 			["bars_sort_direction"] = 1,
 			["instance_button_anchor"] = {-27,1},
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = false,
 				["textL_outline"] = false,
 				["use_spec_icons"] = true,
@@ -1673,7 +1703,6 @@ local addonName, Details222 = ...
 				["fixed_texture_background_color"] = {0,0,0,0.295484036207199},
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
 				["alpha"] = 1,
-				["textR_class_colors"] = false,
 				["models"] = {
 					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
 					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
@@ -1693,7 +1722,6 @@ local addonName, Details222 = ...
 				["no_icon"] = false,
 				["font_size"] = 16,
 				["height"] = 21,
-				["textL_class_colors"] = false,
 				["font_face"] = "FORCED SQUARE",
 				["texture_class_colors"] = true,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
@@ -1830,7 +1858,6 @@ local addonName, Details222 = ...
 		instance_cprops = {
 			menu_icons_alpha = 0.92,
 			["hide_in_combat_type"] = 1,
-			["fontstrings_text3_anchor"] = 37,
 			["menu_anchor"] = {
 				19, -- [1]
 				1, -- [2]
@@ -1854,6 +1881,12 @@ local addonName, Details222 = ...
 			["switch_all_roles_in_combat"] = false,
 			["clickthrough_toolbaricons"] = false,
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}, ["anchor"] = {["x"] = -74}},
+					[3] = {["color"] = {["byClass"] = false}, ["anchor"] = {["x"] = -37}},
+					[4] = {["color"] = {["byClass"] = false}, ["anchor"] = {["x"] = 0}},
+				},
 				["textR_outline"] = false,
 				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = false,
@@ -1920,9 +1953,7 @@ local addonName, Details222 = ...
 				["texture"] = "Details2020",
 				["start_after_icon"] = true,
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
-				["textR_class_colors"] = false,
 				["alpha"] = 0.8,
-				["textL_class_colors"] = false,
 				["texture_background"] = "Details Flat",
 				["textR_outline_small_color"] = {
 					0, -- [1]
@@ -2069,7 +2100,6 @@ local addonName, Details222 = ...
 				},
 			},
 			["switch_healer"] = false,
-			["fontstrings_text2_anchor"] = 74,
 			["StatusBarSaved"] = {
 				["center"] = "DETAILS_STATUSBAR_PLUGIN_CLOCK",
 				["right"] = "DETAILS_STATUSBAR_PLUGIN_PDURABILITY",
@@ -2127,7 +2157,6 @@ local addonName, Details222 = ...
 				1, -- [2]
 			},
 			["version"] = 3,
-			["fontstrings_text4_anchor"] = 0,
 			["__locked"] = false,
 			["menu_alpha"] = {
 				["enabled"] = false,
@@ -2427,6 +2456,12 @@ local addonName, Details222 = ...
 			["stretch_button_side"] = 1,
 			["micro_displays_locked"] = true,
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textL_outline"] = true,
 				["textR_outline"] = true,
 				["textL_outline_small"] = false,
@@ -2486,14 +2521,12 @@ local addonName, Details222 = ...
 					0.188235294117647, -- [3]
 					0.3492591381073, -- [4]
 				},
-				["textR_class_colors"] = false,
 				["alpha"] = 0.439999997615814,
 				["no_icon"] = false,
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
 				["texture_background"] = "DGround",
 				["font_face"] = "Accidental Presidency",
 				["texture_class_colors"] = false,
-				["textL_class_colors"] = false,
 				["fast_ps_update"] = false,
 				["textR_separator"] = "NONE",
 				["backdrop"] = {
@@ -2626,6 +2659,12 @@ local addonName, Details222 = ...
 				1, -- [2]
 			},
 			["row_info"] = {
+				["texts"] = {
+					[1] = {["color"] = {["byClass"] = false}},
+					[2] = {["color"] = {["byClass"] = false}},
+					[3] = {["color"] = {["byClass"] = false}},
+					[4] = {["color"] = {["byClass"] = false}},
+				},
 				["textR_outline"] = false,
 				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = false,
@@ -2689,10 +2728,8 @@ local addonName, Details222 = ...
 					["upper_enabled"] = false,
 				},
 				["texture_custom_file"] = "Interface\\",
-				["textR_class_colors"] = false,
 				["texture_custom"] = "",
 				["texture"] = "Blizzard Raid Bar",
-				["textL_class_colors"] = false,
 				["alpha"] = 1,
 				["no_icon"] = false,
 				["texture_background"] = "Details D'ictum (reverse)",
