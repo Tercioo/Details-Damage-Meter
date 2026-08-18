@@ -152,7 +152,9 @@ function itemLevelCore:CalcItemLevel(unitid, guid, shout)
 		local spec
 		local talents = {}
 
-		if (not DetailsFramework.IsTimewalkWoW()) then
+		local GetInspectSpecialization = GetInspectSpecialization or C_SpecializationInfo.GetInspectSpecialization
+
+		if (not DetailsFramework.IsTimewalkWoW() and GetInspectSpecialization) then
 			spec = GetInspectSpecialization(unitid)
 			if (spec and spec ~= 0) then
 				Details.cached_specs [guid] = spec
