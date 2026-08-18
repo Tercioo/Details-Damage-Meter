@@ -3312,6 +3312,32 @@ noteEditor.OpenNoteEditor = function()
 				sendButton:SetIcon("Interface\\BUTTONS\\JumpUpArrow", 18, 18, "overlay", {0, 1, 0, 1})
 				detailsFramework:CreateHighlightTexture(sendButton)
 
+				--shows the note on the screen panel for the player itself only, nothing is sent to the group, hence it isn't restricted by the instance difficulty
+				local showNoteButton = detailsFramework:CreateButton(bottomFrame, function()
+					local noteText = mainFrame.EditboxNotes.editbox:GetText()
+
+					if (detailsFramework:Trim(noteText) == "") then
+						local msg = "There's no note to show, the note is empty."
+						Details:Msg(msg)
+						mainFrame.ShowErrorMsg(msg)
+						return
+					end
+
+					if (not IsInRaid()) then
+						--same replacement done when sending the note, as the unitIds aren't the same on different clients, also passes the bNoColoring flag to avoid coloring the names
+						local bNoColoring = true
+						noteText = noteEditor.ParseNoteText(noteText, bNoColoring)
+					end
+
+					local bIsSimulateOnClient = true
+					local bIsLocalNote = true
+					noteEditor.OpenNoteScreenPanel(UnitName("player"), noteText, "", bIsSimulateOnClient, bIsLocalNote)
+				end, buttonWidth, buttonHeight, "Show Note")
+				showNoteButton:SetPoint("topleft", sendButton, "bottomleft", 0, -4)
+				showNoteButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+				showNoteButton:SetIcon([[Interface\BUTTONS\UI-GuildButton-OfficerNote-Up]], 16, 16, "overlay")
+				detailsFramework:CreateHighlightTexture(showNoteButton)
+
 				local saveNoteButton = detailsFramework:CreateButton(bottomFrame, function()
 					--print("mainFrame.currentNoteIndex", mainFrame.currentNoteIndex) --nil when no note is selected
 					mainFrame.SaveNote(mainFrame.currentNoteIndex)
@@ -3351,8 +3377,9 @@ noteEditor.OpenNoteEditor = function()
 				--error msg fontstring, this text is used to show errors to the user, its color is red, size 13 and it is placed centered and below the buttons above
 				--it also has an animation to fade out after 5 seconds, and a shake animation when it's shown
 				local errorMsg = bottomFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-				errorMsg:SetPoint("top", bottomFrame, "top", 0, (buttonHeight + 14) * -1)
-				errorMsg:SetWidth(bottomFrame:GetWidth() - 10)
+				--offset to the right to not overlap the show note button placed on the second row
+				errorMsg:SetPoint("top", bottomFrame, "top", (buttonWidth + 8) / 2, (buttonHeight + 14) * -1)
+				errorMsg:SetWidth(bottomFrame:GetWidth() - buttonWidth - 18)
 				errorMsg:SetJustifyH("center")
 				errorMsg:SetAlpha(0)
 				detailsFramework:SetFontColor(errorMsg, "orangered")
@@ -3451,7 +3478,8 @@ local currentNoteId = nil
 ---@param noteText string
 ---@param commId string
 ---@param bIsSimulateOnClient boolean
-noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimulateOnClient)
+---@param bIsLocalNote boolean? true when the player is showing its own note for itself, the note wasn't sent to the group
+noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimulateOnClient, bIsLocalNote)
 	local config = Details.third_party.openraid_notecache
 	currentSenderName = senderName
 
@@ -3613,16 +3641,25 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 		screenFrame.CloseButton = closeButton
 		screenFrame.ResizerButton = resizerButton
 
-		function screenFrame.SetNote(sender, text)
+		---@param sender string
+		---@param text string
+		---@param bIsLocalNote boolean? the note is being shown for the player itself, it didn't come from the group
+		function screenFrame.SetNote(sender, text, bIsLocalNote)
 			text = detailsFramework:Trim(text)
 
-			local unitRole = UnitGroupRolesAssigned(sender)
-			if (unitRole and unitRole ~= "NONE") then
-				local size = 16
-				sender = detailsFramework:AddRoleIconToText(sender, unitRole, size)
-			end
+			if (bIsLocalNote) then
+				--there's no sender to show or to ignore, denote the note is only visible for the player itself
+				screenFrame.TitleText:SetText("Your Note (only you can see it)")
+				banSender:Hide()
+			else
+				local unitRole = UnitGroupRolesAssigned(sender)
+				if (unitRole and unitRole ~= "NONE") then
+					local size = 16
+					sender = detailsFramework:AddRoleIconToText(sender, unitRole, size)
+				end
 
-			screenFrame.TitleText:SetText("From: " .. sender)
+				screenFrame.TitleText:SetText("From: " .. sender)
+			end
 
 			--find all unit names in the text and color them
 			text = noteEditor.FindAndColorUnitNames(text)
@@ -3718,7 +3755,7 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 		screenFrame.ReportButton:Hide()
 	end
 
-	if (not config["tutorial1"]) then --~helptip
+	if (not config["tutorial1"] and not bIsLocalNote) then --~helptip, the tutorial is about receiving notes, don't show it on a local note
 		local helpTipInfo = {
 			text = "You received a note from another player.\n\nThis note contains instructions for the content you are about to engage in.\n\nIf the note is offensive, you may report the player to Blizzard using the 'Report Player' button.",
 			buttonStyle = HelpTip.ButtonStyle.Close,
@@ -3731,7 +3768,7 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 
 	screenFrame.RefreshNoteTextSettings()
 	screenFrame.RefreshFrameSettings()
-	screenFrame.SetNote(senderName, noteText)
+	screenFrame.SetNote(senderName, noteText, bIsLocalNote)
 
 	local screenFrameHeight = screenFrame:GetHeight()
 	screenFrame.FlashTexture.FadeInAnimation.transInAnim:SetOffset(0, -screenFrameHeight/2)
