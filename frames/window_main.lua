@@ -5589,6 +5589,10 @@ function Details:SetWindowAlphaForCombat(enteringInCombat, trueHide, alphaAmount
 		if not Details:IsUsingBlizzardAPI() then
 			Details.FadeHandler.Fader(self.rowframe, "ALPHAANIM", parseRowFrameAlpha(rowsamount))
 			Details.FadeHandler.Fader(self.baseframe, "ALPHAANIM", rowsamount)
+		else
+			-- both frames were just raised to maxAlpha above
+			self.rowframe:SetAlpha(parseRowFrameAlpha(rowsamount))
+			self.baseframe:SetAlpha(rowsamount)
 		end
 	end
 
