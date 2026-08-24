@@ -50,15 +50,11 @@ local IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP = IS_WOW_PROJECT_MAINLINE or (ClassicE
 
 local CastInfo = detailsFramework.CastInfo
 
--- Prefer client PixelUtil when present, else DF's polyfill.
--- On CN Titan Reforged TOC 38002, global PixelUtil exists without SetStatusBarValue.
--- Fill only the missing method (no TOC range gates) so other versions stay unchanged.
+--on TOC 38002 the global PixelUtil exists but has no SetStatusBarValue, which UpdateHealth and
+--UpdatePower call; fill just that method locally instead of writing into the Blizzard global table
 local PixelUtil = PixelUtil or DFPixelUtil
-if PixelUtil and not PixelUtil.SetStatusBarValue then
-	-- DFPixelUtil.SetStatusBarValue needs ClampedPercentageBetween/Lerp/Round which may also be missing.
-	PixelUtil.SetStatusBarValue = function(statusBar, value)
-		statusBar:SetValue(value)
-	end
+if (not PixelUtil.SetStatusBarValue) then
+	PixelUtil = setmetatable({SetStatusBarValue = DFPixelUtil.SetStatusBarValue}, {__index = PixelUtil})
 end
 
 local UnitGroupRolesAssigned = detailsFramework.UnitGroupRolesAssigned
