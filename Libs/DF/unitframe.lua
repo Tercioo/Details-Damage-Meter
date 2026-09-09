@@ -50,7 +50,12 @@ local IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP = IS_WOW_PROJECT_MAINLINE or (ClassicE
 
 local CastInfo = detailsFramework.CastInfo
 
+--on TOC 38002 the global PixelUtil exists but has no SetStatusBarValue, which UpdateHealth and
+--UpdatePower call; fill just that method locally instead of writing into the Blizzard global table
 local PixelUtil = PixelUtil or DFPixelUtil
+if (not PixelUtil.SetStatusBarValue) then
+	PixelUtil = setmetatable({SetStatusBarValue = DFPixelUtil.SetStatusBarValue}, {__index = PixelUtil})
+end
 
 local UnitGroupRolesAssigned = detailsFramework.UnitGroupRolesAssigned
 local cleanfunction = function() end
