@@ -414,6 +414,11 @@ end
 local refreshCompareSection = function(self, data, offset, totalLines)
     local header = self.Header
     local headerTable = header:GetHeaderTable() or {}
+
+    if not header:DoesColumnExists(2) then --wait the first refresh
+        return
+    end
+
     local nameColumnWidth = header:GetColumnWidth(2) or 0
     local activeComparisonColumns = self.ActiveComparisonColumns or 1
     local defaultTextColor = Details.breakdown_general.font_color
