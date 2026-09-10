@@ -361,18 +361,39 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
             end
         end
 
-        optionsFrame.sectionFramesContainer[sectionId]:Show()
-        if(optionsFrame.sectionFramesContainer[sectionId].RefreshOptions) then
-            optionsFrame.sectionFramesContainer[sectionId]:RefreshOptions()
+        local sectionFrame = optionsFrame.sectionFramesContainer[sectionId]
+
+        --build this tab's widgets now, the first time it's opened, instead of all at once
+        --when the options window was first created
+        if (sectionFrame.BuildSectionContent) then
+            sectionFrame.BuildSectionContent()
+        end
+
+        sectionFrame:Show()
+        if (sectionFrame.RefreshOptions) then
+            sectionFrame:RefreshOptions()
         end
         --hightlight the option button
-        optionsFrame.sectionFramesContainer[sectionId].sectionButton:SetTemplate(options_button_template_selected)
-        optionsFrame.sectionFramesContainer[sectionId].sectionButton:SetIcon({1, 1, 0}, 4, section_menu_button_height -4, "overlay")
+        sectionFrame.sectionButton:SetTemplate(options_button_template_selected)
+        sectionFrame.sectionButton:SetIcon({1, 1, 0}, 4, section_menu_button_height -4, "overlay")
     end
 
     Details222.OptionsPanel.SetCurrentInstance(instance)
 
+    --defined up front (not at the end of the build loop below) so that if the loop
+    --gets interrupted partway (e.g. by the game's script execution watchdog), this
+    --function still exists and callers like SetCurrentInstanceAndRefresh don't crash
+    --trying to call a nil value.
+    function Details222.OptionsPanel.GetOptionsSection(sectionId)
+        return optionsFrame.sectionFramesContainer[sectionId]
+    end
+
     --create frames for sections
+    --NOTE: section content (buildOptionSectionFunc) is now built lazily, the first time
+    --each tab is actually selected, instead of eagerly for all ~21 tabs here. Building
+    --everything up front in one go got noticeably heavier after the UI overhaul in patch
+    --1.15.9 and could exceed the client's 'script ran too long' execution time limit,
+    --which left later tabs (and this very function) half-built.
     for index, sectionId in ipairs(optionsSectionsOrder) do
         if (type(sectionId) == "number") then
             local sectionFrame = CreateFrame("frame", "$parentTab" .. sectionId, optionsFrame, "BackdropTemplate")
@@ -385,8 +406,14 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
 
             local buildOptionSectionFunc = Details.optionsSection[sectionId]
             if (buildOptionSectionFunc) then
-                --call the function to create the frame
-                buildOptionSectionFunc(sectionFrame)
+                --defer the actual widget construction until the tab is selected for the first time
+                sectionFrame.builtContent = false
+                sectionFrame.BuildSectionContent = function()
+                    if (not sectionFrame.builtContent) then
+                        sectionFrame.builtContent = true
+                        buildOptionSectionFunc(sectionFrame)
+                    end
+                end
 
                 --create a button for the section
                 local sectionButton = detailsFramework:CreateButton(optionsFrame, function() Details222.OptionsPanel.SelectOptionsSection(sectionId) end, section_menu_button_width, section_menu_button_height, sectionsName[sectionId], sectionId, nil, nil, nil, "$parentButtonSection" .. sectionId, nil, options_button_template, options_text_template)
@@ -405,10 +432,6 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
         else
             buttonYPosition = buttonYPosition - 15
         end
-    end
-
-    function Details222.OptionsPanel.GetOptionsSection(sectionId)
-        return optionsFrame.sectionFramesContainer[sectionId]
     end
 
     function optionsFrame.RefreshWindow()
@@ -461,7 +484,12 @@ function Details:OpenOptionsWindow(instance, bNoReopen, section)
     window.instanceDropdown:Refresh()
     window.instanceDropdown:Select(instance:GetId())
 
-    window.updateMicroFrames()
+    --updateMicroFrames is only assigned onto the window the first time tab 7
+    --("status bar") builds its content (lazy tab build) -- guard against it
+    --not existing yet, same pattern as the AutoHideOptions fix above.
+    if (window.updateMicroFrames) then
+        window.updateMicroFrames()
+    end
 
     DetailsPluginContainerWindowMenuFrame:SetColor(unpack(Details.frame_background_color))
 end
