@@ -481,7 +481,7 @@ local function CreatePluginFrames()
 				local text = data [2]
 				line.text1:SetText (text)
 				local loops = 20
-				while (line.text1:GetStringWidth() > text1Size and loops > 0) do
+				while (not issecretvalue(line.text1:GetStringWidth()) and line.text1:GetStringWidth() > text1Size and loops > 0) do
 					text = strsub (text, 1, #text-1)
 					line.text1:SetText (text)
 					loops = loops - 1 --just to be safe
@@ -491,7 +491,7 @@ local function CreatePluginFrames()
 				local text = data [6]
 				line.text2:SetText (text)
 				local loops = 20
-				while (line.text2:GetStringWidth() > text2Size and loops > 0) do
+				while (not issecretvalue(line.text2:GetStringWidth()) and line.text2:GetStringWidth() > text2Size and loops > 0) do
 					text = strsub (text, 1, #text-1)
 					line.text2:SetText (text)
 					loops = loops - 1 --just to be safe
