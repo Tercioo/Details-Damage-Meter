@@ -322,7 +322,7 @@ local NotifyInspectHook = function(unitId) --not in use, or is?
 
 	if (isInGroup and isInInstance) then
 		local guid = UnitGUID(unitId)
-		if not guid or inspecting[guid] then
+		if not guid or issecretvalue(guid) or inspecting[guid] then
 			return
 		end
 
