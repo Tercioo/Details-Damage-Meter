@@ -1,7 +1,7 @@
 -- SPDX-License-Identifier: LGPL-2.1-or-later
 -- Details Framework (DetailsFramework-1.0) -- see Libs/DF/LICENSE
 
-local dversion = 752
+local dversion = 758
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -165,14 +165,15 @@ end
 ---return if the wow version the player is playing is a classic version of wow
 ---@return boolean
 function DF.IsTimewalkWoW()
-    if (buildInfo < 60000) then        return true    end
+    if (buildInfo < 60000 and not DF.IsForeverWow()) then        return true    end
 	return false
 end
 
 ---return if the wow version the player is playing is the vanilla version of wow
 ---@return boolean
 function DF.IsClassicWow()
-    if (buildInfo < 20000) then        return true    end
+    --if (buildInfo < 20000) then        return true    end
+	if (buildInfo < 20000 and not DF.IsForeverWow()) then        return true    end
 	return false
 end
 
@@ -256,7 +257,12 @@ function DF.IsMidnightWow()
 end
 
 function DF.IsAddonApocalypseWow()
-	return buildInfo >= 120000
+	return buildInfo >= 120000 or DF.IsForeverWow()
+end
+
+function DF.IsForeverWow()
+	if (buildInfo < 20000 and buildInfo >= 16001) then   return true end
+	return false
 end
 
 function DF.IsMidnightWowAPI()

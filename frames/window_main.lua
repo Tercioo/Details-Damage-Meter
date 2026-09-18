@@ -1817,39 +1817,39 @@ local shiftMonitor = function(self)
 	if (IsShiftKeyDown()) then
 		if (not self.showing_allspells) then
 			self.showing_allspells = true
-			local instancia = Details:GetInstance(self.instance_id)
+			local instancia = Details:GetInstanceOrDetached(self.instance_id)
 			instancia:MontaTooltip(self, self.row_id, "shift")
 		end
 
 	elseif (self.showing_allspells) then
 		self.showing_allspells = false
-		local instancia = Details:GetInstance(self.instance_id)
+		local instancia = Details:GetInstanceOrDetached(self.instance_id)
 		instancia:MontaTooltip(self, self.row_id)
 	end
 
 	if (IsControlKeyDown()) then
 		if (not self.showing_alltargets) then
 			self.showing_alltargets = true
-			local instancia = Details:GetInstance(self.instance_id)
+			local instancia = Details:GetInstanceOrDetached(self.instance_id)
 			instancia:MontaTooltip(self, self.row_id, "ctrl")
 		end
 
 	elseif (self.showing_alltargets) then
 		self.showing_alltargets = false
-		local instancia = Details:GetInstance(self.instance_id)
+		local instancia = Details:GetInstanceOrDetached(self.instance_id)
 		instancia:MontaTooltip(self, self.row_id)
 	end
 
 	if (IsAltKeyDown()) then
 		if (not self.showing_allpets) then
 			self.showing_allpets = true
-			local instancia = Details:GetInstance(self.instance_id)
+			local instancia = Details:GetInstanceOrDetached(self.instance_id)
 			instancia:MontaTooltip(self, self.row_id, "alt")
 		end
 
 	elseif (self.showing_allpets) then
 		self.showing_allpets = false
-		local instancia = Details:GetInstance(self.instance_id)
+		local instancia = Details:GetInstanceOrDetached(self.instance_id)
 		instancia:MontaTooltip(self, self.row_id)
 	end
 end
@@ -2126,7 +2126,7 @@ local iconFrame_OnEnter = function(self)
 				--print("instanceLine.sourceData.name is secret, not showing tooltip")
 				return
 			end
-			local instance = Details:GetInstance(instanceLine.instance_id)
+			local instance = Details:GetInstanceOrDetached(instanceLine.instance_id)
 			local settingsTable = Details:MakeSettingsForAdapter(instance, nil, instanceLine.sourceData)
 			local adapter = Details:MakeActorAdapter(settingsTable)
 			actor = adapter
@@ -2742,8 +2742,9 @@ local function button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 				thisInstance.baseframe._place = thisInstance:SaveMainWindowPosition()
 				thisInstance.baseframe.isResizing = true
 				thisInstance.baseframe.isStretching = true
-				thisInstance.baseframe:SetFrameStrata("TOOLTIP")
-				thisInstance.rowframe:SetFrameStrata("TOOLTIP")
+				local stretchStrata = thisInstance:IsHostedInsideFrame() and thisInstance:GetEffectiveStrata() or "TOOLTIP"
+				thisInstance.baseframe:SetFrameStrata(stretchStrata)
+				thisInstance.rowframe:SetFrameStrata(stretchStrata)
 
 				local _r, _g, _b, _a = thisInstance.baseframe:GetBackdropColor()
 				gump:GradientEffect(thisInstance.baseframe, "frame", _r, _g, _b, _a, _r, _g, _b, 0.9, 1.5)
@@ -2815,8 +2816,8 @@ local function button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 						gump:GradientEffect(thisInstance.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, thisInstance.wallpaper.alpha, 1.0)
 					end
 
-					thisInstance.baseframe:SetFrameStrata(thisInstance.strata)
-					thisInstance.rowframe:SetFrameStrata(thisInstance.strata)
+					thisInstance.baseframe:SetFrameStrata(thisInstance:GetEffectiveStrata())
+					thisInstance.rowframe:SetFrameStrata(thisInstance:GetEffectiveStrata())
 					thisInstance:StretchButtonAlwaysOnTop()
 
 					Details:SendEvent("DETAILS_INSTANCE_ENDSTRETCH", nil, thisInstance.baseframe)
@@ -3502,15 +3503,40 @@ do
 end
 
 --~inicio ~janela ~window ~nova ~start
-function gump:CriaJanelaPrincipal(ID, instancia, criando)
+---creates the frames of a details! window
+---@param ID number the instance id, it is part of the global name of every frame created here
+---@param instancia table the instance object the frames belong to
+---@param criando boolean|nil true when the window is being created for the first time
+---@param parent table|nil frame the window is built inside of, defaults to UIParent
+function gump:CriaJanelaPrincipal(ID, instancia, criando, parent)
+	--the window is made of four sibling frames, all of them have to share the same parent or the window
+	--gets split between the parent passed in and the screen
+	local windowParent = parent or UIParent
+	--a window built inside another frame is positioned by that frame, so screen clamping and the initial
+	--centering on the screen only apply when the window is a child of UIParent
+	local bIsScreenParented = windowParent == UIParent
+
+	--frame strata and frame level are not inherited in wow: a child whose strata is lower than its parent's
+	--is drawn behind the parent, and so is a child with a lower frame level inside the same strata. a window
+	--built on the screen keeps the strata every details! window has always used; a window built inside
+	--another frame takes the strata and the level of that frame instead, so it draws on top of its host
+	local windowStrata = baseframe_strata
+	local windowBaseLevel = 0
+
+	if (not bIsScreenParented) then
+		windowStrata = windowParent:GetFrameStrata()
+		windowBaseLevel = windowParent:GetFrameLevel()
+	end
+
 	--baseframe is the lowest frame in the window architecture
-	local baseframe = CreateFrame("scrollframe", "DetailsBaseFrame" .. ID, UIParent, "BackdropTemplate")
+	local baseframe = CreateFrame("scrollframe", "DetailsBaseFrame" .. ID, windowParent, "BackdropTemplate")
+	baseframe.windowParent = windowParent
 	baseframe:SetMovable(true)
 	baseframe:SetResizable(true)
 	baseframe:SetUserPlaced(false)
 	baseframe:SetDontSavePosition(true)
-	baseframe:SetFrameStrata(baseframe_strata)
-	baseframe:SetFrameLevel(2)
+	baseframe:SetFrameStrata(windowStrata)
+	baseframe:SetFrameLevel(windowBaseLevel + 2)
 	baseframe.instance = instancia
 
 	local baseframeBorder = DetailsFramework:CreateFullBorder(baseframe:GetName() .. "BaseBorder", baseframe)
@@ -3551,17 +3577,17 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 	--backgrounddisplay is a scrollschild of backgroundframe, hence its children won't show outside its canvas
 	local backgroundframe =  CreateFrame("scrollframe", "Details_WindowFrame"..ID, baseframe) --window frame
 	local backgrounddisplay = CreateFrame("frame", "Details_GumpFrame"..ID, backgroundframe,"BackdropTemplate") --gump frame
-	backgroundframe:SetFrameLevel(3)
-	backgrounddisplay:SetFrameLevel(3)
+	backgroundframe:SetFrameLevel(windowBaseLevel + 3)
+	backgrounddisplay:SetFrameLevel(windowBaseLevel + 3)
 	backgroundframe.instance = instancia
 	backgrounddisplay.instance = instancia
 	instancia.windowBackgroundDisplay = backgrounddisplay
 
 	--row frame is the parent of rows, it have setallpoints on baseframe
-	local rowframe = CreateFrame("frame", "DetailsRowFrame"..ID, UIParent) --row frame
+	local rowframe = CreateFrame("frame", "DetailsRowFrame"..ID, windowParent) --row frame
 	rowframe:SetAllPoints(baseframe)
-	rowframe:SetFrameStrata(baseframe_strata)
-	rowframe:SetFrameLevel(3)
+	rowframe:SetFrameStrata(windowStrata)
+	rowframe:SetFrameLevel(windowBaseLevel + 3)
 	rowframe:EnableMouse(false)
 	instancia.rowframe = rowframe
 
@@ -3571,16 +3597,17 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 	end
 
 	--right click bookmark
-	local switchbutton = CreateFrame("button", "Details_SwitchButtonFrame" ..  ID, UIParent)
+	local switchbutton = CreateFrame("button", "Details_SwitchButtonFrame" ..  ID, windowParent)
 	switchbutton:SetAllPoints(baseframe)
-	switchbutton:SetFrameStrata(baseframe_strata)
-	switchbutton:SetFrameLevel(4)
+	switchbutton:SetFrameStrata(windowStrata)
+	switchbutton:SetFrameLevel(windowBaseLevel + 4)
 	instancia.windowSwitchButton = switchbutton
 
 	--avoid mouse hover over a high window when the menu is open for a lower instance.
-	local antiMenuOverlap = CreateFrame("frame", "Details_WindowFrameAntiMenuOverlap" .. ID, UIParent)
+	local antiMenuOverlap = CreateFrame("frame", "Details_WindowFrameAntiMenuOverlap" .. ID, windowParent)
 	antiMenuOverlap:SetSize(100, 13)
-	antiMenuOverlap:SetFrameStrata("DIALOG")
+	--a hosted window must not push a frame into the dialog strata, it would float over the whole ui
+	antiMenuOverlap:SetFrameStrata(bIsScreenParented and "DIALOG" or windowStrata)
 	antiMenuOverlap:EnableMouse(true)
 	antiMenuOverlap:Hide()
 	--anti_menu_overlap:SetBackdrop(gump_fundo_backdrop) --debug
@@ -3669,7 +3696,7 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 		baseframe.button_stretch = CreateFrame("button", "DetailsButtonStretch" .. instancia.meu_id, baseframe)
 		baseframe.button_stretch:SetPoint("bottom", baseframe, "top", 0, 20)
 		baseframe.button_stretch:SetPoint("right", baseframe, "right", -27, 0)
-		baseframe.button_stretch:SetFrameLevel(1)
+		baseframe.button_stretch:SetFrameLevel(windowBaseLevel + 1)
 
 		local stretchTexture = baseframe.button_stretch:CreateTexture(nil, "overlay")
 		stretchTexture:SetTexture(DEFAULT_SKIN)
@@ -3688,10 +3715,10 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 		button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 
 -- main window config -------------------------------------------------------------------------------------------------------------------------------------------------
-		baseframe:SetClampedToScreen(true)
+		baseframe:SetClampedToScreen(bIsScreenParented)
 		baseframe:SetSize(Details.new_window_size.width, Details.new_window_size.height)
 
-		baseframe:SetPoint("center", UIParent)
+		baseframe:SetPoint("center", windowParent)
 		baseframe:EnableMouseWheel(false)
 		baseframe:EnableMouse(true)
 
@@ -3764,7 +3791,7 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 		baseframe.resize_direita:SetHeight(16)
 		baseframe.resize_direita:SetPoint("bottomright", baseframe, "bottomright", 0, 0)
 		baseframe.resize_direita:EnableMouse(true)
-		baseframe.resize_direita:SetFrameStrata("HIGH")
+		baseframe.resize_direita:SetFrameStrata(bIsScreenParented and "HIGH" or windowStrata)
 		baseframe.resize_direita:SetFrameLevel(baseframe:GetFrameLevel() + 6)
 		baseframe.resize_direita.side = 2
 
@@ -3784,7 +3811,7 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 		baseframe.lock_button:SetScript("OnEnter", lockFunctionOnEnter)
 		baseframe.lock_button:SetScript("OnLeave", lockFunctionOnLeave)
 		baseframe.lock_button:SetScript("OnHide", lockFunctionOnHide)
-		baseframe.lock_button:SetFrameStrata("HIGH")
+		baseframe.lock_button:SetFrameStrata(bIsScreenParented and "HIGH" or windowStrata)
 		baseframe.lock_button:SetFrameLevel(baseframe:GetFrameLevel() + 6)
 		baseframe.lock_button.instancia = instancia
 
@@ -3803,7 +3830,7 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 		baseframe.resize_esquerda:SetHeight(16)
 		baseframe.resize_esquerda:SetPoint("bottomleft", baseframe, "bottomleft", 0, 0)
 		baseframe.resize_esquerda:EnableMouse(true)
-		baseframe.resize_esquerda:SetFrameStrata("HIGH")
+		baseframe.resize_esquerda:SetFrameStrata(bIsScreenParented and "HIGH" or windowStrata)
 		baseframe.resize_esquerda:SetFrameLevel(baseframe:GetFrameLevel() + 6)
 
 		baseframe.resize_esquerda:SetAlpha(0)
@@ -4862,7 +4889,9 @@ function Details:SetBarSettings(height, texture, colorclass, fixedcolor, backgro
 	end
 
 	--spacement
-	if (spacement) then
+	--a type check rather than a truthiness one: zero is a spacing a user can pick and it was the one
+	--value this setter silently ignored
+	if (type(spacement) == "number") then
 		self.row_info.space.between = spacement
 		self.row_height = self.row_info.height + spacement
 	end
@@ -5097,9 +5126,14 @@ function Details:InstanceClearTexts(instance)
 		self = instance
 	end
 
-	local lines = instance.barras
+	--read from self and not from the instance argument, the same way every sibling function here
+	--does: the argument form is optional and calling this as a method, instance:InstanceClearTexts(),
+	--used to index a nil
+	if (not self.barras or not self.barras[1]) then
+		return
+	end
 
-	for _, row in ipairs(lines) do
+	for _, row in ipairs(self.barras) do
 		row.lineText1:SetText("")
 		row.lineText2:SetText("")
 		row.lineText3:SetText("")
@@ -7877,6 +7911,11 @@ function Details:ChangeSkin(skin_name)
 		end
 	end
 
+	--the title bar icon is anchored to the title bar fontstring, and ChangeSkin has just re-created or
+	--re-parented that fontstring; without re-running ChangeIcon the icon keeps the points it had before,
+	--or none at all on a window which never calls TrocaTabela, and is then never drawn
+	self:ChangeIcon()
+
 	self:UpdateClickThrough()
 end
 
@@ -8296,13 +8335,27 @@ function Details:SetFrameStrata(strata)
 		strata = self.strata
 	end
 
+	--the strata the user picked is always stored, it is what a window on the screen uses and what the
+	--options panel reads back
 	self.strata = strata
 
-	self.rowframe:SetFrameStrata(strata)
-	self.windowSwitchButton:SetFrameStrata(strata)
-	self.baseframe:SetFrameStrata(strata)
+	--a window built inside another frame has to follow the strata of that frame: a lower strata draws the
+	--window behind its host, and a higher one floats it over the ui the host belongs to
+	local effectiveStrata = self:GetEffectiveStrata()
 
-	if (strata == "BACKGROUND") then
+	self.rowframe:SetFrameStrata(effectiveStrata)
+	self.windowSwitchButton:SetFrameStrata(effectiveStrata)
+	self.baseframe:SetFrameStrata(effectiveStrata)
+
+	if (self:IsHostedInsideFrame()) then
+		--every part of a hosted window stays in the host's strata, including the parts which would
+		--otherwise be raised so they float above the window
+		self.break_snap_button:SetFrameStrata(effectiveStrata)
+		self.baseframe.resize_esquerda:SetFrameStrata(effectiveStrata)
+		self.baseframe.resize_direita:SetFrameStrata(effectiveStrata)
+		self.baseframe.lock_button:SetFrameStrata(effectiveStrata)
+
+	elseif (strata == "BACKGROUND") then
 		self.break_snap_button:SetFrameStrata("LOW")
 		self.baseframe.resize_esquerda:SetFrameStrata("LOW")
 		self.baseframe.resize_direita:SetFrameStrata("LOW")
@@ -8679,18 +8732,14 @@ function Details:AttributeMenu(enabled, pos_x, pos_y, font, size, color, side, s
 
 	local titleBarFontString = self:GetTitleBarFontString()
 
-	--enabled
-	if (not enabled and titleBarFontString) then
-		return titleBarFontString:Hide()
-	elseif (not enabled) then
-		return
-	end
-
 	--protection against failed clean up framework table
 	if (titleBarFontString and not getmetatable(titleBarFontString)) then
 		titleBarFontString = nil
 	end
 
+	--the fontstring is created whether or not the title text is switched on. it used to be created only on
+	--the enabled path, and since the setting is off by default GetTitleBarFontString() returned nil on every
+	--window which had never shown its title, which leaves an external options panel with nothing to bind to
 	if (not titleBarFontString) then
 		--local label = gump:NewLabel(self.floatingframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
 		local label = gump:NewLabel(self.baseframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
@@ -8711,6 +8760,11 @@ function Details:AttributeMenu(enabled, pos_x, pos_y, font, size, color, side, s
 		Details:RegisterEvent(titleBarFontString, "DETAILS_INSTANCE_CHANGESEGMENT", titleBarFontString.OnEvent)
 
 		self:RefreshTitleBarText()
+	end
+
+	--enabled
+	if (not enabled) then
+		return titleBarFontString:Hide()
 	end
 
 	titleBarFontString:Show()
@@ -9190,10 +9244,10 @@ function Details:StretchButtonAlwaysOnTop (on_top)
 
 	self.grab_on_top = on_top
 
-	if (self.grab_on_top) then
+	if (self.grab_on_top and not self:IsHostedInsideFrame()) then
 		self.baseframe.button_stretch:SetFrameStrata("FULLSCREEN")
 	else
-		self.baseframe.button_stretch:SetFrameStrata(self.strata)
+		self.baseframe.button_stretch:SetFrameStrata(self:GetEffectiveStrata())
 	end
 end
 

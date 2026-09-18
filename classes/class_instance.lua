@@ -195,6 +195,51 @@ end
 local instanceMixins = {
 	overallByUser = false, --true when the user selected overall data, false when Details! set to overall
 
+	---a detached instance is a real window object with real frames which was never registered in
+	---Details.tabela_instancias; it is not counted, not saved, not listed and no broadcast reaches it
+	---@param instance instance
+	---@return boolean
+	IsDetached = function(instance)
+		return instance.isDetachedInstance == true
+	end,
+
+	---pins a window to a fixed set of data
+	---a pinned window stops asking the game client what to show and renders the session given to it on
+	---every refresh, which is what lets a window display sample data while it is being configured
+	---@param instance instance
+	---@param session table|nil the session to render, nil releases the window back to live data
+	SetPinnedSession = function(instance, session)
+		instance.pinnedSession = session
+	end,
+
+	---the session this window is pinned to, nil when the window follows live data
+	---@param instance instance
+	---@return table|nil session
+	GetPinnedSession = function(instance)
+		return instance.pinnedSession
+	end,
+
+	---tells whether the window frames were built inside another addon's frame instead of on the screen
+	---@param instance instance
+	---@return boolean
+	IsHostedInsideFrame = function(instance)
+		local windowParent = instance.baseframe.windowParent
+		return windowParent ~= nil and windowParent ~= _G.UIParent
+	end,
+
+	---the strata the window frames must actually use
+	---the strata stored in the profile is what the user picked, and it is what a window living on the
+	---screen uses; a window built inside another frame follows that frame instead, because wow does not
+	---inherit strata and a lower strata would draw the window behind the frame hosting it
+	---@param instance instance
+	---@return string strata
+	GetEffectiveStrata = function(instance)
+		if (instance:IsHostedInsideFrame()) then
+			return instance.baseframe.windowParent:GetFrameStrata()
+		end
+		return instance.strata
+	end,
+
 	---check if the instance is the lower instance id
 	---@param instance instance
 	---@return boolean
@@ -353,6 +398,15 @@ local instanceMixins = {
 	---@param instance instance
 	---@param bForceRefresh boolean|nil
 	RefreshData = function(instance, bForceRefresh) --deprecates Details:RefreshAllMainWindows()
+		--a window pinned to a session renders that session instead of asking the game client what is
+		--current, so the data survives the refresh every settings change triggers. this is the single
+		--dispatch every attribute goes through, so one check covers damage, healing, energy and the rest
+		local pinnedSession = instance:GetPinnedSession()
+		if (pinnedSession) then
+			Details:RefreshWindowAddOnApocalypse(instance, pinnedSession, pinnedSession.durationSeconds)
+			return
+		end
+
 		local combatObject = instance:GetCombat()
 
 		--check if the combat object exists, if not, freeze the window
@@ -1095,6 +1149,26 @@ function Details:GetInstance(id)
 	return Details.tabela_instancias[id]
 end
 
+---get a window by its id, looking among the detached windows when the id is not a registered one
+---a detached window is deliberately absent from Details.tabela_instancias, so any code recovering a window
+---from an id stored on a frame - the row scripts keep instance_id on every bar - has to look here too, or
+---it gets nil for every window hosted inside another addon's panel
+---@param id number
+---@return instance|nil
+function Details:GetInstanceOrDetached(id)
+	local instanceObject = Details.tabela_instancias[id]
+
+	if (instanceObject) then
+		return instanceObject
+	end
+
+	for index, detachedInstance in ipairs(Details:GetDetachedInstances()) do
+		if (detachedInstance:GetId() == id) then
+			return detachedInstance
+		end
+	end
+end
+
 --user friendly alias
 function Details:GetWindow(id)
 	return Details.tabela_instancias[id]
@@ -1656,7 +1730,7 @@ end
 			self:RestauraJanela (self.meu_id, nil, true) --parece que esta chamando o ativar instance denovo... passei true no load_only vamos ver o resultado
 			--tiny threat parou de funcionar depois de /reload depois dessa mudança, talvez tenha algo para carregar ainda
 			self.iniciada = true
-		else
+		elseif (not self:IsDetached()) then
 			Details.opened_windows = Details.opened_windows+1
 		end
 
@@ -2455,11 +2529,21 @@ end
 
 	---create a new instance of a Details! window in the user interface
 	---@param instanceId instanceid
+	---@param parent table|nil frame the window frames are built inside of, defaults to UIParent
+	---@param bDetached boolean|nil when true the instance is not registered, see instance:IsDetached()
 	---@return instance
-	function Details:CreateNewInstance(instanceId)
+	function Details:CreateNewInstance(instanceId, parent, bDetached)
 		local newInstance = {}
 		setmetatable(newInstance, Details)
-		Details.tabela_instancias[#Details.tabela_instancias+1] = newInstance
+
+		--a detached instance stays out of the instance container, which is what keeps it out of
+		--Details.instances_amount, out of the profile, out of the instance dropdown and out of every
+		--broadcast which iterates Details.tabela_instancias
+		newInstance.isDetachedInstance = bDetached and true or false
+
+		if (not bDetached) then
+			Details.tabela_instancias[#Details.tabela_instancias+1] = newInstance
+		end
 
 		DetailsFramework:Mixin(newInstance, instanceMixins)
 
@@ -2504,7 +2588,7 @@ end
 		newInstance.icons = {true, true, true, true}
 
 		--create window frames
-		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal(instanceId, newInstance, true)
+		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal(instanceId, newInstance, true, parent)
 		newInstance.baseframe = _baseframe
 		newInstance.bgframe = _bgframe
 		newInstance.bgdisplay = _bgframe_display
@@ -2518,6 +2602,9 @@ end
 		newInstance.StatusBar.options = {}
 
 		--create some plugins in the statusbar
+		--a detached instance gets them too: the statusbar children only need the window frames, not a
+		--registered instance, and Details.StatusBar:Reset and :UpdateOptions index the three anchors
+		--without checking them, so a window with an empty statusbar faults on the first skin change
 		local clock = Details.StatusBar:CreateStatusBarChildForInstance(newInstance, "DETAILS_STATUSBAR_PLUGIN_CLOCK")
 		Details.StatusBar:SetCenterPlugin(newInstance, clock)
 
@@ -2545,13 +2632,20 @@ end
 		newInstance.oldwith = newInstance.baseframe:GetWidth()
 		newInstance.iniciada = true
 
-		newInstance:SaveMainWindowPosition()
+		--the position of a detached window belongs to the frame it was built inside of, saving it would
+		--write a screen position for a window which is not on the screen
+		if (not bDetached) then
+			newInstance:SaveMainWindowPosition()
+		end
+
 		newInstance:ReajustaGump()
 
 		newInstance.rows_fit_in_window = _math_floor(newInstance.posicao[newInstance.mostrando].h / newInstance.row_height)
 
 		--all done
-		newInstance:AtivarInstancia()
+		--'temp' and 'all' are passed for a detached instance so the activation does not ungroup other
+		--windows, does not fire DETAILS_INSTANCE_OPEN and does not enter raid or solo mode
+		newInstance:AtivarInstancia(bDetached, bDetached)
 		newInstance:ShowSideBars()
 
 		newInstance.skin = "no skin"

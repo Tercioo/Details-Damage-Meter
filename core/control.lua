@@ -1796,6 +1796,14 @@
 
 	--call update functions
 	function Details:RefreshAllMainWindows(bForceRefresh) --getting deprecated soon
+		--a window pinned to a session renders that session instead of the combat it is showing; this is the
+		--dispatcher a settings change reaches, so without this the sample data is wiped on the first edit
+		local pinnedSession = self:GetPinnedSession()
+		if (pinnedSession) then
+			Details:RefreshWindowAddOnApocalypse(self, pinnedSession, pinnedSession.durationSeconds)
+			return
+		end
+
 		local combatObject = self.showing
 
 		--the the segment does not have a valid combat, freeze the window
@@ -1858,6 +1866,22 @@
 
 	local nextBreakdownUpdateAt = 0
 
+	---refreshes one window, whether it is registered in Details.tabela_instancias or not
+	---this is the instance scoped half of Details:RefreshMainWindow(-1), split out so a window which no
+	---broadcast can reach, a detached window hosted by another addon for example, can still be refreshed
+	---@param instanceObject instance
+	---@param bForceRefresh boolean|nil
+	function Details:RefreshInstanceWindow(instanceObject, bForceRefresh)
+		if (not instanceObject.ativa) then
+			return
+		end
+
+		local currentMode = instanceObject:GetMode()
+		if (currentMode == DETAILS_MODE_ALL or currentMode == DETAILS_MODE_GROUP) then
+			return instanceObject:RefreshAllMainWindows(bForceRefresh)
+		end
+	end
+
 	function Details:RefreshMainWindow(instanceObject, bForceRefresh) --getting deprecated soon
 		if (not instanceObject or type(instanceObject) == "boolean") then
 			bForceRefresh = instanceObject
@@ -1914,16 +1938,9 @@
 				end
 			end
 			return
-		else
-			if (not instanceObject.ativa) then
-				return
-			end
 		end
 
-		local currentMode = instanceObject:GetMode()
-		if (currentMode == DETAILS_MODE_ALL or currentMode == DETAILS_MODE_GROUP) then
-			return instanceObject:RefreshAllMainWindows(bForceRefresh)
-		end
+		return Details:RefreshInstanceWindow(instanceObject, bForceRefresh)
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

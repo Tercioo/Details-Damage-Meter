@@ -65,9 +65,14 @@ function DF:GetSpellCaches()
 	return spellsHashMap, spellsIndexTable, spellsWithSameName
 end
 
+local ignoredSpellIDs = { -- don't load, breaks beta
+	[1251678] = true,
+	[1251535] = true,
+}
+
 local lazyLoadAllSpells = function(payload, iterationCount, maxIterations)
 	local startPoint = payload.nextIndex
-	--the goal is iterate over 500000 spell ids over 200 frames
+	--the goal is iterate over 1500000 spell ids over 600 frames
 	local endPoint = startPoint + 2500
 	payload.nextIndex = endPoint
 	local i = startPoint + 1
@@ -81,22 +86,24 @@ local lazyLoadAllSpells = function(payload, iterationCount, maxIterations)
 	local allSpellsSameName = payload.allSpellsSameName
 
 	while (i < endPoint) do
-		local spellName = GetSpellInfo(i)
+		if not ignoredSpellIDs[i] then
+			local spellName = GetSpellInfo(i)
 
-		if (spellName) then
-			spellName = toLowerCase(spellName)
-			hashMap[spellName] = i --[spellname] = spellId
-			indexTable[#indexTable+1] = spellName --array with all spellnames
+			if (spellName) then
+				spellName = toLowerCase(spellName)
+				hashMap[spellName] = i --[spellname] = spellId
+				indexTable[#indexTable+1] = spellName --array with all spellnames
 
-			local spellNameTable = allSpellsSameName[spellName]
-			if (not spellNameTable) then
-				spellNameTable = {}
-				allSpellsSameName[spellName] = spellNameTable
+				local spellNameTable = allSpellsSameName[spellName]
+				if (not spellNameTable) then
+					spellNameTable = {}
+					allSpellsSameName[spellName] = spellNameTable
+				end
+				spellNameTable[#spellNameTable+1] = i
 			end
-			spellNameTable[#spellNameTable+1] = i
-		end
 
-		i = i + 1
+			i = i + 1
+		end
 	end
 end
 
@@ -122,7 +129,7 @@ function DF:LoadSpellCache(hashMap, indexTable, allSpellsSameName)
 	spellsIndexTable = indexTable
 	spellsWithSameName = allSpellsSameName
 
-	local iterations = 200
+	local iterations = 600
 	local payload = {
 		nextIndex = 0,
 		hashMap = hashMap,

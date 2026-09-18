@@ -937,21 +937,27 @@ local setCheckedTexture = function(self, texture, xOffSet, yOffSet, sizePercent,
 end
 
 local set_as_checkbok = function(self)
-	if self.is_checkbox and self.checked_texture then return end
-	local checked = self:CreateTexture(self:GetName() .. "CheckTexture", "overlay")
-	checked:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
-	checked:SetPoint("center", self.button, "center", -1, -1)
+	--only the CREATION is once. the sizing and the painting below run on every call, because these
+	--widgets are pooled and re-templated: a checkbox first converted at some other width, or before
+	--its template had been applied, used to keep that first geometry and that first colour for the
+	--rest of the session -- the early return here covered all three
+	if (not self.is_checkbox or not self.checked_texture) then
+		local checked = self:CreateTexture(self:GetName() .. "CheckTexture", "overlay")
+		checked:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
+		checked:SetPoint("center", self.button, "center", -1, -1)
+		self.checked_texture = checked
+
+		self.SetCheckedTexture = setCheckedTexture
+		self.SetChecked = switch_set_value
+		self.GetChecked = switch_get_value
+
+		self._thumb:Hide()
+		self._text:Hide()
+		self.is_checkbox = true
+	end
+
 	local size_pct = self:GetWidth()/32
-	checked:SetSize(32 * size_pct, 32 * size_pct)
-	self.checked_texture = checked
-
-	self.SetCheckedTexture = setCheckedTexture
-	self.SetChecked = switch_set_value
-	self.GetChecked = switch_get_value
-
-	self._thumb:Hide()
-	self._text:Hide()
-	self.is_checkbox = true
+	self.checked_texture:SetSize(32 * size_pct, 32 * size_pct)
 
 	if (rawget(self, "value")) then
 		self.checked_texture:Show()

@@ -190,7 +190,7 @@ local buildSpellRowsFromCurrentData = function(spellRows)
         local spellId = spellRow and spellRow.spellID
         local amount = spellRow and spellRow.amount
 
-        if (type(spellId) == "number" and type(amount) == "number") then
+        if (type(spellId) == "number" and type(amount) == "number" and not issecretvalue(spellId)) then
             local row = spellMap[spellId]
             if (not row) then
                 row = {

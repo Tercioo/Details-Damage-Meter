@@ -509,6 +509,24 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
     widget.widget_type = "toggle"
     widget.OnSwitch = widgetTable.set
 
+    if (widgetWidth) then
+        PixelUtil.SetWidth(widget.widget, widgetWidth)
+    end
+    if (widgetHeight) then
+        PixelUtil.SetHeight(widget.widget, widgetHeight)
+    end
+
+    widget:SetTemplate(template)
+
+    --the template goes FIRST, before the checkbox conversion and before the value.
+    --SetTemplate is what stores backdrop_enabledcolor / backdrop_disabledcolor on the widget, and
+    --both of the calls below paint the backdrop from them. run in the old order those two fields
+    --are still nil on a widget's very first build, so SetAsCheckBox and SwitchOnClick each fell
+    --back to a hardcoded colour the template never got to override, and SetTemplate then painted
+    --the flat backdropcolor over the result -- an OFF switch came out of its first build looking
+    --nothing like an off switch, while every later build of the same pooled widget was correct.
+    --SetAsCheckBox also sizes its check texture from the widget's current width and then
+    --early-returns for the rest of the widget's life, so it has to see the template's width too
     if (switchIsCheckbox) then
         widget:SetAsCheckBox()
     end
@@ -560,15 +578,6 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
         end
         widget:SetValue(widgetTable.get())
     end
-
-    if (widgetWidth) then
-        PixelUtil.SetWidth(widget.widget, widgetWidth)
-    end
-    if (widgetHeight) then
-        PixelUtil.SetHeight(widget.widget, widgetHeight)
-    end
-
-    widget:SetTemplate(template)
 
     setWidgetId(parent, widgetTable, widget)
 

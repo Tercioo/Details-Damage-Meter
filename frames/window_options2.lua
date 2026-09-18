@@ -10,6 +10,12 @@ local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 --options panel namespace
 Details222.OptionsPanel = {}
 
+--options catalog namespace
+--the catalog exposes the option definitions details! builds for its own options window so another addon can
+--render the same options in its own panel; see Details222.OptionsCatalog.GetSectionOptions in
+--frames\window_options2_sections.lua
+Details222.OptionsCatalog = {}
+
 --local tinsert = _G.tinsert
 local unpack = _G.unpack
 local CreateFrame = _G.CreateFrame
@@ -32,6 +38,44 @@ local section_menu_button_width = 135
 local section_menu_button_height = 20
 
 local startX = 160
+
+---the name of every options section, keyed by section id
+---@return table sectionNames
+function Details222.OptionsCatalog.GetSectionNames()
+    return { --section names
+        [1] = Loc ["STRING_OPTIONSMENU_DISPLAY"],
+        [3] = Loc ["STRING_OPTIONSMENU_ROWSETTINGS"],
+        [4] = Loc ["STRING_OPTIONSMENU_ROWTEXTS"],
+
+        [5] = Loc ["STRING_OPTIONSMENU_TITLEBAR"], --titlebar
+        [6] = Loc ["STRING_OPTIONSMENU_WINDOWBODY"], --window body
+        [7] = Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"], --statusbar
+        [12] = Loc ["STRING_OPTIONSMENU_WALLPAPER"],
+        [13] = Loc ["STRING_OPTIONSMENU_AUTOMATIC"],
+
+        [9] = Loc ["STRING_OPTIONSMENU_PROFILES"],
+        [2] = Loc ["STRING_OPTIONSMENU_SKIN"],
+        [8] = Loc ["STRING_OPTIONSMENU_PLUGINS"],
+        [10] = Loc ["STRING_OPTIONSMENU_TOOLTIP"],
+        [11] = Loc ["STRING_OPTIONSMENU_DATAFEED"],
+
+        [14] = Loc ["STRING_OPTIONSMENU_RAIDTOOLS"],
+        [15] = "Broadcaster Tools",
+        [16] = Loc ["STRING_OPTIONSMENU_SPELLS"],
+        [17] = Loc ["STRING_OPTIONSMENU_DATACHART"],
+        [18] = "Mythic Dungeon",
+        [19] = "Search Results",
+        [20] = "Combat Log",
+    }
+end
+
+---the order the sections are shown in the options window, an empty string is a separator
+---@return table sectionOrder
+function Details222.OptionsCatalog.GetSectionOrder()
+    return {
+        1, 20, "", 3, 4, "", 5, 6, 7, 12, 13, "", 9, 2, 8, 10, 11, 18, "", 14, 15, 16, 17, "", 19
+    }
+end
 
 --build the options window
 function Details:InitializeOptionsWindow(instance)
@@ -254,8 +298,13 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
                     local sectionFrame = allSectionFrames[i]
                     local sectionOptionsTable = sectionFrame.sectionOptions
 
-                    allSectionNames[#allSectionNames+1] = sectionFrame.name
-                    allSectionOptions[#allSectionOptions+1] = sectionOptionsTable
+                    --a section without option definitions, the search results section itself for example,
+                    --must not push a name either or the two arrays stop lining up and the results get
+                    --grouped under the wrong section header
+                    if (sectionOptionsTable) then
+                        allSectionNames[#allSectionNames+1] = sectionFrame.name
+                        allSectionOptions[#allSectionOptions+1] = sectionOptionsTable
+                    end
                 end
 
                 --this table will hold all options
@@ -313,35 +362,8 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
             end
         end)
 
-    local sectionsName = { --section names
-        [1] = Loc ["STRING_OPTIONSMENU_DISPLAY"],
-        [3] = Loc ["STRING_OPTIONSMENU_ROWSETTINGS"],
-        [4] = Loc ["STRING_OPTIONSMENU_ROWTEXTS"],
-
-        [5] = Loc ["STRING_OPTIONSMENU_TITLEBAR"], --titlebar
-        [6] = Loc ["STRING_OPTIONSMENU_WINDOWBODY"], --window body
-        [7] = Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"], --statusbar
-        [12] = Loc ["STRING_OPTIONSMENU_WALLPAPER"],
-        [13] = Loc ["STRING_OPTIONSMENU_AUTOMATIC"],
-
-        [9] = Loc ["STRING_OPTIONSMENU_PROFILES"],
-        [2] = Loc ["STRING_OPTIONSMENU_SKIN"],
-        [8] = Loc ["STRING_OPTIONSMENU_PLUGINS"],
-        [10] = Loc ["STRING_OPTIONSMENU_TOOLTIP"],
-        [11] = Loc ["STRING_OPTIONSMENU_DATAFEED"],
-
-        [14] = Loc ["STRING_OPTIONSMENU_RAIDTOOLS"],
-        [15] = "Broadcaster Tools",
-        [16] = Loc ["STRING_OPTIONSMENU_SPELLS"],
-        [17] = Loc ["STRING_OPTIONSMENU_DATACHART"],
-        [18] = "Mythic Dungeon",
-        [19] = "Search Results",
-        [20] = "Combat Log",
-    }
-
-    local optionsSectionsOrder = {
-        1, 20, "", 3, 4, "", 5, 6, 7, 12, 13, "", 9, 2, 8, 10, 11, 18, "", 14, 15, 16, 17, "", 19
-    }
+    local sectionsName = Details222.OptionsCatalog.GetSectionNames()
+    local optionsSectionsOrder = Details222.OptionsCatalog.GetSectionOrder()
 
     local maxSectionIds = 0
     for k in pairs(sectionsName) do
