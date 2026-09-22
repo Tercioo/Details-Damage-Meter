@@ -4148,6 +4148,8 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 						specId = 64
 					elseif (self.thisSpecIcon == 136145) then --affliction warlock
 						specId = 265
+					elseif (self.thisSpecIcon == 1247264) then --havoc demon hunter
+						specId = 577
 					end
 				end
 
