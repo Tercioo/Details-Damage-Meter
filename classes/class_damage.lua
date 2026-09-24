@@ -3174,21 +3174,12 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			if not issecretvalue(actorName) then
 				actorName = detailsFramework:RemoveRealmName(actorName)
 			else
-				if Details222.IsTOCBiggerOrEqualTo(120005) then
-					actorName = Ambiguate(source.name, "short")
-				end
+				actorName = Ambiguate(source.name, "short")
 			end
 		end
 	else
 		if specIcon then
-			if Details222.IsTOCBiggerOrEqualTo(120005) then
-				actorName = Ambiguate(source.name, "short")
-			else
-				actorName = UnitName(actorName)
-				if actorName == nil then
-					actorName = source.name
-				end
-			end
+			actorName = Ambiguate(source.name, "short")
 		else
 			actorName = source.name
 		end

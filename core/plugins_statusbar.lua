@@ -939,70 +939,37 @@ do
 					local currentCombat = Details:GetCurrentCombat()
 					if (currentCombat and not currentCombat.__destroyed) then
 						if detailsFramework.IsAddonApocalypseWow() then
-							if Details222.IsPTR1205() then
-								local segmentType = instance:GetSegmentType()
-								if (segmentType <= 1) then
-									local thisElapsedTime = Details222.B.GetCombatTime(segmentType)
+							local segmentType = instance:GetSegmentType()
+							if (segmentType <= 1) then
+								local thisElapsedTime = Details222.B.GetCombatTime(segmentType)
 
-									if thisElapsedTime == nil and segmentType == 0 then
-										--get using older method
-										thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(0)
-									end
-
-									if (thisElapsedTime and issecretvalue(thisElapsedTime) and segmentType == 1) then
-										thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(1)
-									end
-
-									local formattedTime = formatTime(thisElapsedTime)
-									displayText = formattedTime
-								else
-									local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, instance:GetNewSegmentId(), 0)
-									local thisElapsedTime = s.durationSeconds
-									if thisElapsedTime and issecretvalue(thisElapsedTime) then
-										local allSegments = Details222.B.GetAllSegments()
-										for i = 1, #allSegments do
-											local thisSegment = allSegments[i]
-											if thisSegment.sessionID == instance:GetNewSegmentId() then
-												thisElapsedTime = thisSegment.durationSeconds
-												break
-											end
-										end
-									end
-
-									local formattedTime = formatTime(thisElapsedTime)
-									displayText = formattedTime
+								if thisElapsedTime == nil and segmentType == 0 then
+									--get using older method
+									thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(0)
 								end
+
+								if (thisElapsedTime and issecretvalue(thisElapsedTime) and segmentType == 1) then
+									thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(1)
+								end
+
+								local formattedTime = formatTime(thisElapsedTime)
+								displayText = formattedTime
 							else
-								local segmentType = instance:GetSegmentType()
-								if (segmentType <= 1) then
-									local thisElapsedTime = Details222.B.GetCombatTime(segmentType)
-
-									if thisElapsedTime == nil and segmentType == 0 then
-										--get using older method
-										thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(0)
-									end
-
-									if (thisElapsedTime and issecretvalue(thisElapsedTime) and segmentType == 1) then
-										thisElapsedTime = C_DamageMeter.GetSessionDurationSeconds(1)
-									end
-
-									displayText = Details222.BParser.FormatTime(thisElapsedTime)
-								else
-									local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, instance:GetNewSegmentId(), 0)
-									local thisElapsedTime = s.durationSeconds
-									if thisElapsedTime and issecretvalue(thisElapsedTime) then
-										local allSegments = Details222.B.GetAllSegments()
-										for i = 1, #allSegments do
-											local thisSegment = allSegments[i]
-											if thisSegment.sessionID == instance:GetNewSegmentId() then
-												thisElapsedTime = thisSegment.durationSeconds
-												break
-											end
+								local s = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, instance:GetNewSegmentId(), 0)
+								local thisElapsedTime = s.durationSeconds
+								if thisElapsedTime and issecretvalue(thisElapsedTime) then
+									local allSegments = Details222.B.GetAllSegments()
+									for i = 1, #allSegments do
+										local thisSegment = allSegments[i]
+										if thisSegment.sessionID == instance:GetNewSegmentId() then
+											thisElapsedTime = thisSegment.durationSeconds
+											break
 										end
 									end
-
-									displayText = Details222.BParser.FormatTime(thisElapsedTime)
 								end
+
+								local formattedTime = formatTime(thisElapsedTime)
+								displayText = formattedTime
 							end
 						else
 							local combatTime = currentCombat:GetCombatTime()

@@ -74,10 +74,7 @@ local getActorDisplayName = function(name)
     end
 
     if (issecretvalue(name)) then
-        if (Details222.IsTOCBiggerOrEqualTo(120005)) then
-            return Ambiguate(name, "none")
-        end
-        return UnitName(name) or name
+        return Ambiguate(name, "none")
     end
 
     local nameWithNoRealm = detailsFramework:RemoveRealmName(name)

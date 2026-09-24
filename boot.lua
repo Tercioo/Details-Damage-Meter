@@ -70,7 +70,7 @@
 
 		Details.DM = C_DamageMeter
 		Details.DefaultTooltipIconSize = 20
-		local isWowApocalypse = (tvs >= 120000)
+		local isWowApocalypse = DetailsFramework.IsAddonApocalypseWow()
 
 		function Details222.UpdateIsAllowed()
 			if (isWowApocalypse) then
