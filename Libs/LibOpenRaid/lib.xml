@@ -12,4 +12,5 @@
 	<Script file="ThingsToMantain_Cata.lua" />
 	<Script file="ThingsToMantain_Pandaria.lua" />
 	<Script file="ThingsToMantain_Midnight.lua" />
+	<Script file="ThingsToMantain_Forever.lua" />
 </Ui>

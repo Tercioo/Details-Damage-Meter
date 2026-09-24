@@ -1,5 +1,5 @@
 local versionString, revision, launchDate, gameVersion = GetBuildInfo()
-if (gameVersion >= 20000) then
+if (gameVersion >= 16001) then
     return
 end
 
