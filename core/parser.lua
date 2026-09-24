@@ -14,7 +14,7 @@
 	local UnitHealthMax = UnitHealthMax
 	Details.HealthMaxFrame = CreateFrame("Frame")
 
-	if not detailsFramework.IsMidnightWow() then
+	if not detailsFramework.IsAddonApocalypseWow() then
 		Details.HealthMaxFrame:RegisterEvent("UNIT_MAXHEALTH")
 	end
 

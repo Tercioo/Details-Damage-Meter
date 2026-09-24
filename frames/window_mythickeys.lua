@@ -6,7 +6,7 @@ local _ = nil
 local detailsFramework = DetailsFramework
 
 
-if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
+if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and not detailsFramework.IsForeverWow()) then
 	SLASH_KEYSTONE1 = "/keystone"
 	SLASH_KEYSTONE2 = "/keys"
 	SLASH_KEYSTONE3 = "/key"

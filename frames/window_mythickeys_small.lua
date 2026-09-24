@@ -5,7 +5,7 @@ local _ = nil
 local detailsFramework = DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
-if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
+if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and not detailsFramework.IsForeverWow()) then
     local eventFrame = CreateFrame("frame")
     eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
     eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")

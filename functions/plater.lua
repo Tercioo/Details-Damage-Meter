@@ -119,7 +119,7 @@ function Details:RefreshPlaterIntegration()
 		Details:Destroy(plater_integration_frame.DamageTaken)
 		
 		--read cleu events
-		if (detailsFramework.IsWarWowOrBelow()) then
+		if (not detailsFramework.IsAddonApocalypseWow()) then
 			plater_integration_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		end
 		
@@ -147,7 +147,7 @@ function Details:RefreshPlaterIntegration()
 		
 	else
 		--unregister the cleu
-		if (detailsFramework.IsWarWowOrBelow()) then
+		if (not detailsFramework.IsAddonApocalypseWow()) then
 			plater_integration_frame:UnregisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 		end
 		

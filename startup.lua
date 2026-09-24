@@ -413,7 +413,7 @@ function Details222.StartUp.StartMeUp()
 		Details.listener:RegisterEvent("WORLD_STATE_TIMER_START")
 	end
 
-	if (detailsFramework.IsWarWowOrBelow()) then
+	if (not detailsFramework.IsAddonApocalypseWow()) then
 		Details222.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	end
 

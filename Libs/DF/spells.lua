@@ -1303,9 +1303,7 @@ if (DF.IsMidnightWow()) then
 
 	DF.RuneIDs = {
 	}
-
-elseif (DF.IsWarWow()) then
-    --TWW TODO Get buff ids. Current alpha on 6/6 does not have all professions fully implemented.
+elseif (DF.IsForeverWow()) then
     DF.WeaponEnchantIds = {
 	}
 
@@ -1313,9 +1311,6 @@ elseif (DF.IsWarWow()) then
 	}
 
 	DF.FoodIDs = {
-		--TODO Get all buffs. Current alpha on 6/6 does not have all buffs.
-		[457173] = 1, -- Lowest Secondary Stat +273 30min (Pan Seared Mycobloom)
-        [457174] = 1, -- Lowest Secondary Stat +273 15min (Skewered Filet)
 	}
 
 	DF.PotionIDs = {
@@ -1325,93 +1320,6 @@ elseif (DF.IsWarWow()) then
 	}
 
 	DF.RuneIDs = {
-	}
-elseif (DF.IsShadowlandsWow() or DF.IsDragonflight()) then --Temporary IsDragonFlight until I get the items together
-	DF.WeaponEnchantIds = {
-		[6188] = true, --shadowcore oil
-		[6190] = true, --embalmer's oil
-		[6201] = true, --weighted
-		[6200] = true, --sharpened
-		[5400] = true, --flametongue
-		[5401] = true, --windfury
-	}
-
-	DF.FlaskIDs = {
-		--Shadowlands
-		[307185] = true, --Spectral Flask of Power
-		[307187] = true, --Spectral Stamina Flask
-		[307166] = true, --Eternal Flask
-
-
-
-	}
-
-	DF.FoodIDs = {
-		--shadowlands tier 1
-		[259454] = 1, -- (agility) Feast of Gluttonous Hedonism
-		[308434] = 1, -- (critical) Phantasmal Souffle and Fries
-		[308397] = 1, --(critical +18) Butterscotch Marinated Ribs
-		[308400] = 1, --(critical +30) Spinefin Souffle and Fries
-		[308488] = 1, -- (haste) Tenebrous Crown Roast Aspic
-		[308404] = 1, -- (haste +18) Cinnamon Bonefish Stew
-		[308405] = 1, -- (haste +30) Tenebrous Crown Roast Aspic
-		[308506] = 1, -- (mastery) Crawler Ravioli with Apple Sauce
-		[308412] = 1, -- (mastery +18) Meaty Apple Dumplings
-		[308413] = 1, -- (mastery +30) Iridescent Ravioli with Apple Sauce
-		[308525] = 1, -- (stamina) Banana Beef Pudding
-		[308414] = 1, -- (stamina +14) Pickled Meat Smoothie
-		[308415] = 1, -- (stamina +22) Banana Beef Pudding
-		[308514] = 1, -- (versatility) Steak a la Mode
-		[308425] = 1, -- (versatility +18) Sweet Silvergill Sausages
-		[308426] = 1, -- (versatility +30) Steak a la Mode
-		[308419] = 1, -- (periodicaly damage) Smothered Shank
-		[327715] = 1, -- (speed) Fried Bonefish
-
-		--feasts
-		[327706] = 2, --strength +20
-		[327707] = 2, --stamina +20
-		[327708] = 2, --intellect +20
-		[327709] = 2, --agility +20
-
-		[327704] = 2, --intellect +18
-		[327701] = 2, --strength +18
-		[327705] = 2, --agility +18
-	}
-
-	DF.PotionIDs = {
-		--Shadowlands
-		[307159] = true, --Potion of Spectral Agility
-		[307163] = true, --Potion of Spectral Stamina
-		[307164] = true, --Potion of Spectral Strength
-		[307160] = true, --Potion of Hardened Shadows
-		[307162] = true, --Potion of Spectral Intellect
-		[307494] = true, --Potion of Empowered Exorcisms
-		[307495] = true, --Potion of Phantom Fire
-		[307161] = true, --Potion of Spiritual Clarity
-		[307496] = true, --Potion of Divine Awakening
-		[307501] = true, --Potion of Specter Swiftness
-		[322302] = true, --Potion of Sacrificial Anima
-		[307497] = true, --Potion of Deathly Fixation
-		[307195] = true, --Potion of the Hidden Spirit
-		[307199] = true, --Potion of Soul Purity
-		[307196] = true, --Potion of Shadow Sight
-		[307192] = true, --Spiritual Healing Potion
-		[307194] = true, --Spiritual Rejuvenation Potion
-		[307193] = true, --Spiritual Mana Potion
-		[323436] = true, --Purify Soul (greek convent)
-	--	[] = true, --
-
-		[307165] = true, --Spiritual Anti-Venom
-	}
-
-	DF.FeastIDs = {
-		[308462] = true, --Feast of Gluttonous Hedonism
-		[307153] = true, --Eternal Cauldron
-	}
-
-	DF.RuneIDs = {
-		[347901] = true, --Veiled Augmentation
-		[367405] = true, --Eternal Augmentation
 	}
 elseif (DF.IsWotLKWow()) then
 	DF.WeaponEnchantIds = {

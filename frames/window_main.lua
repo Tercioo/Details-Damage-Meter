@@ -2316,7 +2316,7 @@ local iconFrame_OnEnter = function(self)
 				end
 
 			elseif (not addedInfo) then
-				if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and C_PlayerInfo) then --is retail?
+				if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and C_PlayerInfo and not detailsFramework.IsForeverWow()) then --is retail?
 					local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName)
 					if (dungeonPlayerInfo) then
 						local currentScore = dungeonPlayerInfo.currentSeasonScore or 0

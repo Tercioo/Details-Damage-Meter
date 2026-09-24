@@ -273,7 +273,7 @@ local isTimewalkWoW = function()
 end
 
 local isClassicEra = function()
-    if (buildInfo < 20000) then
+    if (buildInfo < 16000) then
         return true
     end
 end
@@ -1260,7 +1260,9 @@ end
 local getTalents
 do --> talents
     local getTalentVersion = function()
-        if (gameVersion >= 1 and gameVersion <= 40000) then --vanilla tbc wotlk cataclysm
+        if (gameVersion >= 16000 and gameVersion <= 19999) then --forever
+            return enum.TalentVersion.Dragonflight
+        elseif (gameVersion >= 1 and gameVersion <= 40000) then --vanilla tbc wotlk cataclysm
             return enum.TalentVersion.Vanilla
         elseif (gameVersion >= 50000 and gameVersion <= 69999) then --panda wod
             return enum.TalentVersion.Pandaria
