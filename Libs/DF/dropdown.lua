@@ -732,12 +732,8 @@ function DropDownMetaFunctions:Selected(thisOption)
 				self.label:SetFont(font, 10, flags)
 			end
 		else
-			if DF.IsMidnightWowAPI() then
-				local fontFace, fontSize, fontFlags = GameFontHighlightSmall:GetFont()
-				DF:SetFont(self.label, fontFace, fontSize, fontFlags)
-			else
-				self.label:SetFont("GameFontHighlightSmall", 10)
-			end
+			local fontFace, fontSize, fontFlags = GameFontHighlightSmall:GetFont()
+			DF:SetFont(self.label, fontFace, fontSize, fontFlags)
 		end
 	end
 
