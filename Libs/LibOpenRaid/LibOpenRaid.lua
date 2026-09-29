@@ -73,6 +73,11 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
     return
 end
 
+if gameVersion < 100000 then
+    return
+end
+
+
 local major = "LibOpenRaid-1.0"
 
 local CONST_LIB_VERSION = 177
