@@ -16,6 +16,10 @@ Details222.OptionsPanel = {}
 --frames\window_options2_sections.lua
 Details222.OptionsCatalog = {}
 
+--the section holding the designer, a live preview window beside an object editor, built in
+--frames\window_designer\designer_frame.lua
+Details222.OptionsPanel.DESIGNER_SECTION_ID = 21
+
 --local tinsert = _G.tinsert
 local unpack = _G.unpack
 local CreateFrame = _G.CreateFrame
@@ -66,6 +70,7 @@ function Details222.OptionsCatalog.GetSectionNames()
         [18] = "Mythic Dungeon",
         [19] = "Search Results",
         [20] = "Combat Log",
+        [21] = Loc ["STRING_OPTIONSMENU_DESIGNER"],
     }
 end
 
@@ -73,7 +78,7 @@ end
 ---@return table sectionOrder
 function Details222.OptionsCatalog.GetSectionOrder()
     return {
-        1, 20, "", 3, 4, "", 5, 6, 7, 12, 13, "", 9, 2, 8, 10, 11, 18, "", 14, 15, 16, 17, "", 19
+        21, "", 1, 20, "", 3, 4, "", 5, 6, 7, 12, 13, "", 9, 2, 8, 10, 11, 18, "", 14, 15, 16, 17, "", 19
     }
 end
 
@@ -87,7 +92,7 @@ end
 --end)
 
 function Details222.OptionsPanel.InitializeOptionsWindow(instance)
-	local DetailsOptionsWindow = detailsFramework:NewPanel(UIParent, _, "DetailsOptionsWindow", _, 897, 592)
+	local DetailsOptionsWindow = detailsFramework:NewPanel(UIParent, _, "DetailsOptionsWindow", _, 997, 592)
     local optionsFrame = DetailsOptionsWindow.frame
     optionsFrame:Hide()
 
@@ -352,8 +357,9 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
                     end
                 end
 
+                --same start as the other sections so the results sit below the top buttons
                 local startX = 200
-                local startY = -60
+                local startY = -95
 
                 detailsFramework:BuildMenuVolatile(searchSection, options, startX, startY, 560, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template, globalCallback)
 
@@ -373,6 +379,13 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
     Details222.OptionsPanel.maxSectionIds = maxSectionIds
 
     local buttonYPosition = -40
+
+    --the section selected when the window opens: the designer, or the display section on a game version whose
+    --toc does not load the designer, where the designer has no button to highlight
+    local defaultSectionId = 1
+    if (Details.optionsSection[Details222.OptionsPanel.DESIGNER_SECTION_ID]) then
+        defaultSectionId = Details222.OptionsPanel.DESIGNER_SECTION_ID
+    end
 
     function Details222.OptionsPanel.SelectOptionsSection(sectionId)
         for i = 1, maxSectionIds do
@@ -420,12 +433,12 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
                 if (sectionId == 19) then --search results
                     sectionButton:Disable()
 
-                elseif (sectionId == 1) then
+                elseif (sectionId == defaultSectionId) then
                     sectionButton:SetIcon({1, 1, 0}, 4, section_menu_button_height -4, "overlay")
                 end
             end
         else
-            buttonYPosition = buttonYPosition - 15
+            buttonYPosition = buttonYPosition - 11
         end
     end
 
@@ -448,7 +461,7 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
         end
     end
 
-    Details222.OptionsPanel.SelectOptionsSection(1)
+    Details222.OptionsPanel.SelectOptionsSection(defaultSectionId)
 end
 
 -- ~options

@@ -87,6 +87,9 @@ frames\toolbar_button.xml
 frames\window_copy.lua
 frames\window_options2.lua
 frames\window_options2_sections.lua
+frames\window_designer\designer_preview.lua
+frames\window_designer\designer_objects.lua
+frames\window_designer\designer_frame.lua
 frames\window_api.lua
 frames\window_cdtracker.lua
 frames\window_breakdown\window_playerbreakdown.lua

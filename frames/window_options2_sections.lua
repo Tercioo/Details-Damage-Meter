@@ -8089,6 +8089,12 @@ local partialSections = {
     [17] = "the chart import and export editors are loose widgets",
 }
 
+--sections which have no option definitions at all and must never be built into a catalog frame
+local catalogExcludedSections = {
+    --the designer builds a live preview window and an object editor, there is nothing in it to hand out
+    [Details222.OptionsPanel.DESIGNER_SECTION_ID] = true,
+}
+
 --holds the hidden frames the section builders attach their loose widgets to
 local catalogParent = CreateFrame("frame", "DetailsOptionsCatalogParent", UIParent)
 catalogParent:Hide()
@@ -8100,7 +8106,7 @@ local createCatalogFrame = function(sectionId)
     catalogFrameCount = catalogFrameCount + 1
     local frameName = "DetailsOptionsCatalogSection" .. sectionId .. "Build" .. catalogFrameCount
     local catalogFrame = CreateFrame("frame", frameName, catalogParent, "BackdropTemplate")
-    catalogFrame:SetSize(897, 592)
+    catalogFrame:SetSize(997, 592)
     catalogFrame:SetPoint("topleft", catalogParent, "topleft", 0, 0)
     catalogFrame:EnableMouse(false)
     catalogFrame.isOptionsCatalogFrame = true
@@ -8136,6 +8142,10 @@ end
 ---@return table|nil sectionOptions
 ---@return table|nil catalogFrame the hidden frame the section was built into
 function Details222.OptionsCatalog.GetSectionOptions(sectionId, getInstance)
+    if (catalogExcludedSections[sectionId]) then
+        return nil, nil
+    end
+
     local buildSectionFunc = Details.optionsSection[sectionId]
     if (not buildSectionFunc) then
         return nil, nil

@@ -7852,7 +7852,9 @@ function Details:ChangeSkin(skin_name)
 		Details.ToolBar:ReorganizeIcons (true) --call self:SetMenuAlpha()
 
 	--refresh options panel if opened
-		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown() and not _G.DetailsOptionsWindow.IsLoading) then
+	--a detached window is never offered to the options panel: reopening it here would make the panel edit
+	--the preview the designer section hosts instead of the window picked in the panel's dropdown
+		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown() and not _G.DetailsOptionsWindow.IsLoading and not self:IsDetached()) then
 			Details:OpenOptionsWindow (self)
 		end
 

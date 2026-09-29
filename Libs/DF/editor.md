@@ -61,6 +61,8 @@ function detailsFramework:CreateEditor(parent, name, options)
 | `width` | number | `400` | Editor frame width. |
 | `height` | number | `548` | Editor frame height. |
 | `options_width` | number | `340` | Width of the center panel (the build-menu canvas). |
+| `options_label_width` | number | `150` | Width of the label column in the center panel; the widget column starts right after it. |
+| `options_widget_width` | number | `180` | Width of each widget in the center panel. Keep `options_label_width + options_widget_width + 7 <= options_width`, or the row highlight and the rightmost swatches are clipped. |
 | `create_object_list` | boolean | `true` | If false, the left panel is omitted; the editor becomes a single-pane form. |
 | `object_list_width` | number | `200` | Left-panel width. |
 | `object_list_height` | number | `420` | Left-panel height. |

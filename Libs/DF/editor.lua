@@ -445,6 +445,8 @@ local editObjectDefaultOptions = {
 ---@field width number
 ---@field height number
 ---@field options_width number
+---@field options_label_width number width of the label column in the center panel, the widget column starts right after it
+---@field options_widget_width number width of each widget in the center panel. label width + widget width + 7 must fit options_width
 ---@field create_object_list boolean
 ---@field object_list_width number
 ---@field object_list_height number
@@ -466,6 +468,8 @@ local editorDefaultOptions = {
     width = 400,
     height = 548,
     options_width = 340,
+    options_label_width = 150,
+    options_widget_width = 180,
     create_object_list = true,
     object_list_width = 200,
     object_list_height = 420,
@@ -1528,8 +1532,8 @@ detailsFramework.EditorMixin = {
 
         --at this point, the optionsTable is ready to be used on DF:BuildMenuVolatile()
         menuOptions.align_as_pairs = true
-        menuOptions.align_as_pairs_length = 150
-        menuOptions.widget_width = 180
+        menuOptions.align_as_pairs_length = self.options.options_label_width
+        menuOptions.widget_width = self.options.options_widget_width
         menuOptions.slider_buttons_to_left = true
 
         local optionsFrame = self:GetOptionsFrame()
