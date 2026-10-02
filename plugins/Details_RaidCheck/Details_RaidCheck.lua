@@ -1,6 +1,6 @@
 
 --do not load if this is a classic version of the game
-if (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsClassicWow() or DetailsFramework.IsCataWow() or DetailsFramework.IsPandaWow()) then
+if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
 	return
 end
 

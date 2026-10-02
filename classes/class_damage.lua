@@ -2115,7 +2115,7 @@ end
 
 --local oldapi = select(4, GetBuildInfo()) < 120000
 function Details:IsUsingBlizzardAPI(instance)
-	if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+	if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and WOW_PROJECT_ID ~= WOW_PROJECT_CAMELOT then
 		return false
 	end
 	--the true boolean is for debug purposes only
