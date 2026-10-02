@@ -1,4 +1,9 @@
 
+--do not load if LibOpenRaid is unavailable on this client (e.g. Forever/Camelot)
+if (not LibStub:GetLibrary("LibOpenRaid-1.0", true)) then
+	return
+end
+
 --do not load if this is a classic version of the game
 if (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsClassicWow() or DetailsFramework.IsCataWow() or DetailsFramework.IsPandaWow()) then
 	return
