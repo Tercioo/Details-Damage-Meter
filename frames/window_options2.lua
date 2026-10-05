@@ -95,6 +95,7 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
 	local DetailsOptionsWindow = detailsFramework:NewPanel(UIParent, _, "DetailsOptionsWindow", _, 997, 592)
     local optionsFrame = DetailsOptionsWindow.frame
     optionsFrame:Hide()
+    optionsFrame:SetFrameStrata("HIGH")
 
     DetailsOptionsWindow:SetBackdrop({})
     detailsFramework:AddRoundedCornersToFrame(optionsFrame, Details.PlayerBreakdown.RoundedCornerPreset)

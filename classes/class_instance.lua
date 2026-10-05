@@ -203,6 +203,21 @@ local instanceMixins = {
 		return instance.isDetachedInstance == true
 	end,
 
+	---makes a window draw its total bar whatever the total bar settings say, dimmed when they would hide it.
+	---the options designer's preview uses it so the total bar is always there to be clicked
+	---@param instance instance
+	---@param bIsForced boolean
+	SetTotalBarForced = function(instance, bIsForced)
+		instance.totalBarForced = bIsForced
+	end,
+
+	---whether the window draws its total bar whatever the total bar settings say, see SetTotalBarForced
+	---@param instance instance
+	---@return boolean
+	IsTotalBarForced = function(instance)
+		return instance.totalBarForced == true
+	end,
+
 	---pins a window to a fixed set of data
 	---a pinned window stops asking the game client what to show and renders the session given to it on
 	---every refresh, which is what lets a window display sample data while it is being configured

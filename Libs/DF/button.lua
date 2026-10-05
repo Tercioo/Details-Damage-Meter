@@ -905,9 +905,28 @@ function ButtonMetaFunctions:SetTemplate(template)
 			self.background_texture:SetDrawLayer("overlay", 6)
 			self.background_texture:SetPoint("topleft", self.color_texture, "topleft", 2, -2)
 			self.background_texture:SetPoint("bottomright", self.color_texture, "bottomright", -2, 2)
+			self.background_inset = 4
 
 			self.widget.texture_disabled:SetTexture([[Interface\CHARACTERFRAME\TempPortraitAlphaMaskSmall]], "CLAMP", "CLAMP", "TRILINEAR")
 		end
+
+	--a color picker drawn with a backdrop can keep its border showing: the color and the transparency grid are
+	--pulled in from the edges by colorpick_inset. set every time, so a pooled picker does not keep an old inset
+	elseif (self.__iscolorpicker) then
+		local inset = template.colorpick_inset or 0
+
+		self.color_texture:ClearAllPoints()
+		self.color_texture:SetPoint("topleft", self.widget, "topleft", inset, -inset)
+		self.color_texture:SetPoint("bottomright", self.widget, "bottomright", -inset, inset)
+
+		self.background_texture:ClearAllPoints()
+		self.background_texture:SetPoint("topleft", self.widget, "topleft", inset, -inset)
+		self.background_texture:SetPoint("bottomright", self.widget, "bottomright", -inset, inset)
+		self.background_inset = inset
+	end
+
+	if (self.__iscolorpicker and self.RefreshBackgroundTiles) then
+		self:RefreshBackgroundTiles()
 	end
 end
 
@@ -1219,6 +1238,73 @@ end
 		return self.color_texture:GetVertexColor()
 	end
 
+	--the grid shown behind the color to indicate transparency
+	local COLORPICK_BACKGROUND_ATLAS = "AnimCreate_Icon_Texture"
+
+	--the transparency grid is a square texture. on a picker wider than tall it is repeated side by side at its own
+	--size rather than stretched, the last copy cut to fit; on a square or taller picker the single texture fills it
+	---@param colorPickButton df_colorpickbutton
+	local refreshColorPickBackgroundTiles = function(colorPickButton)
+		local buttonFrame = colorPickButton.widget
+		local background = colorPickButton.background_texture
+		local tiles = colorPickButton.background_tiles
+		local inset = colorPickButton.background_inset or 0
+		local width = buttonFrame:GetWidth() - (inset * 2)
+		local height = buttonFrame:GetHeight() - (inset * 2)
+		local atlasInfo = C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(COLORPICK_BACKGROUND_ATLAS)
+
+		local tileCount = 0
+		if (atlasInfo and height > 0 and width > height + 0.5) then
+			tileCount = math.ceil(width / height)
+		end
+
+		if (tileCount == 0) then
+			background:Show()
+		else
+			background:Hide()
+
+			local drawLayer, subLevel = background:GetDrawLayer()
+
+			for tileIndex = 1, tileCount do
+				local tile = tiles[tileIndex]
+				if (not tile) then
+					tile = buttonFrame:CreateTexture(nil, drawLayer)
+					tiles[tileIndex] = tile
+				end
+
+				local tileWidth = math.min(height, width - ((tileIndex - 1) * height))
+
+				tile:SetDrawLayer(drawLayer, subLevel)
+				tile:SetAlpha(background:GetAlpha())
+				tile:ClearAllPoints()
+				--the grid texture keeps its rect while hidden, so it still marks where the tiles start
+				tile:SetPoint("topleft", background, "topleft", (tileIndex - 1) * height, 0)
+				tile:SetSize(tileWidth, height)
+
+				if (tileWidth < height) then
+					--the atlas is a region of a larger file, so the cut is made inside that region
+					local left = atlasInfo.leftTexCoord
+					local right = left + ((atlasInfo.rightTexCoord - left) * (tileWidth / height))
+					tile:SetTexture(atlasInfo.file)
+					tile:SetTexCoord(left, right, atlasInfo.topTexCoord, atlasInfo.bottomTexCoord)
+				else
+					tile:SetAtlas(COLORPICK_BACKGROUND_ATLAS)
+				end
+
+				tile:Show()
+			end
+		end
+
+		for tileIndex = tileCount + 1, #tiles do
+			tiles[tileIndex]:Hide()
+		end
+	end
+
+	---@param buttonFrame button
+	local onColorPickSizeChanged = function(buttonFrame)
+		refreshColorPickBackgroundTiles(buttonFrame.MyObject)
+	end
+
 	---@class df_colorpickbutton : df_button
 	---@field color_callback function
 	---@field Cancel function
@@ -1227,6 +1313,9 @@ end
 	---@field __iscolorpicker boolean
 	---@field color_texture texture
 	---@field background_texture texture
+	---@field background_tiles texture[] copies of the transparency grid laid side by side on a picker wider than tall
+	---@field background_inset number how far the color and the grid sit in from the button's edges
+	---@field RefreshBackgroundTiles fun(self:df_colorpickbutton) lay the transparency grid out again for the current size
 	---create a button which opens a color picker when clicked.
 	---This function returns a wrapper Lua table, NOT a Blizzard frame. The underlying UIObject (the
 	---Blizzard button frame) is accessible at `wrapper.widget` or via `wrapper:GetUIObject()` (inherited
@@ -1263,9 +1352,15 @@ end
 		local background = colorPickButton:CreateTexture("$parentBackgroupTransparency", "background", nil, 2)
 		background:SetPoint("topleft", colorPickButton.widget, "topleft", 0, 0)
 		background:SetPoint("bottomright", colorPickButton.widget, "bottomright", 0, 0)
-		background:SetAtlas("AnimCreate_Icon_Texture")
+		background:SetAtlas(COLORPICK_BACKGROUND_ATLAS)
 		background:SetAlpha(0.3)
 		colorPickButton.background_texture = background
+
+		--copies of the grid laid side by side when the picker is wider than tall, see refreshColorPickBackgroundTiles
+		colorPickButton.background_tiles = {}
+		colorPickButton.background_inset = 0
+		colorPickButton.RefreshBackgroundTiles = refreshColorPickBackgroundTiles
+		colorPickButton.widget:HookScript("OnSizeChanged", onColorPickSizeChanged)
 
 		--texture which shows the texture color
 		local colorTexture = colorPickButton:CreateTexture("$parentTex", "overlay")

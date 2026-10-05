@@ -412,8 +412,9 @@
 			point = "right"
 			relativePoint = "left"
 			x = anchor.gap or 0
-			--the neighbour already carries text_yoffset, so only this text's own tweak applies
-			y = anchor.y
+			--the neighbour already carries text_yoffset and its own tweak, so only the difference between
+			--the two tweaks applies; that keeps anchor.y meaning the same height whether the text chains or not
+			y = anchor.y - rowInfo.texts[index + 1].anchor.y
 
 			if (instance.bars_inverted) then
 				point, relativePoint, x = mirrorAnchor(point, relativePoint, x)
@@ -524,32 +525,42 @@
 		end
 	end
 
+	---the font file, font size and fixed colour one text is drawn with. a text without its own value
+	---falls back to the one every text shares
+	---@param instance table
+	---@param index number which text, 1 is the unit name and 2 to 4 the value columns
+	---@return string face
+	---@return number size
+	---@return table fixedColor
+	function rowTexts.ResolveStyle(instance, index)
+		local rowInfo = instance.row_info
+		local settings = rowInfo.texts[index]
+
+		local face = settings.font.face or rowInfo.font_face_file or "GameFontHighlight"
+		local size = settings.font.size or rowInfo.font_size or rowInfo.height * 0.75
+		local fixedColor = settings.color.fixed or rowInfo.fixed_text_color
+
+		return face, size, fixedColor
+	end
+
 	---style every text of a row from row_info.texts: justify, font, shadow, width and colour.
 	---anchors are NOT part of this, they belong to ApplyAnchors.
 	---@param instance table
 	---@param row table
 	function rowTexts.ApplyStyleToRow(instance, row)
-		local rowInfo = instance.row_info
-		local texts = rowInfo.texts
-
-		local inheritedFace = rowInfo.font_face_file or "GameFontHighlight"
-		local inheritedSize = rowInfo.font_size or rowInfo.height * 0.75
-		local inheritedColor = rowInfo.fixed_text_color
+		local texts = instance.row_info.texts
 
 		for index = CONST_NAME_INDEX, CONST_LAST_VALUE_INDEX do
 			local settings = texts[index]
 
-			local font = settings.font
 			local shadow = settings.shadow
-			local color = settings.color
+			local outline = settings.font.outline or ""
 
-			local face = font.face or inheritedFace
-			local size = font.size or inheritedSize
-			local outline = font.outline or ""
+			local face, size, resolvedColor = rowTexts.ResolveStyle(instance, index)
 
 			local fixedColor
-			if (not color.byClass) then
-				fixedColor = color.fixed or inheritedColor
+			if (not settings.color.byClass) then
+				fixedColor = resolvedColor
 			end
 
 			--justification mirrors with the orientation, the same way the anchor does

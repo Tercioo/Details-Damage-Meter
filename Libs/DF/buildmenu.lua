@@ -489,7 +489,14 @@ local highlightFrameOnClickToggle = function(highlightFrame, mouseButton)
     local parent = highlightFrame:GetParent()
     local widget = parent.MyObject
 
-    local bNewState = not widget._get()
+    --a disabled toggle ignores clicks on its box, so it ignores clicks on its row too
+    if (rawget(widget, "lockdown")) then
+        return
+    end
+
+    --flip what the box shows: a get() that captured its value when the menu was built keeps returning
+    --that same value, and would set the same state on every click
+    local bNewState = not widget:GetValue()
     widget.OnSwitch(widget, nil, bNewState) --widget.OnSwitch = widgetTable.set
 
     if (bNewState) then
@@ -531,12 +538,19 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
         widget:SetAsCheckBox()
     end
 
+    --a pooled switch may still be locked from the menu it was last used in, and a locked switch ignores
+    --SetValue, so it would keep showing that menu's value. it is unlocked here so the value below lands;
+    --onWidgetSetInUse and the disable checks lock it again when this menu wants it locked
+    if (rawget(widget, "lockdown")) then
+        widget:Enable()
+    end
+
     if (widgetTable.children_follow_enabled) then
         --widget.SetValueOriginal = widget.SetValue --perhaps widgetTable.set()  --perhaps setscrip OnClick
         widget.SetValueOriginal = widget.SetValueOriginal or widget.SetValue
         widget._name = widgetTable.name
 
-        local newSetFunc = function(thisWidget, value)
+        local updateChildren = function(value)
             --look for children ids
             local childrenids = widgetTable.childrenids
             --print(childrenids, type(childrenids))
@@ -564,9 +578,20 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
                     end
                 end
             end
+        end
 
+        local newSetFunc = function(thisWidget, value)
+            updateChildren(value)
             thisWidget.SetValueOriginal(thisWidget, value)
             return value
+        end
+
+        --a click on the switch box itself runs OnSwitch and never SetValue, so the children follow from here too.
+        --OnSwitch is assigned fresh on every build above, so wrapping it does not stack on a pooled widget
+        widget.OnSwitch = function(thisWidget, fixedValue, value)
+            local result = widgetTable.set(thisWidget, fixedValue, value)
+            updateChildren(value)
+            return result
         end
 
         widget:SetValue(widgetTable.get())
@@ -664,8 +689,13 @@ local setRangeProperties = function(parent, widget, widgetTable, currentXOffset,
     widget.slider:SetValue(currentValue or 0)
     widget.ivalue = widget.slider:GetValue()
 
+    --a value box beside the slider shares the widget's width with it, so the slider is shortened by the room the
+    --box takes, and moved right past it when the box sits on the left
+    local valueBoxSpace, valueBoxSide = widget:GetValueBoxSpace()
+    local valueBoxLeftSpace = valueBoxSide == "left" and valueBoxSpace or 0
+
     if (widgetWidth) then
-        widget:SetWidth(widgetWidth)
+        widget:SetWidth(widgetWidth - valueBoxSpace)
     end
     if (widgetHeight) then
         widget:SetHeight(widgetHeight)
@@ -699,7 +729,7 @@ local setRangeProperties = function(parent, widget, widgetTable, currentXOffset,
 
     if (bAlignAsPairs) then
         PixelUtil.SetPoint(label, "topleft", widget:GetParent(), "topleft", currentXOffset, currentYOffset)
-        PixelUtil.SetPoint(widget.widget, "left", label, "left", nAlignAsPairsLength, 0)
+        PixelUtil.SetPoint(widget.widget, "left", label, "left", nAlignAsPairsLength + valueBoxLeftSpace, 0)
 
         if (not widget.highlightFrame) then
             local highlightFrame = createOptionHighlightFrame(widget, label, (widgetWidth or 140) + nAlignAsPairsLength + 5)
@@ -708,7 +738,7 @@ local setRangeProperties = function(parent, widget, widgetTable, currentXOffset,
 
         widget.bAttachButtonsToLeft = true
     else
-        widget:SetPoint("left", label, "right", 2, 0)
+        widget:SetPoint("left", label, "right", 2 + valueBoxLeftSpace, 0)
         label:SetPoint("topleft", parent, "topleft", currentXOffset, currentYOffset)
     end
 
@@ -726,7 +756,7 @@ local setRangeProperties = function(parent, widget, widgetTable, currentXOffset,
     return maxColumnWidth, maxWidgetWidth
 end
 
-local setColorProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset, template, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bUseBoxFirstOnAllWidgets, extraPaddingY)
+local setColorProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset, template, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bUseBoxFirstOnAllWidgets, extraPaddingY, colorTemplate)
     widget._get = widgetTable.get
     widget.widget_type = "color"
 
@@ -749,9 +779,18 @@ local setColorProperties = function(parent, widget, widgetTable, currentXOffset,
         end
     --]=]
 
-    widget:SetTemplate(template)
-    widget:SetWidth(18)
-    widget:SetHeight(18)
+    --a menu can give its color pickers a template of their own, menuOptions.color_template, which also decides
+    --their size; without one they take the template they always have and stay 18 x 18
+    if (colorTemplate) then
+        local parsedTemplate = detailsFramework:ParseTemplate("button", colorTemplate)
+        widget:SetTemplate(parsedTemplate)
+        widget:SetWidth(parsedTemplate.width or 18)
+        widget:SetHeight(parsedTemplate.height or 18)
+    else
+        widget:SetTemplate(template)
+        widget:SetWidth(18)
+        widget:SetHeight(18)
+    end
 
     widget:SetHook("OnColorChanged", widgetTable.set)
 
@@ -990,6 +1029,15 @@ local checkForDisableIF = function(parent)
                 end
             end
         end
+    end
+end
+
+---re-runs every disableif of a built menu without setting any widget's value again. for menus whose get()
+---cannot be trusted to re-read the source, where RefreshOptions would put old values back on screen
+---@param parent frame the frame passed to BuildMenu or BuildMenuVolatile
+function detailsFramework:RefreshOptionsDisabledState(parent)
+    if (parent.widget_to_disable_check) then
+        checkForDisableIF(parent)
     end
 end
 
@@ -1732,7 +1780,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
  
                     processLabelIcon(colorpick.hasLabel, widgetTable, languageTable, widgetTable.text_template or textTemplate, useColon, languageAddonId)
 
-                    maxColumnWidth, maxWidgetWidth, extraPaddingY = setColorProperties(parent, colorpick, widgetTable, currentXOffset, currentYOffset, switchTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bUseBoxFirstOnAllWidgets, extraPaddingY)
+                    maxColumnWidth, maxWidgetWidth, extraPaddingY = setColorProperties(parent, colorpick, widgetTable, currentXOffset, currentYOffset, switchTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bUseBoxFirstOnAllWidgets, extraPaddingY, menuOptions.color_template)
                     amountLineWidgetAdded = amountLineWidgetAdded + 1
 
                 --button
@@ -2121,7 +2169,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
                 processLabelIcon(colorpick.hasLabel, widgetTable, languageTable, widgetTable.text_template or textTemplate, useColon, languageAddonId)
 
-                maxColumnWidth, maxWidgetWidth, extraPaddingY = setColorProperties(parent, colorpick, widgetTable, currentXOffset, currentYOffset, buttonTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bUseBoxFirstOnAllWidgets, extraPaddingY)
+                maxColumnWidth, maxWidgetWidth, extraPaddingY = setColorProperties(parent, colorpick, widgetTable, currentXOffset, currentYOffset, buttonTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bUseBoxFirstOnAllWidgets, extraPaddingY, menuOptions.color_template)
 
                 --store the widget created into the overall table and the widget by type
                 table.insert(parent.widget_list, colorpick)

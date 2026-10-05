@@ -1163,22 +1163,7 @@ do
         --to live outside the builder, where they closed over the single instance the options window was
         --editing and could not be pointed at any other window
 
-        --bar grow direction
-        local set_bar_grow_direction = function(_, instance, value)
-            editInstanceSetting(getInstance(), "SetBarGrowDirection", value)
-            afterUpdate(getInstance())
-        end
-
-        local grow_icon_size = {14, 14}
         local orientation_icon_size = {14, 14}
-
-        local grow_options = {
-            {value = 1, label = Loc ["STRING_TOP_TO_BOTTOM"], iconsize = orientation_icon_size, onclick = set_bar_grow_direction, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0, 0.7}},
-            {value = 2, label = Loc ["STRING_BOTTOM_TO_TOP"], iconsize = orientation_icon_size, onclick = set_bar_grow_direction, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0.7, 0}}
-        }
-        local growMenu = function()
-            return grow_options
-        end
 
         --bar orientation
         local set_bar_orientation = function(_, instance, value)
@@ -1194,137 +1179,11 @@ do
             return orientation_options
         end
 
-        --sort direction
-        local set_bar_sorting = function(_, instance, value)
-            editInstanceSetting(getInstance(), "bars_sort_direction", value)
-            refreshWindowsAfterOptionChange(getInstance())
-            afterUpdate(getInstance())
-        end
-
-        local sorting_options = {
-            {value = 1, label = Loc ["STRING_DESCENDING"], iconsize ={14, 14}, onclick = set_bar_sorting, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0, 0.7}},
-            {value = 2, label = Loc ["STRING_ASCENDING"], iconsize = {14, 14}, onclick = set_bar_sorting, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0.7, 0}}
-        }
-        local sorting_menu = function()
-            return sorting_options
-        end
-
-        --select texture
-        local texture_icon = [[Interface\TARGETINGFRAME\UI-PhasingIcon]]
-        local texture_icon = [[Interface\AddOns\Details\images\icons]]
-        local texture_icon_size = {14, 14}
-        local texture_texcoord = {469/512, 505/512, 249/512, 284/512}
-
-        local onSelectTexture = function(_, instance, textureName)
-            editInstanceSetting(getInstance(), "SetBarSettings", nil, textureName)
-            afterUpdate(getInstance())
-        end
-
-        local buildTextureMenu = function()
-            local textures = SharedMedia:HashTable("statusbar")
-            local texTable = {}
-            for name, texturePath in pairs(textures) do
-                texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectTexture, icon = texture_icon, texcoord = texture_texcoord}
-            end
-            table.sort (texTable, function(t1, t2) return t1.label < t2.label end)
-            return texTable
-        end
-
-        --select background texture
-        local onSelectTextureBackground = function(_, instance, textureName)
-            editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, textureName)
-            afterUpdate(getInstance())
-        end
-
-        local buildTextureMenu2 = function()
-            local textures2 = SharedMedia:HashTable ("statusbar")
-            local texTable2 = {}
-            for name, texturePath in pairs(textures2) do
-                texTable2[#texTable2+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectTextureBackground, icon = texture_icon, texcoord = texture_texcoord}
-            end
-            table.sort (texTable2, function(t1, t2) return t1.label < t2.label end)
-            return texTable2
-        end
-
-        --select icon file from dropdown
-        local OnSelectIconFileSpec = function(_, _, iconpath)
-            editInstanceSetting(getInstance(), "SetBarSpecIconSettings", true, iconpath, true)
-            afterUpdate(getInstance())
-        end
-
-        local OnSelectIconFile = function(_, _, iconpath)
-            editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
-            if (getInstance().row_info.use_spec_icons) then
-                editInstanceSetting(getInstance(), "SetBarSpecIconSettings", false)
-            end
-            afterUpdate(getInstance())
-        end
-
-        local onSelectBarTextureOverlay =  function(_, instance, textureName)
-            editInstanceSetting(getInstance(), "SetBarOverlaySettings", textureName)
-        end
-
-        local buildTextureOverlayMenu = function()
-            local textures2 = SharedMedia:HashTable("statusbar")
-            local texTable2 = {}
-            for name, texturePath in pairs(textures2) do
-                texTable2[#texTable2+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectBarTextureOverlay, icon = texture_icon, texcoord = texture_texcoord}
-            end
-            table.sort(texTable2, function(t1, t2) return t1.label < t2.label end)
-            return texTable2
-        end
-
-        local builtIconList = function()
-    		for k,v in ipairs(Details222.BarIconSetList) do
-                if v.isSpec then
-                    v.onclick = OnSelectIconFileSpec
-                else
-                    v.onclick = OnSelectIconFile
-                end
-            end
-            return Details222.BarIconSetList
-        end
-
+        --bar height, spacing, the top, custom, background and overlay textures and colors, the bar border, the
+        --total bar, the bar highlight, always show me, the grow direction, the sort order, the arena team colors
+        --and the icon set, bar start, icon size, faction icon and arena role icon options live in the designer
+        --section
         local sectionOptions = {
-            {--line height
-                type = "range",
-                get = function() return tonumber(getInstance().row_info.height) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarSettings", value)
-                    afterUpdate(getInstance())
-                end,
-                min = 10,
-                max = 30,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_BAR_HEIGHT"],
-                desc = Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"],
-            },
-
-            {--padding
-                type = "range",
-                get = function() return tonumber(getInstance().row_info.space.between) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -2,
-                max = 10,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_BAR_SPACING"],
-                desc = Loc ["STRING_OPTIONS_BAR_SPACING_DESC"],
-            },
-
-            {--disable highlight
-                type = "toggle",
-                get = function() return Details.instances_disable_bar_highlight end,
-                set = function(self, fixedparam, value)
-                    Details.instances_disable_bar_highlight = value
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"],
-                desc = Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT_DESC"],
-            },
-
             {--fast dps updates
                 type = "toggle",
                 get = function() return getInstance().row_info.fast_ps_update end,
@@ -1336,27 +1195,6 @@ do
                 desc = Loc ["STRING_OPTIONS_BARUR_DESC"],
             },
 
-            {--always show me
-                type = "toggle",
-                get = function() return getInstance().following.enabled end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "following", "enabled", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_FOLLOWING"],
-                desc = Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"],
-            },
-
-            {--grow direction
-                type = "select",
-                get = function() return getInstance().bars_grow_direction end,
-                values = function()
-                    return growMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_GROW"],
-                desc = Loc ["STRING_OPTIONS_BAR_GROW_DESC"],
-            },
-
             {--bar orientation
                 type = "select",
                 get = function() return getInstance().bars_inverted and 2 or 1 end,
@@ -1365,410 +1203,6 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_BARORIENTATION"],
                 desc = Loc ["STRING_OPTIONS_BARORIENTATION_DESC"],
-            },
-
-            {--bar sort direction
-                type = "select",
-                get = function() return getInstance().bars_sort_direction end,
-                values = function()
-                    return sorting_menu()
-                end,
-                name = Loc ["STRING_OPTIONS_BARSORT"],
-                desc = Loc ["STRING_OPTIONS_BARSORT_DESC"],
-            },
-
-            {type = "blank"},
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_TEXTUREU_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--select texture
-                type = "select",
-                get = function() return getInstance().row_info.texture end,
-                values = function()
-                    return buildTextureMenu()
-                end,
-                name = Loc ["STRING_TEXTURE"],
-                desc = Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"],
-            },
-
-            {--custom texture
-                type = "textentry",
-                get = function() return getInstance().row_info.texture_custom end,
-                func = function(self, _, text)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, text)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"],
-                desc = Loc ["STRING_CUSTOM_TEXTURE_GUIDE"]
-            },
-
-            {--remove custom texture
-                type = "execute",
-                func = function(self)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "")
-                    afterUpdate(getInstance())
-                end,
-                icontexture = [[Interface\Buttons\UI-GroupLoot-Pass-Down]],
-                --icontexcoords = {160/512, 179/512, 142/512, 162/512},
-                name = "Remove Custom Texture", --localize-me
-                desc = "Remove Custom Texture",
-            },
-
-			{--bar color
-				type = "color",
-                get = function()
-                    local r, g, b = unpack(getInstance().row_info.fixed_texture_color)
-                    local alpha = getInstance().row_info.alpha
-                    return {r, g, b, alpha}
-				end,
-				set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, {r, g, b})
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, a)
-                    afterUpdate(getInstance())
-				end,
-				name = Loc ["STRING_COLOR"],
-				desc = Loc ["STRING_OPTIONS_BAR_COLOR_DESC"],
-            },
-
-            {--color by player class
-                type = "toggle",
-                get = function() return getInstance().row_info.texture_class_colors end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
-                desc = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"],
-            },
-
-            {type = "blank"},
-            {type = "label", get = function() return "Overlay:" end, text_template = subSectionTitleTextTemplate},
-            {--overlay texture
-                type = "select",
-                get = function() return getInstance().row_info.overlay_texture end,
-                values = function()
-                    return buildTextureOverlayMenu()
-                end,
-                name = Loc ["STRING_TEXTURE"],
-                desc = "Texture which sits above the bar",
-            },
-
-			{--overlay color
-				type = "color",
-                get = function()
-                    local r, g, b, a = unpack(getInstance().row_info.overlay_color)
-                    return {r, g, b, a}
-				end,
-				set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetBarOverlaySettings", nil, {r, g, b, a})
-                    afterUpdate(getInstance())
-				end,
-				name = Loc ["STRING_COLOR"],
-				desc = Loc ["STRING_COLOR"],
-            },
-
-            {type = "blank"},
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_TEXTUREL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--select background texture
-                type = "select",
-                get = function() return getInstance().row_info.texture_background end,
-                values = function()
-                    return buildTextureMenu2()
-                end,
-                name = Loc ["STRING_TEXTURE"],
-                desc = Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"],
-            },
-
-			{--background color
-                type = "color",
-                get = function()
-                    local r, g, b, a = unpack(getInstance().row_info.fixed_texture_background_color)
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, {r, g, b, a})
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_COLOR"],
-                desc = Loc ["STRING_OPTIONS_BAR_COLOR_DESC"],
-            },
-
-            {--background uses class colors
-                type = "toggle",
-                get = function() return getInstance().row_info.texture_background_class_color end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
-                desc = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"],
-            },
-
-            {type = "breakline"},
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--select icon file
-                type = "select",
-                get = function(self)
-                    local default
-                    if (getInstance().row_info.use_spec_icons) then
-                        default = getInstance().row_info.spec_file
-                    else
-                        default = getInstance().row_info.icon_file
-                    end
-                    return default
-                end,
-                values = function()
-                    return builtIconList()
-                end,
-                name = Loc ["STRING_TEXTURE"],
-                desc = Loc ["STRING_OPTIONS_BAR_ICONFILE_DESC2"],
-            },
-
-            {--custom icon path
-                type = "textentry",
-                get = function()
-                    local default
-                    if (getInstance().row_info.use_spec_icons) then
-                        default = getInstance().row_info.spec_file
-                    else
-                        default = getInstance().row_info.icon_file
-                    end
-                    return default
-                end,
-                func = function(self, _, text)
-                    if (text:find("spec_")) then
-                        editInstanceSetting(getInstance(), "SetBarSpecIconSettings", true, text, true)
-                    else
-                        if (getInstance().row_info.use_spec_icons) then
-                            editInstanceSetting(getInstance(), "SetBarSpecIconSettings", false)
-                        end
-                        editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, text)
-                    end
-
-                    Details222.OptionsPanel.SetCurrentInstanceAndRefresh(getInstance())
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"],
-                desc = Loc ["STRING_CUSTOM_TEXTURE_GUIDE"],
-            },
-
-            {--bar start after icon
-                type = "toggle",
-                get = function() return getInstance().row_info.start_after_icon end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BARSTART"],
-                desc = Loc ["STRING_OPTIONS_BARSTART_DESC"],
-            },
-
-            {--icon size offset
-                type = "range",
-                get = function() return tonumber(getInstance().row_info.icon_size_offset) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -20,
-                max = 20,
-                usedecimals = true,
-                step = 0.5,
-                name = "Icon Size Offset", --localize-me
-                desc = "Icon Size Offset",
-                thumbscale = 2.2,
-            },
-
-            {type = "blank"},
-
-            {--show faction icon
-                type = "toggle",
-                get = function() return getInstance().row_info.show_faction_icon end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarFactionIconSettings", value)
-                    afterUpdate(getInstance())
-                end,
-                name = "Show Faction Icon", --localize-me
-                desc = "When showing a player from the opposite faction, show the faction icon.",
-            },
-
-            {--faction icon size offset
-                type = "range",
-                get = function() return tonumber(getInstance().row_info.faction_icon_size_offset) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarFactionIconSettings", nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -20,
-                max = 20,
-                usedecimals = true,
-                step = 0.5,
-                name = "Faction Icon Size Offset", --localize-me
-                desc = "Faction Icon Size Offset",
-                thumbscale = 2.2,
-            },
-
-            {type = "blank"},
-
-            {--show role icon
-                type = "toggle",
-                get = function() return getInstance().row_info.show_arena_role_icon end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarArenaRoleIconSettings", value)
-                    afterUpdate(getInstance())
-                end,
-                name = "Show Arena Role Icon", --localize-me
-                desc = "When showing a player from arena, show the role icon.",
-            },
-
-            {--role icon size offset
-                type = "range",
-                get = function() return tonumber(getInstance().row_info.arena_role_icon_size_offset) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarArenaRoleIconSettings", nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -20,
-                max = 20,
-                usedecimals = true,
-                step = 0.5,
-                name = "Arena Role Icon Size Offset", --localize-me
-                desc = "Arena Role Icon Size Offset",
-                thumbscale = 2.2,
-            },
-
-
-            --{type = "breakline"},
-
-
-            {type = "breakline"},
-
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_TOTALBAR_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--total bar enabled
-                type = "toggle",
-                get = function() return getInstance().total_bar.enabled end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "total_bar", "enabled", value)
-                    afterUpdate(getInstance())
-                    Details222.OptionsPanel.RefreshInstances(getInstance())
-                end,
-                name = Loc ["STRING_ENABLED"],
-                desc = Loc ["STRING_OPTIONS_SHOW_TOTALBAR_DESC"],
-            },
-            {--only in group
-                type = "toggle",
-                get = function() return getInstance().total_bar.only_in_group end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "total_bar", "only_in_group", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP"],
-                desc = Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP_DESC"],
-            },
-			{--color
-                type = "color",
-                get = function()
-                    local r, g, b = unpack(getInstance().total_bar.color)
-                    return {r, g, b, 1}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "total_bar", "color", {r, g, b, 1})
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_COLOR"],
-                desc = Loc ["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"],
-            },
-
-            {type = "blank"},
-            {type = "label", get = function() return "Arena Team Color" end, text_template = subSectionTitleTextTemplate}, --localize-me
-			{--team 1 color
-                type = "color",
-                get = function()
-                    local r, g, b = unpack(Details.class_colors.ARENA_GREEN)
-                    return {r, g, b, 1}
-                end,
-                set = function(self, r, g, b, a)
-                    Details.class_colors.ARENA_GREEN[1] = r
-                    Details.class_colors.ARENA_GREEN[2] = g
-                    Details.class_colors.ARENA_GREEN[3] = b
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_COLOR"],
-                desc = "Arena team color", --localize-me
-            },
-			{--team 2 color
-                type = "color",
-                get = function()
-                    local r, g, b = unpack(Details.class_colors.ARENA_YELLOW)
-                    return {r, g, b, 1}
-                end,
-                set = function(self, r, g, b, a)
-                    Details.class_colors.ARENA_YELLOW[1] = r
-                    Details.class_colors.ARENA_YELLOW[2] = g
-                    Details.class_colors.ARENA_YELLOW[3] = b
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_COLOR"],
-                desc = "Arena team color", --localize-me
-            },
-
-            {type = "blank"},
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_BAR_BACKDROP_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--border enabled
-                type = "toggle",
-                get = function() return getInstance().row_info.backdrop.enabled end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarBackdropSettings", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_ENABLED"],
-                desc = Loc ["STRING_OPTIONS_BAR_BACKDROP_ENABLED_DESC"],
-            },
-
-			{--border color
-                type = "color",
-                get = function()
-                    local r, g, b, a = unpack(getInstance().row_info.backdrop.color)
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetBarBackdropSettings", nil, nil, {r, g, b, a})
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_COLOR"],
-                desc = Loc ["STRING_OPTIONS_BAR_BACKDROP_COLOR_DESC"],
-            },
-
-            {--border size
-                type = "range",
-                get = function() return tonumber(getInstance().row_info.backdrop.size) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarBackdropSettings", nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = 0,
-                --the shipped default is instance_defaults.row_info.backdrop.size = 12, so a maximum of 10
-                --clamped the value down the first time the slider was touched on a default install
-                max = 16,
-                step = 1,
-                usedecimals = true,
-                name = Loc ["STRING_OPTIONS_SIZE"],
-                desc = Loc ["STRING_OPTIONS_BAR_BACKDROP_SIZE_DESC"],
-                thumbscale = 1.5,
-            },
-
-            {--border uses class colors
-                type = "toggle",
-                get = function() return getInstance().row_info.backdrop.use_class_colors end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarBackdropSettings", nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
-                desc = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"],
             },
         }
 
@@ -1791,74 +1225,6 @@ do
         --these helpers close over 'getInstance', so they have to be built per section build; they used
         --to live outside the builder, where they closed over the single instance the options window was
         --editing and could not be pointed at any other window
-
-        --text font selection
-            local onSelectFont = function(_, instance, fontName)
-                editInstanceSetting(getInstance(), "SetBarTextFontFace", fontName)
-                afterUpdate(getInstance())
-            end
-
-            local buildFontMenu = function()
-                local fontObjects = SharedMedia:HashTable("font")
-                local fontTable = {}
-                for name, fontPath in pairs(fontObjects) do
-                    fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
-                end
-                table.sort (fontTable, function(t1, t2) return t1.label < t2.label end)
-                return fontTable
-            end
-
-    	--percent type
-            local onSelectPercent = function(_, instance, percentType)
-                editInstanceSetting(getInstance(), "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, percentType)
-                afterUpdate(getInstance())
-            end
-
-            local buildPercentMenu = function()
-                local percentTable = {
-                    {value = 1, label = "Relative to Total", onclick = onSelectPercent, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINTANKICON]]},
-                    {value = 2, label = "Relative to Top Player", onclick = onSelectPercent, icon = [[Interface\GROUPFRAME\UI-Group-LeaderIcon]]}
-                }
-                return percentTable
-            end
-
-        --brackets
-            local onSelectBracket = function(_, instance, value)
-                editInstanceSetting(getInstance(), "SetBarRightTextSettings", nil, nil, nil, value)
-                afterUpdate(getInstance())
-    		end
-
-    		local BracketTable = {
-    			{value = "(", label = "(", onclick = onSelectBracket, icon = ""},
-    			{value = "{", label = "{", onclick = onSelectBracket, icon = ""},
-    			{value = "[", label = "[", onclick = onSelectBracket, icon = ""},
-    			{value = "<", label = "<", onclick = onSelectBracket, icon = ""},
-    			{value = "NONE", label = "no bracket", onclick = onSelectBracket, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]},
-    		}
-    		local buildBracketMenu = function()
-    			return BracketTable
-            end
-
-        --separators
-            local onSelectSeparator = function(_, instance, value)
-                editInstanceSetting(getInstance(), "SetBarRightTextSettings", nil, nil, nil, nil, value)
-                afterUpdate(getInstance())
-    		end
-
-    		local separatorTable = {
-    			{value = ",", label = ",", onclick = onSelectSeparator, icon = ""},
-    			{value = ".", label = ".", onclick = onSelectSeparator, icon = ""},
-    			{value = ";", label = ";", onclick = onSelectSeparator, icon = ""},
-    			{value = "-", label = "-", onclick = onSelectSeparator, icon = ""},
-    			{value = "|", label = "|", onclick = onSelectSeparator, icon = ""},
-    			{value = "/", label = "/", onclick = onSelectSeparator, icon = ""},
-    			{value = "\\", label = "\\", onclick = onSelectSeparator, icon = ""},
-    			{value = "~", label = "~", onclick = onSelectSeparator, icon = ""},
-    			{value = "NONE", label = "no separator", onclick = onSelectSeparator, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]},
-    		}
-    		local buildSeparatorMenu = function()
-    			return separatorTable
-    		end
 
             local onSelectRightTextTemplate = function(self, instance, value)
                 local profileTable = Details.righttext_simple_formatting
@@ -1886,170 +1252,11 @@ do
                 return rightTextTemplates
             end
 
+        --the text color, size, font, offsets, percent type, class colors, outlines and shadows, and on the
+        --classic versions the translit, right text and aligned text columns options, live in the designer section
         local sectionOptions = {
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_GENERAL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-			{--text color 1
-                type = "color",
-                get = function()
-                    local r, g, b = unpack(getInstance().row_info.fixed_text_color)
-                    return {r, g, b, 1}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetBarTextFixedColor", {r, g, b, 1})
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR"],
-                desc = Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR_DESC"],
-            },
-            {--text size 2
-                type = "range",
-                get = function() return getInstance().row_info.font_size end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextFontSize", value)
-                    afterUpdate(getInstance())
-                end,
-                min = 5,
-                max = 32,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_TEXT_SIZE"],
-                desc = Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"],
-            },
-            {--text yoffset
-                type = "range",
-                get = function() return getInstance().row_info.text_yoffset end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextYOffset", value)
-                    afterUpdate(getInstance())
-                end,
-                min = -10,
-                max = 10,
-                step = 1,
-                name = "Text Y Offset", -- Loc ["STRING_OPTIONS_TEXT_YOFFSET"]
-                desc = "Change the vertical offset for both left and right texts.", -- Loc ["STRING_OPTIONS_TEXT_YOFFSET_DESC"]
-            },
-            {--text font 3
-                type = "select",
-                get = function() return getInstance().row_info.font_face end,
-                values = function()
-                    return buildFontMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_FONT"],
-                desc = Loc ["STRING_OPTIONS_TEXT_FONT_DESC"],
-            },
-            {--percent type 4
-                type = "select",
-                get = function() return getInstance().row_info.percent_type end,
-                values = function()
-                    return buildPercentMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_PERCENT_TYPE"],
-                desc = Loc ["STRING_OPTIONS_PERCENT_TYPE_DESC"],
-            },
-
-
-            {type = "blank"}, --5
             --left text options 6
             {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_LEFT_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--position number 11
-                type = "toggle",
-                get = function() return getInstance().row_info.textL_show_number end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_LPOSITION"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LPOSITION_DESC"],
-            },
-
-            {--translit text 12
-                type = "toggle",
-                get = function() return getInstance().row_info.textL_translit_text end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"],
-            },
-
-            {--use class colors 7
-                type = "toggle",
-                get = function() return Details222.RowTexts.Get(getInstance(), 1, "color.byClass") end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextClassColor", "left", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
-            },
-
-            {--text offset
-                type = "range",
-                get = function() return getInstance().row_info.textL_offset end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextNameOffset", value)
-                    afterUpdate(getInstance())
-                end,
-                min = -10,
-                max = 50,
-                step = 1,
-                name = "Offset", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET"]
-                desc = "Change the horizontal offset.", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET_DESC"]
-            },
-
-            {type = "blank"},
-            {--outline mode
-                type = "selectoutline",
-                get = function() return Details222.RowTexts.Get(getInstance(), 1, "font.outline") end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextOutline", "left", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
-                desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
-            },
-			{--shadow color
-                type = "color",
-                get = function()
-                    local r, g, b, a = unpack(Details222.RowTexts.Get(getInstance(), 1, "shadow.color"))
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetBarTextShadowColor", "left", {r, g, b, a})
-                    afterUpdate(getInstance())
-                end,
-                name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
-                desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
-            },
-            {--shadow offset x
-                type = "range",
-                get = function() return Details222.RowTexts.Get(getInstance(), 1, "shadow.offset")[1] end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextShadowOffset", "left", value, nil)
-                    afterUpdate(getInstance())
-                end,
-                min = -5,
-                max = 5,
-                step = 1,
-                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
-                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
-            },
-            {--shadow offset y
-                type = "range",
-                get = function() return Details222.RowTexts.Get(getInstance(), 1, "shadow.offset")[2] end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextShadowOffset", "left", nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -5,
-                max = 5,
-                step = 1,
-                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
-                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
-            },
-
 
             {--outline 8
                 type = "toggle",
@@ -2119,72 +1326,9 @@ do
             },
 
             {type = "breakline"}, --16
-            --right text options 17
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--use class colors 18
-                type = "toggle",
-                get = function() return Details222.RowTexts.Get(getInstance(), 2, "color.byClass") end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextClassColor", "right", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
-            },
-
-
-            {type = "blank"},
-            {--outline mode
-                type = "selectoutline",
-                get = function() return Details222.RowTexts.Get(getInstance(), 2, "font.outline") end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextOutline", "right", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
-                desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
-            },
-			{--shadow color
-                type = "color",
-                get = function()
-                    local r, g, b, a = unpack(Details222.RowTexts.Get(getInstance(), 2, "shadow.color"))
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetBarTextShadowColor", "right", {r, g, b, a})
-                    afterUpdate(getInstance())
-                end,
-                name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
-                desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
-            },
-            {--shadow offset x
-                type = "range",
-                get = function() return Details222.RowTexts.Get(getInstance(), 2, "shadow.offset")[1] end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextShadowOffset", "right", value, nil)
-                    afterUpdate(getInstance())
-                end,
-                min = -5,
-                max = 5,
-                step = 1,
-                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
-                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
-            },
-            {--shadow offset y
-                type = "range",
-                get = function() return Details222.RowTexts.Get(getInstance(), 2, "shadow.offset")[2] end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextShadowOffset", "right", nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -5,
-                max = 5,
-                step = 1,
-                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
-                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
-            },
-
+            --right text options 17, only the classic versions have any left here
+            {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] end, text_template = subSectionTitleTextTemplate,
+            hidden = detailsFramework.IsAddonApocalypseWow()},
 
             {--outline 19
                 type = "toggle",
@@ -2223,35 +1367,8 @@ do
                 hidden = true,
             },
 
-            {type = "blank"}, --22
             {type = "label", get = function() return Loc ["STRING_OPTIONS_PLAYERNAME"] end, text_template = subSectionTitleTextTemplate,
             hidden = not detailsFramework.IsAddonApocalypseWow()},
-
-            {--automatic player name length | length auto
-                type = "toggle",
-                get = function() return getInstance().row_info.playername_size_auto end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "row_info", "playername_size_auto", value)
-                    afterUpdate(getInstance())
-                    refreshWindowsAfterOptionChange(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"],
-                desc = Loc ["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"],
-                hidden = not detailsFramework.IsAddonApocalypseWow(),
-            },
-
-            {--automatic player name alignment | alignment auto
-                type = "toggle",
-                get = function() return getInstance().row_info.playername_alignment_auto end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "row_info", "playername_alignment_auto", value)
-                    afterUpdate(getInstance())
-                    refreshWindowsAfterOptionChange(getInstance())
-                end,
-                name = "Auto Alignment", --L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
-                desc = "Disable this only if you experience player name alignment issues.", --L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
-                hidden = not detailsFramework.IsAddonApocalypseWow(),
-            },
 
             {--player name length
                 type = "range",
@@ -2268,72 +1385,6 @@ do
                 desc = Loc ["STRING_OPTIONS_PLAYERNAME_WIDTH"],
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
             },
-
-            {type = "blank", hidden = detailsFramework.IsAddonApocalypseWow()},
-
-            {--show total --23
-                type = "toggle",
-                get = function() return getInstance().row_info.textR_show_data[1] end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarRightTextSettings", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_SHOW_TOTAL"],
-                desc = Loc ["STRING_OPTIONS_TEXT_SHOW_TOTAL_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-            },
-            {--show per second 24
-                type = "toggle",
-                get = function() return getInstance().row_info.textR_show_data[2] end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarRightTextSettings", nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_SHOW_PS"],
-                desc = Loc ["STRING_OPTIONS_TEXT_SHOW_PS_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-            },
-            {--show percent 25
-                type = "toggle",
-                get = function() return getInstance().row_info.textR_show_data[3] end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarRightTextSettings", nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
-                desc = Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-            },
-
-            {type = "blank"}, --26
-
-            {--separator 27
-                type = "select",
-                get = function() return getInstance().row_info.textR_separator end,
-                values = function()
-                    return buildSeparatorMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR"],
-                desc = Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-                id = "text_separator_select",
-            },
-            {--brackets 28
-                type = "select",
-                get = function() return getInstance().row_info.textR_bracket end,
-                values = function()
-                    return buildBracketMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET"],
-                desc = Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-                id = "text_bracket_select",
-            },
-
-            {type = "label", get = function() return Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS"] .. " (".. Loc["STRING_OPTIONSMENU_ROWSETTINGS"] ..")\n" .. Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_WARNING"] end, text_template = subSectionTitleTextTemplate,
-        hidden = detailsFramework.IsAddonApocalypseWow(), id = "inline_text_warning_label"},
-
-            {type = "blank"}, --30
 
             {--custom right text 31
                 type = "toggle",
@@ -2365,122 +1416,6 @@ do
             },
 
             {type = "breakline"},
-
-            {type = "label", get = function() return Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS"] end, text_template = subSectionTitleTextTemplate,
-            hidden = detailsFramework.IsAddonApocalypseWow()},
-
-            {--inline text enabled
-                type = "toggle",
-                get = function() return getInstance().use_multi_fontstrings end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "use_multi_fontstrings", value)
-                    --chaining only applies to in line texts, so this decides the layout mode too
-                    editInstanceSetting(getInstance(), "AdjustInLineTextPadding")
-                    editInstanceSetting(getInstance(), "InstanceRefreshRows")
-                    if (sectionFrame.UpdateColumnOffsetSliders) then
-                        sectionFrame.UpdateColumnOffsetSliders()
-                    end
-                    refreshWindowsAfterOptionChange(getInstance())
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_ENABLED"],
-                desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-                id = "inline_text_toggle",
-            },
-
-            {--inline auto align enabled
-                type = "toggle",
-                get = function() return getInstance().use_auto_align_multi_fontstrings end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "use_auto_align_multi_fontstrings", value)
-                    --switches the value columns between chaining onto each other and each sitting
-                    --at its own distance from the statusbar, so it has to re-anchor
-                    editInstanceSetting(getInstance(), "AdjustInLineTextPadding")
-                    editInstanceSetting(getInstance(), "InstanceRefreshRows")
-                    if (sectionFrame.UpdateColumnOffsetSliders) then
-                        sectionFrame.UpdateColumnOffsetSliders()
-                    end
-                    refreshWindowsAfterOptionChange(getInstance())
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN"],
-                desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-                id = "auto_align_toggle",
-            },
-
-
-            {--name size offset
-                type = "range",
-                get = function() return tonumber(getInstance().fontstrings_text_limit_offset) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "fontstrings_text_limit_offset", value)
-                    editInstanceSetting(getInstance(), "InstanceRefreshRows")
-                    Details222.OptionsPanel.RefreshInstances(getInstance())
-                    afterUpdate(getInstance())
-                end,
-                min = -30,
-                max = 30,
-                step = 1,
-                name = "Unit Name Size Offset",
-                desc = "Unit Name Size Offset",
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-            },
-
-            --with auto align on, texts 2 and 3 chain onto their right hand neighbour and these
-            --sliders drive the gap between the columns; with it off they drive each column's own
-            --distance from the statusbar's right edge. text 4 is always the chain anchor.
-            --UpdateColumnOffsetSliders below swaps the ranges when the mode changes.
-            {--lineText2 (left, usuali is the 'done' amount)
-                type = "range",
-                get = function() return getInstance():GetBarTextAnchorOffset(2) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextAnchorOffset", 2, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -10,
-                max = 125,
-                step = 1,
-                name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 1),
-                desc = Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-                id = "column_offset_2_range",
-            },
-
-            {--lineText3 (in the middle)
-                type = "range",
-                get = function() return getInstance():GetBarTextAnchorOffset(3) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextAnchorOffset", 3, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -10,
-                max = 75,
-                step = 1,
-                name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 2),
-                desc = Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-                id = "column_offset_3_range",
-            },
-
-            {--lineText4 (closest to the right)
-                type = "range",
-                get = function() return getInstance():GetBarTextAnchorOffset(4) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetBarTextAnchorOffset", 4, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -10,
-                max = 50,
-                step = 1,
-                name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 3),
-                desc = Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"],
-                hidden = detailsFramework.IsAddonApocalypseWow(),
-                id = "column_offset_4_range",
-            },
-
-            {type = "blank", hidden = detailsFramework.IsAddonApocalypseWow()},
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TITLE"] end, text_template = subSectionTitleTextTemplate},
 
@@ -2614,44 +1549,8 @@ do
                 group = "simpletext",
             },
 
-            --{type = "blank", hidden = not detailsFramework.IsAddonApocalypseWow()},
-
-            {type = "label", get = function() return Loc["STRING_OR"] end, text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow()},
-
-            {--use alignment
-                type = "toggle",
-                get = function() return Details.righttext_simple_formatting.use_alignment end,
-                set = function(self, fixedparam, value)
-                    Details.righttext_simple_formatting.use_alignment = value
-                    Details.righttext_simple_formatting.enabled = not value
-                    callDetailsFuncAfterOptionChange(getInstance(), Details.InstanceClearTexts)
-                    callDetailsFuncAfterOptionChange(getInstance(), Details.InstanceRefreshRows)
-                    sectionFrame.UpdateRightTextOption()
-                    refreshWindowsAfterOptionChange(getInstance())
-                    afterUpdate(getInstance())
-                end,
-                name = Loc["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"],
-                desc = Loc["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"],
-                id = "use_alignment_toggle",
-                hidden = not detailsFramework.IsAddonApocalypseWow(),
-                group = "alignmenttext",
-            },
-
-            {--show percent
-                type = "toggle",
-                get = function() return getInstance().row_info.show_percent end,
-                set = function(self, fixedparam, value)
-                    callMethodAfterOptionChange(getInstance(), "SetSimpleFormattingSettings", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
-                desc = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
-                hidden = not detailsFramework.IsAddonApocalypseWow(),
-                id = "show_percent_toggle",
-                group = "alignmenttext",
-            },
-
+            --the aligned columns toggle and the show percent toggle live in the designer section, only the
+            --spacing used while the columns are aligned is left here
             {--alignment space
                 type = "range",
                 get = function() return Details.righttext_simple_formatting.alignment_space end,
@@ -2681,80 +1580,36 @@ do
         C_Timer.After(0.15, function()
             DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
-            local separatorOption = sectionFrame:GetWidgetById("text_separator_select")
-            local bracketOption = sectionFrame:GetWidgetById("text_bracket_select")
-            local warningLabel = sectionFrame:GetWidgetById("inline_text_warning_label")
-            Details222.OptionsPanel.textSeparatorOption = separatorOption
-            Details222.OptionsPanel.textbracketOption = bracketOption
-
             local useSimpleText = sectionFrame:GetWidgetById("use_simple_formatting_toggle")
             local formatTSP = sectionFrame:GetWidgetById("format_tsp_textentry")
             local formatTS = sectionFrame:GetWidgetById("format_ts_textentry")
             local formatTP = sectionFrame:GetWidgetById("format_tp_textentry")
             local selectTemplate = sectionFrame:GetWidgetById("selecttemplate_dropdown")
-            local useAlignment = sectionFrame:GetWidgetById("use_alignment_toggle")
             local alignmentSpace = sectionFrame:GetWidgetById("alignment_space_range")
-            local showPercent = sectionFrame:GetWidgetById("show_percent_toggle")
 
-            local columnOffsetSliders = {
-                [2] = sectionFrame:GetWidgetById("column_offset_2_range"),
-                [3] = sectionFrame:GetWidgetById("column_offset_3_range"),
-                [4] = sectionFrame:GetWidgetById("column_offset_4_range"),
-            }
-
-            --the column sliders drive the gap between packed columns when auto align is on and each
-            --column's distance from the statusbar when it is off, so their ranges swap with the mode
-            function sectionFrame.UpdateColumnOffsetSliders()
-                if (not getInstance()) then
-                    return
-                end
-
-                for index, slider in pairs(columnOffsetSliders) do
-                    local minValue, maxValue = getInstance():GetBarTextAnchorOffsetRange(index)
-                    --the framework wrapper has no method for the range, so reach the inner slider
-                    slider.slider:SetMinMaxValues(minValue, maxValue)
-                    --NoCallback, otherwise refreshing the widget writes the setting straight back
-                    slider:SetValueNoCallback(getInstance():GetBarTextAnchorOffset(index))
-                end
-            end
-
+            --the designer section can switch between simple text and aligned columns too, so the
+            --checkbox is set from the stored value rather than left as it was clicked
             function sectionFrame.UpdateRightTextOption()
+                useSimpleText:SetChecked(Details.righttext_simple_formatting.enabled)
+
                 if Details.righttext_simple_formatting.enabled then
-                    --useSimpleText:Enable()
                     formatTSP:Enable()
                     formatTS:Enable()
                     formatTP:Enable()
                     selectTemplate:Enable()
-                    useAlignment:SetChecked(false)
                     alignmentSpace:Disable()
-                    showPercent:Disable()
                 else
-                    useSimpleText:SetChecked(false)
                     formatTSP:Disable()
                     formatTS:Disable()
                     formatTP:Disable()
                     selectTemplate:Disable()
-                    --useAlignment:Enable()
                     alignmentSpace:Enable()
-                    showPercent:Enable()
                 end
             end
 
             sectionFrame:SetScript("OnShow", function()
                 if detailsFramework.IsAddonApocalypseWow() then
                     sectionFrame.UpdateRightTextOption()
-                else
-                    sectionFrame.UpdateColumnOffsetSliders()
-
-                    if (getInstance().use_multi_fontstrings) then
-                        separatorOption:Disable()
-                        bracketOption:Disable()
-                        warningLabel:Show()
-                    else
-                        separatorOption:Enable()
-                        bracketOption:Enable()
-                        warningLabel:Hide()
-                    end
                 end
             end)
         end)
@@ -2772,12 +1627,6 @@ do
         --to live outside the builder, where they closed over the single instance the options window was
         --editing and could not be pointed at any other window
 
-        local func = function(menu_button)
-            editInstanceSetting(getInstance(), "menu_icons", menu_button, not getInstance().menu_icons[menu_button])
-            editInstanceSetting(getInstance(), "ToolbarMenuSetButtons")
-            afterUpdate(getInstance())
-        end
-
         --menu text face
             local onSelectFont = function(_, _, fontName)
                 Details.font_faces.menus = fontName
@@ -2793,42 +1642,11 @@ do
                 return fontTable
             end
 
-        --attribute text font
-            local on_select_attribute_font = function(self, instance, fontName)
-                editInstanceSetting(getInstance(), "AttributeMenu", nil, nil, nil, fontName)
-                afterUpdate(getInstance())
-            end
-
-            local build_font_menu = function()
-                local fonts = {}
-                for name, fontPath in pairs(SharedMedia:HashTable ("font")) do
-                    fonts [#fonts+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = on_select_attribute_font, font = fontPath, descfont = name, desc = "Our thoughts strayed constantly\nAnd without boundary\nThe ringing of the division bell had began."}
-                end
-                table.sort (fonts, function(t1, t2) return t1.label < t2.label end)
-                return fonts
-            end
-
         --icon set menu
             local on_select_icon_set = function(self, instance, texturePath)
                 editInstanceSetting(getInstance(), "toolbar_icon_file", texturePath)
                 editInstanceSetting(getInstance(), "ChangeSkin")
                 afterUpdate(getInstance())
-            end
-
-        --custom title bar texture
-            local onSelectCustomTitleBarTexture =  function(_, instance, textureName)
-                editInstanceSetting(getInstance(), "SetTitleBarSettings", nil, nil, textureName)
-                editInstanceSetting(getInstance(), "RefreshTitleBar")
-            end
-
-            local buildTextureCustomTitleBar = function()
-                local textures = SharedMedia:HashTable("statusbar")
-                local texTable = {}
-                for name, texturePath in pairs(textures) do
-                    texTable[#texTable+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectCustomTitleBarTexture}
-                end
-                table.sort(texTable, function(t1, t2) return t1.label < t2.label end)
-                return texTable
             end
 
             local buildIconStyleMenu = function()
@@ -2841,66 +1659,11 @@ do
                 return iconMenu
             end
 
-        local buttonWidth = 25
-
+        --the custom title bar, the buttons shown and their size, spacing, color and auto hide, and the title
+        --text options live in the designer section
         local sectionOptions = {
 
             {type = "label", get = function() return "Title Bar" end, text_template = subSectionTitleTextTemplate},
-
-            {--use custom titlebar
-                type = "toggle",
-                get = function() return getInstance().titlebar_shown end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetTitleBarSettings", value)
-                    editInstanceSetting(getInstance(), "RefreshTitleBar")
-                    afterUpdate(getInstance())
-                end,
-                name = "Enable Custom Title Bar",
-                desc = "Use an alternative title bar instead of the title bar builtin in the Skin file.\n\n|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window Body' and make the 'skin color' fully transparent.",
-            },
-
-            {--custom title bar height
-                type = "range",
-                get = function() return getInstance().titlebar_height end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetTitleBarSettings", nil, value)
-                    editInstanceSetting(getInstance(), "RefreshTitleBar")
-                    afterUpdate(getInstance())
-                end,
-                min = 0,
-                max = 32,
-                step = 1,
-                name = "Height",
-                desc = "Height",
-            },
-
-            {--custom title bar texture
-                type = "select",
-                get = function() return getInstance().titlebar_texture end,
-                values = function()
-                    return buildTextureCustomTitleBar()
-                end,
-                name = Loc ["STRING_TEXTURE"],
-                desc = Loc ["STRING_TEXTURE"],
-            },
-
-			{--texture color
-                type = "color",
-                get = function()
-                    local r, g, b, a = unpack(getInstance().titlebar_texture_color)
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "SetTitleBarSettings", nil, nil, nil, {r, g, b, a})
-                    editInstanceSetting(getInstance(), "RefreshTitleBar")
-                    afterUpdate(getInstance())
-                end,
-                name = "Color",
-                desc = "Color",
-            },
-
-
-            --SetTitleBarSettings(shown, height, texture, color)
 
             {--disable all displays
                 type = "toggle",
@@ -2919,97 +1682,6 @@ do
 
             {type = "label", get = function() return Loc ["STRING_OPTIONS_TITLEBAR_MENUBUTTONS_HEADER"] end, text_template = subSectionTitleTextTemplate},
 
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS"] end, text_template = options_text_template},
-            {--button orange gear
-                type = "execute",
-                get = function() return "" end,
-                func = function(self, fixedparam, value)
-                    func(1)
-                end,
-                width = buttonWidth,
-                height = 20,
-                inline = true,
-                name = "",
-                --desc = "",
-                icontexture = [[Interface\AddOns\Details\images\toolbar_icons]],
-                icontexcoords = {0/256, 32/256, 0, 1},
-            },
-
-            {--button segments
-                type = "execute",
-                get = function() return "" end,
-                func = function(self, fixedparam, value)
-                    func(2)
-                end,
-                width = buttonWidth,
-                height = 20,
-                inline = true,
-                name = "",
-                --desc = "",
-                icontexture = [[Interface\AddOns\Details\images\toolbar_icons]],
-                icontexcoords = {33/256, 64/256, 0, 1},
-            },
-
-            {--button sword
-                type = "execute",
-                get = function() return "" end,
-                func = function(self, fixedparam, value)
-                    func(3)
-                end,
-                width = buttonWidth,
-                height = 20,
-                inline = true,
-                name = "",
-                --desc = "",
-                icontexture = [[Interface\AddOns\Details\images\toolbar_icons]],
-                icontexcoords = {64/256, 96/256, 0, 1},
-            },
-
-            {--button report
-                type = "execute",
-                get = function() return "" end,
-                func = function(self, fixedparam, value)
-                    func(4)
-                end,
-                width = buttonWidth,
-                height = 20,
-                inline = true,
-                name = "",
-                --desc = "",
-                icontexture = [[Interface\AddOns\Details\images\toolbar_icons]],
-                icontexcoords = {96/256, 128/256, 0, 1},
-            },
-
-            {--button clear
-                type = "execute",
-                get = function() return "" end,
-                func = function(self, fixedparam, value)
-                    func(5)
-                end,
-                width = buttonWidth,
-                height = 20,
-                inline = true,
-                name = "",
-                --desc = "",
-                icontexture = [[Interface\AddOns\Details\images\toolbar_icons]],
-                icontexcoords = {128/256, 160/256, 0, 1},
-            },
-
-            {--button clear
-                type = "execute",
-                get = function() return "" end,
-                func = function(self, fixedparam, value)
-                    func(6)
-                end,
-                width = buttonWidth,
-                height = 20,
-                inline = true,
-                name = "",
-                --desc = "",
-                icontexture = [[Interface\AddOns\Details\images\toolbar_icons]],
-                icontexcoords = {160/256, 192/256, 0, 1},
-            },
-
             {--icon set icon style
                 type = "select",
                 get = function() return getInstance().toolbar_icon_file end,
@@ -3018,35 +1690,6 @@ do
                 end,
                 name = "Icon Set",
                 desc = "Icon Set",
-            },
-
-            {--title bar icons size
-                type = "range",
-                get = function() return getInstance().menu_icons_size end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "ToolbarMenuButtonsSize", value)
-                    afterUpdate(getInstance())
-                end,
-                min = 0.4,
-                max = 1.6,
-                step = 0.05,
-                usedecimals = true,
-                name = Loc ["STRING_OPTIONS_SIZE"],
-                desc = Loc ["STRING_OPTIONS_MENU_BUTTONSSIZE_DESC"],
-            },
-
-            {--title bar icons spacing
-                type = "range",
-                get = function() return getInstance().menu_icons.space end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "ToolbarMenuSetButtonsOptions", value)
-                    afterUpdate(getInstance())
-                end,
-                min = -5,
-                max = 10,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_MENUS_SPACEMENT"],
-                desc = Loc ["STRING_OPTIONS_MENUS_SPACEMENT_DESC"],
             },
 
             {--title bar icons position X
@@ -3075,28 +1718,6 @@ do
                 step = 1,
                 name = Loc ["STRING_OPTIONS_MENU_Y"],
                 desc = Loc ["STRING_OPTIONS_MENU_X_DESC"],
-            },
-
-            {--icons desaturated
-                type = "toggle",
-                get = function() return getInstance().desaturated_menu end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "DesaturateMenu", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_DESATURATE_MENU"],
-                desc = Loc ["STRING_OPTIONS_DESATURATE_MENU_DESC"],
-            },
-
-            {--hide icon main icon
-                type = "toggle",
-                get = function() return getInstance().hide_icon end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "HideMainIcon", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_HIDE_ICON"],
-                desc = Loc ["STRING_OPTIONS_HIDE_ICON_DESC"],
             },
 
             {--button attach to right
@@ -3144,118 +1765,8 @@ do
                 desc = Loc ["STRING_OPTIONS_CLICK_TO_OPEN_MENUS_DESC"],
             },
 
-            {--auto hide buttons
-                type = "toggle",
-                get = function() return getInstance().auto_hide_menu.left end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetAutoHideMenu", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_MENU_AUTOHIDE_LEFT"],
-                desc = Loc ["STRING_OPTIONS_MENU_AUTOHIDE_DESC"],
-            },
-
             {type = "breakline"},
             {type = "label", get = function() return Loc ["STRING_OPTIONS_ATTRIBUTE_TEXT"] end, text_template = subSectionTitleTextTemplate},
-
-            {--enable text
-                type = "toggle",
-                get = function() return getInstance().attribute_text.enabled end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "AttributeMenu", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_ENABLED"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ENABLED_DESC"],
-            },
-
-            {--encounter time
-                type = "toggle",
-                get = function() return getInstance().attribute_text.show_timer and true or false end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "AttributeMenu", nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER_DESC"],
-            },
-
-            {--text size
-                type = "range",
-                get = function() return tonumber(getInstance().attribute_text.text_size) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "AttributeMenu", nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = 5,
-                max = 32,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_TEXT_SIZE"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE_DESC"],
-            },
-
-            {--text font
-                type = "select",
-                get = function() return getInstance().attribute_text.text_face end,
-                values = function()
-                    return build_font_menu()
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_FONT"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_FONT_DESC"],
-            },
-
-			{--text color
-                type = "color",
-                get = function()
-                    local r, g, b = unpack(getInstance().attribute_text.text_color)
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "AttributeMenu", nil, nil, nil, nil, nil, {r, g, b, a})
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTCOLOR"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTCOLOR_DESC"],
-            },
-
-            {--text shadow
-                type = "toggle",
-                get = function() return getInstance().attribute_text.shadow end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "AttributeMenu", nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SHADOW_DESC"],
-            },
-
-            {--text X
-                type = "range",
-                get = function() return tonumber(getInstance().attribute_text.anchor[1]) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "AttributeMenu", nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -30,
-                max = 300,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORX"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORX_DESC"],
-            },
-
-            {--text Y
-                type = "range",
-                get = function() return tonumber(getInstance().attribute_text.anchor[2]) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "AttributeMenu", nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = -100,
-                max = 50,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY"],
-                desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY_DESC"],
-            },
 
             {--anchor to top
                 type = "toggle",
@@ -3314,46 +1825,6 @@ do
         --to live outside the builder, where they closed over the single instance the options window was
         --editing and could not be pointed at any other window
 
-        --frame strata options
-            local strata = {
-                ["BACKGROUND"] = "Background",
-                ["LOW"] = "Low",
-                ["MEDIUM"] = "Medium",
-                ["HIGH"] = "High",
-                ["DIALOG"] = "Dialog"
-            }
-
-            local onStrataSelect = function(_, instance, strataName)
-                editInstanceSetting(getInstance(), "SetFrameStrata", strataName)
-                afterUpdate(getInstance())
-            end
-
-            local strataTable = {
-                {value = "BACKGROUND", label = "Background", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Green]], iconcolor = {0, .5, 0, .8}, texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
-                {value = "LOW", label = "Low", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Green]] , texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
-                {value = "MEDIUM", label = "Medium", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
-                {value = "HIGH", label = "High", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , iconcolor = {1, .7, 0, 1}, texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
-                {value = "DIALOG", label = "Dialog", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Red]] , iconcolor = {1, 0, 0, 1},  texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
-            }
-            local buildStrataMenu = function() return strataTable end
-
-        --backdrop texture
-            local onBackdropSelect = function(_, instance, backdropName)
-                editInstanceSetting(getInstance(), "SetBackdropTexture", backdropName)
-                afterUpdate(getInstance())
-            end
-
-            local backdrop_icon_size = {16, 16}
-            local backdrop_icon_color = {.6, .6, .6}
-
-            local buildBackdropMenu = function()
-                local backdropTable = {}
-                for name, backdropPath in pairs(SharedMedia:HashTable ("background")) do
-                    backdropTable[#backdropTable+1] = {value = name, label = name, onclick = onBackdropSelect, icon = [[Interface\ITEMSOCKETINGFRAME\UI-EMPTYSOCKET]], iconsize = backdrop_icon_size, iconcolor = backdrop_icon_color}
-                end
-                return backdropTable
-            end
-
         --instance selector selection
             local onSelectInstance = function() end
 
@@ -3409,39 +1880,10 @@ do
             end
 
 
+        --the skin color, side bars, scale, strata, background texture and window border options live in the
+        --designer section
         local sectionOptions = {
             {type = "label", get = function() return Loc["STRING_OPTIONS_GENERAL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-			{--window color (skin color)
-                type = "color",
-                get = function()
-                    local r, g, b = unpack(getInstance().color)
-                    return {r, g, b, 1}
-                end,
-
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "InstanceColor", r, g, b, a, nil, true)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_WINDOW_SKIN_COLOR"],
-                desc = Loc ["STRING_OPTIONS_WINDOW_SKIN_COLOR_DESC"],
-            },
-
-            {--show borders
-                type = "toggle",
-                get = function() return getInstance().show_sidebars end,
-                set = function(self, fixedparam, value)
-                    if (value) then
-                        editInstanceSetting(getInstance(), "ShowSideBars")
-                    else
-                        editInstanceSetting(getInstance(), "HideSideBars")
-                    end
-
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_SHOW_SIDEBARS"],
-                desc = Loc ["STRING_OPTIONS_SHOW_SIDEBARS_DESC"],
-            },
 
 			{--row's area color
                 type = "color",
@@ -3457,21 +1899,6 @@ do
                 desc = Loc ["STRING_OPTIONS_WINDOW_ROWAREA_COLOR_DESC"],
             },
 
-            {--window scale
-                type = "range",
-                get = function() return tonumber(getInstance().window_scale) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "SetWindowScale", value, true)
-                    afterUpdate(getInstance())
-                end,
-                min = 0.65,
-                max = 1.5,
-                step = 0.02,
-                usedecimals = true,
-                name = Loc ["STRING_OPTIONS_WINDOW_SCALE"],
-                desc = Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"],
-            },
-
             {--ignore on mass hide
                 type = "toggle",
                 get = function() return getInstance().ignore_mass_showhide end,
@@ -3481,26 +1908,6 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_WINDOW_IGNOREMASSTOGGLE"],
                 desc = Loc ["STRING_OPTIONS_WINDOW_IGNOREMASSTOGGLE_DESC"],
-            },
-
-            {--frame strata
-                type = "select",
-                get = function() return strata[getInstance().strata] or "Low" end,
-                values = function()
-                    return buildStrataMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_INSTANCE_STRATA"],
-                desc = Loc ["STRING_OPTIONS_INSTANCE_STRATA_DESC"],
-            },
-
-            {--backdrop texture
-                type = "select",
-                get = function() return getInstance().backdrop_texture end,
-                values = function()
-                    return buildBackdropMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_INSTANCE_BACKDROP"],
-                desc = Loc ["STRING_OPTIONS_INSTANCE_BACKDROP_DESC"],
             },
 
             {type = "blank"},
@@ -3644,48 +2051,6 @@ do
             },
 
             {type = "breakline"},
-            {type = "label", get = function() return "Window Area Border" end, text_template = subSectionTitleTextTemplate},
-
-            {--show full border ~border
-                type = "toggle",
-                get = function() return getInstance().fullborder_shown end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "UpdateFullBorder", value)
-                    afterUpdate(getInstance())
-                end,
-                name = "Show Border",
-                desc = "Show Border",
-            },
-
-			{--full border color
-                type = "color",
-                get = function()
-                    return {unpack(getInstance().fullborder_color)}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "UpdateFullBorder", nil, {r, g, b, a})
-                    afterUpdate(getInstance())
-                end,
-                name = "Border Color",
-                desc = "Border Color",
-            },
-
-            {--border size
-                type = "range",
-                get = function() return tonumber(getInstance().fullborder_size) end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "UpdateFullBorder", nil, nil, value)
-                    afterUpdate(getInstance())
-                end,
-                min = 0,
-                max = 5,
-                step = 0.5,
-                usedecimals = true,
-                name = "Border Thickness",
-                desc = "Border Thickness",
-            },
-
-            {type = "blank"},
             {type = "label", get = function() return "Row's Area Border" end, text_template = subSectionTitleTextTemplate},
 
             {--show full border ~border
@@ -3786,52 +2151,9 @@ do
 
         sectionFrame:GetParent().updateMicroFrames = updateMicroFrames
 
+        --showing the status bar, its color and locking the micro displays live in the designer section
         local sectionOptions = {
             {type = "label", get = function() return Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--show statusbar
-                type = "toggle",
-                get = function() return getInstance().show_statusbar end,
-                set = function(self, fixedparam, value)
-                    if (value) then
-                        editInstanceSetting(getInstance(), "ShowStatusBar")
-                    else
-                        editInstanceSetting(getInstance(), "HideStatusBar")
-                    end
-
-                    --editInstanceSetting(getInstance(), "BaseFrameSnap") --was causing issues 09/Aug/2020
-                    updateMicroFrames()
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_SHOW_STATUSBAR"],
-                desc = Loc ["STRING_OPTIONS_SHOW_STATUSBAR_DESC"],
-            },
-
-			{--color
-                type = "color",
-                get = function()
-                    local r, g, b = unpack(getInstance().statusbar_info.overlay)
-                    local alpha = getInstance().statusbar_info.alpha
-                    return {r, g, b, alpha}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(getInstance(), "StatusBarColor", r, g, b, a)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"],
-                desc = Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"],
-            },
-
-            {--lock micro displays
-                type = "toggle",
-                get = function() return getInstance().micro_displays_locked end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(getInstance(), "MicroDisplaysLock", value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_MICRODISPLAY_LOCK"],
-                desc = Loc ["STRING_OPTIONS_MICRODISPLAY_LOCK_DESC"],
-            },
 
             {--anchor on top side
                 type = "toggle",

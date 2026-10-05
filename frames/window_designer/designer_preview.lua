@@ -34,13 +34,14 @@ local TITLE_TEXT_DISABLED_ALPHA = 0.35
 --exactly like the title bar frame. both overlays would then land at base + 2 over the same strip of the window
 --and which one takes a click is arbitrary.
 --
---  base + 1  titleBar, UPFrame            overlays at base + 2 and base + 3
---  base + 2  the four toolbar buttons     overlays at base + 3
---  base + 5  the display mode button      overlay at base + 6
+--  base + 1  titleBar, UPFrame            overlay at base + 2
+--  base + 2  the four toolbar buttons     no overlay, no mouse
+--  base + 5  the display mode button      no overlay, no mouse
 --
---base + 3 is the lowest level that clears the title bar outright. its overlay lands at base + 4, under the
---display mode button and over everything else in the strip. the toolbar buttons do not overlap it: details!
---sizes the title text to stop short of them.
+--the toolbar buttons belong to the title bar object and take no mouse, see deFangWindow, so a click on one falls
+--through to the title bar's overlay.
+--base + 3 is the lowest level that clears the title bar outright. its overlay lands at base + 4, over everything
+--else in the strip. the toolbar buttons do not overlap it: details! sizes the title text to stop short of them.
 local TITLE_TEXT_CLICK_LEVEL_OFFSET = 3
 --how far past the drawn text the click target reaches, on the right. the fontstring box is sized to the
 --window width less the toolbar buttons, so pinning the target to that box would give the title text almost
@@ -51,6 +52,37 @@ local TITLE_TEXT_MIN_CLICK_WIDTH = 24
 
 ---@class details_options_designer_preview : table
 Details222.OptionsDesignerPreview = {}
+
+--takes the mouse off the frames details! stacks over the row area: the row frame, the scroll frame behind the
+--rows, its scroll child and the window switch button. each sits at the base frame's level plus one or more,
+--which is where the editor puts the window's own click overlay, and each takes the mouse, so a click on the
+--empty area below the last bar landed on one of them and selected nothing.
+--the bars keep the mouse they need: each has its own overlay, ranked above the row frame
+---@param instanceObject instance
+local releaseRowAreaMouse = function(instanceObject)
+	instanceObject.rowframe:EnableMouse(false)
+	instanceObject.bgframe:EnableMouse(false)
+	instanceObject.windowBackgroundDisplay:EnableMouse(false)
+	instanceObject.windowSwitchButton:EnableMouse(false)
+end
+
+--takes the mouse off the toolbar buttons, so a click on one falls through to the title bar's overlay.
+--baseframe.cabecalho is a plain lua table holding the toolbar's parts, not a frame. some parts are framework
+--widgets, whose frame sits behind a .widget field, and some are textures with no mouse at all
+---@param instanceObject instance
+local releaseToolbarMouse = function(instanceObject)
+	for key, toolbarPart in pairs(instanceObject.baseframe.cabecalho) do
+		local toolbarFrame = toolbarPart
+
+		if (type(toolbarPart) == "table" and toolbarPart.widget) then
+			toolbarFrame = toolbarPart.widget
+		end
+
+		if (type(toolbarFrame) == "table" and toolbarFrame.EnableMouse) then
+			toolbarFrame:EnableMouse(false)
+		end
+	end
+end
 
 --the hosted window, nil until the designer is first shown or when details! had no id left to build one
 ---@type instance|nil
@@ -115,19 +147,17 @@ local deFangWindow = function(instanceObject)
 	baseFrame.lock_button:Hide()
 
 	--the toolbar buttons open menus over segments, displays and reports, none of which mean anything for a
-	--window showing a fixed sample.
-	--baseframe.cabecalho is a plain lua table holding the toolbar's parts, not a frame. some parts are
-	--framework widgets, whose frame sits behind a .widget field, and some are textures with no mouse at all.
-	for key, toolbarPart in pairs(baseFrame.cabecalho) do
-		local toolbarFrame = toolbarPart
+	--window showing a fixed sample
+	releaseToolbarMouse(instanceObject)
+	releaseRowAreaMouse(instanceObject)
 
-		if (type(toolbarPart) == "table" and toolbarPart.widget) then
-			toolbarFrame = toolbarPart.widget
-		end
-
-		if (type(toolbarFrame) == "table" and toolbarFrame.EnableMouse) then
-			toolbarFrame:EnableMouse(false)
-		end
+	--the click-through settings hand the mouse back to the toolbar buttons and to every frame over the row area,
+	--and ChangeSkin applies them again on every skin change, so the preview gets its own UpdateClickThrough that
+	--takes the mouse straight back off
+	instanceObject.UpdateClickThrough = function(previewObject)
+		Details.UpdateClickThrough(previewObject)
+		releaseToolbarMouse(previewObject)
+		releaseRowAreaMouse(previewObject)
 	end
 
 	instanceObject.windowSwitchButton:Hide()
@@ -252,10 +282,15 @@ function Details222.OptionsDesignerPreview:Create(hostFrame, windowWidth)
 	baseFrame:SetPoint("topleft", hostFrame, "topleft", 0, PREVIEW_WINDOW_TOP_INSET)
 	baseFrame:SetSize(windowWidth, PREVIEW_WINDOW_HEIGHT)
 
-	--a pinned session renders on every refresh, so the rows survive the refresh every settings change
-	--triggers. Details:CreateTestBars is not an option: it writes fake actors into the current combat and so
-	--reaches every window the user has open
-	Details:FeedInstanceWithSession(createdInstance)
+	--sample data drawn the way this game version draws the user's windows: a pinned session on retail, a test
+	--combat of the preview's own on the classic versions, whose windows read settings a session never reaches.
+	--both survive the refresh every settings change triggers. Details:CreateTestBars is not an option: it writes
+	--fake actors into the current combat and so reaches every window the user has open
+	--the total bar is drawn whatever its settings say, dimmed when they hide it, so it is always there to be
+	--clicked. it takes the first row, which is why the designer's other bar parts start at the second
+	createdInstance:SetTotalBarForced(true)
+
+	Details:FeedInstanceWithSampleData(createdInstance)
 
 	deFangWindow(createdInstance)
 	deFangRows(createdInstance)

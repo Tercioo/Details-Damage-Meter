@@ -169,3 +169,88 @@ end
 function Details:StopFeedingInstance(instanceObject)
 	instanceObject:SetPinnedSession(nil)
 end
+
+--------------------------------------------------------------------------------------------------------------
+--feeding a detached instance on the classic versions
+
+--the classic versions draw a window from a combat object, through the same path every window of the user
+--takes, not from a session. a preview drawn from a session there would ignore every setting only that path
+--reads, the aligned text columns for example, so it is fed a combat of its own instead.
+--the classes are the ones every classic version has
+local TEST_COMBAT_DURATION = 10
+
+local TEST_COMBAT_SOURCES = {
+	{name = "Spiro", classFilename = "DRUID", totalAmount = 100000},
+	{name = "Ragnaros", classFilename = "MAGE", totalAmount = 86000},
+	{name = "The Lich King", classFilename = "PALADIN", totalAmount = 71000},
+	{name = "Your Neighbor", classFilename = "SHAMAN", totalAmount = 67000},
+	{name = "Huffer", classFilename = "HUNTER", totalAmount = 56000},
+	{name = "Mr. President", classFilename = "WARRIOR", totalAmount = 41000},
+	{name = "Antonidas", classFilename = "WARLOCK", totalAmount = 33000},
+	{name = "A Drunk Dwarf", classFilename = "PRIEST", totalAmount = 21000},
+}
+
+--the segment a window fed with a test combat claims to show. it only has to be something other than the
+--current segment: a window in group mode showing the current segment reads the parser's live group cache while
+--the player is in combat, instead of the combat it was given
+local TEST_COMBAT_SEGMENT_ID = 1
+
+---builds a combat object with fake players, which is never added to the segments list: no window of the user
+---shows it, no overall data is summed from it and nothing saves it
+---@return combat combatObject
+function Details:CreateTestCombat()
+	local combatObject = Details.combate:NovaTabela()
+	local damageContainer = combatObject[1]
+	local totalAmount = 0
+
+	for index, sourceInfo in ipairs(TEST_COMBAT_SOURCES) do
+		local actorObject = damageContainer:PegarCombatente("0x0000-0000-0000", sourceInfo.name, 0x114, true)
+		actorObject.grupo = true
+		actorObject.testBar = true
+		actorObject.classe = sourceInfo.classFilename
+		actorObject.total = sourceInfo.totalAmount
+
+		totalAmount = totalAmount + sourceInfo.totalAmount
+	end
+
+	combatObject.start_time = GetTime() - TEST_COMBAT_DURATION
+	combatObject.end_time = GetTime()
+	combatObject.totals[1] = totalAmount
+	combatObject.totals_grupo[1] = totalAmount
+	damageContainer.need_refresh = true
+
+	return combatObject
+end
+
+---makes a window show a combat of its own and renders it, the user's own windows are not touched.
+---the combat is held in the slot a restored saved segment uses, which is the one slot every refresh of the
+---window reads before looking at the segments list, so it survives the refresh every settings change triggers
+---@param instanceObject instance
+---@param combatObject combat|nil defaults to a test combat
+function Details:FeedInstanceWithCombat(instanceObject, combatObject)
+	combatObject = combatObject or Details:CreateTestCombat()
+
+	instanceObject:SetPinnedSession(nil)
+	instanceObject:SetApocalypseSourceType(Details222.Apocalypse.TypeDetails)
+	instanceObject.segmento = TEST_COMBAT_SEGMENT_ID
+	instanceObject.savedSegmentCombat = combatObject
+	instanceObject.showing = combatObject
+
+	--a window which had nothing to show before it was fed is frozen, and a frozen window draws no bars
+	if (instanceObject.freezed) then
+		instanceObject:UnFreeze()
+	end
+
+	Details:RefreshInstanceWindow(instanceObject, true)
+end
+
+---feeds a window with sample data drawn the way this game version draws the user's windows: a session on
+---retail, a combat on the classic versions
+---@param instanceObject instance
+function Details:FeedInstanceWithSampleData(instanceObject)
+	if (detailsFramework.IsAddonApocalypseWow()) then
+		Details:FeedInstanceWithSession(instanceObject)
+	else
+		Details:FeedInstanceWithCombat(instanceObject)
+	end
+end

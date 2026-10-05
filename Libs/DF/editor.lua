@@ -408,6 +408,7 @@ local attributes = {
 ---@field Undo fun(self:df_editor)
 ---@field Redo fun(self:df_editor)
 ---@field RefreshUndoButtons fun(self:df_editor) update enable/disable state of the toolbar undo/redo buttons
+---@field RefreshDisabledOptions fun(self:df_editor) re-run the disableif of every option in the open menu, without resetting any value
 ---@field PrepareObjectForEditing fun(self:df_editor)
 ---@field StartObjectMovement fun(self:df_editor, anchorSettings:df_anchor)
 ---@field StopObjectMovement fun(self:df_editor)
@@ -457,6 +458,7 @@ local editObjectDefaultOptions = {
 ---@field switch_template table
 ---@field button_template table
 ---@field slider_template table
+---@field color_template table? template for the color pickers, its width and height included; nil keeps them 18 x 18 with the switch template
 ---@field no_anchor_points boolean
 ---@field start_editing_callback fun(editorFrame: df_editor, registeredObject: df_editor_objectinfo)?
 ---@field selection_texture string
@@ -1050,6 +1052,14 @@ detailsFramework.EditorMixin = {
         self:RefreshUndoButtons()
     end,
 
+    ---re-run the disableif of every option in the open menu. call it after an edit that changes whether other
+    ---options apply. RefreshOptions is not a substitute: each option's get() returns the value captured when the
+    ---menu was built, so it would put the old values back on screen
+    ---@param self df_editor
+    RefreshDisabledOptions = function(self)
+        detailsFramework:RefreshOptionsDisabledState(self:GetOptionsFrame())
+    end,
+
     ---enable / disable the undo / redo buttons based on stack contents. safe to call
     ---when the buttons don't exist (consumer turned them off via show_undo_buttons).
     ---@param self df_editor
@@ -1492,6 +1502,13 @@ detailsFramework.EditorMixin = {
                             desc = option.desc,
                             onenter = option.onenter,
                             onleave = option.onleave,
+                            --BuildMenu's enable/disable dependency fields. a toggle with children_follow_enabled
+                            --enables or disables the widgets whose ids are in childrenids as it flips; the ids
+                            --are the children's option keys
+                            childrenids = option.childrenids,
+                            children_follow_enabled = option.children_follow_enabled,
+                            children_follow_reverse = option.children_follow_reverse,
+                            disableif = option.disableif,
                         }
 
                         --forwarded for the generic `dropdown` widget; BuildMenu expects `values`
@@ -1532,7 +1549,9 @@ detailsFramework.EditorMixin = {
 
         --at this point, the optionsTable is ready to be used on DF:BuildMenuVolatile()
         menuOptions.align_as_pairs = true
-        menuOptions.align_as_pairs_length = self.options.options_label_width
+        --buildmenu reads the label column from align_as_pairs_string_space and falls back to 160 without it,
+        --which made every row 10 pixels wider than planned, past options_width, and clipped the widgets on the right
+        menuOptions.align_as_pairs_string_space = self.options.options_label_width
         menuOptions.widget_width = self.options.options_widget_width
         menuOptions.slider_buttons_to_left = true
 
@@ -1555,6 +1574,10 @@ detailsFramework.EditorMixin = {
         local options_slider_template = self.options.slider_template
         local options_text_template = self.options.text_template
 
+        --color pickers have no slot among BuildMenuVolatile's arguments, so their template travels on the menu
+        --table. nil keeps the 18 x 18 picker drawn with the switch template
+        menuOptions.color_template = self.options.color_template
+
         --remove any blank spaces at the start of the menu
         while (true) do
             local option = menuOptions[1]
@@ -1576,7 +1599,8 @@ detailsFramework.EditorMixin = {
 
         --~build ~menu ~volatile
         menuOptions.no_refresh_on_change = true --the editor .get functions just return a value instead of getting the value from the profile
-        detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, 2, -2, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template)
+        --the row highlight sits 5 pixels above its label, so the first row starts 7 pixels down to keep it inside the canvas
+        detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, 2, -7, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template)
 
         --reset the options scroll back to the top whenever the selection changes. without this
         --switching from a long widget (e.g. Auras Layout) to a short one (e.g. Raid Mark) leaves

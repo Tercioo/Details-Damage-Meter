@@ -118,6 +118,10 @@ GameCooltipFrame2 = {}
 ---@field checked_yoffset any
 ---@field checked_size_percent any
 ---@field checked_color any
+---@field is_track any
+---@field track_height any
+---@field track_color any
+---@field track_fill_color any
 
 
 
@@ -337,6 +341,7 @@ GameCooltipFrame2 = {}
 ---@field SetFontSize fun(self:table, fontstring:fontstring, size:number)
 ---@field GetFontSize fun(self:table, fontstring:fontstring) : number return the font size of the fontstring
 ---@field SetFontColor fun(self:table, fontstring:fontstring, red:any, green:number?, blue:number?, alpha:number?)
+---@field SetOptionLabelEnabled fun(self:table, widget:table, bIsEnabled:boolean) gray out the option name BuildMenu shows beside a widget while it is disabled, and restore its color once enabled
 ---@field SetFontFace fun(self:table, fontstring:fontstring, font:string)
 ---@field SetFontDefault fun(self:table, fontstring:fontstring)
 ---@field GetFontFace fun(self:table, fontstring:fontstring) : string return the font face of the fontstring
@@ -369,6 +374,7 @@ GameCooltipFrame2 = {}
 ---@field GetSizeFromPercent fun(self:table, uiObject:uiobject, percent:number) : number get the min size of a uiObject and multiply it by the percent passed
 ---@field BuildMenu fun(self:table, parent:frame, menuOptions:df_menu_table[], xOffset:number?, yOffset:number?, height:number?, useColon:boolean?, textTemplate:table?, dropdownTemplate:table?, switchTemplate:table?, switchIsCheckbox:boolean?, sliderTemplate:table?, buttonTemplate:table?, valueChangeHook:function?)
 ---@field BuildMenuVolatile fun(self:table, parent:frame, menuOptions:df_menu_table[], xOffset:number?, yOffset:number?, height:number?, useColon:boolean?, textTemplate:table?, dropdownTemplate:table?, switchTemplate:table?, switchIsCheckbox:boolean?, sliderTemplate:table?, buttonTemplate:table?, valueChangeHook:function?)
+---@field RefreshOptionsDisabledState fun(self:table, parent:frame) re-run every disableif of a menu built on 'parent' without setting any widget's value again
 ---@field GetColorBrightness fun(self:table, r:number, g:number, b:number) : number return the brightness of a color from zero to one
 ---@field GetColorHue fun(self:table, r:number, g:number, b:number) : number return the hue of a color from red to blue to green to  yellow and back to red
 ---@field IsHtmlColor fun(self:table, colorName:any) : unknown return true if DF.alias_text_colors has the colorName as a key

@@ -44,6 +44,33 @@
 
 	local GetSpellTexture = GetSpellTexture or C_Spell.GetSpellTexture
 
+	--UpdateBarApocalypseWow also draws the preview window of the options designer on the classic versions.
+	--wrath and cataclysm classic have no secret values, so nothing is ever secret there
+	local issecretvalue = issecretvalue or function() return false end --api local
+
+	--shortens a number for the bar texts drawn by UpdateBarApocalypseWow: retail and forever use blizzard's
+	--AbbreviateNumbers with details! abbreviation options, the classic versions use details! own ToK functions
+	local abbreviateNumbers = AbbreviateNumbers
+	if (not detailsFramework.IsAddonApocalypseWow()) then
+		abbreviateNumbers = function(number)
+			return Details:ToK(number)
+		end
+	end
+
+	--the alpha of the total bar a window draws only because it forces it, see instance:SetTotalBarForced
+	local TOTAL_BAR_DIMMED_ALPHA = 0.35
+
+	--the alpha the total bar's texture is drawn with
+	---@param bIsDimmed boolean
+	---@return number
+	local getTotalBarAlpha = function(bIsDimmed)
+		if (bIsDimmed) then
+			return TOTAL_BAR_DIMMED_ALPHA
+		end
+
+		return 1
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 
@@ -325,27 +352,28 @@ function Details:GetTextColor(instanceObject, textSide)
 	local actorObject = self
 	textSide = textSide or "left"
 
-	--"left" is the unit name (text 1), "right" is the value columns, which share this setting
-	local bUseClassColor = false
-	if (textSide == "left") then
-		bUseClassColor = instanceObject.row_info.texts[1].color.byClass
-	elseif(textSide == "right") then
-		bUseClassColor = instanceObject.row_info.texts[2].color.byClass
+	--"left" is the unit name (text 1), "right" is the value columns, which share these settings
+	local textIndex = 1
+	if (textSide == "right") then
+		textIndex = 2
 	end
+
+	local bUseClassColor = instanceObject.row_info.texts[textIndex].color.byClass
+	local _, _, fixedColor = Details222.RowTexts.ResolveStyle(instanceObject, textIndex)
 
 	if (bUseClassColor) then
 		local actorClass = actorObject.classe or "UNKNOW"
 		if (actorClass == "UNKNOW") then
-			return unpack(instanceObject.row_info.fixed_text_color)
+			return unpack(fixedColor)
 		else
 			if not Details.class_colors[actorClass] then
-				return unpack(instanceObject.row_info.fixed_text_color)
+				return unpack(fixedColor)
 			else
 				return unpack(Details.class_colors[actorClass])
 			end
 		end
 	else
-		return unpack(instanceObject.row_info.fixed_text_color)
+		return unpack(fixedColor)
 	end
 end
 
@@ -1893,6 +1921,13 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 		--end
 	end
 
+	--a window forcing its total bar draws it even when the settings above hide it, dimmed
+	local bIsTotalBarDimmed = false
+	if (not useTotalBar and total and instanceObject:IsTotalBarForced()) then
+		useTotalBar = true
+		bIsTotalBarDimmed = true
+	end
+
 	if (subDisplay == 2) then --dps
 		--the top dps using a session would be combatSources[1].amountPerSecond
 		instanceObject.player_top_dps = combatSources[1].amountPerSecond
@@ -1933,7 +1968,7 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 			--percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
 			row1:SetValue(100)
 			local r, g, b = unpack(instanceObject.total_bar.color)
-			row1.textura:SetVertexColor(r, g, b)
+			row1.textura:SetVertexColor(r, g, b, getTotalBarAlpha(bIsTotalBarDimmed))
 			row1.icone_classe:SetTexture(instanceObject.total_bar.icon)
 			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 
@@ -2010,7 +2045,7 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 			--percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
 			row1:SetValue(100)
 			local r, g, b = unpack(instanceObject.total_bar.color)
-			row1.textura:SetVertexColor(r, g, b)
+			row1.textura:SetVertexColor(r, g, b, getTotalBarAlpha(bIsTotalBarDimmed))
 			row1.icone_classe:SetTexture(instanceObject.total_bar.icon)
 			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 
@@ -2867,6 +2902,13 @@ function damageClass:RefreshWindow(instance, combatObject, bForceUpdate, bExport
 		end
 	end
 
+	--a window forcing its total bar draws it even when the settings above hide it, dimmed
+	local bIsTotalBarDimmed = false
+	if (not useTotalBar and subAttribute <= 4 and instance:IsTotalBarForced()) then
+		useTotalBar = true
+		bIsTotalBarDimmed = true
+	end
+
 	if (subAttribute == 2) then --dps
 		instance.player_top_dps = actorTableContent [1].last_dps
 		instance.player_top_dps_threshold = instance.player_top_dps -(instance.player_top_dps * 0.65)
@@ -2896,7 +2938,7 @@ function damageClass:RefreshWindow(instance, combatObject, bForceUpdate, bExport
 
 			row1:SetValue(100)
 			local r, g, b = unpack(instance.total_bar.color)
-			row1.textura:SetVertexColor(r, g, b)
+			row1.textura:SetVertexColor(r, g, b, getTotalBarAlpha(bIsTotalBarDimmed))
 			row1.icone_classe:SetTexture(instance.total_bar.icon)
 			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 
@@ -2965,7 +3007,7 @@ function damageClass:RefreshWindow(instance, combatObject, bForceUpdate, bExport
 
 			row1:SetValue(100)
 			local r, g, b = unpack(instance.total_bar.color)
-			row1.textura:SetVertexColor(r, g, b)
+			row1.textura:SetVertexColor(r, g, b, getTotalBarAlpha(bIsTotalBarDimmed))
 
 			row1.icone_classe:SetTexture(instance.total_bar.icon)
 			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
@@ -3243,10 +3285,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = 2 --total dps
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			end
 			--percentNumber = math.floor((damageTotal/instanceObject.top) * 100)
 
@@ -3259,10 +3301,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = -1 --only show total
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
 				--percentNumber = math.floor((dps/instanceObject.top) * 100)
 			end
 
@@ -3275,10 +3317,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 					percentValue = source.totalAmount / topValue * 100
 				end
 				local ruleToUse = 3 --total dps percent
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = 2
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 				--percentNumber = math.floor((dps/instanceObject.top) * 100)
 			end
 
@@ -3291,10 +3333,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = 2 --total dps
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			end
 		end
 
@@ -3308,10 +3350,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = 2 --total hps
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 				--percentNumber = math.floor((healingTotal/instanceObject.top) * 100)
 			end
 
@@ -3324,16 +3366,16 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond), nil, format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond), nil, format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = -1 --only show total
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, nil, ruleToUse)
 				--percentNumber = math.floor((hps/instanceObject.top) * 100)
 			end
 
 		elseif (attributeId == DETAILS_SUBATTRIBUTE_HEALPOTION) then
 			local ruleToUse = 3 --total hps percent
-			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), source.percent, ruleToUse)
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), source.percent, ruleToUse)
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_ENERGY then
@@ -3348,12 +3390,12 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount), format("%.0f%%", percentValue), nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount), format("%.0f%%", percentValue), nil, ruleToUse)
 				--percentNumber = math.floor((dispellTotal/instanceObject.top) * 100)
 			else
 				local ruleToUse = -1 --total
 				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
-				AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsBuffs), nil, nil, ruleToUse)
+				abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsBuffs), nil, nil, ruleToUse)
 				--percentNumber = math.floor((uptimeTotal/instanceObject.top) * 100)
 			end
 

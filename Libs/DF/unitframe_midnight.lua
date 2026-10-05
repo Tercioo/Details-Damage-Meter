@@ -47,9 +47,8 @@ local GetSpellInfo = GetSpellInfo or function(spellID) if not spellID then retur
 
 local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
-local IS_WOW_PROJECT_CLASSIC_ERA = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IS_WOW_PROJECT_MIDNIGHT_API = detailsFramework.IsMidnightWowAPI()
 local IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP = IS_WOW_PROJECT_MAINLINE or (ClassicExpansionAtLeast and LE_EXPANSION_MISTS_OF_PANDARIA and ClassicExpansionAtLeast(LE_EXPANSION_MISTS_OF_PANDARIA))
-local IS_MIDNIGHT_PRE_PATCH = detailsFramework.Toc == 120000
 
 local CastInfo = detailsFramework.CastInfo
 
@@ -175,7 +174,7 @@ local cleanfunction = function() end
 		{"PLAYER_ENTERING_WORLD"},
 		{"UNIT_HEALTH", true},
 		{"UNIT_MAXHEALTH", true},
-		{(IS_WOW_PROJECT_NOT_MAINLINE) and "UNIT_HEALTH_FREQUENT", true}, -- this one is classic-only...
+		{(not IS_WOW_PROJECT_MIDNIGHT_API) and "UNIT_HEALTH_FREQUENT", true}, -- this one is classic-only...
 		{"UNIT_HEAL_PREDICTION", true},
 		{(IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP) and "UNIT_ABSORB_AMOUNT_CHANGED", true},
 		{(IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP) and "UNIT_HEAL_ABSORB_AMOUNT_CHANGED", true},

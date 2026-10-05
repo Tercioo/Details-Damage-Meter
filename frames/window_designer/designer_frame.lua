@@ -20,12 +20,12 @@ local DESIGNER_TOP = -73
 local DESIGNER_BOTTOM_INSET = 10
 --the editor's center column. its rows are a label column then a widget column, starting at x = 2, and the row
 --highlight reaches 2 + label + widget + 5, so label + widget + 7 has to fit the column or the colour swatches
---and checkboxes on the right are clipped. 150 + 160 + 7 = 317 fits 320
-local OPTIONS_WIDTH = 320
-local OPTIONS_LABEL_WIDTH = 150
-local OPTIONS_WIDGET_WIDTH = 160
+--and checkboxes on the right are clipped. 170 + 210 + 7 = 387 fits 390
+local OPTIONS_WIDTH = 390
+local OPTIONS_LABEL_WIDTH = 170
+local OPTIONS_WIDGET_WIDTH = 210
 --the object list only has to fit the longest part name
-local OBJECT_LIST_WIDTH = 110
+local OBJECT_LIST_WIDTH = 130
 --the framework's scrollbar gutter: the editor puts it between the object list and the canvas, and it is used
 --again between the canvas and the preview, where the canvas draws its own scrollbar
 local COLUMN_GUTTER = 30
@@ -49,6 +49,13 @@ local SELECTION_TINT = {0, 0, 0, 0}
 --the user is still holding
 local OWN_EDIT_ECHO_WINDOW = 0.5
 
+--the templates the designer's toggles, sliders, color pickers and dropdowns are drawn with. they live with the
+--framework's own templates in Libs/DF/fw.lua, which is where their look is changed
+local DESIGNER_SWITCH_TEMPLATE = detailsFramework:GetTemplate("switch", "DESIGNER_SWITCH_TEMPLATE")
+local DESIGNER_SLIDER_TEMPLATE = detailsFramework:GetTemplate("slider", "DESIGNER_SLIDER_TEMPLATE")
+local DESIGNER_COLORPICK_TEMPLATE = detailsFramework:GetTemplate("button", "DESIGNER_COLORPICK_TEMPLATE")
+local DESIGNER_DROPDOWN_TEMPLATE = detailsFramework:GetTemplate("dropdown", "DESIGNER_DROPDOWN_TEMPLATE")
+
 --the object editor, nil until the section is shown for the first time
 ---@type df_editor
 local editorFrame = nil
@@ -57,7 +64,11 @@ local editorFrame = nil
 --re-pointing alone changes nothing on screen: the editor's widgets capture their value at build time, so the
 --refresh is the half the user sees
 local repointEditorAtTarget = function()
-	editorFrame:UpdateProfileTableOnAllRegisteredObjects(Details222.OptionsDesignerObjects:GetEditedInstance())
+	local editedInstance = Details222.OptionsDesignerObjects:GetEditedInstance()
+
+	--the options that cannot read the window directly are read into their mirror first
+	Details222.OptionsDesignerObjects:SeedMirrors(editedInstance)
+	editorFrame:UpdateProfileTableOnAllRegisteredObjects(editedInstance)
 	editorFrame:Refresh()
 end
 
@@ -182,6 +193,10 @@ local buildDesigner = function(sectionFrame)
 		object_list_line_height = OBJECT_LIST_LINE_HEIGHT,
 		object_list_lines = math.floor(objectListHeight / (OBJECT_LIST_LINE_HEIGHT + 1)),
 		show_undo_buttons = true,
+		switch_template = DESIGNER_SWITCH_TEMPLATE,
+		slider_template = DESIGNER_SLIDER_TEMPLATE,
+		color_template = DESIGNER_COLORPICK_TEMPLATE,
+		dropdown_template = DESIGNER_DROPDOWN_TEMPLATE,
 	}
 
 	--the editor calls SetToplevel(true) on whatever it is handed as parent, which is why it gets the
@@ -206,8 +221,17 @@ local buildDesigner = function(sectionFrame)
 	--dropdown, which is what moves every edit onto the newly picked window
 	sectionFrame.RefreshOptions = repointEditorAtTarget
 
+	--an option that changes what other options mean asks for the menu to be read again the same way
+	Details222.OptionsDesignerObjects:SetMenuRefreshFunc(repointEditorAtTarget)
+
+	--a toggle other options depend on asks for them to be enabled or disabled to match the window
+	Details222.OptionsDesignerObjects:SetDisabledRefreshFunc(function()
+		editorFrame:RefreshDisabledOptions()
+	end)
+
 	subscribeToDetailsEvents(sectionFrame)
 
+	Details222.OptionsDesignerObjects:SeedMirrors(Details222.OptionsDesignerObjects:GetEditedInstance())
 	editorFrame:EditObjectByIndex(1)
 end
 

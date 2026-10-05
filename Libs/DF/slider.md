@@ -151,7 +151,7 @@ Replaces the `OnValueChanged` callback function.
 
 #### `SetThumbSize(width, height)`
 
-Sets the thumb texture size. Either parameter can be nil to keep the current dimension.
+Sets the thumb texture size. Either parameter can be nil to keep the current dimension. Ignored on a track slider (`SetAsTrack`), whose round thumb is sized by its template.
 
 #### `ClearFocus()`
 
@@ -160,7 +160,7 @@ If the slider has an active TypeValue editbox, clears focus, hides it, and resto
 #### `IsEnabled()` / `Enable()` / `Disable()`
 
 - `IsEnabled()` returns `not lockdown`.
-- `Enable()` enables the native slider, hides the lock icon, shows the value text, sets alpha to 1.
+- `Enable()` enables the native slider, hides the lock icon, shows the value text (track look: only on hover), sets alpha to 1.
 - `Disable()` clears focus, disables the native slider, hides the value text, shows a lock icon, sets alpha to 0.4.
 
 #### `TypeValue()`
@@ -192,7 +192,19 @@ Applies a visual template. The template table can contain:
 | `disabled_backdropcolor` | Backdrop color for switch OFF state. |
 | `is_checkbox` | If true, calls `SetAsCheckBox()`. |
 | `checked_texture`, `checked_xoffset`, `checked_yoffset`, `checked_size_percent`, `checked_color` | Checkbox checked mark styling. |
+| `is_toggle` | If true, calls `SetAsToggle()`; a sliding knob replaces the checkmark. A template without it reverts a toggle to a checkbox. |
+| `toggle_knob_color_off`, `toggle_knob_color_on`, `toggle_knob_padding` | Toggle knob colors (off / on) and gap to the track edge. |
+| `is_track` | Sliders only. If true, calls `SetAsTrack()`; a thin rounded bar replaces the backdrop. A template without it reverts a track slider to the regular look. |
+| `track_color`, `track_fill_color`, `track_height` | Track colors (right of the thumb / left of the thumb) and bar thickness. |
 | `rounded_corner` | Adds rounded corners. |
+
+#### `SetAsTrack(trackColor, fillColor, trackHeight)`
+
+Turns the slider into a thin bar with round ends. The part left of the thumb uses `fillColor`, the part right of it uses `trackColor`; both follow the thumb through their anchors, so nothing is updated on value change. The backdrop and the `slider_left/right/middle` artwork are hidden, the thumb stays fully opaque, and the value text moves above the thumb and only shows while hovering or dragging. Colors are `{r, g, b, a}` tables. Usually set through a template with `is_track = true` (see `OPTIONS_SLIDER_TRACK_TEMPLATE`: gray bar, blue fill, round blue thumb, and `OPTIONS_SLIDER_TRACK_BAR_TEMPLATE`: same bar with a thin vertical blue rectangle as the thumb).
+
+```lua
+local slider = DF:CreateSlider(parent, 160, 20, 0, 100, 1, 50, false, nil, nil, nil, DF:GetTemplate("slider", "OPTIONS_SLIDER_TRACK_TEMPLATE"))
+```
 
 ### Scripts & Hooks
 
@@ -333,6 +345,14 @@ Calling `switch:SetAsCheckBox()` transforms a switch into a checkbox:
 | `yOffset` | `number?` | Vertical offset (default -1). |
 | `sizePercent` | `number?` | Size as percentage of widget width. |
 | `color` | `any?` | Vertex color for the checkmark. |
+
+### Toggle look — `SetAsToggle(knobColorOff, knobColorOn, knobPadding)`
+
+Turns the checkbox into an on/off toggle: the checkmark is hidden and a square knob slides inside the track — left with `knobColorOff` when off, right with `knobColorOn` when on. Colors are `{r, g, b, a}` tables; `knobPadding` is the gap between knob and track edge. Usually set through a template with `is_toggle = true` (see `OPTIONS_TOGGLE_TEMPLATE`, a 36x18 dark gray square track with a light gray / yellow knob). Applying a template without `is_toggle` turns it back into a plain checkbox.
+
+```lua
+local toggle = DF:CreateSwitch(parent, onToggle, true, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_TOGGLE_TEMPLATE"))
+```
 
 ### `CreateExtraSpaceToClick(label, widgetWidth, highlight)`
 
