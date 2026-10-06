@@ -7,6 +7,107 @@ local detailsFramework = DetailsFramework
 
 
 if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
+    local mythicKeys = Details222.MythicKeys
+    local libKeystoneData = {}
+    local libKeystone = LibStub:GetLibrary("LibKeystone", true)
+
+    --Both libraries use Ambiguate's name format; preserve other realms to avoid
+    --merging different players who happen to have the same character name.
+    function mythicKeys.NormalizeName(unitName)
+        return Ambiguate(unitName, "none")
+    end
+
+    if (libKeystone) then
+        libKeystone.Register(mythicKeys, function(level, challengeMapID, rating, unitName, channel)
+            if (level < 0 or challengeMapID < 0) then
+                return
+            end
+            local name = mythicKeys.NormalizeName(unitName)
+            local previous = libKeystoneData[name]
+            libKeystoneData[name] = {
+                level = level,
+                challengeMapID = challengeMapID,
+                rating = rating,
+                guildName = channel == "GUILD" and GetGuildInfo("player") or previous and previous.guildName,
+            }
+
+            local fullPanel = _G.DetailsKeystoneInfoFrame
+            if (fullPanel and fullPanel:IsShown() and fullPanel.RefreshData) then
+                fullPanel.RefreshData()
+            end
+            local smallPanel = _G.DetailsKeystoneSmallFrame
+            if (smallPanel and smallPanel:IsShown() and smallPanel.RefreshKeysData) then
+                smallPanel.RefreshKeysData()
+            end
+        end)
+    end
+
+    --Copy OpenRaid data rather than adding partial entries to its internal cache.
+    --OpenRaid's populated fields take precedence; LibKeystone fills gaps.
+    function mythicKeys.GetAllKeystonesInfo()
+        local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+        local merged = {}
+        for unitName, info in pairs(openRaidLib and openRaidLib.GetAllKeystonesInfo() or {}) do
+            local name = mythicKeys.NormalizeName(unitName)
+            local entry = merged[name] or {}
+            for key, value in pairs(info) do
+                if (entry[key] == nil or entry[key] == 0) then
+                    entry[key] = value
+                end
+            end
+            merged[name] = entry
+        end
+
+        for unitName, info in pairs(libKeystoneData) do
+            local entry = merged[unitName] or {}
+            if (not entry.level or entry.level == 0) then
+                entry.level = info.level
+                entry.challengeMapID = info.challengeMapID
+                entry.mapID = 0
+                entry.mythicPlusMapID = 0
+            elseif (not entry.challengeMapID or entry.challengeMapID == 0) then
+                entry.challengeMapID = info.challengeMapID
+            end
+            if (not entry.rating or entry.rating == 0) then
+                entry.rating = info.rating
+            end
+            entry.isGuildMember = info.guildName ~= nil and info.guildName == GetGuildInfo("player")
+            merged[unitName] = entry
+        end
+
+        for unitName, entry in pairs(merged) do
+            local _, _, classID = UnitClass(unitName)
+            entry.classID = entry.classID and entry.classID > 0 and entry.classID or classID or 0
+            entry.specID = entry.specID or 0
+            entry.mapID = entry.mapID or 0
+            entry.mythicPlusMapID = entry.mythicPlusMapID or 0
+            entry.challengeMapID = entry.challengeMapID or 0
+            entry.level = entry.level or 0
+            entry.rating = entry.rating or 0
+        end
+        return merged
+    end
+
+    function mythicKeys.RequestKeystoneData(includeGuild)
+        local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+        if (openRaidLib) then
+            if (includeGuild and IsInGuild()) then
+                openRaidLib.RequestKeystoneDataFromGuild()
+            end
+            if (IsInRaid()) then
+                openRaidLib.RequestKeystoneDataFromRaid()
+            elseif (IsInGroup()) then
+                openRaidLib.RequestKeystoneDataFromParty()
+            end
+        end
+        if (libKeystone) then
+            libKeystone.Request("PARTY")
+            if (includeGuild and IsInGuild()) then
+                libKeystone.Request("GUILD")
+            end
+        end
+    end
+
 	SLASH_KEYSTONE1 = "/keystone"
 	SLASH_KEYSTONE2 = "/keys"
 	SLASH_KEYSTONE3 = "/key"
@@ -505,9 +606,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             f:UnregisterEvent("GUILD_ROSTER_UPDATE")
                         end)
                         C_GuildInfo.GuildRoster()
-
-                        openRaidLib.RequestKeystoneDataFromGuild()
                     end
+                    mythicKeys.RequestKeystoneData(true)
                 end, 100, 22, Loc["STRING_KEYSTONE_REQUEST_FROM_GUILD"])
                 requestFromGuildButton:SetPoint("bottomleft", statusBar, "topleft", 2, 54)
                 requestFromGuildButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -842,14 +942,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         if (unitTable) then
                             local line = self:GetLine(i)
 
-                            local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty, isOnline, isGuildMember, specId = unpack(unitTable)
+                            local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty, isOnline, isGuildMember, specId = unpack(unitTable, 1, 14)
                             local challengeMapInfo = LIB_OPEN_RAID_MYTHIC_PLUS_MAPINFO[challengeMapID]
 
                             line.unitName = unitName
-
-                            if (mapName == "") then
-                                mapName = "user need update details!"
-                            end
 
                             local rioProfile
                             if (RaiderIO) then
@@ -869,18 +965,23 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                             local unitRole = detailsFramework.UnitGroupRolesAssigned(unitName)
                             if (specId and specId > 20) then
+                                line.icon:Show()
                                 local id, name, description, icon, role, classFile, className = GetSpecializationInfoByID(specId)
                                 unitRole = role
                                 local specIcon, L, R, T, B = Details:GetSpecIcon(specId, false)
                                 line.icon:SetTexture(specIcon)
                                 line.icon:SetTexCoord(L, R, T, B)
-                            else
+                            elseif (classIconTexture and iconTexCoords) then
+                                line.icon:Show()
                                 line.icon:SetTexture(classIconTexture)
                                 local L, R, T, B = unpack(iconTexCoords)
                                 line.icon:SetTexCoord(L+0.02, R-0.02, T+0.02, B-0.02)
+                            else
+                                line.icon:Hide()
                             end
 
                             local role = unitRole
+                            line.roleIcon:Show()
                             if (role == "DAMAGER") then
                                 line.roleIcon:SetAtlas("GM-icon-role-dps")
                             elseif (role == "HEALER") then
@@ -888,7 +989,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             elseif (role == "TANK") then
                                 line.roleIcon:SetAtlas("GM-icon-role-tank")
                             else
-                                line.roleIcon:SetColorTexture(.1, .1, .1, .3)
+                                line.roleIcon:Hide()
                             end
 
                             --remove the realm name from the player name (if any)
@@ -948,6 +1049,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                 line.selectRunDropdown:SetFunction(refreshRunDropdown)
                                 line.selectRunDropdown.playerName = unitName
                                 line.selectRunDropdown:Refresh()
+                            end
+
+                            if ((not challengeMapInfo or not challengeMapInfo[7]) and not InCombatLockdown()) then
+                                line.teleportButton:Hide()
+                                line.blockTeleporterButton:Hide()
                             end
 
                             if (challengeMapInfo) then
@@ -1225,7 +1331,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 function f.RefreshData() --~refreshdata
                     local newData = {}
                     newData.offlineGuildPlayers = {}
-                    local keystoneData = openRaidLib.GetAllKeystonesInfo()
+                    local keystoneData = mythicKeys.GetAllKeystonesInfo()
 
 
 
@@ -1313,7 +1419,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         for i = 1, totalMembers do
                             local fullName, rank, rankIndex, level, class, zone, note, officernote, online, isAway, classFileName, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
                             if (fullName) then
-                                fullName = fullName:gsub(realmNameGsub, "")
+                                fullName = mythicKeys.NormalizeName(fullName)
                                 if (online) then
                                     guildUsers[fullName] = true
                                 end
@@ -1334,7 +1440,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             local classId = keystoneInfo.classID
                             local classIcon = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]]
                             local coords = CLASS_ICON_TCOORDS
-                            local _, class = GetClassInfo(classId)
+                            local class = classId > 0 and select(2, GetClassInfo(classId))
                             local specId = keystoneInfo.specID or 0
 
                             local mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.mythicPlusMapID)
@@ -1345,13 +1451,13 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                 mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.mapID)
                             end
 
-                            mapName = mapName or "map name not found"
+                            mapName = mapName or ""
 
                             --local mapInfoChallenge = C_Map.GetMapInfo(keystoneInfo.challengeMapID)
                             --local mapNameChallenge = mapInfoChallenge and mapInfoChallenge.name or ""
 
                             local isInMyParty = UnitInParty(unitName) and (string.byte(unitName, 1) + string.byte(unitName, 2)) or 0
-                            local isGuildMember = guildName and guildUsers[unitName] and true
+                            local isGuildMember = guildName and (guildUsers[unitName] or keystoneInfo.isGuildMember) and true
 
                             if (keystoneInfo.level > 0 or keystoneInfo.rating > 0) then
                                 local keystoneTable = {
@@ -1363,7 +1469,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                     keystoneInfo.rating,
                                     keystoneInfo.mythicPlusMapID,
                                     classIcon,
-                                    coords[class],
+                                    class and coords[class],
                                     mapName, --10
                                     isInMyParty,
                                     isOnline, --is false when the unit is from the cache
@@ -1388,12 +1494,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         local cutoffDate = time() - (86400 * 7) --7 days
                         for unitName, keystoneTable in pairs(Details.keystone_cache) do
                             --this unit in the cache isn't shown?
-                            if (not unitsAdded[unitName] and keystoneTable.guild_name == guildName and keystoneTable.date > cutoffDate) then
+                            if (not unitsAdded[mythicKeys.NormalizeName(unitName)] and keystoneTable.guild_name == guildName and keystoneTable.date > cutoffDate) then
                                 if (keystoneTable[2] > 0 or keystoneTable[6] > 0) then
                                     keystoneTable[11] = UnitInParty(unitName) and (string.byte(unitName, 1) + string.byte(unitName, 2)) or 0 --isInMyParty
                                     keystoneTable[12] = false --isOnline
                                     newData[#newData+1] = keystoneTable
-                                    unitsAdded[unitName] = true
+                                    unitsAdded[mythicKeys.NormalizeName(unitName)] = true
                                 end
                             end
                         end
@@ -1539,16 +1645,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     DetailsKeystoneInfoFrame.RequestFromGuildButton:Click()
                 end
             else
-                DetailsKeystoneInfoFrame.RequestFromGuildButton:Disable()
+                DetailsKeystoneInfoFrame.RequestFromGuildButton:Enable()
             end
 
             --openRaidLib.WipeKeystoneData()
 
-            if (IsInRaid()) then
-                openRaidLib.RequestKeystoneDataFromRaid()
-            elseif (IsInGroup()) then
-                openRaidLib.RequestKeystoneDataFromParty()
-            end
+            mythicKeys.RequestKeystoneData(false)
 
             DetailsKeystoneInfoFrame.RefreshData()
         end

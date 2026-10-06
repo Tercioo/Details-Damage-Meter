@@ -186,24 +186,13 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
     --button to request keystone data from guild + group; positioned at the bottom-left.
     --mirrors the request-from-guild button on the full keystone window.
     local requestFromGuildButton = detailsFramework:CreateButton(mainPanel, function()
-        local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-        if (not openRaidLib) then
-            return
-        end
-
         local guildName = GetGuildInfo("player")
         if (guildName) then
             if (C_GuildInfo and C_GuildInfo.GuildRoster) then
                 C_GuildInfo.GuildRoster()
             end
-            openRaidLib.RequestKeystoneDataFromGuild()
         end
-
-        if (IsInRaid()) then
-            openRaidLib.RequestKeystoneDataFromRaid()
-        elseif (IsInGroup()) then
-            openRaidLib.RequestKeystoneDataFromParty()
-        end
+        Details222.MythicKeys.RequestKeystoneData(true)
     end, 22, 18, REFRESH)
     requestFromGuildButton:SetPoint("bottomleft", mainPanel, "bottomleft", 1, 1)
     requestFromGuildButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -236,12 +225,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
     function Details222.MythicKeys.OpenSmallKeysPanel()
         mainPanel:Show()
         --auto-request keys from guild on first open or after 60 seconds (matches the full window)
-        local guildName = GetGuildInfo("player")
-        if (guildName) then
-            if (not mainPanel.lastGuildRequest or GetTime() - mainPanel.lastGuildRequest > 60) then
-                mainPanel.lastGuildRequest = GetTime()
-                mainPanel.RequestFromGuildButton:Click()
-            end
+        if (not mainPanel.lastGuildRequest or GetTime() - mainPanel.lastGuildRequest > 60) then
+            mainPanel.lastGuildRequest = GetTime()
+            mainPanel.RequestFromGuildButton:Click()
+        else
+            Details222.MythicKeys.RequestKeystoneData(false)
         end
     end
 
@@ -261,12 +249,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
             self.lastGroupRequest = GetTime()
             --small delay so openRaidLib finishes its own GROUP_ROSTER_UPDATE bookkeeping first
             C_Timer.After(1, function()
-                local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-                if (not openRaidLib) then return end
-                if (IsInRaid()) then
-                    openRaidLib.RequestKeystoneDataFromRaid()
-                elseif (IsInGroup()) then
-                    openRaidLib.RequestKeystoneDataFromParty()
+                if (self:IsShown()) then
+                    Details222.MythicKeys.RequestKeystoneData(false)
+                    if (self.RefreshKeysData) then
+                        self.RefreshKeysData()
+                    end
                 end
             end)
         end
@@ -392,7 +379,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             local line = self:GetLine(i)
                             line:Show()
 
-                            local unitName, level, _, challengeMapID, classID, rating, _, classIconTex, iconTexCoords, mapName, _, isOnline, _, specId = unpack(unitTable)
+                            local unitName, level, _, challengeMapID, classID, rating, _, classIconTex, iconTexCoords, mapName, _, isOnline, _, specId = unpack(unitTable, 1, 14)
 
                             --background tint based on group (slot 15); fall back to default if nil
                             local lineColor = unitTable[15]
@@ -409,13 +396,17 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                             --spec / class icon
                             if (specId and specId > 20) then
+                                line.specIcon:Show()
                                 local specIconTex, L, R, T, B = Details:GetSpecIcon(specId, false)
                                 line.specIcon:SetTexture(specIconTex)
                                 line.specIcon:SetTexCoord(L, R, T, B)
                             elseif (classIconTex and iconTexCoords) then
+                                line.specIcon:Show()
                                 line.specIcon:SetTexture(classIconTex)
                                 local L, R, T, B = unpack(iconTexCoords)
                                 line.specIcon:SetTexCoord(L + 0.02, R - 0.02, T + 0.02, B - 0.02)
+                            else
+                                line.specIcon:Hide()
                             end
                             line.specIcon:SetDesaturated(desaturate)
                             line.specIcon:SetAlpha(textAlpha)
@@ -423,6 +414,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             --role icon (or friendship heart for alts, which we identify by
                             --sortGroup == 1; clearing the atlas first avoids residual atlas
                             --coordinates messing up the SetTexture call on the next refresh)
+                            line.roleIcon:Show()
                             if (unitTable[16] == 1) then
                                 line.roleIcon:SetAtlas(nil)
                                 line.roleIcon:SetTexture([[Interface\COMMON\friendship-heart]])
@@ -443,7 +435,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                 elseif (unitRole == "TANK") then
                                     line.roleIcon:SetAtlas("GM-icon-role-tank")
                                 else
-                                    line.roleIcon:SetColorTexture(.1, .1, .1, .3)
+                                    line.roleIcon:Hide()
                                 end
                             end
                             line.roleIcon:SetDesaturated(desaturate)
@@ -452,11 +444,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                             --player name: class-colored when online, plain gray when offline so
                             --the embedded |c color codes don't override the stale-row tint.
                             local nameNoRealm = detailsFramework:RemoveRealmName(unitName)
-                            if (isOnline) then
+                            if (isOnline and classID and classID > 0) then
                                 line.playerNameText.text = detailsFramework:AddClassColorToText(nameNoRealm, detailsFramework.ClassIndexToFileName[classID])
                             else
                                 line.playerNameText.text = nameNoRealm
-                                detailsFramework:SetFontColor(line.playerNameText, "gray")
+                                detailsFramework:SetFontColor(line.playerNameText, isOnline and "white" or "gray")
                             end
                             line.playerNameText:SetAlpha(textAlpha)
                             detailsFramework:TruncateText(line.playerNameText, 80)
@@ -707,23 +699,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         return
                     end
 
-                    local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-                    if (not openRaidLib) then
-                        scrollBox:SetData({})
-                        scrollBox:Refresh()
-                        return
-                    end
-
-                    local keystoneData = openRaidLib.GetAllKeystonesInfo()
-                    if (not keystoneData) then
-                        scrollBox:SetData({})
-                        scrollBox:Refresh()
-                        return
-                    end
+                    local keystoneData = Details222.MythicKeys.GetAllKeystonesInfo()
 
                     --build the set of online guild members so their keystones can also appear.
-                    --GetGuildRosterInfo returns "Name-Realm"; openRaidLib unit names are realm-stripped
-                    --on this realm, so strip both sides before matching.
+                    --Normalize same-realm names consistently with both libraries.
                     local realmNameGsub = "%-.*"
                     local guildUsers = {}
                     local guildName = GetGuildInfo("player")
@@ -735,7 +714,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                 break
                             end
                             if (online) then
-                                guildUsers[fullName:gsub(realmNameGsub, "")] = true
+                                guildUsers[Details222.MythicKeys.NormalizeName(fullName)] = true
                             end
                         end
                     end
@@ -743,20 +722,20 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     local newData = {}
                     local unitsAdded = {}
                     local isPlayerInRaid = IsInRaid()
-                    local playerNameNoRealm = Details:GetFullName("player"):gsub(realmNameGsub, "")
+                    local playerName = Details222.MythicKeys.NormalizeName(Details:GetFullName("player"))
 
                     for unitName, keystoneInfo in pairs(keystoneData) do
                         local nameNoRealm = unitName:gsub(realmNameGsub, "")
-                        local isThisPlayer = (nameNoRealm == playerNameNoRealm)
+                        local isThisPlayer = (unitName == playerName)
                         local isInMyParty = UnitInParty(unitName)
                         local isInMyRaid = isPlayerInRaid and UnitInRaid(unitName)
-                        local isGuildMember = guildName and guildUsers[nameNoRealm] and true or false
+                        local isGuildMember = guildName and (guildUsers[unitName] or keystoneInfo.isGuildMember) and true or false
 
                         --only show rows for actually-held keys (rating-only entries are skipped)
                         if ((isThisPlayer or isInMyParty or isInMyRaid or isGuildMember) and keystoneInfo.level > 0) then
                             local classId = keystoneInfo.classID
                             local classIcon = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]]
-                            local _, class = GetClassInfo(classId)
+                            local class = classId > 0 and select(2, GetClassInfo(classId))
                             local specId = keystoneInfo.specID or 0
 
                             local mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.mythicPlusMapID)
@@ -916,7 +895,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     if (guildName and Details.keystone_cache and #newData < LINE_AMOUNT) then
                         local cutoffDate = time() - (86400 * 7)
                         for unitName, cacheEntry in pairs(Details.keystone_cache) do
-                            if (not unitsAdded[unitName]
+                            if (not unitsAdded[Details222.MythicKeys.NormalizeName(unitName)]
                                 and cacheEntry.guild_name == guildName
                                 and cacheEntry.date and cacheEntry.date > cutoffDate
                                 and (cacheEntry[2] or 0) > 0) then
@@ -939,7 +918,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                                     LINE_COLOR_GUILD, --[15] reuse guild tint
                                     5, --[16] offline-guild bucket (after online guild members)
                                 }
-                                unitsAdded[unitName] = true
+                                unitsAdded[Details222.MythicKeys.NormalizeName(unitName)] = true
 
                                 if (#newData >= LINE_AMOUNT) then
                                     break

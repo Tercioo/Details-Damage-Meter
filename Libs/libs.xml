@@ -16,6 +16,7 @@
 	<Script file="PlayerInfo\PlayerInfo.lua"/>
 	<Include file="LibDeflate\lib.xml"/>
 	<Include file="LibOpenRaid\lib.xml"/>
+	<Script file="LibKeystone\LibKeystone.lua"/>
 	<Include file="DF\load.xml"/>
 	<Include file="LibTranslit\LibTranslit-1.0.xml"/>
 </Ui>

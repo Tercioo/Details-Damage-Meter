@@ -104,6 +104,24 @@ local ARROW_ICON = [[Interface\Calendar\MoreArrow]]
 local ARROW_ICON_SIZE = {14, 14}
 local ARROW_DOWN_TEXCOORD = {0, 1, 0, 0.7}
 local ARROW_UP_TEXCOORD = {0, 1, 0.7, 0}
+--the keys the title bar options that have no single key of their own read from titleBarMirror
+local MENU_X_KEY = "menuAnchorX"
+local MENU_Y_KEY = "menuAnchorY"
+local BUTTONS_ON_RIGHT_KEY = "buttonsOnRight"
+local PLUGINS_ON_RIGHT_KEY = "pluginsOnRight"
+local TITLE_TEXT_ON_TOP_KEY = "titleTextOnTop"
+--how details! numbers a side: the title bar on top of the window, the buttons and plugins on the left, and the
+--title text attached to the top all store 1; the other side stores 2
+local FIRST_SIDE = 1
+local SECOND_SIDE = 2
+--the title bar button icon sets, each a strip of eight icons of which the dropdown shows the first
+local TOOLBAR_ICON_SETS = {
+	"Interface\\AddOns\\Details\\images\\toolbar_icons",
+	"Interface\\AddOns\\Details\\images\\toolbar_icons_shadow",
+	"Interface\\AddOns\\Details\\images\\toolbar_icons_2",
+	"Interface\\AddOns\\Details\\images\\toolbar_icons_2_shadow",
+}
+local TOOLBAR_ICON_TEXCOORD = {0, 0.125, 0, 1}
 
 ---@class details_options_designer_objects : table
 Details222.OptionsDesignerObjects = {}
@@ -145,6 +163,12 @@ local iconSetMirror = {}
 --writes this table instead, SeedMirrors fills it with what each side really draws, and the text style applies
 --write the value onto every text of that side
 local textStyleMirror = {}
+
+--the title bar settings no key of the window holds as the options show them: the button position, stored under
+--menu_anchor or menu_anchor_down depending on which side the title bar sits, and the three sides, stored as 1
+--or 2 where the options show a toggle. the editor reads and writes this table instead, SeedMirrors fills it from
+--the window being edited, and each option's own setter hands the value to details!
+local titleBarMirror = {}
 
 --describes how a window lays its value columns out on the classic versions: whether they are aligned and
 --whether they chain onto each other. the column offset sliders mean something different in each layout
@@ -631,6 +655,84 @@ local applyMenuIconSize = function(instanceObject)
 	instanceObject:ToolbarMenuButtonsSize(instanceObject.menu_icons_size)
 end
 
+--the button icons are part of the skin, so the whole skin is re-applied
+---@param instanceObject instance
+local applyToolbarIconSet = function(instanceObject)
+	instanceObject:ChangeSkin()
+end
+
+--the button position, see titleBarMirror.
+--the applies below read what the window holds and leave it alone when the value is the same: the editor runs
+--the callback for every widget each time it builds the menu
+---@param instanceObject instance
+---@return table
+local getMenuAnchor = function(instanceObject)
+	if (instanceObject.toolbar_side == FIRST_SIDE) then
+		return instanceObject.menu_anchor
+	end
+
+	return instanceObject.menu_anchor_down
+end
+
+---@param instanceObject instance
+---@param xOffset number
+local applyMenuAnchorX = function(instanceObject, xOffset)
+	if (getMenuAnchor(instanceObject)[1] == xOffset) then
+		return
+	end
+
+	instanceObject:MenuAnchor(xOffset)
+end
+
+---@param instanceObject instance
+---@param yOffset number
+local applyMenuAnchorY = function(instanceObject, yOffset)
+	if (getMenuAnchor(instanceObject)[2] == yOffset) then
+		return
+	end
+
+	instanceObject:MenuAnchor(nil, yOffset)
+end
+
+---@param instanceObject instance
+---@param bOnRight boolean
+local applyButtonsOnRight = function(instanceObject, bOnRight)
+	local anchorSide = bOnRight and SECOND_SIDE or FIRST_SIDE
+
+	if (instanceObject.menu_anchor.side == anchorSide) then
+		return
+	end
+
+	instanceObject:LeftMenuAnchorSide(anchorSide)
+end
+
+--there is no setter for the plugin buttons side, so the key is written and the buttons laid out again
+---@param instanceObject instance
+---@param bOnRight boolean
+local applyPluginsOnRight = function(instanceObject, bOnRight)
+	local growDirection = bOnRight and SECOND_SIDE or FIRST_SIDE
+
+	if (instanceObject.plugins_grow_direction == growDirection) then
+		return
+	end
+
+	instanceObject.plugins_grow_direction = growDirection
+	instanceObject:ToolbarMenuSetButtons()
+end
+
+--whether the title text is attached to the top of the window or to the bottom, see titleBarMirror
+---@param instanceObject instance
+---@param bOnTop boolean
+local applyTitleTextOnTop = function(instanceObject, bOnTop)
+	local textSide = bOnTop and FIRST_SIDE or SECOND_SIDE
+
+	if (instanceObject.attribute_text.side == textSide) then
+		return
+	end
+
+	instanceObject:AttributeMenu(nil, nil, nil, nil, nil, nil, textSide)
+end
+
 --window body
 ---@param instanceObject instance
 local applySkinColor = function(instanceObject)
@@ -1011,6 +1113,25 @@ local iconSetOption = function(optionKey, widgetType, label, descriptionText)
 	}
 end
 
+--builds a title bar option that reads and writes the mirror table rather than the window, see titleBarMirror
+---@param optionKey string
+---@param widgetType string
+---@param label string
+---@param applyValueFunc fun(instanceObject:instance, value:any)
+---@param descriptionText string|nil
+---@return table
+local titleBarMirrorOption = function(optionKey, widgetType, label, applyValueFunc, descriptionText)
+	return {
+		key = optionKey,
+		widget = widgetType,
+		label = label,
+		desc = descriptionText or label,
+		profileTable = titleBarMirror,
+		--read by the callback; the editor ignores fields it does not know
+		applyValueFunc = applyValueFunc,
+	}
+end
+
 --------------- shared dropdown lists ---------------
 
 --builds a dropdown list of characters, followed by the entry that uses none
@@ -1124,6 +1245,18 @@ local buildIconSetList = function()
 		end
 
 		iconSetList[#iconSetList + 1] = listEntry
+	end
+
+	return iconSetList
+end
+
+--the icon sets the title bar buttons can draw
+---@return table
+local buildToolbarIconSetList = function()
+	local iconSetList = {}
+
+	for index, iconSetPath in ipairs(TOOLBAR_ICON_SETS) do
+		iconSetList[#iconSetList + 1] = {value = iconSetPath, label = "Set " .. index, icon = iconSetPath, texcoord = TOOLBAR_ICON_TEXCOORD}
 	end
 
 	return iconSetList
@@ -1254,12 +1387,26 @@ local buildTitleBarRegistration = function(previewInstance)
 
 			--a label row takes its content from 'text'; built with 'label' it renders blank
 			{widget = "label", text = Loc["STRING_OPTIONS_TITLEBAR_MENUBUTTONS_HEADER"]},
+			withList(option("toolbar_icon_file", "select", Loc["STRING_OPTIONS_DESIGNER_ICON_SET"], applyToolbarIconSet), buildToolbarIconSetList),
 			withRange(option("menu_icons_size", "range", Loc["STRING_OPTIONS_DESIGNER_MENU_ICON_SIZE"], applyMenuIconSize, Loc["STRING_OPTIONS_MENU_BUTTONSSIZE_DESC"]), 0.4, 1.6, 0.05, true),
 			withRange(option("menu_icons.space", "range", Loc["STRING_OPTIONS_DESIGNER_MENU_ICON_SPACING"], applyToolbarButtonOptions, Loc["STRING_OPTIONS_MENUS_SPACEMENT_DESC"]), -5, 10, 1),
+			withRange(titleBarMirrorOption(MENU_X_KEY, "range", Loc["STRING_OPTIONS_MENU_X"], applyMenuAnchorX, Loc["STRING_OPTIONS_MENU_X_DESC"]), -200, 200, 1),
+			withRange(titleBarMirrorOption(MENU_Y_KEY, "range", Loc["STRING_OPTIONS_MENU_Y"], applyMenuAnchorY, Loc["STRING_OPTIONS_MENU_Y_DESC"]), -200, 200, 1),
+			titleBarMirrorOption(BUTTONS_ON_RIGHT_KEY, "toggle", Loc["STRING_OPTIONS_MENU_ANCHOR"], applyButtonsOnRight, Loc["STRING_OPTIONS_MENU_ANCHOR_DESC"]),
+			titleBarMirrorOption(PLUGINS_ON_RIGHT_KEY, "toggle", Loc["STRING_OPTIONS_PICONS_DIRECTION"], applyPluginsOnRight, Loc["STRING_OPTIONS_PICONS_DIRECTION_DESC"]),
 			option("menu_icons.shadow", "toggle", Loc["STRING_OPTIONS_MENUS_SHADOW"], applyToolbarButtonOptions, Loc["STRING_OPTIONS_MENUS_SHADOW_DESC"]),
 			option("desaturated_menu", "toggle", Loc["STRING_OPTIONS_DESIGNER_DESATURATED_MENU"], applyDesaturatedMenu, Loc["STRING_OPTIONS_DESATURATE_MENU_DESC"]),
 			option("auto_hide_menu.left", "toggle", Loc["STRING_OPTIONS_MENU_AUTOHIDE_LEFT"], applyAutoHideMenu, Loc["STRING_OPTIONS_MENU_AUTOHIDE_DESC"]),
 			option("hide_icon", "toggle", Loc["STRING_OPTIONS_HIDE_ICON"], applyHideIcon, Loc["STRING_OPTIONS_HIDE_ICON_DESC"]),
+			{widget = "blank"},
+
+			--how the buttons and their menus behave and look. stored on details! itself, so they apply to every
+			--window, and read each time a menu opens or a button is clicked
+			asGlobalSetting(option("disable_reset_button", "toggle", Loc["STRING_OPTIONS_DISABLE_RESET"], applyOnRedraw, Loc["STRING_OPTIONS_DISABLE_RESET_DESC"])),
+			asGlobalSetting(option("instances_menu_click_to_open", "toggle", Loc["STRING_OPTIONS_CLICK_TO_OPEN_MENUS"], applyOnRedraw, Loc["STRING_OPTIONS_CLICK_TO_OPEN_MENUS_DESC"])),
+			asGlobalSetting(option("disable_alldisplays_window", "toggle", Loc["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"], applyOnRedraw, Loc["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"])),
+			asGlobalSetting(withList(option("font_faces.menus", "select", Loc["STRING_OPTIONS_MENU_FONT_FACE"], applyOnRedraw, Loc["STRING_OPTIONS_MENU_FONT_FACE_DESC"]), buildFontList)),
+			asGlobalSetting(withRange(option("font_sizes.menus", "range", Loc["STRING_OPTIONS_MENU_FONT_SIZE"], applyOnRedraw, Loc["STRING_OPTIONS_MENU_FONT_SIZE_DESC"]), 5, 32, 1)),
 			{widget = "blank"},
 
 			{widget = "label", text = Loc["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"]},
@@ -1289,7 +1436,7 @@ local buildTitleTextRegistration = function(previewInstance)
 			--every other title text option only means anything while the title text is shown
 			withChildren(option("attribute_text.enabled", "toggle", Loc["STRING_OPTIONS_DESIGNER_TITLE_TEXT_ENABLED"], applyTitleText, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_ENABLED_DESC"]),
 				{"attribute_text.text_size", "attribute_text.text_color", "attribute_text.text_face", "attribute_text.shadow",
-				"attribute_text.anchor[1]", "attribute_text.anchor[2]", "attribute_text.show_timer"}),
+				"attribute_text.anchor[1]", "attribute_text.anchor[2]", "attribute_text.show_timer", TITLE_TEXT_ON_TOP_KEY}),
 			withRange(option("attribute_text.text_size", "range", Loc["STRING_OPTIONS_TEXT_SIZE"], applyTitleText, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE_DESC"]), 5, 32, 1),
 			option("attribute_text.text_color", "color", Loc["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTCOLOR"], applyTitleText, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTCOLOR_DESC"]),
 			withList(option("attribute_text.text_face", "select", Loc["STRING_OPTIONS_TEXT_FONT"], applyTitleText, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_FONT_DESC"]), buildFontList),
@@ -1297,6 +1444,7 @@ local buildTitleTextRegistration = function(previewInstance)
 			{widget = "blank"},
 			withRange(option("attribute_text.anchor[1]", "range", Loc["STRING_OPTIONS_DESIGNER_TEXT_X_OFFSET"], applyTitleText, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORX_DESC"]), -30, 300, 1),
 			withRange(option("attribute_text.anchor[2]", "range", Loc["STRING_OPTIONS_DESIGNER_TEXT_Y_OFFSET"], applyTitleText, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY_DESC"]), -100, 50, 1),
+			titleBarMirrorOption(TITLE_TEXT_ON_TOP_KEY, "toggle", Loc["STRING_OPTIONS_MENU_ATTRIBUTE_SIDE"], applyTitleTextOnTop, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_SIDE_DESC"]),
 			option("attribute_text.show_timer", "toggle", Loc["STRING_OPTIONS_DESIGNER_SHOW_ENCOUNTER_TIMER"], applyTitleText, Loc["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER_DESC"]),
 		},
 	}
@@ -1629,8 +1777,8 @@ function Details222.OptionsDesignerObjects:SetDisabledRefreshFunc(refreshFunc)
 	disabledRefreshFunc = refreshFunc
 end
 
---fills the mirror tables the icon set options, the bar text style options and the classic column offset sliders
---read, and sets each slider's range, from the window about to be edited. the designer calls this before every
+--fills the mirror tables the icon set options, the bar text style options, the title bar options and the
+--classic column offset sliders read, and sets each slider's range, from the window about to be edited. the designer calls this before every
 --menu build: the editor reads each value once, when it builds the menu, and the column offset values and ranges
 --depend on the window's auto align setting
 ---@param instanceObject instance
@@ -1641,6 +1789,13 @@ function Details222.OptionsDesignerObjects:SeedMirrors(instanceObject)
 
 	seedTextStyle(instanceObject, NAME_TEXT_STYLE)
 	seedTextStyle(instanceObject, VALUE_TEXT_STYLE)
+
+	local menuAnchor = getMenuAnchor(instanceObject)
+	titleBarMirror[MENU_X_KEY] = menuAnchor[1]
+	titleBarMirror[MENU_Y_KEY] = menuAnchor[2]
+	titleBarMirror[BUTTONS_ON_RIGHT_KEY] = instanceObject.menu_anchor.side == SECOND_SIDE
+	titleBarMirror[PLUGINS_ON_RIGHT_KEY] = instanceObject.plugins_grow_direction == SECOND_SIDE
+	titleBarMirror[TITLE_TEXT_ON_TOP_KEY] = instanceObject.attribute_text.side == FIRST_SIDE
 
 	seededColumnLayout = getColumnLayout(instanceObject)
 
