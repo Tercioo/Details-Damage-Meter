@@ -115,6 +115,9 @@ local refreshFunc = function(self, data, offset, totalLines)
                 name = Ambiguate(name, "none")
             end
 
+            --wow forever: show only the first name of the player if the option to remove the surname is enabled
+            name = Details:GetSourceNameNoSurname(thisData, name)
+
             line.Texts[2]:SetText(name)
             line.Icon:SetTexture(thisData.specIconID)
 

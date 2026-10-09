@@ -297,7 +297,9 @@ function AllInOneWindow:RefreshColumn(index, windowFrame, line, headerColumnFram
             return index
 
         elseif (headerName == "pname") then
-            headerColumnFrame.Text:SetText(detailsFramework:RemoveRealmName(playerName))
+            local nameWithNoRealm = detailsFramework:RemoveRealmName(playerName)
+            --wow forever: this window only lists players, remove the surname if the option is enabled
+            headerColumnFrame.Text:SetText(Details:RemoveSurname(nameWithNoRealm))
             return detailsFramework.string.GetSortValueFromString(playerName)
 
         elseif (headerName == "dmg") then

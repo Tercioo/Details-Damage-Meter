@@ -289,13 +289,23 @@ local function CreatePluginFrames (data)
 
 	end
 
+	--wow forever: UnitName() gives the surname where the realm name would be, the name of the tank is stored as "Charles-Netherwing"
+	--show only "Charles" if the option to remove the surname is enabled on Details!
+	function Vanguard:GetTankBarName(name)
+		local Details = _G.Details
+		if (name and Details.IsRemovingSurnames and Details:IsRemovingSurnames()) then
+			return (Vanguard:GetOnlyName(name))
+		end
+		return name
+	end
+
 	function Vanguard:ResetBars()
 
 		if (Vanguard.db.show_inc_bars) then
 			for i, tankblock in ipairs(Vanguard.TankBlocks) do
 				local bar = tankblock.heal_inc
 				bar:SetSplit (50)
-				bar:SetLeftText (tankblock.tankname_string)
+				bar:SetLeftText (Vanguard:GetTankBarName(tankblock.tankname_string))
 				bar:SetRightText ("")
 				bar:SetRightColor (.25, 0, 0, 1)
 				bar:SetLeftColor (0, .25, 0, 1)
@@ -361,7 +371,7 @@ local function CreatePluginFrames (data)
 		bar.lefticon = Vanguard.CurrentInstance.row_info.icon_file
 		bar.iconleft:SetTexCoord(left, right, top, bottom)
 		bar:SetLeftText (Vanguard:GetOnlyName(name))
-		bar:SetLeftText (name)
+		bar:SetLeftText (Vanguard:GetTankBarName(name))
 
 		local width = Vanguard.db.tank_block_size
 		self:SetWidth(width)

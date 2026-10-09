@@ -308,7 +308,7 @@ function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName) --~tar
                         icon = [[Interface\COMMON\friendship-FistHuman]],
                         iconcoords = {0, 1, 0, 1},
                         iconsize = 16,
-                        name = thisActor.name,
+                        name = Details:GetSourceNameNoSurname(thisActor, thisActor.name), --wow forever: a target can be a player (pvp)
                         texts = {AbbreviateNumbers(thisResult.totalAmount, Details.abbreviateOptionsDamage), AbbreviateNumbers(dps, Details.abbreviateOptionsDPS), string.format("%.1f%%", percent)},
                         amount = thisResult.totalAmount,
                         data = thisResult,

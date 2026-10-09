@@ -22,6 +22,18 @@ local _math_abs = math.abs
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local isClassicWow = detailsFramework.IsTimewalkWoW()
 
+--wow forever: GetUnitName() gives "Charles Netherwing", show only "Charles" if the option to remove the surname is enabled on Details!
+--pets are stored as "PetName *PET*" and don't have a surname
+local removeSurname = function(name)
+	if (issecretvalue and issecretvalue(name)) then
+		return name
+	end
+	if (name and Details.RemoveSurname and not name:find(" *PET*", 1, true)) then
+		return Details:RemoveSurname(name)
+	end
+	return name
+end
+
 
 
 --> Create the plugin Object
@@ -559,7 +571,7 @@ local function CreatePluginFrames (data)
 					thisRow._icon:SetTexture ([[Interface\LFGFrame\UI-LFG-Icon-PortraitRoles]])
 					thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
 
-					thisRow:SetLeftText (ThreatMeter:GetOnlyName (threatActor [1]))
+					thisRow:SetLeftText (removeSurname (ThreatMeter:GetOnlyName (threatActor [1])))
 
 					local pct = threatActor [useAbsoluteMode and 7 or 2]
 
@@ -613,7 +625,7 @@ local function CreatePluginFrames (data)
 				if (threat_actor) then
 					if (threat_actor [2] and threat_actor [2] > 0.1) then
 						local thisRow = ThreatMeter.ShownRows [#ThreatMeter.ShownRows]
-						thisRow:SetLeftText (player)
+						thisRow:SetLeftText (removeSurname (player))
 						--thisRow.textleft:SetTextColor (unpack (RAID_CLASS_COLORS [threat_actor [5]]))
 						local role = threat_actor [4]
 						thisRow._icon:SetTexture ([[Interface\LFGFrame\UI-LFG-Icon-PortraitRoles]])

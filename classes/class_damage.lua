@@ -3227,6 +3227,9 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 		end
 	end
 
+	--wow forever: show only the first name of the player if the option to remove the surname is enabled
+	actorName = Details:GetSourceNameNoSurname(source, actorName)
+
 	if (instance.row_info.textL_show_number) then
 		if issecretvalue(actorName) then
 			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text

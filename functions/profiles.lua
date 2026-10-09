@@ -978,6 +978,7 @@ local default_profile = {
 		memory_threshold = 3,
 		memory_ram = 64,
 		remove_realm_from_name = true,
+		remove_surname_from_name = true, --wow forever: show "Charles" instead of "Charles Netherwing"
 		trash_concatenate = false,
 		trash_auto_remove = false,
 		world_combat_is_trash = false,

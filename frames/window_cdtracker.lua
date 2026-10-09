@@ -283,7 +283,8 @@ end
             else
                 cooldownLine:SetStatusBarColor(1, 1, 1)
             end
-            cooldownLine:SetLeftText(DF:RemoveRealmName(cooldownLine.unitName))
+            --GetOnlyName() removes the realm name and, on wow forever, the surname if the option is enabled
+            cooldownLine:SetLeftText((Details:GetOnlyName(cooldownLine.unitName)))
             cooldownLine:SetSize(Details.ocd_tracker.width, Details.ocd_tracker.height)
         end
     end

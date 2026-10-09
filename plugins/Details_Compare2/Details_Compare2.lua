@@ -1279,7 +1279,7 @@ do
 
 				--depending on the compare mode, the "player name" will be the segment name or the player name
 				if (compareTwo.db.compare_type == CONST_COMPARETYPE_SPEC) then
-					comparisonFrame.titleLabel.text = detailsFramework:RemoveRealmName(playerObject:Name())
+					comparisonFrame.titleLabel.text = (Details:GetOnlyName(playerObject:Name()))
 
 				elseif (compareTwo.db.compare_type == CONST_COMPARETYPE_SEGMENT) then
 					local combatIcon, subIcon = combatObject:GetCombatIcon()

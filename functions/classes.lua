@@ -185,11 +185,39 @@ do
 		end
 	end
 
+	--wow forever: a character has a first name and a surname, e.g. "Charles Netherwing"
+	--UnitName() gives the surname where the other clients give the realm name: "Charles", "Netherwing"
+	--the damage meter api gives the full name, and during combat that name is a secret string which can be shown but not trimmed
+	local bClientHasSurnames = DetailsFramework.IsForeverWow and DetailsFramework.IsForeverWow() or false
+	local surnameSeparator = Constants and Constants.CharacterNameSeparatorConsts and Constants.CharacterNameSeparatorConsts.CHARACTERNAME_SURNAME_SEPARATOR
+	if (type(surnameSeparator) ~= "string" or surnameSeparator == "") then
+		surnameSeparator = " "
+	end
+	local isSecretValue = issecretvalue or function() return false end
+	local pcall = pcall
+	local format = string.format
+
+	--full name of the players seen in the group or in the damage meter and their first names: ["Charles Netherwing"] = "Charles"
+	--a creature can also have a space in its name, this table tells if a name with a space belongs to a player
+	local playerFirstNames = {}
+
 	function Details:GetOnlyName(string)
+		local name, amountReplaced
 		if (string) then
-			return string:gsub(("%-.*"), "")
+			name, amountReplaced = string:gsub(("%-.*"), "")
+		else
+			name, amountReplaced = self.nome:gsub(("%-.*"), "")
 		end
-		return self.nome:gsub(("%-.*"), "")
+
+		--wow forever: if this is the full name of a player, remove the surname too when the option is enabled
+		if (bClientHasSurnames and Details.remove_surname_from_name and not isSecretValue(name)) then
+			local firstName = playerFirstNames[name]
+			if (firstName) then
+				return firstName, amountReplaced
+			end
+		end
+
+		return name, amountReplaced
 	end
 
 	function Details:RemoveOwnerName(string)
@@ -197,6 +225,122 @@ do
 			return string:gsub((" <.*"), "")
 		end
 		return self.nome:gsub((" <.*"), "")
+	end
+
+	--wow forever: keep the full name of the players in the group, see playerFirstNames
+	if (bClientHasSurnames) then
+		local registerUnit = function(unitId)
+			local firstName, surname = UnitName(unitId)
+			if (isSecretValue(firstName) or isSecretValue(surname)) then
+				return
+			end
+			if (type(firstName) == "string" and firstName ~= "" and type(surname) == "string" and surname ~= "") then
+				playerFirstNames[firstName .. surnameSeparator .. surname] = firstName
+			end
+		end
+
+		local rosterFrame = CreateFrame("frame")
+		rosterFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+		rosterFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+		rosterFrame:SetScript("OnEvent", function()
+			--UnitName() returns nil for the units that don't exist
+			registerUnit("player")
+			for i = 1, 4 do
+				registerUnit("party" .. i)
+			end
+			for i = 1, 40 do
+				registerUnit("raid" .. i)
+			end
+		end)
+	end
+
+	---return true if the client has surnames and the option to not show them is enabled
+	---@return boolean
+	function Details:IsRemovingSurnames()
+		return bClientHasSurnames and Details.remove_surname_from_name and true or false
+	end
+
+	---remove the surname from the full name of a player: "Charles Netherwing" -> "Charles"
+	---does nothing if the option is disabled, if the client has no surnames or if the name is a secret
+	---only use with player names, the name of a creature also has spaces
+	---@param name string
+	---@return string
+	function Details:RemoveSurname(name)
+		if (not bClientHasSurnames or not Details.remove_surname_from_name) then
+			return name
+		end
+
+		if (isSecretValue(name) or type(name) ~= "string") then
+			return name
+		end
+
+		local separatorStart = name:find(surnameSeparator, 2, true)
+		if (separatorStart) then
+			return name:sub(1, separatorStart - 1)
+		end
+
+		return name
+	end
+
+	---return the name to show for a source of the blizzard damage meter without the surname of the player
+	---displayName is the name that would be shown if the surname stays, it is returned when there's nothing to remove
+	---@param source damagemeter_combat_source
+	---@param displayName string
+	---@return string
+	function Details:GetSourceNameNoSurname(source, displayName)
+		if (not bClientHasSurnames or not Details.remove_surname_from_name or not source) then
+			return displayName
+		end
+
+		--classFilename is never secret, creatures have an empty class and the spaces in their names aren't surnames
+		local classFilename = source.classFilename
+		if (isSecretValue(classFilename) or not classFilename or classFilename == "") then
+			return displayName
+		end
+
+		if (not isSecretValue(displayName)) then
+			--out of combat the name is a regular string
+			local creatureId = source.sourceCreatureID
+			if (isSecretValue(creatureId) or (creatureId and creatureId ~= 0)) then
+				return displayName
+			end
+
+			local firstName = Details:RemoveSurname(displayName)
+			if (type(displayName) == "string" and firstName ~= displayName) then
+				--remember this is a player, GetOnlyName() also removes the surname of known players
+				playerFirstNames[displayName] = firstName
+			end
+			return firstName
+		end
+
+		--in combat the name is a secret: it cannot be read, compared or trimmed
+		--ask the game for the name of the unit instead, the first value returned is the first name
+		local isLocalPlayer = source.isLocalPlayer
+		if (not isSecretValue(isLocalPlayer) and isLocalPlayer) then
+			local playerFirstName = UnitName("player")
+			if (not isSecretValue(playerFirstName) and type(playerFirstName) == "string" and playerFirstName ~= "") then
+				return Details:RemoveSurname(playerFirstName)
+			end
+		end
+
+		local getNameFromGUID = UnitNameFromGUID
+		if (getNameFromGUID) then
+			local bOkay, firstName = pcall(getNameFromGUID, source.sourceGUID)
+			if (bOkay) then
+				if (isSecretValue(firstName)) then
+					--a secret can't be compared with nil or with an empty string, but format() fails when it isn't a string
+					local bIsString, nameText = pcall(format, "%s", firstName)
+					if (bIsString) then
+						return nameText
+					end
+
+				elseif (type(firstName) == "string" and firstName ~= "" and firstName ~= UNKNOWNOBJECT) then
+					return Details:RemoveSurname(firstName)
+				end
+			end
+		end
+
+		return displayName
 	end
 
 	function Details:GetCLName(id)

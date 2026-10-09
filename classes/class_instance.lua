@@ -4172,7 +4172,8 @@ function Details:SendApocalypseReport()
 
 		local reportLines = {}
 		for i, data in ipairs(reportData.combatSources) do
-			local name = data.name
+			--wow forever: report only the first name of the player if the option to remove the surname is enabled
+			local name = Details:GetSourceNameNoSurname(data, data.name)
 			local total = data.totalAmount
 			local percent = format("%.1f%%", totalAmount > 0 and (total / totalAmount) * 100 or 0)
 			reportLines[#reportLines+1] = {name = name, total = total, percent = percent, result = ""}

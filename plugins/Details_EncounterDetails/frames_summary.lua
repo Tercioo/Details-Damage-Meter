@@ -201,7 +201,7 @@ do --player damage taken
                 local damageTaken = thisData[2]
                 local actorObject = combatObject:GetActor(DETAILS_ATTRIBUTE_DAMAGE, actorName)
 
-                line.lineText1:SetText(detailsFramework:RemoveRealmName(actorName))
+                line.lineText1:SetText((Details:GetOnlyName(actorName)))
                 line.lineText3:SetText("")
                 line.lineText4:SetText(Details:Format(damageTaken))
                 local red, green, blue = Details:GetClassColor(actorObject:Class())
@@ -1147,7 +1147,7 @@ do --~deaths ~dead
 
                 line.deathInfo = deathTable
 
-                line.lineText1:SetText(detailsFramework:RemoveRealmName(actorName))
+                line.lineText1:SetText((Details:GetOnlyName(actorName)))
                 line.lineText3:SetText("")
 
                 if (battleRess[1]) then

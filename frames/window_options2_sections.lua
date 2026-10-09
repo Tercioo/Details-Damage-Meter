@@ -709,6 +709,20 @@ do
                 boxfirst = true,
             },
 
+            {--remove surname (wow forever)
+                type = "toggle",
+                get = function() return Details.remove_surname_from_name end,
+                set = function(self, fixedparam, value)
+                    Details.remove_surname_from_name = value
+                    afterUpdate(getInstance())
+                    refreshWindowsAfterOptionChange(getInstance())
+                end,
+                name = Loc ["STRING_OPTIONS_SURNAME"],
+                desc = Loc ["STRING_OPTIONS_SURNAME_DESC"],
+                boxfirst = true,
+                hidden = not detailsFramework.IsForeverWow(),
+            },
+
             {type = "blank"},
             {type = "label", get = function() return "Your Self" end, text_template = subSectionTitleTextTemplate},
 

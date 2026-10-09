@@ -78,7 +78,8 @@ local getActorDisplayName = function(name)
     end
 
     local nameWithNoRealm = detailsFramework:RemoveRealmName(name)
-    return nameWithNoRealm
+    --wow forever: only players can be compared, remove the surname if the option is enabled
+    return Details:RemoveSurname(nameWithNoRealm)
 end
 
 ---@param windowFrame detailsbreakdownmidnight_window
