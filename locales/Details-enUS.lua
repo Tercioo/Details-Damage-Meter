@@ -1097,6 +1097,11 @@ L["STRING_OPTIONS_REALMNAME_DESC"] = [=[When enabled, the character realm name i
 
 |cFFFFFF00Disabled|r: Charles-Netherwing
 |cFFFFFF00Enabled|r: Charles]=]
+L["STRING_OPTIONS_LASTNAME"] = "Remove Last Name"
+L["STRING_OPTIONS_LASTNAME_DESC"] = [=[When enabled, the character last name isn't displayed.
+
+|cFFFFFF00Disabled|r: Charles Netherwing
+|cFFFFFF00Enabled|r: Charles]=]
 L["STRING_OPTIONS_REPORT_ANCHOR"] = "Report:"
 L["STRING_OPTIONS_REPORT_HEALLINKS"] = "Healing Spell Links"
 L["STRING_OPTIONS_REPORT_HEALLINKS_DESC"] = [=[When sending a report and this option is enabled, |cFF55FF55helpful|r spells are reported with the spell link instead of its name.

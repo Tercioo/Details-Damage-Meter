@@ -4422,8 +4422,8 @@ end
 local report_name_function = function(name)
 	local name, index = unpack(name)
 
-	if (Details.remove_realm_from_name and name:find("-")) then
-		return index .. ". " .. name:gsub(("%-.*"), "")
+	if (Details.remove_realm_from_name) then
+		return index .. ". " .. Details:RemoveRealmName(name)
 	else
 		return index .. ". " .. name
 	end
@@ -4575,7 +4575,7 @@ function Details:monta_relatorio (este_relatorio, custom)
 				local mortes = self.showing.last_events_tables
 				local reportarMortes = {}
 				for index, morte in ipairs(mortes) do
-					reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub(("%-.*"), "")}
+					reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = Details:RemoveRealmName(morte [3])}
 				end
 				container = reportarMortes
 				container_amount = #reportarMortes
