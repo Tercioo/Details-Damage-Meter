@@ -6,6 +6,8 @@ Window-snapping behavior between movable frames, similar to the snapping found i
 
 Frames in *different* groups never interact. Each call to `CreateSnapGroup` returns an isolated instance, so an addon may create as many groups as it needs.
 
+Terms: a **group** is the registry of frames that may snap to each other; a **cluster** is a set of frames already snapped together inside a group. Clusters are trees: a frame never snaps onto a frame of its own cluster, so links never form a loop.
+
 ---
 
 ## Entry Points
@@ -19,7 +21,7 @@ Creates a new snap group.
 | Parameter | Type | Description |
 |---|---|---|
 | `groupName` | `string` | Identifies the group; also the key under which the group stores its data inside `profileTable`. |
-| `profileTable` | `table\|nil` | Saved-variables table for persistence. The group's snap data lives at `profileTable[groupName]`. Pass `nil` for an in-memory-only group. |
+| `profileTable` | `table\|nil` | Saved-variables table for persistence. The group's snap data lives at `profileTable[groupName]`. Pass `nil` for an in-memory-only group (the addon then keeps its own layout data and uses `Link`/`GetLinks`). |
 | `options` | `table\|nil` | Overrides merged on top of the defaults (see Options Table below). |
 
 **Returns:** `snapgroup` — A new isolated snap group instance.
@@ -46,65 +48,113 @@ local windowB = makeWindow("MyAddonWindowB")
 
 Drag `windowB` close to `windowA`'s right edge: both edges glow gold. Release inside the preview range to snap them together. Drag `windowA` afterwards and `windowB` follows.
 
+**Example — Frames moved from mouse handlers, with a title bar drawn outside the frame:**
+```lua
+local snapGroup = DF:CreateSnapGroup("MyWindows", nil, {space_between_horizontal = 2})
+
+snapGroup:RegisterFrame(window, "window1", {
+    wrap_drag_scripts = false,
+    GetInsets = function(frame) return 0, 0, 20, 0 end, --left, right, top, bottom
+    GlowParent = window.overlayFrame,
+})
+
+titleBar:SetScript("OnMouseDown", function() snapGroup:StartDrag(window) end)
+titleBar:SetScript("OnMouseUp", function() snapGroup:StopDrag(window) end)
+```
+
 ---
 
 ## Instance Methods
 
 All methods below are available on a `snapgroup` returned by `CreateSnapGroup`.
 
-### `snapGroup:RegisterFrame(frame[, id])`
+### `snapGroup:RegisterFrame(frame[, id[, frameOptions]])`
 
-Registers a frame into the group. The frame must already be set up for dragging (`SetMovable`, `EnableMouse`, `RegisterForDrag`, and an `OnDragStart` that calls `StartMoving` — `detailsFramework:MakeDraggable(frame)` does all of this). Its existing `OnDragStart`/`OnDragStop` scripts are *wrapped*, not replaced.
+Registers a frame into the group. By default the frame must already be set up for dragging (`SetMovable`, `EnableMouse`, `RegisterForDrag`, and an `OnDragStart` that calls `StartMoving` — `detailsFramework:MakeDraggable(frame)` does all of this); its existing `OnDragStart`/`OnDragStop` scripts are *wrapped*, not replaced.
 
 | Parameter | Type | Description |
 |---|---|---|
 | `frame` | `frame` | The frame (or a DetailsFramework widget with a `.widget` field) to register. |
-| `id` | `string\|nil` | Stable identifier used for persistence. Required only when the frame has no name; if both a name and an `id` are present, the name wins. |
+| `id` | `string\|nil` | Stable identifier used for persistence. When given it wins over the frame name; required when the frame has no name. |
+| `frameOptions` | `table\|nil` | Per-frame settings, see below. |
 
-If the frame has no name and no `id` is provided, an assertion fires. If the frame is not movable, a warning is printed (snapping requires drag scripts to fire).
+`frameOptions`:
 
-After registration, the group automatically attempts to restore any saved snap relationships involving this frame from `profileTable`, so registration order does not matter.
+| Key | Type | Description |
+|---|---|---|
+| `wrap_drag_scripts` | `boolean` | `false`: the drag scripts are left alone; the addon calls `StartDrag`/`StopDrag` from its own scripts. Default `true`. |
+| `GetInsets` | `function(frame)` | Returns `left, right, top, bottom`: how far the frame's visible area reaches past its rect, in the frame's own units (title bars, status bars). Detection, glow, anchor offsets and size matching all use the outer rect. Called each time it is needed, so it can follow settings. |
+| `GlowParent` | `frame` | Frame the preview glow textures are created on, so the glow draws above the frame's own content. Defaults to the frame. |
+
+If the frame has no name and no `id` is provided, an assertion fires. If the frame is not movable, a warning is printed.
+
+Size hooks are installed once per frame for the life of the group; unregistering and registering the same frame again does not add more hooks.
+
+After registration, the group attempts to restore any saved snap relationships involving this frame from `profileTable`, so registration order does not matter.
 
 ### `snapGroup:UnregisterFrame(frame)`
 
-Removes a frame from the group: cuts all of its snap links, restores its original `OnDragStart`/`OnDragStop` scripts, and hides any leftover glow textures. The rest of its former cluster stays intact (each former neighbour becomes the root of whatever remains of its sub-cluster).
+Removes a frame from the group: cancels its drag if it is being dragged, cuts all of its snap links, restores its original `OnDragStart`/`OnDragStop` scripts (when they were wrapped), and hides any leftover glow textures. The rest of its former cluster stays intact.
+
+### `snapGroup:IsRegistered(frame)` / `snapGroup:IsDragging()`
+
+`true` when the frame is in the group / while a frame of the group is being dragged.
+
+### `snapGroup:StartDrag(frame)` / `snapGroup:StopDrag(frame)`
+
+Start and end a drag as if the frame's `OnDragStart`/`OnDragStop` had fired: the frame (and its cluster) moves with the cursor, the preview runs, and the previewed snap is applied on stop. A second start while dragging and a stop for a frame that is not being dragged are ignored. Return `false` when the frame is not registered.
+
+### `snapGroup:CancelDrag()`
+
+Ends the current drag without snapping. Called automatically when the dragged frame is hidden or unregistered; `options.on_drag_cancelled` is then called so the addon can clear its own moving state.
+
+### `snapGroup:Link(frame, side, targetFrame)`
+
+Snaps two registered frames without a drag: `frame`'s `side` touches `targetFrame`'s opposite side. The target's cluster keeps its place, `frame`'s cluster moves next to it. Returns `false` (and does nothing) when a frame is not registered, a side is already taken, or both frames are already in the same cluster. Returns `true` when the link exists afterwards.
+
+### `snapGroup:Unlink(frame, side)`
+
+Removes the link on one side of a frame (both directions). Each side of the cut keeps its own cluster where it is. Returns `false` when there was no link on that side.
 
 ### `snapGroup:Unsnap(frame)`
 
-Breaks every snap link of `frame`, leaving it free-standing at its current on-screen position. The frame stays registered in the group and can be re-snapped by dragging it again. This is the **only** way (besides `UnregisterFrame` / `Reset`) to detach a snapped frame — snap links never break implicitly during a drag.
+Breaks every snap link of `frame`, leaving it free-standing at its current on-screen position. The frame stays registered and can be re-snapped by dragging it again. Snap links never break implicitly during a drag.
+
+### `snapGroup:GetLinks(frame)` / `snapGroup:GetCluster(frame)` / `snapGroup:GetAxisCluster(frame, axis)`
+
+- `GetLinks` returns `{[side] = otherFrame}` for the frame's links.
+- `GetCluster` returns every frame of the frame's cluster, the frame included.
+- `GetAxisCluster` returns the frames reachable through links of one axis: `"x"` gives the frames side by side with it (they share their outer height), `"y"` the frames stacked with it (they share their outer width).
+
+### `snapGroup:RefreshCluster(frame)` / `snapGroup:RefreshAllClusters()`
+
+`RefreshCluster(frame)` makes the frame the root of its cluster at its current place and re-chains the other members from it. Use it after the addon positioned the frame by itself or before resizing it with `StartSizing`. `RefreshCluster(frame, true)` re-chains the cluster from the root it already has; use it after the frame's insets or scale changed.
+
+A root that is anchored to the screen (every anchor on `UIParent`) keeps its own anchor, e.g. a `topright` anchor placed by the addon; only a root anchored to another frame is re-pinned with a `bottomleft` offset. This keeps clusters in place when the ui scale or the screen size changes after login. `RefreshAllClusters` re-chains every cluster from its current root.
+
+### `snapGroup:BeginBatch()` / `snapGroup:EndBatch()`
+
+Until the last open batch ends, size changes are not propagated through clusters and `on_links_changed` is held. When the batch ends, every cluster is re-chained once and a held notification is sent once. Use it while restoring a layout or resizing many frames by hand.
 
 ### `snapGroup:SetProfileTable(newTable)`
 
-Swaps the group's profile table at runtime and re-runs `TryRestore` against the new table. Use this when the addon switches between profiles that should share the same frame registrations.
+Swaps the group's profile table at runtime: the links of the old table are dropped (frames stay where they are, the old table is not written) and the new table's links are restored.
 
 ### `snapGroup:SetOptionsTable(newOptionsTable)`
 
-Replaces the group's options. The new table is merged on top of the snap defaults, so partial tables are valid.
+Replaces the group's options. The new table is merged on top of the snap defaults, so partial tables are valid. A running preview is cleared when the new options forbid snapping.
 
 ### `snapGroup:Reset()`
 
-Tears the group down to a blank, reusable state:
-- every registered frame is unregistered (drag scripts restored, links cut, glow hidden);
-- `profileTable` and `options` references are dropped (options are restored to the defaults);
-- the current snap preview is cleared.
-
-The data already written into the old profile table is **left untouched** — the caller owns that table. After `Reset`, the same `snapgroup` instance can be repopulated by calling `SetProfileTable`, `SetOptionsTable` and `RegisterFrame` again, which is what makes it appropriate for addon profile switches.
+Tears the group down to a blank, reusable state: the profile reference is dropped *first* (so the old saved data is not overwritten while frames are unsnapped), every frame is unregistered, options are restored to the defaults and the preview is cleared. The data already written into the old profile table is left untouched.
 
 ### `snapGroup:TryRestore()`
 
-Recreates snap links and re-anchors cluster roots from the current `profileTable`. Safe to call repeatedly: links are only created when both frames involved are currently registered. `RegisterFrame` calls this automatically, but the addon may also call it explicitly once all of its frames have finished registering, for example after a delayed UI build.
+Recreates snap links and re-anchors cluster roots from the current `profileTable`. Safe to call repeatedly: links are only created when both frames are registered. Saved links are validated: unknown sides, links to the frame itself, links whose side is taken by another frame, and links that would close a loop are skipped.
 
-### `snapGroup:Snap(frameData, candidate)` *(internal)*
+### Internal methods
 
-Anchors `frameData` to a previewed candidate, merging the two clusters into one chain. Called by the wrapped `OnDragStop` when a valid preview exists on drop. Documented here because it appears as a method on the mixin; addons should not call it directly.
-
-### `snapGroup:RemoveLink(frameData, side)` *(internal)*
-
-Removes a single directed link (and its reciprocal on the other frame) on the given side. Returns the `snapframedata` of the frame that was on the other end of the removed link, or `nil` when there was no link. Use `Unsnap` from external code instead.
-
-### `snapGroup:SavePersistent()` *(internal)*
-
-Writes the group's current link graph and cluster-root positions into `profileTable[groupName]`. Called automatically after every structural change (snap, unsnap, register, unregister). No-op when the group has no profile table.
+`Snap`, `RemoveLink`, `SavePersistent`, `NotifyLinksChanged`, `OnFrameDragStart`, `OnFrameDragStop`, `OnDragUpdate` appear on the mixin but are internal. `SavePersistent` runs after drops, `Link`, `Unlink`, `Unsnap` and cancelled drags (not after `RegisterFrame`).
 
 ---
 
@@ -114,12 +164,19 @@ Used with `CreateSnapGroup` (and `SetOptionsTable`). Any field not provided fall
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `snap_distance` | `number` | `12` | Maximum screen-pixel gap between two edges for them to be considered a snap candidate. |
-| `hysteresis` | `number` | `4` | A different candidate must be at least this many pixels closer than the currently previewed one to replace it. Prevents jitter when the cursor hovers between two edges. |
-| `update_interval` | `number` | `0.015` | Seconds between proximity scans while a drag is active. Lower is more responsive but more CPU. |
+| `snap_distance` | `number` | `12` | Maximum screen-pixel gap between two edges for them to be considered a snap candidate. `0` or less disables new snaps. |
+| `hysteresis` | `number` | `4` | A different candidate must be at least this many pixels closer than the currently previewed one to replace it. |
+| `update_interval` | `number` | `0.015` | Seconds between proximity scans while a drag is active. |
 | `glow_thickness` | `number` | `3` | Thickness (in pixels) of the edge highlight texture. |
 | `glow_color` | `table` | `{1, 0.82, 0, 0.9}` | Edge highlight color as `{r, g, b, a}`. |
-| `enabled_sides` | `table` | `{left=true, right=true, top=true, bottom=true}` | Which dragged-frame sides are allowed to snap. Disable individual sides to constrain how frames may attach. |
+| `enabled_sides` | `table` | `{left=true, right=true, top=true, bottom=true}` | Which dragged-frame sides are allowed to snap. Replaces the whole table when given. |
+| `allow_new_snaps` | `boolean` | `true` | `false` stops new snaps (exact edge contact included) while existing clusters keep moving together. |
+| `space_between_horizontal` | `number` | `0` | UIParent units left empty between two frames snapped side by side. |
+| `space_between_vertical` | `number` | `0` | UIParent units left empty between two frames snapped on top of each other. |
+| `restore_size_on_unsnap` | `boolean` | `true` | Unsnapping gives a frame back the size it had before its first snap. |
+| `clamp_cluster` | `boolean` | `true` | While a frame clamped to the screen is dragged, its clamp rect covers its whole cluster (outer rects included); the frame's own clamp insets are given back on drop. |
+| `on_links_changed` | `function(snapGroup)` | `nil` | Called after links are created or removed (drop, `Link`, `Unlink`, `Unsnap`, `SetProfileTable`). Held during batches. |
+| `on_drag_cancelled` | `function(snapGroup, frame)` | `nil` | Called when a drag ends without `StopDrag` (the dragged frame was hidden or unregistered). |
 
 ---
 
@@ -134,41 +191,34 @@ Sides are stored lowercase (`"left"`, `"right"`, `"top"`, `"bottom"`) so they ca
 | `"top"` | `"bottom"` | y (vertical touch) |
 | `"bottom"` | `"top"` | y (vertical touch) |
 
-A snap pins the dragged frame at the midpoint of its connecting side with a single `SetPoint`, plus an explicit `SetHeight`/`SetWidth` matching the target's perpendicular dimension. For a `right ↔ left` snap:
+A snap pins the dragged frame at the midpoint of its connecting side with a single `SetPoint`, plus an explicit `SetHeight`/`SetWidth` that matches its **outer** perpendicular size (frame size plus insets) to the target's, computed in screen pixels so frames with different scales match on screen. The `SetPoint` offsets carry the insets of both frames and the configured space between them; with no insets and no space this is:
 
 ```lua
 draggedFrame:SetHeight(targetFrame:GetHeight())
 draggedFrame:SetPoint("right", targetFrame, "left", 0, 0)
 ```
 
-Because the heights are equal and the anchor is at the vertical midpoint, the top and bottom edges line up flush automatically — the same visual as a two-anchor pin, but using only one anchor. Single-anchor children are also what makes `StartMoving` cluster drag work reliably; two-anchor children fail to propagate during a `StartMoving` drag.
+Single-anchor children are what makes `StartMoving` cluster drag work reliably; two-anchor children fail to propagate during a `StartMoving` drag.
 
-**Resize propagation** doesn't rely on anchor resolution at all. Addons that own snapped frames routinely call `ClearAllPoints`/`SetPoint` inside their own resize logic, which silently wipes any snap anchor chain we'd built. Instead, `RegisterFrame` installs four hooks on each frame:
+**Resize propagation** doesn't rely on anchor resolution. `RegisterFrame` installs four hooks on each frame (once per frame for the life of the group):
 
 - `HookScript("OnSizeChanged", …)` — catches the event next render frame.
-- `hooksecurefunc(frame, "SetSize"/"SetHeight"/"SetWidth", …)` — fires synchronously inside the resize call, and **can't be removed** by anything (in case the addon later overwrites the OnSizeChanged script).
+- `hooksecurefunc(frame, "SetSize"/"SetHeight"/"SetWidth", …)` — fires synchronously inside the resize call and can't be removed.
 
-All four feed into the same handler. A `__syncingSize` re-entrancy guard coalesces them so the cluster rebuild only runs once per resize.
+All four feed into the same handler, which skips work when the frame's size is what the snap system last saw, and while the snap system itself is changing links, anchors or sizes (size events can fire synchronously in the middle of that work, even from reading a size, and reacting then would anchor frames in a loop). The handler:
 
-The handler does two things, in order:
+1. **Gives the resized frame's outer size to the frames sharing an axis with it**: the frames reachable through x-axis links take its outer height, the frames reachable through y-axis links take its outer width. This is computed from the resized frame itself, so a resize anywhere in a cluster sticks, even on a branch whose axis does not reach the cluster root.
+2. **Re-applies the snap chain** from the root (the root itself is not re-anchored, so a root being sized with `StartSizing` is not disturbed). Anchors the owning addon may have wiped during its own resize logic are restored every time.
 
-1. **Propagate the new dimension to the cluster root.** If the resized frame can reach the root through links of the matching axis (height through x-axis links, width through y-axis links), the root's `SetHeight`/`SetWidth` is updated first. Without this, the next step would revert the user's resize back to the root's old dimension.
-2. **Rebuild the snap chain.** Walks the cluster from the root and re-applies the single-anchor + `SetSize`-match form on every non-root member. This both **propagates the size** (each child gets its parent's dimension via `SetHeight`/`SetWidth`) and **re-establishes the anchor** that keeps the row/column aligned — anchors the owning addon may have wiped during its own resize logic are restored every time.
+Make the frame being resized the root first (`RefreshCluster(frame)`) when resizing with `StartSizing`.
 
-Axis partition:
-
-- **Horizontal group** — frames reachable through x-axis (`left`/`right`) links. Height syncs; top/bottom edges stay flush.
-- **Vertical group** — frames reachable through y-axis (`top`/`bottom`) links. Width syncs; left/right edges stay flush.
-
-A single frame can belong to both groups independently (e.g. snapped `right` to B and `top` to C); each axis's reachability is computed separately, so resizing only the height affects only the horizontal group.
-
-The dragged frame's original size is captured the first time it snaps (and persisted across `/reload`); `Unsnap` / `UnregisterFrame` / `Reset` restore it. A frame that becomes solo as a side-effect of another frame's `Unsnap` is also restored to its captured original size.
+When `restore_size_on_unsnap` is on, the dragged frame's original size is captured the first time it snaps (and persisted across `/reload`); `Unsnap` / `Unlink` / `UnregisterFrame` restore it, also for a frame that becomes solo as a side effect.
 
 ---
 
 ## Persisted Format
 
-When a `profileTable` is supplied, the group writes its data to `profileTable[groupName]`. The structure is documented here so the addon may inspect, migrate or hand-edit it if needed (but typically the addon never touches it directly):
+When a `profileTable` is supplied, the group writes its data to `profileTable[groupName]`:
 
 ```lua
 profileTable[groupName] = {
@@ -177,8 +227,8 @@ profileTable[groupName] = {
         point = {x = number, y = number},   --absolute position in UIParent coordinate space
 
         --present only for frames that have been snapped at least once; restored by Unsnap
-        originalWidth = number,             --pre-snap width captured the first time the frame snapped
-        originalHeight = number,            --pre-snap height captured the first time the frame snapped
+        originalWidth = number,
+        originalHeight = number,
 
         --directed snap links emitted by this frame
         links = {
@@ -186,8 +236,8 @@ profileTable[groupName] = {
                 targetId = string,              --id of the frame on the other end
                 mySide = string,                --this frame's side ("left"/"right"/"top"/"bottom")
                 theirSide = string,             --target frame's side
-                offsetX = number,               --SetPoint offset, always 0 (kept for forward compatibility)
-                offsetY = number,               --SetPoint offset, always 0
+                offsetX = number,               --always 0, offsets are computed from insets when anchoring
+                offsetY = number,               --always 0
             },
             ...
         },
@@ -196,37 +246,34 @@ profileTable[groupName] = {
 }
 ```
 
-Each link is stored in both directions (once on each frame). Offsets are always `0` because the perpendicular-dimension SetSize match takes care of the alignment. `Reset` does **not** wipe this table — it only drops the group's reference to it.
+Each link is stored in both directions (once on each frame). Current frame sizes are not stored; the addon keeps its own. `Reset` does **not** wipe this table.
 
 ---
 
 ## How It Works
 
-1. **Registration** — `RegisterFrame` wraps the frame's existing `OnDragStart`/`OnDragStop` scripts so the group can observe every drag without replacing the addon's own drag logic.
-2. **Proximity scan** — While a drag is in progress, a dedicated per-group `UpdateFrame` runs `OnUpdate` throttled by `options.update_interval`. Each tick, every other frame in the group is evaluated against the dragged frame using simple O(1) edge-distance math. All measurements are converted to screen pixels via `GetEffectiveScale()`, so frames living under parents with different scales still compare correctly. Pairings where either frame's connecting side is already occupied by an existing snap link are skipped — that way the scanner never suggests a snap that would overlap a frame already chained on the same edge. Candidates within the primary `snap_distance` are ranked by `primary_gap + perpendicular_center_misalignment` (lower is better), so when two targets share the same connecting edge (e.g. two size-matched frames already snapped side by side), the dragged frame snaps to whichever one its perpendicular center is closer to.
-3. **Preview** — When a candidate is found, two thin colored textures are positioned on the connecting edges of both frames. The preview stays on the same candidate from frame to frame unless another pairing becomes meaningfully closer (`options.hysteresis`), avoiding flicker. When no candidate exists, the glow is cleared immediately.
-4. **Drop** — On `OnDragStop` with an active preview, the dragged frame's pre-snap size is captured (so `Unsnap` can restore it), the link is added, and the merged cluster is rebuilt: each non-root member is anchored at the midpoint of its connecting side and explicitly `SetHeight`/`SetWidth`'d to match its neighbour, giving flush alignment at both ends.
-5. **Clusters** — A cluster is the connected component of frames joined by snap links, viewed as a spanning tree rooted at the one member anchored to `UIParent`. Every non-root member is single-point anchored to its parent in the tree, with an explicit `SetSize`-matched perpendicular dimension. When a member is grabbed, the cluster is re-rooted on the grabbed frame so the whole tree follows through Blizzard's `StartMoving` anchor propagation. Links that would close a cycle are ignored when the cluster is rebuilt, so there are never recursive or broken point chains.
-
-6. **Live resize propagation** — `RegisterFrame` installs four hooks on each frame: `HookScript("OnSizeChanged", …)` plus `hooksecurefunc` on `SetSize`, `SetHeight`, and `SetWidth`. All four feed into the same handler, which (a) pushes the resized frame's dimension onto the cluster root if reachable through axis-matching links, then (b) rebuilds the whole cluster's snap chain — re-`SetSize`'ing each child to its parent's dimension AND re-applying its midpoint anchor. The second step is what preserves vertical/horizontal alignment after a resize: the owning addon frequently calls `ClearAllPoints` inside its resize logic, which would otherwise leave the frames floating wherever the addon last positioned them. Re-anchoring on every resize keeps the row/column visually coherent. The `__syncingSize` re-entrancy guard coalesces the four hooks and prevents cascades.
-7. **Persistence** — After any structural change (snap, unsnap, register, unregister) the group writes its link graph and root positions to `profileTable[groupName]`. `TryRestore` runs after every `RegisterFrame` and idempotently creates links whose two frames are both currently registered, so the saved layout reassembles correctly regardless of registration order.
+1. **Registration** — `RegisterFrame` wraps the frame's drag scripts (or leaves them alone with `wrap_drag_scripts = false`) and installs the size hooks.
+2. **Proximity scan** — While a drag is in progress, a dedicated per-group `UpdateFrame` runs `OnUpdate` throttled by `options.update_interval`. Each tick, every other visible frame in the group is evaluated against the dragged frame, using outer rects converted to screen pixels. Only the grabbed frame's edges are tested. Pairings where either frame's connecting side is already taken are skipped. Candidates are ranked by `edge gap + perpendicular center misalignment`.
+3. **Preview** — Two thin colored textures are positioned on the connecting outer edges of both frames. The previewed pairing is re-scored every tick: it is dropped as soon as it goes out of range, and replaced only when another pairing is closer by more than `options.hysteresis`.
+4. **Drop** — The previewed pairing is checked once more at the drop spot; if still valid, the link is added and the merged cluster is rebuilt from the target's root.
+5. **Clusters** — A cluster is a spanning tree rooted at the one member anchored to `UIParent`. When a member is grabbed, the cluster is re-rooted on it so the whole tree follows through `StartMoving` anchor propagation, and its clamp rect is extended over the whole cluster.
+6. **Live resize propagation** — see Side Pairings above.
+7. **Persistence** — After drops, links, unlinks and unsnaps the group writes its link graph and root positions to `profileTable[groupName]`. `TryRestore` runs after every `RegisterFrame` and idempotently creates validated links whose two frames are both registered.
 
 ---
 
 ## Performance Notes
 
-- Proximity scans run **only while a drag is active** and are throttled by `options.update_interval` — there is zero cost when no frame is being dragged.
-- Each scan iterates only the frames registered in the same group, never a full-screen sweep. Splitting frames into several smaller groups further cuts the cost.
-- Edge math uses simple O(1) distance and overlap comparisons; no allocations occur in the hot path beyond a single reused candidate table.
-- Hysteresis keeps the chosen candidate stable, avoiding repeated glow texture re-anchoring while the cursor hovers between two edges.
-- For very large groups, a spatial bucket / grid index over frame centers could replace the linear scan in the candidate-finder without changing the public API.
+- Proximity scans run **only while a drag is active** and are throttled by `options.update_interval`.
+- Each scan iterates only the frames registered in the same group.
+- Edge math uses simple O(1) distance and overlap comparisons.
+- Hysteresis keeps the chosen candidate stable, avoiding repeated glow re-anchoring.
+- Size hooks skip work when nothing changed, and batches suspend propagation during bulk changes.
+- For very large groups, a spatial bucket / grid index over frame centers could replace the linear scan without changing the public API.
 
 ---
 
 ## Extensibility
 
-The architecture is built so the snapping vocabulary can grow without disturbing existing behavior:
-
-- **Corner snapping** — Add diagonal pairings (e.g. `topleft ↔ topleft`) to `SNAP_OPPOSITE` and `SNAP_AXIS`, plus a matching branch in the edge evaluator. The preview, anchor and persistence pipeline is already generic over side names.
-- **Grid snapping** — Add an optional virtual grid target to the candidate finder (snap edges to the nearest grid line when no frame candidate is closer); a grid hit can be anchored by treating the grid line as a synthetic target side and reusing the two-point anchor helper.
-- **Single-point (midpoint) anchoring** — Today every side snap stretches the dragged frame's perpendicular dimension to match the target. An alternate code path in `snapApplyTwoPointAnchor`, guarded by a new option flag, could fall back to a single-point anchor that preserves the dragged frame's original size at the cost of edge alignment.
+- **Corner snapping** — Add diagonal pairings (e.g. `topleft ↔ topleft`) to `SNAP_OPPOSITE` and `SNAP_AXIS`, plus a matching branch in the edge evaluator.
+- **Grid snapping** — Add an optional virtual grid target to the candidate finder; a grid hit can reuse the anchor offset helper.

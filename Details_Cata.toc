@@ -157,6 +157,7 @@ classes\class_spellutility.lua
 classes\include_instance.lua
 classes\class_instance.lua
 classes\class_instance_detached.lua
+classes\class_instance_snap.lua
 
 classes\class_custom.lua
 classes\custom_damagedone.lua

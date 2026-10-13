@@ -1747,7 +1747,7 @@ do
                 get = function() return tonumber(Details.grouping_horizontal_gap) end,
                 set = function(self, fixedparam, value)
                     Details.grouping_horizontal_gap = value
-                    getInstance():BaseFrameSnap()
+                    Details222.WindowSnap.RefreshOptions()
                     afterUpdate(getInstance())
                 end,
                 min = 0,
@@ -1764,6 +1764,7 @@ do
                 get = function() return Details.disable_window_groups end,
                 set = function(self, fixedparam, value)
                     Details.disable_window_groups = value
+                    Details222.WindowSnap.RefreshOptions()
                     afterUpdate(getInstance())
                 end,
                 name = Loc ["STRING_OPTIONS_DISABLE_GROUPS"],

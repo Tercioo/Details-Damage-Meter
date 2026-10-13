@@ -197,10 +197,21 @@ framework:RegisterForDetailsMove (frame, instance)
 set OnMouseDown and OnMouseUp scripts on 'frame', when is moved, the instance is also moved.
 
 instance:IsGroupedWith (instance)
-returns true with the 'self instance' is groupped with the passed instance object.
+returns true when the 'self instance' is snapped directly to the passed instance object.
 
 instance:GetInstanceGroup()
-returns a table with instances objects of all instances inside the group.
+returns a table with the 'self instance' first, then every other open instance of its group.
+
+instance:MakeInstanceGroup (sides)
+groups the instance with others, sides = {left, bottom, right, top}, each the id of the window going on that side of this window, or false.
+the first window linked keeps its place and this instance moves next to it, windows linked after that move next to this instance.
+returns false when a side could not be linked (the side is taken, or the two windows are already in the same group).
+
+instance:UngroupInstance()
+takes the instance out of its group, it stays where it is and keeps its size.
+
+window groups are made by the snap group of the Details Framework, instance.snap holds the saved links: {[side] = windowId}, side 1 = left, 2 = bottom, 3 = right, 4 = top.
+writing instance.snap directly does not move any window, use MakeInstanceGroup and UngroupInstance.
 
 --------------------
 

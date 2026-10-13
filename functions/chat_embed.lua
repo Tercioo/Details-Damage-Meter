@@ -157,6 +157,8 @@ function Details.chat_embed:DoEmbed(bIsStartup)
                 local window1 = Details:GetInstance(1)
 
                 window1:UngroupInstance()
+                --the chat frame places and sizes the window from now on, it leaves the snap group
+                Details222.WindowSnap.UnregisterInstance(window1)
                 window1.baseframe:ClearAllPoints()
 
                 window1.baseframe:SetParent(chatFrame)
@@ -195,6 +197,9 @@ function Details.chat_embed:DoEmbed(bIsStartup)
 
                 window1:UngroupInstance()
                 window2:UngroupInstance()
+                --the chat frame places and sizes the windows from now on, they leave the snap group
+                Details222.WindowSnap.UnregisterInstance(window1)
+                Details222.WindowSnap.UnregisterInstance(window2)
                 window1.baseframe:ClearAllPoints()
                 window2.baseframe:ClearAllPoints()
 
@@ -216,10 +221,8 @@ function Details.chat_embed:DoEmbed(bIsStartup)
                 local statusbar_enabled1 = window1.show_statusbar
                 local statusbar_enabled2 = window2.show_statusbar
 
-                Details:Destroy(window1.snap)
-                Details:Destroy(window2.snap)
-                window1.snap[3] = 2; window2.snap[1] = 1;
-                window1.horizontalSnap = true; window2.horizontalSnap = true
+                --a saved link only, so editing the group in the options reaches both windows
+                window1:MakeInstanceGroup({false, false, 2, false})
 
                 local topOffset = window1.toolbar_side == 1 and -20 or 0
                 local bottomOffset = (window1.show_statusbar and 14 or 0) + (window1.toolbar_side == 2 and 20 or 0)
@@ -263,6 +266,7 @@ function Details.chat_embed:ReleaseEmbed(bSecondWindow)
         if (previous_pos) then
             window2:RestorePositionFromPositionTable(previous_pos)
         end
+        Details222.WindowSnap.RegisterInstance(window2)
         return
     end
     window1:UngroupInstance();
@@ -279,6 +283,7 @@ function Details.chat_embed:ReleaseEmbed(bSecondWindow)
     if (previous_pos) then
         window1:RestorePositionFromPositionTable(previous_pos)
     end
+    Details222.WindowSnap.RegisterInstance(window1)
 
     if (not Details.chat_tab_embed.single_window and window2) then
         window2:UngroupInstance()
@@ -295,6 +300,7 @@ function Details.chat_embed:ReleaseEmbed(bSecondWindow)
         if (previousPos) then
             window2:RestorePositionFromPositionTable(previousPos)
         end
+        Details222.WindowSnap.RegisterInstance(window2)
     end
 end
 

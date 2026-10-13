@@ -332,6 +332,7 @@ function Details222.StartUp.StartMeUp()
 		function Details:CheckWallpaperAfterStartup()
 			if (not Details.profile_loaded) then
 				Details.Schedules.NewTimer(2, Details.CheckWallpaperAfterStartup, Details)
+				return
 			end
 
 			for instanceId = 1, Details.instances_amount do
@@ -340,13 +341,11 @@ function Details222.StartUp.StartMeUp()
 					if (not instance.wallpaper.enabled) then
 						instance:InstanceWallpaper(false)
 					end
-
-					instance.do_not_snap = true
-					Details.move_janela_func(instance.baseframe, true, instance, true)
-					Details.move_janela_func(instance.baseframe, false, instance, true)
-					instance.do_not_snap = false
 				end
 			end
+
+			--skins are final now, re-align the window groups with the final title bar and status bar sizes
+			Details222.WindowSnap.ImportLayout()
 
 			Details.CheckWallpaperAfterStartup = nil
 			Details.profile_loaded = nil

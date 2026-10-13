@@ -404,595 +404,16 @@ end
 
 Details.OnEnterMainWindow = OnEnterMainWindow
 
---functions to calculate the snapping feature
-
-local function VPL(instance, esta_instancia)
-	--conferir esquerda
-	if (instance.ponto4.x-0.5 < esta_instancia.ponto1.x) then --a janela esta a esquerda
-		if (instance.ponto4.x+20 > esta_instancia.ponto1.x) then --a janela esta a menos de 20 pixels de dist�ncia
-			if (instance.ponto4.y < esta_instancia.ponto1.y + 100 and instance.ponto4.y > esta_instancia.ponto1.y - 100) then --a janela esta a +20 ou -20 pixels de dist�ncia na vertical
-				return 1
-			end
-		end
-	end
-	return nil
-end
-
-local function VPB(instance, esta_instancia)
-	--conferir baixo
-	if (instance.ponto1.y+(20 * instance.window_scale) < esta_instancia.ponto2.y - (16 * esta_instancia.window_scale)) then --a janela esta em baixo
-		if (instance.ponto1.x > esta_instancia.ponto2.x-100 and instance.ponto1.x < esta_instancia.ponto2.x+100) then --a janela esta a 20 pixels de dist�ncia para a esquerda ou para a direita
-			if (instance.ponto1.y+(20 * instance.window_scale) > esta_instancia.ponto2.y - (36 * esta_instancia.window_scale)) then --esta a 20 pixels de dist�ncia
-				return 2
-			end
-		end
-	end
-	return nil
-end
-
-local function VPR(instance, esta_instancia)
-	--conferir lateral direita
-	if (instance.ponto2.x+0.5 > esta_instancia.ponto3.x) then --a janela esta a direita
-		if (instance.ponto2.x-20 < esta_instancia.ponto3.x) then --a janela esta a menos de 20 pixels de dist�ncia
-			if (instance.ponto2.y < esta_instancia.ponto3.y + 100 and instance.ponto2.y > esta_instancia.ponto3.y - 100) then --a janela esta a +20 ou -20 pixels de dist�ncia na vertical
-				return 3
-			end
-		end
-	end
-	return nil
-end
-
-local function VPT(instance, esta_instancia)
-	--conferir cima
-	if (instance.ponto3.y - (16 * instance.window_scale) > esta_instancia.ponto4.y + (20 * esta_instancia.window_scale)) then --a janela esta em cima
-		if (instance.ponto3.x > esta_instancia.ponto4.x-100 and instance.ponto3.x < esta_instancia.ponto4.x+100) then --a janela esta a 20 pixels de dist�ncia para a esquerda ou para a direita
-			if (esta_instancia.ponto4.y+(40 * esta_instancia.window_scale) > instance.ponto3.y - (16 * instance.window_scale)) then
-				return 4
-			end
-		end
-	end
-	return nil
-end
-
-Details.VPT = VPT
-Details.VPR = VPR
-Details.VPB = VPB
-Details.VPL = VPL
-
-local colorRedTable = {1, 0.2, 0.2}
-local colorGreenTable = {0.2, 1, 0.2}
-local pixelsPerArrow = 50
-local commentador = C_Commentator or {FollowUnit = function()end, FollowPlayer = function()end}
-
-local tempo_movendo
-local precisa_ativar
-local instancia_alvo
-local tempo_fades
-local nao_anexados
-local flash_bounce
-local start_draw_lines
-local instance_ids_shown
-local need_show_group_guide
-
-local show_instance_ids = function()
-	for id, instance in Details:ListInstances() do
-		if (instance:IsEnabled()) then
-			local id_texture1 = instance.baseframe.id_texture1
-			if (not id_texture1) then
-				--instancia.
-				instance.baseframe.id_texture1 = instance.floatingframe:CreateTexture(nil, "overlay")
-				instance.baseframe.id_texture2 = instance.floatingframe:CreateTexture(nil, "overlay")
-				instance.baseframe.id_texture1:SetTexture([[Interface\Timer\BigTimerNumbers]])
-				instance.baseframe.id_texture2:SetTexture([[Interface\Timer\BigTimerNumbers]])
-			end
-
-			local h = instance.baseframe:GetHeight() * 0.80
-			instance.baseframe.id_texture1:SetSize(h, h)
-			instance.baseframe.id_texture2:SetSize(h, h)
-
-			local id = instance:GetId()
-
-			local first, second = floor(id/10), floor(id%10)
-
-			if (id >= 10) then
-				instance.baseframe.id_texture1:SetPoint("center", instance.baseframe, "center", -h/2/2, 0)
-				instance.baseframe.id_texture2:SetPoint("left", instance.baseframe.id_texture1, "right", -h/2, 0)
-
-				first = first + 1
-				local line = ceil(first / 4)
-				local x = ( first - ( (line-1) * 4 ) )  / 4
-				local l, r, t, b = x-0.25, x, 0.33 * (line-1), 0.33 * line
-				instance.baseframe.id_texture1:SetTexCoord(l, r, t, b)
-
-				second = second + 1
-				local line = ceil(second / 4)
-				local x = ( second - ( (line-1) * 4 ) )  / 4
-				local l, r, t, b = x-0.25, x, 0.33 * (line-1), 0.33 * line
-				instance.baseframe.id_texture2:SetTexCoord(l, r, t, b)
-
-				instance.baseframe.id_texture1:Show()
-				instance.baseframe.id_texture2:Show()
-			else
-				instance.baseframe.id_texture1:SetPoint("center", instance.baseframe, "center")
-
-				second = second + 1
-				local line = ceil(second / 4)
-				local x = ( second - ( (line-1) * 4 ) )  / 4
-				local l, r, t, b = x-0.25, x, 0.33 * (line-1), 0.33 * line
-				instance.baseframe.id_texture1:SetTexCoord(l, r, t, b)
-
-				instance.baseframe.id_texture1:Show()
-				instance.baseframe.id_texture2:Hide()
-			end
-		end
-	end
-end
-
-local update_line = function(self, target_frame)
-	local target_instance_PosX, target_instance_PosY = target_frame.instance:GetPositionOnScreen()
-	local moving_instance_PosX, moving_instance_PosY = self.instance:GetPositionOnScreen()
-
-	target_instance_PosX = target_instance_PosX or 0
-	target_instance_PosY = target_instance_PosY or 0
-	moving_instance_PosX = moving_instance_PosX or 0
-	moving_instance_PosY = moving_instance_PosY or 0
-
-	local dX = target_instance_PosX - moving_instance_PosX
-	local dY = target_instance_PosY - moving_instance_PosY
-	local distance = (dX^2 + dY^2) ^ 0.5
-	local angle = atan2(dY, dX)
-
-	local guide_balls = Details.guide_balls
-	if (not guide_balls) then
-		Details.guide_balls = {}
-		guide_balls = Details.guide_balls
-	end
-
-	for index, ball in ipairs(guide_balls) do
-		ball:Hide()
-	end
-
-	self.instance:AtualizaPontos()
-	target_frame.instance:AtualizaPontos()
-
-	local color = colorRedTable
-	local _R, _T, _L, _B = VPL (self.instance, target_frame.instance), VPB (self.instance, target_frame.instance), VPR (self.instance, target_frame.instance), VPT (self.instance, target_frame.instance)
-	if (_R or _T or _L or _B) then
-		color = colorGreenTable
-	end
-
-	for i = 0, (distance/pixelsPerArrow) do
-		local x = distance - (i * pixelsPerArrow)
-		x = x * cos(angle)
-		local y = distance - (i * pixelsPerArrow)
-		y = y * sin(angle)
-
-		local ball = guide_balls [i]
-		if (not ball) then
-			ball = Details.overlay_frame:CreateTexture(nil, "Overlay")
-			ball:SetTexture([[Interface\AddOns\Details\images\icons]])
-			ball:SetSize(16, 16)
-			ball:SetAlpha(0.3)
-			ball:SetTexCoord(410/512, 426/512, 2/512, 18/512)
-			table.insert(guide_balls, ball)
-		end
-
-		ball:ClearAllPoints()
-		ball:SetPoint("CENTER", self, "CENTER", x, y) --baseframse center
-		ball:Show()
-		ball:SetVertexColor(unpack(color))
-	end
-
-end
-
-local movement_onupdate = function(self, elapsed)
-		if (start_draw_lines and start_draw_lines > 0.95) then
-			update_line (self, instancia_alvo.baseframe)
-		elseif (start_draw_lines) then
-			start_draw_lines = start_draw_lines + elapsed
-		end
-
-		if (instance_ids_shown and instance_ids_shown > 0.95) then
-			show_instance_ids()
-			instance_ids_shown = nil
-
-			if (need_show_group_guide and not DetailsFramework.IsTimewalkWoW()) then
-				Details.MicroButtonAlert.Text:SetText(Loc["STRING_WINDOW1ATACH_DESC"])
-				Details.MicroButtonAlert:SetPoint("bottom", need_show_group_guide.baseframe, "top", 0, 30)
-				Details.MicroButtonAlert:SetHeight(320)
-				Details.MicroButtonAlert:Show()
-
-				need_show_group_guide = nil
-			end
-		elseif (instance_ids_shown) then
-			instance_ids_shown = instance_ids_shown + elapsed
-		end
-
-		if (tempo_movendo and tempo_movendo < 0) then
-
-			if (precisa_ativar) then --se a inst�ncia estiver fechada
-				Details.FadeHandler.Fader(instancia_alvo.baseframe, "ALPHA", 0.15)
-				Details.FadeHandler.Fader(instancia_alvo.baseframe.cabecalho.ball, "ALPHA", 0.15)
-				Details.FadeHandler.Fader(instancia_alvo.baseframe.cabecalho.atributo_icon, "ALPHA", 0.15)
-				instancia_alvo:SaveMainWindowPosition()
-				instancia_alvo:RestoreMainWindowPosition()
-				precisa_ativar = false
-
-			elseif (tempo_fades) then
-
-				if (flash_bounce == 0) then
-
-					flash_bounce = 1
-
-					local tem_livre = false
-
-					for lado, livre in ipairs(nao_anexados) do
-						if (livre) then
-							if (lado == 1) then
-
-								local texture = instancia_alvo.h_esquerda.texture
-								texture:ClearAllPoints()
-
-								if (instancia_alvo.toolbar_side == 1) then
-									if (instancia_alvo.show_statusbar) then
-										texture:SetPoint("topright", instancia_alvo.baseframe, "topleft", 0, 20)
-										texture:SetPoint("bottomright", instancia_alvo.baseframe, "bottomleft", 0, -14)
-									else
-										texture:SetPoint("topright", instancia_alvo.baseframe, "topleft", 0, 20)
-										texture:SetPoint("bottomright", instancia_alvo.baseframe, "bottomleft", 0, 0)
-									end
-								else
-									if (instancia_alvo.show_statusbar) then
-										texture:SetPoint("topright", instancia_alvo.baseframe, "topleft", 0, 0)
-										texture:SetPoint("bottomright", instancia_alvo.baseframe, "bottomleft", 0, -34)
-									else
-										texture:SetPoint("topright", instancia_alvo.baseframe, "topleft", 0, 0)
-										texture:SetPoint("bottomright", instancia_alvo.baseframe, "bottomleft", 0, -20)
-									end
-								end
-
-								instancia_alvo.h_esquerda:Flash(1, 1, 2.0, false, 0, 0)
-								tem_livre = true
-
-							elseif (lado == 2) then
-
-
-								local texture = instancia_alvo.h_baixo.texture
-								texture:ClearAllPoints()
-
-								if (instancia_alvo.toolbar_side == 1) then
-									if (instancia_alvo.show_statusbar) then
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "bottomleft", 0, -14)
-										texture:SetPoint("topright", instancia_alvo.baseframe, "bottomright", 0, -14)
-									else
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "bottomleft", 0, 0)
-										texture:SetPoint("topright", instancia_alvo.baseframe, "bottomright", 0, 0)
-									end
-								else
-									if (instancia_alvo.show_statusbar) then
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "bottomleft", 0, -34)
-										texture:SetPoint("topright", instancia_alvo.baseframe, "bottomright", 0, -34)
-									else
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "bottomleft", 0, -20)
-										texture:SetPoint("topright", instancia_alvo.baseframe, "bottomright", 0, -20)
-									end
-								end
-
-								instancia_alvo.h_baixo:Flash(1, 1, 2.0, false, 0, 0)
-								tem_livre = true
-
-							elseif (lado == 3) then
-
-								local texture = instancia_alvo.h_direita.texture
-								texture:ClearAllPoints()
-
-								if (instancia_alvo.toolbar_side == 1) then
-									if (instancia_alvo.show_statusbar) then
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "topright", 0, 20)
-										texture:SetPoint("bottomleft", instancia_alvo.baseframe, "bottomright", 0, -14)
-									else
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "topright", 0, 20)
-										texture:SetPoint("bottomleft", instancia_alvo.baseframe, "bottomright", 0, 0)
-									end
-								else
-									if (instancia_alvo.show_statusbar) then
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "topright", 0, 0)
-										texture:SetPoint("bottomleft", instancia_alvo.baseframe, "bottomright", 0, -34)
-									else
-										texture:SetPoint("topleft", instancia_alvo.baseframe, "topright", 0, 0)
-										texture:SetPoint("bottomleft", instancia_alvo.baseframe, "bottomright", 0, -20)
-									end
-								end
-
-								instancia_alvo.h_direita:Flash(1, 1, 2.0, false, 0, 0)
-								tem_livre = true
-
-							elseif (lado == 4) then
-
-								local texture = instancia_alvo.h_cima.texture
-								texture:ClearAllPoints()
-
-								if (instancia_alvo.toolbar_side == 1) then
-									texture:SetPoint("bottomleft", instancia_alvo.baseframe, "topleft", 0, 20)
-									texture:SetPoint("bottomright", instancia_alvo.baseframe, "topright", 0, 20)
-								else
-									texture:SetPoint("bottomleft", instancia_alvo.baseframe, "topleft", 0, 0)
-									texture:SetPoint("bottomright", instancia_alvo.baseframe, "topright", 0, 0)
-								end
-
-								instancia_alvo.h_cima:Flash(1, 1, 2.0, false, 0, 0)
-								tem_livre = true
-
-							end
-						end
-					end
-				end
-
-				tempo_movendo = 1
-			else
-				self:SetScript("OnUpdate", nil)
-				tempo_movendo = 1
-			end
-
-		elseif (tempo_movendo) then
-			tempo_movendo = tempo_movendo - elapsed
-		end
-	end
-
-local function move_janela(baseframe, iniciando, instancia, just_updating)
-	instancia_alvo = Details:GetAllInstances() [instancia.meu_id-1]
-	if (Details.disable_window_groups) then
-		instancia_alvo = nil
-	end
-
-	if (iniciando) then
-
-		if (baseframe.isMoving) then
-			--ja esta em movimento
-			return
-		end
-
-		baseframe.isMoving = true
-		instancia:BaseFrameSnap()
-		baseframe:StartMoving()
-
-		local group = instancia:GetInstanceGroup()
-		for _, this_instance in ipairs(group) do
-			this_instance.baseframe:SetClampRectInsets (0, 0, 0, 0)
-			this_instance.isMoving = true
-		end
-
-		local _, ClampLeft, ClampRight = instancia:InstanciasHorizontais()
-		local _, ClampBottom, ClampTop = instancia:InstanciasVerticais()
-
-		baseframe:SetClampRectInsets (-ClampLeft, ClampRight, ClampTop, -ClampBottom)
-
-		if (instancia_alvo and (instancia_alvo.ativa or not just_updating)) then
-
-			tempo_fades = 1.0
-			nao_anexados = {true, true, true, true}
-			tempo_movendo = 1
-			flash_bounce = 0
-			instance_ids_shown = 0
-			start_draw_lines = 0
-			need_show_group_guide = nil
-
-			for lado, snap_to in pairs(instancia_alvo.snap) do
-				if (snap_to == instancia.meu_id) then
-					start_draw_lines = false
-				end
-			end
-
-			for lado, snap_to in pairs(instancia_alvo.snap) do
-				if (snap_to) then
-					if (snap_to == instancia.meu_id) then
-						tempo_fades = nil
-						break
-					end
-					nao_anexados [lado] = false
-				end
-			end
-
-			for lado = 1, 4 do
-				if (instancia_alvo.horizontalSnap and instancia.verticalSnap) then
-					nao_anexados [lado] = false
-				elseif (instancia_alvo.horizontalSnap and lado == 2) then
-					nao_anexados [lado] = false
-				elseif (instancia_alvo.horizontalSnap and lado == 4) then
-					nao_anexados [lado] = false
-				elseif (instancia_alvo.verticalSnap and lado == 1) then
-					nao_anexados [lado] = false
-				elseif (instancia_alvo.verticalSnap and lado == 3) then
-					nao_anexados [lado] = false
-				end
-			end
-
-			local need_start = not instancia_alvo.iniciada
-			precisa_ativar = not instancia_alvo.ativa
-
-			if (need_start) then --se a inst�ncia n�o tiver sido aberta ainda
-				local lower_instance = Details:GetLowerInstanceNumber()
-
-				instancia_alvo:RestauraJanela(instancia_alvo.meu_id, true)
-				if (instancia_alvo:IsSoloMode()) then
-					Details.SoloTables:switch()
-				end
-
-				instancia_alvo.ativa = false
-
-				instancia_alvo:SaveMainWindowPosition()
-				instancia_alvo:RestoreMainWindowPosition()
-
-				instancia_alvo:ShutDown()
-				Details.FadeHandler.Fader(instancia_alvo.baseframe, 1)
-				Details.FadeHandler.Fader(instancia_alvo.rowframe, parseRowFrameAlpha(1))
-				Details.FadeHandler.Fader(instancia_alvo.baseframe.cabecalho.ball, 1)
-
-				need_start = false
-			end
-
-			baseframe:SetScript("OnUpdate", movement_onupdate)
-		else
-			--eh a instancia 1
-			local got_snap
-			for side, instance_id in pairs(instancia.snap) do
-				if (instance_id) then
-					got_snap = true
-				end
-			end
-
-			need_show_group_guide = nil
-
-			if (not got_snap) then
-				need_show_group_guide = instancia
-			end
-
-			tempo_movendo = nil
-			start_draw_lines = nil
-			instance_ids_shown = 0
-			baseframe:SetScript("OnUpdate", movement_onupdate)
-		end
-
+--moves a window with the mouse; its group moves along and the snap module (classes/class_instance_snap.lua)
+--previews and makes new groups while it moves
+---@param baseframe frame
+---@param isStarting boolean true when the mouse button goes down, false when it goes up
+---@param instancia instance
+local move_janela = function(baseframe, isStarting, instancia)
+	if (isStarting) then
+		Details222.WindowSnap.BeginMove(instancia)
 	else
-		baseframe:StopMovingOrSizing()
-		baseframe.isMoving = false
-		baseframe:SetScript("OnUpdate", nil)
-
-		if (Details.guide_balls) then
-			for index, ball in ipairs(Details.guide_balls) do
-				ball:Hide()
-			end
-		end
-
-		for _, ins in Details:ListInstances() do
-			if (ins.baseframe) then
-				ins.baseframe:SetUserPlaced (false)
-				if (ins.baseframe.id_texture1) then
-					ins.baseframe.id_texture1:Hide()
-					ins.baseframe.id_texture2:Hide()
-				end
-			end
-		end
-
-		--baseframe:SetClampRectInsets (unpack(_detalhes.window_clamp))
-
-		if (instancia_alvo and not instancia.do_not_snap and not instancia_alvo.do_not_snap) then
-			instancia:AtualizaPontos()
-			instancia_alvo:AtualizaPontos()
-
-			local esquerda, baixo, direita, cima
-			local meu_id = instancia.meu_id --id da inst�ncia que esta sendo movida
-
-			local isVertical = instancia_alvo.verticalSnap
-			local isHorizontal = instancia_alvo.horizontalSnap
-
-			local isSelfVertical = instancia.verticalSnap
-			local isSelfHorizontal = instancia.horizontalSnap
-
-			local _R, _T, _L, _B
-
-			if (isVertical and not isSelfHorizontal) then
-				_T, _B = VPB (instancia, instancia_alvo), VPT (instancia, instancia_alvo)
-			elseif (isHorizontal and not isSelfVertical) then
-				_R, _L = VPL (instancia, instancia_alvo), VPR (instancia, instancia_alvo)
-			elseif (not isVertical and not isHorizontal) then
-				_R, _T, _L, _B = VPL (instancia, instancia_alvo), VPB (instancia, instancia_alvo), VPR (instancia, instancia_alvo), VPT (instancia, instancia_alvo)
-			end
-
-			if (_L) then
-				if (not instancia:EstaAgrupada(instancia_alvo, _L)) then
-					esquerda = instancia_alvo.meu_id
-					instancia.horizontalSnap = true
-					instancia_alvo.horizontalSnap = true
-				end
-			end
-
-			if (_B) then
-				if (not instancia:EstaAgrupada(instancia_alvo, _B)) then
-					baixo = instancia_alvo.meu_id
-					instancia.verticalSnap = true
-					instancia_alvo.verticalSnap = true
-				end
-			end
-
-			if (_R) then
-				if (not instancia:EstaAgrupada(instancia_alvo, _R)) then
-					direita = instancia_alvo.meu_id
-					instancia.horizontalSnap = true
-					instancia_alvo.horizontalSnap = true
-				end
-			end
-
-			if (_T) then
-				if (not instancia:EstaAgrupada(instancia_alvo, _T)) then
-					cima = instancia_alvo.meu_id
-					instancia.verticalSnap = true
-					instancia_alvo.verticalSnap = true
-				end
-			end
-
-			if (esquerda or baixo or direita or cima) then
-				instancia:agrupar_janelas({esquerda, baixo, direita, cima})
-
-				--tutorial
-				if (not Details:GetTutorialCVar("WINDOW_GROUP_MAKING1")) then
-					Details:SetTutorialCVar ("WINDOW_GROUP_MAKING1", true)
-
-					local group_tutorial = CreateFrame("frame", "DetailsWindowGroupPopUp1", instancia.baseframe, "DetailsHelpBoxTemplate")
-					group_tutorial.ArrowUP:Show()
-					group_tutorial.ArrowGlowUP:Show()
-					group_tutorial.Text:SetText(Loc["STRING_MINITUTORIAL_WINDOWS1"])
-					group_tutorial:SetPoint("bottom", instancia_alvo.break_snap_button, "top", 0, 24)
-					group_tutorial:Show()
-					Details.OnEnterMainWindow(instancia_alvo)
-
-				end
-			end
-
-			for _, esta_instancia in ipairs(Details:GetAllInstances()) do
-				if (not esta_instancia:IsAtiva() and esta_instancia.iniciada) then
-					esta_instancia:ResetaGump()
-
-					Details.FadeHandler.Fader(esta_instancia.baseframe, "in", 0.15)
-					Details.FadeHandler.Fader(esta_instancia.baseframe.cabecalho.ball, "in", 0.15)
-					Details.FadeHandler.Fader(esta_instancia.baseframe.cabecalho.atributo_icon, "in", 0.15)
-
-					if (esta_instancia.modo == modo_raid) then
-						Details.raid = nil
-					elseif (esta_instancia.modo == modo_alone) then
-						Details.SoloTables:switch()
-						Details.solo = nil
-					end
-
-				elseif (esta_instancia:IsAtiva()) then
-					esta_instancia:SaveMainWindowPosition()
-					esta_instancia:RestoreMainWindowPosition()
-				end
-			end
-
-		end
-
-		--salva pos de todas as janelas
-		for _, ins in ipairs(Details:GetAllInstances()) do
-			if (ins:IsEnabled()) then
-				ins:SaveMainWindowPosition()
-				ins:RestoreMainWindowPosition()
-			end
-		end
-
-		local group = instancia:GetInstanceGroup()
-		for _, this_instance in ipairs(group) do
-			this_instance.isMoving = false
-		end
-
-		Details.MicroButtonAlert:Hide()
-
-		if (instancia_alvo and instancia_alvo.ativa and instancia_alvo.baseframe) then
-			instancia_alvo.h_esquerda:Stop()
-			instancia_alvo.h_baixo:Stop()
-			instancia_alvo.h_direita:Stop()
-			instancia_alvo.h_cima:Stop()
-		end
+		Details222.WindowSnap.EndMove(instancia)
 	end
 end
 
@@ -1135,270 +556,6 @@ local function backgrounddisplay_scripts (backgrounddisplay, baseframe, instanci
 	end)
 end
 
-local function instancias_horizontais (instancia, largura, esquerda, direita)
-	if (esquerda) then
-		for lado, esta_instancia in pairs(instancia.snap) do
-			if (lado == 1) then --movendo para esquerda
-				local instancia = Details:GetAllInstances() [esta_instancia]
-				instancia.baseframe:SetWidth(largura)
-				instancia.auto_resize = true
-				instancia:ReajustaGump()
-				instancia.auto_resize = false
-				instancias_horizontais (instancia, largura, true, false)
-				Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
-			end
-		end
-	end
-
-	if (direita) then
-		for lado, esta_instancia in pairs(instancia.snap) do
-			if (lado == 3) then --movendo para esquerda
-				local instancia = Details:GetAllInstances() [esta_instancia]
-				instancia.baseframe:SetWidth(largura)
-				instancia.auto_resize = true
-				instancia:ReajustaGump()
-				instancia.auto_resize = false
-				instancias_horizontais (instancia, largura, false, true)
-				Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
-			end
-		end
-	end
-end
-
-local function instancias_verticais (instancia, altura, esquerda, direita)
-	if (esquerda) then
-		for lado, esta_instancia in pairs(instancia.snap) do
-			if (lado == 1) then --movendo para esquerda
-				local instancia = Details:GetAllInstances() [esta_instancia]
-				if (instancia:IsEnabled()) then
-					instancia.baseframe:SetHeight(altura)
-					instancia.auto_resize = true
-					instancia:ReajustaGump()
-					instancia.auto_resize = false
-					instancias_verticais (instancia, altura, true, false)
-					Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
-				end
-			end
-		end
-	end
-
-	if (direita) then
-		for lado, esta_instancia in pairs(instancia.snap) do
-			if (lado == 3) then --movendo para esquerda
-				local instancia = Details:GetAllInstances() [esta_instancia]
-				if (instancia:IsEnabled()) then
-					instancia.baseframe:SetHeight(altura)
-					instancia.auto_resize = true
-					instancia:ReajustaGump()
-					instancia.auto_resize = false
-					instancias_verticais (instancia, altura, false, true)
-					Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
-				end
-			end
-		end
-	end
-end
-
-local check_snap_side = function(instanceid, snap, id, container)
-	local instance = Details:GetInstance(instanceid)
-	if (instance and instance.snap [snap] and instance.snap [snap] == id) then
-		table.insert(container, instance)
-		return true
-	end
-end
-
-function Details:InstanciasVerticais(instance)
-	instance = self or instance
-
-	--instances that are above the current instance
-	local on_top = {}
-
-	--instances that are below the current instance
-	local on_bottom = {}
-
-	--id of the current instance
-	local id = instance:GetId()
-
-	--lower instances
-	--this is getting the instance of ID - 1, this is the reason why details windows always snap with the previous window
-	local this_instance = Details:GetInstance(id-1)
-	if (this_instance) then
-		--top side
-		if (this_instance.snap [2] and this_instance.snap [2] == id) then
-			local cid = id
-			local snapid = 2
-			for i = cid-1, 1, -1 do
-				if (check_snap_side (i, 2, cid, on_top)) then
-					cid = cid - 1
-				else
-					break
-				end
-			end
-		--bottom side
-		elseif (this_instance.snap [4] and this_instance.snap [4] == id) then
-			local cid = id
-			local snapid = 4
-			for i = cid-1, 1, -1 do
-				if (check_snap_side (i, 4, cid, on_bottom)) then
-					cid = cid - 1
-				else
-					break
-				end
-			end
-		end
-	end
-
-	--upper instances
-	local this_instance = Details:GetInstance(id+1)
-	if (this_instance) then
-		--top side
-		if (this_instance.snap [2] and this_instance.snap [2] == id) then
-			local cid = id
-			local snapid = 2
-			for i = cid+1, Details:GetNumInstancesAmount() do
-				if (check_snap_side (i, 2, cid, on_top)) then
-					cid = cid + 1
-				else
-					break
-				end
-			end
-		--bottom side
-		elseif (this_instance.snap [4] and this_instance.snap [4] == id) then
-			local cid = id
-			local snapid = 4
-			for i = cid+1, Details:GetNumInstancesAmount() do
-				if (check_snap_side (i, 4, cid, on_bottom)) then
-					cid = cid + 1
-				else
-					break
-				end
-			end
-		end
-	end
-
-	--calc top clamp
-	local topClampPixels = 0
-	local bottomClampPixels = 0
-
-	if (instance.toolbar_side == 1) then
-		topClampPixels = topClampPixels + 20
-	elseif (instance.toolbar_side == 2) then
-		bottomClampPixels = bottomClampPixels + 20
-	end
-	if (instance.show_statusbar) then
-		bottomClampPixels = bottomClampPixels + 14
-	end
-
-	for cid, thisInstance in ipairs(on_top) do
-		if (thisInstance.show_statusbar) then
-			topClampPixels = topClampPixels + 14
-		end
-		topClampPixels = topClampPixels + 20
-		topClampPixels = topClampPixels + thisInstance.baseframe:GetHeight()
-	end
-
-	for cid, thisInstance in ipairs(on_bottom) do
-		if (thisInstance.show_statusbar) then
-			bottomClampPixels = bottomClampPixels + 14
-		end
-		bottomClampPixels = bottomClampPixels + 20
-		bottomClampPixels = bottomClampPixels + thisInstance.baseframe:GetHeight()
-		table.insert(on_top, thisInstance)
-	end
-
-	return on_top, bottomClampPixels, topClampPixels
-end
-
---[[
-			lado 4
-	-----------------------------------------
-	|					|
-lado 1	|					| lado 3
-	|					|
-	|					|
-	-----------------------------------------
-			lado 2
---]]
-
-function Details:InstanciasHorizontais(instancia)
-	instancia = self or instancia
-
-	local linha_horizontal, esquerda, direita = {}, 0, 0
-
-	local top, bottom = 0, 0
-
-	local checking = instancia
-
-	local check_index_anterior = Details:GetAllInstances() [instancia.meu_id-1]
-	if (check_index_anterior and check_index_anterior:IsEnabled()) then --possiu uma inst�ncia antes de mim
-		if (check_index_anterior.snap[3] and check_index_anterior.snap[3] == instancia.meu_id) then --o index negativo vai para a esquerda
-			for i = instancia.meu_id-1, 1, -1 do
-				local esta_instancia = Details:GetAllInstances() [i]
-				if (esta_instancia.snap[3]) then
-					if (esta_instancia.snap[3] == checking.meu_id) then
-						linha_horizontal [#linha_horizontal+1] = esta_instancia
-						esquerda = esquerda + esta_instancia.baseframe:GetWidth()
-						checking = esta_instancia
-					end
-				else
-					break
-				end
-			end
-
-		elseif (check_index_anterior.snap[1] and check_index_anterior.snap[1] == instancia.meu_id) then --o index negativo vai para a direita
-			for i = instancia.meu_id-1, 1, -1 do
-				local esta_instancia = Details:GetAllInstances() [i]
-				if (esta_instancia.snap[1]) then
-					if (esta_instancia.snap[1] == checking.meu_id) then
-						linha_horizontal [#linha_horizontal+1] = esta_instancia
-						direita = direita + esta_instancia.baseframe:GetWidth()
-						checking = esta_instancia
-					end
-				else
-					break
-				end
-			end
-		end
-	end
-
-	checking = instancia
-
-	local check_index_posterior = Details:GetAllInstances() [instancia.meu_id+1]
-	if (check_index_posterior and check_index_posterior:IsEnabled()) then
-		if (check_index_posterior.snap[3] and check_index_posterior.snap[3] == instancia.meu_id) then --o index posterior vai para a esquerda
-			for i = instancia.meu_id+1, #Details:GetAllInstances() do
-				local esta_instancia = Details:GetAllInstances() [i]
-				if (esta_instancia.snap[3]) then
-					if (esta_instancia.snap[3] == checking.meu_id) then
-						linha_horizontal [#linha_horizontal+1] = esta_instancia
-						esquerda = esquerda + esta_instancia.baseframe:GetWidth()
-						checking = esta_instancia
-					end
-				else
-					break
-				end
-			end
-
-		elseif (check_index_posterior.snap[1] and check_index_posterior.snap[1] == instancia.meu_id) then --o index posterior vai para a direita
-			for i = instancia.meu_id+1, #Details:GetAllInstances() do
-				local esta_instancia = Details:GetAllInstances() [i]
-				if (esta_instancia.snap[1]) then
-					if (esta_instancia.snap[1] == checking.meu_id) then
-						linha_horizontal [#linha_horizontal+1] = esta_instancia
-						direita = direita + esta_instancia.baseframe:GetWidth()
-						checking = esta_instancia
-					end
-				else
-					break
-				end
-			end
-		end
-	end
-
-	return linha_horizontal, esquerda, direita, bottom, top
-
-end
-
 local resizeTooltip = {
 	{text = "|cff33CC00Click|cffEEEEEE: ".. Loc["STRING_RESIZE_COMMON"]},
 
@@ -1423,34 +580,16 @@ local resize_scripts_onmousedown = function(self, button)
 
 	if (not self:GetParent().isLocked and button == "LeftButton" and self._instance.modo ~= Details._detalhes_props["MODO_ALONE"]) then
 		self:GetParent().isResizing = true
-		self._instance:BaseFrameSnap()
 
-		local isVertical = self._instance.verticalSnap
-		local isHorizontal = self._instance.horizontalSnap
-
-		local agrupadas
-		if (self._instance.verticalSnap) then
-			agrupadas = self._instance:InstanciasVerticais()
-		elseif (self._instance.horizontalSnap) then
-			agrupadas = self._instance:InstanciasHorizontais()
-		end
-
-		self._instance.stretchToo = agrupadas
-		if (self._instance.stretchToo and #self._instance.stretchToo > 0) then
-			for _, esta_instancia in ipairs(self._instance.stretchToo) do
-				esta_instancia.baseframe._place = esta_instancia:SaveMainWindowPosition()
-				esta_instancia.baseframe.isResizing = true
-			end
-		end
+		--the resized window becomes the anchor of its group, the grouped windows follow its new size
+		Details222.WindowSnap.BeginResize(self._instance)
 
 		if (self._myside == "<") then
 			if (IsShiftKeyDown()) then
 				self._instance.baseframe:StartSizing("left")
-				self._instance.eh_horizontal = true
 
 			elseif (IsAltKeyDown()) then
 				self._instance.baseframe:StartSizing("top")
-				self._instance.eh_vertical = true
 
 			elseif (IsControlKeyDown()) then
 				self._instance.baseframe:StartSizing("bottomleft")
@@ -1466,11 +605,9 @@ local resize_scripts_onmousedown = function(self, button)
 		elseif (self._myside == ">") then
 			if (IsShiftKeyDown()) then
 				self._instance.baseframe:StartSizing("right")
-				self._instance.eh_horizontal = true
 
 			elseif (IsAltKeyDown()) then
 				self._instance.baseframe:StartSizing("top")
-				self._instance.eh_vertical = true
 
 			elseif (IsControlKeyDown()) then
 				self._instance.baseframe:StartSizing("bottomright")
@@ -1519,68 +656,49 @@ local resizeScriptsOnMouseUp = function(self, button)
 		self:GetParent():StopMovingOrSizing()
 		self:GetParent().isResizing = false
 
-		self._instance:RefreshBars()
-		self._instance:InstanceReset()
-		self._instance:ReajustaGump()
+		local resizedInstance = self._instance
+		resizedInstance:RefreshBars()
+		resizedInstance:InstanceReset()
+		resizedInstance:ReajustaGump()
 
-		if (self._instance.stretchToo and #self._instance.stretchToo > 0) then
-			for _, esta_instancia in ipairs(self._instance.stretchToo) do
-				esta_instancia.baseframe:StopMovingOrSizing()
-				esta_instancia.baseframe.isResizing = false
-				esta_instancia:RefreshBars()
-				esta_instancia:InstanceReset()
-				esta_instancia:ReajustaGump()
-				Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
+		--the windows grouped with it were resized along by the snap module
+		for index, groupInstance in ipairs(Details222.WindowSnap.GetClusterInstances(resizedInstance)) do
+			if (groupInstance ~= resizedInstance and groupInstance:IsEnabled()) then
+				groupInstance:RefreshBars()
+				groupInstance:InstanceReset()
+				groupInstance:ReajustaGump()
+				Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, groupInstance)
 			end
-			self._instance.stretchToo = nil
 		end
 
-		local largura = self._instance.baseframe:GetWidth()
-		local altura = self._instance.baseframe:GetHeight()
+		Details:SendEvent("DETAILS_INSTANCE_ENDRESIZE", nil, resizedInstance)
 
-		if (self._instance.eh_horizontal) then
-			instancias_horizontais(self._instance, largura, true, true)
-			self._instance.eh_horizontal = nil
-		end
+		--ctrl + resize: every other window takes the same size
+		if (resizedInstance.eh_tudo) then
+			local width = resizedInstance.baseframe:GetWidth()
+			local height = resizedInstance.baseframe:GetHeight()
 
-		--if (instancia.eh_vertical) then
-			instancias_verticais(self._instance, altura, true, true)
-			self._instance.eh_vertical = nil
-		--end
-
-		Details:SendEvent("DETAILS_INSTANCE_ENDRESIZE", nil, self._instance)
-
-		if (self._instance.eh_tudo) then
-			for _, esta_instancia in ipairs(Details:GetAllInstances()) do
-				if (esta_instancia:IsAtiva() and esta_instancia.modo ~= Details._detalhes_props["MODO_ALONE"]) then
-					esta_instancia.baseframe:ClearAllPoints()
-					esta_instancia:SaveMainWindowPosition()
-					esta_instancia:RestoreMainWindowPosition()
+			Details222.WindowSnap.RunBatch(function()
+				for index, otherInstance in ipairs(Details:GetAllInstances()) do
+					if (otherInstance:IsAtiva() and otherInstance ~= resizedInstance and otherInstance.modo ~= Details._detalhes_props["MODO_ALONE"]) then
+						otherInstance.baseframe:SetWidth(width)
+						otherInstance.baseframe:SetHeight(height)
+						otherInstance.auto_resize = true
+						otherInstance:RefreshBars()
+						otherInstance:InstanceReset()
+						otherInstance:ReajustaGump()
+						otherInstance.auto_resize = false
+						Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, otherInstance)
+					end
 				end
-			end
+			end)
 
-			for _, esta_instancia in ipairs(Details:GetAllInstances()) do
-				if (esta_instancia:IsAtiva() and esta_instancia ~= self._instance and esta_instancia.modo ~= Details._detalhes_props["MODO_ALONE"]) then
-					esta_instancia.baseframe:SetWidth(largura)
-					esta_instancia.baseframe:SetHeight(altura)
-					esta_instancia.auto_resize = true
-					esta_instancia:RefreshBars()
-					esta_instancia:InstanceReset()
-					esta_instancia:ReajustaGump()
-					esta_instancia.auto_resize = false
-					Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
-				end
-			end
-
-			self._instance.eh_tudo = nil
+			resizedInstance.eh_tudo = nil
 		end
 
-		self._instance:BaseFrameSnap()
-
-		for _, esta_instancia in ipairs(Details:GetAllInstances()) do
-			if (esta_instancia:IsAtiva()) then
-				esta_instancia:SaveMainWindowPosition()
-				esta_instancia:RestoreMainWindowPosition()
+		for index, otherInstance in ipairs(Details:GetAllInstances()) do
+			if (otherInstance:IsAtiva()) then
+				otherInstance:SaveMainWindowPosition()
 			end
 		end
 
@@ -2702,45 +1820,19 @@ local function button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 			gump:GradientEffect (baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, 0.05, 0.5)
 		end
 
-		if (instancia.stretch_button_side == 1) then
-			baseframe:StartSizing("top")
-			baseframe.stretch_direction = "top"
+		local stretchDirection = instancia.stretch_button_side == 2 and "bottom" or "top"
 
-		elseif (instancia.stretch_button_side == 2) then
-			baseframe:StartSizing("bottom")
-			baseframe.stretch_direction = "bottom"
-		end
+		--the stretched window becomes the anchor of its group; the windows side by side with it are
+		--stretched along by the snap module, the windows stacked on the side it grows toward stay in place
+		Details222.WindowSnap.BeginStretch(instancia, stretchDirection)
 
-		---@type instance[]
-		local linha_horizontal = {}
-		local checking = instancia
-		for i = instancia.meu_id-1, 1, -1 do
-			local esta_instancia = Details:GetAllInstances() [i]
-			if ((esta_instancia.snap[1] and esta_instancia.snap[1] == checking.meu_id) or (esta_instancia.snap[3] and esta_instancia.snap[3] == checking.meu_id)) then
-				linha_horizontal [#linha_horizontal+1] = esta_instancia
-				checking = esta_instancia
-			else
-				break
-			end
-		end
+		baseframe:StartSizing(stretchDirection)
+		baseframe.stretch_direction = stretchDirection
 
-		checking = instancia
-		for i = instancia.meu_id+1, #Details:GetAllInstances() do
-			local esta_instancia = Details:GetAllInstances() [i]
-			if ((esta_instancia.snap[1] and esta_instancia.snap[1] == checking.meu_id) or (esta_instancia.snap[3] and esta_instancia.snap[3] == checking.meu_id)) then
-				linha_horizontal [#linha_horizontal+1] = esta_instancia
-				checking = esta_instancia
-			else
-				break
-			end
-		end
-
-		instancia.stretchToo = linha_horizontal
-		if (#instancia.stretchToo > 0) then
-			for _, thisInstance in ipairs(instancia.stretchToo) do
+		instancia.stretchingNeighbors = Details222.WindowSnap.GetAxisNeighbors(instancia, "x")
+		if (#instancia.stretchingNeighbors > 0) then
+			for index, thisInstance in ipairs(instancia.stretchingNeighbors) do
 				thisInstance:EsconderScrollBar(true)
-				thisInstance.baseframe._place = thisInstance:SaveMainWindowPosition()
-				thisInstance.baseframe.isResizing = true
 				thisInstance.baseframe.isStretching = true
 				local stretchStrata = thisInstance:IsHostedInsideFrame() and thisInstance:GetEffectiveStrata() or "TOOLTIP"
 				thisInstance.baseframe:SetFrameStrata(stretchStrata)
@@ -2757,8 +1849,6 @@ local function button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 				end
 			end
 		end
-
-		Details:SnapTextures (true)
 
 		Details:SendEvent("DETAILS_INSTANCE_STARTSTRETCH", nil, instancia)
 
@@ -2795,11 +1885,9 @@ local function button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 
 			baseframe.stretch_direction = nil
 
-			if (instancia.stretchToo and #instancia.stretchToo > 0) then
-				for _, thisInstance in ipairs(instancia.stretchToo) do
-					thisInstance.baseframe:StopMovingOrSizing()
-					thisInstance.baseframe.isResizing = false
-					thisInstance:RestoreMainWindowPosition (thisInstance.baseframe._place)
+			--restoring the stretched window size gave the windows side by side with it their size back
+			if (instancia.stretchingNeighbors and #instancia.stretchingNeighbors > 0) then
+				for index, thisInstance in ipairs(instancia.stretchingNeighbors) do
 					thisInstance:ReajustaGump()
 					thisInstance.baseframe.isStretching = false
 					if (thisInstance.need_rolagem) then
@@ -2826,8 +1914,11 @@ local function button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 					thisInstance:InstanceReset()
 					thisInstance:ReajustaGump()
 				end
-				instancia.stretchToo = nil
+				instancia.stretchingNeighbors = nil
 			end
+
+			--the window has its size back, the windows stacked with it are grouped with it again
+			Details222.WindowSnap.EndStretch(instancia)
 
 		end
 
@@ -2842,7 +1933,6 @@ local function button_stretch_scripts(baseframe, backgrounddisplay, instancia)
 		baseframe:SetFrameStrata(instancia.strata)
 		instancia.rowframe:SetFrameStrata(instancia.strata)
 		instancia:StretchButtonAlwaysOnTop()
-		Details:SnapTextures (false)
 		Details:SendEvent("DETAILS_INSTANCE_ENDSTRETCH", nil, instancia)
 
 		if (Details.stretch_changed_update_speed) then
@@ -3925,64 +3015,6 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando, parent)
 
 		setWindowResizeScripts(baseframe.resize_direita, instancia, scrollbar, ">", baseframe)
 		setWindowResizeScripts(baseframe.resize_esquerda, instancia, scrollbar, "<", baseframe)
-
--- side bars highlights ------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	--top
-		local frameHighlightTop = CreateFrame("frame", "DetailsTopSideBarHighlight" .. instancia.meu_id, floatingframe)
-		gump:CreateFlashAnimation(frameHighlightTop)
-		frameHighlightTop:Hide()
-
-		instancia.h_cima = frameHighlightTop:CreateTexture(nil, "overlay")
-		instancia.h_cima:SetTexture([[Interface\AddOns\Details\images\highlight_updown]])
-		instancia.h_cima:SetTexCoord(0, 1, 0.5, 1)
-		instancia.h_cima:SetPoint("topleft", baseframe.cabecalho.top_bg, "bottomleft", -10, 37)
-		instancia.h_cima:SetPoint("topright", baseframe.cabecalho.ball_r, "bottomright", -97, 37)
-		instancia.h_cima:SetDesaturated(true)
-		frameHighlightTop.texture = instancia.h_cima
-		instancia.h_cima = frameHighlightTop
-
-	--bottom
-		local frameHighlightBottom = CreateFrame("frame", "DetailsBottomSideBarHighlight" .. instancia.meu_id, floatingframe)
-		gump:CreateFlashAnimation(frameHighlightBottom)
-		frameHighlightBottom:Hide()
-
-		instancia.h_baixo = frameHighlightBottom:CreateTexture(nil, "overlay")
-		instancia.h_baixo:SetTexture([[Interface\AddOns\Details\images\highlight_updown]])
-		instancia.h_baixo:SetTexCoord(0, 1, 0, 0.5)
-		instancia.h_baixo:SetPoint("topleft", baseframe.rodape.esquerdo, "bottomleft", 16, 17)
-		instancia.h_baixo:SetPoint("topright", baseframe.rodape.direita, "bottomright", -16, 17)
-		instancia.h_baixo:SetDesaturated(true)
-		frameHighlightBottom.texture = instancia.h_baixo
-		instancia.h_baixo = frameHighlightBottom
-
-	--left
-		local frameHighlightLeft = CreateFrame("frame", "DetailsLeftSideBarHighlight" .. instancia.meu_id, floatingframe)
-		gump:CreateFlashAnimation(frameHighlightLeft)
-		frameHighlightLeft:Hide()
-
-		instancia.h_esquerda = frameHighlightLeft:CreateTexture(nil, "overlay")
-		instancia.h_esquerda:SetTexture([[Interface\AddOns\Details\images\highlight_leftright]])
-		instancia.h_esquerda:SetTexCoord(0.5, 1, 0, 1)
-		instancia.h_esquerda:SetPoint("topleft", baseframe.barra_esquerda, "topleft", 40, 0)
-		instancia.h_esquerda:SetPoint("bottomleft", baseframe.barra_esquerda, "bottomleft", 40, 0)
-		instancia.h_esquerda:SetDesaturated(true)
-		frameHighlightLeft.texture = instancia.h_esquerda
-		instancia.h_esquerda = frameHighlightLeft
-
-	--right
-		local frameHighlightRight = CreateFrame("frame", "DetailsRightSideBarHighlight" .. instancia.meu_id, floatingframe)
-		gump:CreateFlashAnimation(frameHighlightRight)
-		frameHighlightRight:Hide()
-
-		instancia.h_direita = frameHighlightRight:CreateTexture(nil, "overlay")
-		instancia.h_direita:SetTexture([[Interface\AddOns\Details\images\highlight_leftright]])
-		instancia.h_direita:SetTexCoord(0, 0.5, 1, 0)
-		instancia.h_direita:SetPoint("topleft", baseframe.barra_direita, "topleft", 8, 18)
-		instancia.h_direita:SetPoint("bottomleft", baseframe.barra_direita, "bottomleft", 8, 0)
-		instancia.h_direita:SetDesaturated(true)
-		frameHighlightRight.texture = instancia.h_direita
-		instancia.h_direita = frameHighlightRight
 
 --done
 
@@ -9031,6 +8063,9 @@ function Details:IsGroupedWith(instance)
 	return false
 end
 
+---returns this window and the other open windows grouped with it, this window first
+---@param instance_id number|nil when given, the group of that window instead; nil when that window is closed
+---@return instance[]|nil
 function Details:GetInstanceGroup(instance_id)
 	local instance = self
 
@@ -9041,49 +8076,7 @@ function Details:GetInstanceGroup(instance_id)
 		end
 	end
 
-	local current_group = {instance}
-
-	for side, insId in pairs(instance.snap) do
-		if (insId < instance:GetId()) then
-			local last_id = instance:GetId()
-			for i = insId, 1, -1 do
-				local this_instance = Details:GetInstance(i)
-				local got = false
-				if (this_instance and this_instance:IsEnabled()) then
-					for side, id in pairs(this_instance.snap) do
-						if (id == last_id) then
-							table.insert(current_group, this_instance)
-							got = true
-							last_id = i
-						end
-					end
-				end
-				if (not got) then
-					break
-				end
-			end
-		else
-			local last_id = instance:GetId()
-			for i = insId, Details.instances_amount do
-				local this_instance = Details:GetInstance(i)
-				local got = false
-				if (this_instance and this_instance:IsEnabled()) then
-					for side, id in pairs(this_instance.snap) do
-						if (id == last_id) then
-							table.insert(current_group, this_instance)
-							got = true
-							last_id = i
-						end
-					end
-				end
-				if (not got) then
-					break
-				end
-			end
-		end
-	end
-
-	return current_group
+	return Details222.WindowSnap.GetLogicalGroup(instance)
 end
 
 function Details:SetWindowScale(scale, fromOptions)
@@ -9107,6 +8100,8 @@ function Details:SetWindowScale(scale, fromOptions)
 		self.windowSwitchButton:SetScale(scale)
 		self.windowBackgroundDisplay:SetScale(scale)
 	end
+
+	Details222.WindowSnap.RefreshGeometry(self)
 end
 
 function Details:ToolbarSide(side, only_update_anchors)
@@ -9237,6 +8232,9 @@ function Details:ToolbarSide(side, only_update_anchors)
 
 	--update the grow direction to update the gap between the titlebar and the baseframe
 	self:SetBarGrowDirection()
+
+	--the title bar and the status bar take room outside the window, the windows grouped with it are re-aligned
+	Details222.WindowSnap.RefreshGeometry(self)
 end
 
 function Details:StretchButtonAlwaysOnTop (on_top)
@@ -9552,6 +8550,9 @@ function Details:HideStatusBar (instancia)
 	if (self.micro_displays_side == 2) then --bottom side
 		Details.StatusBar:Hide (self) --mini displays widgets
 	end
+
+	--the status bar took room below the window; with the title bar on top ToolbarSide isn't called above
+	Details222.WindowSnap.RefreshGeometry(self)
 end
 
 function Details:StatusBarColor(r, g, b, a, no_save)

@@ -24,6 +24,10 @@ function _detalhes:ResetInstanceConfig (maintainsnap)
 	Details222.RowTexts.Prepare(self)
 
 	if (not maintainsnap) then
+		--a window on the screen leaves its group through the snap module, so the windows it was snapped to let go of it
+		if (self.snap and self.baseframe) then
+			Details222.WindowSnap.Ungroup(self)
+		end
 		self.snap = {}
 		self.horizontalSnap = nil
 		self.verticalSnap = nil
@@ -76,6 +80,10 @@ function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)
 	Details222.RowTexts.Prepare(self)
 
 	if (not maintainsnap) then
+		--a window on the screen leaves its group through the snap module, so the windows it was snapped to let go of it
+		if (self.snap and self.baseframe) then
+			Details222.WindowSnap.Ungroup(self)
+		end
 		self.snap = {}
 		self.horizontalSnap = nil
 		self.verticalSnap = nil

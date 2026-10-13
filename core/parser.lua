@@ -6733,6 +6733,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--load data of the segments saved from latest game session
 		Details222.LoadSavedVariables.CombatSegments()
 
+		--the window snap group must exist before the profile creates the windows
+		Details222.WindowSnap.Initialize()
+
 		--load the profiles
 		Details222.LoadSavedVariables.LoadConfig()
 

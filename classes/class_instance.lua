@@ -1577,51 +1577,8 @@ end
 				window:ShutDown()
 			else
 				window:EnableInstance()
-
-				if (window.meu_id == 1) then
-					local instance2 = Details:GetInstance(2)
-					if (instance2 and instance2:IsEnabled()) then
-						Details.move_janela_func(instance2.baseframe, true, instance2, true)
-						Details.move_janela_func(instance2.baseframe, false, instance2, true)
-					end
-
-				elseif (window.meu_id == 2) then
-					Details.move_janela_func(window.baseframe, true, window, true)
-					Details.move_janela_func(window.baseframe, false, window, true)
-				end
-
 			end
 		end
-	end
-
-	function Details:CheckCoupleWindows (instance1, instance2)
-		instance1 = instance1 or Details:GetInstance(1)
-		instance2 = instance2 or Details:GetInstance(2)
-
-		if (instance1 and instance2 and not instance1.ignore_mass_showhide and not instance1.ignore_mass_showhide) then
-
-			instance1.baseframe:ClearAllPoints()
-			instance2.baseframe:ClearAllPoints()
-
-			instance1:RestoreMainWindowPosition()
-			instance2:RestoreMainWindowPosition()
-
-			instance1:AtualizaPontos()
-			instance2:AtualizaPontos()
-
-			local _R, _T, _L, _B = Details.VPL (instance2, instance1), Details.VPB (instance2, instance1), Details.VPR (instance2, instance1), Details.VPT (instance2, instance1)
-
-			if (_R) then
-				instance2:MakeInstanceGroup ({false, false, 1, false})
-			elseif (_T) then
-				instance2:MakeInstanceGroup ({false, false, false, 1})
-			elseif (_L) then
-				instance2:MakeInstanceGroup ({1, false, false, false})
-			elseif (_B) then
-				instance2:MakeInstanceGroup ({false, 1, false, false})
-			end
-		end
-
 	end
 
 	function Details:ToggleWindows()
@@ -1641,17 +1598,6 @@ end
 				Details:ShutDownAllInstances()
 			else
 				Details:ReabrirTodasInstancias()
-
-				local instance1 = Details:GetInstance(1)
-				local instance2 = Details:GetInstance(2)
-
-				if (instance1 and instance2) then
-					if (not Details.disable_window_groups) then
-						if (not instance1.ignore_mass_showhide and not instance2.ignore_mass_showhide) then
-							Details:CheckCoupleWindows (instance1, instance2)
-						end
-					end
-				end
 			end
 		end
 	end
@@ -1753,6 +1699,9 @@ end
 
 		if self:GetApocalypseSourceType() == Details222.Apocalypse.TypeDetails then
 			Details:TrocaTabela(self, nil, nil, nil, true)
+		elseif (not Details.initializing) then
+			--ChangeSkin above wiped the value texts of the bars, redraw them
+			Details:RefreshMainWindow(self, true)
 		end
 
 		if (self.hide_icon) then
@@ -1838,38 +1787,8 @@ end
 			return false
 		end
 
-		--break snaps of previous and next window
-		local left_instance = Details:GetInstance(id-1)
-		if (left_instance) then
-			for snap_side, instance_id in pairs(left_instance.snap) do
-				if (instance_id == id) then --snap na proxima instancia
-					left_instance.snap [snap_side] = nil
-				end
-			end
-		end
-		local right_instance = Details:GetInstance(id+1)
-		if (right_instance) then
-			for snap_side, instance_id in pairs(right_instance.snap) do
-				if (instance_id == id) then --snap na proxima instancia
-					right_instance.snap [snap_side] = nil
-				end
-			end
-		end
-
-		--re align snaps for higher instances
-		for i = id+1, #Details.tabela_instancias do
-			local this_instance = Details:GetInstance(i)
-			--fix the snaps
-			for snap_side, instance_id in pairs(this_instance.snap) do
-				if (instance_id == i+1) then --snap na proxima instancia
-					this_instance.snap [snap_side] = i
-				elseif (instance_id == i-1 and i-2 > 0) then --snap na instancia anterior
-					this_instance.snap [snap_side] = i-2
-				else
-					this_instance.snap [snap_side] = nil
-				end
-			end
-		end
+		--take the window out of its group and shift the ids stored in the links of the windows after it
+		Details222.WindowSnap.OnInstanceDeleted(id)
 
 		table.remove (Details.tabela_instancias, id)
 	end
@@ -1988,469 +1907,84 @@ end
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
---self � a inst�ncia que esta sendo movida.. instancia � a que esta parada
-function Details:EstaAgrupada(esta_instancia, lado) --lado //// 1 = encostou na esquerda // 2 = escostou emaixo // 3 = encostou na direita // 4 = encostou em cima
-	--local meu_snap = self.snap --pegou a tabela com {side, side, side, side}
+--window groups: the snap module (classes/class_instance_snap.lua) does the work, these are the public entry points
 
-	if (esta_instancia.snap [lado]) then
-		return true --ha possui uma janela grudapa neste lado
-	elseif (lado == 1) then
-		if (self.snap [3]) then
-			return true
-		end
-	elseif (lado == 2) then
-		if (self.snap [4]) then
-			return true
-		end
-	elseif (lado == 3) then
-		if (self.snap [1]) then
-			return true
-		end
-	elseif (lado == 4) then
-		if (self.snap [2]) then
-			return true
-		end
-	end
-
-	return false --do contr�rio retorna false
+---tells whether the side of another window, or the opposite side of this window, is already taken.
+---kept for other addons, the snap module checks free sides by itself
+---@param self instance
+---@param otherInstance instance
+---@param sideCode number 1 = left, 2 = bottom, 3 = right, 4 = top
+---@return boolean
+function Details:EstaAgrupada(otherInstance, sideCode)
+	return otherInstance.snap[sideCode] ~= nil or self.snap[Details222.WindowSnap.OPPOSITE_CODE[sideCode]] ~= nil
 end
 
+---re-aligns the windows grouped with this window around it
 ---@param self instance
 function Details:BaseFrameSnap()
-	local group = self:GetInstanceGroup()
-
-	-- clear all points before re-anchoring to avoid stale constraints
-	for _, instancia in ipairs(group) do
-		if (instancia:IsAtiva()) then
-			instancia.baseframe:ClearAllPoints()
-		end
-	end
-
-	local scale = self.window_scale
-	for _, instance in ipairs(group) do
-		instance:SetWindowScale(scale)
-	end
-
-	-- self is the absolute anchor; all other frames are positioned relative to
-	-- an already-positioned frame via BFS, which guarantees no circular anchoring.
-	self:RestoreMainWindowPositionNoResize()
-
-	local positioned = {}
-	positioned[self.meu_id] = true
-
-	local queue = {self}
-
-	while #queue > 0 do
-		local current = table.remove(queue, 1)
-
-		for whichSide, neighborId in pairs(current.snap) do
-			if not positioned[neighborId] then
-				---@type instance
-				local neighbor = Details.tabela_instancias[neighborId]
-
-				if (neighbor and neighbor.ativa and neighbor.baseframe) then
-					if (whichSide == 1) then --neighbor is to the left
-						neighbor.baseframe:SetPoint("TOPRIGHT", current.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
-
-					elseif (whichSide == 2) then --neighbor is below
-						local statusbar_y_mod = 0
-						if (not current.show_statusbar) then
-							statusbar_y_mod = 14
-						end
-						neighbor.baseframe:SetPoint("TOPLEFT", current.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-
-					elseif (whichSide == 3) then --neighbor is to the right
-						neighbor.baseframe:SetPoint("TOPLEFT", current.baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
-
-					elseif (whichSide == 4) then --neighbor is above
-						local statusbar_y_mod = 0
-						if (not neighbor.show_statusbar) then
-							statusbar_y_mod = -14
-						end
-						neighbor.baseframe:SetPoint("BOTTOMLEFT", current.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
-					end
-
-					positioned[neighborId] = true
-					queue[#queue + 1] = neighbor
-				end
-			end
-		end
-	end
+	Details222.WindowSnap.RefreshGeometry(self)
 end
 
+---groups this window with others. sides is {left, bottom, right, top}, each holding the id of the window
+---going on that side of this window, or false. the first window linked keeps its place and this one moves
+---next to it, the windows linked after that move next to this one.
+---returns false when a side could not be linked (side taken, or the windows are already in the same group)
 ---@param self instance
-function Details:BaseFrameSnap_Backup()
-	local group = self:GetInstanceGroup()
-
-	for meu_id, instancia in ipairs(group) do
-		if (instancia:IsAtiva()) then
-			instancia.baseframe:ClearAllPoints()
-		end
-	end
-
-	local scale = self.window_scale
-	for _, instance in ipairs(group) do
-		instance:SetWindowScale (scale)
-	end
-
-	local my_baseframe = self.baseframe
-
-    self:RestoreMainWindowPositionNoResize()
-
-	for whichSide, InstanceId_SnapTo in pairs(self.snap) do
-		---@type instance
-		local targetInstance = Details.tabela_instancias[InstanceId_SnapTo]
-
-		if (targetInstance) then
-			if (targetInstance.ativa and targetInstance.baseframe) then
-				if (whichSide == 1) then --attach to the left side
-					targetInstance.baseframe:SetPoint("TOPRIGHT", my_baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
-
-				elseif (whichSide == 2) then --attach to the bottom
-					local statusbar_y_mod = 0
-					if (not self.show_statusbar) then
-						statusbar_y_mod = 14
-					end
-					targetInstance.baseframe:SetPoint("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-
-				elseif (whichSide == 3) then --attach to the right side
-					targetInstance.baseframe:SetPoint("TOPLEFT", my_baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
-
-				elseif (whichSide == 4) then --attach to the top
-					local statusbar_y_mod = 0
-					if (not targetInstance.show_statusbar) then
-						statusbar_y_mod = -14
-					end
-					targetInstance.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
-
-				end
-			end
-		end
-	end
-
-	--[
-	--aqui precisa de um efeito reverso
-	local reverso = self.meu_id - 2 --se existir
-	if (reverso > 0) then --se tiver uma inst�ncia l� tr�s
-		--aqui faz o efeito reverso:
-		local inicio_retro = self.meu_id - 1
-		for meu_id = inicio_retro, 1, -1 do
-			local instancia = Details.tabela_instancias [meu_id]
-			for lado, snap_to in pairs(instancia.snap) do
-				if (snap_to < instancia.meu_id and snap_to ~= self.meu_id) then --se o lado que esta grudado for menor que o meu id... EX instnacia #2 grudada na #1
-
-					--ent�o tenho que pegar a inst�ncia do snap
-
-					local instancia_alvo = Details.tabela_instancias [snap_to]
-					local lado_reverso
-					if (lado == 1) then
-						lado_reverso = 3
-					elseif (lado == 2) then
-						lado_reverso = 4
-					elseif (lado == 3) then
-						lado_reverso = 1
-					elseif (lado == 4) then
-						lado_reverso = 2
-					end
-
-					--fazer os setpoints
-					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
-
-						if (lado_reverso == 1) then --attach to the left side
-							--check if it is already anchored
-							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
-							if not (parent and parent == instancia_alvo.baseframe) then
-								instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
-							end
-
-						elseif (lado_reverso == 2) then --attach to the bottom
-							local statusbar_y_mod = 0
-							if (not instancia_alvo.show_statusbar) then
-								statusbar_y_mod = -14
-							end
-
-							--check if it is already anchored
-							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
-							if not (parent and parent == instancia_alvo.baseframe) then
-								instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
-							end
-
-						elseif (lado_reverso == 3) then --attach to the right side
-							--check if it is already anchored
-							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
-							if not (parent and parent == instancia_alvo.baseframe) then
-								instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
-							end
-
-						elseif (lado_reverso == 4) then --attach to the top
-							local statusbar_y_mod = 0
-							if (not instancia.show_statusbar) then
-								statusbar_y_mod = 14
-							end
-
-							--check if it is already anchored
-							local anchor, parent, anchor2, x, y = instancia.baseframe:GetPoint()
-							if not (parent and parent == instancia_alvo.baseframe) then
-								instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-	--]]
-
-	for meu_id, instancia in ipairs(Details.tabela_instancias) do
-		if (meu_id > self.meu_id) then
-			for lado, snap_to in pairs(instancia.snap) do
-				if (snap_to > instancia.meu_id and snap_to ~= self.meu_id) then
-					local instancia_alvo = Details.tabela_instancias [snap_to]
-
-					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
-						if (lado == 1) then --attach to the left side
-							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
-
-						elseif (lado == 2) then --attach to the bottom
-							local statusbar_y_mod = 0
-							if (not instancia.show_statusbar) then
-								statusbar_y_mod = 14
-							end
-							instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-
-						elseif (lado == 3) then --attach to the right side
-							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
-
-						elseif (lado == 4) then --attach to the top
-
-							local statusbar_y_mod = 0
-							if (not instancia_alvo.show_statusbar) then
-								statusbar_y_mod = -14
-							end
-
-							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
-
-						end
-					end
-				end
-			end
-		end
-	end
+---@param sides table
+---@return boolean
+function Details:agrupar_janelas(sides)
+	return Details222.WindowSnap.MakeGroup(self, sides)
 end
 
-function Details:agrupar_janelas(lados)
-
-	local instancia = self
-
-	for lado, esta_instancia in pairs(lados) do
-		if (esta_instancia) then
-			instancia.baseframe:ClearAllPoints()
-			esta_instancia = Details.tabela_instancias [esta_instancia]
-			---@cast esta_instancia instance
-			if esta_instancia:IsEnabled() then
-				instancia:SetWindowScale (esta_instancia.window_scale)
-
-				if (lado == 3) then --direita
-					--mover frame
-					instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "TOPLEFT", -Details.grouping_horizontal_gap, 0)
-					instancia.baseframe:SetPoint("RIGHT", esta_instancia.baseframe, "LEFT", -Details.grouping_horizontal_gap, 0)
-					instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "BOTTOMLEFT", -Details.grouping_horizontal_gap, 0)
-
-					local _, height = esta_instancia:GetSize()
-					instancia:SetSize(nil, height)
-
-					--salva o snap
-					self.snap [3] = esta_instancia.meu_id
-					esta_instancia.snap [1] = self.meu_id
-
-				elseif (lado == 4) then --cima
-					--mover frame
-
-					local statusbar_y_mod = 0
-					if (not esta_instancia.show_statusbar) then
-						statusbar_y_mod = 14
-					end
-
-					instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-					instancia.baseframe:SetPoint("TOP", esta_instancia.baseframe, "BOTTOM", 0, -34 + statusbar_y_mod)
-					instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "BOTTOMRIGHT", 0, -34 + statusbar_y_mod)
-
-					local _, height = esta_instancia:GetSize()
-					instancia:SetSize(nil, height)
-
-					--salva o snap
-					self.snap [4] = esta_instancia.meu_id
-					esta_instancia.snap [2] = self.meu_id
-
-				elseif (lado == 1) then --esquerda
-					--mover frame
-
-					instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT", Details.grouping_horizontal_gap, 0)
-					instancia.baseframe:SetPoint("LEFT", esta_instancia.baseframe, "RIGHT", Details.grouping_horizontal_gap, 0)
-					instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT", Details.grouping_horizontal_gap, 0)
-
-					local _, height = esta_instancia:GetSize()
-					instancia:SetSize(nil, height)
-
-					--salva o snap
-					self.snap [1] = esta_instancia.meu_id
-					esta_instancia.snap [3] = self.meu_id
-
-				elseif (lado == 2) then --baixo
-					--mover frame
-
-					local statusbar_y_mod = 0
-					if (not instancia.show_statusbar) then
-						statusbar_y_mod = -14
-					end
-
-					instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
-					instancia.baseframe:SetPoint("BOTTOM", esta_instancia.baseframe, "TOP", 0, 34 + statusbar_y_mod)
-					instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "TOPRIGHT", 0, 34 + statusbar_y_mod)
-
-					local _, height = esta_instancia:GetSize()
-					instancia:SetSize(nil, height)
-
-					--salva o snap
-					self.snap [2] = esta_instancia.meu_id
-					esta_instancia.snap [4] = self.meu_id
-
-					if (not esta_instancia.ativa) then
-						esta_instancia:AtivarInstancia()
-					end
-				end
-			end
-		end
-	end
-
-	if (not Details.disable_lock_ungroup_buttons) then
-		instancia.break_snap_button:SetAlpha(1)
-	end
-
-	if (Details.tutorial.unlock_button < 4) then
-
-		Details.temp_table1.IconSize = 32
-		Details.temp_table1.TextHeightMod = -6
-		Details.popup:ShowMe(instancia.break_snap_button, "tooltip", "Interface\\Buttons\\LockButton-Unlocked-Up", Loc ["STRING_UNLOCK"], 150, Details.temp_table1)
-
-		--UIFrameFlash (instancia.break_snap_button, .5, .5, 5, false, 0, 0)
-		Details.tutorial.unlock_button = Details.tutorial.unlock_button + 1
-	end
-
-	Details:DelayOptionsRefresh()
-
-end
+--the old window group functions, kept so other addons calling them don't error. the snap module keeps
+--the windows of a group aligned and sized by itself, so they have nothing left to do
+function Details:CheckCoupleWindows() end
+function Details:SnapTextures() end
+function Details:InstanciasHorizontais() end
+function Details:InstanciasVerticais() end
+function Details:AtualizaPontos() end
+Details.BaseFrameSnap_Backup = Details.BaseFrameSnap
+--these told whether a window was close enough to snap on a side; snapping is decided by the snap module now
+Details.VPL = function() return false end
+Details.VPB = function() return false end
+Details.VPR = function() return false end
+Details.VPT = function() return false end
 
 Details.MakeInstanceGroup = Details.agrupar_janelas
 
+---takes this window out of its group, it stays where it is
+---@param self instance
 function Details:UngroupInstance()
 	return self:Desagrupar(-1)
 end
 
-function Details:Desagrupar (instancia, lado, lado2)
-	if (lado2 == -1) then
-		instancia = lado
-		self = instancia
-		lado = lado2
+---removes links between windows. accepted forms:
+---instance:Desagrupar(-1) takes the window out of its group, instance:Desagrupar(sideCode) removes one side,
+---Details:Desagrupar(instanceOrId, -1 or sideCode) does the same for the window passed
+function Details:Desagrupar(instance, side, side2)
+	if (side2 == -1) then
+		instance = side
+		self = instance
+		side = side2
 	end
 
-	if (self.meu_id and not lado2) then --significa que self � uma instancia
-		lado = instancia
-		instancia = self
+	if (self.meu_id and not side2) then
+		side = instance
+		instance = self
 	end
 
-	if (type(instancia) == "number") then --significa que passou o n�mero da inst�ncia
-		instancia =  Details.tabela_instancias [instancia]
+	if (type(instance) == "number") then
+		instance = Details.tabela_instancias[instance]
 	end
 
-	Details:DelayOptionsRefresh (nil, true)
-
-	if (not lado) then
+	if (not side or not instance) then
 		return
 	end
 
-	if (lado < 0) then --clicou no bot�o para desagrupar tudo
-		local ID = instancia.meu_id
-
-		for id, esta_instancia in ipairs(Details.tabela_instancias) do
-			for index, iid in pairs(esta_instancia.snap) do -- index = 1 left , 3 right, 2 bottom, 4 top
-				if (iid and (iid == ID or id == ID)) then -- iid = instancia.meu_id
-
-					esta_instancia.snap [index] = nil
-
-					if (instancia.verticalSnap or esta_instancia.verticalSnap) then
-						if (not esta_instancia.snap [2] and not esta_instancia.snap [4]) then
-							esta_instancia.verticalSnap = false
-							esta_instancia.horizontalSnap = false
-						end
-					elseif (instancia.horizontalSnap or esta_instancia.horizontalSnap) then
-						if (not esta_instancia.snap [1] and not esta_instancia.snap [3]) then
-							esta_instancia.horizontalSnap = false
-							esta_instancia.verticalSnap = false
-						end
-					end
-
-					if (index == 2) then  -- index � o codigo do snap
-						--esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint("left", esta_instancia.baseframe.rodape.top_bg, "left", 5, 58)
-						--esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint("center", esta_instancia.baseframe.rodape.top_bg, "center", 0, 58)
-						--esta_instancia.baseframe.rodape.esquerdo:SetTexture("Interface\\AddOns\\Details\\images\\bar_down_left")
-						--esta_instancia.baseframe.rodape.esquerdo.have_snap = nil
-					end
-
-				end
-			end
-		end
-
-		instancia.break_snap_button:SetAlpha(0)
-
-		instancia.verticalSnap = false
-		instancia.horizontalSnap = false
-		return
-	end
-
-	local esta_instancia = Details.tabela_instancias [instancia.snap[lado]]
-
-	if (not esta_instancia) then
-		return
-	end
-
-	instancia.snap [lado] = nil
-
-	if (lado == 1) then
-		esta_instancia.snap [3] = nil
-	elseif (lado == 2) then
-		esta_instancia.snap [4] = nil
-	elseif (lado == 3) then
-		esta_instancia.snap [1] = nil
-	elseif (lado == 4) then
-		esta_instancia.snap [2] = nil
-	end
-
-	instancia.break_snap_button:SetAlpha(0)
-
-
-	if (instancia.iniciada) then
-		instancia:SaveMainWindowPosition()
-		instancia:RestoreMainWindowPosition()
-	end
-
-	if (esta_instancia.iniciada) then
-		esta_instancia:SaveMainWindowPosition()
-		esta_instancia:RestoreMainWindowPosition()
-	end
-end
-
-function Details:SnapTextures (remove)
-	for id, esta_instancia in ipairs(Details.tabela_instancias) do
-		if (esta_instancia:IsAtiva()) then
-			if (esta_instancia.baseframe.rodape.esquerdo.have_snap) then
-				if (remove) then
-					--esta_instancia.baseframe.rodape.esquerdo:SetTexture("Interface\\AddOns\\Details\\images\\bar_down_left")
-				else
-					--esta_instancia.baseframe.rodape.esquerdo:SetTexture("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
-				end
-			end
-		end
+	if (side < 0) then
+		Details222.WindowSnap.Ungroup(instance)
+	else
+		Details222.WindowSnap.UngroupSide(instance, side)
 	end
 end
 
@@ -2666,6 +2200,9 @@ end
 		newInstance.skin = "no skin"
 		newInstance:ChangeSkin(Details.default_skin_to_use)
 
+		--a detached window or a window built inside another frame is left out by the snap module
+		Details222.WindowSnap.RegisterInstance(newInstance)
+
 		return newInstance
 	end
 
@@ -2807,6 +2344,8 @@ function Details:RestauraJanela(index, temp, load_only)
 			self:AtivarInstancia (temp)
 			self:ChangeSkin()
 		end
+
+		Details222.WindowSnap.RegisterInstance(self)
 
 	--all done
 	return
@@ -3087,6 +2626,8 @@ function Details:ApplySavedSkin (style)
 	if (Details.profile_save_pos) then
 		self.posicao = style.posicao
 		self:RestoreMainWindowPosition()
+		--the windows grouped with it follow it to its new spot
+		Details222.WindowSnap.MoveGroupWith(self)
 	else
 		self.posicao = Details.CopyTable(self.posicao)
 	end

@@ -174,10 +174,9 @@ local cleanfunction = function() end
 		{"PLAYER_ENTERING_WORLD"},
 		{"UNIT_HEALTH", true},
 		{"UNIT_MAXHEALTH", true},
-		{(not IS_WOW_PROJECT_MIDNIGHT_API) and "UNIT_HEALTH_FREQUENT", true}, -- this one is classic-only...
 		{"UNIT_HEAL_PREDICTION", true},
-		{(IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP) and "UNIT_ABSORB_AMOUNT_CHANGED", true},
-		{(IS_WOW_PROJECT_AT_LEAST_CLASSIC_MOP) and "UNIT_HEAL_ABSORB_AMOUNT_CHANGED", true},
+		{"UNIT_ABSORB_AMOUNT_CHANGED", true},
+		{"UNIT_HEAL_ABSORB_AMOUNT_CHANGED", true},
 	}
 
 	--setup the castbar to be used by another unit

@@ -273,6 +273,10 @@ function Details:ApplyProfile(profileName, bNoSave, bIsCopy)
 			end
 		end
 
+		--windows hidden with 'hide all' are still grouped, drop every group so the old groups don't move
+		--or resize the windows while the new profile places them
+		Details222.WindowSnap.ReleaseAll()
+
 		--check if there is a skin saved or this is a empty profile
 		if (#saved_skins == 0) then
 			local instance1 = Details:GetInstance(1)
@@ -409,54 +413,19 @@ function Details:ApplyProfile(profileName, bNoSave, bIsCopy)
 				end
 			end
 
-			--check all snaps for invalid entries
-			for i = 1, instances_loaded do
-				local instance = Details:GetInstance(i)
-				local previous_instance_id = Details:GetInstance(i-1) and Details:GetInstance(i-1):GetId() or 0
-				local next_instance_id = Details:GetInstance(i+1) and Details:GetInstance(i+1):GetId() or 0
-
-				for snap_side, instance_id in pairs(instance.snap) do
-					if (instance_id < 1) then --invalid instance
-						instance.snap [snap_side] = nil
-					elseif (instance_id ~= previous_instance_id and instance_id ~= next_instance_id) then --no match
-						instance.snap [snap_side] = nil
+			--drop links to windows which are closed or not loaded, a link to any other window is valid
+			for _, instance in Details:ListInstances() do
+				for side, id in pairs(instance.snap) do
+					local window = type(id) == "number" and Details.tabela_instancias[id]
+					if (not window or not window.ativa or not instance:IsEnabled()) then
+						instance.snap[side] = nil
 					end
 				end
 			end
-
-			--auto realign windows
-			if (not Details.initializing) then
-				for _, instance in Details:ListInstances() do
-					if (instance:IsEnabled()) then
-						Details.move_janela_func(instance.baseframe, true, instance)
-						Details.move_janela_func(instance.baseframe, false, instance)
-					end
-				end
-			else
-				--is in startup
-				for _, instance in Details:ListInstances() do
-					for side, id in pairs(instance.snap) do
-						local window = Details.tabela_instancias [id]
-						if (not window.ativa) then
-							instance.snap [side] = nil
-							if ((side == 1 or side == 3) and (not instance.snap [1] and not instance.snap [3])) then
-								instance.horizontalSnap = false
-							elseif ((side == 2 or side == 4) and (not instance.snap [2] and not instance.snap [4])) then
-								instance.verticalSnap = false
-							end
-						end
-					end
-					if (not instance:IsEnabled()) then
-						for side, id in pairs(instance.snap) do
-							instance.snap [side] = nil
-						end
-						instance.horizontalSnap = false
-						instance.verticalSnap = false
-					end
-				end
-			end
-
 		end
+
+		--every window is at its saved spot now, build the window groups from the saved links
+		Details222.WindowSnap.ImportLayout()
 
 		--check instance amount
 		Details.opened_windows = 0

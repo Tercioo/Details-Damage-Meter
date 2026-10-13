@@ -79,6 +79,8 @@ function detailsFramework:CreateEditor(parent, name, options)
 | `selection_texture` | string | `"GM_BehaviorMessage_CornerTopLeft_Frame"` | Atlas / texture used for the four selection corners. |
 | `selection_size` | number | `8` | Pixel size of each selection corner. |
 | `show_undo_buttons` | boolean | `true` | If true, places an Undo / Redo button pair at the bottom-right of the editor. Set to false if you want to wire your own keybinds (`editor:Undo()` / `editor:Redo()`) instead. |
+| `show_reset_buttons` | boolean | `false` | If true, every value row in the center panel gets a square "reset to default" button at its right. See "Reset to default buttons" below. |
+| `show_disabled_reset_buttons` | boolean | `true` | Only read while `show_reset_buttons` is on. What a row whose option has no default gets: true shows the button disabled, false shows no button. |
 
 ### Minimal example
 
@@ -126,7 +128,8 @@ editor:RegisterObject(
     extraOptions,      -- 7: array of additional widgets to append after the built-in ones
     callback,          -- 8: function fired on every set; per-object onEditCallback
     options,           -- 9: df_editobjectoptions for THIS object (use_colon, can_move, icon)
-    refFrame           -- 10: the parent that owns the object; used by anchor sliders for size limits
+    refFrame,          -- 10: the parent that owns the object; used by anchor sliders for size limits
+    defaultValues      -- 11: optional; what the reset to default buttons put back (see "Reset to default buttons")
 )
 ```
 
@@ -188,7 +191,7 @@ The 9th-parameter `options` is per-object (overrides anchor lock, icon, etc.); t
 | `can_move` | boolean | `true` | If true, the mover handle is shown over the object and the user can drag it. Set to false for objects that shouldn't be repositioned (a fixed health bar, a non-movable icon). |
 | `can_click` | boolean | `true` | If true, an invisible full-size click-to-select overlay is shown over each member widget in the live preview. Set to false when the registration shares its canvas area with another widget that should win clicks (e.g. a parent that contains clickable children). |
 | `icon` | atlas / texture | nil | Icon shown next to `localizedLabel` in the left panel. Accepts atlas name, atlas table from `DF:CreateAtlas`, or a texture path/id. |
-| `parentId` | any | nil | Nests this registration under another registration in the left-panel object selector. The parent shows a `+`/`-` toggle to expand/collapse its children. Selecting a nested entry (from the list OR via the canvas selectButton) auto-expands the parent. One level of nesting is supported. |
+| `parentId` | any | nil | Nests this registration under another registration in the left-panel object selector. The parent shows a `+`/`-` toggle to expand/collapse its children; a single click anywhere on the parent row also toggles it (and selects the parent). Selecting a nested entry (from the list OR via the canvas selectButton) auto-expands the parent. One level of nesting is supported. |
 
 ### Why these arguments are split into pairs
 
@@ -490,6 +493,68 @@ All paths funnel into `EditObject` — only one place needs to refresh the selec
 The editor wires its own scripts:
 - `OnHide` — stops mover, hides mover, disables anchor frames, hides selection corners (Step 7), hides the over-the-top frame.
 - `OnShow` — re-enters editing for whichever index was active before (so re-opening the editor lands on the same widget).
+
+---
+
+## Reset to default buttons
+
+With `show_reset_buttons = true` on `CreateEditor`, each value row (slider, toggle, dropdown, color, text entry) gets a square button at its right showing the `UI-RefreshButton` atlas (TRILINEAR filter). Label, blank and execute rows never get one.
+
+### Where the defaults come from
+
+The 11th `RegisterObject` argument, `defaultValues`. Two shapes:
+
+```lua
+--a table keyed by the OPTION key: the editor attribute key for built-ins ("size", "color", "anchor", ...)
+--and the `key` of each extra option. not the profile key the map points to
+local unitNameDefaults = {
+    size  = 10,
+    color = {1, 1, 1, 1},
+    outline = "OUTLINE",
+    show_underline = false, -- false is a real default; only nil means "no default"
+}
+
+--or a function, for defaults that depend on the profile table or the subTablePath in use
+local unitNameDefaults = function(optionKey, profileTable, profileKey)
+    return DF.table.getfrompath(MY_DEFAULT_PROFILE.plate_config[currentSubTablePath], profileKey)
+end
+
+editor:RegisterObject(unitName, "Unit Name", "UNITNAME", profile, subPath, unitNameMap, unitNameExtras, onChanged, options, refFrame, unitNameDefaults)
+```
+
+A `nil` result means the option has no default. The function is called inside `xpcall`; an error counts as no default.
+
+Not the attribute `default` field: Plater fills that with the CURRENT profile value, so it cannot mean "the value to reset to".
+
+### Options without a default
+
+| `show_disabled_reset_buttons` | Row with a default | Row without a default |
+|---|---|---|
+| `true` (default) | enabled button | button shown, disabled: whole button at alpha 0.3, desaturated icon |
+| `false` | enabled button | no button |
+
+The argument is optional; a registration without it behaves as if no option has a default.
+
+### What a click does
+
+`editor:ResetOptionToDefault(resetEntry)` calls the row's own `set()` with the default, so it goes through the same path as a user edit: the profile is written, the 8th-arg callback and the setter run, and an undo entry is pushed (Ctrl+Z brings the old value back). That entry gets a coalesce key of its own (`<id>:<key>:reset`), so it is never merged with an edit of the same option made just before or after: edit 10 → 20, reset → 5, Ctrl+Z gives 20, Ctrl+Z again gives 10.
+
+A reset button is enabled only while its option has a default, its widget is enabled, AND the value in the profile is not the default already. "Already the default" tolerates float error: numbers within `0.00001` of the default count as equal (a `1` read back as `0.99999999`), colors are compared channel by channel after `ParseColors` (so a default in any color format matches, a missing alpha counts as 1), and other tables are compared key by key with the same tolerance. The value is read from the profile, not from the row's `get()`, which keeps the value of when the menu was built; the mover refreshes the states on each drag tick, since it moves the offset sliders without their callback.
+
+A reset button is also disabled while its widget is disabled. It follows the widget when `enable_if`, `disableif` or a `children_follow_enabled` toggle disables it: the states are re-read after every menu build, after every value change in the menu, and in `RefreshDisabledOptions`. `ResetOptionToDefault` also refuses a disabled widget, so a direct call cannot write a disabled option either. A consumer that disables menu widgets some other way should call `editor:RefreshResetButtonStates()` afterwards. Colors are passed through `ParseColors`, so any color format works as a default. Then the menu is rebuilt (`Refresh`), because the widgets show the values read at build time; the scroll position is kept.
+
+### Layout
+
+The buttons are as tall as the editor's dropdowns (`dropdown_template.height`, or 18) and square. Their room comes out of the widget column: while the buttons are on, every widget is `buttonSize + 2` narrower, so `options_label_width + options_widget_width + 7 <= options_width` still holds and nothing new is clipped. Each button sits 2 px right of the row highlight, vertically centered on its widget (past a slider's right-side value box).
+
+### Turning them on or off at runtime
+
+```lua
+editor:SetOption("show_reset_buttons", true)
+editor:Refresh()
+```
+
+The row highlights are resized on every build, so the narrower and wider layouts can be swapped freely.
 
 ---
 
@@ -798,6 +863,10 @@ editor:SetPoint("TOPLEFT", tabBodyFrame, "TOPLEFT", 10, TAB_TOP_OFFSET)
 | `AddToUndoHistory(state)` | Push a custom undo state (with coalescing). |
 | `AddMoverUndoState(registered, anchorTable, oldX, oldY, newX, newY)` | Push a mover-style undo state (used by the mover's OnMouseUp internally; expose if you build custom drag logic). |
 | `RefreshUndoButtons()` | Re-evaluate toolbar button enable/disable. |
+| `ResetOptionToDefault(resetEntry)` | Put one option back to its default through its `set()` (undoable), then rebuild the menu. Called by the reset buttons. |
+| `RefreshResetButtonStates()` | Re-read which reset buttons are enabled (option has a default and its widget is enabled). Called automatically after builds, value changes and `RefreshDisabledOptions`. |
+| `LayoutResetButtons(resetEntries, widgetWidth)` | Place / hide the reset buttons after a menu build (called automatically). |
+| `GetResetButtonSize()` | Width and height of the reset buttons: the dropdown template height, or 18. |
 | `StartObjectMovement(anchorSettings)` / `StopObjectMovement()` | Mover lifecycle (called automatically). |
 | `ShowSelectedTextures(object)` / `HideSelectedTextures()` | Four corner highlights. |
 | `SetSelectedBackgroundColor(r, g, b, a)` | Recolor the translucent fill drawn under the currently-edited widget (`ObjectBackgroundTexture`). Defaults to magenta `(1, 0, 1, 0.25)`. Pass values in `[0, 1]`. Effect is immediate — no `Refresh` needed. Useful when magenta clashes with the consumer's preview palette. |

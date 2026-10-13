@@ -743,7 +743,8 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field ClearRestoredSavedSegment fun(instance: instance)
 ---@field GetActorBySubDisplayAndRank fun(self: instance, displayid: attributeid, subDisplay: attributeid, rank: number) : actor
 ---@field GetSize fun(instance: instance) : width, height
----@field GetInstanceGroup fun() : table
+---@field GetInstanceGroup fun(instance: instance, instanceId: number?) : instance[]|nil this window and the open windows grouped with it
+---@field IsGroupedWith fun(instance: instance, otherInstance: instance) : boolean true when the two windows are snapped directly to each other
 ---@field GetCombat fun(instance: instance)
 ---@field ChangeIcon fun(instance: instance)
 ---@field CheckIntegrity fun(instance: instance)
@@ -1127,6 +1128,7 @@ DETAILS_SEGMENTTYPE_TRAININGDUMMY = true
 ---@field AllInOneWindow details_allinonewindow
 ---@field BParser bparser
 ---@field Apocalypse addon_apocalypse
+---@field WindowSnap windowsnap
 
 ---@class addon_apocalypse:table
 ---@field TypeDetails number

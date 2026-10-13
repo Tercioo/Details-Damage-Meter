@@ -239,40 +239,6 @@
 		end
 	end
 
-	function Details:AtualizaPontos()
-		local _x, _y = self:GetPositionOnScreen()
-		if (not _x) then
- 			return
- 		end
-
-		local _w, _h = self:GetRealSize()
-
-		local metade_largura = _w/2
-		local metade_altura = _h/2
-
-		local statusbar_y_mod = 0
-		if (not self.show_statusbar) then
-			statusbar_y_mod = 14 * self.baseframe:GetScale()
-		end
-
-		if (not self.ponto1) then
-			self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
-			self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
-			self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
-			self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
-		else
-			self.ponto1.x = _x - metade_largura
-			self.ponto1.y = _y + metade_altura + (statusbar_y_mod*-1)
-			self.ponto2.x = _x - metade_largura
-			self.ponto2.y = _y - metade_altura + statusbar_y_mod
-			self.ponto3.x = _x + metade_largura
-			self.ponto3.y = _y - metade_altura + statusbar_y_mod
-			self.ponto4.x = _x + metade_largura
-			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
-		end
-
-	end
-
 --------------------------------------------------------------------------------------------------------
 
 	--LibWindow-1.1 by Mikk http://www.wowace.com/profiles/mikk/
@@ -402,31 +368,6 @@
 		self.posicao[mostrando].w = _w
 		self.posicao[mostrando].h = _h
 
-		--update the 4 points for window groups
-		local metade_largura = _w/2
-		local metade_altura = _h/2
-
-		local statusbar_y_mod = 0
-		if (not self.show_statusbar) then
-			statusbar_y_mod = 14 * self.baseframe:GetScale()
-		end
-
-		if (not self.ponto1) then
-			self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
-			self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
-			self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
-			self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
-		else
-			self.ponto1.x = _x - metade_largura
-			self.ponto1.y = _y + metade_altura + (statusbar_y_mod*-1)
-			self.ponto2.x = _x - metade_largura
-			self.ponto2.y = _y - metade_altura + statusbar_y_mod
-			self.ponto3.x = _x + metade_largura
-			self.ponto3.y = _y - metade_altura + statusbar_y_mod
-			self.ponto4.x = _x + metade_largura
-			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
-		end
-
 		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --espa�o para o final da janela
 
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
@@ -463,31 +404,6 @@
 		self.posicao[mostrando].y = _y
 		self.posicao[mostrando].w = _w
 		self.posicao[mostrando].h = _h
-
-		--update the 4 points for window groups
-		local metade_largura = _w/2
-		local metade_altura = _h/2
-
-		local statusbar_y_mod = 0
-		if (not self.show_statusbar) then
-			statusbar_y_mod = 14 * self.baseframe:GetScale()
-		end
-
-		if (not self.ponto1) then
-			self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
-			self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
-			self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
-			self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
-		else
-			self.ponto1.x = _x - metade_largura
-			self.ponto1.y = _y + metade_altura + (statusbar_y_mod*-1)
-			self.ponto2.x = _x - metade_largura
-			self.ponto2.y = _y - metade_altura + statusbar_y_mod
-			self.ponto3.x = _x + metade_largura
-			self.ponto3.y = _y - metade_altura + statusbar_y_mod
-			self.ponto4.x = _x + metade_largura
-			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
-		end
 
 		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --espa�o para o final da janela
 
@@ -636,50 +552,6 @@
 
 	function Details:ReajustaGump()
 		if (self.mostrando == "normal") then --somente alterar o tamanho das barras se tiver mostrando o gump normal
-			if (not self.baseframe.isStretching and self.stretchToo and #self.stretchToo > 0) then
-				if (self.eh_horizontal or self.eh_tudo or (self.verticalSnap and not self.eh_vertical)) then
-					for _, instancia in ipairs(self.stretchToo) do
-						instancia.baseframe:SetWidth(self.baseframe:GetWidth())
-						local mod = (self.baseframe:GetWidth() - instancia.baseframe._place.largura) / 2
-						instancia:RestoreMainWindowPositionNoResize(instancia.baseframe._place, mod, nil)
-						instancia:BaseFrameSnap()
-					end
-				end
-
-				if ((self.eh_vertical or self.eh_tudo or not self.eh_horizontal) and (not self.verticalSnap or self.eh_vertical)) then
-					for _, instancia in ipairs(self.stretchToo) do
-						if (instancia.baseframe) then --esta criada
-							instancia.baseframe:SetHeight(self.baseframe:GetHeight())
-							local mod
-							if (self.eh_vertical) then
-								mod = (self.baseframe:GetHeight() - instancia.baseframe._place.altura) / 2
-							else
-								mod = - (self.baseframe:GetHeight() - instancia.baseframe._place.altura) / 2
-							end
-							instancia:RestoreMainWindowPositionNoResize(instancia.baseframe._place, nil, mod)
-							instancia:BaseFrameSnap()
-						end
-					end
-				end
-
-			elseif (self.baseframe.isStretching and self.stretchToo and #self.stretchToo > 0) then
-				if (self.baseframe.stretch_direction == "top") then
-					for _, instancia in ipairs(self.stretchToo) do
-						instancia.baseframe:SetHeight(self.baseframe:GetHeight())
-						local mod = (self.baseframe:GetHeight() - (instancia.baseframe._place.altura or instancia.baseframe:GetHeight())) / 2
-						instancia:RestoreMainWindowPositionNoResize(instancia.baseframe._place, nil, mod)
-					end
-
-				elseif (self.baseframe.stretch_direction == "bottom") then
-					for _, instancia in ipairs(self.stretchToo) do
-						instancia.baseframe:SetHeight(self.baseframe:GetHeight())
-						local mod = (self.baseframe:GetHeight() - instancia.baseframe._place.altura) / 2
-						mod = mod * -1
-						instancia:RestoreMainWindowPositionNoResize(instancia.baseframe._place, nil, mod)
-					end
-				end
-			end
-
 			if (self.stretch_button_side == 2) then
 				self:StretchButtonAnchor(2)
 			end

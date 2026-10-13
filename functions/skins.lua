@@ -1043,6 +1043,7 @@ local addonName, Details222 = ...
 			instance3:ShutDown()
 		end
 
+		--both windows leave their groups, so sizing and placing them by hand below doesn't resize other windows
 		instance1:UngroupInstance()
 		instance2:UngroupInstance()
 
@@ -1072,24 +1073,17 @@ local addonName, Details222 = ...
 
 		end
 
-		Details:Destroy(instance1.snap)
-		Details:Destroy(instance2.snap)
-		instance1.snap [3] = 2; instance2.snap [1] = 1;
-		instance1.horizontalSnap = true; instance2.horizontalSnap = true
-
 		instance1.baseframe:SetPoint("bottomleft", RightChatDataPanel, "topleft", 1 - (instance1.skin == "Forced Square" and 1 or 0), 1 + (statusbar_enabled1 and 14 or 0) - (ElvUIRightChatDataPanel and 0 or 22))
 		instance2.baseframe:SetPoint("bottomright", RightChatToggleButton, "topright", -1, 1 + (statusbar_enabled2 and 14 or 0) - (ElvUIRightChatDataPanel and 0 or 22))
 
 		instance1:LockInstance (true)
 		instance2:LockInstance (true)
 
+		--window #2 stays where it was placed, window #1 is grouped on its left
+		instance1:MakeInstanceGroup({false, false, 2, false})
+
 		instance1:SaveMainWindowPosition()
 		instance2:SaveMainWindowPosition()
-
-		_detalhes.move_janela_func(instance1.baseframe, true, instance1)
-		_detalhes.move_janela_func(instance1.baseframe, false, instance1)
-		_detalhes.move_janela_func(instance2.baseframe, true, instance2)
-		_detalhes.move_janela_func(instance2.baseframe, false, instance2)
 
 	end
 

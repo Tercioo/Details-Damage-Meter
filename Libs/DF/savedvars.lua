@@ -320,7 +320,7 @@ local profilePanelMixin = {
         else
             self.SelectedProfileToDelete = nil
             self.DeleteProfileDropdown:NoOption(#dropdownOptions == 0)
-            self.DeleteProfileDropdown:Select(1, true)
+            self.DeleteProfileDropdown:NoOptionSelected()
         end
     end,
 
