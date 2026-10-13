@@ -109,10 +109,8 @@ local refreshFunc = function(self, data, offset, totalLines)
             line.Texts[1]:SetText(index)
 
             local name = thisData.name
-            if not issecretvalue(name) then
-                name = detailsFramework:RemoveRealmName(name)
-            else
-                name = Ambiguate(name, "none")
+            if (Details.remove_realm_from_name) then
+                name = Details:RemoveRealmName(name)
             end
 
             line.Texts[2]:SetText(name)

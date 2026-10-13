@@ -3208,31 +3208,14 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 		if source.amountPerSecond < 1 then
 			source.amountPerSecond = 1
 		end
+	end
 
-		if actorName then
-			actorName = detailsFramework:RemoveRealmName(actorName)
-		else
-			actorName = source.name
-			if not issecretvalue(actorName) then
-				actorName = detailsFramework:RemoveRealmName(actorName)
-			else
-				actorName = Ambiguate(source.name, "short")
-			end
-		end
-	else
-		if specIcon then
-			actorName = Ambiguate(source.name, "short")
-		else
-			actorName = source.name
-		end
+	if (Details.remove_realm_from_name) then
+		actorName = Details:RemoveRealmName(source.name)
 	end
 
 	if (instance.row_info.textL_show_number) then
-		if issecretvalue(actorName) then
-			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
-		else
-			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
-		end
+		instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
 	else
 		instanceLine.lineText1:SetText(actorName) --left text
 	end

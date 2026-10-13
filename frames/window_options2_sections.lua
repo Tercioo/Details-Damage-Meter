@@ -704,8 +704,8 @@ do
                     Details.remove_realm_from_name = value
                     afterUpdate(getInstance())
                 end,
-                name = Loc ["STRING_OPTIONS_REALMNAME"],
-                desc = Loc ["STRING_OPTIONS_REALMNAME_DESC"],
+                name = detailsFramework.IsForeverWow() and Loc ["STRING_OPTIONS_LASTNAME"] or Loc ["STRING_OPTIONS_REALMNAME"],
+                desc = detailsFramework.IsForeverWow() and Loc ["STRING_OPTIONS_LASTNAME_DESC"] or Loc ["STRING_OPTIONS_REALMNAME_DESC"],
                 boxfirst = true,
             },
 

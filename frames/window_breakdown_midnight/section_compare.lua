@@ -69,16 +69,15 @@ end
 ---@param name string?
 ---@return string
 local getActorDisplayName = function(name)
-    if (type(name) ~= "string" or name == "") then
+    if (type(name) ~= "string") then
         return "Unknown"
     end
 
-    if (issecretvalue(name)) then
-        return Ambiguate(name, "none")
+    if (not issecretvalue(name) and name == "") then
+        return "Unknown"
     end
 
-    local nameWithNoRealm = detailsFramework:RemoveRealmName(name)
-    return nameWithNoRealm
+    return Details:RemoveRealmName(name)
 end
 
 ---@param windowFrame detailsbreakdownmidnight_window
