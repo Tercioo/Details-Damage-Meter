@@ -190,6 +190,7 @@ The 9th-parameter `options` is per-object (overrides anchor lock, icon, etc.); t
 | `use_colon` | boolean | `false` | If true, "Size" becomes "Size:" in the menu. |
 | `can_move` | boolean | `true` | If true, the mover handle is shown over the object and the user can drag it. Set to false for objects that shouldn't be repositioned (a fixed health bar, a non-movable icon). |
 | `can_click` | boolean | `true` | If true, an invisible full-size click-to-select overlay is shown over each member widget in the live preview. Set to false when the registration shares its canvas area with another widget that should win clicks (e.g. a parent that contains clickable children). |
+| `can_resize` | boolean | `false` | If true, resize grips are drawn on the corners and sides of the object while it is edited. Textures and frames: dragging changes `width` / `height`. FontStrings: every grip changes `size`. See "Resize grips". |
 | `icon` | atlas / texture | nil | Icon shown next to `localizedLabel` in the left panel. Accepts atlas name, atlas table from `DF:CreateAtlas`, or a texture path/id. |
 | `parentId` | any | nil | Nests this registration under another registration in the left-panel object selector. The parent shows a `+`/`-` toggle to expand/collapse its children; a single click anywhere on the parent row also toggles it (and selects the parent). Selecting a nested entry (from the list OR via the canvas selectButton) auto-expands the parent. One level of nesting is supported. |
 
@@ -577,6 +578,24 @@ If you ever register an object that has interactive children inside, you'd want 
 
 ---
 
+## Resize grips
+
+Opt-in per registration with `can_resize = true` on the 9th argument of `RegisterObject`. Off by default.
+
+- Eight small grips (`editor.ResizeGrips`, created once by `CreateResizeGrips`) sit on the object's corners and sides, on the over-the-top frame at frame level 12, above the anchor points and the mover. Grabbing a grip resizes; grabbing anywhere else still moves.
+- **What a grip drives.** The grips do not call `SetWidth` / `SetSize` themselves. While building the menu, `PrepareObjectForEditing` keeps the `applyValue` of every `range` option keyed `width`, `height` or `size` (built-in or from `extraOptions`). The drag calls those, so the profile write, the onEditCallback, the setter fan-out across members, and the slider limits are the same as a slider edit. To save the drag somewhere else, point the key with `profileKeyMap` (e.g. `{width = "bar_width"}`).
+- **Which grips show.** Texture / Frame: side grips need the matching `width` or `height` option, corner grips need both. FontString: all eight grips when it has a `size` option. No grips when the object has more than one point (its size comes from those points), or none of the keys resolve in the profile.
+- **Font size.** Grows by the ratio the text would have to grow to reach the cursor: width ratio for side grips, height ratio for top / bottom, the average of both for corners. Rounded to whole numbers unless the option has `usedecimals`.
+- **The opposite edge stays put.** An object anchored by its center would otherwise grow on both sides. After each size change the editor measures where the edge opposite the grip moved (the center, on an axis the grip does not pull) and shifts `anchorSettings.x/y` by the difference. Needs the `anchor` option; without it the object simply grows from its anchor point.
+- **Undo.** `StopObjectResize` pushes one entry per drag (`AddResizeUndoState`) holding the sizes and the anchor offsets. Its `coalesceKey` is `<objectId>:resize:<count>`, so two resizes in a row are two undo steps. A click without a drag records nothing.
+- The drag ends on mouse up, when the left button is found released, or when the grips are hidden (`HideResizeGrips`, called by `PrepareObjectForEditing`, `ClearEditing` and `OnHide`); in every case the undo step is recorded.
+
+```lua
+editor:RegisterObject(icon, "Icon", "ICON", profile, "icon", {}, nil, onChanged, {can_resize = true}, parentFrame)
+```
+
+---
+
 ## Anchor frames
 
 When the active widget has an `anchor` attribute, the editor draws nine clickable frames at the parent's nine anchor points (top-left, top, top-right, left, center, right, bottom-left, bottom, bottom-right). Clicking one sets the anchor side. This is the visual alternative to the anchor-side dropdown.
@@ -609,6 +628,7 @@ A slider drag fires `set()` 100 times between mouse-down and mouse-up. Without c
 `coalesceKey` shape:
 - Slider/dropdown/etc.: `<objectId>:<option.key>` (e.g. `"UNITNAME:size"`)
 - Mover: `<objectId>:mover`
+- Resize grip: `<objectId>:resize:<count>` (never coalesces, one entry per drag)
 
 Continuous edits to the same key on the same object coalesce. Switching widgets or switching keys breaks the coalesce chain.
 

@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: Lib: LibDFramework-1.0
 ## Notes: Base Framework for many Addons
 
