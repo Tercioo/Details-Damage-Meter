@@ -8,5 +8,9 @@
 
 ## X-Wago-ID: ZQ6abgKW
 
+enUS.lua
+ptBR.lua
+ruRU.lua
+
 Details_Vanguard.lua
 
