@@ -655,7 +655,7 @@ unitNameTitles[#unitNameTitles+1] = unitNameTitles[1]:gsub(PET_TYPE_PET, PET_TYP
 					--the actor does not have a nickname, use the character name instead
 					if (not actorObject.displayName) then
 						if (Details.remove_realm_from_name) then
-							actorObject.displayName = Details:RemoveRealmName(actorName)
+							actorObject.displayName = Details:RemoveRealmName(actorName, actorSerial)
 						else
 							actorObject.displayName = actorName
 						end

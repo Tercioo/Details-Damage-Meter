@@ -186,7 +186,7 @@ do
 	end
 
 	function Details:GetOnlyName(string)
-		return Details:RemoveRealmName(string or self.nome)
+		return Details:RemoveRealmName(string or self.nome, self and self.serial)
 	end
 
 	function Details:RemoveOwnerName(string)
@@ -233,9 +233,13 @@ do
 		return unitName
 	end
 
-	function Details:RemoveRealmName(unitName)
+	function Details:RemoveRealmName(unitName, guid)
+		if (not guid) then
+			return unitName
+		end
+
 		if (DetailsFramework.IsForeverWow()) then
-			local firstName = UnitName(unitName)
+			local firstName = UnitNameFromGUID(guid) or UnitName(unitName)
 
 			if (firstName) then
 				return firstName

@@ -3961,10 +3961,10 @@ function Details:FormatReportLines (report_table, data, f1, f2, f3)
 end
 
 local report_name_function = function(name)
-	local name, index = unpack(name)
+	local name, index, guid = unpack(name)
 
 	if (Details.remove_realm_from_name) then
-		return index .. ". " .. Details:RemoveRealmName(name)
+		return index .. ". " .. Details:RemoveRealmName(name, guid)
 	else
 		return index .. ". " .. name
 	end
@@ -4174,9 +4174,9 @@ function Details:monta_relatorio (este_relatorio, custom)
 						dps = GetDpsHps (actor, keyNameSec)
 					end
 
-					raw_data_to_report [#raw_data_to_report+1] = {{name, i}, {amount, dps, percent, false}}
+					raw_data_to_report [#raw_data_to_report+1] = {{name, i, actor.serial}, {amount, dps, percent, false}}
 				else
-					raw_data_to_report [#raw_data_to_report+1] = {{name, i}, {amount, false, false, true}}
+					raw_data_to_report [#raw_data_to_report+1] = {{name, i, actor.serial}, {amount, false, false, true}}
 				end
 
 			else

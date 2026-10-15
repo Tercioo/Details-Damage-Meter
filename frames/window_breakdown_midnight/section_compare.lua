@@ -68,7 +68,7 @@ end
 
 ---@param name string?
 ---@return string
-local getActorDisplayName = function(name)
+local getActorDisplayName = function(name, guid)
     if (type(name) ~= "string") then
         return "Unknown"
     end
@@ -77,7 +77,7 @@ local getActorDisplayName = function(name)
         return "Unknown"
     end
 
-    return Details:RemoveRealmName(name)
+    return Details:RemoveRealmName(name, guid)
 end
 
 ---@param windowFrame detailsbreakdownmidnight_window
@@ -357,7 +357,7 @@ local buildComparisonSources = function(currentSegmentId, attributeId, actorObje
                 local actorSpells = Details222.B.GetSpells("ID", previousSegmentId, attributeId, sourceGuid)
                 local actorSpellMap = buildSpellAmountMap(actorSpells)
                 comparisonSources[#comparisonSources + 1] = {
-                    columnName = getActorDisplayName(actorName),
+                    columnName = getActorDisplayName(actorName, sourceGuid),
                     spellAmountMap = actorSpellMap,
                 }
             end

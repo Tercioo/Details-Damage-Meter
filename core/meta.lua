@@ -57,7 +57,7 @@ local classTypeUtility = Details.atributos.misc
 				local actorName = thisActor.nome
 
 				if (Details.remove_realm_from_name and _bit_band(thisActor.flag_original or 0, OBJECT_TYPE_PLAYER) ~= 0) then
-					thisActor.displayName = Details:RemoveRealmName(actorName)
+					thisActor.displayName = Details:RemoveRealmName(actorName, thisActor.serial)
 				else
 					thisActor.displayName = actorName
 				end
@@ -177,7 +177,7 @@ local classTypeUtility = Details.atributos.misc
 
 						--set back the display name (isn't saved with the object)
 						if (Details.remove_realm_from_name and _bit_band(actorObject.flag_original or 0, OBJECT_TYPE_PLAYER) ~= 0) then
-							actorObject.displayName = Details:RemoveRealmName(actorName)
+							actorObject.displayName = Details:RemoveRealmName(actorName, actorObject.serial)
 						else
 							actorObject.displayName = actorName
 						end
@@ -573,7 +573,7 @@ local classTypeUtility = Details.atributos.misc
 
 				--set back the display name (isn't saved with the object)
 				if (Details.remove_realm_from_name and _bit_band(actorObject.flag_original or 0, OBJECT_TYPE_PLAYER) ~= 0) then
-					actorObject.displayName = Details:RemoveRealmName(actorName)
+					actorObject.displayName = Details:RemoveRealmName(actorName, actorObject.serial)
 				else
 					actorObject.displayName = actorName
 				end
