@@ -81,6 +81,7 @@ function detailsFramework:CreateEditor(parent, name, options)
 | `show_undo_buttons` | boolean | `true` | If true, places an Undo / Redo button pair at the bottom-right of the editor. Set to false if you want to wire your own keybinds (`editor:Undo()` / `editor:Redo()`) instead. |
 | `show_reset_buttons` | boolean | `false` | If true, every value row in the center panel gets a square "reset to default" button at its right. See "Reset to default buttons" below. |
 | `show_disabled_reset_buttons` | boolean | `true` | Only read while `show_reset_buttons` is on. What a row whose option has no default gets: true shows the button disabled, false shows no button. |
+| `anchor_menu_height` | number? | nil | Height in pixels of the menu of every `anchordropdown` row (built-in or extra) that has no `menu_height` of its own. Each option takes 20 pixels, so 120 shows 6 and the rest scroll. nil keeps the dropdown default of 300. |
 
 ### Minimal example
 
@@ -330,6 +331,7 @@ Recognized fields in any attribute (built-in or extra):
 | `usedecimals` | boolean | If true, slider stores fractional values (color alphas, scales, rotations). Otherwise the value is `math.floor`-ed. |
 | `subkey` | string | Reserved for nested addressing within compound widgets. Most widgets don't use this. |
 | `childrenids` / `children_follow_enabled` / `children_follow_reverse` | table / boolean / boolean | Forwarded to BuildMenu. On a toggle, `children_follow_enabled = true` enables the widgets listed in `childrenids` while it is on and disables them while it is off (`children_follow_reverse` inverts that). The ids are the children's `key`s. |
+| `menu_height` | number? | Dropdown widgets only. Forwarded to BuildMenu: height in pixels of the menu with the options, 20 per option, default 300 (or `anchor_menu_height` on an anchor dropdown). Past it the menu scrolls. |
 | `disableif` | function? | Forwarded to BuildMenu. Returns true to disable the widget; checked on menu build. It should read the live profile, not a widget. After an edit that changes it, call `editor:RefreshDisabledOptions()` (not RefreshOptions, whose get() returns build-time values). |
 
 ---
@@ -583,8 +585,10 @@ If you ever register an object that has interactive children inside, you'd want 
 Opt-in per registration with `can_resize = true` on the 9th argument of `RegisterObject`. Off by default.
 
 - Eight small grips (`editor.ResizeGrips`, created once by `CreateResizeGrips`) sit on the object's corners and sides, on the over-the-top frame at frame level 12, above the anchor points and the mover. Grabbing a grip resizes; grabbing anywhere else still moves.
+- **Look.** A corner is a thin 90 degree bracket, a side is a short line along the edge, white with a dark outline, yellow under the mouse. The lines sit just outside the object so a small icon stays visible; the grabbable area reaches a few pixels inside it. While grips are shown, the selection corners and the mover's center dot are hidden, the brackets take their place.
 - **What a grip drives.** The grips do not call `SetWidth` / `SetSize` themselves. While building the menu, `PrepareObjectForEditing` keeps the `applyValue` of every `range` option keyed `width`, `height` or `size` (built-in or from `extraOptions`). The drag calls those, so the profile write, the onEditCallback, the setter fan-out across members, and the slider limits are the same as a slider edit. To save the drag somewhere else, point the key with `profileKeyMap` (e.g. `{width = "bar_width"}`).
 - **Which grips show.** Texture / Frame: side grips need the matching `width` or `height` option, corner grips need both. FontString: all eight grips when it has a `size` option. No grips when the object has more than one point (its size comes from those points), or none of the keys resolve in the profile.
+- **Shift keeps the proportions.** Holding Shift while dragging a corner of a Texture / Frame keeps the width-to-height ratio the object had when the grip was grabbed (Photoshop's Shift). The axis the cursor pulled further sets the scale; the min / max of both options are applied to the shared scale so hitting one limit does not bend the shape. Shift can be pressed or let go mid-drag. Side grips ignore it.
 - **Font size.** Grows by the ratio the text would have to grow to reach the cursor: width ratio for side grips, height ratio for top / bottom, the average of both for corners. Rounded to whole numbers unless the option has `usedecimals`.
 - **The opposite edge stays put.** An object anchored by its center would otherwise grow on both sides. After each size change the editor measures where the edge opposite the grip moved (the center, on an axis the grip does not pull) and shifts `anchorSettings.x/y` by the difference. Needs the `anchor` option; without it the object simply grows from its anchor point.
 - **Undo.** `StopObjectResize` pushes one entry per drag (`AddResizeUndoState`) holding the sizes and the anchor offsets. Its `coalesceKey` is `<objectId>:resize:<count>`, so two resizes in a row are two undo steps. A click without a drag records nothing.
@@ -672,6 +676,10 @@ There are two ways to select a widget for editing:
 2. **Click the live widget itself in the preview area.** Each member of the registration gets its own invisible `selectButton`, parented to that member's parent, sized to cover the member (`SetAllPoints(member)`), with frame level set to `widgetLevel + 1` so it sits on top. Its `OnClick` calls `EditObject(registration, clickedMember)`. For single-widget registrations there is exactly one such button — same as before.
 
 Both paths go through the same `EditObject`. Mutually compatible. `EditObject` writes `activeMemberIndex` back onto the registration so subsequent left-list clicks land on the same member.
+
+**Alt + click reaches widgets that are behind.** A plain click always selects the top widget at that spot. Holding Alt while clicking (on a `selectButton` or on the mover of the selected widget) calls `SelectObjectBehind`: it gathers every shown `selectButton` under the mouse cursor whose widget is also shown, sorts them top to bottom by the widget's own stacking (frame strata, frame level, then draw layer and sublevel for textures and fontstrings, which take strata and level from their parent frame, then registration order), and selects the one right below the selected widget. Each further alt + click goes one step deeper and wraps back to the top after the last one. When the selected widget is not under the cursor, it steps from the clicked widget instead. An alt + click on the mover never starts a drag.
+
+**The list follows the selection.** Every `EditObject` ends with `objectSelector:ScrollToEditingObject()`, which scrolls the left-panel list (only when needed) so the row of the widget being edited is in view. This matters most after an alt + click, where the selected widget can be hidden behind others.
 
 The frame-level math used to be `editor:GetFrameLevel() + #registeredObjects` — that mixed levels from two parent trees (the editor and the widget's parent) and only worked by coincidence. Now it's `widgetLevel + 1` (or `widgetParentLevel + 1` for Region children that lack their own frame level).
 

@@ -30,8 +30,20 @@ local RESET_BUTTON_DISABLED_ALPHA = 0.3
 --numbers stored in a profile pick up float error, a 1 can be read back as 0.99999999, so a value this close to the
 --default counts as the default
 local DEFAULT_VALUE_TOLERANCE = 0.00001
---the resize grips drawn on the corners and sides of the object being edited
-local RESIZE_GRIP_SIZE = 7
+--the resize grips drawn on the corners and sides of the object being edited: a corner is a 90 degree bracket,
+--a side is a short line along the edge
+--how thick the lines are
+local RESIZE_GRIP_THICKNESS = 2
+--the length of each arm of a corner bracket, also the size of the area a corner can be grabbed by
+local RESIZE_GRIP_CORNER_LENGTH = 6
+--the length of a side line
+local RESIZE_GRIP_SIDE_LENGTH = 8
+--how deep the area a side can be grabbed by is, measured from the outer edge of its line
+local RESIZE_GRIP_DEPTH = 5
+--the space between the object and the lines
+local RESIZE_GRIP_GAP = 1
+local RESIZE_GRIP_COLOR = {1, 1, 1, 1}
+local RESIZE_GRIP_HOVER_COLOR = {1, 0.82, 0, 1}
 --above the anchor points, which sit on frame level 10, so a grip over an anchor point still gets the click
 local RESIZE_GRIP_FRAME_LEVEL = 12
 --a drag never makes a width, height or font size smaller than this
@@ -91,6 +103,32 @@ local getFixedPositionY = function(object, directionY)
     return (bottom + top) / 2
 end
 
+--adds a line to a resize grip, pinned to the grip's own point so it lies on the grip's outer edges. a dark
+--outline one pixel wide is drawn behind it, so the line reads over light and dark objects alike
+---@param grip df_editor_resizegrip
+---@param width number
+---@param height number
+local createResizeGripLine = function(grip, width, height)
+    local line = grip:CreateTexture(nil, "artwork")
+    line:SetSize(width, height)
+    line:SetPoint(grip.point, grip, grip.point, 0, 0)
+
+    local outline = grip:CreateTexture(nil, "border")
+    outline:SetColorTexture(0, 0, 0, 1)
+    outline:SetPoint("topleft", line, "topleft", -1, 1)
+    outline:SetPoint("bottomright", line, "bottomright", 1, -1)
+
+    grip.Lines[#grip.Lines + 1] = line
+end
+
+---@param grip df_editor_resizegrip
+---@param color number[]
+local setResizeGripColor = function(grip, color)
+    for i = 1, #grip.Lines do
+        grip.Lines[i]:SetColorTexture(unpack(color))
+    end
+end
+
 --shallow equality for undo snapshots. used to skip pushing undo entries when nothing actually
 --changed - this happens when BuildMenuVolatile fires set() during widget construction with the
 --current value, which would otherwise create no-op undo entries that wipe the redo stack.
@@ -141,7 +179,7 @@ end
 ---@field onEditCallback function
 ---@field optionsFrame frame
 ---@field overTheTopFrame frame
----@field objectSelector df_scrollbox
+---@field objectSelector df_editor_objectselector
 ---@field moverObject moverobject
 ---@field canvasScrollBox df_canvasscrollbox
 ---@field ObjectBackgroundTexture texture
@@ -181,6 +219,7 @@ end
 ---@field profileTable table? per-extra override of the registration's profileTable, so an option can read/write against a different scope (e.g., the profile root on a registration bound to a sub-table)
 ---@field setter fun(object:any, value:any)?
 ---@field dropdownFunc function?
+---@field menu_height number? dropdown widgets: height in pixels of the menu with the options, 20 per option, default 300
 ---@field onenter? fun(widget:any) optional callback for live preview
 ---@field onleave? fun(widget:any) optional callback (paired with onenter to revert the preview)
 ---@field text? string label widget: literal text to display when type == "label"
@@ -219,7 +258,7 @@ end
 ---@field point string the point of the object the grip sits on
 ---@field directionX number 1 moves the right edge, -1 the left edge, 0 leaves the width alone
 ---@field directionY number 1 moves the top edge, -1 the bottom edge, 0 leaves the height alone
----@field Texture texture
+---@field Lines texture[] the visible lines of the grip, recolored while the mouse is over it
 
 ---an option of the open menu a resize grip drives
 ---@class df_editor_resizetarget : table
@@ -500,9 +539,14 @@ local attributes = {
     },
 }
 
+---@class df_editor_objectselector : df_scrollbox
+---@field SelectionTexture texture
+---@field RefreshMe fun(self:df_editor_objectselector) set the visible registrations as the data and refresh
+---@field ScrollToEditingObject fun(self:df_editor_objectselector) scroll the list so the row of the widget being edited is in view
+
 ---@class df_editormixin : table
 ---@field CreateMoverFrame fun(self:df_editor):df_editor_mover[]
----@field CreateObjectSelectionList fun(self:df_editor, scroll_width:number, scroll_height:number, scroll_lines:number, scroll_line_height:number):df_scrollbox
+---@field CreateObjectSelectionList fun(self:df_editor, scroll_width:number, scroll_height:number, scroll_lines:number, scroll_line_height:number):df_editor_objectselector
 ---@field GetAllRegisteredObjects fun(self:df_editor):df_editor_objectinfo[]
 ---@field GetEditingObject fun(self:df_editor):uiobject
 ---@field GetEditingObjectIndex fun(self:df_editor):number?
@@ -512,7 +556,7 @@ local attributes = {
 ---@field GetOnEditCallback fun(self:df_editor):function
 ---@field GetOptionsFrame fun(self:df_editor):df_menu
 ---@field GetCanvasScrollBox fun(self:df_editor):df_canvasscrollbox
----@field GetObjectSelector fun(self:df_editor):df_scrollbox
+---@field GetObjectSelector fun(self:df_editor):df_editor_objectselector
 ---@field GetOverTheTopFrame fun(self:df_editor):frame
 ---@field GetMoverObject fun(self:df_editor):moverobject
 ---@field GetObjectById fun(self:df_editor, id:string):df_editor_objectinfo
@@ -524,6 +568,7 @@ local attributes = {
 ---@field EditObjectById fun(self:df_editor, id:any)
 ---@field EditObjectByIndex fun(self:df_editor, index:number)
 ---@field ClearEditing fun(self:df_editor) tear down editor UI and clear all editing state
+---@field SelectObjectBehind fun(self:df_editor, clickedMember:uiobject?) alt + click: select the widget behind the selected one under the mouse cursor, repeated alt + clicks go deeper and wrap back to the top
 ---@field CreateUndoManager fun(self:df_editor)
 ---@field AddToUndoHistory fun(self:df_editor, state:undostate)
 ---@field AddMoverUndoState fun(self:df_editor, registeredObject:df_editor_objectinfo, anchorTable:table, oldX:number, oldY:number, newX:number, newY:number)
@@ -535,7 +580,7 @@ local attributes = {
 ---@field StartObjectMovement fun(self:df_editor, anchorSettings:df_anchor)
 ---@field StopObjectMovement fun(self:df_editor)
 ---@field CreateResizeGrips fun(self:df_editor)
----@field ShowResizeGrips fun(self:df_editor, object:uiobject, resizeTargets:table<string, df_editor_resizetarget>, anchorSettings:table?) show the grips the object can be resized with, none when it has nothing to resize
+---@field ShowResizeGrips fun(self:df_editor, object:uiobject, resizeTargets:table<string, df_editor_resizetarget>, anchorSettings:table?):boolean show the grips the object can be resized with, none when it has nothing to resize. true when any grip is shown
 ---@field HideResizeGrips fun(self:df_editor) end a resize being dragged and hide the grips
 ---@field StartObjectResize fun(self:df_editor, grip:df_editor_resizegrip)
 ---@field UpdateObjectResize fun(self:df_editor)
@@ -601,6 +646,7 @@ local editObjectDefaultOptions = {
 ---@field show_undo_buttons boolean
 ---@field show_reset_buttons boolean if true each option row gets a reset to default button at its right; the widgets get narrower to make room for it
 ---@field show_disabled_reset_buttons boolean what an option without a default gets while the reset buttons are shown: true shows the button disabled, false shows no button
+---@field anchor_menu_height number? height in pixels of the menu of every anchor dropdown without a menu_height of its own, 20 per option; nil keeps the dropdown default of 300
 
 ---the default of each option, keyed by the option key: the key used on profileKeyMap for the built-in options and the
 ---key of each extra option. a nil value means the option has no default.
@@ -637,6 +683,7 @@ local editorDefaultOptions = {
     show_undo_buttons = true,
     show_reset_buttons = false,
     show_disabled_reset_buttons = true,
+    anchor_menu_height = nil,
 }
 
 
@@ -751,6 +798,10 @@ local getRegisteredObject = function(self, identifier)
 
     return nil
 end
+
+--stacking order from back to front, used to sort the widgets under the mouse cursor on alt + click
+local strataOrder = {BACKGROUND = 1, LOW = 2, MEDIUM = 3, HIGH = 4, DIALOG = 5, FULLSCREEN = 6, FULLSCREEN_DIALOG = 7, TOOLTIP = 8}
+local drawLayerOrder = {BACKGROUND = 1, BORDER = 2, ARTWORK = 3, OVERLAY = 4, HIGHLIGHT = 5}
 
 detailsFramework.EditorMixin = {
     ---@param self df_editor
@@ -912,29 +963,34 @@ detailsFramework.EditorMixin = {
             local gripPoint = resizeGripPoints[i]
             ---@type df_editor_resizegrip
             local grip = CreateFrame("button", "$parentResizeGrip" .. i, self:GetOverTheTopFrame())
-            grip:SetSize(RESIZE_GRIP_SIZE, RESIZE_GRIP_SIZE)
             grip:SetFrameStrata("TOOLTIP")
             grip:SetFrameLevel(RESIZE_GRIP_FRAME_LEVEL)
             grip:Hide()
             grip.point = gripPoint.point
             grip.directionX = gripPoint.directionX
             grip.directionY = gripPoint.directionY
+            grip.Lines = {}
 
-            --a white square with a dark outline, so it reads over light and dark objects alike
-            local border = grip:CreateTexture(nil, "border")
-            border:SetColorTexture(0, 0, 0, 1)
-            border:SetAllPoints()
-
-            grip.Texture = grip:CreateTexture(nil, "artwork")
-            grip.Texture:SetColorTexture(1, 1, 1, 1)
-            grip.Texture:SetPoint("topleft", grip, "topleft", 1, -1)
-            grip.Texture:SetPoint("bottomright", grip, "bottomright", -1, 1)
+            --a corner draws a 90 degree bracket around the object's corner and a side draws a short line along
+            --its edge. the lines sit just outside the object so they do not hide it; the grip reaches a few
+            --pixels inside it, which is what the mouse grabs
+            if (grip.directionX ~= 0 and grip.directionY ~= 0) then
+                grip:SetSize(RESIZE_GRIP_CORNER_LENGTH, RESIZE_GRIP_CORNER_LENGTH)
+                createResizeGripLine(grip, RESIZE_GRIP_CORNER_LENGTH, RESIZE_GRIP_THICKNESS)
+                createResizeGripLine(grip, RESIZE_GRIP_THICKNESS, RESIZE_GRIP_CORNER_LENGTH)
+            elseif (grip.directionX ~= 0) then
+                grip:SetSize(RESIZE_GRIP_DEPTH, RESIZE_GRIP_SIDE_LENGTH)
+                createResizeGripLine(grip, RESIZE_GRIP_THICKNESS, RESIZE_GRIP_SIDE_LENGTH)
+            else
+                grip:SetSize(RESIZE_GRIP_SIDE_LENGTH, RESIZE_GRIP_DEPTH)
+                createResizeGripLine(grip, RESIZE_GRIP_SIDE_LENGTH, RESIZE_GRIP_THICKNESS)
+            end
 
             grip:SetScript("OnEnter", function()
-                grip.Texture:SetColorTexture(1, 0.82, 0, 1)
+                setResizeGripColor(grip, RESIZE_GRIP_HOVER_COLOR)
             end)
             grip:SetScript("OnLeave", function()
-                grip.Texture:SetColorTexture(1, 1, 1, 1)
+                setResizeGripColor(grip, RESIZE_GRIP_COLOR)
             end)
 
             grip:SetScript("OnMouseDown", function(_, mouseButton)
@@ -960,7 +1016,7 @@ detailsFramework.EditorMixin = {
         --an object held by two or more points takes its size from them, so setting a size would not change it
         ---@diagnostic disable-next-line: undefined-field
         if (object:GetNumPoints() > 1) then
-            return
+            return false
         end
 
         self.resizeTargets = resizeTargets
@@ -975,13 +1031,16 @@ detailsFramework.EditorMixin = {
             bCanResizeHeight = bCanResizeWidth
         end
 
+        --how far outside the object the outer edge of a grip's line sits
+        local outset = RESIZE_GRIP_GAP + RESIZE_GRIP_THICKNESS
+
         local bShownAnyGrip = false
         for i = 1, #self.ResizeGrips do
             local grip = self.ResizeGrips[i]
             if ((grip.directionX == 0 or bCanResizeWidth) and (grip.directionY == 0 or bCanResizeHeight)) then
                 grip:ClearAllPoints()
-                grip:SetPoint("center", object, grip.point, 0, 0)
-                grip.Texture:SetColorTexture(1, 1, 1, 1)
+                grip:SetPoint(grip.point, object, grip.point, grip.directionX * outset, grip.directionY * outset)
+                setResizeGripColor(grip, RESIZE_GRIP_COLOR)
                 grip:Show()
                 bShownAnyGrip = true
             end
@@ -991,6 +1050,8 @@ detailsFramework.EditorMixin = {
         if (bShownAnyGrip) then
             self:GetMoverObject().MoverFrame.MoverIcon:Hide()
         end
+
+        return bShownAnyGrip
     end,
 
     ---@param self df_editor
@@ -1113,6 +1174,30 @@ detailsFramework.EditorMixin = {
             end
             if (directionY ~= 0 and startValues.height) then
                 newValues.height = startValues.height + deltaY * directionY
+            end
+
+            --shift on a corner keeps the proportions the object had when the grip was grabbed, as in photoshop.
+            --the axis the cursor pulled further sets the scale and the other follows it
+            local startWidth, startHeight = startValues.width, startValues.height
+            if (IsShiftKeyDown() and newValues.width and newValues.height and startWidth > 0 and startHeight > 0) then
+                local ratioX = newValues.width / startWidth
+                local ratioY = newValues.height / startHeight
+                local ratio = (math.abs(ratioX - 1) >= math.abs(ratioY - 1)) and ratioX or ratioY
+
+                --clamped here rather than per axis below, where hitting the limit on one axis would bend the proportions
+                local resizeTargets = resizeState.resizeTargets
+                local widthTarget, heightTarget = resizeTargets.width, resizeTargets.height
+                local minRatio = math.max((widthTarget.minValue or RESIZE_MIN_VALUE) / startWidth, (heightTarget.minValue or RESIZE_MIN_VALUE) / startHeight)
+                ratio = math.max(ratio, minRatio)
+                if (widthTarget.maxValue) then
+                    ratio = math.min(ratio, widthTarget.maxValue / startWidth)
+                end
+                if (heightTarget.maxValue) then
+                    ratio = math.min(ratio, heightTarget.maxValue / startHeight)
+                end
+
+                newValues.width = startWidth * ratio
+                newValues.height = startHeight * ratio
             end
         end
 
@@ -1414,6 +1499,7 @@ detailsFramework.EditorMixin = {
     ---@class df_editor_mover : frame
     ---@field MovingInfo df_editor_mover_movinginfo
     ---@field MoverIcon texture
+    ---@field ignoreMouseUp boolean? set by an alt + click so the matching mouse up does not end a drag that never started
     ---@field OnTickWhileMoving fun(self:df_editor_mover, deltaTime:number)
     ---@field OnTickNotMoving fun(self:df_editor_mover, deltaTime:number)
 
@@ -1433,6 +1519,15 @@ detailsFramework.EditorMixin = {
                 moverFrame.OnTickNotMoving = onTickNotMoving
 
                 moverFrame:SetScript("OnMouseDown", function()
+                    --alt + click selects the widget behind instead of starting a drag.
+                    --the flag makes the matching OnMouseUp do nothing.
+                    if (IsAltKeyDown()) then
+                        moverFrame.ignoreMouseUp = true
+                        editorFrame:SelectObjectBehind()
+                        return
+                    end
+                    moverFrame.ignoreMouseUp = nil
+
                     --save the current position of the object
                     local startX, startY = moverFrame:GetCenter()
                     moverFrame.MovingInfo.startX = startX
@@ -1453,6 +1548,11 @@ detailsFramework.EditorMixin = {
                 end)
 
                 moverFrame:SetScript("OnMouseUp", function()
+                    if (moverFrame.ignoreMouseUp) then
+                        moverFrame.ignoreMouseUp = nil
+                        return
+                    end
+
                     self:Stop()
                     moverFrame:EnableMouse(true)
 
@@ -1619,11 +1719,94 @@ detailsFramework.EditorMixin = {
         --guarded because EditObject can technically be reachable before the selector is built.
         if (self.objectSelector) then
             self.objectSelector:RefreshMe()
+            self.objectSelector:ScrollToEditingObject()
         end
 
         if self.options.start_editing_callback then
             xpcall(self.options.start_editing_callback, geterrorhandler(), self, registeredObject)
         end
+    end,
+
+    ---select the widget behind the selected one under the mouse cursor. used by alt + click.
+    ---each alt + click goes one step deeper and wraps back to the top after the last one.
+    ---@param self df_editor
+    ---@param clickedMember uiobject? the widget whose click-to-select overlay got the click, nil when the click came from the mover
+    SelectObjectBehind = function(self, clickedMember)
+        --gather every shown click-to-select overlay under the mouse cursor
+        local candidates = {}
+        local registeredObjects = self:GetAllRegisteredObjects()
+        for i = 1, #registeredObjects do
+            local objectRegistered = registeredObjects[i]
+            local selectButtons = objectRegistered.selectButtons
+            for j = 1, #selectButtons do
+                local selectButton = selectButtons[j]
+                local member = objectRegistered.objects[j]
+                --the overlay is a sibling of the widget, so a hidden widget still has a shown overlay
+                if (selectButton:IsVisible() and selectButton:IsMouseOver() and member:IsVisible()) then
+                    --stacking comes from the widget itself, the overlay only copies its parent's strata.
+                    --textures and fontstrings draw at their parent frame's strata and level, their draw layer breaks the tie
+                    local stackFrame = member
+                    local layer, subLevel = 0, 0
+                    ---@diagnostic disable-next-line: undefined-field
+                    if (member.GetDrawLayer) then
+                        stackFrame = member:GetParent()
+                        ---@diagnostic disable-next-line: undefined-field
+                        local drawLayer, drawSubLevel = member:GetDrawLayer()
+                        layer = drawLayerOrder[drawLayer] or 0
+                        subLevel = drawSubLevel or 0
+                    end
+
+                    candidates[#candidates+1] = {
+                        registration = objectRegistered,
+                        member = member,
+                        ---@diagnostic disable-next-line: undefined-field
+                        strata = strataOrder[stackFrame:GetFrameStrata()] or 0,
+                        ---@diagnostic disable-next-line: undefined-field
+                        level = stackFrame:GetFrameLevel(),
+                        layer = layer,
+                        subLevel = subLevel,
+                        registrationIndex = i,
+                        memberIndex = j,
+                    }
+                end
+            end
+        end
+
+        if (#candidates == 0) then
+            return
+        end
+
+        --top to bottom
+        table.sort(candidates, function(a, b)
+            if (a.strata ~= b.strata) then return a.strata > b.strata end
+            if (a.level ~= b.level) then return a.level > b.level end
+            if (a.layer ~= b.layer) then return a.layer > b.layer end
+            if (a.subLevel ~= b.subLevel) then return a.subLevel > b.subLevel end
+            if (a.registrationIndex ~= b.registrationIndex) then return a.registrationIndex > b.registrationIndex end
+            return a.memberIndex > b.memberIndex
+        end)
+
+        --step from the selected widget when it is under the cursor, otherwise from the clicked one
+        local startIndex
+        local editingObject = self:GetEditingObject()
+        for i = 1, #candidates do
+            if (candidates[i].member == editingObject) then
+                startIndex = i
+                break
+            end
+        end
+
+        if (not startIndex and clickedMember) then
+            for i = 1, #candidates do
+                if (candidates[i].member == clickedMember) then
+                    startIndex = i
+                    break
+                end
+            end
+        end
+
+        local target = candidates[(startIndex or 0) % #candidates + 1]
+        self:EditObject(target.registration, target.member)
     end,
 
     ---tear down editor UI and clear all editing state. used when the active object is unregistered.
@@ -2269,6 +2452,14 @@ detailsFramework.EditorMixin = {
                             children_follow_enabled = option.children_follow_enabled,
                             children_follow_reverse = option.children_follow_reverse,
                             disableif = option.disableif,
+                            --BuildMenu's label icon fields: a texture drawn on the left side of the
+                            --row's label (buildmenu.lua processLabelIcon)
+                            icontexture = option.icontexture,
+                            iconcoords = option.iconcoords,
+                            iconsize = option.iconsize,
+                            iconfilesize = option.iconfilesize,
+                            --height of a dropdown's menu, the anchor dropdowns fall back to the editor's anchor_menu_height
+                            menu_height = option.menu_height or (widgetType == "anchordropdown" and self.options.anchor_menu_height) or nil,
                         }
 
                         --forwarded for the generic `dropdown` widget; BuildMenu expects `values`
@@ -2401,11 +2592,13 @@ detailsFramework.EditorMixin = {
             self.moverObject:Hide()
         end
 
-        if (editingOptions.can_resize) then
-            self:ShowResizeGrips(object, resizeTargets, anchorSettings)
+        --the grips' corner brackets take the place of the selection corners, which would be drawn on top of them
+        local bHasResizeGrips = editingOptions.can_resize and self:ShowResizeGrips(object, resizeTargets, anchorSettings)
+        if (bHasResizeGrips) then
+            self:HideSelectedTextures()
+        else
+            self:ShowSelectedTextures(object)
         end
-
-        self:ShowSelectedTextures(object)
     end,
 
     ---@param self df_editor
@@ -2659,6 +2852,11 @@ detailsFramework.EditorMixin = {
             selectButton:SetFrameLevel(widgetLevel + 1)
 
             selectButton:SetScript("OnClick", function()
+                --alt + click picks the widget behind this one, for widgets sharing the same spot
+                if (IsAltKeyDown()) then
+                    self:SelectObjectBehind(member)
+                    return
+                end
                 self:EditObject(objectRegistered, member)
             end)
 
@@ -3001,6 +3199,7 @@ detailsFramework.EditorMixin = {
 			return line
 		end
 
+        ---@type df_editor_objectselector
         local selectObjectScrollBox = detailsFramework:CreateScrollBox(self:GetParent(), "$parentSelectObjectScrollBox", refreshFunc, editorFrame:GetVisibleRegisteredObjects(), scroll_width, scroll_height, scroll_lines, scroll_line_height)
         detailsFramework:ReskinSlider(selectObjectScrollBox)
 
@@ -3012,6 +3211,20 @@ detailsFramework.EditorMixin = {
 			selectObjectScrollBox:SetData(editorFrame:GetVisibleRegisteredObjects())
 		    selectObjectScrollBox:Refresh()
 		end
+
+        --scroll the list so the row of the widget being edited is in view, when the widget was
+        --picked in the preview (an alt + click on a widget behind others) its row can be off screen
+        function selectObjectScrollBox:ScrollToEditingObject()
+            local editingRegistration = editorFrame:GetEditingRegisteredObject()
+            if (not editingRegistration) then
+                return
+            end
+
+            if (selectObjectScrollBox:SetDataSelected(editingRegistration)) then
+                selectObjectScrollBox:ScrollToSelectedData()
+                selectObjectScrollBox:Refresh()
+            end
+        end
 
         --shared refresh entry used by per-line toggles. forward-declared so createLineFunc's
         --closure can call it without referencing selectObjectScrollBox before it exists.

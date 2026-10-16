@@ -73,6 +73,9 @@ Specialized dropdown get/set value reference
 	values is ignored because the generator wires onclick directly to set.
 - The set callback signature for all specialized types is:
 	function(dropdownObject, fixedValue, selectedValue)
+- Optional field on any dropdown row: menu_height (number) — height in pixels
+	of the menu with the options, 20 per option, default 300. Past it the menu
+	scrolls. Example: menu_height = 120 shows 6 options.
 - selectfont:
 	- Generator: DF:CreateFontListGenerator(set, include_default).
 	- get() should return the SharedMedia font name string (e.g. "Friz Quadrata TT").
@@ -313,6 +316,9 @@ Behavior
 - Sets widget._get and widget_type = "select".
 - Refreshes dropdown contents and selects current value from widgetTable.get().
 - Applies base template and optional width/height overrides.
+- Sets the menu height from widgetTable.menu_height (pixels, 20 per option),
+	or back to the default 300 when the row has none, since the volatile menu
+	reuses its dropdowns.
 - Registers widget id/reference via setWidgetId().
 - Reanchors label + widget based on layout mode:
 	- align_as_pairs: label anchored to row start; widget aligned at fixed text gap.

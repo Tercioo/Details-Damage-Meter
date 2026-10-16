@@ -1062,6 +1062,36 @@ Example
 
 
 =====================================================================
+17a) SetOpenDirection() / GetOpenDirection()
+=====================================================================
+
+Signature
+    dropdown:SetOpenDirection(direction)
+    dropdown:GetOpenDirection()
+
+Purpose
+    Sets the side the menu opens to. "down" (the default) shows the
+    options below the dropdown, "up" shows them above it. Use "up"
+    for a dropdown close to the bottom of a scroll frame, where the
+    scroll frame would cut the options shown below it.
+
+Parameters
+    direction  ("down"|"up")  Stored as .openDirection.
+
+Returns
+    GetOpenDirection returns "down" or "up".
+
+Behavior
+    Re-anchors the menu border and the menu scroll frame right away
+    (UpdateOpenDirection). "down" anchors their top left to the
+    dropdown's bottom left, "up" anchors their bottom left to the
+    dropdown's top left.
+
+Example
+    dropdown:SetOpenDirection("up")
+
+
+=====================================================================
 18) SetFunction()
 =====================================================================
 

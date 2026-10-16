@@ -1376,6 +1376,9 @@ local buildTitleBarRegistration = function(previewInstance)
 		Object = unwrapWidget(previewInstance.baseframe.titleBar),
 		profileKeyMap = FRAME_KEY_MAP,
 		extraOptions = {
+			--the same skin color the window part edits, offered here as well since it tints the title bar
+			option("color", "color", Loc["STRING_COLOR"], applySkinColor, Loc["STRING_OPTIONS_WINDOW_SKIN_COLOR_DESC"]),
+			{widget = "blank"},
 			--height, texture and color only mean anything while the custom title bar is on, so they are
 			--disabled while it is off
 			withChildren(option("titlebar_shown", "toggle", Loc["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED"], applyTitleBar, Loc["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED_DESC"]),
@@ -1460,7 +1463,7 @@ local buildBarsRegistration = function(previewInstance)
 		profileKeyMap = FRAME_KEY_MAP,
 		extraOptions = {
 			withRange(option("row_info.height", "range", Loc["STRING_OPTIONS_BAR_HEIGHT"], applyBarHeight, Loc["STRING_OPTIONS_BAR_HEIGHT_DESC"]), 10, 30, 1),
-			withRange(option("row_info.space.between", "range", Loc["STRING_OPTIONS_BAR_SPACING"], applyBarSpacing, Loc["STRING_OPTIONS_BAR_SPACING_DESC"]), -2, 10, 1),
+			withRange(option("row_info.space.between", "range", Loc["STRING_OPTIONS_BAR_SPACING"], applyBarSpacing, Loc["STRING_OPTIONS_BAR_SPACING_DESC"]), -2, 10, 0.1, true),
 			withList(option("row_info.texture", "select", Loc["STRING_TEXTURE"], applyBarTexture, Loc["STRING_OPTIONS_BAR_TEXTURE_DESC"]), buildStatusBarTextureList),
 			option("row_info.texture_custom", "textentry", Loc["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"], applyBarCustomTexture, Loc["STRING_CUSTOM_TEXTURE_GUIDE"]),
 			{widget = "execute", label = Loc["STRING_OPTIONS_DESIGNER_REMOVE_CUSTOM_TEXTURE"], func = removeCustomTexture, icontexture = REMOVE_ICON},
