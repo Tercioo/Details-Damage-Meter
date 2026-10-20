@@ -1,0 +1,70 @@
+local Loc = LibStub("AceLocale-3.0"):NewLocale("Details_EncounterDetails", "ruRU") 
+
+if (not Loc) then
+	return 
+end 
+
+Loc ["STRING_PLUGIN_NAME"] = "Разбор сражения"
+Loc ["STRING_WINDOW_TITLE"] = "Details! Разбор сражения"
+Loc ["STRING_TOTAL_DAMAGE"] = "Общий урон"
+Loc ["STRING_TOTAL_HEAL"] = "Общее исцеление"
+Loc ["STRING_SHOW_ALL_DATA"] = "Показать общие данные"
+Loc ["STRING_SHOW_PHASE_DATA"] = "Показать детали этой фазы"
+Loc ["STRING_NOT IMPLEMENTED"] = "Пока не реализовано"
+Loc ["STRING_DIED"] = "погиб"
+Loc ["STRING_MELEE_DAMAGE"] = "урон ближнего боя"
+Loc ["STRING_DAMAGE_TAKEN_REPORT"] = "Полученный урон от"
+Loc ["STRING_ABILITY_DAMAGE"] = "Урон способности"
+Loc ["STRING_DAMAGE_TAKEN"] = "Полученный урон"
+Loc ["STRING_TOOK_DAMAGE_FROM"] = "Получил урон от"
+Loc ["STRING_INTERRUPT_BY"] = "прервано"
+Loc ["STRING_DISPELLED_BY"] = "рассеяно"
+Loc ["STRING_DEAD_LOG"] = "последние секунды"
+Loc ["STRING_CURRENT"] = "Текущее"
+Loc ["STRING_TRY"] = "Бой"
+Loc ["STRING_DAMAGE_AT"] = "Полученный урон"
+Loc ["STRING_INFLICTED_BY"] = "Урон, нанесённый"
+Loc ["STRING_INFLICTED"] = "Нанесённый урон"
+Loc ["STRING_ADDS"] = "Адды"
+Loc ["STRING_INTERRUPTS"] = "Прерывания"
+Loc ["STRING_INTERRUPTS_OF"] = "Прерывания"
+Loc ["STRING_DISPELLS_OF"] = "Рассеивания"
+Loc ["STRING_DISPELLS"] = "Рассеивания"
+Loc ["STRING_DEATH_LOG"] = "Журнал смертей"
+Loc ["STRING_FIGHT_SUMMARY"] = "Сводка сражения"
+Loc ["STRING_FIGHT_GRAPHIC"] = "Графики и фазы сражения"
+Loc ["STRING_FIGHT_EMOTES"] = "Эмоции сражения"
+Loc ["STRING_FIGHT_SPELLS"] = "Заклинания и ауры сражения"
+Loc ["STRING_TOOLTIP"] = "Показать окно деталей сражения"
+Loc ["STRING_LAST_COOLDOWN"] = "последнее использованное КД"
+Loc ["STRING_NOLAST_COOLDOWN"] = "КД не использовалось"
+
+Loc ["STRING_BOSS_NOT_REGISTRED"] = "Это сражение не обнаружено в Details!\nУбедитесь, что этот рейд включён в панели управления аддонами на экране выбора персонажа."
+
+Loc ["STRING_HOLDSHIFT"] = "SHIFT для описания заклинания"
+
+Loc ["STRING_ADDS_HELP"] = "Наведите курсор на |cFF00FF00стрелку вверх|r\nдля полученного урона, |cFFFF0000стрелку\n|cFFFF0000вниз|r для нанесённого урона. |cFFFFFF00Клик\n|cFFFFFF00по стрелке|r: отправить данные,\nпоказанные в подсказке."
+Loc ["STRING_INTERRIPT_HELP"] = " |cFFFFFF00Клик|r по полосе:\nоткрыть окно отчёта.\nСправа показано\nколичество прерванных против\nобщего числа применений заклинаний."
+Loc ["STRING_DISPELL_HELP"] = " \n|cFFFFFF00Клик|r по полосе:\nоткрыть окно отчёта."
+Loc ["STRING_DEATHS_HELP"] = " \n|cFFFFFF00Клик|r по полосе:\nоткрыть окно отчёта."
+
+
+
+--mechanic types
+Loc ["STRING_HEAL"] = "исцеление"
+Loc ["STRING_LOWDPS"] = "низкий дпс"
+Loc ["STRING_LOWHEAL"] = "низкий хил"
+Loc ["STRING_VOIDZONE"] = "опасная зона"
+Loc ["STRING_DISPELL"] = "рассеять"
+Loc ["STRING_INTERRUPT"] = "прервать"
+Loc ["STRING_POSITIONING"] = "позиционирование"
+Loc ["STRING_RUNAWAY"] = "отбежать"
+Loc ["STRING_TANKSWITCH"] = "смена танков"
+Loc ["STRING_MECHANIC"] = "механика"
+Loc ["STRING_CROWDCONTROL"] = "контроль"
+Loc ["STRING_TANKCOOLDOWN"] = "КД танка"
+Loc ["STRING_KILLADD"] = "убить адда"
+Loc ["STRING_SPREADOUT"] = "разбежаться"
+Loc ["STRING_STOPCAST"] = "остановить применение заклинания"
+Loc ["STRING_FACING"] = "направление"
+Loc ["STRING_STACK"] = "стак"
