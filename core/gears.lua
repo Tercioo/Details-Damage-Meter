@@ -3,6 +3,7 @@ local Details = 		_G.Details
 local addonName, Details222 = ...
 local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
 ---@framework
+---@type detailsframework
 local detailsFramework = DetailsFramework
 local _
 
@@ -66,7 +67,7 @@ function Details:TrackSpecsNow(bTrackEverything)
 		local damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE) --DETAILS_ATTRIBUTE_DAMAGE is the integer 1, container 1 store DAMAGER data
 		for _, actor in damageContainer:ListActors() do
 			---@cast actor actor
-			if (actor:IsPlayer()) then
+			if (actor:IsPlayer() and actor.serial and not detailsFramework.IsAddonApocalypseWow()) then
 				for spellId, spellTable in pairs(actor:GetSpellList()) do
 					if (specSpellList[spellTable.id]) then
 						actor:SetSpecId(specSpellList[spellTable.id])
@@ -80,7 +81,7 @@ function Details:TrackSpecsNow(bTrackEverything)
 		local healContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_HEAL) --DETAILS_ATTRIBUTE_HEAL is the integer 2, container 2 store heal data
 		for _, actor in healContainer:ListActors() do
 			---@cast actor actor
-			if (actor:IsPlayer()) then
+			if (actor:IsPlayer() and actor.serial and not detailsFramework.IsAddonApocalypseWow()) then
 				for spellId, spellTable in pairs(actor:GetSpellList()) do
 					if (specSpellList[spellTable.id]) then
 						actor:SetSpecId(specSpellList[spellTable.id])

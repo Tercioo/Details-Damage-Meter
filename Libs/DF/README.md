@@ -267,6 +267,7 @@ The library is composed of roughly 70 Lua modules. Each module focuses on one co
 | `definitions.lua` | LuaCATS / EmmyLua type annotations consumed by Lua language servers. | — |
 | `helpers.md` | `DF.table.*`, `DF.Math.*`, string and dispatch helpers. | [helpers.md](helpers.md) |
 | `math.lua` | Vector and geometry primitives, nine-points, clamping, truncation. | [math.md](math.md) |
+| `physics.lua` | `DF.Physics`: bezier and Catmull-Rom points, hanging rope sag, Verlet rope simulation. | [physics.md](physics.md) |
 
 ### Widgets
 
@@ -287,11 +288,12 @@ The library is composed of roughly 70 Lua modules. Each module focuses on one co
 | Time bar | Cooldown / duration bars. | [timebar.md](timebar.md), [normal_bar.md](normal_bar.md), [split_bar.md](split_bar.md) |
 | Timeline | Horizontal timeline visualization with rows of events. | [timeline.md](timeline.md) |
 | Line indicator | Vertical / horizontal indicator lines. | [line_indicator.md](line_indicator.md) |
+| Lines | `DF:CreateLine(parent, name, options)`: straight lines, hanging ropes and ropes with physics between two frames or points, solid or dashed. | [lines.md](lines.md) |
 | Charts | `DF:CreateGraphicMultiLineFrame` — multi-line chart with per-line color, SMA / LOESS smoothing, axes, backdrop indicators, async drawing. | [charts.md](charts.md) |
 | Unit frame | Health / power frames bound to unit IDs. | [unitframe.md](unitframe.md) |
 | Keybind control panel | Widget for setting up keyboard shortcuts. | [keybind.md](keybind.md) |
 | Auras | Aura display helpers. | [auras.md](auras.md) |
-| Editor | Profile / layout editor with real-time preview. | [editor.md](editor.md) |
+| Editor | Profile / layout editor with real-time preview ("the designer"), row buttons on its options. | [editor.md](editor.md) |
 | Wheel menu | Radial menu widget. | [wheelmenu.md](wheelmenu.md) |
 | Anchor system | Visual anchoring helpers, nine-point selector. | [anchorsystem.md](anchorsystem.md) |
 | Item info | Item / equipment data helpers. | [iteminfo.md](iteminfo.md) |
@@ -463,6 +465,8 @@ Libs/DetailsFramework/         -- (folder name is up to the embedder; Details! i
   externals.lua                -- optional integrations
   DFPixelUtil.lua              -- pixel-perfect scaling
   math.lua                     -- vector / geometry helpers
+  physics.lua                  -- curves and rope simulation (DF.Physics)
+  lines.lua                    -- lines and ropes between frames (DF:CreateLine)
   colors.lua                   -- color tables
   pools.md                     -- object pooling
   *.examples.lua               -- runnable usage examples per widget

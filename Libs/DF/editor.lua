@@ -13,10 +13,14 @@ local wipe = table.wipe
 --maximum number of entries kept in the undo / redo stacks; oldest entries are dropped beyond this.
 local MAX_UNDO_STACK = 50
 
---the reset to default button at the right of each option row
+--the reset to default button, one of the buttons an option row can carry
 local RESET_BUTTON_ATLAS = "UI-RefreshButton"
---space between the row and the reset button
-local RESET_BUTTON_GAP = 2
+--space between the row and its first button, and between two buttons on the same side
+local ROW_BUTTON_GAP = 2
+--the x offset the labels of the menu start at when no row has a button at its left
+local MENU_LABEL_X_OFFSET = 2
+--buildmenu starts the row highlight 2 pixels left of the label
+local ROW_HIGHLIGHT_LEFT_PADDING = 2
 --buildmenu ends the row highlight 3 pixels past the right edge of the widget
 local ROW_HIGHLIGHT_RIGHT_PADDING = 3
 --the row highlight starts 2 pixels left of the label and ends 3 pixels past the widget
@@ -24,9 +28,9 @@ local ROW_HIGHLIGHT_EXTRA_WIDTH = 5
 --the dropdown height buildmenu uses when the dropdown template has none
 local DEFAULT_DROPDOWN_HEIGHT = 18
 --the icon is drawn this many pixels inside the button on each side
-local RESET_ICON_INSET = 2
+local ROW_BUTTON_ICON_INSET = 2
 --the alpha of the whole button while it is disabled
-local RESET_BUTTON_DISABLED_ALPHA = 0.3
+local ROW_BUTTON_DISABLED_ALPHA = 0.3
 --numbers stored in a profile pick up float error, a 1 can be read back as 0.99999999, so a value this close to the
 --default counts as the default
 local DEFAULT_VALUE_TOLERANCE = 0.00001
@@ -166,6 +170,10 @@ end
 
 
 
+---@class df_editor_nametag : frame
+---@field Text fontstring
+---@field object uiobject? the widget the tag is shown above
+
 ---@class df_editor : frame, df_optionsmixin, df_editormixin
 ---@field options table
 ---@field registeredObjects df_editor_objectinfo[]
@@ -185,11 +193,13 @@ end
 ---@field ObjectBackgroundTexture texture
 ---@field AnchorFrames df_editor_anchorframes
 ---@field SelectedTextures texture[]
+---@field SelectedNameTag df_editor_nametag
 ---@field undoHistory undostate[]
 ---@field redoHistory undostate[]
 ---@field UndoButton df_button?
 ---@field RedoButton df_button?
----@field resetButtons df_button[] the reset to default buttons, one per option row, reused on every menu build
+---@field rowButtons df_editor_rowbutton[] the buttons every value row carries, added with AddRowButton
+---@field rowButtonFrames df_editor_rowbuttonframe[] the buttons drawn on the option rows, reused on every menu build
 ---@field bIsResettingOption boolean? true while a reset button writes its default, gives that undo step a key of its own
 ---@field ResizeGrips df_editor_resizegrip[] the eight grips that resize the object being edited
 ---@field resizeTargets table<string, df_editor_resizetarget>? the width, height and size options of the open menu, keyed by option key
@@ -228,6 +238,7 @@ end
 ---@field text_template? table label widget: font template applied when type == "label"
 ---@field color? any label widget: text color applied when type == "label"
 ---@field namePhraseId? string label widget: phrase id for language table lookup when type == "label"
+---@field buttons df_editor_rowbutton[]? value rows: buttons drawn on this row only, after the editor's own row buttons
 
 ---@class df_editor_objectinfo : table
 ---@field object uiobject alias for objects[1]; the canonical "primary" member kept for backward compatibility with external consumers that read .object directly
@@ -587,16 +598,22 @@ local attributes = {
 ---@field StopObjectResize fun(self:df_editor) end the resize being dragged, if any, and record it as one undo step
 ---@field AddResizeUndoState fun(self:df_editor, resizeState:df_editor_resizestate, newValues:table<string, number>, newAnchorX:number?, newAnchorY:number?)
 ---@field RegisterObject fun(self:df_editor, object:uiobject|uiobject[], localizedLabel:string, id:string, profileTable:table, subTablePath:string, profileKeyMap:table, extraOptions:table?, callback:function?, options:df_editobjectoptions?, refFrame:frame, defaultValues:df_editor_defaultvalues?):df_editor_objectinfo register one or more widgets under a single logical entry. When an array of widgets is passed, all members share the same option set and any in-place selection click selects the registration with the clicked member becoming the brackets/mover focus. All members must share the same object type. defaultValues are what the reset to default buttons put back.
----@field GetResetButtonSize fun(self:df_editor):number the width and height of the reset to default buttons, the height of the dropdowns
----@field LayoutResetButtons fun(self:df_editor, resetEntries:df_editor_resetentry[], widgetWidth:number) place a reset to default button beside each option row that has one
----@field RefreshResetButtonStates fun(self:df_editor) enable each shown reset button whose option has a default, whose widget is enabled and whose value is not the default already
----@field ResetOptionToDefault fun(self:df_editor, resetEntry:df_editor_resetentry) set an option back to its default, through the same path as a user edit so it can be undone
+---@field AddRowButton fun(self:df_editor, rowButton:df_editor_rowbutton):df_editor_rowbutton add a button to every value row, replacing the one with the same id; shown from the next menu build
+---@field RemoveRowButton fun(self:df_editor, id:string) remove the row button added with this id; gone from the next menu build
+---@field GetRowButtonSize fun(self:df_editor):number the width and height of a row button without a size of its own, the height of the dropdowns
+---@field GetRowButtonsSpace fun(self:df_editor, rowButtons:df_editor_rowbutton[], side:string):number the room the buttons of one side take, gaps included
+---@field LayoutRowButtons fun(self:df_editor, optionRows:df_editor_optionrow[], widgetWidth:number) place the buttons of each option row at its sides and hide the rest
+---@field RefreshRowButtonStates fun(self:df_editor) enable or disable each shown row button, by its isenabled or by its widget
+---@field ResetOptionToDefault fun(self:df_editor, optionRow:df_editor_optionrow) set an option back to its default, through the same path as a user edit so it can be undone
 ---@field UnregisterObject fun(self:df_editor, object:uiobject)
 ---@field OnHide fun(self:df_editor)
 ---@field OnShow fun(self:df_editor)
 ---@field CreateSelectedTextures fun(self:df_editor)
 ---@field ShowSelectedTextures fun(self:df_editor, object:uiobject) 90 degree corner on each corner of the object
 ---@field HideSelectedTextures fun(self:df_editor) hide the four corner highlight textures
+---@field CreateSelectedNameTag fun(self:df_editor)
+---@field ShowSelectedNameTag fun(self:df_editor, object:uiobject, name:string) show the name of the widget in a small box above it, used when the widget is clicked in the preview
+---@field HideSelectedNameTag fun(self:df_editor)
 ---@field SetSelectedBackgroundColor fun(self:df_editor, r:number, g:number, b:number, a:number) set the color of the filled rectangle drawn under the object being edited (defaults to magenta 1,0,1,0.25)
 ---@field GetProfileTableFromObject fun(self:df_editor, object:df_editor_objectinfo):table
 ---@field UpdateProfileTableOnAllRegisteredObjects fun(self:df_editor, profileTable:table)
@@ -653,11 +670,38 @@ local editObjectDefaultOptions = {
 ---can also be a function(optionKey, profileTable, profileKey) returning the default, for defaults that follow the profile table or subTablePath
 ---@alias df_editor_defaultvalues table<string, any>|fun(optionKey:string, profileTable:table, profileKey:string):any
 
----@class df_editor_resetentry : table
+---a value row of the open menu, what its row buttons are given
+---@class df_editor_optionrow : table
+---@field optionKey string the option key: the editor attribute key for built-ins, the key of an extra option
 ---@field optionTable table the option table given to BuildMenuVolatile, its .widget is the widget built for it
 ---@field widgetType string
+---@field profileTable table
+---@field profileKey string
+---@field registeredObject df_editor_objectinfo
 ---@field defaultValue any nil when the option has no default
 ---@field getCurrentValue fun():any the option's value as the profile holds it now
+---@field buttons df_editor_rowbutton[] the buttons the row shows, picked when the menu is built
+
+---a button drawn on a value row of the center panel, at the left of its label or at the right of its widget.
+---added to every row with editor:AddRowButton(), or to one row with the buttons field of its option
+---@class df_editor_rowbutton : table
+---@field id string? names the button; a button of an option with the id of an editor button takes its place on that row
+---@field side string? "left" or "right", default "right"; the first button of a side is the nearest to the row
+---@field icon any atlas name, atlas table (from DF:CreateAtlas) or texture path|id
+---@field texcoords number[]? left, right, top and bottom coords of a texture icon
+---@field tooltip string?
+---@field width number? default the height of the dropdowns
+---@field height number? default the height of the dropdowns
+---@field onclick fun(editor:df_editor, optionRow:df_editor_optionrow, button:df_button)
+---@field isshown fun(editor:df_editor, optionRow:df_editor_optionrow):boolean? false leaves the row without the button, nil shows it on every row; asked on each menu build, before the widget exists
+---@field isenabled fun(editor:df_editor, optionRow:df_editor_optionrow):boolean? nil keeps the button enabled while its widget is enabled
+
+---a button drawn on an option row, reused on every menu build
+---@class df_editor_rowbuttonframe : df_button
+---@field editorFrame df_editor
+---@field rowButton df_editor_rowbutton? what the button is showing, nil while it is hidden
+---@field optionRow df_editor_optionrow? the row the button is on, nil while it is hidden
+---@field Icon texture
 
 ---@type df_editor_defaultoptions
 local editorDefaultOptions = {
@@ -742,14 +786,14 @@ local isNearlyEqual = function(value1, value2)
 end
 
 ---true when the option already holds its default, numbers within DEFAULT_VALUE_TOLERANCE of it included
----@param resetEntry df_editor_resetentry
+---@param optionRow df_editor_optionrow
 ---@return boolean
-local isOptionAtDefault = function(resetEntry)
-    local defaultValue = resetEntry.defaultValue
-    local currentValue = resetEntry.getCurrentValue()
+local isOptionAtDefault = function(optionRow)
+    local defaultValue = optionRow.defaultValue
+    local currentValue = optionRow.getCurrentValue()
 
     --colors are compared channel by channel after ParseColors, so a default given in any color format still matches
-    if (resetEntry.widgetType == "color") then
+    if (optionRow.widgetType == "color") then
         if (type(currentValue) ~= "table") then
             return false
         end
@@ -775,8 +819,104 @@ local isOptionAtDefault = function(resetEntry)
     return isNearlyEqual(currentValue, defaultValue)
 end
 
-local onClickResetButton = function(blizzButton, mouseButton, editorFrame, resetEntry)
-    editorFrame:ResetOptionToDefault(resetEntry)
+---run a function of a row button, an error counts as a false result
+---@param func function
+---@return any
+local callRowButtonFunction = function(func, ...)
+    local bSuccess, result = xpcall(func, geterrorhandler(), ...)
+    return bSuccess and result
+end
+
+---the reset to default button, on every value row while the show_reset_buttons option is on
+---@type df_editor_rowbutton
+local resetRowButton = {
+    id = "reset",
+    side = "right",
+    icon = RESET_BUTTON_ATLAS,
+    tooltip = "Reset to Default",
+    onclick = function(editorFrame, optionRow)
+        editorFrame:ResetOptionToDefault(optionRow)
+    end,
+    --a row without a default shows the button disabled, or no button at all
+    isshown = function(editorFrame, optionRow)
+        return optionRow.defaultValue ~= nil or editorFrame.options.show_disabled_reset_buttons
+    end,
+    isenabled = function(editorFrame, optionRow)
+        return optionRow.defaultValue ~= nil and isOptionWidgetEnabled(optionRow.optionTable.widget) and not isOptionAtDefault(optionRow)
+    end,
+}
+
+---the buttons a value row shows: the reset button while show_reset_buttons is on, the editor's row buttons, then the
+---buttons of the option itself; a button with the id of an earlier one takes its place. isshown drops the rest
+---@param editorFrame df_editor
+---@param optionRow df_editor_optionrow
+---@param optionButtons df_editor_rowbutton[]?
+---@return df_editor_rowbutton[]
+local getOptionRowButtons = function(editorFrame, optionRow, optionButtons)
+    local candidates = {}
+    local candidateIndexById = {}
+
+    local addCandidate = function(rowButton)
+        local index = rowButton.id and candidateIndexById[rowButton.id]
+        if (index) then
+            candidates[index] = rowButton
+        else
+            candidates[#candidates+1] = rowButton
+            if (rowButton.id) then
+                candidateIndexById[rowButton.id] = #candidates
+            end
+        end
+    end
+
+    if (editorFrame.options.show_reset_buttons) then
+        addCandidate(resetRowButton)
+    end
+    for i = 1, #editorFrame.rowButtons do
+        addCandidate(editorFrame.rowButtons[i])
+    end
+    if (optionButtons) then
+        for i = 1, #optionButtons do
+            addCandidate(optionButtons[i])
+        end
+    end
+
+    local shownButtons = {}
+    for i = 1, #candidates do
+        local rowButton = candidates[i]
+        if (not rowButton.isshown or callRowButtonFunction(rowButton.isshown, editorFrame, optionRow)) then
+            shownButtons[#shownButtons+1] = rowButton
+        end
+    end
+    return shownButtons
+end
+
+---@param texture texture
+---@param rowButton df_editor_rowbutton
+local setRowButtonIcon = function(texture, rowButton)
+    local icon = rowButton.icon
+    --the buttons are reused, so whatever the previous icon left behind is put back first
+    texture:SetTexCoord(0, 1, 0, 1)
+    texture:SetVertexColor(1, 1, 1, 1)
+
+    if (type(icon) == "table" or (type(icon) == "string" and C_Texture.GetAtlasInfo(icon))) then
+        detailsFramework:SetAtlas(texture, icon, false, "TRILINEAR")
+    else
+        texture:SetTexture(icon)
+        if (rowButton.texcoords) then
+            texture:SetTexCoord(unpack(rowButton.texcoords))
+        end
+    end
+end
+
+---@param blizzButton button
+---@param mouseButton string
+---@param buttonFrame df_editor_rowbuttonframe
+local onClickRowButton = function(blizzButton, mouseButton, buttonFrame)
+    local rowButton = buttonFrame.rowButton
+    local optionRow = buttonFrame.optionRow
+    if (rowButton and optionRow and rowButton.onclick) then
+        xpcall(rowButton.onclick, geterrorhandler(), buttonFrame.editorFrame, optionRow, buttonFrame)
+    end
 end
 
 ---@param self df_editor
@@ -927,6 +1067,48 @@ detailsFramework.EditorMixin = {
         textures[4]:SetPoint("bottomright", object, "bottomright", 3, -3)
         textures[4]:SetSize(size, size)
         textures[4]:Show()
+    end,
+
+    ---creates the small name tag shown above a widget when it is clicked in the preview
+    ---@param self df_editor
+    CreateSelectedNameTag = function(self)
+        ---@type df_editor_nametag
+        local nameTag = CreateFrame("frame", "$parentSelectedNameTag", self:GetOverTheTopFrame())
+        nameTag:SetFrameLevel(50)
+        nameTag:Hide()
+
+        local background = nameTag:CreateTexture(nil, "background")
+        background:SetAllPoints()
+        background:SetColorTexture(0, 0, 0, 0.834)
+
+        local text = nameTag:CreateFontString(nil, "overlay", "GameFontNormal")
+        local font, _, flags = text:GetFont()
+        text:SetFont(font, 9, flags)
+        text:SetTextColor(1, 0.65, 0)
+        text:SetPoint("center", nameTag, "center", 0, 0)
+
+        nameTag.Text = text
+        self.SelectedNameTag = nameTag
+    end,
+
+    ---show the name tag above the widget, sized to fit the name
+    ---@param self df_editor
+    ---@param object uiobject
+    ---@param name string
+    ShowSelectedNameTag = function(self, object, name)
+        local nameTag = self.SelectedNameTag
+        nameTag.Text:SetText(name)
+        nameTag:SetSize(nameTag.Text:GetStringWidth() + 8, nameTag.Text:GetStringHeight() + 4)
+        nameTag:ClearAllPoints()
+        nameTag:SetPoint("bottomleft", object, "topleft", 0, 4)
+        nameTag.object = object
+        nameTag:Show()
+    end,
+
+    ---@param self df_editor
+    HideSelectedNameTag = function(self)
+        self.SelectedNameTag.object = nil
+        self.SelectedNameTag:Hide()
     end,
 
     --symmetric to ShowSelectedTextures. called from OnHide and ClearEditing so the corner
@@ -1271,7 +1453,7 @@ detailsFramework.EditorMixin = {
         end
 
         --the sliders above are moved without their callback, so the menu's value change hook does not run
-        self:RefreshResetButtonStates()
+        self:RefreshRowButtonStates()
     end,
 
     ---@param self df_editor
@@ -1683,6 +1865,13 @@ detailsFramework.EditorMixin = {
         end
 
         local object = active or registeredObject.object
+
+        --the name tag only shows for clicks in the preview, which show it again after this call.
+        --a refresh of the same widget keeps it
+        if (self.SelectedNameTag.object ~= object) then
+            self:HideSelectedNameTag()
+        end
+
         local profileKeyMap = registeredObject.profilekeymap
         local extraOptions = registeredObject.extraoptions
         local callback = registeredObject.callback
@@ -1807,6 +1996,7 @@ detailsFramework.EditorMixin = {
 
         local target = candidates[(startIndex or 0) % #candidates + 1]
         self:EditObject(target.registration, target.member)
+        self:ShowSelectedNameTag(target.member, target.registration.label)
     end,
 
     ---tear down editor UI and clear all editing state. used when the active object is unregistered.
@@ -1817,6 +2007,7 @@ detailsFramework.EditorMixin = {
         self.AnchorFrames:DisableAllAnchors()
         self:HideResizeGrips()
         self:HideSelectedTextures()
+        self:HideSelectedNameTag()
 
         self.editingObject = nil
         self.editingProfileMap = nil
@@ -1841,34 +2032,84 @@ detailsFramework.EditorMixin = {
     ---@param self df_editor
     RefreshDisabledOptions = function(self)
         detailsFramework:RefreshOptionsDisabledState(self:GetOptionsFrame())
-        self:RefreshResetButtonStates()
+        self:RefreshRowButtonStates()
     end,
 
-    ---the reset buttons are squares as tall as the dropdowns
+    ---add a button to every value row, after the reset button and the row buttons added before it. a button with the
+    ---id of one added before takes its place. the open menu shows it after its next build, editor:Refresh() does one
+    ---@param self df_editor
+    ---@param rowButton df_editor_rowbutton
+    ---@return df_editor_rowbutton
+    AddRowButton = function(self, rowButton)
+        assert(type(rowButton) == "table", "AddRowButton(rowButton): rowButton must be a table.")
+        if (rowButton.id) then
+            for i = 1, #self.rowButtons do
+                if (self.rowButtons[i].id == rowButton.id) then
+                    self.rowButtons[i] = rowButton
+                    return rowButton
+                end
+            end
+        end
+        self.rowButtons[#self.rowButtons+1] = rowButton
+        return rowButton
+    end,
+
+    ---@param self df_editor
+    ---@param id string
+    RemoveRowButton = function(self, id)
+        for i = #self.rowButtons, 1, -1 do
+            if (self.rowButtons[i].id == id) then
+                table.remove(self.rowButtons, i)
+            end
+        end
+    end,
+
+    ---a row button without a size of its own is a square as tall as the dropdowns
     ---@param self df_editor
     ---@return number
-    GetResetButtonSize = function(self)
+    GetRowButtonSize = function(self)
         local dropdownTemplate = self.options.dropdown_template and detailsFramework:ParseTemplate("dropdown", self.options.dropdown_template)
         return dropdownTemplate and dropdownTemplate.height or DEFAULT_DROPDOWN_HEIGHT
     end,
 
-    ---place a reset to default button at the right of each option row in resetEntries and hide the rest.
-    ---widgetWidth is the width the menu was built with, already narrowed to make room for the buttons
     ---@param self df_editor
-    ---@param resetEntries df_editor_resetentry[]
+    ---@param rowButtons df_editor_rowbutton[]
+    ---@param side string "left" or "right"
+    ---@return number
+    GetRowButtonsSpace = function(self, rowButtons, side)
+        local defaultSize = self:GetRowButtonSize()
+        local space = 0
+        for i = 1, #rowButtons do
+            local rowButton = rowButtons[i]
+            --anything but "left" is drawn at the right, the same as LayoutRowButtons does
+            local buttonSide = rowButton.side == "left" and "left" or "right"
+            if (buttonSide == side) then
+                space = space + (rowButton.width or defaultSize) + ROW_BUTTON_GAP
+            end
+        end
+        return space
+    end,
+
+    ---place the buttons of each row in optionRows at its sides and hide the rest. widgetWidth is the width the menu was
+    ---built with, already narrowed to make room for the buttons
+    ---@param self df_editor
+    ---@param optionRows df_editor_optionrow[]
     ---@param widgetWidth number
-    LayoutResetButtons = function(self, resetEntries, widgetWidth)
+    LayoutRowButtons = function(self, optionRows, widgetWidth)
         local optionsFrame = self:GetOptionsFrame()
-        local resetButtons = self.resetButtons
-        local buttonSize = self:GetResetButtonSize()
+        local buttonFrames = self.rowButtonFrames
+        local defaultSize = self:GetRowButtonSize()
         local labelWidth = self.options.options_label_width
 
-        for i = 1, #resetButtons do
-            resetButtons[i]:Hide()
+        for i = 1, #buttonFrames do
+            local buttonFrame = buttonFrames[i]
+            buttonFrame:Hide()
+            buttonFrame.rowButton = nil
+            buttonFrame.optionRow = nil
         end
 
         --buildmenu sizes a row highlight only when it creates it, and the highlights are reused by the next menu
-        --build; a menu built after the reset buttons were turned on or off would keep the old width
+        --build; a menu built after the row buttons changed would keep the old width
         local builtOptions = optionsFrame.build_menu_options or {}
         for i = 1, #builtOptions do
             local widget = builtOptions[i].widget
@@ -1877,83 +2118,110 @@ detailsFramework.EditorMixin = {
             end
         end
 
-        local buttonIndex = 1
-        for i = 1, #resetEntries do
-            local resetEntry = resetEntries[i]
-            local widget = resetEntry.optionTable.widget
-            local bHasDefault = resetEntry.defaultValue ~= nil
+        local frameIndex = 1
+        for i = 1, #optionRows do
+            local optionRow = optionRows[i]
+            local widget = optionRow.optionTable.widget
 
-            if (widget and (bHasDefault or self.options.show_disabled_reset_buttons)) then
-                local resetButton = resetButtons[buttonIndex]
-                if (not resetButton) then
-                    resetButton = detailsFramework:CreateButton(optionsFrame, onClickResetButton, buttonSize, buttonSize, "", nil, nil, nil, nil, nil, nil, self.options.button_template)
-                    resetButton:SetTooltip("Reset to Default")
-
-                    local resetIcon = resetButton.widget:CreateTexture(nil, "overlay")
-                    resetIcon:SetAtlas(RESET_BUTTON_ATLAS, false, "TRILINEAR")
-                    resetIcon:SetPoint("topleft", resetButton.widget, "topleft", RESET_ICON_INSET, -RESET_ICON_INSET)
-                    resetIcon:SetPoint("bottomright", resetButton.widget, "bottomright", -RESET_ICON_INSET, RESET_ICON_INSET)
-                    resetButton.ResetIcon = resetIcon
-
-                    resetButtons[buttonIndex] = resetButton
-                end
-                buttonIndex = buttonIndex + 1
-
-                --the button template may carry a size of its own
-                resetButton:SetSize(buttonSize, buttonSize)
-                resetButton:SetClickFunction(onClickResetButton, self, resetEntry)
-
-                --toggles and color pickers end where the row highlight ends less its padding, and so do dropdowns, text
-                --entries and sliders, except a slider's value box drawn at its right, which ends there instead
+            if (widget) then
                 local widgetFrame = widget.widget or widget
-                local xOffset = ROW_HIGHLIGHT_RIGHT_PADDING + RESET_BUTTON_GAP
+                local label = widget.hasLabel and widget.hasLabel.widget
+
+                --right side: toggles and color pickers end where the row highlight ends less its padding, and so do
+                --dropdowns, text entries and sliders, except a slider's value box drawn at its right, which ends there instead
+                local rightAnchor, rightOffset = widgetFrame, ROW_HIGHLIGHT_RIGHT_PADDING + ROW_BUTTON_GAP
                 if (widget.widget_type == "range" and widget.GetValueBoxSpace) then
                     local valueBoxSpace, valueBoxSide = widget:GetValueBoxSpace()
                     if (valueBoxSide == "right") then
-                        xOffset = xOffset + valueBoxSpace
+                        rightOffset = rightOffset + valueBoxSpace
                     end
                 end
 
-                resetButton:ClearAllPoints()
-                resetButton:SetPoint("left", widgetFrame, "right", xOffset, 0)
+                --left side: the buttons sit left of the row highlight, which starts a little left of the label
+                local leftAnchor, leftOffset = label or widgetFrame, -(ROW_HIGHLIGHT_LEFT_PADDING + ROW_BUTTON_GAP)
 
-                resetButton.resetEntry = resetEntry
-                resetButton:Show()
+                for buttonIndex = 1, #optionRow.buttons do
+                    local rowButton = optionRow.buttons[buttonIndex]
+
+                    local buttonFrame = buttonFrames[frameIndex]
+                    if (not buttonFrame) then
+                        buttonFrame = detailsFramework:CreateButton(optionsFrame, onClickRowButton, defaultSize, defaultSize, "", nil, nil, nil, nil, nil, nil, self.options.button_template)
+                        ---@cast buttonFrame df_editor_rowbuttonframe
+                        buttonFrame.editorFrame = self
+                        buttonFrame:SetClickFunction(onClickRowButton, buttonFrame)
+
+                        local icon = buttonFrame.widget:CreateTexture(nil, "overlay")
+                        icon:SetPoint("topleft", buttonFrame.widget, "topleft", ROW_BUTTON_ICON_INSET, -ROW_BUTTON_ICON_INSET)
+                        icon:SetPoint("bottomright", buttonFrame.widget, "bottomright", -ROW_BUTTON_ICON_INSET, ROW_BUTTON_ICON_INSET)
+                        buttonFrame.Icon = icon
+
+                        buttonFrames[frameIndex] = buttonFrame
+                    end
+                    frameIndex = frameIndex + 1
+
+                    --the button template may carry a size of its own
+                    local width = rowButton.width or defaultSize
+                    buttonFrame:SetSize(width, rowButton.height or defaultSize)
+                    buttonFrame:SetTooltip(rowButton.tooltip)
+                    setRowButtonIcon(buttonFrame.Icon, rowButton)
+
+                    --each side grows away from the row: the next button is placed beside the one placed before it
+                    buttonFrame:ClearAllPoints()
+                    if (rowButton.side == "left") then
+                        buttonFrame:SetPoint("right", leftAnchor, "left", leftOffset, 0)
+                        leftAnchor, leftOffset = buttonFrame.widget, -ROW_BUTTON_GAP
+                    else
+                        buttonFrame:SetPoint("left", rightAnchor, "right", rightOffset, 0)
+                        rightAnchor, rightOffset = buttonFrame.widget, ROW_BUTTON_GAP
+                    end
+
+                    buttonFrame.rowButton = rowButton
+                    buttonFrame.optionRow = optionRow
+                    buttonFrame:Show()
+                end
             end
         end
 
-        self:RefreshResetButtonStates()
+        self:RefreshRowButtonStates()
     end,
 
-    ---enable each shown reset button whose option has a default, whose widget is enabled and whose value is not the
-    ---default already. runs after every menu build, after RefreshDisabledOptions, after every value change in the menu,
-    ---which is when a toggle enables or disables the options that follow it, and while the object is dragged
+    ---enable or disable each shown row button: by its isenabled, or, without one, by whether its widget is enabled.
+    ---runs after every menu build, after RefreshDisabledOptions, after every value change in the menu, which is when a
+    ---toggle enables or disables the options that follow it, and while the object is dragged
     ---@param self df_editor
-    RefreshResetButtonStates = function(self)
-        local resetButtons = self.resetButtons
-        for i = 1, #resetButtons do
-            local resetButton = resetButtons[i]
-            if (resetButton:IsShown()) then
-                local resetEntry = resetButton.resetEntry
-                if (resetEntry.defaultValue ~= nil and isOptionWidgetEnabled(resetEntry.optionTable.widget) and not isOptionAtDefault(resetEntry)) then
-                    resetButton:Enable()
-                    resetButton.ResetIcon:SetDesaturated(false)
-                    resetButton:SetAlpha(1)
+    RefreshRowButtonStates = function(self)
+        local buttonFrames = self.rowButtonFrames
+        for i = 1, #buttonFrames do
+            local buttonFrame = buttonFrames[i]
+            local rowButton = buttonFrame.rowButton
+            local optionRow = buttonFrame.optionRow
+            if (rowButton and optionRow and buttonFrame:IsShown()) then
+                local bIsEnabled
+                if (rowButton.isenabled) then
+                    bIsEnabled = callRowButtonFunction(rowButton.isenabled, self, optionRow)
                 else
-                    resetButton:Disable()
-                    resetButton.ResetIcon:SetDesaturated(true)
-                    resetButton:SetAlpha(RESET_BUTTON_DISABLED_ALPHA)
+                    bIsEnabled = isOptionWidgetEnabled(optionRow.optionTable.widget)
+                end
+
+                if (bIsEnabled) then
+                    buttonFrame:Enable()
+                    buttonFrame.Icon:SetDesaturated(false)
+                    buttonFrame:SetAlpha(1)
+                else
+                    buttonFrame:Disable()
+                    buttonFrame.Icon:SetDesaturated(true)
+                    buttonFrame:SetAlpha(ROW_BUTTON_DISABLED_ALPHA)
                 end
             end
         end
     end,
 
     ---@param self df_editor
-    ---@param resetEntry df_editor_resetentry
-    ResetOptionToDefault = function(self, resetEntry)
-        local optionTable = resetEntry.optionTable
-        local defaultValue = resetEntry.defaultValue
-        if (defaultValue == nil or not isOptionWidgetEnabled(optionTable.widget) or isOptionAtDefault(resetEntry)) then
+    ---@param optionRow df_editor_optionrow
+    ResetOptionToDefault = function(self, optionRow)
+        local optionTable = optionRow.optionTable
+        local defaultValue = optionRow.defaultValue
+        if (defaultValue == nil or not isOptionWidgetEnabled(optionTable.widget) or isOptionAtDefault(optionRow)) then
             return
         end
 
@@ -1962,7 +2230,7 @@ detailsFramework.EditorMixin = {
         --just before or just after the reset; the flag is cleared even when set() errors
         self.bIsResettingOption = true
         xpcall(function()
-            if (resetEntry.widgetType == "color") then
+            if (optionRow.widgetType == "color") then
                 local r, g, b, a = detailsFramework:ParseColors(defaultValue)
                 optionTable.set(optionTable.widget, r, g, b, a)
             else
@@ -2218,11 +2486,10 @@ detailsFramework.EditorMixin = {
         ---@type table<string, df_editor_resizetarget>
         local resizeTargets = {}
 
-        --each option row that gets a reset to default button, with the default it puts back
-        local bShowResetButtons = self.options.show_reset_buttons
+        --each value row, with the default the reset button puts back and the buttons drawn at its sides
         local defaultValues = registeredForClosure and registeredForClosure.defaults
-        ---@type df_editor_resetentry[]
-        local resetEntries = {}
+        ---@type df_editor_optionrow[]
+        local optionRows = {}
 
         --table to use on DF:BuildMenuVolatile()
         local menuOptions = {}
@@ -2490,17 +2757,23 @@ detailsFramework.EditorMixin = {
 
                         menuOptions[#menuOptions+1] = optionTable
 
-                        if (bShowResetButtons) then
-                            resetEntries[#resetEntries+1] = {
-                                optionTable = optionTable,
-                                widgetType = widgetType,
-                                defaultValue = getOptionDefaultValue(defaultValues, option.key, entryProfileTable, profileKey),
-                                --read from the profile, not from get(), which keeps the value of when the menu was built
-                                getCurrentValue = function()
-                                    return detailsFramework.table.getfrompath(entryProfileTable, profileKey)
-                                end,
-                            }
-                        end
+                        ---@type df_editor_optionrow
+                        local optionRow = {
+                            optionKey = option.key,
+                            optionTable = optionTable,
+                            widgetType = widgetType,
+                            profileTable = entryProfileTable,
+                            profileKey = profileKey,
+                            registeredObject = registeredForClosure,
+                            defaultValue = getOptionDefaultValue(defaultValues, option.key, entryProfileTable, profileKey),
+                            --read from the profile, not from get(), which keeps the value of when the menu was built
+                            getCurrentValue = function()
+                                return detailsFramework.table.getfrompath(entryProfileTable, profileKey)
+                            end,
+                            buttons = {},
+                        }
+                        optionRow.buttons =getOptionRowButtons(self, optionRow, option.buttons)
+                        optionRows[#optionRows+1] = optionRow
                     end
                 end
             end
@@ -2515,11 +2788,17 @@ detailsFramework.EditorMixin = {
         --buildmenu reads the label column from align_as_pairs_string_space and falls back to 160 without it,
         --which made every row 10 pixels wider than planned, past options_width, and clipped the widgets on the right
         menuOptions.align_as_pairs_string_space = self.options.options_label_width
-        --the reset buttons take their room from the widget column, so the rows keep their width
-        local widgetWidth = self.options.options_widget_width
-        if (bShowResetButtons) then
-            widgetWidth = widgetWidth - self:GetResetButtonSize() - RESET_BUTTON_GAP
+        --the row buttons take their room from the widget column, so the rows keep their width: the buttons at the left
+        --push the rows right, the buttons at the right fill what the narrower widgets leave. each side takes the room of
+        --the row with the most buttons on it, so the columns stay aligned
+        local leftButtonsSpace = 0
+        local rightButtonsSpace = 0
+        for i = 1, #optionRows do
+            local rowButtons = optionRows[i].buttons
+            leftButtonsSpace = math.max(leftButtonsSpace, self:GetRowButtonsSpace(rowButtons, "left"))
+            rightButtonsSpace = math.max(rightButtonsSpace, self:GetRowButtonsSpace(rowButtons, "right"))
         end
+        local widgetWidth = self.options.options_widget_width - leftButtonsSpace - rightButtonsSpace
         menuOptions.widget_width = widgetWidth
         menuOptions.slider_buttons_to_left = true
 
@@ -2568,15 +2847,17 @@ detailsFramework.EditorMixin = {
         --~build ~menu ~volatile
         menuOptions.no_refresh_on_change = true --the editor .get functions just return a value instead of getting the value from the profile
         --the row highlight sits 5 pixels above its label, so the first row starts 7 pixels down to keep it inside the canvas
-        --the value change hook runs after a toggle has enabled or disabled the options that follow it, so the reset
+        --the value change hook runs after a toggle has enabled or disabled the options that follow it, so the row
         --buttons follow too
         local onMenuValueChanged = function()
-            self:RefreshResetButtonStates()
+            self:RefreshRowButtonStates()
         end
-        detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, 2, -7, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template, onMenuValueChanged)
+        --the buttons at the left of the rows sit where the labels would start without them
+        local menuXOffset = MENU_LABEL_X_OFFSET + leftButtonsSpace
+        detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, menuXOffset, -7, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template, onMenuValueChanged)
 
-        --runs with the buttons off too, so the ones a previous menu showed are hidden
-        self:LayoutResetButtons(resetEntries, widgetWidth)
+        --runs with no row buttons too, so the ones a previous menu showed are hidden
+        self:LayoutRowButtons(optionRows, widgetWidth)
 
         --reset the options scroll back to the top whenever the selection changes. without this
         --switching from a long widget (e.g. Auras Layout) to a short one (e.g. Raid Mark) leaves
@@ -2659,7 +2940,7 @@ detailsFramework.EditorMixin = {
                 anchorYSlider:SetValueNoCallback(anchorSettings.y)
 
                 --the offset sliders above are moved without their callback, so the menu's value change hook does not run
-                self:RefreshResetButtonStates()
+                self:RefreshRowButtonStates()
 
                 --anchorSettings IS the profile sub-table (assigned from getParentTable() in
                 --PrepareObjectForEditing for the anchor option). lines 1440-1441 above already
@@ -2858,6 +3139,7 @@ detailsFramework.EditorMixin = {
                     return
                 end
                 self:EditObject(objectRegistered, member)
+                self:ShowSelectedNameTag(member, objectRegistered.label)
             end)
 
             --suppress the click-to-select overlay when can_click is false. otherwise the
@@ -3247,6 +3529,7 @@ detailsFramework.EditorMixin = {
         self.AnchorFrames:DisableAllAnchors()
         self:HideResizeGrips()
         self:HideSelectedTextures()
+        self:HideSelectedNameTag()
         self.overTheTopFrame:Hide()
 
         --stop receiving key events while hidden so Ctrl+Z / Ctrl+Y fall back to the
@@ -3292,7 +3575,8 @@ function detailsFramework:CreateEditor(parent, name, options)
 
     editorFrame.registeredObjects = {}
     editorFrame.registeredObjectsByID = {}
-    editorFrame.resetButtons = {}
+    editorFrame.rowButtons = {}
+    editorFrame.rowButtonFrames = {}
 
     editorFrame:BuildOptionsTable(editorDefaultOptions, options)
 
@@ -3383,6 +3667,7 @@ function detailsFramework:CreateEditor(parent, name, options)
     editorFrame.moverObject = editorFrame:CreateMoverFrame()
 
     editorFrame:CreateSelectedTextures()
+    editorFrame:CreateSelectedNameTag()
     editorFrame:CreateResizeGrips()
 
     editorFrame.optionsFrame = optionsFrame

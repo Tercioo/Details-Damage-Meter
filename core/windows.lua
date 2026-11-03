@@ -1410,6 +1410,9 @@ function Details:InitializeAPIWindow()
 	DetailsAPI2Frame.__iconcolor = "DETAILS_API_ICON"
 	DetailsPluginContainerWindow.EmbedPlugin(DetailsAPI2Frame, DetailsAPI2Frame, true)
 
+	--EmbedPlugin shows the panel; hide it so Escape doesn't close an invisible panel (it is in UISpecialFrames) instead of opening the game menu
+	DetailsAPI2Frame:Hide()
+
 	function DetailsAPI2Frame.RefreshWindow()
 		Details.OpenAPI()
 	end

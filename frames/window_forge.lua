@@ -32,6 +32,9 @@ function Details:InitializeForge()
     DetailsForgePanel.__icon = [[Interface\MINIMAP\Vehicle-HammerGold-3]]
     DetailsPluginContainerWindow.EmbedPlugin (DetailsForgePanel, DetailsForgePanel, true)
 
+    --EmbedPlugin shows the panel; hide it so Escape doesn't close an invisible panel (it is in UISpecialFrames) instead of opening the game menu
+    DetailsForgePanel:Hide()
+
     function DetailsForgePanel.RefreshWindow()
         Details:OpenForge()
     end

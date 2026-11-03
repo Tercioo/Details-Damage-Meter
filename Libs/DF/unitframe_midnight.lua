@@ -105,6 +105,7 @@ local cleanfunction = function() end
 ---@field SetTexture fun(self:df_healthbar, texture:texturepath|textureid|atlasname)
 ---@field SetColor fun(self:df_healthbar, red:number, green:number, blue:number, alpha:number)
 ---@field UpdateHealPrediction fun(self:df_healthbar)
+---@field UpdatePredictionEvents fun(self:df_healthbar)
 ---@field UpdateHealth fun(self:df_healthbar)
 ---@field UpdateMaxHealth fun(self:df_healthbar)
 
@@ -205,25 +206,7 @@ local cleanfunction = function() end
 				end
 
 				--check for settings and update some events
-				if (not self.Settings.ShowHealingPrediction) then
-					self:UnregisterEvent("UNIT_HEAL_PREDICTION")
-					if IS_WOW_PROJECT_MAINLINE then
-						self:UnregisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
-					end
-					self.incomingHealIndicator:Hide()
-					self.healAbsorbIndicator:Hide()
-					self.incomingHealIndicatorBar:SetAlpha(0)
-					self.incomingHealIndicatorBar:Hide()
-				end
-				if (not self.Settings.ShowShields) then
-					if IS_WOW_PROJECT_MAINLINE then
-						self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-					end
-					self.shieldAbsorbIndicator:Hide()
-					self.shieldAbsorbGlow:Hide()
-					self.shieldAbsorbIndicatorBar:SetAlpha(0)
-					self.shieldAbsorbIndicatorBar:Hide()
-				end
+				self:UpdatePredictionEvents()
 
 				--set scripts
 				self:SetScript("OnEvent", self.OnEvent)
@@ -250,6 +233,32 @@ local cleanfunction = function() end
 				self:SetScript("OnUpdate", nil)
 				self:Hide()
 			end
+		end
+	end
+
+	--register or unregister the heal prediction and shield events from Settings.ShowHealingPrediction and Settings.ShowShields
+	--call it after changing those settings on a health bar that already has a unit
+	healthBarMetaFunctions.UpdatePredictionEvents = function(self)
+		if (self.Settings.ShowHealingPrediction) then
+			self:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self.displayedUnit, self.unit)
+			self:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", self.displayedUnit, self.unit)
+		else
+			self:UnregisterEvent("UNIT_HEAL_PREDICTION")
+			self:UnregisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
+			self.incomingHealIndicator:Hide()
+			self.healAbsorbIndicator:Hide()
+			self.incomingHealIndicatorBar:SetAlpha(0)
+			self.incomingHealIndicatorBar:Hide()
+		end
+
+		if (self.Settings.ShowShields) then
+			self:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", self.displayedUnit, self.unit)
+		else
+			self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+			self.shieldAbsorbIndicator:Hide()
+			self.shieldAbsorbGlow:Hide()
+			self.shieldAbsorbIndicatorBar:SetAlpha(0)
+			self.shieldAbsorbIndicatorBar:Hide()
 		end
 	end
 
@@ -340,6 +349,9 @@ local cleanfunction = function() end
 			--self.shieldAbsorbIndicatorBar:SetMinMaxValues(0, self.currentHealthMissing, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate) --TODO
 			self.shieldAbsorbIndicatorBar:SetMinMaxValues(0, self.currentHealthMaxWithAbsorb, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate) --TODO
 			self.shieldAbsorbIndicatorBar:SetValue(absorb, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate)
+		else
+			self.shieldAbsorbIndicatorBar:Hide()
+			self.shieldAbsorbGlow:Hide()
 		end
 
 		if (self.Settings.ShowHealingPrediction) then
@@ -352,7 +364,8 @@ local cleanfunction = function() end
 			--self.incomingHealIndicator:Show()
 			--self.incomingHealIndicator:SetAlphaFromBoolean(clamp, 1, 0)
 
-			self.incomingHealIndicatorBar:SetMinMaxValues(0, self.currentHealthMax, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate) --TODO
+			self.incomingHealIndicatorBar:SetMinMaxValues(0, self.Settings.ShowShields and self.currentHealthMaxWithAbsorb or self.currentHealthMax, self.Settings.AnimateHealth and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate)
+
 			self.incomingHealIndicatorBar:SetValue(unitHealIncoming)
 
 
@@ -368,6 +381,8 @@ local cleanfunction = function() end
 			--else
 			--	self.healAbsorbIndicator:Hide()
 			--end
+		else
+			self.incomingHealIndicatorBar:Hide()
 		end
 		
 		if updateMaxHealth then
@@ -468,13 +483,6 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 			healthBar.incomingHealIndicatorBar:SetPoint ("topleft", healthBar.barTexture, "topright")
 			--healthBar.incomingHealIndicatorBar:SetPoint ("bottomright", healthBar, "bottomright")
 			healthBar.incomingHealIndicatorBar:SetPoint ("bottomleft", healthBar.barTexture, "bottomright")
-			hooksecurefunc(healthBar, 'SetWidth', function(self, w)
-				healthBar.incomingHealIndicatorBar:SetWidth(w)
-			end)
-			hooksecurefunc(healthBar, 'SetSize', function(self, h, w)
-				--healthBar.incomingHealIndicatorBar:SetSize(h, w)
-				healthBar.incomingHealIndicatorBar:SetWidth(w)
-			end)
 
 			--current shields on the unit
 			healthBar.shieldAbsorbIndicator =  healthBar:CreateTexture(nil, "artwork", nil, 3)
@@ -489,13 +497,15 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 			
 			-- the below would be better for proper scaling, but I don't want the bar to run out of the nameplate...
 			healthBar.shieldAbsorbIndicatorBar:SetPoint ("bottomleft", healthBar.barTexture, "bottomright")
-			hooksecurefunc(healthBar, 'SetWidth', function(self, w)
-				healthBar.shieldAbsorbIndicatorBar:SetWidth(w)
+
+			--follows the health bar size, the prediction bars need the full health bar width
+			local sizeTracker = CreateFrame("Frame", nil, healthBar)
+			sizeTracker:SetAllPoints()
+			sizeTracker:SetScript("OnSizeChanged", function(self, width)
+				healthBar.incomingHealIndicatorBar:SetWidth(width)
+				healthBar.shieldAbsorbIndicatorBar:SetWidth(width)
 			end)
-			hooksecurefunc(healthBar, 'SetSize', function(self, w, h)
-				--healthBar.shieldAbsorbIndicatorBar:SetSize(h, w)
-				healthBar.shieldAbsorbIndicatorBar:SetWidth(w)
-			end)
+
 			-- not so nice, but works in compatibility
 			healthBar.SetFrameLevelOrig = healthBar.SetFrameLevel
 			healthBar.SetFrameLevel = function(self, level)

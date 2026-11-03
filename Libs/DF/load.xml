@@ -19,6 +19,8 @@
 	<Script file="scrollbar.lua"/>
 	<Script file="spells.lua"/>
 	<Script file="math.lua"/>
+	<Script file="physics.lua"/>
+	<Script file="lines.lua"/>
 	<Script file="languages.lua"/>
 	<Script file="timebar.lua"/>
 	<Script file="charts.lua"/>
