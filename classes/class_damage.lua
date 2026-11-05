@@ -3237,7 +3237,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	local t = {
 		aID = nil, -- 0
 		spellicon = nil, --0
-		spec = detailsFramework:GetSpecInfoFromSpecIcon(specIcon), --0
+		spec = not issecretvalue(specIcon) and detailsFramework:GetSpecInfoFromSpecIcon(specIcon) or nil, --0
 		serial = "",
 		enemy = false,
 		thisSpecIcon = instanceLine.blzSpecIcon,
@@ -4152,7 +4152,7 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 	else
 		if (instance and instance.row_info.use_spec_icons) then
 			if (self.thisSpecIcon) then
-				local specInfo = detailsFramework:GetSpecInfoFromSpecIcon(self.thisSpecIcon)
+				local specInfo = not issecretvalue(self.thisSpecIcon) and detailsFramework:GetSpecInfoFromSpecIcon(self.thisSpecIcon)
 				local specId = specInfo and specInfo.specId
 
 				if (specId and not Details.class_specs_coords[specId]) then
