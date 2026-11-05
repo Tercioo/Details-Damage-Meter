@@ -6696,7 +6696,12 @@ function damageClass:MontaDetalhesEnemy(spellid, barra)
 		self = other_actor
 	end
 
-	if (barra.lineText1:IsTruncated()) then
+	local isTruncated = barra.lineText1:IsTruncated()
+	if (issecretvalue(isTruncated)) then --secret booleans cannot be tested
+		isTruncated = false
+	end
+
+	if (isTruncated) then
 		Details:CooltipPreset(2)
 		GameCooltip:SetOption("FixedWidth", nil)
 		GameCooltip:AddLine(barra.lineText1.text)

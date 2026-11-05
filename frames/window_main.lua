@@ -1019,7 +1019,16 @@ local lineScript_Onenter = function(self)
 		end
 	end
 
-	if (canCheckForTrancation and lefttext:IsTruncated()) then
+	local isTruncated = false
+	if (canCheckForTrancation) then
+		isTruncated = lefttext:IsTruncated()
+		--IsTruncated() can return a secret boolean even when HasAnySecretAspect() is false
+		if (issecretvalue and issecretvalue(isTruncated)) then
+			isTruncated = false
+		end
+	end
+
+	if (isTruncated) then
 		if (not Details.left_anti_truncate) then
 
 		end
