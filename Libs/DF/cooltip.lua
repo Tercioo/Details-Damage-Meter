@@ -2511,10 +2511,11 @@ function DF:CreateCoolTip()
 		if (not xOffset) then
 			--check if cooltip is out of screen bounds
 			local centerX = frame1:GetCenter()
+			local frame1Width = frame1:GetWidth()
 
-			if (centerX) then
+			if (centerX and not issecretvalue(centerX) and not issecretvalue(frame1Width)) then
 				local screenWidth = GetScreenWidth()
-				local halfScreenWidth = frame1:GetWidth() / 2
+				local halfScreenWidth = frame1Width / 2
 
 				if (centerX + halfScreenWidth > screenWidth) then
 					--out of right side
@@ -2539,9 +2540,10 @@ function DF:CreateCoolTip()
 			--check if cooltip is out of screen bounds
 			local _, centerY = frame1:GetCenter()
 			local screenHeight = GetScreenHeight()
-			local helpScreenHeight = frame1:GetHeight() / 2
+			local frame1Height = frame1:GetHeight()
 
-			if (centerY) then
+			if (centerY and not issecretvalue(centerY) and not issecretvalue(frame1Height)) then
+				local helpScreenHeight = frame1Height / 2
 				if (centerY + helpScreenHeight > screenHeight) then
 					--out of top side
 					local moveDownOffset = (centerY + helpScreenHeight) - screenHeight
@@ -2567,11 +2569,13 @@ function DF:CreateCoolTip()
 
 		if (frame2:IsShown() and not gameCooltip.overlapChecked) then
 			local frame2CenterX = frame2:GetCenter()
-			if (frame2CenterX) then
-				local frame2HalfWidth = frame2:GetWidth() / 2
+			local frame2Width = frame2:GetWidth()
+			if (frame2CenterX and not issecretvalue(frame2CenterX) and not issecretvalue(frame2Width)) then
+				local frame2HalfWidth = frame2Width / 2
 				local frame1CenterX = frame1:GetCenter()
-				if (frame1CenterX) then
-					local frame1HalfWidth = frame1:GetWidth() / 2
+				local frame1Width = frame1:GetWidth()
+				if (frame1CenterX and not issecretvalue(frame1CenterX) and not issecretvalue(frame1Width)) then
+					local frame1HalfWidth = frame1Width / 2
 					local frame1EndPoint = frame1CenterX + frame1HalfWidth - 3
 					local frame2StartPoint = frame2CenterX - frame2HalfWidth
 
@@ -2590,11 +2594,13 @@ function DF:CreateCoolTip()
 	function gameCooltip:CheckOverlap()
 		if (frame2:IsShown()) then
 			local xCenter = frame2:GetCenter()
-			if (xCenter) then
-				local frame2WidthHalf = frame2:GetWidth() / 2
+			local frame2Width = frame2:GetWidth()
+			if (xCenter and not issecretvalue(xCenter) and not issecretvalue(frame2Width)) then
+				local frame2WidthHalf = frame2Width / 2
 				local frame1XCenter = frame1:GetCenter()
-				if (frame1XCenter) then
-					local frame1WidthHalf = frame1:GetWidth() / 2
+				local frame1Width = frame1:GetWidth()
+				if (frame1XCenter and not issecretvalue(frame1XCenter) and not issecretvalue(frame1Width)) then
+					local frame1WidthHalf = frame1Width / 2
 					local frame1EndPoint = frame1XCenter + frame1WidthHalf - 3
 					local frame2StartPoint = xCenter - frame2WidthHalf
 					if (frame2StartPoint < frame1EndPoint) then
