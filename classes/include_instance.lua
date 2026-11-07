@@ -92,7 +92,17 @@ function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)
 end
 
 function _detalhes:LoadInstanceConfig()
-	for key, value in pairs(_detalhes.instance_defaults) do 
+	--show_percent used to be ignored by the simple text format, which always drew the percent, and it now applies
+	--there too. a window saved before that has false by default, so it is turned on once to keep what it was showing
+	local rowInfo = self.row_info
+	if (rowInfo and rowInfo.show_percent_upgraded == nil) then
+		if (not Details.righttext_simple_formatting.use_alignment) then
+			rowInfo.show_percent = true
+		end
+		rowInfo.show_percent_upgraded = true
+	end
+
+	for key, value in pairs(_detalhes.instance_defaults) do
 		if (self [key] == nil) then
 			if (type(value) == "table") then
 				self [key] = Details.CopyTable(_detalhes.instance_defaults [key])
@@ -274,7 +284,8 @@ _detalhes.instance_defaults = {
 				textR_custom_text = "{data1} ({data2}, {data3}%)",
 			--right text show which infos
 				textR_show_data = {true, true, true},
-				show_percent = false, --dlc 12 and above
+				show_percent = true, --dlc 12 and above
+				show_percent_upgraded = true, --see LoadInstanceConfig
 				textR_bracket = "(",
 				textR_separator = ",",
 			--left text bar number

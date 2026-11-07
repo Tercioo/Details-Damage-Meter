@@ -3197,13 +3197,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	local canShowPercent = false
 
 	if not issecretvalue(actorName) then
-		if Details.righttext_simple_formatting.use_alignment then
-			if (instance.row_info.show_percent) then
-				canShowPercent = true
-			end
-		else
-			canShowPercent = true
-		end
+		canShowPercent = instance.row_info.show_percent
 
 		if source.amountPerSecond < 1 then
 			source.amountPerSecond = 1
