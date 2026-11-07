@@ -12,6 +12,7 @@ The editor is consumed in production by `Plater Nameplates` (`AddOns/Plater/Plat
 | "row button", "a row button on the option X" | A small button on the line of an option in the center panel, at its left (before the name) or right (after the control). See "Row buttons". |
 | "option", "the option X" | One line of the center panel: a label plus its control (slider, toggle, dropdown, color, text entry). X is its label as the user sees it. |
 | "reset button", "reset to default button" | The built-in row button with id `"reset"`, turned on by `show_reset_buttons`. |
+| "the search box", "the search" | The box above the center panel and `editor:SetSearchText()`. See "Search". |
 
 ---
 
@@ -90,6 +91,7 @@ function detailsFramework:CreateEditor(parent, name, options)
 | `show_undo_buttons` | boolean | `true` | If true, places an Undo / Redo button pair at the bottom-right of the editor. Set to false if you want to wire your own keybinds (`editor:Undo()` / `editor:Redo()`) instead. |
 | `show_reset_buttons` | boolean | `false` | If true, every value row in the center panel gets a square "reset to default" button at its right. It is one of the row buttons, see "Row buttons" and "Reset to default buttons" below. |
 | `show_disabled_reset_buttons` | boolean | `true` | Only read while `show_reset_buttons` is on. What a row whose option has no default gets: true shows the button disabled, false shows no button. |
+| `show_search_box` | boolean | `true` | If true, a search box sits above the center panel, which starts 24 pixels lower to make room for it. See "Search". |
 | `anchor_menu_height` | number? | nil | Height in pixels of the menu of every `anchordropdown` row (built-in or extra) that has no `menu_height` of its own. Each option takes 20 pixels, so 120 shows 6 and the rest scroll. nil keeps the dropdown default of 300. |
 
 ### Minimal example
@@ -332,6 +334,7 @@ Recognized fields in any attribute (built-in or extra):
 |---|---|---|
 | `key` | string | Attribute identifier. For built-ins, looked up via `profileKeyMap`. For extras, used as the profile key directly. |
 | `label` | string | Shown in the menu next to the widget. |
+| `tags` | string[]? | Extra words the search finds this option by, for words the label does not have. See "Search". |
 | `widget` (or `type`) | string | BuildMenu widget type. See "Available widget types" below. |
 | `setter` | function? | `function(widget, value)` — applies the value to the live UI object. Nil-guarded in `applyValue`, so omitting it is legal. Effectively required for the `"anchor"` key (the editor zeros offsets *between* callback and setter, see Pitfalls) and recommended elsewhere unless the 8th-arg callback covers the visual update. For anchor keys the editor passes `parentTable` instead of `value`. |
 | `default` | any | Used by some BuildMenu widgets as a fallback display value. |
@@ -376,7 +379,7 @@ The editor's universal `set` handler normalises across these — see "How edits 
 
 When the user changes any widget value, the same handler runs (defined inside `PrepareObjectForEditing`). The flow:
 
-1. **Normalise input.** If widget is `range`/`slider` and `usedecimals` is false, `math.floor` the value.
+1. **Normalise input.** If widget is `range`/`slider` and `usedecimals` is false, `math.floor` the value. When that floored value is just the stored value without its decimals, the handler stops here: a stored 7.5 shows as 7, nobody edited it. The reset button is the exception, it writes its default on purpose.
 2. **Snapshot OLD value.** Either `parentTable[1..4]` (for color) or `getfrompath(profileTable, profileKey)` (for everything else). This captures the pre-edit state for undo replay.
 3. **Apply the value via the shared `applyValue` closure**, which runs three ordered steps:
    - **(a) Mutate the profile.** For `color`: mutates `parentTable[1..4]` in place (preserving the table reference held by other code), then re-assigns `value = parentTable`. Otherwise: `setfrompath(profileTable, profileKey, value)`.
@@ -639,6 +642,37 @@ The row highlights are resized on every build, so the narrower and wider layouts
 
 ---
 
+## Search
+
+A search box sits above the center panel (`show_search_box`, on by default). While it has text, the center panel shows the options matching it, **from every registered object**, grouped under the name of each object. Emptying the box brings the options of the selected object back.
+
+```lua
+editor:SetSearchText("title size")  -- same as typing it in the box, works with show_search_box = false too
+editor:GetSearchText()              -- "title size"
+editor:IsSearching()                -- true while the panel shows the results
+editor:SetSearchText("")            -- back to the selected object; nil does the same
+```
+
+**What matches.** Every word has to be found, in any order, in the option's label, its `desc`, its `tags` or the name of its object: "title size" finds the size option of the title text, "title" alone finds every option of the title text. A word is plain text, not a pattern. Case does not matter for the letters a to z only: the game's `string.lower` leaves accented letters and other alphabets as they are, so on those clients "ширина" does not find "Ширина". Label and blank rows are not searched and do not appear in the results.
+
+**The box waits** 0.15 seconds after the last key press, each search rebuilds the whole panel. `SetSearchText` does not wait.
+
+**The results are real rows.** Each one edits its own object, whichever object is selected: the profile write, the callback, the setters on all its members, the undo step and its row buttons are that object's. The selection, the mover and the resize grips stay on the selected object, which can still be dragged; if its offset sliders are among the results they follow the drag.
+
+**The keyboard.** A search box keeps the keyboard until it is told otherwise, which would swallow ctrl+z. It lets go after any edit that adds an undo step and when the search is left by a click, so ctrl+z undoes an edit made from the results without clicking anywhere first.
+
+**What leaves the search.** A click on a row of the object list or on a widget in the preview, the user is asking for that object: these go through `editor:SelectObject()`, which forgets the search and calls `EditObject`.
+
+**What keeps the search.** `EditObject` called directly, `Refresh`, undo and redo, closing and opening the editor, and `RegisterObject` / `UnregisterObject`: the results are rebuilt with the new values and the scroll stays. An undo still selects the object it changed.
+
+**Widget ids.** Most objects have an `alpha` or a `width`, so in the results an option's id is `<object id>:<option key>` instead of the key alone, and its `childrenids` are changed the same way. `optionsFrame:GetWidgetById("anchoroffsetx")` finds nothing during a search; `editor:GetEditingOptionWidget("anchoroffsetx")` works in both cases for the selected object, and returns nil when the panel is not showing that option.
+
+**Disabled options.** `disableif` and `enable_if` work as usual. An option turned off by a `children_follow_enabled` toggle stays off in the results even when the toggle itself did not match.
+
+**Limit.** `use_colon` comes from the selected object, for every row of the results.
+
+---
+
 ## Mover (drag-to-position)
 
 When the user clicks any non-interactive part of the active widget, they can drag it to reposition. Mechanics:
@@ -894,6 +928,10 @@ This is intentional — the consumer knows best what's editable on a custom widg
 
 This is the source of the "Undo button feels wonky" bug class. Each menu rebuild (every `EditObject` call) triggers each widget's set callback once during initialization with the widget's current value. Without the `snapshotsEqual` skip, this would push a no-op undo entry per widget on every edit, wiping the redo stack repeatedly. The current code handles this in the framework. If you build your own undo system on top of the editor, ensure you replicate the no-op skip.
 
+The one case that used to change data: a slider without decimals holding a stored decimal. The menu refresh at the end of a build moves that slider to the stored 7.5 and it reports 7, which was written over the 7.5 with an undo step of its own, just by showing the option. `set()` now ignores it.
+
+Sliders left unused by a rebuild keep their old hooks. `ClearOptionsPanel` drops their `_get` so that same refresh skips them; before that it moved them back to the value of when their menu was built, and their old hook wrote that value over any edit made since.
+
 ### `UnregisterObject` while editing
 
 The active object can be unregistered. The editor will tear down its editing state via `ClearEditing` to avoid dangling references. But: any open undo entries that reference the unregistered object are NOT removed from the stacks. They'll still replay — mutating the (now-orphaned) profile data. The object switch on Undo will silently no-op because `GetObjectById` returns nil. This is intentional (the data restore is still useful even if the UI can't switch to it) but worth knowing.
@@ -953,7 +991,12 @@ editor:SetPoint("TOPLEFT", tabBodyFrame, "TOPLEFT", 10, TAB_TOP_OFFSET)
 | `EditObject(registeredObjectInfo)` | Switch to editing this object. Refreshes the left selector. |
 | `EditObjectById(id)` | Same, by string id. |
 | `EditObjectByIndex(i)` | Same, by 1-based registration order. |
+| `SelectObject(registeredObjectInfo, activeMember)` | What a click on a widget or on its row in the object list does: leaves the search and calls `EditObject`. |
 | `Refresh()` | Re-edit the currently-edited object (use after profile imports). |
+| `SetSearchText(text)` / `GetSearchText()` / `IsSearching()` | Show the options matching the words on the center panel. See "Search". |
+| `GetEditingOptionWidget(optionKey)` | The widget of an option of the selected object, on its menu or among the search results; nil when the panel is not showing it. |
+| `BuildObjectOptions(registeredObjectInfo, object, searchWords)` | Build the menu rows of one object, without showing them. Used by `PrepareObjectForEditing` and by the search. |
+| `ShowOptionsMenu(menuOptions, optionRows, bUseColon)` | Build the center panel from rows given by `BuildObjectOptions`. |
 | `ClearEditing()` | Tear down active edit + UI state. |
 | `GetEditingObject()` | Returns the active uiobject or nil. |
 | `GetEditingObjectIndex()` | Returns the 1-based registration index of the active object. |

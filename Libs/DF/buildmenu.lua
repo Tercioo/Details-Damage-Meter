@@ -1227,6 +1227,10 @@ end
 function detailsFramework:ClearOptionsPanel(frame)
     for i = 1, #frame.widget_list do
         frame.widget_list[i]:Hide()
+        --a widget the next build does not reuse keeps the hooks of its old row, and refreshOptions goes through every
+        --widget: when its old get() returns a value older than the one on the slider, the slider moves back and that
+        --hook writes the old value over the edit
+        frame.widget_list[i]._get = nil
         if (frame.widget_list[i].hasLabel) then
             frame.widget_list[i].hasLabel:SetText("")
         end

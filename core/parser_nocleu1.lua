@@ -310,9 +310,11 @@ local getArenaPlayers = function(damageContainer)
     local theseArenaPlayers = {}
     for i = 1, #damageContainer do
         local actor = damageContainer[i]
-        if (not actor.specIconID) then
+        local specIconID = actor.specIconID
+        --while in combat the spec icon and class name can be secret, secrets cannot be compared or sorted, so these actors are skipped
+        if (not specIconID) then
             local className = actor.classFilename
-            if className and type(className) == "string" and className ~= "" then
+            if className and not issecretvalue(className) and type(className) == "string" and className ~= "" then
                 local classNumber = 0
                 --convert the first two letters of the class name to numbers in the ascii
                 for j = 1, 2 do
@@ -320,8 +322,8 @@ local getArenaPlayers = function(damageContainer)
                 end
                 detailsFramework.table.addunique(theseArenaPlayers, classNumber)
             end
-        else
-            detailsFramework.table.addunique(theseArenaPlayers, actor.specIconID)
+        elseif (not issecretvalue(specIconID)) then
+            detailsFramework.table.addunique(theseArenaPlayers, specIconID)
         end
     end
     table.sort(theseArenaPlayers, function(a, b) return a < b end)
@@ -354,14 +356,16 @@ Details222.BParser.GetSegmentHash = getSegmentHash
 ---@param sessionName string
 ---@param damageContainer table
 local getSegmentInfoByHash = function(sessionName, damageContainer)
-    local thisSessionPlayers = getArenaPlayers(damageContainer) --table
+    --this is not in use tbm
+    --local thisSessionPlayers = getArenaPlayers(damageContainer) --table
 
     for hash, sessionInfo in pairs(Details.apocalypse_hashes) do
         ---@cast sessionInfo details_session_info
         if sessionInfo.sessionName == sessionName then
-            if detailsFramework.table.isequal(thisSessionPlayers, thisSessionPlayers) then
+            --this is not in use tbm
+            --if detailsFramework.table.isequal(thisSessionPlayers, thisSessionPlayers) then
                 return sessionInfo
-            end
+            --end
         end
     end
 end
@@ -3706,7 +3710,9 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
                 local actorContainer = Details222.B.GetSegmentInfo(currentCombat)
                 for i = 1, #actorContainer do
                     local actor = actorContainer[i]
-                    detailsFramework.table.addunique(arenaPlayers, actor.specIconID)
+                    if not issecretvalue(actor.specIconID) then
+                        detailsFramework.table.addunique(arenaPlayers, actor.specIconID)
+                    end
                 end
             end
         end)

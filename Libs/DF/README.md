@@ -293,7 +293,7 @@ The library is composed of roughly 70 Lua modules. Each module focuses on one co
 | Unit frame | Health / power frames bound to unit IDs. | [unitframe.md](unitframe.md) |
 | Keybind control panel | Widget for setting up keyboard shortcuts. | [keybind.md](keybind.md) |
 | Auras | Aura display helpers. | [auras.md](auras.md) |
-| Editor | Profile / layout editor with real-time preview ("the designer"), row buttons on its options. | [editor.md](editor.md) |
+| Editor | Profile / layout editor with real-time preview ("the designer"), row buttons on its options, a search box over the options of every object. | [editor.md](editor.md) |
 | Wheel menu | Radial menu widget. | [wheelmenu.md](wheelmenu.md) |
 | Anchor system | Visual anchoring helpers, nine-point selector. | [anchorsystem.md](anchorsystem.md) |
 | Item info | Item / equipment data helpers. | [iteminfo.md](iteminfo.md) |

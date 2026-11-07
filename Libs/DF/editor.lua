@@ -19,6 +19,8 @@ local RESET_BUTTON_ATLAS = "UI-RefreshButton"
 local ROW_BUTTON_GAP = 2
 --the x offset the labels of the menu start at when no row has a button at its left
 local MENU_LABEL_X_OFFSET = 2
+--how far down the first row of the menu starts
+local MENU_TOP_OFFSET = 7
 --buildmenu starts the row highlight 2 pixels left of the label
 local ROW_HIGHLIGHT_LEFT_PADDING = 2
 --buildmenu ends the row highlight 3 pixels past the right edge of the widget
@@ -52,6 +54,15 @@ local RESIZE_GRIP_HOVER_COLOR = {1, 0.82, 0, 1}
 local RESIZE_GRIP_FRAME_LEVEL = 12
 --a drag never makes a width, height or font size smaller than this
 local RESIZE_MIN_VALUE = 1
+--the search box above the options panel, and the space kept between the two
+local SEARCH_BOX_HEIGHT = 20
+local SEARCH_BOX_GAP = 4
+--how long the search box waits after the last key press, each search rebuilds the whole options panel
+local SEARCH_TYPING_DELAY = 0.15
+--the name of the object above its options in the search results
+local SEARCH_HEADER_COLOR = "silver"
+local SEARCH_HEADER_FONT_SIZE = 14
+local SEARCH_NO_RESULTS_TEXT = "No options found"
 
 --classic clients have no secret values
 local issecretvalue = issecretvalue or function() return false end
@@ -206,6 +217,9 @@ end
 ---@field resizeAnchorSettings table? the anchor table of the object being edited, moved during a resize so the edge opposite the grip stays put
 ---@field resizeState df_editor_resizestate? the resize being dragged right now
 ---@field resizeCount number counts the resizes, so each one is its own undo step
+---@field SearchBox df_textentry? the search box above the options panel, nil while show_search_box is off
+---@field searchText string what is being searched, as it was typed
+---@field searchWords string[] the words of searchText in lower case, the options panel shows the search results while it has any
 ---each undo entry is a pair of closures. coalesceKey lets adjacent entries from the same widget
 ---(e.g. continuous slider drag) merge into one stack entry instead of N.
 ---@class undostate : table
@@ -226,6 +240,7 @@ end
 ---@field usedecimals boolean?
 ---@field subkey string?
 ---@field desc string? tooltip text shown when the user hovers the widget
+---@field tags string[]? extra words the search finds this option by
 ---@field profileTable table? per-extra override of the registration's profileTable, so an option can read/write against a different scope (e.g., the profile root on a registration bound to a sub-table)
 ---@field setter fun(object:any, value:any)?
 ---@field dropdownFunc function?
@@ -578,6 +593,7 @@ local attributes = {
 ---@field EditObject fun(self:df_editor, object:df_editor_objectinfo, activeMember:uiobject?) when activeMember is omitted, falls back to the registration's last-clicked member (activeMemberIndex) or to objects[1].
 ---@field EditObjectById fun(self:df_editor, id:any)
 ---@field EditObjectByIndex fun(self:df_editor, index:number)
+---@field SelectObject fun(self:df_editor, object:df_editor_objectinfo, activeMember:uiobject?) what a click on a widget or on its row in the object list does: leaves the search and edits the widget
 ---@field ClearEditing fun(self:df_editor) tear down editor UI and clear all editing state
 ---@field SelectObjectBehind fun(self:df_editor, clickedMember:uiobject?) alt + click: select the widget behind the selected one under the mouse cursor, repeated alt + clicks go deeper and wrap back to the top
 ---@field CreateUndoManager fun(self:df_editor)
@@ -587,7 +603,17 @@ local attributes = {
 ---@field Redo fun(self:df_editor)
 ---@field RefreshUndoButtons fun(self:df_editor) update enable/disable state of the toolbar undo/redo buttons
 ---@field RefreshDisabledOptions fun(self:df_editor) re-run the disableif of every option in the open menu, without resetting any value
+---@field BuildObjectOptions fun(self:df_editor, registeredObject:df_editor_objectinfo, object:uiobject, searchWords:string[]?):table, df_editor_optionrow[], table<string, df_editor_resizetarget>, table? build the menu rows of one registered object, only the options matching searchWords when it is passed. returns the menu options, the value rows, the resize targets and the anchor settings
+---@field ShowOptionsMenu fun(self:df_editor, menuOptions:table, optionRows:df_editor_optionrow[], bUseColon:boolean?) build the options panel from these rows
 ---@field PrepareObjectForEditing fun(self:df_editor)
+---@field CreateOptionsSearchBox fun(self:df_editor)
+---@field SetSearchText fun(self:df_editor, searchText:string?) show the options matching these words on the options panel, nil or an empty text goes back to the object being edited
+---@field GetSearchText fun(self:df_editor):string
+---@field IsSearching fun(self:df_editor):boolean true while the options panel shows the search results
+---@field ResetSearch fun(self:df_editor) forget the search and leave the options panel as it is
+---@field ShowSearchResults fun(self:df_editor) fill the options panel with the options matching the search
+---@field RefreshSearchBox fun(self:df_editor) make the search box show the text being searched
+---@field GetEditingOptionWidget fun(self:df_editor, optionKey:string):table? the widget of an option of the object being edited, nil when the options panel is not showing it
 ---@field StartObjectMovement fun(self:df_editor, anchorSettings:df_anchor)
 ---@field StopObjectMovement fun(self:df_editor)
 ---@field CreateResizeGrips fun(self:df_editor)
@@ -663,6 +689,7 @@ local editObjectDefaultOptions = {
 ---@field show_undo_buttons boolean
 ---@field show_reset_buttons boolean if true each option row gets a reset to default button at its right; the widgets get narrower to make room for it
 ---@field show_disabled_reset_buttons boolean what an option without a default gets while the reset buttons are shown: true shows the button disabled, false shows no button
+---@field show_search_box boolean if true a search box sits above the options panel, which gives up that much of its height
 ---@field anchor_menu_height number? height in pixels of the menu of every anchor dropdown without a menu_height of its own, 20 per option; nil keeps the dropdown default of 300
 
 ---the default of each option, keyed by the option key: the key used on profileKeyMap for the built-in options and the
@@ -727,6 +754,7 @@ local editorDefaultOptions = {
     show_undo_buttons = true,
     show_reset_buttons = false,
     show_disabled_reset_buttons = true,
+    show_search_box = true,
     anchor_menu_height = nil,
 }
 
@@ -759,6 +787,89 @@ local getOptionDefaultValue = function(defaultValues, optionKey, profileTable, p
             return defaultValue
         end
     end
+end
+
+---split a search text into its words, in lower case
+---@param searchText string
+---@return string[]
+local getSearchWords = function(searchText)
+    local searchWords = {}
+    for word in string.lower(searchText):gmatch("%S+") do
+        searchWords[#searchWords+1] = word
+    end
+    return searchWords
+end
+
+---true when every word is somewhere in the name of the option, its tooltip, its tags or the name of its object, so
+---"title size" finds the size option of the title text
+---@param option df_editor_attribute
+---@param objectLabel string
+---@param searchWords string[]
+---@return boolean
+local doesOptionMatchSearch = function(option, objectLabel, searchWords)
+    local textParts = {objectLabel}
+    if (type(option.label) == "string") then
+        textParts[#textParts+1] = option.label
+    end
+    if (type(option.desc) == "string") then
+        textParts[#textParts+1] = option.desc
+    end
+    if (type(option.tags) == "table") then
+        for i = 1, #option.tags do
+            textParts[#textParts+1] = option.tags[i]
+        end
+    end
+
+    local searchableText = string.lower(table.concat(textParts, " "))
+    for i = 1, #searchWords do
+        --plain find, a word such as "(" is text and not a pattern
+        if (not searchableText:find(searchWords[i], 1, true)) then
+            return false
+        end
+    end
+    return true
+end
+
+---the widget id of an option in the search results. rows of several objects share the panel there and most objects
+---have an alpha or a width, so the id carries the object
+---@param registeredObject df_editor_objectinfo
+---@param optionKey string
+---@return string
+local getSearchOptionId = function(registeredObject, optionKey)
+    return tostring(registeredObject.id) .. ":" .. tostring(optionKey)
+end
+
+---the keys of the options their children_follow_enabled toggle has turned off right now. the search needs them on its
+---own: the toggle is what disables its options, and it may not be among the results
+---@param attributeList df_editor_attribute[]
+---@param profileTable table
+---@param profileMap table
+---@return table<string, boolean>
+local getOptionsTurnedOffByToggles = function(attributeList, profileTable, profileMap)
+    local turnedOffKeys = {}
+
+    for i = 1, #attributeList do
+        local option = attributeList[i]
+        if (option.children_follow_enabled and option.childrenids) then
+            local toggleValue = detailsFramework.table.getfrompath(option.profileTable or profileTable, profileMap[option.key] or option.key)
+
+            --a toggle without a value has no row either, in the object's own menu it disables nothing
+            if (toggleValue ~= nil) then
+                local bChildrenAreOn = toggleValue
+                if (option.children_follow_reverse) then
+                    bChildrenAreOn = not toggleValue
+                end
+
+                if (not bChildrenAreOn) then
+                    for childIndex = 1, #option.childrenids do
+                        turnedOffKeys[option.childrenids[childIndex]] = true
+                    end
+                end
+            end
+        end
+    end
+
+    return turnedOffKeys
 end
 
 ---the menu widgets do not agree on how they are disabled: dropdowns, sliders and toggles set 'lockdown' and leave their
@@ -954,6 +1065,8 @@ detailsFramework.EditorMixin = {
         local registeredObject = self:GetEditingRegisteredObject()
         if (registeredObject) then
             self:EditObject(registeredObject)
+        elseif (self:IsSearching()) then
+            self:ShowSearchResults()
         end
     end,
 
@@ -1383,7 +1496,6 @@ detailsFramework.EditorMixin = {
             end
         end
 
-        local optionsFrame = self:GetOptionsFrame()
         local bChanged = false
 
         for key, value in pairs(newValues) do
@@ -1401,7 +1513,7 @@ detailsFramework.EditorMixin = {
                 resizeTarget.applyValue(value)
                 bChanged = true
 
-                local slider = optionsFrame:GetWidgetById(key)
+                local slider = self:GetEditingOptionWidget(key)
                 if (slider and slider.SetValueNoCallback) then
                     slider:SetValueNoCallback(value)
                 end
@@ -1436,11 +1548,11 @@ detailsFramework.EditorMixin = {
                     detailsFramework:SetAnchor(member, anchorSettings, member:GetParent())
                 end
 
-                local anchorXSlider = optionsFrame:GetWidgetById("anchoroffsetx")
+                local anchorXSlider = self:GetEditingOptionWidget("anchoroffsetx")
                 if (anchorXSlider) then
                     anchorXSlider:SetValueNoCallback(anchorSettings.x)
                 end
-                local anchorYSlider = optionsFrame:GetWidgetById("anchoroffsety")
+                local anchorYSlider = self:GetEditingOptionWidget("anchoroffsety")
                 if (anchorYSlider) then
                     anchorYSlider:SetValueNoCallback(anchorSettings.y)
                 end
@@ -1916,6 +2028,16 @@ detailsFramework.EditorMixin = {
         end
     end,
 
+    ---what a click on a widget or on its row in the object list does. the panel goes back from the search results to
+    ---the options of the widget picked; EditObject alone keeps the results, it also runs after an undo or a refresh
+    ---@param self df_editor
+    ---@param registeredObject df_editor_objectinfo
+    ---@param activeMember uiobject?
+    SelectObject = function(self, registeredObject, activeMember)
+        self:ResetSearch()
+        self:EditObject(registeredObject, activeMember)
+    end,
+
     ---select the widget behind the selected one under the mouse cursor. used by alt + click.
     ---each alt + click goes one step deeper and wraps back to the top after the last one.
     ---@param self df_editor
@@ -1995,7 +2117,7 @@ detailsFramework.EditorMixin = {
         end
 
         local target = candidates[(startIndex or 0) % #candidates + 1]
-        self:EditObject(target.registration, target.member)
+        self:SelectObject(target.registration, target.member)
         self:ShowSelectedNameTag(target.member, target.registration.label)
     end,
 
@@ -2276,6 +2398,11 @@ detailsFramework.EditorMixin = {
     ---@param self df_editor
     ---@param state undostate
     AddToUndoHistory = function(self, state)
+        --the search box keeps the keyboard until it is told otherwise, and the next ctrl+z has to reach the editor
+        if (self.SearchBox) then
+            self.SearchBox:ClearFocus()
+        end
+
         local last = self.undoHistory[#self.undoHistory]
         if (last and last.coalesceKey and last.coalesceKey == state.coalesceKey) then
             --keep last.undo (the original "before" snapshot) but advance the redo target.
@@ -2374,11 +2501,20 @@ detailsFramework.EditorMixin = {
         self:RefreshUndoButtons()
     end,
 
-    PrepareObjectForEditing = function(self) --~edit
-        --get the object and its profile table with the current values
-        local object = self:GetEditingObject()
-        local profileTable, profileMap = self:GetEditingProfile()
-        profileMap = profileMap or {}
+    ---build the menu rows of one registered object. with searchWords only the options matching them are built, and
+    ---their widget ids carry the object so the rows of several objects can share the panel.
+    ---@param self df_editor
+    ---@param registeredObject df_editor_objectinfo
+    ---@param object uiobject the member of the registration the edits are reported for
+    ---@param searchWords string[]?
+    ---@return table menuOptions
+    ---@return df_editor_optionrow[] optionRows
+    ---@return table<string, df_editor_resizetarget> resizeTargets
+    ---@return table? anchorSettings
+    BuildObjectOptions = function(self, registeredObject, object, searchWords)
+        --get the profile table with the current values
+        local profileTable = self:GetProfileTableFromObject(registeredObject)
+        local profileMap = registeredObject.profilekeymap or {}
 
         --capture the registration + callback at menu-build time so undo/redo replay always
         --acts on the right widgets. resolving these live inside applyValue via
@@ -2387,43 +2523,28 @@ detailsFramework.EditorMixin = {
         --so the live editing context is whatever the previous replay step left active -
         --which fans the wrong registration's setter (e.g. FontString:SetFont) onto another
         --registration's members (e.g. a Texture), causing "attempt to call a nil value".
-        local registeredForClosure = self:GetEditingRegisteredObject()
-        local onEditCallbackForClosure = self:GetOnEditCallback()
-        local fanoutMembers = registeredForClosure and registeredForClosure.objects or {object}
-
-        self.AnchorFrames:DisableAllAnchors()
-        self:HideResizeGrips()
+        local onEditCallbackForClosure = registeredObject.callback
+        local fanoutMembers = registeredObject.objects
 
         local conditionalKeys = profileMap.enable_if or {}
 
-        if (not object or not profileTable) then
-            return
+        --the id of a widget on the panel
+        local getWidgetId = function(optionKey)
+            if (searchWords and optionKey) then
+                return getSearchOptionId(registeredObject, optionKey)
+            end
+            return optionKey
         end
-
-        --reparent the background texture into the edited object's draw stack so it renders behind the
-        --object's own artwork. without this, the texture sits in editorFrame's stack and any object whose
-        --frame strata/level is below editorFrame ends up with the magenta tint painted over it instead of under.
-        --Textures:SetParent requires a Frame; FontString/Texture object types aren't valid parents, so when
-        --the edited object isn't a Frame we fall back to its parent (always a Frame for any region) and rely
-        --on the BACKGROUND draw layer to keep the tint below the widget's own content in the shared stack.
-        local backgroundParent = object
-        if (object:GetObjectType() ~= "Frame") then
-            backgroundParent = object:GetParent()
-        end
-        self.ObjectBackgroundTexture:SetParent(backgroundParent)
-        self.ObjectBackgroundTexture:SetDrawLayer("BACKGROUND")
-        self.ObjectBackgroundTexture:SetPoint("topleft", object, "topleft", -2, 2)
-        self.ObjectBackgroundTexture:SetPoint("bottomright", object, "bottomright", 2, -2) --using points instead of size due to width height being secret values in some objects
 
         --get the object type
         local objectType = object:GetObjectType()
         local attributeList
 
         --options for the editor, e.g. text_template, use_colon, etc.
-        local editingOptions = self:GetEditingOptions()
+        local editingOptions = registeredObject.options
 
         --extra options for this object
-        local extraOptions = self:GetExtraOptions()
+        local extraOptions = registeredObject.extraoptions
 
         --get the attribute list for the object type
         if (objectType == "FontString") then
@@ -2480,6 +2601,24 @@ detailsFramework.EditorMixin = {
             attributeList = attributeListWithExtraOptions
         end
 
+        local optionsTurnedOffByToggles = {}
+
+        --filtered before the rows are built, each row built reads the profile and creates its functions.
+        --the blanks and the labels are the layout of the object's own menu and mean nothing among search results
+        if (searchWords) then
+            optionsTurnedOffByToggles = getOptionsTurnedOffByToggles(attributeList, profileTable, profileMap)
+
+            local matchingAttributes = {}
+            for i = 1, #attributeList do
+                local option = attributeList[i]
+                local widgetType = option.widget or option.type
+                if (widgetType ~= "blank" and widgetType ~= "label" and doesOptionMatchSearch(option, registeredObject.label, searchWords)) then
+                    matchingAttributes[#matchingAttributes+1] = option
+                end
+            end
+            attributeList = matchingAttributes
+        end
+
         local anchorSettings
 
         --the width, height and size options the resize grips drive, keyed by option key
@@ -2487,7 +2626,7 @@ detailsFramework.EditorMixin = {
         local resizeTargets = {}
 
         --each value row, with the default the reset button puts back and the buttons drawn at its sides
-        local defaultValues = registeredForClosure and registeredForClosure.defaults
+        local defaultValues = registeredObject.defaults
         ---@type df_editor_optionrow[]
         local optionRows = {}
 
@@ -2526,7 +2665,7 @@ detailsFramework.EditorMixin = {
                     text_template = option.text_template,
                     width = option.width,
                     height = option.height,
-                    id = option.key,
+                    id = getWidgetId(option.key),
                 }
             else
                 --extras may override the registration's profileTable so a single option can read/write
@@ -2614,7 +2753,13 @@ detailsFramework.EditorMixin = {
                                     anchorSettings.y = 0
                                 end
 
-                                self:StopObjectMovement()
+                                --a search result can belong to another object than the one selected, and the
+                                --mover stays on the selected one
+                                local bIsObjectBeingEdited = self:GetEditingRegisteredObject() == registeredObject
+
+                                if (bIsObjectBeingEdited) then
+                                    self:StopObjectMovement()
+                                end
 
                                 if (option.setter) then
                                     for i = 1, #fanoutMembers do
@@ -2622,11 +2767,13 @@ detailsFramework.EditorMixin = {
                                     end
                                 end
 
-                                if (editingOptions.can_move) then
-                                    self:StartObjectMovement(anchorSettings)
-                                else
-                                    --hide mover frame
-                                    self.moverObject:Hide()
+                                if (bIsObjectBeingEdited) then
+                                    if (editingOptions.can_move) then
+                                        self:StartObjectMovement(anchorSettings)
+                                    else
+                                        --hide mover frame
+                                        self.moverObject:Hide()
+                                    end
                                 end
                             else
                                 if (option.setter) then
@@ -2648,6 +2795,16 @@ detailsFramework.EditorMixin = {
                             }
                         end
 
+                        --always a copy: buildmenu wipes this table when it reuses the toggle, the next build would
+                        --find the list of the option empty
+                        local childrenIds
+                        if (option.childrenids) then
+                            childrenIds = {}
+                            for childIndex = 1, #option.childrenids do
+                                childrenIds[childIndex] = getWidgetId(option.childrenids[childIndex])
+                            end
+                        end
+
                         local optionTable = {
                             type = widgetType,
                             name = option.label,
@@ -2657,6 +2814,14 @@ detailsFramework.EditorMixin = {
                                 if (widgetType == "range" or widgetType == "slider") then
                                     if (not option.usedecimals) then
                                         newValue = math.floor(newValue)
+
+                                        --a stored 7.5 shows as 7 here, and the slider reports it while the menu is
+                                        --built. nobody edited anything, so the stored value stays and no undo step
+                                        --is added. the reset button writes its default on purpose
+                                        local storedValue = detailsFramework.table.getfrompath(entryProfileTable, profileKey)
+                                        if (not self.bIsResettingOption and type(storedValue) == "number" and storedValue ~= newValue and math.floor(storedValue) == newValue) then
+                                            return
+                                        end
                                     end
                                 end
 
@@ -2693,29 +2858,26 @@ detailsFramework.EditorMixin = {
                                 --AddToUndoHistory coalesces consecutive real edits to the same widget
                                 --into one entry, so a slider drag becomes a single undo step.
                                 if (not snapshotsEqual(oldSnapshot, newSnapshot)) then
-                                    local registered = self:GetEditingRegisteredObject()
-                                    if (registered) then
-                                        self:AddToUndoHistory({
-                                            objectId = registered.id,
-                                            coalesceKey = tostring(registered.id) .. ":" .. tostring(option.key) .. (self.bIsResettingOption and ":reset" or ""),
-                                            undo = function() applyValue(oldSnapshot) end,
-                                            redo = function() applyValue(newSnapshot) end,
-                                        })
-                                    end
+                                    self:AddToUndoHistory({
+                                        objectId = registeredObject.id,
+                                        coalesceKey = tostring(registeredObject.id) .. ":" .. tostring(option.key) .. (self.bIsResettingOption and ":reset" or ""),
+                                        undo = function() applyValue(oldSnapshot) end,
+                                        redo = function() applyValue(newSnapshot) end,
+                                    })
                                 end
                             end,
                             min = minValue,
                             max = maxValue,
                             step = option.step,
                             usedecimals = option.usedecimals,
-                            id = option.key,
+                            id = getWidgetId(option.key),
                             desc = option.desc,
                             onenter = option.onenter,
                             onleave = option.onleave,
                             --BuildMenu's enable/disable dependency fields. a toggle with children_follow_enabled
                             --enables or disables the widgets whose ids are in childrenids as it flips; the ids
                             --are the children's option keys
-                            childrenids = option.childrenids,
+                            childrenids = childrenIds,
                             children_follow_enabled = option.children_follow_enabled,
                             children_follow_reverse = option.children_follow_reverse,
                             disableif = option.disableif,
@@ -2755,6 +2917,10 @@ detailsFramework.EditorMixin = {
                             end
                         end
 
+                        if (optionsTurnedOffByToggles[option.key]) then
+                            optionTable.disabled = true
+                        end
+
                         menuOptions[#menuOptions+1] = optionTable
 
                         ---@type df_editor_optionrow
@@ -2764,7 +2930,7 @@ detailsFramework.EditorMixin = {
                             widgetType = widgetType,
                             profileTable = entryProfileTable,
                             profileKey = profileKey,
-                            registeredObject = registeredForClosure,
+                            registeredObject = registeredObject,
                             defaultValue = getOptionDefaultValue(defaultValues, option.key, entryProfileTable, profileKey),
                             --read from the profile, not from get(), which keeps the value of when the menu was built
                             getCurrentValue = function()
@@ -2779,10 +2945,15 @@ detailsFramework.EditorMixin = {
             end
         end
 
-        if (anchorSettings and not self.options.no_anchor_points) then
-            self.AnchorFrames:SetupAnchorsForObject(anchorSettings)
-        end
+        return menuOptions, optionRows, resizeTargets, anchorSettings
+    end,
 
+    ---build the options panel from these rows, the menu of the object being edited or the search results
+    ---@param self df_editor
+    ---@param menuOptions table
+    ---@param optionRows df_editor_optionrow[]
+    ---@param bUseColon boolean?
+    ShowOptionsMenu = function(self, menuOptions, optionRows, bUseColon)
         --at this point, the optionsTable is ready to be used on DF:BuildMenuVolatile()
         menuOptions.align_as_pairs = true
         --buildmenu reads the label column from align_as_pairs_string_space and falls back to 160 without it,
@@ -2803,15 +2974,15 @@ detailsFramework.EditorMixin = {
         menuOptions.slider_buttons_to_left = true
 
         local optionsFrame = self:GetOptionsFrame()
-        local canvasScrollBox = self:GetCanvasScrollBox()
-
-        local bUseColon = editingOptions.use_colon
 
         local bSwitchIsCheckbox = true
-        local maxHeight = 5000
 
         local amountOfOptions = #menuOptions
-        local optionsFrameHeight = amountOfOptions * 20
+        --past this height buildmenu starts a new column, out of sight past the right edge of the panel. the search
+        --results of a short word can be most of the options of every object
+        local maxHeight = math.max(5000, amountOfOptions * 30)
+        --the rows start below the top of the frame, without this offset the end of a long list can not be scrolled to
+        local optionsFrameHeight = amountOfOptions * 20 + MENU_TOP_OFFSET
         optionsFrame:SetHeight(optionsFrameHeight)
 
         --templates
@@ -2854,16 +3025,60 @@ detailsFramework.EditorMixin = {
         end
         --the buttons at the left of the rows sit where the labels would start without them
         local menuXOffset = MENU_LABEL_X_OFFSET + leftButtonsSpace
-        detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, menuXOffset, -7, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template, onMenuValueChanged)
+        detailsFramework:BuildMenuVolatile(optionsFrame, menuOptions, menuXOffset, -MENU_TOP_OFFSET, maxHeight, bUseColon, options_text_template, options_dropdown_template, options_switch_template, bSwitchIsCheckbox, options_slider_template, options_button_template, onMenuValueChanged)
 
         --runs with no row buttons too, so the ones a previous menu showed are hidden
         self:LayoutRowButtons(optionRows, widgetWidth)
+    end,
 
-        --reset the options scroll back to the top whenever the selection changes. without this
-        --switching from a long widget (e.g. Auras Layout) to a short one (e.g. Raid Mark) leaves
-        --the scroll at the bottom and the short widget renders entirely above the visible area.
-        if (canvasScrollBox and canvasScrollBox.SetVerticalScroll) then
-            canvasScrollBox:SetVerticalScroll(0)
+    PrepareObjectForEditing = function(self) --~edit
+        --get the object and its profile table with the current values
+        local object = self:GetEditingObject()
+        local profileTable = self:GetEditingProfile()
+
+        self.AnchorFrames:DisableAllAnchors()
+        self:HideResizeGrips()
+
+        if (not object or not profileTable) then
+            return
+        end
+
+        --reparent the background texture into the edited object's draw stack so it renders behind the
+        --object's own artwork. without this, the texture sits in editorFrame's stack and any object whose
+        --frame strata/level is below editorFrame ends up with the magenta tint painted over it instead of under.
+        --Textures:SetParent requires a Frame; FontString/Texture object types aren't valid parents, so when
+        --the edited object isn't a Frame we fall back to its parent (always a Frame for any region) and rely
+        --on the BACKGROUND draw layer to keep the tint below the widget's own content in the shared stack.
+        local backgroundParent = object
+        if (object:GetObjectType() ~= "Frame") then
+            backgroundParent = object:GetParent()
+        end
+        self.ObjectBackgroundTexture:SetParent(backgroundParent)
+        self.ObjectBackgroundTexture:SetDrawLayer("BACKGROUND")
+        self.ObjectBackgroundTexture:SetPoint("topleft", object, "topleft", -2, 2)
+        self.ObjectBackgroundTexture:SetPoint("bottomright", object, "bottomright", 2, -2) --using points instead of size due to width height being secret values in some objects
+
+        local editingOptions = self:GetEditingOptions()
+        local menuOptions, optionRows, resizeTargets, anchorSettings = self:BuildObjectOptions(self:GetEditingRegisteredObject(), object)
+
+        if (anchorSettings and not self.options.no_anchor_points) then
+            self.AnchorFrames:SetupAnchorsForObject(anchorSettings)
+        end
+
+        --an undo or a refresh during a search lands here too: the results stay, rebuilt with the new values, and the
+        --scroll stays with them. the object is still prepared above and below, it can be dragged while searching
+        if (self:IsSearching()) then
+            self:ShowSearchResults()
+        else
+            self:ShowOptionsMenu(menuOptions, optionRows, editingOptions.use_colon)
+
+            --reset the options scroll back to the top whenever the selection changes. without this
+            --switching from a long widget (e.g. Auras Layout) to a short one (e.g. Raid Mark) leaves
+            --the scroll at the bottom and the short widget renders entirely above the visible area.
+            local canvasScrollBox = self:GetCanvasScrollBox()
+            if (canvasScrollBox and canvasScrollBox.SetVerticalScroll) then
+                canvasScrollBox:SetVerticalScroll(0)
+            end
         end
 
        if (editingOptions.can_move and self:IsVisible()) then
@@ -2882,6 +3097,164 @@ detailsFramework.EditorMixin = {
         end
     end,
 
+    ---create the search box above the options panel
+    ---@param self df_editor
+    CreateOptionsSearchBox = function(self)
+        --as wide as the row highlights, so it lines up with the rows below it
+        local width = self.options.options_label_width + self.options.options_widget_width + ROW_HIGHLIGHT_EXTRA_WIDTH
+
+        local searchBox = detailsFramework:CreateTextEntry(self, function() end, width, SEARCH_BOX_HEIGHT, nil, nil, nil, self.options.dropdown_template)
+        searchBox:SetSize(width, SEARCH_BOX_HEIGHT)
+        searchBox:SetAsSearchBox()
+        searchBox:SetPoint("bottomleft", self:GetCanvasScrollBox(), "topleft", 0, SEARCH_BOX_GAP)
+
+        local typingTimer
+        searchBox:SetHook("OnTextChanged", function()
+            if (typingTimer) then
+                typingTimer:Cancel()
+            end
+
+            typingTimer = C_Timer.NewTimer(SEARCH_TYPING_DELAY, function()
+                typingTimer = nil
+                self:SetSearchText(searchBox:GetText())
+            end)
+        end)
+
+        self.SearchBox = searchBox
+    end,
+
+    ---show the options matching these words on the options panel, from every registered object. nil or an empty text
+    ---goes back to the options of the object being edited
+    ---@param self df_editor
+    ---@param searchText string?
+    SetSearchText = function(self, searchText)
+        searchText = searchText or ""
+        if (searchText == self.searchText) then
+            return
+        end
+
+        local bWasSearching = self:IsSearching()
+        self.searchText = searchText
+        self.searchWords = getSearchWords(searchText)
+        self:RefreshSearchBox()
+
+        if (self:IsSearching()) then
+            self:ShowSearchResults()
+            self:GetCanvasScrollBox():SetVerticalScroll(0)
+
+        elseif (bWasSearching) then
+            if (self:GetEditingRegisteredObject()) then
+                self:Refresh()
+            else
+                self:ShowOptionsMenu({}, {})
+            end
+        end
+    end,
+
+    ---@param self df_editor
+    ---@return string
+    GetSearchText = function(self)
+        return self.searchText
+    end,
+
+    ---true while the options panel shows the search results
+    ---@param self df_editor
+    ---@return boolean
+    IsSearching = function(self)
+        return #self.searchWords > 0
+    end,
+
+    ---forget the search and leave the options panel as it is, for a caller about to rebuild it. the keyboard goes back
+    ---to the editor, an empty box that kept it would swallow ctrl+z and the player's keybinds
+    ---@param self df_editor
+    ResetSearch = function(self)
+        self.searchText = ""
+        self.searchWords = {}
+
+        if (self.SearchBox) then
+            self.SearchBox:ClearFocus()
+        end
+        self:RefreshSearchBox()
+    end,
+
+    ---make the search box show the text being searched. safe to call without a search box, a consumer can turn it off
+    ---with show_search_box and drive the search from its own with SetSearchText
+    ---@param self df_editor
+    RefreshSearchBox = function(self)
+        local searchBox = self.SearchBox
+        if (not searchBox) then
+            return
+        end
+
+        if (searchBox:GetText() ~= self.searchText) then
+            searchBox:SetText(self.searchText)
+        end
+
+        --the box only looks after this button when it gets or loses the focus, a text set from here does neither
+        searchBox.ClearSearchButton:SetShown(self.searchText ~= "" or searchBox.editbox:HasFocus())
+    end,
+
+    ---fill the options panel with the options matching the search, under the name of the object each one belongs to.
+    ---the rows are real ones: an edit lands on their own object, not on the one selected
+    ---@param self df_editor
+    ShowSearchResults = function(self)
+        local headerTemplate = {color = SEARCH_HEADER_COLOR, size = SEARCH_HEADER_FONT_SIZE, font = detailsFramework:GetBestFontForLanguage()}
+
+        local menuOptions = {}
+        ---@type df_editor_optionrow[]
+        local optionRows = {}
+
+        local registeredObjects = self:GetAllRegisteredObjects()
+        for i = 1, #registeredObjects do
+            local registeredObject = registeredObjects[i]
+            local members = registeredObject.objects
+            local object = members[registeredObject.activeMemberIndex] or members[1]
+
+            local objectMenuOptions, objectOptionRows = self:BuildObjectOptions(registeredObject, object, self.searchWords)
+
+            if (#objectMenuOptions > 0) then
+                if (#menuOptions > 0) then
+                    menuOptions[#menuOptions+1] = {type = "blank"}
+                end
+
+                menuOptions[#menuOptions+1] = {
+                    type = "label",
+                    get = function() return registeredObject.label end,
+                    text_template = headerTemplate,
+                    --buildmenu sets the color after the template, without one the label loses the template's color
+                    color = SEARCH_HEADER_COLOR,
+                }
+
+                for optionIndex = 1, #objectMenuOptions do
+                    menuOptions[#menuOptions+1] = objectMenuOptions[optionIndex]
+                end
+                for rowIndex = 1, #objectOptionRows do
+                    optionRows[#optionRows+1] = objectOptionRows[rowIndex]
+                end
+            end
+        end
+
+        if (#menuOptions == 0) then
+            menuOptions[1] = {type = "label", get = function() return SEARCH_NO_RESULTS_TEXT end, text_template = self.options.text_template}
+        end
+
+        local editingOptions = self:GetEditingOptions()
+        self:ShowOptionsMenu(menuOptions, optionRows, editingOptions and editingOptions.use_colon)
+    end,
+
+    ---the widget of an option of the object being edited, nil when the options panel is not showing it: the search
+    ---results may not have it, and there its id carries the object
+    ---@param self df_editor
+    ---@param optionKey string
+    ---@return table?
+    GetEditingOptionWidget = function(self, optionKey)
+        local widgetId = optionKey
+        if (self:IsSearching()) then
+            widgetId = getSearchOptionId(self:GetEditingRegisteredObject(), optionKey)
+        end
+        return self:GetOptionsFrame():GetWidgetById(widgetId)
+    end,
+
     ---@param self df_editor
     ---@param anchorSettings df_anchor
     StartObjectMovement = function(self, anchorSettings)
@@ -2890,7 +3263,6 @@ detailsFramework.EditorMixin = {
 
         assert(anchorSettings, "Object \"" .. registeredObject.id .. "\" without anchorSettings and can_move is 'True'.\nIf this came as surprise, add can_move = false into the table of the 10th argument of editor:RegisterObject().")
 
-        local optionsFrame = self:GetOptionsFrame()
         local moverObject = self:GetMoverObject()
         --the mover frame set its point to the object being moved
         --the move frame center dot keep under the mouse, but the object moves much faster
@@ -2934,10 +3306,14 @@ detailsFramework.EditorMixin = {
                 end
 
                 --update the slider offset in the options frame
-                local anchorXSlider = optionsFrame:GetWidgetById("anchoroffsetx")
-                anchorXSlider:SetValueNoCallback(anchorSettings.x)
-                local anchorYSlider = optionsFrame:GetWidgetById("anchoroffsety")
-                anchorYSlider:SetValueNoCallback(anchorSettings.y)
+                local anchorXSlider = self:GetEditingOptionWidget("anchoroffsetx")
+                if (anchorXSlider) then
+                    anchorXSlider:SetValueNoCallback(anchorSettings.x)
+                end
+                local anchorYSlider = self:GetEditingOptionWidget("anchoroffsety")
+                if (anchorYSlider) then
+                    anchorYSlider:SetValueNoCallback(anchorSettings.y)
+                end
 
                 --the offset sliders above are moved without their callback, so the menu's value change hook does not run
                 self:RefreshRowButtonStates()
@@ -3138,7 +3514,7 @@ detailsFramework.EditorMixin = {
                     self:SelectObjectBehind(member)
                     return
                 end
-                self:EditObject(objectRegistered, member)
+                self:SelectObject(objectRegistered, member)
                 self:ShowSelectedNameTag(member, objectRegistered.label)
             end)
 
@@ -3157,6 +3533,10 @@ detailsFramework.EditorMixin = {
 
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
+
+        if (self:IsSearching()) then
+            self:ShowSearchResults()
+        end
 
         --what to do after an object is registered?
         return objectRegistered
@@ -3218,6 +3598,11 @@ detailsFramework.EditorMixin = {
 
         local objectSelector = self:GetObjectSelector()
         objectSelector:RefreshMe()
+
+        --the results would keep rows editing an object that is gone
+        if (self:IsSearching()) then
+            self:ShowSearchResults()
+        end
     end,
 
     ---@param self df_editor
@@ -3439,7 +3824,7 @@ detailsFramework.EditorMixin = {
                     self.objectRegistered.isExpanded = not self.objectRegistered.isExpanded
                 end
 
-                editorFrame:EditObject(self.objectRegistered)
+                editorFrame:SelectObject(self.objectRegistered)
             end)
 
             --expand/collapse toggle, only shown for parent rows (refreshFunc shows/hides it).
@@ -3577,6 +3962,8 @@ function detailsFramework:CreateEditor(parent, name, options)
     editorFrame.registeredObjectsByID = {}
     editorFrame.rowButtons = {}
     editorFrame.rowButtonFrames = {}
+    editorFrame.searchText = ""
+    editorFrame.searchWords = {}
 
     editorFrame:BuildOptionsTable(editorDefaultOptions, options)
 
@@ -3594,6 +3981,9 @@ function detailsFramework:CreateEditor(parent, name, options)
     }
     local canvasFrame = detailsFramework:CreateCanvasScrollBox(editorFrame, optionsFrame, name .. "CanvasScrollBox", canvasScrollBoxOptions)
 
+    --the search box sits above the options panel, which starts this much lower to make room for it
+    local searchBoxSpace = editorFrame.options.show_search_box and (SEARCH_BOX_HEIGHT + SEARCH_BOX_GAP) or 0
+
     if (editorFrame.options.create_object_list) then
         local scrollWidth = editorFrame.options.object_list_width
         local scrollHeight = editorFrame.options.object_list_height
@@ -3607,10 +3997,10 @@ function detailsFramework:CreateEditor(parent, name, options)
         objectSelector:RefreshMe()
 
         local nScrollBarWidth = 30
-        canvasFrame:SetPoint("topleft", objectSelector, "topright", nScrollBarWidth, 0)
+        canvasFrame:SetPoint("topleft", objectSelector, "topright", nScrollBarWidth, -searchBoxSpace)
         canvasFrame:SetPoint("bottomleft", objectSelector, "bottomright", -nScrollBarWidth, 0)
     else
-        canvasFrame:SetPoint("topleft", editorFrame, "topleft", 2, -2)
+        canvasFrame:SetPoint("topleft", editorFrame, "topleft", 2, -2 - searchBoxSpace)
         canvasFrame:SetPoint("bottomleft", editorFrame, "bottomleft", 2, 0)
     end
 
@@ -3672,6 +4062,10 @@ function detailsFramework:CreateEditor(parent, name, options)
 
     editorFrame.optionsFrame = optionsFrame
     editorFrame.canvasScrollBox = canvasFrame
+
+    if (editorFrame.options.show_search_box) then
+        editorFrame:CreateOptionsSearchBox()
+    end
 
     --undo / redo toolbar at the bottom-right of the editor frame.
     --placed below the build-menu canvas where there's empty space, so it doesn't fight the menu layout.
