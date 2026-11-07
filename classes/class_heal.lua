@@ -5,7 +5,6 @@ local addonName, Details222 = ...
 
 local AceLocale = LibStub("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
-local Translit = LibStub("LibTranslit-1.0")
 
 --lua locals
 local _math_floor = math.floor
@@ -1340,7 +1339,7 @@ function healingClass:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 		local onyName = _detalhes:GetOnlyName(meus_curadores[i][1])
 		--translate cyrillic alphabet to western alphabet by Vardex (https://github.com/Vardex May 22, 2019)
 		if (instancia.row_info.textL_translit_text) then
-			onyName = Translit:Transliterate(onyName, "!")
+			onyName = Details:TransliterateName(onyName)
 		end
 
 		GameCooltip:AddLine(onyName, FormatTooltipNumber (_, meus_curadores[i][2]).." (".._cstr ("%.1f", (meus_curadores[i][2]/total_curado) * 100).."%)")
@@ -1455,7 +1454,7 @@ function healingClass:ToolTip_HealingDone (instance, numero, barra, keydown)
 		if (amount > 0) then
 			--translate cyrillic alphabet to western alphabet by Vardex (https://github.com/Vardex May 22, 2019)
 			if (instance.row_info.textL_translit_text) then
-				targetName = Translit:Transliterate(targetName, "!")
+				targetName = Details:TransliterateName(targetName)
 			end
 
 			tinsert(ActorHealingTargets, {targetName, amount, amount / ActorTotal * 100})

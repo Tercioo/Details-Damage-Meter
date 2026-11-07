@@ -1292,8 +1292,7 @@ local iconFrame_OnEnter = function(self)
 
 			if (instance.row_info.textL_translit_text) then
 				--translate cyrillic alphabet to western alphabet by Vardex (https://github.com/Vardex May 22, 2019)
-				local Translit = LibStub("LibTranslit-1.0")
-				GameCooltip:AddLine(Translit:Transliterate(name, "!"), specName)
+				GameCooltip:AddLine(Details:TransliterateName(name), specName)
 			else
 				GameCooltip:AddLine(name, specName)
 			end

@@ -1577,13 +1577,10 @@ local buildBarNameTextRegistration = function(previewInstance)
 		withRange(option("row_info.texts[1].shadow.offset[2]", "range", Loc["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_Y"], applyNameShadowOffset), -5, 5, 1),
 	})
 
-	--writing the unit name in latin letters is offered only on the classic versions
-	if (not detailsFramework.IsAddonApocalypseWow()) then
-		appendOptions(extraOptions, {
-			{widget = "blank"},
-			option("row_info.textL_translit_text", "toggle", Loc["STRING_OPTIONS_TEXT_LTRANSLIT"], applyTranslitName, Loc["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"]),
-		})
-	end
+	appendOptions(extraOptions, {
+		{widget = "blank"},
+		option("row_info.textL_translit_text", "toggle", Loc["STRING_OPTIONS_TEXT_LTRANSLIT"], applyTranslitName, Loc["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"]),
+	})
 
 	return {
 		id = "BARNAMETEXT",

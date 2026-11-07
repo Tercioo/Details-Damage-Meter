@@ -265,6 +265,23 @@ do
 		return (unitName:gsub("%-.*", ""))
 	end
 
+	local Translit = LibStub("LibTranslit-1.0")
+
+	---transliterate a unit name to latin letters, accepts secret values when the client provides C_Intl.Transliterate
+	---@param unitName string
+	---@return string
+	function Details:TransliterateName(unitName)
+		if (not unitName) then
+			return unitName
+		end
+
+		if (C_Intl and C_Intl.Transliterate) then
+			return C_Intl.Transliterate(unitName, "Any-Latin") or unitName
+		end
+
+		return Translit:Transliterate(unitName, "!")
+	end
+
 	---return the class name, class file name and class id of the unit passed
 	function Details:GetUnitClassFull(unitId)
 		unitId = Ambiguate(unitId, "none")
