@@ -1014,7 +1014,7 @@ local lineScript_Onenter = function(self)
 
 	local canCheckForTrancation = true
 	if (detailsFramework.IsAddonApocalypseWow()) then
-		if lefttext:HasAnySecretAspect() then
+		if lefttext:HasAnySecretAspect() or issecretvalue(lefttext:IsTruncated()) then
 			canCheckForTrancation = false
 		end
 	end

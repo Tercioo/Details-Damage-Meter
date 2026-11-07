@@ -17,6 +17,8 @@ local titleBarColor = {.2, .2, .2, .5}
 
 local PixelUtil = PixelUtil or DFPixelUtil
 
+local issecretvalue = issecretvalue or function() return false end
+
 ---@type edgenames[]
 local cornerNames = {"TopLeft", "TopRight", "BottomLeft", "BottomRight"}
 
@@ -297,7 +299,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         end
 
         --if the frame has a titlebar, need to adjust the size of the titlebar
-        if (self.bHasTitleBar) then
+        if (self.bHasTitleBar and not issecretvalue(self:GetWidth())) then
             self.TitleBar:SetWidth(self:GetWidth() - 14)
         end
 
@@ -348,6 +350,12 @@ detailsFramework.RoundedCornerPanelMixin = {
                 for _, thisTexture in pairs(self.BorderCornerTextures) do
                     PixelUtil.SetSize(thisTexture, cornerWidth-self.cornerRoundness, cornerHeight-self.cornerRoundness)
                     thisTexture.MaskTexture:SetSize(74-(self.cornerRoundness*0.75), 64-self.cornerRoundness)
+                end
+
+                --the size is secret while the frame is anchored to a secret frame, keep the edges from the last update
+                local _, borderCornerTexture = next(self.BorderCornerTextures)
+                if (issecretvalue(self:GetWidth()) or issecretvalue(self:GetHeight()) or (borderCornerTexture and issecretvalue(borderCornerTexture:GetHeight()))) then
+                    return
                 end
 
                 local horizontalEdgesNewSize = self:CalculateBorderEdgeSize("horizontal")

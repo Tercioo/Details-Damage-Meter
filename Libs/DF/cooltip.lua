@@ -30,7 +30,7 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 33
+local version = 34
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -1565,6 +1565,35 @@ function DF:CreateCoolTip()
 		end
 	end
 
+	--the size of a line is secret while its frame is anchored to a secret frame, use a default size when this happens
+	local defaultLineWidth = 146 --the 170 width from Reset() minus the 24 added when building the frame
+
+	local getLineWidth = function(menuButton)
+		local leftTextWidth = menuButton.leftText:GetStringWidth()
+		local rightTextWidth = menuButton.rightText:GetStringWidth()
+		local leftIconWidth = menuButton.leftIcon:GetWidth()
+		local rightIconWidth = menuButton.rightIcon:GetWidth()
+
+		if (issecretvalue(leftTextWidth) or issecretvalue(rightTextWidth) or issecretvalue(leftIconWidth) or issecretvalue(rightIconWidth)) then
+			return defaultLineWidth
+		end
+
+		return leftTextWidth + rightTextWidth + leftIconWidth + rightIconWidth
+	end
+
+	local getLineHeight = function(menuButton)
+		local leftTextHeight = menuButton.leftText:GetStringHeight()
+		local rightTextHeight = menuButton.rightText:GetStringHeight()
+		local leftIconHeight = menuButton.leftIcon:GetHeight()
+		local rightIconHeight = menuButton.rightIcon:GetHeight()
+
+		if (issecretvalue(leftTextHeight) or issecretvalue(rightTextHeight) or issecretvalue(leftIconHeight) or issecretvalue(rightIconHeight)) then
+			return gameCooltip.default_height
+		end
+
+		return max(leftTextHeight, rightTextHeight, leftIconHeight, rightIconHeight)
+	end
+
 	function gameCooltip:SetupMainButton(menuButton, index)
 		menuButton.index = index
 		--setup texts and icons
@@ -1576,7 +1605,7 @@ function DF:CreateCoolTip()
 
 		--string length
 		if (not gameCooltip.OptionsTable.FixedWidth) then
-			local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
+			local stringWidth = getLineWidth(menuButton)
 			if (stringWidth > frame1.w) then
 				frame1.w = stringWidth
 			end
@@ -1612,7 +1641,7 @@ function DF:CreateCoolTip()
 		DF:FadeFrame(menuButton, 0)
 
 		--string length
-		local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
+		local stringWidth = getLineWidth(menuButton)
 		if (stringWidth > frame2.w) then
 			frame2.w = stringWidth
 		end
@@ -1956,13 +1985,13 @@ function DF:CreateCoolTip()
 
 			--height
 			if (gameCooltip.OptionsTable.AlignAsBlizzTooltip) then
-				local height = max(2, menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight(), gameCooltip.OptionsTable.AlignAsBlizzTooltipForceHeight or 2)
+				local height = max(2, getLineHeight(menuButton), gameCooltip.OptionsTable.AlignAsBlizzTooltipForceHeight or 2)
 				menuButton:SetHeight(height)
 				menuButton:SetPoint("top", frame2, "top", 0, heightValue)
 				heightValue = heightValue + (height * -1)
 
 			elseif (gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
-				local height = max(menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
+				local height = getLineHeight(menuButton)
 				menuButton:SetHeight(height)
 				menuButton:SetPoint("top", frame2, "top", 0, heightValue)
 				heightValue = heightValue + (height * -1) + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
@@ -2043,11 +2072,13 @@ function DF:CreateCoolTip()
 
 		--hole in the code: the sub-tooltip point should be handled by the sabe function that handle the sub-menu point
 		local frame2CenterX = frame2:GetCenter()
-		if (frame2CenterX) then
-			local frame2HalfWidth = frame2:GetWidth() / 2
+		local frame2Width = frame2:GetWidth()
+		if (frame2CenterX and not issecretvalue(frame2CenterX) and not issecretvalue(frame2Width)) then
+			local frame2HalfWidth = frame2Width / 2
 			local frame1CenterX = frame1:GetCenter()
-			if (frame1CenterX) then
-				local frame1HalfWidth = frame1:GetWidth() / 2
+			local frame1Width = frame1:GetWidth()
+			if (frame1CenterX and not issecretvalue(frame1CenterX) and not issecretvalue(frame1Width)) then
+				local frame1HalfWidth = frame1Width / 2
 				local frame1EndPoint = frame1CenterX + frame1HalfWidth - 3
 				local frame2StartPoint = frame2CenterX - frame2HalfWidth
 
@@ -2204,13 +2235,13 @@ function DF:CreateCoolTip()
 
 			--height
 			if (gameCooltip.OptionsTable.AlignAsBlizzTooltip) then
-				local height = max(2, menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight(), gameCooltip.OptionsTable.AlignAsBlizzTooltipForceHeight or 2)
+				local height = max(2, getLineHeight(menuButton), gameCooltip.OptionsTable.AlignAsBlizzTooltipForceHeight or 2)
 				menuButton:SetHeight(height)
 				menuButton:SetPoint("top", frame1, "top", 0, heightValue)
 				heightValue = heightValue + (height * -1)
 
 			elseif (gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
-				local height = max(menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
+				local height = getLineHeight(menuButton)
 				menuButton:SetHeight(height)
 				menuButton:SetPoint("top", frame1, "top", 0, heightValue)
 				heightValue = heightValue + (height * -1) + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
@@ -2837,6 +2868,12 @@ function DF:CreateCoolTip()
 ----------------------------------------------------------------------
 	--wipe all data ~reset
 	function gameCooltip:Reset(fromPreset)
+		if (DF.IsAddonApocalypseWow()) then
+			--the last host can make the size of frame1 secret, drop that anchor before anything measures the frame
+			frame1:ClearAllPoints()
+			frame1:SetPoint("center", UIParent, "center", 0, 0)
+		end
+
 		frame2:ClearAllPoints()
 		frame2:SetPoint("bottomleft", frame1, "bottomright", 4, 0)
 		frame1:SetWidth(170)
@@ -3369,7 +3406,8 @@ function DF:CreateCoolTip()
 			frame = frame2
 		end
 
-		if (backdrop) then
+		--SetBackdrop does math with the frame size, it fails if the size is secret
+		if (backdrop and not issecretvalue(frame:GetWidth()) and not issecretvalue(frame:GetHeight())) then
 			frame:SetBackdrop(backdrop)
 		end
 		if (backdropcolor) then
