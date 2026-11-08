@@ -1806,3 +1806,328 @@ end)
           up StartMoving for cluster drag, because Blizzard's anchor propagation is unreliable with
           two-point chains. Worth doing only if the stretch behavior is explicitly wanted.
 --]=]
+
+
+--[=[
+    Placement System
+    ----------------
+    Saves where a movable frame sits as the nearest of its nine anchor points plus offsets, so it keeps its
+    place when the resolution or aspect ratio changes.
+
+    detailsFramework:BindPlacement(frame, storageTable[, keyNames])  table that holds point, x, y, scale
+    detailsFramework:CapturePlacement(frame)                         measure the frame, store it, re-anchor it
+    detailsFramework:ApplyPlacement(frame)                           anchor the frame from the table
+    detailsFramework:StorePlacement(frame, point, x, y)              write a place to the table, no measuring
+    detailsFramework:ChangePlacementScale(frame, scale)
+    detailsFramework:MakePlacementDraggable(frame)                   left button drag, captured on drop
+    detailsFramework:EnablePlacementWheelScale(frame)                mouse wheel scales, 0.1 to 3
+    detailsFramework:EnablePlacementAltUnlock(frame)                 mouse only works while alt is held
+    detailsFramework:EmbedPlacement(frame)                           same calls as frame:Method(...)
+
+    keyNames: prefix = "w1_" prefixes every key, x = "left" renames one, scale = false turns one off.
+    No point stored: top left over bottom left of the parent, then captured on the next frame.
+    Empty table: centre of the parent.
+    Offsets are in parent pixels and divided by the frame's scale when applied, even with scale = false.
+    The frame must be shown to be captured.
+    Offsets are measured against the parent: use it on frames parented to the screen or a frame covering it.
+--]=]
+
+local placementDataByFrame = setmetatable({}, {__mode = "k"})
+local placementCapturePending = {}
+local placementAltFrames = setmetatable({}, {__mode = "k"})
+
+--constants
+local PLACEMENT_MIN_SCALE = 0.1
+local PLACEMENT_MAX_SCALE = 3
+local PLACEMENT_WHEEL_STEP = 0.9
+
+local placementEventFrame = CreateFrame("frame")
+placementEventFrame:Hide()
+
+--table key of a value, nil when switched off
+local getPlacementKey = function(frame, valueName)
+	local keyNames = placementDataByFrame[frame].keyNames
+
+	if (keyNames) then
+		local renamed = keyNames[valueName]
+		if (renamed ~= nil) then
+			return renamed or nil
+		end
+
+		if (keyNames.prefix) then
+			return keyNames.prefix .. valueName
+		end
+	end
+
+	return valueName
+end
+
+--writes a value to the bound table
+local writePlacementValue = function(frame, valueName, value)
+	local key = getPlacementKey(frame, valueName)
+	if (key) then
+		placementDataByFrame[frame].storage[key] = value
+	end
+end
+
+--reads a value from the bound table
+local readPlacementValue = function(frame, valueName)
+	local key = getPlacementKey(frame, valueName)
+	if (key) then
+		return placementDataByFrame[frame].storage[key]
+	end
+end
+
+--delayed captures, run one frame later
+placementEventFrame:SetScript("OnUpdate", function(self)
+	self:Hide()
+
+	for frame in pairs(placementCapturePending) do
+		placementCapturePending[frame] = nil
+		detailsFramework:CapturePlacement(frame)
+	end
+end)
+
+--stands in for a missing parent
+local screenStandIn = {
+	GetWidth = function()
+		return GetScreenWidth() * UIParent:GetScale()
+	end,
+	GetHeight = function()
+		return GetScreenHeight() * UIParent:GetScale()
+	end,
+}
+
+--nearest slot on one axis: offset and "low", "high" or "middle"
+local pickPlacementSlot = function(startEdge, endEdge, span)
+	local distanceFromStart = startEdge
+	local distanceFromEnd = span - endEdge
+	local distanceFromMiddle = math.abs((startEdge + endEdge) / 2 - span / 2)
+
+	if (distanceFromStart < distanceFromEnd and distanceFromStart < distanceFromMiddle) then
+		return startEdge, "low"
+
+	elseif (distanceFromEnd < distanceFromMiddle) then
+		return endEdge - span, "high"
+	end
+
+	return (startEdge + endEdge) / 2 - span / 2, "middle"
+end
+
+---sets the table a frame's placement is read from and written to
+---@param frame frame
+---@param storageTable table
+---@param keyNames table?
+function detailsFramework:BindPlacement(frame, storageTable, keyNames)
+	local data = placementDataByFrame[frame]
+	if (not data) then
+		data = {}
+		placementDataByFrame[frame] = data
+	end
+
+	data.storage = storageTable
+	data.keyNames = keyNames
+end
+
+---stores where the frame is and re-anchors it from the nearest point
+---@param frame frame
+function detailsFramework:CapturePlacement(frame)
+	local parent = frame:GetParent() or screenStandIn
+	local scale = frame:GetScale()
+
+	local left = frame:GetLeft() * scale
+	local right = frame:GetRight() * scale
+	local bottom = frame:GetBottom() * scale
+	local top = frame:GetTop() * scale
+
+	local horizontalOffset, horizontalSlot = pickPlacementSlot(left, right, parent:GetWidth())
+	local verticalOffset, verticalSlot = pickPlacementSlot(bottom, top, parent:GetHeight())
+
+	local verticalName = (verticalSlot == "low" and "bottom") or (verticalSlot == "high" and "top") or ""
+	local horizontalName = (horizontalSlot == "low" and "left") or (horizontalSlot == "high" and "right") or ""
+	local point = verticalName .. horizontalName
+
+	if (point == "") then
+		point = "center"
+	end
+
+	writePlacementValue(frame, "x", horizontalOffset)
+	writePlacementValue(frame, "y", verticalOffset)
+	writePlacementValue(frame, "point", point)
+	writePlacementValue(frame, "scale", scale)
+
+	frame:ClearAllPoints()
+	frame:SetPoint(point, frame:GetParent(), point, horizontalOffset / scale, verticalOffset / scale)
+end
+
+---anchors the frame from the stored placement
+---@param frame frame
+function detailsFramework:ApplyPlacement(frame)
+	local x = readPlacementValue(frame, "x")
+	local y = readPlacementValue(frame, "y")
+	local point = readPlacementValue(frame, "point")
+
+	local scale = readPlacementValue(frame, "scale")
+	if (scale) then
+		frame:SetScale(scale)
+	else
+		scale = frame:GetScale()
+	end
+
+	--nothing stored: centre
+	if (not x or not y) then
+		x = 0
+		y = 0
+		point = "center"
+	end
+
+	x = x / scale
+	y = y / scale
+
+	frame:ClearAllPoints()
+
+	--a zero vertical offset with no point is read as centred
+	if (not point and y == 0) then
+		point = "center"
+	end
+
+	if (not point) then
+		--offsets without a point: assume top left over bottom left
+		frame:SetPoint("topleft", frame:GetParent(), "bottomleft", x, y)
+		placementCapturePending[frame] = true
+		placementEventFrame:Show()
+		return
+	end
+
+	frame:SetPoint(point, frame:GetParent(), point, x, y)
+end
+
+---writes a place to the bound table without measuring or moving the frame
+---@param frame frame
+---@param point string
+---@param x number
+---@param y number
+function detailsFramework:StorePlacement(frame, point, x, y)
+	writePlacementValue(frame, "point", string.lower(point))
+	writePlacementValue(frame, "x", x)
+	writePlacementValue(frame, "y", y)
+end
+
+---stores and applies a scale, keeping the place
+---@param frame frame
+---@param scale number
+function detailsFramework:ChangePlacementScale(frame, scale)
+	writePlacementValue(frame, "scale", scale)
+	frame:SetScale(scale)
+	detailsFramework:ApplyPlacement(frame)
+end
+
+--drag start
+local onPlacementDragStart = function(frame)
+	placementDataByFrame[frame].isDragging = true
+	frame:StartMoving()
+end
+
+--drag stop: store the new place
+local onPlacementDragStop = function(frame)
+	local data = placementDataByFrame[frame]
+
+	frame:StopMovingOrSizing()
+	detailsFramework:CapturePlacement(frame)
+	data.isDragging = false
+
+	if (data.altUnlock and not IsAltKeyDown()) then
+		frame:EnableMouse(false)
+	end
+end
+
+---drag with the left button, stored on drop
+---@param frame frame
+function detailsFramework:MakePlacementDraggable(frame)
+	assert(placementDataByFrame[frame], "BindPlacement must be called before MakePlacementDraggable")
+
+	frame:SetMovable(true)
+	frame:SetScript("OnDragStart", onPlacementDragStart)
+	frame:SetScript("OnDragStop", onPlacementDragStop)
+	frame:RegisterForDrag("LeftButton")
+end
+
+--wheel step: scale by 0.9
+local onPlacementMouseWheel = function(frame, delta)
+	local scale = readPlacementValue(frame, "scale") or frame:GetScale()
+
+	if (delta < 0) then
+		scale = math.max(scale * PLACEMENT_WHEEL_STEP, PLACEMENT_MIN_SCALE)
+	else
+		scale = math.min(scale / PLACEMENT_WHEEL_STEP, PLACEMENT_MAX_SCALE)
+	end
+
+	detailsFramework:ChangePlacementScale(frame, scale)
+end
+
+---mouse wheel scales the frame
+---@param frame frame
+function detailsFramework:EnablePlacementWheelScale(frame)
+	frame:SetScript("OnMouseWheel", onPlacementMouseWheel)
+end
+
+placementEventFrame:SetScript("OnEvent", function(self, event, key, state)
+	if (key ~= "LALT" and key ~= "RALT") then
+		return
+	end
+
+	for frame in pairs(placementAltFrames) do
+		--a dragged frame turns its mouse off on drop
+		if (not placementDataByFrame[frame].isDragging) then
+			frame:EnableMouse(state == 1)
+		end
+	end
+end)
+
+---mouse only works while alt is held
+---@param frame frame
+function detailsFramework:EnablePlacementAltUnlock(frame)
+	assert(placementDataByFrame[frame], "BindPlacement must be called before EnablePlacementAltUnlock")
+
+	placementDataByFrame[frame].altUnlock = true
+	frame:EnableMouse(IsAltKeyDown() and true or false)
+
+	if (not next(placementAltFrames)) then
+		placementEventFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+	end
+
+	placementAltFrames[frame] = true
+end
+
+local placementMethodNames = {
+	"BindPlacement",
+	"CapturePlacement",
+	"ApplyPlacement",
+	"StorePlacement",
+	"ChangePlacementScale",
+	"MakePlacementDraggable",
+	"EnablePlacementWheelScale",
+	"EnablePlacementAltUnlock",
+}
+
+---@class df_placementmixin
+detailsFramework.PlacementMixin = {}
+
+for index, methodName in ipairs(placementMethodNames) do
+	detailsFramework.PlacementMixin[methodName] = function(frame, ...)
+		return detailsFramework[methodName](detailsFramework, frame, ...)
+	end
+end
+
+---copies the calls onto the frame
+---@param frame frame
+---@return frame
+function detailsFramework:EmbedPlacement(frame)
+	assert(type(frame) == "table" and frame[0] and frame.GetObjectType, "Usage: detailsFramework:EmbedPlacement(frame)")
+
+	for methodName, method in pairs(detailsFramework.PlacementMixin) do
+		frame[methodName] = method
+	end
+
+	return frame
+end
