@@ -1378,7 +1378,7 @@ do
                     afterUpdate(getInstance())
                     refreshWindowsAfterOptionChange(getInstance())
                 end,
-                min = 50,
+                min = 10,
                 max = 130,
                 step = 1,
                 name = Loc ["STRING_OPTIONS_PLAYERNAME_WIDTH"],
