@@ -1490,10 +1490,18 @@ function DF:CreateCoolTip()
 		menuButton.spark:SetVertexColor(DF:ParseColors(sparkColor))
 		menuButton.spark:SetAlpha(sparkAlpha)
 
+		local statusbarValue = menuButton.statusbar:GetValue()
+		local statusbarWidth = menuButton.statusbar:GetWidth()
+		if (issecretvalue(statusbarValue) or issecretvalue(statusbarWidth)) then
+			menuButton.spark:Hide()
+			menuButton.spark2:Hide()
+			return
+		end
+
 		menuButton.spark:ClearAllPoints()
-		menuButton.spark:SetPoint("left", menuButton.statusbar, "left", (menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth() / 100)) - 5 + positionXOffset, 0 + positionYOffset)
+		menuButton.spark:SetPoint("left", menuButton.statusbar, "left", (statusbarValue * (statusbarWidth / 100)) - 5 + positionXOffset, 0 + positionYOffset)
 		menuButton.spark2:ClearAllPoints()
-		menuButton.spark2:SetPoint("left", menuButton.statusbar, "left", menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth()/100) - 16 + positionXOffset, 0 + positionYOffset)
+		menuButton.spark2:SetPoint("left", menuButton.statusbar, "left", statusbarValue * (statusbarWidth/100) - 16 + positionXOffset, 0 + positionYOffset)
 	end
 
 	function gameCooltip:StatusBar(menuButton, statusBarSettings)
