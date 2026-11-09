@@ -19,6 +19,8 @@ local PixelUtil = PixelUtil or DFPixelUtil
 
 local issecretvalue = issecretvalue or function() return false end
 
+local cornerTextureSize = 16
+
 ---@type edgenames[]
 local cornerNames = {"TopLeft", "TopRight", "BottomLeft", "BottomRight"}
 
@@ -338,7 +340,7 @@ detailsFramework.RoundedCornerPanelMixin = {
             end
 
             ---@type width, height
-            local cornerWidth, cornerHeight = 16, 16
+            local cornerWidth, cornerHeight = cornerTextureSize, cornerTextureSize
 
             self.CenterBlock:Show()
 
@@ -353,8 +355,7 @@ detailsFramework.RoundedCornerPanelMixin = {
                 end
 
                 --the size is secret while the frame is anchored to a secret frame, keep the edges from the last update
-                local _, borderCornerTexture = next(self.BorderCornerTextures)
-                if (issecretvalue(self:GetWidth()) or issecretvalue(self:GetHeight()) or (borderCornerTexture and issecretvalue(borderCornerTexture:GetHeight()))) then
+                if (issecretvalue(self:GetWidth()) or issecretvalue(self:GetHeight())) then
                     return
                 end
 
@@ -405,6 +406,8 @@ detailsFramework.RoundedCornerPanelMixin = {
 		self.TopHorizontalEdge:Show()
 		self.BottomHorizontalEdge:Show()
         self.disabled = false
+        --resizes are ignored while disabled, the edges may still have an old size
+        self:OnSizeChanged()
     end,
 
     ---get the size of the edge texture
@@ -421,23 +424,29 @@ detailsFramework.RoundedCornerPanelMixin = {
         ---@type texture
         local borderTexture = self.BorderCornerTextures[borderCornerName]
 
+        --the corner stays secret after the frame stops being secret, its size is known from OnSizeChanged()
+        local cornerHeight = borderTexture:GetHeight()
+        if (issecretvalue(cornerHeight)) then
+            cornerHeight = cornerTextureSize - (self.cornerRoundness or 0)
+        end
+
         alignment = alignment:lower()
 
         if (alignment == "vertical") then
             if (self.tabSide) then
                 if (self.tabSide == "top" or self.tabSide == "bottom") then
-                    return self:GetHeight() - (borderTexture:GetHeight() * 2) + 2 - borderTexture:GetHeight()
+                    return self:GetHeight() - (cornerHeight * 2) + 2 - cornerHeight
                 end
             end
-            return self:GetHeight() - (borderTexture:GetHeight() * 2) + 2
+            return self:GetHeight() - (cornerHeight * 2) + 2
 
         elseif (alignment == "horizontal") then
             if (self.tabSide) then
                 if (self.tabSide == "left" or self.tabSide == "right") then
-                    return self:GetWidth() - (borderTexture:GetHeight() * 2) + 2 - borderTexture:GetHeight()
+                    return self:GetWidth() - (cornerHeight * 2) + 2 - cornerHeight
                 end
             end
-            return self:GetWidth() - (borderTexture:GetHeight() * 2) + 2
+            return self:GetWidth() - (cornerHeight * 2) + 2
         end
 
         error("df_roundedpanel:CalculateBorderEdgeSize(self, alignment) alignment must be 'vertical' or 'horizontal'")

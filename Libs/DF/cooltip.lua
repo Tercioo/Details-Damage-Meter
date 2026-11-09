@@ -30,16 +30,22 @@ end
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 34
+local version = 35
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
 local CONST_COOLTIP_TYPE_MENU = "menu"
 local CONST_COOLTIP_TYPE_TOOLTIP = "tooltip"
 
+--temporary: true opens a panel on login and /reload showing the sizes and options of the latest cooltips
+local CONST_COOLTIP_DEBUG_PANEL = false
+
 function DF:CreateCoolTip()
 	--if a cooltip is already created with a higher version
 	if (_G.GameCooltip2 and _G.GameCooltip2.version >= version) then
+		if (CONST_COOLTIP_DEBUG_PANEL) then
+			print("|cFFFFAA00Cooltip Debug|r: panel not created, another addon already loaded cooltip version", _G.GameCooltip2.version, "and this file is version", version)
+		end
 		return
 	end
 
@@ -1026,7 +1032,43 @@ function DF:CreateCoolTip()
 		gameCooltip.SelectedIndexSec[self.mainIndex] = self.index
 	end
 
+	local defaultLineWidth = 146 --the 170 width from Reset() minus the 24 added when building the frame
+
+	--an anchor stays secret after the frame it depends on stops being secret, only setting the anchor again clears it
+	--without this, a line reads secret sizes for the rest of the session after its cooltip was shown on a secret frame
+	local resetLineAnchors = function(frame, menuButton)
+		if (not DF.IsAddonApocalypseWow()) then
+			return
+		end
+
+		local statusbar = menuButton.statusbar
+
+		--the build functions set the final anchors of the line after measuring it
+		menuButton:ClearAllPoints()
+		menuButton:SetPoint("top", frame, "top", 0, 0)
+		menuButton:SetPoint("left", frame, "left", -4, 0)
+		menuButton:SetPoint("right", frame, "right", 4, 0)
+
+		statusbar:ClearAllPoints()
+		statusbar:SetPoint("left", menuButton, "left", 10, 0)
+		statusbar:SetPoint("right", menuButton, "right", -10, 0)
+		statusbar:SetPoint("top", menuButton, "top", 0, 0)
+		statusbar:SetPoint("bottom", menuButton, "bottom", 0, 0)
+
+		menuButton.leftIcon:ClearAllPoints()
+		menuButton.leftIcon:SetPoint("left", statusbar, "left", 0, 0)
+		menuButton.rightIcon:ClearAllPoints()
+		menuButton.rightIcon:SetPoint("right", statusbar, "right", 0, 0)
+
+		menuButton.leftText:ClearAllPoints()
+		menuButton.leftText:SetPoint("left", menuButton.leftIcon, "right", 3, 0)
+		menuButton.rightText:ClearAllPoints()
+		menuButton.rightText:SetPoint("right", menuButton.rightIcon, "left", -3, 0)
+	end
+
 	function gameCooltip:TextAndIcon(index, frame, menuButton, leftTextSettings, rightTextSettings, leftIconSettings, rightIconSettings, isSecondFrame)
+		resetLineAnchors(frame, menuButton)
+
 		--reset width
 		menuButton.leftText:SetWidth(0)
 		menuButton.leftText:SetHeight(0)
@@ -1454,8 +1496,37 @@ function DF:CreateCoolTip()
 			end
 
 			local height = max(menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight(), leftTextHeight, rightTextHeight)
+			menuButton.measuredHeight = height
 			if (height > frame.hHeight) then
 				frame.hHeight = height
+			end
+		else
+			--sizes are secret, the line can't be measured: use the defaults so lines don't stack on top of each other
+			menuButton.measuredHeight = nil
+			if (gameCooltip.default_height > frame.hHeight) then
+				frame.hHeight = gameCooltip.default_height
+			end
+
+			--only known numbers can be used here
+			local knownLeftIconWidth = issecretvalue(leftIconWidth) and 0 or leftIconWidth
+			local knownRightIconWidth = issecretvalue(rightIconWidth) and 0 or rightIconWidth
+			local knownRightTextWidth = issecretvalue(rightTextWidth) and 0 or rightTextWidth
+
+			local fixedWidth
+			if (isSecondFrame) then
+				fixedWidth = gameCooltip.OptionsTable.FixedWidthSub
+			else
+				fixedWidth = gameCooltip.OptionsTable.FixedWidth
+			end
+
+			if (not fixedWidth) then
+				if (gameCooltip.Type == 1 or gameCooltip.Type == 2) then
+					frame.w = max(frame.w, defaultLineWidth)
+				end
+			elseif (isSecondFrame) then
+				menuButton.leftText:SetWidth(fixedWidth - knownLeftIconWidth - 12)
+			else
+				menuButton.leftText:SetWidth(fixedWidth - knownLeftIconWidth - knownRightTextWidth - knownRightIconWidth - 22)
 			end
 		end
 
@@ -1574,8 +1645,6 @@ function DF:CreateCoolTip()
 	end
 
 	--the size of a line is secret while its frame is anchored to a secret frame, use a default size when this happens
-	local defaultLineWidth = 146 --the 170 width from Reset() minus the 24 added when building the frame
-
 	local getLineWidth = function(menuButton)
 		local leftTextWidth = menuButton.leftText:GetStringWidth()
 		local rightTextWidth = menuButton.rightText:GetStringWidth()
@@ -4152,6 +4221,591 @@ function DF:CreateCoolTip()
 		host:HookScript("OnLeave", function()
 			gameCooltip:Hide()
 		end)
+	end
+
+	--debug panel: only reads the cooltip from hooks, nothing above this line knows about it
+	if (CONST_COOLTIP_DEBUG_PANEL) then
+		local maxHistory = 30
+		local history = {}
+		local viewIndex --nil while following the latest cooltip
+		local currentText = ""
+		local lastPreset = "none"
+		local defaultOptions --the options as they are after a Reset(), anything different from this is not default
+		local optionSources = {} --the code which gave each option its value
+		local lineData = {[frame1] = {}, [frame2] = {}} --what each line measured while being built
+		local lineCount = {[frame1] = 0, [frame2] = 0}
+		local pendingInfo = {} --the state of the build in progress, used if it never finishes
+		local lastResize = {} --the sizes on the last OnSizeChanged of each frame
+		local secretResizes = {[frame1] = 0, [frame2] = 0}
+		local minLineHeight = 8 --a line height under this is flagged on the panel
+		local nextEntryId = 1
+		local refreshPanel
+
+		--values go through here before anything else, a secret can't be compared, used in math or added to a text
+		local debugValue
+		debugValue = function(value, bInsideTable)
+			if (issecretvalue(value)) then
+				return "<secret>"
+			end
+
+			local valueType = type(value)
+			if (valueType == "number") then
+				return (format("%.2f", value):gsub("%.00$", ""))
+
+			elseif (valueType == "string") then
+				return '"' .. value:sub(1, 100):gsub("|", "||"):gsub("\n", "\\n") .. '"'
+
+			elseif (valueType == "table") then
+				if (value.GetObjectType) then
+					local name = value:GetName()
+					if (issecretvalue(name)) then
+						return "<secret name>"
+					end
+					return name or ("<unnamed " .. debugValue(value:GetObjectType()) .. ">")
+				end
+
+				if (bInsideTable) then
+					return "{...}"
+				end
+
+				local keys = {}
+				for key in pairs(value) do
+					keys[#keys+1] = key
+				end
+				table.sort(keys, function(key1, key2)
+					local bKey1IsNumber, bKey2IsNumber = type(key1) == "number", type(key2) == "number"
+					if (bKey1IsNumber ~= bKey2IsNumber) then
+						return bKey1IsNumber
+					elseif (bKey1IsNumber) then
+						return key1 < key2
+					end
+					return tostring(key1) < tostring(key2)
+				end)
+
+				local parts = {}
+				for i = 1, min(#keys, 14) do
+					local key = keys[i]
+					parts[#parts+1] = (type(key) == "number" and "" or (tostring(key) .. "=")) .. debugValue(value[key], true)
+				end
+				return "{" .. table.concat(parts, ", ") .. (#keys > 14 and ", ..." or "") .. "}"
+			end
+
+			return tostring(value)
+		end
+
+		local read = function(object, methodName, ...)
+			if (object and object[methodName]) then
+				return debugValue((object[methodName](object, ...)))
+			end
+			return "nil"
+		end
+
+		local isNumber = function(value)
+			return not issecretvalue(value) and type(value) == "number"
+		end
+
+		local readSize = function(object)
+			return read(object, "GetWidth") .. " x " .. read(object, "GetHeight")
+		end
+
+		local readPoints = function(region)
+			local numPoints = region:GetNumPoints()
+			if (not isNumber(numPoints)) then
+				return "<secret>"
+			end
+
+			local points = {}
+			for i = 1, numPoints do
+				local point, relativeTo, relativePoint, x, y = region:GetPoint(i)
+				points[#points+1] = debugValue(point) .. " to " .. debugValue(relativeTo) .. " " .. debugValue(relativePoint) .. " " .. debugValue(x) .. ", " .. debugValue(y)
+			end
+			return table.concat(points, "  ;  ")
+		end
+
+		local readSecrets = function(object)
+			return "anchoring " .. read(object, "IsAnchoringSecret") .. " aspect " .. read(object, "HasAnySecretAspect")
+		end
+
+		--the first code out of this file in the call stack
+		local getCaller = function()
+			for line in debugstack(1, 12, 0):gmatch("[^\n]+") do
+				if (not line:find("cooltip.lua", 1, true) and not line:find("[C]", 1, true) and not line:find("tail call", 1, true)) then
+					local source = line:gsub('%[string "@?', ""):gsub('"%]', ""):gsub("Interface[/\\]AddOns[/\\]", "")
+					return source:match("^(.-:%d+)") or source
+				end
+			end
+			return "cooltip internal"
+		end
+
+		local readOptions = function()
+			local options = {}
+			for name, value in pairs(gameCooltip.OptionsTable) do
+				options[name] = debugValue(value)
+			end
+			return options
+		end
+
+		local readChangedOptions = function()
+			local options = readOptions()
+			local names = {}
+			for name, value in pairs(options) do
+				if (not defaultOptions or defaultOptions[name] ~= value) then
+					names[#names+1] = name
+				end
+			end
+			for name in pairs(defaultOptions or {}) do
+				if (not options[name]) then
+					names[#names+1] = name
+				end
+			end
+			table.sort(names)
+
+			local changed = {}
+			for _, name in ipairs(names) do
+				local text = name .. " = " .. (options[name] or "nil")
+				if (defaultOptions and defaultOptions[name]) then
+					text = text .. "   (default " .. defaultOptions[name] .. ")"
+				end
+				if (optionSources[name]) then
+					text = text .. "   set by " .. optionSources[name]
+				end
+				changed[#changed+1] = text
+			end
+			return changed
+		end
+
+		--these decide the position of the lines, always shown even when they are default
+		local readSpacingOptions = function()
+			local spacing = {}
+			for _, name in ipairs({"IgnoreButtonAutoHeight", "AlignAsBlizzTooltip", "FixedHeight", "FixedHeightSub", "HeighMod", "HeighModSub", "TopBorderSize", "ButtonHeightMod", "ButtonHeightModSub", "ButtonsYMod", "ButtonsYModSub", "YSpacingMod", "YSpacingModSub", "TextHeightMod", "IconHeightMod", "IconSize"}) do
+				spacing[#spacing+1] = name .. "=" .. debugValue(gameCooltip.OptionsTable[name])
+			end
+			return table.concat(spacing, "  ")
+		end
+
+		--every simple value of the cooltip, this way a new field shows up here without changing this code
+		local readFields = function()
+			local names = {}
+			for name, value in pairs(gameCooltip) do
+				local valueType = type(value)
+				if (valueType == "number" or valueType == "string" or valueType == "boolean") then
+					names[#names+1] = name
+				end
+			end
+			table.sort(names)
+
+			local fields = {}
+			for _, name in ipairs(names) do
+				fields[#fields+1] = name .. "=" .. debugValue(gameCooltip[name])
+			end
+			fields[#fields+1] = "selectedAnchor=" .. debugValue(gameCooltip.selectedAnchor)
+			return table.concat(fields, "  ")
+		end
+
+		local describeLines = function(frame, lines, count)
+			local usedDefault = 0
+			for lineIndex = 1, count do
+				if (lines[lineIndex] and lines[lineIndex].bUsedDefaultHeight) then
+					usedDefault = usedDefault + 1
+				end
+			end
+			return {name = debugValue(frame), lines = lines, count = count, usedDefault = usedDefault, width = debugValue(frame.w), lineHeight = debugValue(frame.hHeight), bLineHeightTooSmall = count > 0 and frame.hHeight < minLineHeight}
+		end
+
+		--the lines measured since the last time this was called
+		local takeBuiltLines = function(frame)
+			local frameData = describeLines(frame, lineData[frame], lineCount[frame])
+			lineData[frame] = {}
+			lineCount[frame] = 0
+			return frameData
+		end
+
+		local readEdge = function(edge)
+			if (not edge) then
+				return "none"
+			end
+			return readSize(edge) .. "  shown " .. read(edge, "IsShown") .. "  alpha " .. read(edge, "GetAlpha") .. "  color " .. debugValue({edge:GetVertexColor()}) .. "  points: " .. readPoints(edge)
+		end
+
+		--finds the textures of the frame which are larger than the frame, whatever they are
+		local readOversizedRegions = function(frame)
+			local frameWidth, frameHeight = frame:GetWidth(), frame:GetHeight()
+			if (not isNumber(frameWidth) or not isNumber(frameHeight)) then
+				return "not checked, the frame size is secret"
+			end
+
+			local found = {}
+			for _, region in ipairs({frame:GetRegions()}) do
+				local width, height = region:GetWidth(), region:GetHeight()
+				if ((isNumber(width) and width > frameWidth + 10) or (isNumber(height) and height > frameHeight + 10)) then
+					found[#found+1] = debugValue(region) .. " " .. readEdge(region)
+				end
+			end
+			return #found > 0 and ("\n    " .. table.concat(found, "\n    ")) or "none"
+		end
+
+		--runs on the next frame, when the game finished positioning everything
+		local readLayout = function(entry)
+			for frameIndex, frame in ipairs({frame1, frame2}) do
+				local frameData = entry.frames[frameIndex]
+				local edges = frame.BorderEdgeTextures or {}
+				frameData.layout = {
+					"size " .. readSize(frame) .. "   left " .. read(frame, "GetLeft") .. " top " .. read(frame, "GetTop") .. " right " .. read(frame, "GetRight") .. " bottom " .. read(frame, "GetBottom"),
+					"shown " .. read(frame, "IsShown") .. " alpha " .. read(frame, "GetAlpha") .. " scale " .. read(frame, "GetScale") .. " effective scale " .. read(frame, "GetEffectiveScale") .. " strata " .. read(frame, "GetFrameStrata") .. " level " .. read(frame, "GetFrameLevel") .. " parent " .. debugValue(frame:GetParent()),
+					"points: " .. readPoints(frame),
+					"secrets: " .. readSecrets(frame),
+					"rounded corners: created " .. debugValue(frame.HaveRoundedCorners) .. "  turned off " .. debugValue(frame.disabled),
+					"edge top: " .. readEdge(edges.Top),
+					"edge bottom: " .. readEdge(edges.Bottom),
+					"edge left: " .. readEdge(edges.Left),
+					"edge right: " .. readEdge(edges.Right),
+					"last resize: " .. (lastResize[frame] or "none") .. "  (a secret value here makes the border keep its old size)  secret resizes " .. secretResizes[frame],
+					"textures larger than the frame: " .. readOversizedRegions(frame),
+					"backdrop: " .. debugValue(frame:GetBackdrop()),
+				}
+
+				local previousTop, previousBottom
+				for lineIndex = 1, frameData.count do
+					local line = frame.Lines[lineIndex]
+					local data = frameData.lines[lineIndex]
+					if (line and data) then
+						local top, bottom = line:GetTop(), line:GetBottom()
+						local gapText, pitchText = "nil", "nil"
+						if (isNumber(previousTop) and isNumber(previousBottom) and isNumber(top)) then
+							gapText = debugValue(previousBottom - top)
+							pitchText = debugValue(previousTop - top)
+						end
+						previousTop, previousBottom = top, bottom
+
+						data.layout = {
+							"after layout: line " .. readSize(line) .. "  top " .. debugValue(top) .. " bottom " .. debugValue(bottom) .. "  gap to previous line " .. gapText .. "  distance from previous top " .. pitchText .. "  shown " .. read(line, "IsShown"),
+							"statusbar " .. readSize(line.statusbar) .. "  leftText " .. readSize(line.leftText) .. "  rightText " .. readSize(line.rightText) .. "  leftIcon " .. readSize(line.leftIcon),
+							"points: " .. readPoints(line),
+							"secrets: line " .. readSecrets(line) .. "  statusbar " .. readSecrets(line.statusbar) .. "  leftText " .. readSecrets(line.leftText) .. "  rightText " .. readSecrets(line.rightText) .. "  leftIcon " .. readSecrets(line.leftIcon),
+						}
+					end
+				end
+			end
+		end
+
+		--once per frame no matter how many cooltips were built
+		local bUpdateScheduled = false
+		local updateOnNextFrame = function()
+			local entry = history[#history]
+			if (entry and not entry.bUnfinished) then
+				readLayout(entry)
+			end
+			refreshPanel()
+		end
+
+		local scheduleUpdate = function()
+			if (bUpdateScheduled) then
+				return
+			end
+			bUpdateScheduled = true
+			C_Timer.After(0, function()
+				bUpdateScheduled = false
+				xpcall(updateOnNextFrame, geterrorhandler())
+			end)
+		end
+
+		local renderEntry = function(entry)
+			local out = {
+				"build #" .. entry.id .. "  " .. entry.builder .. "  " .. entry.time .. "  combat " .. entry.combat,
+				"shown by " .. entry.caller .. "  host " .. entry.host .. "  preset " .. entry.preset,
+				entry.bUnfinished and "!! THIS BUILD STOPPED BEFORE THE END, an error happened while building it" or "",
+				"",
+				"cooltip values: " .. entry.fields,
+				"",
+				"line spacing options: " .. entry.spacing,
+				"",
+				"options not default:" .. (entry.bKnowsDefaults and "" or "   (defaults not known yet, showing all)"),
+			}
+			for _, text in ipairs(entry.options) do
+				out[#out+1] = "  " .. text
+			end
+
+			for _, frameData in ipairs(entry.frames) do
+				out[#out+1] = ""
+				out[#out+1] = "---- " .. frameData.name .. " ----  lines built " .. frameData.count
+				out[#out+1] = "at build: height used for each line " .. frameData.lineHeight .. "  width " .. frameData.width .. "  lines which used the default height " .. frameData.usedDefault .. " of " .. frameData.count .. (frameData.bLineHeightTooSmall and "  !! LINE HEIGHT UNDER " .. minLineHeight or "")
+				for _, text in ipairs(frameData.layout or {"after layout: not read"}) do
+					out[#out+1] = text
+				end
+
+				for lineIndex = 1, frameData.count do
+					local data = frameData.lines[lineIndex]
+					if (data) then
+						out[#out+1] = ""
+						out[#out+1] = "#" .. lineIndex .. " " .. data.built[1]
+						for builtIndex = 2, #data.built do
+							out[#out+1] = "   " .. data.built[builtIndex]
+						end
+						for _, text in ipairs(data.layout or {}) do
+							out[#out+1] = "   " .. text
+						end
+					end
+				end
+			end
+
+			return table.concat(out, "\n")
+		end
+
+		local readEntryInfo = function()
+			return {
+				time = date("%H:%M:%S"),
+				combat = debugValue(InCombatLockdown()),
+				caller = getCaller(),
+				host = debugValue(gameCooltip.Host),
+				preset = lastPreset,
+				fields = readFields(),
+				spacing = readSpacingOptions(),
+				options = readChangedOptions(),
+				bKnowsDefaults = defaultOptions ~= nil,
+			}
+		end
+
+		local addEntry = function(entry, builderName)
+			entry.id = nextEntryId
+			entry.builder = builderName
+			nextEntryId = nextEntryId + 1
+
+			history[#history+1] = entry
+			if (#history > maxHistory) then
+				table.remove(history, 1)
+				if (viewIndex) then
+					viewIndex = max(viewIndex - 1, 1)
+				end
+			end
+
+			scheduleUpdate()
+		end
+
+		local storeUnfinishedBuild = function(frame)
+			local entry = pendingInfo[frame] or readEntryInfo()
+			entry.bUnfinished = true
+			--a failed sub menu doesn't own the lines of the main frame
+			entry.frames = {frame == frame1 and takeBuiltLines(frame1) or describeLines(frame1, {}, 0), takeBuiltLines(frame2)}
+			addEntry(entry, "build did not finish")
+		end
+
+		--hook errors stay here and don't stop the cooltip
+		local hook = function(methodName, callback)
+			hooksecurefunc(gameCooltip, methodName, function(...)
+				xpcall(callback, geterrorhandler(), ...)
+			end)
+		end
+
+		hook("ClearAllOptions", function()
+			wipe(optionSources)
+		end)
+
+		hook("SetOption", function(_, optionName)
+			optionName = gameCooltip.AliasList[optionName] or optionName
+			if (gameCooltip.OptionsList[optionName]) then
+				optionSources[optionName] = getCaller()
+			end
+		end)
+
+		hook("Preset", function(_, presetId)
+			lastPreset = debugValue(presetId)
+		end)
+
+		hook("Reset", function(_, bFromPreset)
+			if (not bFromPreset) then
+				defaultOptions = readOptions()
+			end
+		end)
+
+		hook("TextAndIcon", function(_, lineIndex, frame, menuButton, leftTextSettings, rightTextSettings, leftIconSettings, rightIconSettings)
+			if (not lineData[frame]) then
+				return
+			end
+
+			--lines are built in order, a first line while lines are still stored means the last build stopped with an error
+			if (lineIndex == 1) then
+				if (lineCount[frame] > 0) then
+					storeUnfinishedBuild(frame)
+				elseif (frame == frame1 and lineCount[frame2] > 0) then
+					storeUnfinishedBuild(frame2)
+				end
+				pendingInfo[frame] = readEntryInfo()
+			end
+
+			local measuredHeight = menuButton.measuredHeight
+			local measuredText
+			if (measuredHeight == nil) then
+				measuredText = "sizes were secret, used the default height"
+			elseif (measuredHeight < minLineHeight) then
+				measuredText = "measured height " .. debugValue(measuredHeight) .. "  !! UNDER " .. minLineHeight
+			else
+				measuredText = "measured height " .. debugValue(measuredHeight)
+			end
+
+			local _, fontSize, fontFlags = menuButton.leftText:GetFont()
+			lineData[frame][lineIndex] = {
+				bUsedDefaultHeight = measuredHeight == nil,
+				built = {
+					"left " .. read(menuButton.leftText, "GetText") .. "  right " .. read(menuButton.rightText, "GetText"),
+					measuredText,
+					"at build: leftText " .. read(menuButton.leftText, "GetStringWidth") .. " x " .. read(menuButton.leftText, "GetStringHeight") .. "  rightText " .. read(menuButton.rightText, "GetStringWidth") .. " x " .. read(menuButton.rightText, "GetStringHeight") .. "  leftIcon " .. readSize(menuButton.leftIcon) .. "  rightIcon " .. readSize(menuButton.rightIcon) .. "  font size " .. debugValue(fontSize) .. " " .. debugValue(fontFlags) .. "  frame line height so far " .. debugValue(frame.hHeight),
+					"settings: left " .. debugValue(leftTextSettings) .. "  right " .. debugValue(rightTextSettings) .. "  leftIcon " .. debugValue(leftIconSettings) .. "  rightIcon " .. debugValue(rightIconSettings),
+				},
+			}
+			lineCount[frame] = max(lineCount[frame], lineIndex)
+		end)
+
+		local onBuilt = function(builderName)
+			local entry = readEntryInfo()
+			entry.frames = {takeBuiltLines(frame1), takeBuiltLines(frame2)}
+			addEntry(entry, builderName)
+		end
+
+		hook("BuildTooltip", function()
+			onBuilt("tooltip")
+		end)
+
+		hook("BuildCooltip", function()
+			--without lines it opened a tooltip saying there is no options, that tooltip already has its entry
+			if (lineCount[frame1] > 0) then
+				onBuilt("menu")
+			end
+		end)
+
+		--hovering a line opens the sub menu without building the cooltip again, so this updates the latest entry
+		hook("ShowSub", function()
+			--still building the main frame, the build hook takes these lines
+			if (lineCount[frame1] > 0 or lineCount[frame2] == 0) then
+				return
+			end
+
+			local entry = history[#history]
+			if (entry) then
+				entry.frames[2] = takeBuiltLines(frame2)
+				scheduleUpdate()
+			end
+		end)
+
+		--the same reads the rounded border does when deciding to keep its old size
+		for _, frame in ipairs({frame1, frame2}) do
+			frame:HookScript("OnSizeChanged", function(self)
+				xpcall(function()
+					local width, height = self:GetWidth(), self:GetHeight()
+					local _, cornerTexture = next(self.BorderCornerTextures or {})
+					local cornerHeight = cornerTexture and cornerTexture:GetHeight()
+					lastResize[self] = "width " .. debugValue(width) .. " height " .. debugValue(height) .. " corner height " .. debugValue(cornerHeight)
+					if (issecretvalue(width) or issecretvalue(height) or issecretvalue(cornerHeight)) then
+						secretResizes[self] = secretResizes[self] + 1
+					end
+				end, geterrorhandler())
+			end)
+		end
+
+		local panelWidth, panelHeight = 640, 700
+		local panel = CreateFrame("frame", "DetailsFrameworkCooltipDebugPanel", UIParent, "BackdropTemplate")
+		panel:SetSize(panelWidth, panelHeight)
+		panel:SetPoint("left", UIParent, "left", 20, 0)
+		panel:SetFrameStrata("HIGH")
+		panel:SetClampedToScreen(true)
+		panel:SetBackdrop(defaultBackdrop)
+		panel:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
+		panel:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+		panel:EnableMouse(true)
+		panel:SetMovable(true)
+		panel:RegisterForDrag("LeftButton")
+		panel:SetScript("OnDragStart", panel.StartMoving)
+		panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
+
+		local closeButton = CreateFrame("button", nil, panel, "UIPanelCloseButton")
+		closeButton:SetPoint("topright", panel, "topright", 0, 0)
+
+		local title = panel:CreateFontString(nil, "overlay", "GameFontNormal")
+		title:SetPoint("topleft", panel, "topleft", 10, -8)
+		title:SetText("Cooltip Debug")
+
+		local statusLabel = panel:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
+		statusLabel:SetPoint("left", title, "right", 12, 0)
+
+		local scrollFrame = CreateFrame("scrollframe", "DetailsFrameworkCooltipDebugPanelScroll", panel, "UIPanelScrollFrameTemplate")
+		scrollFrame:SetPoint("topleft", panel, "topleft", 8, -56)
+		scrollFrame:SetPoint("bottomright", panel, "bottomright", -30, 8)
+
+		local textBox = CreateFrame("editbox", nil, scrollFrame)
+		textBox:SetSize(panelWidth - 44, panelHeight - 70)
+		textBox:SetMultiLine(true)
+		textBox:SetAutoFocus(false)
+		textBox:SetFontObject("GameFontHighlightSmall")
+		textBox:SetJustifyH("left")
+		textBox:SetScript("OnEscapePressed", textBox.ClearFocus)
+		textBox:SetScript("OnEditFocusLost", function()
+			refreshPanel()
+		end)
+		--read only, what is typed is thrown away
+		textBox:SetScript("OnTextChanged", function(self, bUserInput)
+			if (bUserInput) then
+				self:SetText(currentText)
+			end
+		end)
+		scrollFrame:SetScrollChild(textBox)
+
+		refreshPanel = function()
+			if (not panel:IsShown()) then
+				return
+			end
+
+			--while selecting text to copy, the text and the label stay on the build being copied
+			if (textBox:HasFocus()) then
+				return
+			end
+
+			local index = viewIndex or #history
+			local entry = history[index]
+			currentText = entry and renderEntry(entry) or "open a cooltip or a menu"
+			textBox:SetText(currentText)
+			statusLabel:SetText(entry and ((viewIndex and "holding build #" or "following latest, build #") .. entry.id .. "  (" .. index .. " of " .. #history .. ")") or "waiting for the first cooltip")
+		end
+
+		local createButton = function(text, width, previousButton, onClick)
+			local button = CreateFrame("button", nil, panel, "UIPanelButtonTemplate")
+			button:SetSize(width, 20)
+			button:SetText(text)
+			button:SetScript("OnClick", function()
+				onClick()
+				refreshPanel()
+			end)
+			if (previousButton) then
+				button:SetPoint("left", previousButton, "right", 4, 0)
+			else
+				button:SetPoint("topleft", panel, "topleft", 8, -30)
+			end
+			return button
+		end
+
+		local olderButton = createButton("Older", 70, nil, function()
+			textBox:ClearFocus()
+			viewIndex = max((viewIndex or #history) - 1, 1)
+		end)
+
+		local newerButton = createButton("Newer", 70, olderButton, function()
+			textBox:ClearFocus()
+			if (viewIndex) then
+				viewIndex = min(viewIndex + 1, #history)
+			end
+		end)
+
+		local latestButton = createButton("Latest", 70, newerButton, function()
+			textBox:ClearFocus()
+			viewIndex = nil
+		end)
+
+		createButton("Select All", 90, latestButton, function()
+			textBox:ClearFocus()
+			refreshPanel()
+			textBox:SetFocus()
+			textBox:HighlightText()
+		end)
+
+		refreshPanel()
 	end
 
 	return gameCooltip
