@@ -208,6 +208,7 @@ function Details222.CreateAllDisplaysFrame()
 		if (not allDisplaysFrame.already_built) then
 			local x, y = 8, -8
 			allDisplaysFrame.higher_counter = 0
+			allDisplaysFrame.most_rows_added = 0
 			local doNothingFunction = function()end
 
 			for attribute = 1, Details.atributos[0] do
@@ -263,6 +264,10 @@ function Details222.CreateAllDisplaysFrame()
 
 				if (#Details.sub_atributos [attribute].lista > allDisplaysFrame.higher_counter) then
 					allDisplaysFrame.higher_counter = #Details.sub_atributos [attribute].lista
+				end
+
+				if (amountAdded > allDisplaysFrame.most_rows_added) then
+					allDisplaysFrame.most_rows_added = amountAdded
 				end
 
 				if amountAdded > 0 then
@@ -408,7 +413,8 @@ function Details222.CreateAllDisplaysFrame()
 		end
 
 		if detailsFramework.IsAddonApocalypseWow() then
-			allDisplaysFrame:SetHeight((5 * 17) + 20 + 16)
+			--higher_counter also counts the displays not supported here, use the rows that were really added
+			allDisplaysFrame:SetHeight((math.max(allDisplaysFrame.most_rows_added, button_index) * 17) + 20 + 16)
 		else
 			allDisplaysFrame:SetHeight((allDisplaysFrame.higher_counter * 17) + 20 + 16)
 		end

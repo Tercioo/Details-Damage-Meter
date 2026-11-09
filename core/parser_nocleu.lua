@@ -69,6 +69,10 @@ function bParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
     --handle nich cases
     if (mainDisplay == 2 and subDisplay == 8) then --heal potions
         displayType = -10
+    elseif (mainDisplay == 1 and subDisplay == 10) then --my spells, damage
+        displayType = DETAILS_SUBATTRIBUTE_DAMAGEMYSPELLS
+    elseif (mainDisplay == 2 and subDisplay == 9) then --my spells, healing
+        displayType = DETAILS_SUBATTRIBUTE_HEALMYSPELLS
     end
 
     if not displayType then
@@ -129,11 +133,97 @@ local onEvent = function(event, instance, ...)
     end
 end
 
+--my spells displays: which damage meter type holds the spell list of each display
+local mySpellsDamageMeterType = {
+    [DETAILS_SUBATTRIBUTE_DAMAGEMYSPELLS] = 0, --damage done
+    [DETAILS_SUBATTRIBUTE_HEALMYSPELLS] = 2, --healing done
+}
+
 function Details222.BParser.IsCustomAttribute(attributeId)
-    if attributeId == -10 then --potion usage
+    if attributeId == -10 or mySpellsDamageMeterType[attributeId] then --potion usage, my spells
         return true
     end
     return false
+end
+
+---build a session where each source is a spell of the local player, in the order the game delivers them
+---this runs in combat when the amounts and the spell names are secrets, so they are only passed along and never compared
+---@param instance instance
+---@param damageMeterType damagemeter_type
+---@return damagemeter_combat_session
+local getMySpellsSession = function(instance, damageMeterType)
+    local session = {
+        combatSources = {},
+        maxAmount = 0,
+        totalAmount = 0,
+        durationSeconds = 1,
+    }
+
+    local combat
+    local segmentType, segmentId = instance:GetSegmentType(), instance:GetNewSegmentId()
+    if segmentType > 1 then
+        combat = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_ID, segmentId, damageMeterType)
+    else
+        combat = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, segmentType, damageMeterType)
+    end
+
+    local playerSource
+    for i = 1, #combat.combatSources do
+        if combat.combatSources[i].isLocalPlayer then
+            playerSource = combat.combatSources[i]
+            break
+        end
+    end
+
+    if not playerSource then
+        return session
+    end
+
+    local isPlayer = true
+    local spells = Details222.BParser.GetSpells(segmentType, segmentId, damageMeterType, playerSource.sourceGUID, isPlayer)
+
+    session.maxAmount = spells.maxAmount
+    session.totalAmount = spells.totalAmount
+    session.durationSeconds = combat.durationSeconds
+
+    for i = 1, #spells.combatSpells do
+        local thisSpell = spells.combatSpells[i]
+        local spellInfo = C_Spell.GetSpellInfo(thisSpell.spellID)
+        local spellName = spellInfo and spellInfo.name or "Unknown Spell"
+        local creatureName = thisSpell.creatureName
+
+        --spells of pets and guardians are separated entries, add the creature name to tell them from the spells of the player
+        if issecretvalue(creatureName) then
+            if playerSource.classFilename == "HUNTER" then
+                spellName = spellName .. " (" .. creatureName .. ")"
+            end
+        elseif creatureName and creatureName ~= "" then
+            spellName = spellName .. " (" .. creatureName .. ")"
+        end
+
+        session.combatSources[i] = {
+            name = spellName,
+            sourceGUID = playerSource.sourceGUID,
+            isLocalPlayer = true,
+            classFilename = playerSource.classFilename,
+            specIconID = playerSource.specIconID,
+            deathRecapID = 0,
+            deathTimeSeconds = 0,
+            sourceCreatureID = playerSource.sourceCreatureID,
+            classification = playerSource.classification,
+            totalAmount = thisSpell.totalAmount,
+            amountPerSecond = thisSpell.amountPerSecond,
+
+            isSpellRow = true,
+            spellIcon = spellInfo and spellInfo.iconID or 136243, --question mark
+            spell = thisSpell,
+            spellsTotalAmount = spells.totalAmount,
+            playerSource = playerSource,
+            breakdownAttributeId = damageMeterType,
+        }
+    end
+
+    return session
 end
 
 ---@param instance instance
@@ -141,6 +231,15 @@ end
 ---@param sourcePlayer damagemeter_combat_source
 function Details222.BParser.GetCustomDataForTooltip(instance, attributeId, sourcePlayer)
     if Details222.BParser.IsCustomAttribute(attributeId) then --can be potion usage
+        if mySpellsDamageMeterType[attributeId] then --each bar is a single spell
+            local spell = sourcePlayer.spell
+            return {
+                maxAmount = spell.totalAmount,
+                totalAmount = sourcePlayer.spellsTotalAmount,
+                combatSpells = {spell},
+            }
+        end
+
         if attributeId == -10 then --potion usage
             local serial = Details222.BParser.GetSerial(sourcePlayer)
             ---@type damagemeter_unit_spells
@@ -172,6 +271,10 @@ end
 ---@param attributeId attributeid
 function Details222.BParser.GetCustomDataForWindow(instance, attributeId)
     if Details222.BParser.IsCustomAttribute(attributeId) then
+        if mySpellsDamageMeterType[attributeId] then
+            return getMySpellsSession(instance, mySpellsDamageMeterType[attributeId])
+        end
+
         if attributeId == -10 then --potion usage
             local session = {
                 combatSources = {},

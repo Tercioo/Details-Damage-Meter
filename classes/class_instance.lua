@@ -3430,14 +3430,15 @@ function Details:MontaAtributosOption (instancia, func)
 			for o = 1, atributos [i] do
 				local mainDisplay, subDisplay = i, o
 				local damageMeterType = Details222.BParser.GetAttributeTypeFromDisplay(mainDisplay, subDisplay)
+				local iconTexture, iconCoords = unpack(sub_atributos[i].icones[o])
 
 				if (Details:CaptureIsEnabled ( Details.atributos_capture [gindex] ) and damageMeterType < 100) then
 					CoolTip:AddMenu (2, func, true, i, o, options[o], nil, true)
-					CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
+					CoolTip:AddIcon (iconTexture, 2, 1, 20, 20, iconCoords[1], iconCoords[2], iconCoords[3], iconCoords[4])
 				else
 					CoolTip:AddLine(options[o], nil, 2, .5, .5, .5, 1)
 					CoolTip:AddMenu (2, doNothingFunction, true, i, o)
-					CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
+					CoolTip:AddIcon (iconTexture, 2, 1, 20, 20, iconCoords[1], iconCoords[2], iconCoords[3], iconCoords[4], {.3, .3, .3, 1})
 				end
 
 				gindex = gindex + 1

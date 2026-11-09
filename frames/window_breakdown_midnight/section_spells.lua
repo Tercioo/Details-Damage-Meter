@@ -590,6 +590,8 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     local dontAdd = {
         [1] = true,
         [3] = true,
+        [DETAILS_SUBATTRIBUTE_DAMAGEMYSPELLS] = true,
+        [DETAILS_SUBATTRIBUTE_HEALMYSPELLS] = true,
     }
 
     ---@class detailsbreakdownmidnight_attributebutton : button

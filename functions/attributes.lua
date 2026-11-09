@@ -17,6 +17,7 @@ do
 		--[[global]] DETAILS_SUBATTRIBUTE_VOIDZONES = 7
 		--[[global]] DETAILS_SUBATTRIBUTE_BYSPELLS = 8
 		--[[global]] DETAILS_SUBATTRIBUTE_AVOIDABLE = 9
+		--[[global]] DETAILS_SUBATTRIBUTE_DAMAGEMYSPELLS = -11
 
 	--[[global]] DETAILS_ATTRIBUTE_HEAL = 2
 	
@@ -28,6 +29,7 @@ do
 		--[[global]] DETAILS_SUBATTRIBUTE_HEALPREVENTED = 6
 		--[[global]] DETAILS_SUBATTRIBUTE_HEALABSORBED = 7
 		--[[global]] DETAILS_SUBATTRIBUTE_HEALPOTION = -10
+		--[[global]] DETAILS_SUBATTRIBUTE_HEALMYSPELLS = -12
 	
 	--[[global]] DETAILS_ATTRIBUTE_ENERGY = 3
 	
@@ -254,7 +256,32 @@ do
 			internal = {"cc_break", "ress", "interrupt", "dispell", "dead", "cooldowns_defensive", "buff_uptime", "debuff_uptime"}
 		}
 	}
-	
+
+	--the displays listing the spells of the local player only exist when the data comes from the game damage meter
+	if (DetailsFramework.IsAddonApocalypseWow()) then
+		local iconCoords = {0.078125, 0.921875, 0.078125, 0.921875}
+
+		local damageDisplays = _detalhes.sub_atributos[1]
+		_detalhes.atributos[1] = 10
+		damageDisplays.my_spells = 10
+		damageDisplays.lista[10] = Loc ["STRING_ATTRIBUTE_DAMAGE_MYSPELLS"]
+		damageDisplays.icones[10] = {"Interface\\ICONS\\Spell_Fire_Fireball02", iconCoords}
+		damageDisplays.internal[10] = "my_spells"
+
+		local healingDisplays = _detalhes.sub_atributos[2]
+		_detalhes.atributos[2] = 9
+		healingDisplays.my_spells = 9
+		healingDisplays.lista[9] = Loc ["STRING_ATTRIBUTE_HEAL_MYSPELLS"]
+		healingDisplays.icones[9] = {"Interface\\ICONS\\Spell_Holy_FlashHeal", iconCoords}
+		healingDisplays.internal[9] = "my_spells"
+
+		--keep one capture entry per display, the menu walks this list with a single index across all attributes
+		table.insert(_detalhes.atributos_capture, 9, "damage") --avoidable damage taken
+		table.insert(_detalhes.atributos_capture, 10, "damage") --my spells
+		table.insert(_detalhes.atributos_capture, 18, "heal") --potions
+		table.insert(_detalhes.atributos_capture, 19, "heal") --my spells
+	end
+
 	function _detalhes:GetAttributeName (attribute)
 		return _detalhes.atributos.lista [attribute]
 	end

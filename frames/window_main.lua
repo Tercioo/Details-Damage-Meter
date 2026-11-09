@@ -1186,9 +1186,17 @@ local lineScript_Onmouseup = function(self, button)
 						return
 					end
 
+					local sourceData = instanceLine.sourceData
+
+					--a my spells bar is a spell, not a player: open the breakdown of the local player on the regular display
+					if (sourceData and sourceData.isSpellRow) then
+						damageMeterType = sourceData.breakdownAttributeId
+						sourceData = sourceData.playerSource
+					end
+
 					--open apocalypse breakdown at window index 1
 					local windowIndex = 1
-					Details.OpenApocalypseBreakdown(windowIndex, instanceObject, segmentType, newSegmentId, damageMeterType, instanceLine.sourceData)
+					Details.OpenApocalypseBreakdown(windowIndex, instanceObject, segmentType, newSegmentId, damageMeterType, sourceData)
 					return
 				else
 					return Details:Msg("this bar is waiting update.")
@@ -1239,7 +1247,7 @@ local iconFrame_OnEnter = function(self)
 	local actor = instanceLine.minha_tabela
 
 	if not actor then
-		if instanceLine.sourceData and not Details222.Apocalypse.IsServerInCombat() then
+		if instanceLine.sourceData and not instanceLine.sourceData.isSpellRow and not Details222.Apocalypse.IsServerInCombat() then
 			if issecretvalue(instanceLine.sourceData.name) then
 				--print("instanceLine.sourceData.name is secret, not showing tooltip")
 				return
