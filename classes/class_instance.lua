@@ -2395,7 +2395,8 @@ function Details:SwitchTo (switch_table, nosave)
 			Details.RaidTables:EnableRaidMode (self, switch_table [2])
 		else
 			local plugin = Details:GetPlugin (plugin_global_name)
-			Details:Msg("Auto Switch: a window is already showing " .. (plugin.__name or "" .. ", please review your switch config."))
+			local pluginName = plugin and plugin.__name or plugin_global_name or ""
+			Details:Msg("Auto Switch: a window is already showing " .. pluginName .. ", please review your switch config.")
 		end
 	else
 		--muda para um atributo normal
