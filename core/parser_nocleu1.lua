@@ -3204,6 +3204,33 @@ local startSessionClosureTimer = function()
     end)
 end
 
+--Automation (auto switch) options: in Blizzard API mode Details222.StartCombat and Details:SairDoCombate
+--are not called for ordinary fights, so the switch checks they would run are triggered from here instead
+local checkSwitchOnCombatStart = function()
+    if not Details:IsUsingBlizzardAPI() then
+        return
+    end
+    for _, instance in ipairs(Details:GetAllInstances()) do
+        if instance.ativa then
+            instance:CheckSwitchOnCombatStart()
+        end
+    end
+end
+
+local checkSwitchOnCombatEnd = function()
+    if not Details:IsUsingBlizzardAPI() then
+        return
+    end
+    if UnitAffectingCombat("player") or isInEncounter() then
+        return
+    end
+    for _, instance in ipairs(Details:GetAllInstances()) do
+        if instance.ativa and instance.auto_switch_to_old then
+            instance:CheckSwitchOnCombatEnd()
+        end
+    end
+end
+
 local checkPlayerInCombatTicker
 
 local stopCheckingNoPlayerInCombat = function()
@@ -3218,6 +3245,7 @@ local checkNoPlayerInCombat = function()
         stopCheckingNoPlayerInCombat()
         if not isInEncounter() then
             --well, the combat might have gone
+            checkSwitchOnCombatEnd()
             bParser.WaitServerDropCombat(parseSegments)
         end
     end
@@ -3788,6 +3816,8 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
             end
         end
 
+        checkSwitchOnCombatEnd()
+
         local hasSecret = isServerSideSessionOpen()
         if hasSecret then
             bParser.WaitServerDropCombat(parseSegments)
@@ -3847,6 +3877,8 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         if Details:IsUsingBlizzardAPI() then
             Details:CheckSwitchToCurrent()
         end
+
+        checkSwitchOnCombatStart()
 
         targetGUID = nil
         local currentPlayerTargetGUID = UnitGUID("target")
@@ -3913,6 +3945,9 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
                     Details:InstanceCall(Details.ShowLastBoss)
                 end
             end)
+
+            --PLAYER_REGEN_ENABLED skips the switch while the encounter is in progress (e.g. player died mid-fight)
+            C_Timer.After(0.5, checkSwitchOnCombatEnd)
         end
 
         local session = getSegmentInfoFromCache(latestEncounterSessionId)
