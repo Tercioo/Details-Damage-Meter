@@ -749,7 +749,7 @@ function DropDownMetaFunctions:Selected(thisOption)
 	if (overrideFont) then
 		self.label:SetFont(overrideFont, 10)
 
-	elseif (thisOption.font and not self.isSimpleHeader) then
+	elseif (thisOption.font and thisOption.font ~= "" and not self.isSimpleHeader) then
 		self.label:SetFont(thisOption.font, 10)
 
 	else
@@ -1029,7 +1029,7 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 					if (overrideFont) then
 						thisOptionFrame.label:SetFont(overrideFont, 10.5)
 
-					elseif (thisOption.font) then
+					elseif (thisOption.font and thisOption.font ~= "") then
 						thisOptionFrame.label:SetFont(thisOption.font, 10.5)
 
 					else
