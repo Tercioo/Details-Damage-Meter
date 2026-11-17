@@ -289,6 +289,12 @@ function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName) --~tar
     local actors = Details222.B.GetSegment(segmentType <= 1 and "Type" or "ID", segmentType <= 1 and segmentType or segmentId, 10)
     --dumpt(actors)
     local targets = {}
+
+    --a secret actor name cannot be compared with the names below, there is nothing to match
+    if (issecretvalue(actorName)) then
+        return targets
+    end
+
     for i = 1, #actors.combatSources do
         local thisActor = actors.combatSources[i]
         local id = thisActor.sourceCreatureID
@@ -300,7 +306,7 @@ function breakdownMidnight.LoadTargets(segmentType, segmentId, actorName) --~tar
                 local thisResult = result[j]
                 local spellDetails = thisResult.combatSpellDetails
                 local playerName = spellDetails.unitName
-                if playerName == actorName then
+                if not issecretvalue(playerName) and playerName == actorName then
                     local percent = thisResult.totalAmount / thisActor.totalAmount * 100
                     local dps = thisResult.amountPerSecond
                     dps = breakdownMidnight.FixUnderOneValue(dps)
