@@ -2252,7 +2252,9 @@ do
 ---@param bExportData boolean
 function damageClass:RefreshWindow(instance, combatObject, bForceUpdate, bExportData) --~refresh  | self is not used
 	if detailsFramework.IsAddonApocalypseWow() then
-		if Details:IsUsingBlizzardAPI(instance) then
+		--plugins (like Encounter Details) call this function with an empty table instead of a window, to reuse the data processing below.
+		--that is not a window, there is nothing to update on it, so it must not go to the window updater.
+		if type(instance.GetMode) == "function" and Details:IsUsingBlizzardAPI(instance) then
 			--will it double the call because the regular refresh is also running?
 			Details222.BParser.UpdateAppocalypse(instance, bForceUpdate)
 			return
@@ -2282,7 +2284,7 @@ function damageClass:RefreshWindow(instance, combatObject, bForceUpdate, bExport
 		return Details:HideBarsNotInUse(instance, damageContainer), "", 0, 0
 	end
 
-	if detailsFramework.IsAddonApocalypseWow() then
+	if detailsFramework.IsAddonApocalypseWow() and instance.CheckForSecretsAndAspects then
 		instance:CheckForSecretsAndAspects()
 	end
 
