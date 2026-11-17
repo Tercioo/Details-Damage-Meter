@@ -1249,7 +1249,7 @@ function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize, bInclud
 	table.sort(fontTable, function(t1, t2) return t1.label < t2.label end)
 
 	if (bIncludeDefault) then
-		table.insert(fontTable, 1, {value = "DEFAULT", label = "DEFAULT", onclick = onClick, icon = icon, iconsize = iconSize, texcoord = iconTexcoord, font = "", descfont = "abcdefg ABCDEFG"})
+		table.insert(fontTable, 1, {value = "DEFAULT", label = "DEFAULT", onclick = onClick, icon = icon, iconsize = iconSize, texcoord = iconTexcoord, descfont = "abcdefg ABCDEFG"})
 	end
 
 	return fontTable
