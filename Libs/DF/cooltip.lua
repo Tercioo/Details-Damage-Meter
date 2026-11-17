@@ -285,6 +285,21 @@ function DF:CreateCoolTip()
 		self:SetSize(500, 500)
 		self:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 
+		--the cooltip can be anchored to a frame with secret geometry (like a Details bar), which makes the size of this frame secret.
+		--the BackdropTemplate OnSizeChanged script does math with the frame size and errors out if it's secret, skip it in that case.
+		if (not self.bSecretSafeBackdropSize) then
+			self.bSecretSafeBackdropSize = true
+			local blizzardOnSizeChanged = self:GetScript("OnSizeChanged")
+			if (blizzardOnSizeChanged) then
+				self:SetScript("OnSizeChanged", function(frame, ...)
+					if (issecretvalue(frame:GetWidth()) or issecretvalue(frame:GetHeight())) then
+						return
+					end
+					return blizzardOnSizeChanged(frame, ...)
+				end)
+			end
+		end
+
 		if (not self.HaveRoundedCorners) then
 			self:SetBackdrop(nil)
 			DF:AddRoundedCornersToFrame(self, gameCooltip.RoundedFramePreset)
