@@ -107,6 +107,8 @@ local buildSnapOptions = function()
 		space_between_horizontal = tonumber(Details.grouping_horizontal_gap) or 0,
 		space_between_vertical = 0,
 		restore_size_on_unsnap = false,
+		--profile option: grouped windows keep their own size instead of taking the size of the window they link to
+		match_sizes = not (Details.profile_save_pos and Details.profile_keep_window_sizes),
 		on_links_changed = function()
 			windowSnap.ExportLinks()
 		end,
@@ -270,7 +272,8 @@ end
 
 ---loads the links stored in instance.snap into the snap group. used after a profile or the character
 ---layout was applied: every window already sits at its saved spot, the groups are rebuilt around the
----window with the lowest id of each group so nothing moves
+---window with the lowest id of each group so nothing moves, unless the option to keep the size of grouped windows
+---is on and the windows have different sizes: they are centered on the side they share, so they can shift
 function windowSnap.ImportLayout()
 	snapGroup:SetOptionsTable(buildSnapOptions())
 	normalizeSavedLinks()

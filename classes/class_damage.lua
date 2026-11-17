@@ -1846,9 +1846,22 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 
 	local baseframe = instanceObject.baseframe
 	baseframe.reportData = session
-
 	---@type damagemeter_combat_source[]
 	local combatSources = session.combatSources
+
+	local attributeId = instanceObject:GetAttributeType()
+	if attributeId == 9 and combatSources then
+		combatSources = detailsFramework.table.reverse(combatSources)
+		for i = #combatSources, 1, -1 do
+			local thisPlayerDeath = combatSources[i]
+			if not issecretvalue(thisPlayerDeath.deathRecapID) then
+				if not thisPlayerDeath.deathRecapID or thisPlayerDeath.deathRecapID <= 0 then
+					table.remove(combatSources, i)
+				end
+			end
+		end
+	end
+
 	if not combatSources or #combatSources == 0 then
 		--review is this is really necessary
 		---@type combat
@@ -1859,17 +1872,6 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 		instanceObject.rows_showing = 0
 
 		return Details:HideBarsNotInUse(instanceObject, damageContainer, 0.01), "", 0, 0
-	end
-
-	local attributeId = instanceObject:GetAttributeType()
-	if attributeId == 9 then
-		combatSources = detailsFramework.table.reverse(combatSources)
-		for i = #combatSources, 1, -1 do
-			local thisPlayerDeath = combatSources[i]
-			if thisPlayerDeath.deathRecapID == -1 then
-				--table.remove(combatSources, i)
-			end
-		end
 	end
 
     ---@type attributeid, attributeid
@@ -3398,20 +3400,24 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 		elseif (subDisplay == DETAILS_SUBATTRIBUTE_DEATH) then
 			local ruleToUse = -1 --total
 			--print("instanceLine.deathTime is secret:", issecretvalue(instanceLine.deathTime))
+
 			local timeOfDeath = instanceLine.deathTime
 			if not issecretvalue(instanceLine.deathTime) then
 				timeOfDeath = detailsFramework:IntegerToTimer(instanceLine.deathTime)
 			else
 				--waiting a solution from blizzard
+				timeOfDeath = "??"
 			end
+
 			local recapId = instanceLine.deathRecapId
-			if recapId == -1 and instanceLine.classFilename == "HUNTER" then
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
-				format("%s (*?*)", timeOfDeath, recapId), nil, nil, ruleToUse)
+			if type(recapId) == "number" and recapId <= 0 then
+				--Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
+				--format("%s (*?*)", timeOfDeath, recapId), nil, nil, ruleToUse)
 			else
 				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
 				format("%s", timeOfDeath), nil, nil, ruleToUse)
 			end
+
 			instanceLine.statusbar:SetMinMaxValues(0, 100)
 			instanceLine.statusbar:SetValue(100)
 			--percentNumber = math.floor((deathsTotal/instanceObject.top) * 100)

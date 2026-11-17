@@ -120,7 +120,7 @@ local registerPreviewObjects = function(previewInstance)
 
 	for index, registration in ipairs(Details222.OptionsDesignerObjects:GetRegistrations(previewInstance)) do
 		--RegisterObject deploys onto the options table it is passed, so each registration gets its own
-		local objectOptions = {can_move = false, use_colon = true}
+		local objectOptions = {can_move = false}
 
 		editorFrame:RegisterObject(
 			registration.Object,

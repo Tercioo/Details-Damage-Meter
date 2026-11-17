@@ -66,6 +66,7 @@ local SNAP_DEFAULT_OPTIONS = {
     space_between_horizontal = 0, --UIParent units left empty between two frames snapped side by side
     space_between_vertical = 0, --UIParent units left empty between two frames snapped on top of each other
     restore_size_on_unsnap = true, --unsnapping a frame gives it back the size it had before its first snap
+    match_sizes = true,         --false: linking and re-chaining a cluster leaves every frame at its own size, the frames are only re-anchored (centered on the shared side)
     clamp_cluster = true,       --while dragging a cluster, keep the whole cluster inside the screen
     on_links_changed = nil,     --function(snapGroup) called after links are created or removed
     on_drag_cancelled = nil,    --function(snapGroup, frame) called when a drag ends without StopDrag (frame hidden or unregistered)
@@ -562,7 +563,8 @@ end
 
 --applies a snap anchor between a child frame and its parent: a single SetPoint at the midpoint of
 --the connecting side, plus an explicit SetHeight/SetWidth that matches the child's outer size to the
---parent's along the shared side. used uniformly at rest and during drag, because:
+--parent's along the shared side (skipped when options.match_sizes is false, the frames are then only
+--centered on the shared side and keep their own size). used uniformly at rest and during drag, because:
 -- (a) Blizzard's StartMoving propagates position reliably with one anchor per child but not two,
 --     so the cluster has to stay single-anchored to be draggable as a unit.
 -- (b) the explicit size match keeps the connecting edges flush at both ends, giving the two-anchor
@@ -575,11 +577,13 @@ local snapApplyAnchor = function(group, childData, parentData, childSide, parent
     local parentFrame = parentData.Frame
 
     childFrame:ClearAllPoints()
-    local matchedSize = snapGetMatchedSize(childData, parentData, SNAP_AXIS[childSide])
-    if (SNAP_AXIS[childSide] == "x") then
-        childFrame:SetHeight(matchedSize)
-    else
-        childFrame:SetWidth(matchedSize)
+    if (group.options.match_sizes) then
+        local matchedSize = snapGetMatchedSize(childData, parentData, SNAP_AXIS[childSide])
+        if (SNAP_AXIS[childSide] == "x") then
+            childFrame:SetHeight(matchedSize)
+        else
+            childFrame:SetWidth(matchedSize)
+        end
     end
 
     local offsetX, offsetY = snapGetAnchorOffsets(group, childData, parentData, childSide)

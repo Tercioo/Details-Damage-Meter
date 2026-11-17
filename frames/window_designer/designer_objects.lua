@@ -278,6 +278,15 @@ end
 local applyOnRedraw = function(instanceObject)
 end
 
+--the editor also runs this when it builds the menu, with the value unchanged, so it stays out of the way while a
+--performance profile decides whether the bars animate. the saved value takes over when that profile ends
+---@param instanceObject instance
+local applyBarAnimation = function(instanceObject)
+	if (not Details:HavePerformanceProfileEnabled()) then
+		Details:SetUseAnimations(Details.use_row_animations)
+	end
+end
+
 --bar icons
 --the arena role icon and its size share one setter, so both are passed every time
 ---@param instanceObject instance
@@ -1462,6 +1471,7 @@ local buildBarsRegistration = function(previewInstance)
 		Object = collectBarWidgets(previewInstance, "statusbar"),
 		profileKeyMap = FRAME_KEY_MAP,
 		extraOptions = {
+			asGlobalSetting(option("use_row_animations", "toggle", Loc["STRING_OPTIONS_ANIMATEBARS"], applyBarAnimation, Loc["STRING_OPTIONS_ANIMATEBARS_DESC"])),
 			withRange(option("row_info.height", "range", Loc["STRING_OPTIONS_BAR_HEIGHT"], applyBarHeight, Loc["STRING_OPTIONS_BAR_HEIGHT_DESC"]), 10, 30, 1),
 			withRange(option("row_info.space.between", "range", Loc["STRING_OPTIONS_BAR_SPACING"], applyBarSpacing, Loc["STRING_OPTIONS_BAR_SPACING_DESC"]), -2, 10, 0.1, true),
 			withList(option("row_info.texture", "select", Loc["STRING_TEXTURE"], applyBarTexture, Loc["STRING_OPTIONS_BAR_TEXTURE_DESC"]), buildStatusBarTextureList),

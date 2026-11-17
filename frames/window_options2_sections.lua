@@ -305,17 +305,6 @@ do
 
         local sectionOptions = {
             {type = "label", get = function() return Loc ["STRING_OPTIONS_GENERAL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-            {--animate bars
-                type = "toggle",
-                get = function() return Details.use_row_animations end,
-                set = function(self, fixedparam, value)
-                    Details:SetUseAnimations(value)
-                    afterUpdate(getInstance())
-                end,
-                name = Loc ["STRING_OPTIONS_ANIMATEBARS"],
-                desc = Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"],
-                boxfirst = true,
-            },
             {--scroll speed
                 type = "range",
                 get = function() return Details.scroll_speed end,
@@ -2696,10 +2685,24 @@ do
                 set = function(self, fixedparam, value)
                     Details.profile_save_pos = value
                     Details:SetProfileCProp (nil, "profile_save_pos", value)
+                    Details222.WindowSnap.RefreshOptions()
                     afterUpdate(getInstance())
                 end,
                 name = Loc ["STRING_OPTIONS_PROFILE_POSSIZE"],
                 desc = Loc ["STRING_OPTIONS_PROFILE_POSSIZE_DESC"],
+            },
+
+            {--keep the size of each grouped window
+                type = "toggle",
+                get = function() return Details.profile_keep_window_sizes end,
+                set = function(self, fixedparam, value)
+                    Details.profile_keep_window_sizes = value
+                    Details:SetProfileCProp (nil, "profile_keep_window_sizes", value)
+                    Details222.WindowSnap.RefreshOptions()
+                    afterUpdate(getInstance())
+                end,
+                name = Loc ["STRING_OPTIONS_PROFILE_KEEPSIZES"],
+                desc = Loc ["STRING_OPTIONS_PROFILE_KEEPSIZES_DESC"],
             },
 
             {type = "blank"},

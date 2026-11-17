@@ -174,6 +174,7 @@ Used with `CreateSnapGroup` (and `SetOptionsTable`). Any field not provided fall
 | `space_between_horizontal` | `number` | `0` | UIParent units left empty between two frames snapped side by side. |
 | `space_between_vertical` | `number` | `0` | UIParent units left empty between two frames snapped on top of each other. |
 | `restore_size_on_unsnap` | `boolean` | `true` | Unsnapping gives a frame back the size it had before its first snap. |
+| `match_sizes` | `boolean` | `true` | Linking or re-chaining a cluster resizes each frame to the outer size of the frame it is anchored to. `false` leaves every frame at its own size; the frames are only re-anchored, centered on the shared side. Resizing a frame by hand still gives its row or column the same size. |
 | `clamp_cluster` | `boolean` | `true` | While a frame clamped to the screen is dragged, its clamp rect covers its whole cluster (outer rects included); the frame's own clamp insets are given back on drop. |
 | `on_links_changed` | `function(snapGroup)` | `nil` | Called after links are created or removed (drop, `Link`, `Unlink`, `Unsnap`, `SetProfileTable`). Held during batches. |
 | `on_drag_cancelled` | `function(snapGroup, frame)` | `nil` | Called when a drag ends without `StopDrag` (the dragged frame was hidden or unregistered). |

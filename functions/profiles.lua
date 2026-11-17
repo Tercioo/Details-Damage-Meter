@@ -1012,6 +1012,7 @@ local default_profile = {
 		standard_skin = false,
 		skin = "Minimalistic",
 		profile_save_pos = true,
+		profile_keep_window_sizes = false,
 		options_group_edit = true,
 
 		chat_tab_embed = {
