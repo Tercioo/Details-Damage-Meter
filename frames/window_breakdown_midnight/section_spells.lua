@@ -351,6 +351,7 @@ local refreshFunc = function(self, data, offset, totalLines)
     local header = self:GetHeader()
 
     if #data == 0 then
+        self.NoDataText:SetText(Details222.BParser.GetNoDataReason(windowFrame:GetPlayerObject()))
         self.NoDataPanel:Show()
     else
         self.NoDataPanel:Hide()
@@ -542,7 +543,9 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     local noDataPanel = CreateFrame("frame", "$parentNoDataPanel", spellScroll)
     noDataPanel:SetAllPoints()
     local noDataText = noDataPanel:CreateFontString("$parentNoDataText", "overlay", "GameFontNormal")
-    noDataText:SetPoint("center", noDataPanel, "center", 0, 0)
+    noDataText:SetPoint("left", noDataPanel, "left", 12, 0)
+    noDataText:SetPoint("right", noDataPanel, "right", -12, 0)
+    noDataText:SetJustifyH("center")
     noDataText:SetText("No data available or data is secret value.")
     detailsFramework:SetFontSize(noDataText, 14)
     spellScroll.NoDataPanel = noDataPanel

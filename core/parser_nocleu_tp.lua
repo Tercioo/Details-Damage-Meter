@@ -482,6 +482,25 @@ function bParser.HideTooltip_Hook(instanceLine, mouse)
     end
 end
 
+--explain why there is nothing to show for a player, used by the bar tooltip and the breakdown panels.
+--on Forever the identity of players outside the group is a secret inside instances, so their data cannot be requested.
+---@param sourcePlayer damagemeter_combat_source?
+---@return string
+function bParser.GetNoDataReason(sourcePlayer)
+    if (not sourcePlayer) then
+        return "Select a player to see their data."
+    end
+
+    if (issecretvalue(sourcePlayer.sourceGUID) or issecretvalue(sourcePlayer.name)) then
+        if (IsInInstance()) then
+            return "Blizzard hides this player's data inside instances.\nOnly party members can be shown. Leave the instance to see everyone."
+        end
+        return "Blizzard hides this player's data right now.\nTry again after combat or after leaving the instance."
+    end
+
+    return "No data available for this player."
+end
+
 function bParser.GetSerial(sourcePlayer, icon)
     local thisSerial = not issecretvalue(sourcePlayer.sourceGUID) and sourcePlayer.sourceGUID or nil
     thisSerial = thisSerial or (not issecretvalue(icon or sourcePlayer.specIconID) and bParser.guidCache[icon or sourcePlayer.specIconID]) or nil
@@ -594,7 +613,7 @@ function bParser.ShowTooltip_Hook(instanceLine)
         end
 
         GameCooltip:Preset(2)
-        GameCooltip:AddLine("The tooltip for this player is a secret and can't be displayed while in combat.", "", 1, "orange", "white", 14)
+        GameCooltip:AddLine((bParser.GetNoDataReason(sourcePlayer):gsub("\n", " ")), "", 1, "orange", "white", 14)
         GameCooltip:AddIcon([[Interface\ENCOUNTERJOURNAL\UI-EJ-WarningTextIcon]], 1, 1, 40, 40, 0, 1, 0, 1)
         GameCooltip:SetOption("FixedWidth", 300)
         GameCooltip:ShowCooltip(instanceLine)
