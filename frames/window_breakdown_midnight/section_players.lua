@@ -94,9 +94,9 @@ local refreshFunc = function(self, data, offset, totalLines)
 
             local isSelected = false
 
-            if (selectedActorGuid and not issecretvalue(thisData.sourceGUID)) then
+            if (selectedActorGuid and not issecretvalue(selectedActorGuid) and not issecretvalue(thisData.sourceGUID)) then
                 isSelected = thisData.sourceGUID == selectedActorGuid
-            elseif (selectedActorName and not issecretvalue(thisData.name)) then
+            elseif (selectedActorName and not issecretvalue(selectedActorName) and not issecretvalue(thisData.name)) then
                 isSelected = thisData.name == selectedActorName
             end
 
