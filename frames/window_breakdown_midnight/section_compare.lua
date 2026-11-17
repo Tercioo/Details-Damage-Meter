@@ -186,7 +186,7 @@ local buildSpellRowsFromCurrentData = function(spellRows)
         local spellId = spellRow and spellRow.spellID
         local amount = spellRow and spellRow.amount
 
-        if (type(spellId) == "number" and type(amount) == "number" and not issecretvalue(spellId)) then
+        if (type(spellId) == "number" and type(amount) == "number" and not issecretvalue(spellId) and not issecretvalue(amount)) then
             local row = spellMap[spellId]
             if (not row) then
                 row = {
@@ -224,7 +224,7 @@ local buildSpellAmountMap = function(sourceSpells)
         local spellId = spellData and spellData.spellID
         local amount = spellData and spellData.totalAmount
 
-        if (type(spellId) == "number" and type(amount) == "number") then
+        if (type(spellId) == "number" and type(amount) == "number" and not issecretvalue(spellId) and not issecretvalue(amount)) then
             spellAmountMap[spellId] = (spellAmountMap[spellId] or 0) + amount
         end
     end
@@ -264,7 +264,7 @@ local buildActorMapByName = function(actorList)
     for i = 1, #actorList do
         local actor = actorList[i]
         local name = actor and actor.name
-        if (type(name) == "string" and name ~= "") then
+        if (type(name) == "string" and not issecretvalue(name) and name ~= "") then
             actorByName[name] = actor
         end
     end
@@ -321,7 +321,8 @@ local buildComparisonSources = function(currentSegmentId, attributeId, actorObje
 
     local selectedActorName = getActorName(actorObject)
     local selectedSpecIcon = getActorSpecIcon(actorObject)
-    if (not selectedSpecIcon) then
+    --spec icon and actor names are secret values for other players (and sometimes for the local player) in restricted content; they cannot be compared, so there is nothing to match against.
+    if (not selectedSpecIcon or issecretvalue(selectedSpecIcon) or (selectedActorName ~= nil and issecretvalue(selectedActorName))) then
         return comparisonSources
     end
 
@@ -330,14 +331,17 @@ local buildComparisonSources = function(currentSegmentId, attributeId, actorObje
     if (type(currentActorList) == "table") then
         for i = 1, #currentActorList do
             local actor = currentActorList[i]
-            if (actor and actor.specIconID == selectedSpecIcon and actor.name ~= selectedActorName) then
+            if (actor and not issecretvalue(actor.specIconID) and not issecretvalue(actor.name) and actor.specIconID == selectedSpecIcon and actor.name ~= selectedActorName) then
                 sameSpecActors[#sameSpecActors + 1] = actor
             end
         end
     end
 
     table.sort(sameSpecActors, function(actorA, actorB)
-        return (actorA.totalAmount or 0) > (actorB.totalAmount or 0)
+        local amountA, amountB = actorA.totalAmount, actorB.totalAmount
+        amountA = (type(amountA) == "number" and not issecretvalue(amountA)) and amountA or 0
+        amountB = (type(amountB) == "number" and not issecretvalue(amountB)) and amountB or 0
+        return amountA > amountB
     end)
 
     local namesAdded = {}
