@@ -313,6 +313,12 @@ function breakdownMidnight.Hide(windowIndex)
     windowFrame:Hide()
 end
 
+function breakdownMidnight.HideAll()
+    for _, windowFrame in pairs(breakdownMidnight.BreakdownWindows) do
+        windowFrame:Hide()
+    end
+end
+
 ---open the apocalypse breakdown panel and set context for segment, attribute and actor
 ---@param windowIndex number
 ---@param segmentType number
@@ -321,6 +327,10 @@ end
 ---@param actorObject actor
 ---@return detailsbreakdownmidnight_window
 function breakdownMidnight.OpenApocalypseBreakdown(windowIndex, instance, segmentType, segmentId, attributeId, actorObject)
+    if Details222.BParser.InSecretLockdown() or Details222.Apocalypse.IsServerInCombat(true) then
+        return
+    end
+
     local index = getWindowIndex(windowIndex)
     assert(type(segmentType) == "number", "segmentType must be a number")
     assert(type(segmentId) == "number", "segmentId must be a number")

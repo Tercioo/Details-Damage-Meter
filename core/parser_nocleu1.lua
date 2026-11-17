@@ -3837,6 +3837,7 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
         debugTexts[#debugTexts+1] = {left = "PLAYER_REGEN_DISABLED", right = "true", time = GetTime(), date = date("%H:%M:%S")}
 
         bRegenIsDisabled = true
+        Details222.BreakdownWindowMidnight.HideAll()
         combatStartTime = GetTime()
         evTime = GetTime()
 

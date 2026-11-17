@@ -1607,14 +1607,14 @@ end
 local icon_frame_on_click_down = function(self)
 	local instanceID = self.instance_id
 	local instanceObject = Details:GetInstance(instanceID)
-	self:GetParent():GetParent().icone_classe:SetPoint("left", self:GetParent():GetParent(), "left", instanceObject.row_info.icon_offset[1] + 1, instanceObject.row_info.icon_offset[2] + -1)
+	self.row.icone_classe:SetPoint("left", self.row, "left", instanceObject.row_info.icon_offset[1] + 1, instanceObject.row_info.icon_offset[2] + -1)
 end
 
 local icon_frame_on_click_up = function(self, button)
 
 	local instanceID = self.instance_id
 	local instanceObject = Details:GetInstance(instanceID)
-	self:GetParent():GetParent().icone_classe:SetPoint("left", self:GetParent():GetParent(), "left", instanceObject.row_info.icon_offset[1], instanceObject.row_info.icon_offset[2])
+	self.row.icone_classe:SetPoint("left", self.row, "left", instanceObject.row_info.icon_offset[1], instanceObject.row_info.icon_offset[2])
 
 	if (button == "LeftButton") then
 		--open the rank panel
@@ -3379,7 +3379,7 @@ function gump:CreateNewLine(instance, index)
 	iconHightlight:Hide()
 	newLine.iconHighlight = iconHightlight
 
-	local iconFrame = CreateFrame("frame", "DetailsBarra_IconFrame_" .. instance.meu_id .. "_" .. index, newLine.statusbar)
+	local iconFrame = CreateFrame("frame", "DetailsBarra_IconFrame_" .. instance.meu_id .. "_" .. index, newLine)
 	iconFrame:SetPoint("topleft", classIcon, "topleft")
 	iconFrame:SetPoint("bottomright", classIcon, "bottomright")
 	iconFrame:SetFrameLevel(newLine.statusbar:GetFrameLevel()+1)
