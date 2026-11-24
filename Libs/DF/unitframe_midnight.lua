@@ -318,7 +318,7 @@ local cleanfunction = function() end
 		
 		--switch
 		--calculator:SetMaximumHealthMode(self.Settings.ShowShields and Enum.UnitMaximumHealthMode.WithAbsorbs or Enum.UnitMaximumHealthMode.Default)
-		calculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs)
+		calculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.ExpandToFitAbsorbs or Enum.UnitMaximumHealthMode.WithAbsorbs)
 
 		self.currentHealthPercentWithAbsorb = calculator:EvaluateCurrentHealthPercent(CurveConstants.ScaleTo100)
 		self.currentHealthMissingPercentWithAbsorb = calculator:GetMissingHealthPercent()
