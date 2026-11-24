@@ -1302,7 +1302,12 @@ function AllInOneWindow:RefreshLineLayout(windowFrame, line)
         local frame = line.FramesForData[i]
         local fontString = frame.Text
         fontString:SetTextColor(unpack(settings.lines.text_color))
-        fontString:SetFont(refreshCache.lineFont, settings.lines.text_size, settings.lines.text_left_outline)
+        --the client no longer accepts "NONE" as a font flag, an empty string means no outline
+        local outline = settings.lines.text_left_outline
+        if (outline == "NONE") then
+            outline = ""
+        end
+        fontString:SetFont(refreshCache.lineFont, settings.lines.text_size, outline)
         fontString:SetShadowColor(unpack(settings.lines.text_left_shadow_color))
         fontString:SetShadowOffset(unpack(settings.lines.text_left_shadow_offset))
 
