@@ -6150,9 +6150,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			collectgarbage()
 		end
 
-		for index, instancia in ipairs(Details.tabela_instancias) do
-			if (instancia.ativa) then --1 = none, we doesn't need to call
-				instancia:AdjustAlphaByContext(true)
+		--when called from the regen enabled event the auto hide rules were already applied there, applying them again
+		--would show the window for a moment before hiding it again
+		if (not OnRegenEnabled) then
+			for index, instancia in ipairs(Details.tabela_instancias) do
+				if (instancia.ativa) then --1 = none, we doesn't need to call
+					instancia:AdjustAlphaByContext(true)
+				end
 			end
 		end
 
@@ -6406,6 +6410,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not detailsFramework:IsAddonApocalypseWow() and Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, false)
 		end
+
+		--apply the auto hide rules as soon as the player leaves combat, waiting for the combat to be closed is not enough:
+		--on midnight the current combat is already closed at this point, the combat end code returns early and the
+		--'while out of combat' rule was never applied, leaving the window on the screen
+		Details:InstanceCall(Details.AdjustAlphaByContext)
 
 		--elapsed combat time
 		Details.LatestCombatDone = GetTime()
