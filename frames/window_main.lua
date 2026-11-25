@@ -4662,6 +4662,9 @@ function Details:SetWindowAlphaForCombat(enteringInCombat, trueHide, alphaAmount
 		if not Details:IsUsingBlizzardAPI() then
 			Details.FadeHandler.Fader(self.rowframe, "ALPHAANIM", parseRowFrameAlpha(rowsamount))
 			Details.FadeHandler.Fader(self.baseframe, "ALPHAANIM", rowsamount)
+		else
+			self.rowframe:SetFrameAlpha(rowsamount)
+			self.baseframe:SetAlpha(rowsamount)
 		end
 	end
 
