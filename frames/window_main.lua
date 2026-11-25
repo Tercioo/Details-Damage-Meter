@@ -7836,12 +7836,16 @@ function Details:AttributeMenu(enabled, pos_x, pos_y, font, size, color, side, s
 	--font face
 	local fontPath = SharedMedia:Fetch("font", font)
 	Details:SetFontFace(titleBarFontString, fontPath)
-	if fontPath:find("FRIZQT__.TTF") then
-		C_Timer.After(1, function()
-			fontPath = SharedMedia:Fetch("font", font)
-			Details:SetFontFace(titleBarFontString, fontPath)
-		end)
-	end
+	--the game can refuse a font file it has not loaded yet, and keeps the old font without an error, so picking a
+	--font only worked some of the time. the font is applied again a moment later, by then the file is loaded.
+	--this also covers a font from another addon not registered yet, the font library hands back friz quadrata then.
+	--the font stored at that moment is used, so a quick second pick is not undone by the first one
+	C_Timer.After(1, function()
+		local currentFontString = self:GetTitleBarFontString()
+		if (currentFontString) then
+			Details:SetFontFace(currentFontString, SharedMedia:Fetch("font", self.attribute_text.text_face))
+		end
+	end)
 
 	--font size
 	Details:SetFontSize(titleBarFontString, size)
