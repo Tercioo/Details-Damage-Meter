@@ -3348,10 +3348,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = 2 --total hps
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 				--percentNumber = math.floor((healingTotal/instanceObject.top) * 100)
 			end
 
@@ -3364,16 +3364,16 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond), nil, format("%.0f%%", percentValue), ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, format("%.0f%%", percentValue), ruleToUse)
 			else
 				local ruleToUse = -1 --only show total
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, nil, ruleToUse)
 				--percentNumber = math.floor((hps/instanceObject.top) * 100)
 			end
 
 		elseif (attributeId == DETAILS_SUBATTRIBUTE_HEALPOTION) then
 			local ruleToUse = 3 --total hps percent
-			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), source.percent, ruleToUse)
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), abbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), source.percent, ruleToUse)
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_ENERGY then
@@ -3388,12 +3388,12 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 				elseif (instance.row_info.percent_type == 2) then --relative to the top player
 					percentValue = source.totalAmount / topValue * 100
 				end
-				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount), format("%.0f%%", percentValue), nil, ruleToUse)
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), format("%.0f%%", percentValue), nil, ruleToUse)
 				--percentNumber = math.floor((dispellTotal/instanceObject.top) * 100)
 			else
 				local ruleToUse = -1 --total
 				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
-				abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsBuffs), nil, nil, ruleToUse)
+				abbreviateNumbers(source.totalAmount, Details.abbreviateOptionsDamage), nil, nil, ruleToUse)
 				--percentNumber = math.floor((uptimeTotal/instanceObject.top) * 100)
 			end
 

@@ -955,7 +955,7 @@
 					abbreviationIsGlobal = true,
 				},
 				{
-					breakpoint = 1,
+					breakpoint = 0.000001,
 					abbreviation = "",
 					significandDivisor = 1,
 					fractionDivisor = 1,
