@@ -994,12 +994,12 @@ local barra_backdrop_onleave = {
 
 --@self: instance line (row)
 local lineScript_Onenter = function(self)
+	self.mouse_over = true
+	OnEnterMainWindow(self._instance, self)
+
 	if self._instance.line_no_tooltip then
 		return
 	end
-
-	self.mouse_over = true
-	OnEnterMainWindow(self._instance, self)
 
 	self._instance:MontaTooltip(self, self.row_id)
 
@@ -1048,12 +1048,12 @@ local lineScript_Onenter = function(self)
 end
 
 local lineScript_Onleave = function(self)
+	self.mouse_over = false
+	OnLeaveMainWindow(self._instance, self)
+
 	if self._instance.line_no_tooltip then
 		return
 	end
-
-	self.mouse_over = false
-	OnLeaveMainWindow(self._instance, self)
 
 	--_GameTooltip:Hide()
 	GameCooltip:ShowMe(false)
@@ -1228,6 +1228,12 @@ local lineScript_Onshow = function(self)
 	end
 end
 
+local lineScript_Onhide = function(self)
+	if (self.mouse_over) then
+		lineScript_Onleave(self)
+	end
+end
+
 local setBarValue = function(self, value)
 	value = Clamp(value, 0, 100)
 	self.statusbar:SetValue(value)
@@ -1244,6 +1250,9 @@ end
 local iconFrame_OnEnter = function(self)
 	---@type detailsline
 	local instanceLine = self.row
+	if (instanceLine and instanceLine._instance) then
+		OnEnterMainWindow(instanceLine._instance, instanceLine)
+	end
 	local actor = instanceLine.minha_tabela
 
 	if not actor then
@@ -1505,6 +1514,10 @@ local iconFrame_OnEnter = function(self)
 end
 
 local iconFrame_OnLeave = function(self)
+	if (self.row and self.row._instance) then
+		OnLeaveMainWindow(self.row._instance, self.row)
+	end
+
 	GameCooltip:Hide()
 
 	if (GameTooltip and GameTooltip:IsShown()) then
@@ -1739,6 +1752,7 @@ local setLineScripts = function(line, instance, index)
 	line:SetScript("OnMouseUp", lineScript_Onmouseup)
 	line:SetScript("OnClick", lineScript_Onclick)
 	line:SetScript("OnShow", lineScript_Onshow)
+	line:SetScript("OnHide", lineScript_Onhide)
 
 	if Details222.BParser.ShowTooltip_Hook then
 		line:HookScript("OnEnter", Details222.BParser.ShowTooltip_Hook)
@@ -4645,6 +4659,8 @@ function Details:SetWindowAlphaForCombat(enteringInCombat, trueHide, alphaAmount
 
 	--apply
 	if (trueHide and amount == 0) then
+		self:InstanceAlpha(0)
+		self:SetIconAlpha(0, nil, true)
 		self.baseframe:Hide()
 		self.rowframe:Hide()
 		self.windowSwitchButton:Hide()
@@ -4658,10 +4674,14 @@ function Details:SetWindowAlphaForCombat(enteringInCombat, trueHide, alphaAmount
 		self.rowframe:SetAlpha(maxAlpha)
 
 		self:InstanceAlpha(min(amount, self.color[4]))
+		self:SetIconAlpha(menuamount, nil, true)
 		--this function is passing the same value as the current alpha in the row, so the fader does not pass the alpha > currentValue and hide the bar
 		if not Details:IsUsingBlizzardAPI() then
 			Details.FadeHandler.Fader(self.rowframe, "ALPHAANIM", parseRowFrameAlpha(rowsamount))
-			Details.FadeHandler.Fader(self.baseframe, "ALPHAANIM", rowsamount)
+			Details.FadeHandler.Fader(self.baseframe, "ALPHAANIM", amount)
+		else
+			self.rowframe:SetFrameAlpha(rowsamount)
+			self.baseframe:SetAlpha(amount)
 		end
 	end
 
@@ -4732,6 +4752,9 @@ function Details:InstanceAlpha(alpha)
 	self.baseframe.barra_direita:SetAlpha(alpha)
 	self.baseframe.barra_fundo:SetAlpha(alpha)
 	self.baseframe.UPFrame:SetAlpha(alpha)
+	if (self.baseframe.titleBar) then
+		self.baseframe.titleBar:SetAlpha(alpha)
+	end
 end
 
 function Details:InstanceColor(red, green, blue, alpha, noSave, changeStatusbar)
@@ -4788,6 +4811,9 @@ function Details:InstanceColor(red, green, blue, alpha, noSave, changeStatusbar)
 		self.baseframe.barra_fundo:SetAlpha(alpha)
 
 	self.baseframe.UPFrame:SetAlpha(alpha)
+	if (self.baseframe.titleBar) then
+		self.baseframe.titleBar:SetAlpha(alpha)
+	end
 end
 
 function Details:StatusBarAlertTime(instance)
@@ -4988,15 +5014,18 @@ function Details:SetIconAlpha(alpha, hide, noAnimations)
 		if (not titleBarFontString) then
 			--created on demand
 			self:AttributeMenu()
+			titleBarFontString = self:GetTitleBarFontString()
 		end
 
-		if (hide) then
-			Details.FadeHandler.Fader(titleBarFontString.widget, unpack(Details.windows_fade_in))
-		else
-			if (noAnimations) then
-				titleBarFontString:SetAlpha(alpha)
+		if (titleBarFontString) then
+			if (hide) then
+				Details.FadeHandler.Fader(titleBarFontString.widget, unpack(Details.windows_fade_in))
 			else
-				Details.FadeHandler.Fader(titleBarFontString.widget, "ALPHAANIM", alpha)
+				if (noAnimations) then
+					titleBarFontString:SetAlpha(alpha)
+				else
+					Details.FadeHandler.Fader(titleBarFontString.widget, "ALPHAANIM", alpha)
+				end
 			end
 		end
 	end
@@ -5041,6 +5070,14 @@ function Details:SetIconAlpha(alpha, hide, noAnimations)
 						Details.FadeHandler.Fader(button, "ALPHAANIM", alpha)
 					end
 				end
+			end
+		end
+
+		if (self.baseframe.cabecalho.PluginIconsSeparator) then
+			if (hide or alpha == 0) then
+				self.baseframe.cabecalho.PluginIconsSeparator:Hide()
+			elseif (#Details.ToolBar.Shown > 0 and (not self.auto_hide_menu.left or self.is_interacting)) then
+				self.baseframe.cabecalho.PluginIconsSeparator:Show()
 			end
 		end
 	end
@@ -5332,6 +5369,9 @@ function Details:ToolbarMenuSetButtons(_mode, _segment, _attributes, _report, _r
 	end
 
 	self.total_buttons_shown = total_buttons_shown
+	if (self.menu_alpha.enabled or (self.combat_changes_alpha and self.combat_changes_alpha ~= 1)) then
+		self:SetIconAlpha(self.combat_changes_alpha or self:GetInstanceIconsCurrentAlpha(), nil, true)
+	end
 	self:RefreshAttributeTextSize()
 
 	return true
@@ -7848,8 +7888,14 @@ function Details:AttributeMenu(enabled, pos_x, pos_y, font, size, color, side, s
 
 	--color
 	Details:SetFontColor(titleBarFontString, color)
+	if (self.menu_alpha.enabled or (self.combat_changes_alpha and self.combat_changes_alpha ~= 1)) then
+		titleBarFontString:SetAlpha(self.combat_changes_alpha or self:GetInstanceIconsCurrentAlpha())
+	end
 	C_Timer.After(1, function()
 		Details:SetFontColor(titleBarFontString, color)
+		if (self.menu_alpha.enabled or (self.combat_changes_alpha and self.combat_changes_alpha ~= 1)) then
+			titleBarFontString:SetAlpha(self.combat_changes_alpha or self:GetInstanceIconsCurrentAlpha())
+		end
 	end)
 
 	--shadow

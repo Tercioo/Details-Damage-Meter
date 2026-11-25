@@ -273,6 +273,7 @@ end
 		else
 			instance:ToolbarMenuButtons()
 			instance:SetAutoHideMenu(nil, nil, true)
+			instance:SetMenuAlpha(nil, nil, nil, nil, true)
 		end
 		
 		return true
