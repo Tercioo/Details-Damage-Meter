@@ -3017,9 +3017,13 @@ local setTitleText = function(instance, timeString) --0 = overall 1 = current
         attributeText = _G["DAMAGE_METER_OVERALL_SESSION"] .. " " .. attributeText
     end
 
+    --an empty time is passed when the segment type changes, joining it would leave a space in front of the title.
+    --the time can be a secret value, which cannot be compared, so it is checked first
+    local bHasTime = issecretvalue(timeString) or (timeString ~= nil and timeString ~= "")
+
     local lowerInstanceId = Details:GetLowerInstanceNumber()
     if lowerInstanceId and instance:GetId() == lowerInstanceId then
-        if instance.attribute_text.show_timer then
+        if instance.attribute_text.show_timer and bHasTime then
             timeString = format("%s %s", timeString, attributeText)
             instance:SetTitleBarText(timeString)
         else
