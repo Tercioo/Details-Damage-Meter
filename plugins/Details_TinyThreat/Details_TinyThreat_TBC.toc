@@ -7,5 +7,6 @@
 
 enUS.lua
 ptBR.lua
+ruRU.lua
 
 Details_TinyThreat.lua

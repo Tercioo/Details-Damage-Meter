@@ -6,4 +6,8 @@
 ## OptionalDeps: Ace3
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
+enUS.lua
+ptBR.lua
+ruRU.lua
+
 Details_Vanguard.lua
