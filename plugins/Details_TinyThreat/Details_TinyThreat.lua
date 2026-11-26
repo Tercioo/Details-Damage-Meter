@@ -231,10 +231,16 @@ local function CreatePluginFrames (data)
 
 			row.width = instance.baseframe:GetWidth()-5
 			row.height = instance.row_info.height
-			local rowHeight = - ( (row.rowId -1) * (instance.row_info.height + 1) )
+			--> honor the Details! window's "grow direction" (1 = top->bottom, 2 = bottom->top)
+			local offset = (row.rowId - 1) * (instance.row_info.height + 1)
 			row:ClearAllPoints()
-			row:SetPoint ("topleft", ThreatMeterFrame, "topleft", 1, rowHeight)
-			row:SetPoint ("topright", ThreatMeterFrame, "topright", -1, rowHeight)
+			if (instance.bars_grow_direction == 2) then --> bottom to top
+				row:SetPoint ("bottomleft", ThreatMeterFrame, "bottomleft", 1, offset)
+				row:SetPoint ("bottomright", ThreatMeterFrame, "bottomright", -1, offset)
+			else --> top to bottom (default)
+				row:SetPoint ("topleft", ThreatMeterFrame, "topleft", 1, -offset)
+				row:SetPoint ("topright", ThreatMeterFrame, "topright", -1, -offset)
+			end
 
 		end
 	end
