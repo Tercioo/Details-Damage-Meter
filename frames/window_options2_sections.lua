@@ -337,6 +337,7 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_PS_ABBREVIATE"],
                 desc = Loc ["STRING_OPTIONS_PS_ABBREVIATE_DESC"],
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
             {--number system
                 type = "select",
@@ -369,6 +370,7 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_TIMEMEASURE"],
                 desc = Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"],
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {--use real time
@@ -380,6 +382,7 @@ do
                 name = "Show 'Real Time' DPS",
                 desc = "If Enabled and while in combat, show the damage done of the latest 5 seconds divided by 5.",
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {--real time dps order bars
@@ -391,6 +394,7 @@ do
                 name = "Order Bars By Real Time DPS",
                 desc = "If Enabled, players dealing more real time DPS are place above other players in the window.",
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {--always use real time in arenas
@@ -402,6 +406,7 @@ do
                 name = "Always Use Real Time in Arenas",
                 desc = "If Enabled, real time DPS is always used in arenas, even if the option above is disabled.",
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {type = "blank"},
@@ -621,9 +626,9 @@ do
                 desc = Loc ["STRING_OPTIONS_WC_BOOKMARK_DESC"],
             },
 
-            {type = "blank"},
+            {type = "blank", hidden = detailsFramework:IsAddonApocalypseWow()},
 
-            {type = "label", get = function() return "Immersion" end, text_template = subSectionTitleTextTemplate}, --localize-me
+            {type = "label", get = function() return "Immersion" end, text_template = subSectionTitleTextTemplate, hidden = detailsFramework:IsAddonApocalypseWow()}, --localize-me
             {--show pets when solo
                 type = "toggle",
                 get = function() return Details.immersion_pets_on_solo_play end,
@@ -634,6 +639,7 @@ do
                 name = "Show pets when solo", --localize-me
                 desc = "Show pets when solo",
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {--always show players even on stardard mode
@@ -646,6 +652,7 @@ do
                 name = Loc ["STRING_OPTIONS_ALWAYSSHOWPLAYERS"],
                 desc = Loc ["STRING_OPTIONS_ALWAYSSHOWPLAYERS_DESC"],
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
 
@@ -664,6 +671,7 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_NICKNAME"],
                 desc = Loc ["STRING_OPTIONS_NICKNAME"],
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
             {--remove nickname
                 type = "execute",
@@ -675,6 +683,7 @@ do
                 --icontexcoords = {160/512, 179/512, 142/512, 162/512},
                 name = "Reset Nickname",
                 desc = "Reset Nickname",
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
             {--ignore nicknames
                 type = "toggle",
@@ -686,6 +695,7 @@ do
                 name = Loc ["STRING_OPTIONS_IGNORENICKNAME"],
                 desc = Loc ["STRING_OPTIONS_IGNORENICKNAME_DESC"],
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {--remove realm name
