@@ -4349,6 +4349,7 @@ do
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
         DF:BuildMenu(autoSwitchFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        sectionFrame.RefreshOptions = function() autoSwitchFrame:RefreshOptions() end
 
 
 	--combat alpha modifier
