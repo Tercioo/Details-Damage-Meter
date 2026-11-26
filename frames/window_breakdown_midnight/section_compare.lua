@@ -264,7 +264,7 @@ local buildActorMapByName = function(actorList)
     for i = 1, #actorList do
         local actor = actorList[i]
         local name = actor and actor.name
-        if (type(name) == "string" and name ~= "") then
+        if (type(name) == "string" and not issecretvalue(name) and name ~= "") then
             actorByName[name] = actor
         end
     end
@@ -321,7 +321,8 @@ local buildComparisonSources = function(currentSegmentId, attributeId, actorObje
 
     local selectedActorName = getActorName(actorObject)
     local selectedSpecIcon = getActorSpecIcon(actorObject)
-    if (not selectedSpecIcon) then
+    --spec icon or name can be secret values, those cannot be compared
+    if (not selectedSpecIcon or issecretvalue(selectedSpecIcon) or not selectedActorName or issecretvalue(selectedActorName)) then
         return comparisonSources
     end
 
@@ -330,14 +331,24 @@ local buildComparisonSources = function(currentSegmentId, attributeId, actorObje
     if (type(currentActorList) == "table") then
         for i = 1, #currentActorList do
             local actor = currentActorList[i]
-            if (actor and actor.specIconID == selectedSpecIcon and actor.name ~= selectedActorName) then
-                sameSpecActors[#sameSpecActors + 1] = actor
+            if (actor) then
+                local actorSpecIcon = actor.specIconID
+                local actorName = actor.name
+                if (actorSpecIcon and not issecretvalue(actorSpecIcon) and actorName and not issecretvalue(actorName)) then
+                    if (actorSpecIcon == selectedSpecIcon and actorName ~= selectedActorName) then
+                        sameSpecActors[#sameSpecActors + 1] = actor
+                    end
+                end
             end
         end
     end
 
     table.sort(sameSpecActors, function(actorA, actorB)
-        return (actorA.totalAmount or 0) > (actorB.totalAmount or 0)
+        local amountA = actorA.totalAmount
+        local amountB = actorB.totalAmount
+        if (not amountA or issecretvalue(amountA)) then amountA = 0 end
+        if (not amountB or issecretvalue(amountB)) then amountB = 0 end
+        return amountA > amountB
     end)
 
     local namesAdded = {}

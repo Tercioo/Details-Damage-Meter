@@ -511,6 +511,8 @@
 		pluginContainerFrame:SetPoint("center", UIParent, "center", 0, 0)
 		pluginContainerFrame:SetClampedToScreen(true)
 		table.insert(UISpecialFrames, "DetailsPluginContainerWindow")
+		pluginContainerFrame:SetFrameStrata("HIGH")
+		pluginContainerFrame:SetToplevel(true)
 
 		pluginContainerFrame:Hide()
 
@@ -707,6 +709,7 @@
 
 			--show the container
 			pluginContainerFrame:Show()
+			pluginContainerFrame:Raise()
 
 			--check if the plugin has a callback for when showing the frame
 			if (pluginObject.__OnClickFromOptionsCallback) then

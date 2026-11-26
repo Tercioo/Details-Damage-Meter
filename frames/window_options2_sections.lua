@@ -427,6 +427,7 @@ do
                 name = Loc ["STRING_OPTIONS_BG_UNIQUE_SEGMENT"],
                 desc = Loc ["STRING_OPTIONS_BG_UNIQUE_SEGMENT_DESC"],
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
             {--battleground show enemies
                 type = "toggle",
@@ -437,6 +438,7 @@ do
                 name = Loc ["STRING_OPTIONS_BG_ALL_ALLY"],
                 desc = Loc ["STRING_OPTIONS_BG_ALL_ALLY_DESC"],
                 boxfirst = true,
+                hidden = detailsFramework:IsAddonApocalypseWow(),
             },
 
             {--max segments

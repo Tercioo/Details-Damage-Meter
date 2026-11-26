@@ -558,6 +558,7 @@ function Details.switch:ShowMe(instancia)
 			DetailsCtrlCloseWindowPanelTutorial.info_label:SetWidth(Details.switch.frame:GetWidth()-30)
 			DetailsCtrlCloseWindowPanelTutorial.close_label:SetWidth(Details.switch.frame:GetWidth()-30)
 
+			Details.switch.frame:ClearAllPoints()
 			Details.switch.frame:SetPoint("topleft", instancia.baseframe, "topleft", 0, 1)
 			Details.switch.frame:SetPoint("bottomright", instancia.baseframe, "bottomright", 0, 1)
 			Details.switch.frame:Show()
@@ -787,6 +788,7 @@ function Details.switch:ShowMe(instancia)
 			Details.switch.segments_blocks [i]:HideMe()
 		end
 
+		Details.switch.frame:ClearAllPoints()
 		Details.switch.frame:SetPoint("topleft", instancia.baseframe, "topleft", 0, 1)
 		Details.switch.frame:SetPoint("bottomright", instancia.baseframe, "bottomright", 0, 1)
 		Details.switch.frame:Show()
@@ -818,6 +820,7 @@ function Details.switch:ShowMe(instancia)
 		end
 	end
 
+	Details.switch.frame:ClearAllPoints()
 	Details.switch.frame:SetPoint("topleft", instancia.baseframe, "topleft", 0, 1)
 	Details.switch.frame:SetPoint("bottomright", instancia.baseframe, "bottomright", 0, 1)
 
